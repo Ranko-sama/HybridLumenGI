@@ -1,0 +1,313 @@
+using System;
+using System.Linq;
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Profiling;
+using UnityEngine.Rendering;
+using Timing=HybridLumenGI.HybridLumenGIGpuTiming;
+
+static class Program
+{
+    static int assertions,scenarios;
+    static readonly Timing.Scope[] Scopes={Timing.Scope.ReceiverCapture,Timing.Scope.Transport,Timing.Scope.Composite};
+    static readonly Timing.Scope[] IdentityScopes={Timing.Scope.IdentityClear,Timing.Scope.IdentityMask,Timing.Scope.IdentityCapture,Timing.Scope.IdentityResolve};
+    static readonly Timing.Scope[] PassOrder={Timing.Scope.ReceiverCapture,Timing.Scope.IdentityClear,Timing.Scope.IdentityMask,Timing.Scope.IdentityCapture,Timing.Scope.IdentityResolve,Timing.Scope.Transport,Timing.Scope.Composite};
+    static void Check(bool value,string message){assertions++;if(!value)throw new Exception(message);}
+    static void Scenario(string name,Action body){CustomSampler.Reset();body();scenarios++;Console.WriteLine("PASS "+name);}
+    static Recorder[] Recorders()=>CustomSampler.Created.Select(s=>s.Recorder).ToArray();
+    static Recorder For(Timing timing,Timing.Scope scope)=>CustomSampler.Created.Single(s=>s.name=="HLGI.GpuFeedback.Channel"+timing.MarkerChannel+"."+scope).Recorder;
+    static void Results(long[] ns=null,int count=1)
+    { var all=Recorders();for(int i=0;i<all.Length;i++)all[i].Set(ns==null?1000000:ns[i%ns.Length],count); }
+    static void Scope(Timing timing,Timing.Scope scope,Timing.FrameToken token,CommandBuffer command,bool raster=false)
+    {
+        CustomSampler begin=timing.RecordBegin(scope,token);Check(begin!=null,"eligible scope begins");
+        if(raster)new RasterCommandBuffer(command).BeginSample(begin);else command.BeginSample(begin);
+        CustomSampler end=timing.RecordEnd(scope,token);Check(ReferenceEquals(begin,end),"paired sampler identity");
+        if(raster)new RasterCommandBuffer(command).EndSample(end);else command.EndSample(end);
+    }
+    static void Submit(Timing timing,CommandBuffer command=null)
+    {
+        command??=new CommandBuffer();var token=timing.CurrentFrameToken;
+        foreach(var scope in PassOrder) if((token.ActiveScopeMask&(1<<(int)scope))!=0)
+            Scope(timing,scope,token,command,scope==Timing.Scope.ReceiverCapture || scope==Timing.Scope.Composite);
+    }
+    static int Warm(Timing timing,int first=0,int generation=11,bool identity=false)
+    {
+        for(int i=0;i<Timing.RequiredStableFrames;i++)
+        {
+            bool accepted=timing.BeginFrame(first+i,generation,true,out double ms,identity);
+            Check(!accepted&&ms==0,"no result before eight completed submissions");Submit(timing);
+            Check(timing.StableCompletedFrames==i+1,"only completed consecutive submissions count");
+        }
+        return first+Timing.RequiredStableFrames;
+    }
+    static void Main()
+    {
+        Scenario("eight completed frames, three scopes, once-per-frame consumption",()=>
+        {
+            using var timing=new Timing(7);int next=Warm(timing);Check(CustomSampler.Created.Count==3,"fixed three markers");
+            Check(timing.CurrentFrameToken.ActiveScopeMask==7,"legacy call selects baseline mask");
+            Check(timing.RecordBegin(Timing.Scope.IdentityClear,timing.CurrentFrameToken)==null,"inactive scope emits no marker or invalidation");
+            Check(CustomSampler.Created.All(s=>s.CollectGpu),"GPU capture requested");Check(Recorders().All(r=>r.ElapsedReads==0),"warmup does not read old elapsed values");
+            Results(new long[]{1000000,2500000,500000});Check(timing.BeginFrame(next,11,true,out double ms),"ninth preparation accepts delayed result");
+            Check(ms==4&&timing.LastMilliseconds==4,"sum all three mandatory scopes");Check(timing.LastExpectedSourceFrame==next-3,"documented three-frame association, not query identity");
+            Check(timing.Status==Timing.TimingStatus.Ready,"ready status");
+            var token=timing.CurrentFrameToken;var command=new CommandBuffer();Submit(timing,command);
+            Check(command.Calls.Count==6,"three pairs recorded through native/raster stubs");
+            Check(command.Calls.Select(c=>c.sampler).Distinct().Count()==3,"each stage uses its own marker");
+            int reads=Recorders().Sum(r=>r.ElapsedReads);
+            Check(!timing.BeginFrame(next,11,true,out ms)&&ms==0,"duplicate camera render rejected");
+            Check(Recorders().Sum(r=>r.ElapsedReads)==reads,"same engine frame cannot consume twice");
+            Check(timing.Status==Timing.TimingStatus.RepeatedFrame&&timing.StableCompletedFrames==0,"duplicate loses warm history");
+            Check(!timing.CurrentFrameToken.IsValid&&timing.RecordBegin(Scopes[0],token)==null,"duplicate frame cannot submit history");
+            next=Warm(timing,next+1);Results();Check(timing.BeginFrame(next,11,true,out ms),"full warmup restores feedback");
+        });
+        Scenario("disabled, unsupported, capability recovery and recorder shutdown",()=>
+        {
+            using var timing=new Timing(3);Check(!timing.BeginFrame(0,1,false,out _),"disabled result false");
+            Check(timing.Status==Timing.TimingStatus.Disabled&&CustomSampler.Created.Count==0,"disabled no markers");
+            SystemInfo.supportsGpuRecorder=false;Check(!timing.BeginFrame(1,1,true,out _),"unsupported false");
+            Check(timing.Status==Timing.TimingStatus.Unsupported&&CustomSampler.Created.Count==0,"capability gate no marker creation");
+            SystemInfo.supportsGpuRecorder=true;timing.BeginFrame(2,1,true,out _);Submit(timing);Check(Recorders().All(r=>r.enabled),"recorders started after capability recovers");
+            timing.BeginFrame(3,1,false,out _);Check(Recorders().All(r=>!r.enabled),"disabled explicitly stops recorders");
+            int next=Warm(timing,4,1);Results();Check(timing.BeginFrame(next,1,true,out _),"re-enabled path warms anew");
+            SystemInfo.supportsGpuRecorder=false;timing.BeginFrame(next+1,1,true,out _);Check(timing.Status==Timing.TimingStatus.Unsupported&&Recorders().All(r=>!r.enabled),"lost capability stops feedback");
+        });
+        Scenario("invalid sampler and CPU-handle validity never imply GPU data",()=>
+        {
+            foreach(int failure in new[]{0,1,2,3})
+            {
+                CustomSampler.Reset();CustomSampler.ReturnNull=failure==0;CustomSampler.InvalidSampler=failure==1;CustomSampler.InvalidRecorder=failure==2;CustomSampler.ThrowCreate=failure==3;
+                using var timing=new Timing(failure);Check(!timing.BeginFrame(0,0,true,out _),"creation failure false");
+                Check(timing.Status==Timing.TimingStatus.Unavailable&&!timing.CurrentFrameToken.IsValid,"creation failure static fallback");
+                Check(Recorders().All(r=>!r.enabled),"partial initialization disabled");
+            }
+            CustomSampler.Reset();using var validCpu=new Timing(9);int next=Warm(validCpu);Results(count:0);
+            Check(!validCpu.BeginFrame(next,11,true,out _),"CPU recorder valid but no GPU sample rejected");
+            Check(validCpu.Status==Timing.TimingStatus.MissingGpuSample&&validCpu.StableCompletedFrames==0,"missing GPU triggers re-warm");
+        });
+        Scenario("generation, frame gap and backwards clock reject historical data",()=>
+        {
+            using var timing=new Timing(1);int next=Warm(timing);Results();
+            Check(!timing.BeginFrame(next,12,true,out _),"changed resolution/config/backend generation rejects old sample");Submit(timing);
+            Check(timing.StableCompletedFrames==1,"new generation starts at one");
+            for(int i=1;i<8;i++){Check(!timing.BeginFrame(next+i,12,true,out _),"new generation warmup");Submit(timing);}
+            Check(timing.BeginFrame(next+8,12,true,out _),"new generation eventually accepted");Submit(timing);
+            Check(!timing.BeginFrame(next+10,12,true,out _),"skipped engine frame rejects");Check(timing.Status==Timing.TimingStatus.Discontinuous,"gap status");Submit(timing);
+            Check(!timing.BeginFrame(2,12,true,out _),"backwards clock rejects");Check(timing.StableCompletedFrames==0,"backwards clears history");
+        });
+        Scenario("incomplete scope, stale callback and invalidated open-marker closure",()=>
+        {
+            using var timing=new Timing(2);timing.BeginFrame(0,1,true,out _);var old=timing.CurrentFrameToken;
+            Scope(timing,Scopes[0],old,new CommandBuffer());var open=timing.RecordBegin(Scopes[1],old);Check(open!=null,"transport marker opened");
+            Check(timing.StableCompletedFrames==0,"partial frame is never stable");
+            timing.BeginFrame(1,1,true,out _);Check(timing.Status==Timing.TimingStatus.IncompleteSubmission,"incomplete previous submission rejected");
+            Check(ReferenceEquals(open,timing.RecordEnd(Scopes[1],old)),"late End closes original marker");
+            Check(timing.RecordBegin(Scopes[2],old)==null&&timing.RecordEnd(Scopes[1],old)==null,"stale and duplicate callbacks rejected");Submit(timing);
+            timing.BeginFrame(2,1,true,out _);var current=timing.CurrentFrameToken;open=timing.RecordBegin(Scopes[0],current);
+            timing.Invalidate();Check(timing.Status==Timing.TimingStatus.Invalidated&&timing.StableCompletedFrames==0,"backend fallback invalidates history");
+            Check(ReferenceEquals(open,timing.RecordEnd(Scopes[0],current)),"invalidate still permits paired End");
+            Check(timing.RecordBegin(Scopes[1],current)==null,"invalidated callbacks cannot restore history");
+            int next=Warm(timing,3,1);Results();Check(timing.BeginFrame(next,1,true,out _),"warmup after fallback");
+        });
+        Scenario("all GPU scopes required; bad count, nonpositive time and read exceptions",()=>
+        {
+            for(int failure=0;failure<8;failure++)
+            {
+                CustomSampler.Reset();using var timing=new Timing(failure);int next=Warm(timing);Results();var recorders=Recorders();
+                switch(failure)
+                {
+                    case 0:recorders[2].Count=0;break;
+                    case 1:recorders[1].Count=2;break;
+                    case 2:recorders[0].Nanoseconds=0;break;
+                    case 3:recorders[2].Nanoseconds=-1;break;
+                    case 4:recorders[0].CountAfter=2;break;
+                    case 5:recorders[1].ThrowElapsed=true;break;
+                    case 6:recorders[2].ThrowCount=true;break;
+                    case 7:recorders[0].isValid=false;break;
+                }
+                Check(!timing.BeginFrame(next,11,true,out double ms)&&ms==0,"partial/ambiguous GPU data is not a sum");
+                Check(timing.LastMilliseconds==0&&timing.LastExpectedSourceFrame==-1,"invalid data has no valid diagnostics");
+                Check(timing.StableCompletedFrames==0,"invalid GPU result must re-warm");
+                if(failure==1||failure==4)Check(timing.Status==Timing.TimingStatus.AmbiguousGpuSample,"ambiguous status");
+                if(failure>=5)Check(timing.Status==Timing.TimingStatus.Unavailable,"unavailable status");
+            }
+        });
+        Scenario("per-camera/instance names, foreign tokens and bounded marker count",()=>
+        {
+            using var a=new Timing(42);using var b=new Timing(42);a.BeginFrame(0,1,true,out _,true);b.BeginFrame(0,1,true,out _);
+            Check(CustomSampler.Created.Select(s=>s.name).Distinct().Count()==10,"same camera ID with different masks does not alias native markers");
+            Check(a.RecordBegin(Scopes[0],b.CurrentFrameToken)==null,"foreign token rejected");Submit(a);Submit(b);
+            for(int frame=1;frame<48;frame++)
+            {
+                Results();bool aa=a.BeginFrame(frame,1,true,out double ams,true),bb=b.BeginFrame(frame,1,true,out double bms);
+                if(frame>=8)Check(aa&&bb&&ams==7&&bms==3,"camera totals use only their active scope masks");
+                Submit(a);Submit(b);
+            }
+            Check(CustomSampler.Created.Count==10,"no marker creation per frame");
+            Check(a.StableCompletedFrames==8&&b.StableCompletedFrames==8,"warm count bounded through history ring wrap");
+            Check(a.RecordBegin((Timing.Scope)99,a.CurrentFrameToken)==null&&a.RecordEnd((Timing.Scope)(-1),a.CurrentFrameToken)==null,"invalid scope safe");
+        });
+        Scenario("repeated scope invalidates entire frame and Dispose preserves marker pairing",()=>
+        {
+            var timing=new Timing(5);timing.BeginFrame(0,1,true,out _);var ticket=timing.CurrentFrameToken;
+            CustomSampler begin=timing.RecordBegin(Scopes[0],ticket);Check(begin!=null,"first begin");
+            Check(timing.RecordBegin(Scopes[0],ticket)==null&&timing.Status==Timing.TimingStatus.RepeatedFrame,"duplicate stage rejected");
+            Check(ReferenceEquals(begin,timing.RecordEnd(Scopes[0],ticket)),"duplicate preserves first pair closure");
+            Check(timing.StableCompletedFrames==0,"duplicate never stable");timing.BeginFrame(1,1,true,out _);ticket=timing.CurrentFrameToken;
+            begin=timing.RecordBegin(Scopes[0],ticket);timing.Dispose();Check(Recorders().All(r=>!r.enabled),"Dispose disables every recorder");
+            Check(ReferenceEquals(begin,timing.RecordEnd(Scopes[0],ticket)),"Dispose after Begin still closes marker");
+            Check(timing.RecordBegin(Scopes[1],ticket)==null,"disposed Begin ignored");Check(!timing.BeginFrame(2,1,true,out _)&&timing.Status==Timing.TimingStatus.Disposed,"disposed stays unavailable");
+            timing.Dispose();Check(Recorders().All(r=>!r.enabled),"Dispose idempotent");
+        });
+        Scenario("seven local pairs include only sampled identity work",()=>
+        {
+            using var timing=new Timing(50);int next=Warm(timing,identity:true);
+            Check(CustomSampler.Created.Count==7&&timing.CurrentFrameToken.ActiveScopeMask==127,"full mode lazily creates exactly seven markers");
+            Results(new long[]{1000000,2500000,500000,300000,0,0,200000});
+            Check(timing.BeginFrame(next,11,true,out double ms,true)&&ms==4.5,"empty mask/capture samples preserve positive identity total");
+            var command=new CommandBuffer();Submit(timing,command);
+            Check(command.Calls.Count==14,"seven pass-local pairs emitted");
+            for(int i=0;i<command.Calls.Count;i+=2)
+                Check(command.Calls[i].operation=="begin"&&command.Calls[i+1].operation=="end"&&ReferenceEquals(command.Calls[i].sampler,command.Calls[i+1].sampler),"no cross-pass begin/end pair");
+            Check(Recorders().All(r=>r.CountReads==2&&r.ElapsedReads==1),"every active GPU sample count checked before and after elapsed read");
+            foreach(var positive in IdentityScopes)
+            {
+                Results();foreach(var scope in IdentityScopes)For(timing,scope).Set(scope==positive?1000000:0);
+                Check(timing.BeginFrame(++next,11,true,out ms,true)&&ms==4,"any individually zero identity pass is allowed only with a positive identity aggregate");Submit(timing);
+            }
+        });
+        Scenario("mode changes invalidate delayed data and preserve old marker closure",()=>
+        {
+            using var timing=new Timing(51);int next=Warm(timing);var oldBase=timing.CurrentFrameToken;
+            Results();Check(!timing.BeginFrame(next,11,true,out _,true),"adding identity with unchanged generation rejects old baseline result");
+            Check(timing.CurrentFrameToken.ActiveScopeMask==127&&timing.StableCompletedFrames==0,"new full-mode ticket is not pre-warmed");
+            Check(Recorders().All(r=>r.CountReads==0&&r.ElapsedReads==0),"mode boundary does not inspect old GPU samples");
+            Check(timing.RecordBegin(Scopes[0],oldBase)==null,"old baseline token rejected");Submit(timing);
+            for(int i=1;i<8;i++){Check(!timing.BeginFrame(next+i,11,true,out _,true),"full mode rewarms all eight submissions");Submit(timing);}
+            Results();next+=8;Check(timing.BeginFrame(next,11,true,out _,true),"full mode feedback restored");
+            var full=timing.CurrentFrameToken;var open=timing.RecordBegin(Timing.Scope.IdentityMask,full);
+            Check(open!=null,"identity marker is actually open before switch");Results();
+            Check(!timing.BeginFrame(++next,11,true,out _),"removing identity rejects full-mode delayed feedback");
+            Check(IdentityScopes.All(s=>!For(timing,s).enabled),"optional recorders stopped in baseline mode");
+            Check(ReferenceEquals(open,timing.RecordEnd(Timing.Scope.IdentityMask,full)),"old optional marker closes after it became inactive without publishing old history");
+            Check(timing.StableCompletedFrames==0&&timing.RecordBegin(Timing.Scope.IdentityClear,full)==null,"old full-mode ticket never restores history");
+            var current=timing.CurrentFrameToken;
+            var forged=new Timing.FrameToken(current.EngineFrame,current.Generation,current.Owner,current.Epoch,127);
+            Check(timing.RecordBegin(Scopes[0],forged)==null,"same owner frame epoch but different mask is not the current token");
+            foreach(var scope in IdentityScopes){var r=For(timing,scope);r.ThrowCount=r.ThrowElapsed=true;r.isValid=false;}
+            Submit(timing);
+            for(int i=1;i<8;i++){timing.BeginFrame(next+i,11,true,out _);Submit(timing);}
+            Check(timing.BeginFrame(next+8,11,true,out double ms)&&ms==3,"unavailable inactive optional handles cannot break baseline feedback");
+            Check(IdentityScopes.All(s=>For(timing,s).CountReads==0&&For(timing,s).ElapsedReads==0),"inactive result getters are never accessed");
+            current=timing.CurrentFrameToken;open=timing.RecordBegin(Scopes[0],current);
+            forged=new Timing.FrameToken(current.EngineFrame,current.Generation,current.Owner,current.Epoch,127);
+            Check(open!=null&&timing.RecordEnd(Scopes[0],forged)==null&&ReferenceEquals(open,timing.RecordEnd(Scopes[0],current)),"wrong-mask end cannot close the current marker");
+            Check(CustomSampler.Created.Count==7,"mode changes never allocate a second marker name");
+        });
+        Scenario("optional creation failure does not poison existing baseline markers",()=>
+        {
+            using var timing=new Timing(52);int next=Warm(timing);CustomSampler.ReturnNull=true;
+            Check(!timing.BeginFrame(next,11,true,out _,true)&&timing.Status==Timing.TimingStatus.Unavailable,"missing required optional marker rejects full mode");
+            Check(!timing.CurrentFrameToken.IsValid&&Recorders().All(r=>!r.enabled),"failed setup never produces a usable timing ticket");
+            CustomSampler.ReturnNull=false;next=Warm(timing,next+1);
+            Results();Check(timing.BeginFrame(next,11,true,out double ms)&&ms==3,"baseline rewarms without retrying optional creation");
+            Check(CustomSampler.Created.Count==3,"unneeded optional names were never created");
+        });
+        Scenario("each optional sample is required even when its timestamp is zero",()=>
+        {
+            using var timing=new Timing(53);int frame=0;
+            foreach(var scope in IdentityScopes)
+            for(int failure=0;failure<6;failure++)
+            {
+                timing.Invalidate();Results();frame=Warm(timing,frame,identity:true);Results();var r=For(timing,scope);
+                switch(failure)
+                {
+                    case 0:r.Count=0;break;
+                    case 1:r.Count=2;break;
+                    case 2:r.CountAfter=0;break;
+                    case 3:r.Nanoseconds=-1;break;
+                    case 4:r.ThrowCount=true;break;
+                    case 5:r.ThrowElapsed=true;break;
+                }
+                Check(!timing.BeginFrame(frame++,11,true,out double ms,true)&&ms==0,"bad identity count/time/getter rejects complete total");
+                Check(timing.StableCompletedFrames==0&&timing.LastExpectedSourceFrame==-1&&timing.LastMilliseconds==0,"bad optional result requires a fresh history");
+            }
+            timing.Invalidate();Results();frame=Warm(timing,frame,identity:true);Results();foreach(var scope in IdentityScopes)For(timing,scope).Set(0);
+            Check(!timing.BeginFrame(frame,11,true,out double zero,true)&&zero==0&&timing.Status==Timing.TimingStatus.MissingGpuSample,"four zero identity intervals are not observed identity cost");
+        });
+        Scenario("missing or duplicated optional recording cannot complete a submission",()=>
+        {
+            using var timing=new Timing(54);int frame=0;
+            foreach(var missing in IdentityScopes)
+            {
+                timing.BeginFrame(frame++,1,true,out _,true);var old=timing.CurrentFrameToken;
+                foreach(var scope in PassOrder)if(scope!=missing)Scope(timing,scope,old,new CommandBuffer());
+                Check(timing.StableCompletedFrames==0,"all core scopes plus only three identity scopes are incomplete");
+                timing.BeginFrame(frame++,1,true,out _,true);
+                Check(timing.Status==Timing.TimingStatus.IncompleteSubmission&&timing.RecordBegin(missing,old)==null,"next frame invalidates missing optional and rejects its late begin");
+                var current=timing.CurrentFrameToken;var begin=timing.RecordBegin(missing,current);
+                Check(begin!=null&&timing.RecordBegin(missing,current)==null,"duplicated optional begin rejects the entire frame");
+                Check(ReferenceEquals(begin,timing.RecordEnd(missing,current))&&timing.StableCompletedFrames==0,"duplicate still closes only its actual open marker");
+                timing.BeginFrame(frame++,1,true,out _,true);old=timing.CurrentFrameToken;
+                foreach(var scope in PassOrder)if(scope!=missing)Scope(timing,scope,old,new CommandBuffer());
+                begin=timing.RecordBegin(missing,old);
+                timing.BeginFrame(frame++,1,true,out _,true);
+                Check(timing.Status==Timing.TimingStatus.IncompleteSubmission&&ReferenceEquals(begin,timing.RecordEnd(missing,old)),"missing optional end is incomplete but its old pair can be closed");
+                timing.Invalidate();
+            }
+        });
+        Scenario("uncertain command recording permanently retires feedback from its lifetime channel",()=>
+        {
+            using var failed=new Timing(55);int next=Warm(failed,identity:true);Results();
+            Check(failed.BeginFrame(next,11,true,out _,true),"feedback existed before uncertain command emission");
+            var token=failed.CurrentFrameToken;var open=failed.RecordBegin(Timing.Scope.IdentityCapture,token);
+            Check(open!=null,"CPU records a real open marker before command outcome becomes uncertain");
+            int channel=failed.MarkerChannel,names=CustomSampler.Created.Count,leases=Timing.AllocatedLifetimeChannels;
+            failed.RejectCommandRecording();
+            Check(failed.Status==Timing.TimingStatus.CommandRecordingFailure&&!failed.CurrentFrameToken.IsValid&&failed.StableCompletedFrames==0,"command failure immediately revokes pending timing history");
+            Check(Recorders().All(r=>!r.enabled),"uncertain channel recorders are disabled");
+            Results();foreach(var r in Recorders())r.ThrowCount=r.ThrowElapsed=true;
+            for(int i=1;i<=40;i++)
+            {
+                bool enabled=i%3!=0,identity=i%2==0;
+                Check(!failed.BeginFrame(next+i,11+i,enabled,out double ms,identity)&&ms==0,"no frame, generation, mode or disabled transition can rewarm the failed channel");
+                Check(failed.Status==Timing.TimingStatus.CommandRecordingFailure&&failed.LastMilliseconds==0&&failed.LastExpectedSourceFrame==-1,"failure remains explicit rather than becoming Disabled or Ready");
+                foreach(var scope in PassOrder)Check(failed.RecordBegin(scope,token)==null,"retired channel emits no new scope");
+                failed.Invalidate();failed.RejectCommandRecording();
+                Check(failed.Status==Timing.TimingStatus.CommandRecordingFailure,"generic invalidation and repeated rejection cannot clear the latch");
+            }
+            Check(failed.MarkerChannel==channel&&Timing.AllocatedLifetimeChannels==leases&&CustomSampler.Created.Count==names,"faulted lifetime lease is not recycled or replaced");
+            Check(Recorders().All(r=>r.CountReads==0&&r.ElapsedReads==0),"faulted instance never queries potentially contaminated GPU data");
+            Check(ReferenceEquals(open,failed.RecordEnd(Timing.Scope.IdentityCapture,token))&&failed.RecordEnd(Timing.Scope.IdentityCapture,token)==null,"old open marker can close exactly once without restoring timing");
+            using var fresh=new Timing(55);fresh.BeginFrame(next+50,1,true,out _);
+            Check(fresh.CurrentFrameToken.IsValid&&fresh.MarkerChannel!=channel&&Timing.AllocatedLifetimeChannels==leases+1,"same numeric camera ID obtains a different bounded lifetime channel");
+            Submit(fresh);failed.Dispose();failed.RejectCommandRecording();
+            Check(!failed.BeginFrame(next+51,1,true,out _)&&failed.Status==Timing.TimingStatus.Disposed,"disposing a failed instance remains final");
+        });
+        Scenario("lifetime native marker cap survives 1000 camera-state replacements",()=>
+        {
+            int available=Timing.MaximumLifetimeChannels-Timing.AllocatedLifetimeChannels,leased=0,exhausted=0;
+            for(int i=0;i<1000;i++)
+            {
+                using var timing=new Timing(i%3);Check(!timing.BeginFrame(100+i,1,true,out _,true),"new full-mode camera lifetime starts without timing");
+                if(timing.CurrentFrameToken.IsValid)
+                {
+                    leased++;Check(timing.MarkerChannel>=0&&timing.MarkerChannel<Timing.MaximumLifetimeChannels,"bounded channel index");
+                    var token=timing.CurrentFrameToken;var begin=timing.RecordBegin(Scopes[0],token);timing.Dispose();
+                    Check(ReferenceEquals(begin,timing.RecordEnd(Scopes[0],token)),"retired channel still safely closes its original marker");
+                }
+                else
+                {
+                    exhausted++;Check(timing.Status==Timing.TimingStatus.ChannelLimitReached&&timing.MarkerChannel==-1,"exhaustion is explicit static fallback");
+                    Check(timing.RecordBegin(Scopes[0],default)==null,"exhausted instance emits no marker");
+                }
+            }
+            Check(leased==available&&exhausted==1000-available,"disposed lifetime channels never silently alias a new camera");
+            Check(Timing.AllocatedLifetimeChannels==Timing.MaximumLifetimeChannels,"allocation counter cannot grow beyond hard cap");
+            Check(CustomSampler.LifetimeNames.Count<=7*Timing.MaximumLifetimeChannels,"maximum 224 native marker names across churn");
+            Check(Recorders().All(r=>!r.enabled),"retired channels have recording disabled");
+        });
+        Console.WriteLine($"PASS: {assertions} actual-source assertions in {scenarios} scenarios. Recording substitutes only; no Unity native profiler, GPU timestamp/query, driver or Player execution. Frame identity is the documented-delay heuristic, not a native query ID.");
+    }
+}

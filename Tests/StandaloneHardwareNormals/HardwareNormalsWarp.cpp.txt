@@ -1,0 +1,75 @@
+// Executes the actual HLSL helper on D3D12 WARP. No Unity headers/host or physical GPU.
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#include <d3d12.h>
+#include <dxgi1_4.h>
+#include <wrl/client.h>
+#include <cstdint>
+#include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+using Microsoft::WRL::ComPtr;
+namespace {
+void Hr(HRESULT h,const char* operation) { if(FAILED(h)){std::cerr<<operation<<" HRESULT="<<std::hex<<static_cast<unsigned long>(h)<<std::dec<<'\n';throw std::runtime_error(operation);} }
+std::vector<std::uint8_t> Read(const std::filesystem::path& path) {
+    std::ifstream stream(path,std::ios::binary|std::ios::ate);if(!stream)throw std::runtime_error("open input");
+    auto size=stream.tellg();if(size<=0||size>64*1024*1024)throw std::runtime_error("input size");
+    std::vector<std::uint8_t> result(static_cast<std::size_t>(size));stream.seekg(0);stream.read(reinterpret_cast<char*>(result.data()),size);
+    if(!stream)throw std::runtime_error("read input");return result;
+}
+ComPtr<ID3D12Resource> Buffer(ID3D12Device* device,UINT64 bytes,D3D12_HEAP_TYPE heapType,D3D12_RESOURCE_STATES state,D3D12_RESOURCE_FLAGS flags=D3D12_RESOURCE_FLAG_NONE) {
+    D3D12_HEAP_PROPERTIES heap{};heap.Type=heapType;heap.CreationNodeMask=1;heap.VisibleNodeMask=1;
+    D3D12_RESOURCE_DESC desc{};desc.Dimension=D3D12_RESOURCE_DIMENSION_BUFFER;desc.Width=bytes;desc.Height=1;
+    desc.DepthOrArraySize=1;desc.MipLevels=1;desc.SampleDesc.Count=1;desc.Layout=D3D12_TEXTURE_LAYOUT_ROW_MAJOR;desc.Flags=flags;
+    ComPtr<ID3D12Resource> result;Hr(device->CreateCommittedResource(&heap,D3D12_HEAP_FLAG_NONE,&desc,state,nullptr,IID_PPV_ARGS(&result)),"CreateCommittedResource");return result;
+}
+}
+int wmain(int argc,wchar_t** argv) {
+    try {
+        if(argc!=4)throw std::runtime_error("Usage: HardwareNormalsWarp shader.dxil inputs.bin outputs.bin");
+        auto shader=Read(argv[1]),input=Read(argv[2]);if(input.size()<4)throw std::runtime_error("missing count");
+        std::uint32_t count=0;std::memcpy(&count,input.data(),4);
+        constexpr UINT64 InputStride=144,OutputStride=48;
+        if(count==0||count>100000||input.size()!=4+InputStride*count)throw std::runtime_error("case ABI/size");
+        ComPtr<IDXGIFactory4> factory;ComPtr<IDXGIAdapter> adapter;ComPtr<ID3D12Device> device;
+        HRESULT h=CreateDXGIFactory2(0,IID_PPV_ARGS(&factory));if(FAILED(h)){std::cerr<<"WARP environment unavailable: factory\n";return 2;}
+        h=factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));if(FAILED(h)){std::cerr<<"WARP environment unavailable: adapter\n";return 2;}
+        h=D3D12CreateDevice(adapter.Get(),D3D_FEATURE_LEVEL_11_0,IID_PPV_ARGS(&device));if(FAILED(h)){std::cerr<<"WARP environment unavailable: D3D12 device\n";return 2;}
+        DXGI_ADAPTER_DESC adapterDescription{};Hr(adapter->GetDesc(&adapterDescription),"GetDesc");
+        D3D12_COMMAND_QUEUE_DESC queueDesc{};queueDesc.Type=D3D12_COMMAND_LIST_TYPE_DIRECT;
+        ComPtr<ID3D12CommandQueue> queue;Hr(device->CreateCommandQueue(&queueDesc,IID_PPV_ARGS(&queue)),"CreateCommandQueue");
+        D3D12_ROOT_PARAMETER parameters[3]{};
+        parameters[0].ParameterType=D3D12_ROOT_PARAMETER_TYPE_SRV;parameters[0].Descriptor.ShaderRegister=0;
+        parameters[1].ParameterType=D3D12_ROOT_PARAMETER_TYPE_UAV;parameters[1].Descriptor.ShaderRegister=0;
+        parameters[2].ParameterType=D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;parameters[2].Constants.ShaderRegister=0;parameters[2].Constants.Num32BitValues=1;
+        D3D12_ROOT_SIGNATURE_DESC signatureDesc{};signatureDesc.NumParameters=3;signatureDesc.pParameters=parameters;
+        ComPtr<ID3DBlob> signatureBytes,diagnostics;Hr(D3D12SerializeRootSignature(&signatureDesc,D3D_ROOT_SIGNATURE_VERSION_1,&signatureBytes,&diagnostics),"SerializeRootSignature");
+        ComPtr<ID3D12RootSignature> signature;Hr(device->CreateRootSignature(0,signatureBytes->GetBufferPointer(),signatureBytes->GetBufferSize(),IID_PPV_ARGS(&signature)),"CreateRootSignature");
+        D3D12_COMPUTE_PIPELINE_STATE_DESC pipelineDesc{};pipelineDesc.pRootSignature=signature.Get();pipelineDesc.CS={shader.data(),shader.size()};
+        ComPtr<ID3D12PipelineState> pipeline;Hr(device->CreateComputePipelineState(&pipelineDesc,IID_PPV_ARGS(&pipeline)),"CreateComputePipelineState actual helper DXIL");
+        auto inputs=Buffer(device.Get(),InputStride*count,D3D12_HEAP_TYPE_UPLOAD,D3D12_RESOURCE_STATE_GENERIC_READ);
+        auto outputs=Buffer(device.Get(),OutputStride*count,D3D12_HEAP_TYPE_DEFAULT,D3D12_RESOURCE_STATE_UNORDERED_ACCESS,D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+        auto readback=Buffer(device.Get(),OutputStride*count,D3D12_HEAP_TYPE_READBACK,D3D12_RESOURCE_STATE_COPY_DEST);
+        void* mapped=nullptr;D3D12_RANGE empty{};Hr(inputs->Map(0,&empty,&mapped),"Map upload");std::memcpy(mapped,input.data()+4,static_cast<std::size_t>(InputStride*count));inputs->Unmap(0,nullptr);
+        ComPtr<ID3D12CommandAllocator> allocator;Hr(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,IID_PPV_ARGS(&allocator)),"CreateCommandAllocator");
+        ComPtr<ID3D12GraphicsCommandList> list;Hr(device->CreateCommandList(0,D3D12_COMMAND_LIST_TYPE_DIRECT,allocator.Get(),pipeline.Get(),IID_PPV_ARGS(&list)),"CreateCommandList");
+        list->SetComputeRootSignature(signature.Get());list->SetComputeRootShaderResourceView(0,inputs->GetGPUVirtualAddress());list->SetComputeRootUnorderedAccessView(1,outputs->GetGPUVirtualAddress());list->SetComputeRoot32BitConstant(2,count,0);
+        list->Dispatch((count+63)/64,1,1);
+        D3D12_RESOURCE_BARRIER barriers[2]{};barriers[0].Type=D3D12_RESOURCE_BARRIER_TYPE_UAV;barriers[0].UAV.pResource=outputs.Get();
+        barriers[1].Type=D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;barriers[1].Transition.pResource=outputs.Get();barriers[1].Transition.StateBefore=D3D12_RESOURCE_STATE_UNORDERED_ACCESS;barriers[1].Transition.StateAfter=D3D12_RESOURCE_STATE_COPY_SOURCE;barriers[1].Transition.Subresource=D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+        list->ResourceBarrier(2,barriers);list->CopyResource(readback.Get(),outputs.Get());Hr(list->Close(),"Close");
+        ID3D12CommandList* lists[]={list.Get()};queue->ExecuteCommandLists(1,lists);
+        ComPtr<ID3D12Fence> fence;Hr(device->CreateFence(0,D3D12_FENCE_FLAG_NONE,IID_PPV_ARGS(&fence)),"CreateFence");Hr(queue->Signal(fence.Get(),1),"Signal");
+        HANDLE event=CreateEventW(nullptr,FALSE,FALSE,nullptr);if(!event)throw std::runtime_error("CreateEvent");
+        h=fence->SetEventOnCompletion(1,event);if(FAILED(h)){CloseHandle(event);Hr(h,"SetEventOnCompletion");}
+        DWORD wait=WaitForSingleObject(event,30000);CloseHandle(event);if(wait!=WAIT_OBJECT_0)throw std::runtime_error("WARP dispatch timeout");
+        Hr(device->GetDeviceRemovedReason(),"DeviceRemovedReason");
+        D3D12_RANGE range{0,static_cast<SIZE_T>(OutputStride*count)};Hr(readback->Map(0,&range,&mapped),"Map readback");
+        std::ofstream result(std::filesystem::path(argv[3]),std::ios::binary);result.write(static_cast<const char*>(mapped),static_cast<std::streamsize>(OutputStride*count));readback->Unmap(0,&empty);if(!result)throw std::runtime_error("write output");result.close();
+        std::cout<<"Actual HardwareNormals HLSL executed on D3D12 WARP: "<<count<<" cases, inputStride=144 outputStride=48; adapterVendor="<<adapterDescription.VendorId<<" adapterDevice="<<adapterDescription.DeviceId<<". No Unity or physical GPU.\n";return 0;
+    }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}
+}

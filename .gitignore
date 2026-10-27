@@ -1,0 +1,30 @@
+# Historical export archives stay on this machine; keep their audit records.
+/Delivery/**/*.zip
+/Delivery/**/*.zip.meta
+/old.HybridLumenGI.rar
+/old.HybridLumenGI.rar.meta
+
+# Extracted comparison copies; current review evidence and harnesses are tracked.
+/LocalComparison/Sources/
+
+# Unity, IDE, and test build caches.
+/Library/
+/Temp/
+/Logs/
+/UserSettings/
+/Build/
+/Builds/
+.vs/
+**/bin/
+**/obj/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+Thumbs.db
+
+# Local credentials and environment overrides.
+.env
+.env.*
+!.env.example
+!.env.sample

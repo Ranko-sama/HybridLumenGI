@@ -1,0 +1,320 @@
+﻿{
+    "schemaVersion":  1,
+    "kind":  "NativeGpuTimingValidation",
+    "status":  "passed",
+    "startedUtc":  "2026-10-27T10:05:24.3828857Z",
+    "completedUtc":  "2026-10-27T10:05:44.3903351Z",
+    "sourceRoot":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI",
+    "buildDirectory":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864",
+    "buildReportPath":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\report.json",
+    "configuration":  "Release",
+    "architecture":  "x64",
+    "warpExecuted":  true,
+    "physicalGpuExecuted":  false,
+    "unityExecuted":  false,
+    "evidenceScope":  "Actual native DLL compilation, CPU query-pool tests, and D3D12 WARP software-adapter execution with a mock Unity host. Not actual Unity or physical-GPU integration/performance validation.",
+    "build":  {
+                  "schemaVersion":  1,
+                  "kind":  "NativeGpuTimingBuild",
+                  "status":  "passed",
+                  "startedUtc":  "2026-10-27T10:05:24.4458479Z",
+                  "completedUtc":  "2026-10-27T10:05:43.6732369Z",
+                  "sourceRoot":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI",
+                  "nativeSourceDirectory":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Native~\\GpuTiming",
+                  "buildDirectory":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864",
+                  "buildReportPath":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\report.json",
+                  "configuration":  "Release",
+                  "architecture":  "x64",
+                  "generator":  "Visual Studio 17 2022",
+                  "gpuExecuted":  false,
+                  "evidenceScope":  "Native DLL, CPU test and WARP smoke compilation only; no Unity loading, GPU timing, or device execution.",
+                  "tools":  {
+                                "visualStudio":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools",
+                                "visualStudioVersion":  "17.14.37314.3",
+                                "cmake":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+                                "cmakeVersion":  "cmake version 3.31.6-msvc6",
+                                "compiler":  "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
+                                "compilerId":  "MSVC",
+                                "compilerVersion":  "19.44.35227.0",
+                                "compilerFileVersion":  "19.44.35227.0",
+                                "windowsSdk":  "10.0.26100.0"
+                            },
+                  "unityHeaders":  {
+                                       "mode":  "PinnedExternalCache",
+                                       "directory":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-unity-plugin-api-522254181faf188efa8b50c3e3bf6fce720b26e4",
+                                       "matchesPinnedHeaders":  true,
+                                       "commit":  "522254181faf188efa8b50c3e3bf6fce720b26e4",
+                                       "files":  [
+                                                     {
+                                                         "file":  "IUnityInterface.h",
+                                                         "sha256":  "E23E267B57C049B438307542D62C30FBCD3FA77B6DAC3B08842EAE0DF10B8239"
+                                                     },
+                                                     {
+                                                         "file":  "IUnityGraphics.h",
+                                                         "sha256":  "E95A8AC359897B5746494DB84AE594D6F59F3709C2EC20BD869D592ED4BBF4F7"
+                                                     },
+                                                     {
+                                                         "file":  "IUnityGraphicsD3D12.h",
+                                                         "sha256":  "7E6322A1F280E4D7DEA9AA567E5085875F05AC373C1DC134D4DADC7985C21617"
+                                                     },
+                                                     {
+                                                         "file":  "LICENSE.NativeRenderingPlugin.MIT",
+                                                         "sha256":  "8FF2AEEDFC43211D085E27FC057A2C4C58D665808E2369A97CC43099DC390AFB"
+                                                     }
+                                                 ],
+                                       "headerLicense":  "Unity Companion License; repository MIT LICENSE retained separately."
+                                   },
+                  "sourceHashes":  [
+                                       {
+                                           "file":  "Runtime/Native~/GpuTiming/CMakeLists.txt",
+                                           "sha256":  "CA07E71FC9100D00D5E9F91CCA1B8C848035F1C0B4A1ACDF789B8700EEAF991F"
+                                       },
+                                       {
+                                           "file":  "Runtime/Native~/GpuTiming/GpuTimingPlugin.cpp",
+                                           "sha256":  "6820685F00F7E235136319B4BCC315F357B2EC9A55BBA5666052B4E94FBF68FF"
+                                       },
+                                       {
+                                           "file":  "Runtime/Native~/GpuTiming/NativeAbi.h",
+                                           "sha256":  "948C4E8107FF9C3EC2409A51A90E9685AD00D52B7585FA9EDADC900E1967B959"
+                                       },
+                                       {
+                                           "file":  "Runtime/Native~/GpuTiming/QueryPool.h",
+                                           "sha256":  "7A835E481FBFA5E03F195639F86B8BEAD1FD1DCC73718CBD1B09B9DB58B4D4DF"
+                                       },
+                                       {
+                                           "file":  "Runtime/Native~/GpuTiming/tests/NativeTimingSmoke.cpp",
+                                           "sha256":  "C4F2808C0293803C4B07AD0AD6ACEADC62790993E17E6435CFB1BAE6943FAAD7"
+                                       },
+                                       {
+                                           "file":  "Runtime/Native~/GpuTiming/tests/QueryPoolTests.cpp",
+                                           "sha256":  "5688CDA317DA0562036FBDAF38B05B30B1562E7BAA24E8684A8A8C4B13B5B3C3"
+                                       }
+                                   ],
+                  "sourceHashesAfter":  [
+                                            {
+                                                "file":  "Runtime/Native~/GpuTiming/CMakeLists.txt",
+                                                "sha256":  "CA07E71FC9100D00D5E9F91CCA1B8C848035F1C0B4A1ACDF789B8700EEAF991F"
+                                            },
+                                            {
+                                                "file":  "Runtime/Native~/GpuTiming/GpuTimingPlugin.cpp",
+                                                "sha256":  "6820685F00F7E235136319B4BCC315F357B2EC9A55BBA5666052B4E94FBF68FF"
+                                            },
+                                            {
+                                                "file":  "Runtime/Native~/GpuTiming/NativeAbi.h",
+                                                "sha256":  "948C4E8107FF9C3EC2409A51A90E9685AD00D52B7585FA9EDADC900E1967B959"
+                                            },
+                                            {
+                                                "file":  "Runtime/Native~/GpuTiming/QueryPool.h",
+                                                "sha256":  "7A835E481FBFA5E03F195639F86B8BEAD1FD1DCC73718CBD1B09B9DB58B4D4DF"
+                                            },
+                                            {
+                                                "file":  "Runtime/Native~/GpuTiming/tests/NativeTimingSmoke.cpp",
+                                                "sha256":  "C4F2808C0293803C4B07AD0AD6ACEADC62790993E17E6435CFB1BAE6943FAAD7"
+                                            },
+                                            {
+                                                "file":  "Runtime/Native~/GpuTiming/tests/QueryPoolTests.cpp",
+                                                "sha256":  "5688CDA317DA0562036FBDAF38B05B30B1562E7BAA24E8684A8A8C4B13B5B3C3"
+                                            }
+                                        ],
+                  "sourceChanges":  [
+
+                                    ],
+                  "headerChanges":  [
+
+                                    ],
+                  "scriptHashes":  [
+                                       {
+                                           "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Build-NativeGpuTiming.ps1",
+                                           "sha256":  "6097E1B10E9B4AA299FFA22E36F99B3BCE543BA3C01F672EBD2181A6305EEA3F"
+                                       },
+                                       {
+                                           "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Validate-NativeGpuTiming.ps1",
+                                           "sha256":  "BE238FB70BDB76457639D692B533D213AD99817609EECAF55D6E89F70BFF4043"
+                                       }
+                                   ],
+                  "scriptChanges":  [
+
+                                    ],
+                  "stages":  [
+                                 {
+                                     "name":  "vswhere",
+                                     "executable":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe",
+                                     "arguments":  [
+                                                       "-latest",
+                                                       "-products",
+                                                       "*",
+                                                       "-version",
+                                                       "[17.0,18.0)",
+                                                       "-requires",
+                                                       "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+                                                       "-format",
+                                                       "json",
+                                                       "-utf8"
+                                                   ],
+                                     "exitCode":  0,
+                                     "timedOut":  false,
+                                     "stdout":  "[\r\n  {\r\n    \"instanceId\": \"79b86afa\",\r\n    \"installDate\": \"2026-05-29T20:26:15Z\",\r\n    \"installationName\": \"VisualStudio/17.14.33+37314.3.-may.2026-\",\r\n    \"installationPath\": \"C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\2022\\\\BuildTools\",\r\n    \"installationVersion\": \"17.14.37314.3\",\r\n    \"productId\": \"Microsoft.VisualStudio.Product.BuildTools\",\r\n    \"productPath\": \"C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\2022\\\\BuildTools\\\\Common7\\\\Tools\\\\LaunchDevCmd.bat\",\r\n    \"state\": 4294967295,\r\n    \"isComplete\": true,\r\n    \"isLaunchable\": true,\r\n    \"isPrerelease\": false,\r\n    \"isRebootRequired\": false,\r\n    \"displayName\": \"Visual Studio 生成工具 2022\",\r\n    \"description\": \"Visual Studio 生成工具允许生成本机和基于 MSBuild 的托管 .NET 应用程序，而不需要 Visual Studio IDE。还可以选择安装 Visual C++ 编译器和库、MFC、ALT 和 C++/CLI 支持。\",\r\n    \"channelId\": \"VisualStudio.17.Release\",\r\n    \"channelUri\": \"https://aka.ms/vs/17/release/channel\",\r\n    \"enginePath\": \"C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\Installer\\\\resources\\\\app\\\\ServiceHub\\\\Services\\\\Microsoft.VisualStudio.Setup.Service\",\r\n    \"installedChannelId\": \"VisualStudio.17.Release\",\r\n    \"installedChannelUri\": \"https://aka.ms/vs/17/release/channel\",\r\n    \"releaseNotes\": \"https://docs.microsoft.com/en-us/visualstudio/releases/2022/release-notes-v17.14#17.14.33\",\r\n    \"resolvedInstallationPath\": \"C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\2022\\\\BuildTools\",\r\n    \"thirdPartyNotices\": \"https://go.microsoft.com/fwlink/?LinkId=661288\",\r\n    \"updateDate\": \"2026-05-29T20:26:15.5849996Z\",\r\n    \"catalog\": {\r\n      \"buildBranch\": \"d17.14\",\r\n      \"buildVersion\": \"17.14.37314.3\",\r\n      \"id\": \"VisualStudio/17.14.33+37314.3.-may.2026-\",\r\n      \"localBuild\": \"build-lab\",\r\n      \"manifestName\": \"VisualStudio\",\r\n      \"manifestType\": \"installer\",\r\n      \"productDisplayVersion\": \"17.14.33 (May 2026)\",\r\n      \"productLine\": \"Dev17\",\r\n      \"productLineVersion\": \"2022\",\r\n      \"productMilestone\": \"RTW\",\r\n      \"productMilestoneIsPreRelease\": \"False\",\r\n      \"productName\": \"Visual Studio\",\r\n      \"productPatchVersion\": \"33\",\r\n      \"productPreReleaseMilestoneSuffix\": \"1.0\",\r\n      \"productReleaseNameSuffix\": \"(May 2026)\",\r\n      \"productSemanticVersion\": \"17.14.33+37314.3.-may.2026-\",\r\n      \"requiredEngineVersion\": \"3.14.2086.54749\"\r\n    },\r\n    \"properties\": {\r\n      \"campaignId\": \"\",\r\n      \"channelManifestId\": \"VisualStudio.17.Release/17.14.33+37314.3.-may.2026-\",\r\n      \"includeRecommended\": \"0\",\r\n      \"nickname\": \"\",\r\n      \"setupEngineFilePath\": \"C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\Installer\\\\setup.exe\"\r\n    }\r\n  }\r\n]\r\n",
+                                     "stderr":  "",
+                                     "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\vswhere.log",
+                                     "startedUtc":  "2026-10-27T10:05:24.6140621Z",
+                                     "completedUtc":  "2026-10-27T10:05:24.7514717Z"
+                                 },
+                                 {
+                                     "name":  "cmake-version",
+                                     "executable":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+                                     "arguments":  [
+                                                       "--version"
+                                                   ],
+                                     "exitCode":  0,
+                                     "timedOut":  false,
+                                     "stdout":  "cmake version 3.31.6-msvc6\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\n",
+                                     "stderr":  "",
+                                     "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\cmake-version.log",
+                                     "startedUtc":  "2026-10-27T10:05:24.8250903Z",
+                                     "completedUtc":  "2026-10-27T10:05:24.9061652Z"
+                                 },
+                                 {
+                                     "name":  "cmake-configure",
+                                     "executable":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+                                     "arguments":  [
+                                                       "-S",
+                                                       "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Native~\\GpuTiming",
+                                                       "-B",
+                                                       "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864",
+                                                       "-G",
+                                                       "Visual Studio 17 2022",
+                                                       "-A",
+                                                       "x64",
+                                                       "-DCMAKE_GENERATOR_INSTANCE:PATH=C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools",
+                                                       "-DUNITY_PLUGIN_API_DIR:PATH=C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-unity-plugin-api-522254181faf188efa8b50c3e3bf6fce720b26e4"
+                                                   ],
+                                     "exitCode":  0,
+                                     "timedOut":  false,
+                                     "stdout":  "-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.\n-- The CXX compiler identification is MSVC 19.44.35227.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (7.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: C:/Users/Administrator/AppData/Local/Temp/hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\n",
+                                     "stderr":  "",
+                                     "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\cmake-configure.log",
+                                     "startedUtc":  "2026-10-27T10:05:24.9353284Z",
+                                     "completedUtc":  "2026-10-27T10:05:32.3175017Z"
+                                 },
+                                 {
+                                     "name":  "cmake-build",
+                                     "executable":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+                                     "arguments":  [
+                                                       "--build",
+                                                       "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864",
+                                                       "--config",
+                                                       "Release",
+                                                       "--target",
+                                                       "HybridLumenGIGpuTiming",
+                                                       "HLGIQueryPoolTests",
+                                                       "HLGINativeTimingSmoke",
+                                                       "--parallel",
+                                                       "2"
+                                                   ],
+                                     "exitCode":  0,
+                                     "timedOut":  false,
+                                     "stdout":  "适用于 .NET Framework MSBuild 版本 17.14.40+3e7442088\r\n\r\nC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Microsoft\\VC\\v170\\Microsoft.CppBuild.targets(548,5): warning MSB8029: 中间目录或输出目录无法驻留在临时目录下，因为这可能会导致增量生成出现问题。 [C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\ZERO_CHECK.vcxproj]\r\n  1\u003eChecking Build System\r\nC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Microsoft\\VC\\v170\\Microsoft.CppBuild.targets(548,5): warning MSB8029: 中间目录或输出目录无法驻留在临时目录下，因为这可能会导致增量生成出现问题。 [C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\HybridLumenGIGpuTiming.vcxproj]\r\n  Building Custom Rule C:/Users/Administrator/Desktop/test/HybridLumenGI/Runtime/Native~/GpuTiming/CMakeLists.txt\r\n  GpuTimingPlugin.cpp\r\n    正在创建库 C:/Users/Administrator/AppData/Local/Temp/hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864/Release/HybridLumenGIGpuTiming.lib 和对象 C:/Users/Administrator/AppData/Local/Temp/hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864/Release/HybridLumenGIGpuTiming.exp\r\n  HybridLumenGIGpuTiming.vcxproj -\u003e C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\Release\\HybridLumenGIGpuTiming.dll\r\n适用于 .NET Framework MSBuild 版本 17.14.40+3e7442088\r\n\r\nC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Microsoft\\VC\\v170\\Microsoft.CppBuild.targets(548,5): warning MSB8029: 中间目录或输出目录无法驻留在临时目录下，因为这可能会导致增量生成出现问题。 [C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\ZERO_CHECK.vcxproj]\r\nC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Microsoft\\VC\\v170\\Microsoft.CppBuild.targets(548,5): warning MSB8029: 中间目录或输出目录无法驻留在临时目录下，因为这可能会导致增量生成出现问题。 [C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\HLGIQueryPoolTests.vcxproj]\r\n  Building Custom Rule C:/Users/Administrator/Desktop/test/HybridLumenGI/Runtime/Native~/GpuTiming/CMakeLists.txt\r\n  QueryPoolTests.cpp\r\n  HLGIQueryPoolTests.vcxproj -\u003e C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\Release\\HLGIQueryPoolTests.exe\r\n适用于 .NET Framework MSBuild 版本 17.14.40+3e7442088\r\n\r\nC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Microsoft\\VC\\v170\\Microsoft.CppBuild.targets(548,5): warning MSB8029: 中间目录或输出目录无法驻留在临时目录下，因为这可能会导致增量生成出现问题。 [C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\ZERO_CHECK.vcxproj]\r\nC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Microsoft\\VC\\v170\\Microsoft.CppBuild.targets(548,5): warning MSB8029: 中间目录或输出目录无法驻留在临时目录下，因为这可能会导致增量生成出现问题。 [C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\HLGINativeTimingSmoke.vcxproj]\r\n  Building Custom Rule C:/Users/Administrator/Desktop/test/HybridLumenGI/Runtime/Native~/GpuTiming/CMakeLists.txt\r\n  NativeTimingSmoke.cpp\r\n  HLGINativeTimingSmoke.vcxproj -\u003e C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\Release\\HLGINativeTimingSmoke.exe\r\n",
+                                     "stderr":  "",
+                                     "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\cmake-build.log",
+                                     "startedUtc":  "2026-10-27T10:05:32.3883707Z",
+                                     "completedUtc":  "2026-10-27T10:05:43.5977883Z"
+                                 }
+                             ],
+                  "artifacts":  {
+                                    "dll":  {
+                                                "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\Release\\HybridLumenGIGpuTiming.dll",
+                                                "sha256":  "4D94AFC2769208CD1DA72EC7CDA0F29B31FC42DD71FEBD86A3B9238B391D6431"
+                                            },
+                                    "cpuTest":  {
+                                                    "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\Release\\HLGIQueryPoolTests.exe",
+                                                    "sha256":  "118C96C04902825D8F4B4C462D1A3712359B6F90AFEEF2C94C27D34A94C6F7D3"
+                                                },
+                                    "nativeSmoke":  {
+                                                        "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\Release\\HLGINativeTimingSmoke.exe",
+                                                        "sha256":  "3ED4D978D9ECAAC16CE4E29442A5CF68DED8457924A3F71E617F278A337DE81D"
+                                                    }
+                                },
+                  "error":  null
+              },
+    "cpuTest":  {
+                    "name":  "query-pool-tests",
+                    "executable":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\Release\\HLGIQueryPoolTests.exe",
+                    "sha256":  "118C96C04902825D8F4B4C462D1A3712359B6F90AFEEF2C94C27D34A94C6F7D3",
+                    "arguments":  [
+
+                                  ],
+                    "status":  "passed",
+                    "exitCode":  0,
+                    "timedOut":  false,
+                    "processStarted":  true,
+                    "evidenceScope":  "Actual platform-independent C++17 query-pool state machine; no Unity or graphics execution.",
+                    "output":  "QueryPool PASS: 8 scenarios, 174163695 assertions; 1,000,000 reuse transactions + 200,000 oracle actions.\r\nEvidence: actual platform-independent C++17 state machine; no GPU/Unity/driver execution.\r\n",
+                    "stdout":  "QueryPool PASS: 8 scenarios, 174163695 assertions; 1,000,000 reuse transactions + 200,000 oracle actions.\r\nEvidence: actual platform-independent C++17 state machine; no GPU/Unity/driver execution.\r\n",
+                    "stderr":  "",
+                    "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\query-pool-tests.log",
+                    "startedUtc":  "2026-10-27T10:05:43.7044113Z",
+                    "completedUtc":  "2026-10-27T10:05:44.0418996Z"
+                },
+    "warpSmoke":  {
+                      "name":  "native-warp-smoke",
+                      "executable":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\Release\\HLGINativeTimingSmoke.exe",
+                      "sha256":  "3ED4D978D9ECAAC16CE4E29442A5CF68DED8457924A3F71E617F278A337DE81D",
+                      "arguments":  [
+                                        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\Release\\HybridLumenGIGpuTiming.dll"
+                                    ],
+                      "status":  "passed",
+                      "exitCode":  0,
+                      "timedOut":  false,
+                      "processStarted":  true,
+                      "evidenceScope":  "Real D3D12 API execution on WARP software adapter with a mock Unity native-plugin host; no Unity engine or physical GPU.",
+                      "output":  "Adapter: Microsoft Basic Render Driver (WARP software)\r\nNativeTimingSmoke PASS: 7 scenarios, 8806 checks, 268 real D3D12 submissions, 262 complete timestamp results, 12624 bounded 64 KiB copies.\r\nInjected host post-append fence failures: 4; four unproven device pools reach the bounded retirement fallback.\r\nDebug layer: unavailable (not installed by test); fence wait limit: 10 seconds per submission.\r\nEvidence: actual Windows WARP software adapter, native DLL, timestamps, resolve and fence readback; simulated single-threaded Unity v7 host. No Unity/RenderGraph, physical GPU, real device-loss, or hot-unload validation.\r\n",
+                      "stdout":  "Adapter: Microsoft Basic Render Driver (WARP software)\r\nNativeTimingSmoke PASS: 7 scenarios, 8806 checks, 268 real D3D12 submissions, 262 complete timestamp results, 12624 bounded 64 KiB copies.\r\nInjected host post-append fence failures: 4; four unproven device pools reach the bounded retirement fallback.\r\nDebug layer: unavailable (not installed by test); fence wait limit: 10 seconds per submission.\r\nEvidence: actual Windows WARP software adapter, native DLL, timestamps, resolve and fence readback; simulated single-threaded Unity v7 host. No Unity/RenderGraph, physical GPU, real device-loss, or hot-unload validation.\r\n",
+                      "stderr":  "",
+                      "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-timing-c8dc8528f7fa43a1bb6f7e03b1ae1864\\native-warp-smoke.log",
+                      "startedUtc":  "2026-10-27T10:05:44.0480579Z",
+                      "completedUtc":  "2026-10-27T10:05:44.3646815Z"
+                  },
+    "sourceHashes":  [
+                         {
+                             "file":  "Runtime/Native~/GpuTiming/CMakeLists.txt",
+                             "sha256":  "CA07E71FC9100D00D5E9F91CCA1B8C848035F1C0B4A1ACDF789B8700EEAF991F"
+                         },
+                         {
+                             "file":  "Runtime/Native~/GpuTiming/GpuTimingPlugin.cpp",
+                             "sha256":  "6820685F00F7E235136319B4BCC315F357B2EC9A55BBA5666052B4E94FBF68FF"
+                         },
+                         {
+                             "file":  "Runtime/Native~/GpuTiming/NativeAbi.h",
+                             "sha256":  "948C4E8107FF9C3EC2409A51A90E9685AD00D52B7585FA9EDADC900E1967B959"
+                         },
+                         {
+                             "file":  "Runtime/Native~/GpuTiming/QueryPool.h",
+                             "sha256":  "7A835E481FBFA5E03F195639F86B8BEAD1FD1DCC73718CBD1B09B9DB58B4D4DF"
+                         },
+                         {
+                             "file":  "Runtime/Native~/GpuTiming/tests/NativeTimingSmoke.cpp",
+                             "sha256":  "C4F2808C0293803C4B07AD0AD6ACEADC62790993E17E6435CFB1BAE6943FAAD7"
+                         },
+                         {
+                             "file":  "Runtime/Native~/GpuTiming/tests/QueryPoolTests.cpp",
+                             "sha256":  "5688CDA317DA0562036FBDAF38B05B30B1562E7BAA24E8684A8A8C4B13B5B3C3"
+                         }
+                     ],
+    "sourceChanges":  [
+
+                      ],
+    "scriptHashes":  [
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Build-NativeGpuTiming.ps1",
+                             "sha256":  "6097E1B10E9B4AA299FFA22E36F99B3BCE543BA3C01F672EBD2181A6305EEA3F"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Validate-NativeGpuTiming.ps1",
+                             "sha256":  "BE238FB70BDB76457639D692B533D213AD99817609EECAF55D6E89F70BFF4043"
+                         }
+                     ],
+    "scriptChanges":  [
+
+                      ],
+    "error":  null
+}

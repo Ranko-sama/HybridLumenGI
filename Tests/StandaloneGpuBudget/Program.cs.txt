@@ -1,0 +1,546 @@
+using System;
+using System.Collections.Generic;
+using HybridLumenGI;
+using Controller = HybridLumenGI.HybridLumenGIGpuBudgetController;
+
+internal static class Program
+{
+    private static int assertions;
+    private static int scenarios;
+    private static readonly List<string> trajectories = new List<string>();
+
+    private static void Check(bool condition, string message)
+    {
+        assertions++;
+        if (!condition) throw new Exception(message);
+    }
+
+    private static void Near(double actual, double expected, double tolerance, string message)
+    {
+        Check(Math.Abs(actual - expected) <= tolerance, message + ": expected " + expected + ", actual " + actual);
+    }
+
+    private static Controller.Configuration Config(double target = 4, double minimum = .125,
+        int patches = 256, int captures = 24, int bricks = 16, bool enabled = true)
+    {
+        return new Controller.Configuration(enabled, target, minimum, patches, captures, bricks);
+    }
+
+    private static int Floor(int cap, double fraction)
+    {
+        return cap <= 0 ? 0 : (int)Math.Max(1, Math.Ceiling(cap * fraction));
+    }
+
+    private static void Bounds(Controller.Budget value, Controller.Configuration config, string context)
+    {
+        Check(!double.IsNaN(value.Scale) && !double.IsInfinity(value.Scale), context + " finite scale");
+        Check(value.Scale >= config.MinWorkFraction && value.Scale <= 1, context + " scale interval");
+        Check(value.CachePatches >= Floor(config.MaxCachePatches, config.MinWorkFraction) &&
+            value.CachePatches <= config.MaxCachePatches, context + " patch bounds");
+        Check(value.SurfaceCaptures >= Floor(config.MaxSurfaceCaptures, config.MinWorkFraction) &&
+            value.SurfaceCaptures <= config.MaxSurfaceCaptures, context + " capture bounds");
+        Check(value.GlobalBricks >= Floor(config.MaxGlobalBricks, config.MinWorkFraction) &&
+            value.GlobalBricks <= config.MaxGlobalBricks, context + " brick bounds");
+    }
+
+    private static void Same(Controller.Budget a, Controller.Budget b, string message)
+    {
+        Check(a.CachePatches == b.CachePatches && a.SurfaceCaptures == b.SurfaceCaptures &&
+            a.GlobalBricks == b.GlobalBricks && a.Scale == b.Scale, message);
+    }
+
+    private static void Static(Controller.Budget value, Controller.Configuration config, string context)
+    {
+        Check(value.CachePatches == config.MaxCachePatches && value.SurfaceCaptures == config.MaxSurfaceCaptures &&
+            value.GlobalBricks == config.MaxGlobalBricks && value.Scale == 1, context + " exact static quotas");
+    }
+
+    private static void InitializationAndConfiguration()
+    {
+        scenarios++;
+        var controller = new Controller();
+        var config = Config();
+        Static(controller.Step(10, 5, true, 40, config), config, "initial epoch");
+        Check(!controller.FeedbackActive && controller.AcceptedSamples == 0 && controller.RejectedSamples == 1,
+            "initial boundary measurement rejected");
+        for (int f = 11; f < 30; ++f) Bounds(controller.Step(f, 5, true, 40, config), config, "initial overrun");
+        Check(controller.CurrentBudget.Scale < 1, "feedback eventually reduces work");
+        var changed = Config(target: 3, patches: 32, captures: 7, bricks: 0);
+        Static(controller.Step(30, 5, true, 40, changed), changed, "configuration reset");
+        Check(!controller.FeedbackActive && controller.SmoothedMs == 0, "configuration forgets old filter");
+        Check(controller.CurrentBudget.GlobalBricks == 0, "disabled global SDF stays disabled");
+        for (int f = 31; f < 180; ++f) Bounds(controller.Step(f, 5, true, 100, changed), changed, "floor clamp");
+        Check(controller.CurrentBudget.CachePatches == 4 && controller.CurrentBudget.SurfaceCaptures == 1,
+            "ceil fractional floors and positive one-item minimum");
+        var disabled = Config(enabled: false);
+        Static(controller.Step(180, 5, true, 100, disabled), disabled, "disable reset");
+        for (int f = 181; f < 200; ++f) Static(controller.Step(f, 5, true, 100, disabled), disabled, "disabled feedback");
+        Check(!controller.FeedbackActive && !controller.MinimumWorkOverBudget, "disabled diagnostics inactive");
+        var low = Config(minimum: -.2, patches: -1, captures: -5, bricks: -3);
+        Check(low.MinWorkFraction == .01 && low.MaxCachePatches == 0 && low.MaxSurfaceCaptures == 0 && low.MaxGlobalBricks == 0,
+            "invalid negative caps and floor sanitized");
+        var high = Config(minimum: 2);
+        Check(high.MinWorkFraction == 1, "floor fraction capped at one");
+        var defaultFraction = Config(minimum: double.NaN);
+        Check(defaultFraction.MinWorkFraction == Controller.DefaultMinWorkFraction, "nonfinite floor uses documented default");
+        Check(Config(minimum: double.PositiveInfinity).MinWorkFraction == .125, "infinite floor uses default");
+        Check(config.Equals(Config()) && config.GetHashCode() == Config().GetHashCode(), "value-equivalent config identity");
+        Check(!config.Equals(changed), "different config identity");
+        Static(controller.Step(200, 5, false, 0, low), low, "no adjustable work");
+        controller.Step(201, 5, true, 50, low);
+        Check(!controller.FeedbackActive && !controller.AtMinimumWork, "empty quotas cannot claim minimum work pressure");
+        foreach (double target in new [] {0.0, -1, double.NaN, double.NegativeInfinity, double.PositiveInfinity})
+        {
+            var invalid = Config(target: target);
+            var c = new Controller();
+            for (int f = 0; f < 30; ++f) Static(c.Step(f, 1, true, 30, invalid), invalid, "invalid target");
+            Check(!c.FeedbackActive && c.AcceptedSamples == 0, "invalid target never consumes feedback");
+        }
+    }
+
+    private static void InvalidAndMissingSamples()
+    {
+        scenarios++;
+        var c = new Controller();
+        var config = Config(target: 1);
+        c.Step(0, 1, false, 0, config);
+        double[] invalid = {0, -1, double.NaN, double.PositiveInfinity, double.NegativeInfinity};
+        for (int i = 0; i < invalid.Length; ++i)
+        {
+            Static(c.Step(i + 1, 1, true, invalid[i], config), config, "invalid GPU value");
+            Check(!c.FeedbackActive && c.SmoothedMs == 0 && c.AcceptedSamples == 0, "invalid value does not pollute EWMA");
+        }
+        Check(c.RejectedSamples == (ulong)invalid.Length, "invalid reported samples counted");
+        for (int f = 6; f <= 30; ++f) c.Step(f, 1, true, 10, config);
+        var held = c.CurrentBudget;
+        Check(held.Scale < 1 && c.FeedbackActive, "active budget available for dropout test");
+        ulong accepted = c.AcceptedSamples;
+        for (int f = 31; f <= 45; ++f)
+        {
+            Same(c.Step(f, 1, false, 0, config), held, "short missing measurements hold last budget");
+            Check(c.FeedbackActive, "short gap remains active");
+        }
+        Static(c.Step(46, 1, false, 0, config), config, "sixteenth missing frame");
+        Check(!c.FeedbackActive && c.SmoothedMs == 0 && c.AcceptedSamples == accepted, "fallback clears filter but preserves counts");
+        for (int f = 47; f < 54; ++f) Static(c.Step(f, 1, true, 10, config), config, "new sample warmup after dropout");
+        Check(c.Step(54, 1, true, 10, config).Scale < 1, "eight fresh samples reactivate adaptation");
+
+        var skipped = new Controller();
+        skipped.Step(0, 1, false, 0, config);
+        for (int f = 1; f <= 8; ++f) skipped.Step(f, 1, true, 10, config);
+        Static(skipped.Step(24, 1, true, .25, config), config, "long unrendered interval restarts before new sample");
+        Near(skipped.SmoothedMs, .25, 0, "no stale EMA after long camera gap");
+        var invalidExpiry = new Controller();
+        invalidExpiry.Step(0, 1, false, 0, config);
+        for (int f = 1; f <= 8; ++f) invalidExpiry.Step(f, 1, true, 20, config);
+        for (int f = 9; f <= 24; ++f) invalidExpiry.Step(f, 1, true, double.NaN, config);
+        Static(invalidExpiry.CurrentBudget, config, "invalid measurements also expire");
+        Check(!invalidExpiry.FeedbackActive, "invalid samples do not refresh last-valid clock");
+    }
+
+    private static void FrameAndEpochGuards()
+    {
+        scenarios++;
+        var c = new Controller();
+        var config = Config();
+        c.Step(100, 1, false, 0, config);
+        for (int f = 101; f <= 108; ++f) c.Step(f, 1, true, 100, config);
+        var held = c.CurrentBudget;
+        ulong accepted = c.AcceptedSamples, rejected = c.RejectedSamples;
+        double smooth = c.SmoothedMs;
+        for (int i = 0; i < 100; ++i) Same(c.Step(108, 1, true, .001, config), held, "same frame duplicate idempotent");
+        Check(c.AcceptedSamples == accepted && c.RejectedSamples == rejected && c.SmoothedMs == smooth,
+            "duplicate frame updates neither measurements nor diagnostic counters");
+        Same(c.Step(107, 1, true, .001, config), held, "backwards frame rejected");
+        Same(c.Step(-1, 1, true, 20, config), held, "negative frame rejected");
+        Check(c.RejectedSamples == rejected + 2 && c.SmoothedMs == smooth, "time reversal cannot poison feedback");
+        Static(c.Step(109, 2, true, 100, config), config, "new generation boundary");
+        Check(c.AcceptedSamples == accepted && !c.FeedbackActive, "generation supplied sample rejected");
+        for (int f = 110; f <= 117; ++f) c.Step(f, 2, true, 100, config);
+        accepted = c.AcceptedSamples; rejected = c.RejectedSamples;
+        c.Reset();
+        Static(c.CurrentBudget, config, "Reset restores static immediately");
+        Check(c.AcceptedSamples == accepted && c.RejectedSamples == rejected, "Reset preserves lifetime counters");
+        Static(c.Step(117, 2, true, 100, config), config, "Reset permits same-frame static boundary");
+        Check(c.RejectedSamples == rejected + 1 && c.AcceptedSamples == accepted, "Reset first measurement rejected");
+        Static(c.Step(117, 2, true, 100, config), config, "duplicate after Reset boundary remains idempotent");
+        c.Reset();
+        Static(c.Step(0, 999, true, 100, config), config, "explicit Reset allows new frame origin");
+
+        var sameFrameConfig = Config(patches: 12);
+        Static(c.Step(0, 999, true, 100, sameFrameConfig), sameFrameConfig, "same-frame config invalidation is static reset");
+        Check(!c.FeedbackActive, "same-frame config never applies its supplied timing");
+        var late = new Controller();
+        late.Step(int.MaxValue - 20, ulong.MaxValue, false, 0, config);
+        for (int f = int.MaxValue - 19; f < int.MaxValue; ++f) late.Step(f, ulong.MaxValue, true, 100, config);
+        Bounds(late.Step(int.MaxValue, ulong.MaxValue, true, 100, config), config, "frame arithmetic near int maximum");
+        Same(late.Step(int.MinValue, ulong.MaxValue, true, .1, config), late.CurrentBudget, "wrapped negative frame rejected");
+    }
+
+    private static void WarmupDeadbandSmoothingAndRate()
+    {
+        scenarios++;
+        var config = Config(target: 4, minimum: .01, patches: 1000, captures: 100, bricks: 100);
+        var c = new Controller();
+        c.Step(0, 1, false, 0, config);
+        for (int f = 1; f < 8; ++f) Static(c.Step(f, 1, true, 40, config), config, "seven valid samples cannot adjust");
+        Near(c.Step(8, 1, true, 40, config).Scale, .75, 1e-14, "first adjustment bounded to 25 percent");
+        for (int f = 9; f < 24; ++f) Near(c.Step(f, 1, true, 40, config).Scale, .75, 1e-14, "cooldown holds scale");
+        Near(c.Step(24, 1, true, 40, config).Scale, .5625, 1e-14, "next adjustment at sixteen-frame boundary");
+        double previous = c.CurrentBudget.Scale;
+        int lastChange = 24;
+        bool sawIncrease = false;
+        for (int f = 25; f < 240; ++f)
+        {
+            var budget = c.Step(f, 1, true, .1, config);
+            if (budget.Scale != previous)
+            {
+                Check(f - lastChange >= 16, "maximum adjustment frequency");
+                Check(budget.Scale >= previous * .75 - 1e-14 && budget.Scale <= previous * 1.1 + 1e-14,
+                    "each continuous scale adjustment respects asymmetric bounds");
+                sawIncrease |= budget.Scale > previous;
+                lastChange = f;
+                previous = budget.Scale;
+            }
+        }
+        Check(sawIncrease && c.CurrentBudget.Scale == 1, "sustained headroom gradually recovers static cap");
+        var neutral = new Controller();
+        neutral.Step(0, 1, false, 0, config);
+        for (int f = 1; f < 1000; ++f)
+            Static(neutral.Step(f, 1, true, f % 2 == 0 ? 4.39 : 3.61, config), config, "noise inside deadband");
+        var filter = new Controller();
+        filter.Step(0, 1, false, 0, config);
+        filter.Step(1, 1, true, 10, config);
+        filter.Step(2, 1, true, 20, config);
+        Near(filter.SmoothedMs, 12, 1e-12, "EWMA alpha is exactly .2");
+        filter.Step(3, 1, true, 5, config);
+        Near(filter.SmoothedMs, 10.6, 1e-12, "EWMA second step");
+    }
+
+    private static void MinimumPressure()
+    {
+        scenarios++;
+        var config = Config(target: 1, minimum: .25, patches: 100, captures: 20, bricks: 8);
+        var c = new Controller();
+        c.Step(0, 1, false, 0, config);
+        int minimumFrame = -1;
+        for (int f = 1; f < 160; ++f)
+        {
+            c.Step(f, 1, true, 20, config);
+            if (c.AtMinimumWork && minimumFrame < 0) minimumFrame = f;
+            if (minimumFrame >= 0 && f < minimumFrame + 13)
+                Check(!c.MinimumWorkOverBudget, "old aggregate cannot immediately claim settled minimum pressure");
+        }
+        Check(minimumFrame >= 0 && c.AtMinimumWork && c.MinimumWorkOverBudget, "sustained high GPU samples at minimum report pressure");
+        Check(c.CurrentBudget.CachePatches == 25 && c.CurrentBudget.SurfaceCaptures == 5 && c.CurrentBudget.GlobalBricks == 2,
+            "pressure does not violate work floors");
+        c.Step(160, 1, false, 0, config);
+        Check(!c.MinimumWorkOverBudget, "missing measurement breaks consecutive pressure evidence");
+        c.Step(161, 1, true, 20, config);
+        c.Step(162, 1, true, 20, config);
+        Check(!c.MinimumWorkOverBudget, "two fresh pressure samples are insufficient");
+        c.Step(163, 1, true, 20, config);
+        Check(c.MinimumWorkOverBudget, "three fresh pressure samples restore status");
+        c.Step(170, 1, true, 20, config);
+        Check(!c.MinimumWorkOverBudget, "skipped frame numbers break consecutive evidence");
+        for (int f = 171; f <= 240; ++f) c.Step(f, 1, true, .01, config);
+        Check(!c.MinimumWorkOverBudget, "headroom clears pressure evidence");
+
+        var one = new Controller();
+        var fixedOne = Config(target: 1, patches: 1, captures: 1, bricks: 0);
+        one.Step(0, 1, false, 0, fixedOne);
+        for (int f = 1; f <= 3; ++f) one.Step(f, 1, true, 4, fixedOne);
+        Check(one.AtMinimumWork && one.MinimumWorkOverBudget, "indivisible one-item work is already at its minimum");
+        for (int f = 4; f < 100; ++f)
+        {
+            one.Step(f, 1, true, 4, fixedOne);
+            Check(one.MinimumWorkOverBudget && one.CurrentBudget.Scale == 1,
+                "no ineffective scale changes or pressure reset when integer quotas already equal floors");
+        }
+        var smoothedPressure = new Controller();
+        smoothedPressure.Step(0, 1, false, 0, fixedOne);
+        smoothedPressure.Step(1, 1, true, 4, fixedOne);
+        smoothedPressure.Step(2, 1, true, .5, fixedOne);
+        smoothedPressure.Step(3, 1, true, .5, fixedOne);
+        Check(smoothedPressure.MinimumWorkOverBudget && smoothedPressure.SmoothedMs > 1.1,
+            "minimum pressure deliberately uses three smoothed observations, not three raw overrun values");
+    }
+
+    private static void PerCameraIsolation()
+    {
+        scenarios++;
+        var a = new Controller(); var b = new Controller(); var config = Config();
+        a.Step(0, 1, false, 0, config); b.Step(0, 1, false, 0, config);
+        for (int f = 1; f < 200; ++f)
+        {
+            a.Step(f, 1, true, 40, config);
+            Static(b.Step(f, 1, true, 2, config), config, "other camera has independent headroom");
+        }
+        Check(a.AtMinimumWork && !b.AtMinimumWork, "one camera's overrun cannot affect another budget");
+        double otherSmooth = b.SmoothedMs;
+        a.Reset();
+        Check(b.FeedbackActive && b.SmoothedMs == otherSmooth && b.AcceptedSamples == 199,
+            "one camera Reset cannot change another camera diagnostics");
+    }
+
+    private static void DelayedSyntheticPlant()
+    {
+        scenarios++;
+        var c = new Controller();
+        var config = Config(target: 4, patches: 1000, captures: 100, bricks: 100);
+        var costs = new List<double>();
+        double previousScale = 1;
+        int previousChange = -100;
+        double firstSettled = 0, loadedSettled = 0, recoveredSettled = 0;
+        int firstCount = 0, loadedCount = 0, recoveredCount = 0;
+        for (int f = 0; f < 1000; ++f)
+        {
+            bool valid = f >= 10 && f % 53 != 0 && f % 53 != 1;
+            double measured = 0;
+            if (valid)
+            {
+                for (int source = f - 10; source <= f - 3; ++source) measured += costs[source];
+                measured /= 8;
+            }
+            var budget = c.Step(f, 7, valid, measured, config);
+            Bounds(budget, config, "delayed plant");
+            if (budget.Scale != previousScale)
+            {
+                Check(f - previousChange >= 16, "delayed aggregates cannot cause rapid repeated corrections");
+                previousChange = f;
+                previousScale = budget.Scale;
+            }
+            double work = .6 * budget.CachePatches / config.MaxCachePatches +
+                .25 * budget.SurfaceCaptures / config.MaxSurfaceCaptures + .15 * budget.GlobalBricks / config.MaxGlobalBricks;
+            double load = f < 350 || f >= 700 ? 5 : 8;
+            double cost = (1.2 + load * work) * (1 + .02 * Math.Sin(f * .37));
+            costs.Add(cost);
+            if (f >= 230 && f < 330) { firstSettled += cost; firstCount++; }
+            if (f >= 580 && f < 680) { loadedSettled += cost; loadedCount++; }
+            if (f >= 900) { recoveredSettled += cost; recoveredCount++; }
+        }
+        firstSettled /= firstCount; loadedSettled /= loadedCount; recoveredSettled /= recoveredCount;
+        Check(firstSettled >= 3.5 && firstSettled <= 4.5, "delayed noisy baseline converges near target");
+        Check(loadedSettled >= 3.5 && loadedSettled <= 4.5, "load increase converges near target");
+        Check(recoveredSettled >= 3.5 && recoveredSettled <= 4.5, "load recovery restores useful work near target");
+        trajectories.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+            "Synthetic 8-frame mean + 3-frame delay: settled baseline/load/recovery {0:F3}/{1:F3}/{2:F3} ms for 4 ms target.",
+            firstSettled, loadedSettled, recoveredSettled));
+
+        var fixedCost = new Controller();
+        fixedCost.Step(0, 1, false, 0, config);
+        for (int f = 1; f < 500; ++f)
+        {
+            double syntheticMs = 8 + 2 * fixedCost.CurrentBudget.Scale;
+            Bounds(fixedCost.Step(f, 1, true, syntheticMs, config), config, "large fixed-cost plant");
+        }
+        Check(fixedCost.AtMinimumWork && fixedCost.MinimumWorkOverBudget && fixedCost.SmoothedMs > 4.4,
+            "fixed costs preserve floors and report measured minimum-work pressure without promising a deadline");
+    }
+
+    private static void WorkFloorsAndIntegerQuantization()
+    {
+        scenarios++;
+        var c = new Controller(); var config = Config(target: 1, patches: 5, captures: 2, bricks: 1);
+        c.Step(0, 1, false, 0, config);
+        int[] lastPatch = new int[37], lastCapture = new int[23], lastBrick = new int[29];
+        int patchCursor = 0, captureCursor = 0, brickCursor = 0;
+        bool sawOneItemCaptureStep = false;
+        int previousCapture = 2;
+        for (int f = 1; f <= 350; ++f)
+        {
+            var budget = c.Step(f, 1, true, 100, config);
+            Bounds(budget, config, "small integer quotas");
+            if (previousCapture == 2 && budget.SurfaceCaptures == 1) sawOneItemCaptureStep = true;
+            previousCapture = budget.SurfaceCaptures;
+            for (int i = 0; i < budget.CachePatches; ++i) lastPatch[patchCursor++ % lastPatch.Length] = f;
+            for (int i = 0; i < budget.SurfaceCaptures; ++i) lastCapture[captureCursor++ % lastCapture.Length] = f;
+            for (int i = 0; i < budget.GlobalBricks; ++i) lastBrick[brickCursor++ % lastBrick.Length] = f;
+            if (f >= 37)
+            {
+                foreach (int service in lastPatch) Check(f - service < 37, "positive patch floor permits oldest-first progress");
+                foreach (int service in lastCapture) Check(f - service < 23, "positive capture floor permits oldest-first progress");
+                foreach (int service in lastBrick) Check(f - service < 29, "positive brick floor permits oldest-first progress");
+            }
+        }
+        Check(sawOneItemCaptureStep, "documented integer rounding can cross a one-item quota boundary");
+        // This fixture assumes schedulable atomic jobs. Draw-budget admission, published
+        // residency and actual schedulers have their own tests; positive quotas alone do
+        // not make a multi-submesh capture fit an insufficient static draw cap.
+    }
+
+    private static void AdversarialBounds()
+    {
+        scenarios++;
+        var random = new Random(761993);
+        int[] caps = {0, 1, 2, 3, 7, 31, 1000, int.MaxValue};
+        double[] fractions = {.01, .125, .3333333333333, .999999999, 1};
+        for (int run = 0; run < 100; ++run)
+        {
+            var c = new Controller();
+            var config = Config(target: 2, minimum: fractions[run % fractions.Length],
+                patches: caps[run % caps.Length], captures: caps[(run * 3 + 1) % caps.Length], bricks: caps[(run * 7 + 2) % caps.Length]);
+            c.Step(0, 1, false, 0, config);
+            for (int f = 1; f <= 350; ++f)
+            {
+                int choice = random.Next(14);
+                double measurement = choice == 0 ? double.MaxValue : choice == 1 ? double.Epsilon :
+                    choice == 2 ? double.NaN : choice == 3 ? double.PositiveInfinity : choice == 4 ? -1 :
+                    .05 + random.NextDouble() * 15;
+                var budget = c.Step(f, 1, choice != 5, measurement, config);
+                Bounds(budget, config, "randomized extreme inputs");
+                Check(!double.IsNaN(c.SmoothedMs) && !double.IsInfinity(c.SmoothedMs) && c.SmoothedMs >= 0,
+                    "filter remains finite for every finite positive input including double.MaxValue");
+                if (f % 11 == 0)
+                {
+                    ulong count = c.AcceptedSamples;
+                    Same(c.Step(f, 1, true, double.MaxValue, config), budget, "randomized same-frame no-op");
+                    Check(c.AcceptedSamples == count, "randomized duplicate not accepted");
+                }
+            }
+        }
+        foreach (double target in new [] {double.Epsilon, double.MaxValue})
+        {
+            var c = new Controller(); var config = Config(target: target);
+            for (int f = 0; f < 200; ++f) Bounds(c.Step(f, 1, true, f % 2 == 0 ? double.MaxValue : double.Epsilon, config), config, "extreme finite target");
+        }
+    }
+
+    private static void SteadyStateDoesNotAllocate()
+    {
+        scenarios++;
+        var c = new Controller(); var config = Config();
+        for (int f = 0; f < 1000; ++f) c.Step(f, 1, true, 20, config);
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        for (int f = 1000; f < 11000; ++f) c.Step(f, 1, true, 20, config);
+        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Check(allocated == 0, "steady-state Step does not allocate managed memory");
+    }
+
+    private static void ExactSourceIdentity()
+    {
+        scenarios++;
+        var c = new Controller(); var config = Config();
+        c.Step(100, 1, false, 0, config);
+        c.Step(101, 1, true, 4, config, 100);
+        Check(c.AcceptedSamples == 1 && c.SmoothedMs == 4, "configuration epoch frame itself is an eligible exact source");
+        ulong rejected = c.RejectedSamples;
+        c.Step(102, 1, true, 1000, config, 100);
+        c.Step(103, 1, true, 1000, config, 99);
+        c.Step(104, 1, true, 1000, config, 105);
+        c.Step(105, 1, true, 1000, config, -2);
+        Check(c.AcceptedSamples == 1 && c.RejectedSamples == rejected + 4 && c.SmoothedMs == 4,
+            "duplicate, pre-epoch, future and invalid-negative source measurements cannot enter EWMA");
+        c.Step(106, 1, true, 4, config, 104);
+        c.Step(107, 1, true, double.NaN, config, 105);
+        c.Step(108, 1, true, 4, config, 105);
+        Check(c.AcceptedSamples == 3, "bad numeric measurement does not reserve its source frame");
+        c.Step(109, 1, true, 4, config, -1);
+        c.Step(110, 1, true, 1000, config, 105);
+        c.Step(111, 1, true, 4, config, 106);
+        Check(c.AcceptedSamples == 5 && c.SmoothedMs == 4,
+            "unknown Recorder measurements remain valid without erasing known-source duplicate guard");
+
+        var changed = Config(target: 5);
+        c.Step(112, 1, true, 4, changed, 111);
+        ulong before = c.AcceptedSamples;
+        c.Step(113, 1, true, 1000, changed, 111);
+        Check(c.AcceptedSamples == before && c.SmoothedMs == 0, "configuration reset rejects a queued old source frame");
+        c.Step(114, 1, true, 5, changed, 112);
+        Check(c.AcceptedSamples == before + 1 && c.SmoothedMs == 5, "fresh configuration's boundary source is accepted");
+        c.Reset();
+        c.Step(0, 2, true, 5, changed, 0);
+        before = c.AcceptedSamples;
+        c.Step(1, 2, true, 5, changed, 0);
+        Check(c.AcceptedSamples == before + 1, "Reset clears exact source watermark for a new camera/frame lifetime");
+        c.Step(2, 3, false, 0, changed);
+        before = c.AcceptedSamples;
+        c.Step(3, 3, true, 1000, changed, 1);
+        Check(c.AcceptedSamples == before && c.SmoothedMs == 0, "generation boundary rejects pre-epoch source");
+        c.Step(4, 3, true, 5, changed, 2);
+        Check(c.AcceptedSamples == before + 1, "generation boundary's exact source remains eligible");
+    }
+
+    private static void ExactDelayedQuotaMeasurements()
+    {
+        scenarios++;
+        var c = new Controller(); var config = Config(target: 1, minimum: .01, patches: 1000, captures: 100, bricks: 100);
+        c.Step(0, 1, false, 0, config);
+        for (int f = 1; f <= 8; ++f) c.Step(f, 1, true, 10, config, f - 1);
+        Near(c.CurrentBudget.Scale, .75, 1e-14, "exact-source warmup permits first bounded reduction");
+        c.Step(9, 1, true, 1000, config, 7);
+        Check(c.AcceptedSamples == 8 && c.SmoothedMs == 10, "pre-adjustment source rejected after quota changes");
+        c.Step(10, 1, true, 10, config, 8);
+        Check(c.AcceptedSamples == 9, "source equal to the new quota's application frame is accepted");
+        for (int f = 11; f <= 24; ++f)
+        {
+            c.Step(f, 1, true, 1000, config, f % 2 == 0 ? 7 : 8);
+            Near(c.CurrentBudget.Scale, .75, 1e-14, "queued duplicate/old-quota samples cannot cause repeated reductions after cooldown");
+        }
+        Check(c.AcceptedSamples == 9 && c.SmoothedMs == 10,
+            "rejected exact-source samples update neither EWMA nor valid sample count");
+        c.Step(25, 1, true, 10, config, 9);
+        Near(c.CurrentBudget.Scale, .5625, 1e-14, "later source measured under the current quota may drive the next adjustment");
+        ulong accepted = c.AcceptedSamples;
+        for (int f = 26; f <= 39; ++f)
+        {
+            c.Step(f, 1, true, 1000, config, f - 16);
+            Near(c.CurrentBudget.Scale, .5625, 1e-14, "distinct increasing source frames from older quotas are rejected");
+        }
+        Check(c.AcceptedSamples == accepted && c.SmoothedMs == 10, "old-quota rejection is independent of duplicate detection");
+        c.Step(40, 1, true, 10, config, 25);
+        Check(c.AcceptedSamples == accepted + 1, "second adjustment boundary source is accepted inclusively");
+        c.Step(41, 1, true, 10, config, 26);
+        Near(c.CurrentBudget.Scale, .421875, 1e-14, "only a new qualifying source can drive adjustment after cooldown");
+
+        // Rejected source timestamps must not keep a reduced quota alive forever.
+        for (int f = 42; f <= 57; ++f) c.Step(f, 1, true, 1000, config, 26);
+        Static(c.CurrentBudget, config, "sixteen frames without a usable source restores static fallback");
+        Check(!c.FeedbackActive && c.SmoothedMs == 0, "source rejection obeys the same missing-measurement timeout");
+    }
+
+    private static void UnknownSourceCompatibility()
+    {
+        scenarios++;
+        var legacy = new Controller(); var explicitUnknown = new Controller();
+        var config = Config();
+        for (int f = 0; f < 1500; ++f)
+        {
+            ulong generation = (ulong)(1 + f / 400);
+            bool valid = f % 71 < 50;
+            double measured = f % 113 == 0 ? double.NaN : (f / 150) % 2 == 0 ? 20 : 1;
+            var oldBudget = legacy.Step(f, generation, valid, measured, config);
+            var unknownBudget = explicitUnknown.Step(f, generation, valid, measured, config, -1);
+            Same(oldBudget, unknownBudget, "omitted and explicit unknown source produce identical work quotas");
+            Check(legacy.AcceptedSamples == explicitUnknown.AcceptedSamples && legacy.RejectedSamples == explicitUnknown.RejectedSamples &&
+                legacy.SmoothedMs == explicitUnknown.SmoothedMs && legacy.FeedbackActive == explicitUnknown.FeedbackActive &&
+                legacy.MinimumWorkOverBudget == explicitUnknown.MinimumWorkOverBudget,
+                "Recorder branch remains identical across noise, fallback, adjustments and generations");
+        }
+    }
+
+    private static int Main()
+    {
+        try
+        {
+            InitializationAndConfiguration();
+            InvalidAndMissingSamples();
+            FrameAndEpochGuards();
+            WarmupDeadbandSmoothingAndRate();
+            MinimumPressure();
+            PerCameraIsolation();
+            DelayedSyntheticPlant();
+            WorkFloorsAndIntegerQuantization();
+            AdversarialBounds();
+            SteadyStateDoesNotAllocate();
+            ExactSourceIdentity();
+            ExactDelayedQuotaMeasurements();
+            UnknownSourceCompatibility();
+            foreach (string trajectory in trajectories) Console.WriteLine(trajectory);
+            Console.WriteLine("GPU budget controller: " + scenarios + " scenarios, " + assertions +
+                " assertions passed against unchanged runtime C# source (no Unity stubs). Synthetic samples validate controller behavior; they do not validate GPU timing provenance or target-device performance.");
+            return 0;
+        }
+        catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+    }
+}

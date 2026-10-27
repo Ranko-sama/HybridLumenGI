@@ -1,0 +1,171 @@
+STATE: PLAN
+TASK_ID: c2c_d601
+ITERATION: 0
+
+总体判断
+
+建议保留 local-development-denoise-01 作为有实证支持的局部空间降噪改进，但不应据此关闭动态稳定性、薄壁正确性或数值合同验收。下一步先修两项明确问题，再做有限的端到端验证，不扩大光传输架构。
+
+本次通过 Codex with ChatGPT · HybridLumenGI 检查了 workspace:/ 中的评审简报、当前实现、保存的基线与补丁、相关资源接线、验证脚本和结果，并查看了前后 PNG。工作区没有 Git；本次没有修改源码或执行测试。
+
+审查结论分三类：
+
+分类	结论
+确定缺陷	一项继承的 HDR 时间二阶矩存储缺陷；一项本次新增的 HistoryAcceptance 调试视图语义回归。
+合理风险，尚未证实为实际画面缺陷	更宽的亮度滤波权重可能增加跨薄层混合；历史长度从 3 到 4 时滤波尺度存在硬切换。
+改善证据成立，但范围有限	第179帧灰门内部的单帧斑点确实减少；没有足够证据证明时间闪烁、拖影、真实照明误差或性能得到改善。
+一、按优先级排序的确定发现
+F1 — P1：时间二阶矩仍可能溢出 RGBA16F；属于继承缺陷，不是本次新增
+
+触发条件： 当前 GI 是有限、有效的 HDR 测量，但亮度平方超出半精度范围。例如灰度输入 RGB=(1000,1000,1000) 本身可以存入当前半精度 GI 纹理，而二阶矩约为 1,000,000，无法存入最大有限值为 65504 的半精度通道。
+
+证据链完整：
+
+Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl:349–355 只检查 lum*lum 在 float32 运算中是否有限；未知几何法线分支也直接写入该平方值。
+同文件 :468–481 计算并写入时间矩 newMoments.xy。本次新增的上限保护只作用于空间方差 w，没有保护时间二阶矩 y。
+Runtime/HybridLumenGIRendererFeature.cs:325–328 将两张 moments 历史纹理分配为 R16G16B16A16_SFloat。
+Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl:46–49 要求读回的全部 moments 分量有限；因此存储后出现非有限值，会撤销本可复用的历史。
+HybridLumenGIKernels.hlsl:497–503 的滤波路径没有先验证 moments 有限性。若二阶矩读为正无穷，方差与 sigma 也会变成无穷，亮度差项失去正常的抑制作用。
+
+这不是仅凭“可能很亮”的猜测：现有 GPU 测试已经放入了亮度为1000的邻居，但没有检查该亮像素自己的二阶矩。 测试只断言中心像素的输出及 moments.w，所以“亮邻居半精度检查通过”不能证明整张 moments 纹理有效。见 LocalComparison/Harness/DenoiseRegressionEditor.cs:50–69。
+
+保存基线的 LocalComparison/Review/denoise-01/HybridLumenGIKernels.before.hlsl:455–463 已有同样的时间矩写法，因此应记录为本轮审查发现的既存合同缺陷。当前资料没有亮中心逐通道读回，不能声称它已在本轮真实场景中造成了可见故障。
+
+修复建议： 最小、容易审计的方向是把两张 moments 纹理提升为 RGBA32F，保留辐射亮度和估计器不变。不要仅把 moments.y 截到65504：这会破坏 E[L²]−E[L]² 的含义；也不要靠打开有偏的 radianceClamp 掩盖问题。
+
+此方案必须同步修改预算：两张纹理各增加8字节/GI像素，合计 +16字节/GI像素。Runtime/HybridLumenGIScreenBudget.cs:50–57 中基础路径的96应变为112，identity路径的128应变为144；同步检查 Feature 的默认计数、预算诊断和现有预算测试，不能只换纹理格式。
+
+必要验证： 用真实纹理写入—下一帧读取的方式，测试亮度255、256、1000及接近当前辐射纹理上界的恒定场。检查所有像素、所有 moments 分量，而非只检查中心 w；确认历史能连续增长，恒定场经过滤波仍保持原值，且没有靠截断亮度获得通过。
+
+F2 — P2：HistoryAcceptance 仍显示 moments.w，本次已把它改为空间方差
+
+触发条件： 选择 DebugView.HistoryAcceptance。
+
+Runtime/HybridLumenGIRendererFeature.cs:15 仍将枚举值3命名为 HistoryAcceptance。
+Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader:110–112 仍把 _HLGI_Moments.www 直接显示为该视图。
+HybridLumenGIKernels.hlsl:474–477 已明确把 w 改为空间方差；基线对应位置保存的是 valid?1:0。
+Documentation/ValidationSequence.md:10 仍指导使用这个历史接受视图。
+
+结果是：稳定、已接受历史且空间方差为零的区域会显示黑色；刚拒绝历史但空间噪声较大的区域反而会显示非零。 该视图已不能作为历史接受证据，且大方差直接输出还可能在显示映射中饱和。这是补丁引入的确定消费者合同遗漏，不影响正常 Final 模式的事实与调试错误应分开记录。
+
+修复建议： 本轮最小方案是保留枚举数值3，明确改名为 SpatialVariance，配套有界的调试显示映射和文档说明。若一定要保留真实 HistoryAcceptance，必须重新提供明确的接受状态，不能用 z>1 冒充：maxHistory=1、未知当前值保留旧历史等情况都会使这种推导不可靠。
+
+必要验证： 至少核对“已接受的均匀历史”和“被拒绝的噪声首帧”两种相反情形，确保视图名称、输出含义与运行记录一致。
+
+二、数值与资源合同中已核对的部分，以及待验证风险
+已核对，没有发现本次新增的对应破坏
+
+空间方差仍从有效测量和几何、法线、材质兼容的邻域取得；未知中心不会因邻居有值就被制造成有效 GI。历史接受仍经过原有重投影、身份、几何、材质、变更域及有效历史检查，没有由新增方差直接授予历史资格。这些路径见 HybridLumenGIKernels.hlsl:390–426、436–456、485–495，以及 HybridLumenGIRadianceValidity.hlsl:46–59。
+
+资源上，补丁复用既有 moments 通道和3×3循环，没有新增纹理或 dispatch。Feature 先写未滤波历史，再用 tempA/tempB 交替滤波；滤波结果不写回该时间历史。检查范围内未发现新增读写别名或生命周期问题。见 Runtime/HybridLumenGIRendererFeature.cs:803–809、831–832、1109–1129。这不等于新增计算没有 GPU 成本，也不等于已有退出警告已解决。
+
+R1 — P2风险：方差邻域的硬平面条件，不等于滤波器硬拒绝跨平面样本
+
+新增方差只接受平面距离不超过阈值的邻居，见 HybridLumenGIKernels.hlsl:448–455；但 CSFilter 实际使用的是：
+
+exp(-planeDistance / threshold - … - luminanceDifference / sigma)
+
+见同文件 :514–521。它是软衰减，不是超过阈值就拒绝。仅看平面项，距离为一个阈值时权重仍约为0.368，两个阈值时仍约为0.135。
+
+因此，短历史扩大 sigma 后，原先受亮度差强烈抑制的相邻平行面，可能得到更大权重。这属于已有软滤波策略与新增方差补偿的交互风险；目前不能把真实薄壁亮度差归因于它。 separate-plane GPU测试没有执行 CSFilter，不能关闭此风险。
+
+建议在已有小型GPU入口中加入近距离平行面、材质边界和法线边界，覆盖滤波步长1、2、4，记录暗侧引入量和边缘变化。不要在没有参考的情况下直接把所有软权重改成硬阈值；至少先纠正“与 filter 的 absolute plane gate 匹配”这一不准确注释。
+
+R2 — P2风险：历史长度从3到4时，空间补偿直接消失
+
+HybridLumenGIKernels.hlsl:500–503 在 z<4 时使用 w×4/z，到 z=4 即完全删除该项。公式的不连续是确定的，可见闪烁则尚未证实。
+
+当时间方差仍很小、空间方差较大，且运动停止后历史开始增长时，滤波强度可能明显改变。现有第119、179帧静态截图不能检验这个过程。下一轮应明确覆盖 z=1→2→3→4→5，同时测试持续 reactive、历史上限较低和重置后的行为；仅在测到问题后再考虑连续衰减或其他调整，不提前扩展算法。
+
+三、改善声明得到多大程度的支持
+可以支持：指定画面和区域的单帧空间平滑改善
+
+保存的配对结果中，第179帧固定门内区域：
+
+指标	修复前	修复后
+邻域高频残差 RMS	0.03334195	0.01089995
+平均线性亮度 Y	0.34841809	0.34418508
+历史长度为1的比例	77.36%	77.36%
+时间方差中位数	0	0
+
+这与所报 残差下降67.31%、区域均值变化−1.21% 一致。第119、179帧还记录了未滤波历史最大绝对差为0，以及设置和所选场景状态匹配。见 LocalComparison/Review/denoise-01/paired-comparison.json:6–67。
+
+我查看的 before-frame-0179.png 与 after-frame-0179.png 也确实显示灰门内部斑点减少。GPU 单亮邻居案例的理论空间方差为 8/81≈0.0987654，与保存的半精度结果 0.0987548828125 相符；亮度1000的对应方差超过65504，保存结果正好饱和到该上限。见 gpu-regression.json:15–29 和测试构造 DenoiseRegressionEditor.cs:50–69。
+
+所以“此区域的单帧斑点减少”有支持；“时间累计改善”没有。 两帧未滤波历史相同，反而说明已展示的变化主要发生在空间重建阶段。
+
+不能支持：物理误差、时间质量或全图能量保持
+
+分析脚本测的是最终图像去线性趋势后的残差、邻域高频残差和均值，不是对物理参考的误差；门内ROI还刻意避开轮廓、接触边界与条纹遮挡。见 LocalComparison/Harness/analyze-denoise.py:16–27、47–64。
+
+同一第179帧的整图均值约上升1.40%，而门内均值下降1.21%。这不是自动判错的依据，但足以说明不能用一个ROI的均值变化推导全图能量守恒，更不能据此认定薄壁照明更正确。原记录对这些限制的表述是审慎的，见 Documentation/LocalDevelopment.md:17–25。
+
+尚缺的验证与可复核材料
+缺口	对当前结论的限制
+五项GPU回归固定 _HLGI_HistoryValid=0，只运行 CSTemporal	没有验证连续历史、有效旧历史保留、完整 identity 变体或实际滤波链。见测试入口 :31–49、61–69。
+最终运行420帧、21张捕获，标为 incomplete-probe	不是720帧完整序列，也没有当前源码的黑室尾段、HLOD或Player重验。见 final-run.json:2–26。
+当前证据目录只有汇总、脚本、基线/patch和两张PNG	我能核对实现、计算方法和结果一致性，但不能从这些文件独立重算完整HDR统计或核查420份原始receipt。
+当前Player、DXR运行未验证	Tests/local-development-validation-results.json:603–610 明确为false；冻结16版的Player/DXR证据不能迁移到当前源码。
+启动、时间、内存证据不足	首帧等待335.44秒不是GI帧时间；现有计时声明还明确受到采集/IO污染。见 final-run.json:24–33。
+
+记录脚本确实包含工作区与Unity工程哈希一致性检查，并断言相对历史清单只改动一个产品文件，见 record-local-denoise.py:42–55。但109个文件的逐字节重算不是我本次只读审查独立完成的结果，应保留这一证据层级。
+
+四、下一轮最小工作包：denoise-02-contracts
+
+目标限定为：关闭F1/F2，补齐足以揭示R1/R2的局部测试，并形成可复核的短序列证据。不要增加新GI功能、改采样策略或制作交付包。
+
+1. 先补证据，再锁定输入
+
+由Codex把现有诊断基线和最终运行的以下材料复制到工作区评审子目录，不要求粘贴，也不越界读取：
+
+feature.json、run.json、frames.jsonl，第119/179帧的JSON与原始HDR，以及对应 denoise-*-history、denoise-*-moments、相关Unity日志和来源清单。连接器不能直接解析的二进制，可附固定ROI及关键像素的可读数值导出。
+
+先确认实际GI尺寸、identity状态、内部GI帧计数及启动回退范围。若来源、设置或帧对齐不成立，停止把差异解释为降噪效果，先解决证据配对。
+
+2. 只修明确合同
+修改目标	文件级建议
+时间矩可表示范围	Runtime/HybridLumenGIRendererFeature.cs：两张moments改RGBA32F；核对初始化、重建和默认字节计数。
+预算同步	Runtime/HybridLumenGIScreenBudget.cs；更新 Tests/StandaloneScreenBudget/Program.cs.txt 对应独立预算预期，运行已有 Tests/Validate-ScreenBudget.ps1。
+调试语义	Feature枚举、HybridLumenGIComposite.shader、Documentation/ValidationSequence.md：模式3明确改为空间方差，或提供真正的接受状态；不得从样本数伪造。
+合同记录	Documentation/LocalDevelopment.md 与本轮结果清单：记录新增字节、实际修改文件和验证范围；保存新的before/patch，不覆盖16版证据。
+
+提升格式后，比较运行必须确认实际GI分辨率没有因预算重新规划而改变，否则图像差异与性能差异会混入分辨率因素。
+
+3. 扩展现有GPU入口，不新建测试框架
+
+保留原五例，新增四组有限测试：
+
+测试组	必须覆盖的内容
+HDR存储往返	255、256、1000、接近半精度辐射上界的恒定输入；真实ping-pong至少四帧；全纹理、全分量有限性和历史增长。
+有效性与失败路径	已测黑色、未知当前值配有效/无效旧历史、未知Ng、identity不匹配，以及非有限旧数据；不能制造测量或复活无效历史。
+时间长度边界	两个实际temporal kernel的1至5帧；包含历史重置、maxHistory=1、reactive短历史。
+真实滤波链	temporal后接 CSFilter，步长1、2、4；同平面噪声、近距离平行面、材质/法线边界，并检查输出confidence语义。
+
+上述测试应扩展 LocalComparison/Harness/DenoiseRegressionEditor.cs。identity测试必须实际绑定所需身份纹理、候选和对象表，不能仅编译该入口后宣称运行覆盖。
+
+4. 最多一组有界前后配对，检查真实动态行为
+
+复用现有Functional场景和固定序列，每侧最多420帧。已有材料足够的静态指标直接复用；只为缺失的动态证据增加事件窗口连续采集，例如门开始移动、门停止、返回运动和薄壁切镜后的短窗口。原固定事件安排见 Documentation/ValidationSequence.md:17–26。
+
+保持光强、曝光、射线数、缓存设置及实际分辨率一致。报告应同时保留raw/未滤波history/moments与最终输出，并给出运动对齐后的时域变化、显露后的拖尾和边界变化。没有可靠对齐或参考时，只能记为“未验收”，不能用单帧RMS替代。
+
+本包成功标准：
+
+F1亮中心案例在真实存储往返后所有必要分量有限，历史按预期增长，恒定场不靠亮度截断维持正确输出。
+F2的枚举、显示、文档和记录语义一致。
+原五例及新增有效性病例通过；无新增纹理读写混用、预算漏计或静默降分辨率。
+已知合成输入的结果满足预先确定的数值/格式容差；真实短序列结果及限制完整保存。即使通过，也只关闭对应局部合同，不关闭G1/G2/G3整体关卡。
+
+停止条件： 首个非有限内部值、错误历史复用、未知中心被填成有效GI、来源/设置不匹配、无法解释的后端回退或采集失败出现后，停止质量调参，保存最小复现。若修复需要另起编码方案、调整重投影或改变传输方程，拆成下一工作包，不在本包顺手重构。不要为了维持“67%改善”而改变光强、曝光或radiance clamp。
+
+五、随后优先级
+
+第一优先：薄壁正确性与动态参考。 在现有薄壁区域分离raw gather、时间历史、空间滤波与合成，先判断差异出现在哪一层，再隔离直接光、单次反弹与缓存反馈。相关检查入口是 HybridLumenGITransport.hlsl:311–316、425–428，以及屏幕路径。bounceFeedback=0只能用作诊断，正式结果必须恢复原配置。旧版更暗、平滑后更暗，都不是物理真值；历史黑室修复也没有关闭薄壁问题，见 Documentation/LocalRuntimeFix02.md:11–25。
+
+同属高优先级：退出资源警告。 这是已记录症状，但现有材料不足以定位具体泄漏。优先取得带分配来源的退出日志，检查 CameraState.Dispose/RetireSoftwareBuffers 与全相机退休队列：Runtime/HybridLumenGIRendererFeature.cs:397–418、Runtime/HybridLumenGIResourceRetirement.cs:35–44、77–86。做有限的进入/退出Play、禁用Feature和相机销毁复现，不能通过提前释放GPU仍可能使用的资源消除警告，也不能用资产页计账归零冒充总VRAM无泄漏。
+
+然后处理冷启动与可信性能。 区分编译、驱动/管线初始化和首个有效GI提交；冷、热各一次有明确缓存状态的测量比重复整套画面测试更有价值。335.44秒与历史热启动数字不可直接构成性能回归倍率。GI GPU时间和峰值显存应在无图像写盘干扰的有限运行中测量，不能沿用当前整帧采集计时。
+
+最后按实际需要扩展支持组合。 数值与资源合同稳定后，再安排当前源码的Player/DXR、真实identity开关、奇数尺寸/分辨率变化及选定材质/形变组合。冻结16版的成功结果继续作为历史参考，不重新标成当前版本通过。
+
+本轮建议的开发顺序是：修存储合同与调试语义 → 补小型端到端回归 → 用有限动态证据决定是否调整滤波 → 再推进薄壁、退出与性能专项。

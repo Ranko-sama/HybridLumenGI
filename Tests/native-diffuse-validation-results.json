@@ -1,0 +1,219 @@
+﻿{
+    "utcTime":  "2026-10-27T10:04:59.0633109Z",
+    "revision":  "feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53",
+    "compiler":  "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxc.exe",
+    "sha256":  "96E53CDE485DA77C7DC98587EC15E8F6561F479FF0669A9B6E82601B07F4B537",
+    "limitation":  "Selected DXC variants only. Does not prove Unity import, override keyword mapping, per-object data, RenderGraph bindings, GPU pixels, build stripping, or performance.",
+    "checks":  [
+                   {
+                       "name":  "native-diffuse-sh-pixel-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-sh-pixel-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-sh-vertex-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-sh-vertex-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-sh-mixed-normal-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-sh-mixed-normal-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-metal-textured-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-metal-textured-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-specular-detail-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-specular-detail-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-parallax-cutout-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-parallax-cutout-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-static-lightmap-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-static-lightmap-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-directional-lightmap-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-directional-lightmap-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-dynamic-directional-lightmap-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-dynamic-directional-lightmap-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-shadowmask-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-shadowmask-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-forward-plus-ssao-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  "dxc.exe : In file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\NativeDiffuse\r\nCapture.validation.hlsl:44:\r\nAt C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Validate-NativeDiffuseCapture.ps1:77 char:29\r\n+             $diagnostics = (\u0026 $CompilerPath @arguments 2\u003e\u00261 | Out-Str ...\r\n+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (In file include...dation.hlsl:44::String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/Shaders/LitForwardPass.hlsl:4:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/ShaderLibrary/Lighting.hlsl:6:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/ShaderLibrary/GlobalIllumination.hlsl:7:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/ShaderLibrary/RealtimeLights.hlsl:9:\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Clustering.hlsl:125:23: warning: ambiguous type for bit shift; use a type suffix on literal values, like\r\n \u0027L\u0027 or \u0027U\u0027, or a cast [-Wambig-lit-shift]\r\n    it.tileMask ^= (1 \u003c\u003c bitIndex);\r\n                      ^"
+                   },
+                   {
+                       "name":  "native-diffuse-forward-plus-ssao-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  "dxc.exe : In file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\NativeDiffuse\r\nCapture.validation.hlsl:44:\r\nAt C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Validate-NativeDiffuseCapture.ps1:77 char:29\r\n+             $diagnostics = (\u0026 $CompilerPath @arguments 2\u003e\u00261 | Out-Str ...\r\n+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (In file include...dation.hlsl:44::String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/Shaders/LitForwardPass.hlsl:4:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/ShaderLibrary/Lighting.hlsl:6:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/ShaderLibrary/GlobalIllumination.hlsl:7:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/ShaderLibrary/RealtimeLights.hlsl:9:\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Clustering.hlsl:125:23: warning: ambiguous type for bit shift; use a type suffix on literal values, like\r\n \u0027L\u0027 or \u0027U\u0027, or a cast [-Wambig-lit-shift]\r\n    it.tileMask ^= (1 \u003c\u003c bitIndex);\r\n                      ^"
+                   },
+                   {
+                       "name":  "native-diffuse-dbuffer-three-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-dbuffer-three-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-fog-linear-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-fog-linear-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-fog-exp-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-fog-exp-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-fog-exp2-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-fog-exp2-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-lod-crossfade-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-lod-crossfade-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-reject-subtractive-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-reject-subtractive-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-reject-apv-l1-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-reject-apv-l1-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-reject-apv-l2-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-reject-apv-l2-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-reject-debug-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  "dxc.exe : In file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\NativeDiffuse\r\nCapture.validation.hlsl:43:\r\nAt C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Validate-NativeDiffuseCapture.ps1:77 char:29\r\n+             $diagnostics = (\u0026 $CompilerPath @arguments 2\u003e\u00261 | Out-Str ...\r\n+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (In file include...dation.hlsl:43::String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/Shaders/LitInput.hlsl:4:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/ShaderLibrary/Core.hlsl:221:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl:5:\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:33:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoMinLuminance = 0.01;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:34:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoMaxLuminance = 0.90;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:35:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoSaturationTolerance = 0.214;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:36:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoHueTolerance = 0.104;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:37:7: warning: Initializer of external global will be ignored\r\nhalf3 _DebugValidateAlbedoCompareColor = half3(0.5, 0.5, 0.5);\r\n      ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:39:6: warning: Initializer of external global will be ignored\r\nuint _DebugRenderingLayerMask = 0;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:45:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateMetallicMinValue = 0;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:46:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateMetallicMaxValue = 0.9;\r\n     ^"
+                   },
+                   {
+                       "name":  "native-diffuse-reject-debug-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  "dxc.exe : In file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\NativeDiffuse\r\nCapture.validation.hlsl:43:\r\nAt C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Validate-NativeDiffuseCapture.ps1:77 char:29\r\n+             $diagnostics = (\u0026 $CompilerPath @arguments 2\u003e\u00261 | Out-Str ...\r\n+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (In file include...dation.hlsl:43::String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/Shaders/LitInput.hlsl:4:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/ShaderLibrary/Core.hlsl:221:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.rend\r\ner-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl:5:\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:33:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoMinLuminance = 0.01;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:34:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoMaxLuminance = 0.90;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:35:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoSaturationTolerance = 0.214;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:36:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoHueTolerance = 0.104;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:37:7: warning: Initializer of external global will be ignored\r\nhalf3 _DebugValidateAlbedoCompareColor = half3(0.5, 0.5, 0.5);\r\n      ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:39:6: warning: Initializer of external global will be ignored\r\nuint _DebugRenderingLayerMask = 0;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:45:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateMetallicMinValue = 0;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation/Packages/com.unity.render-pipelines.universal\r\n/ShaderLibrary/Debug/DebuggingCommon.hlsl:46:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateMetallicMaxValue = 0.9;\r\n     ^"
+                   },
+                   {
+                       "name":  "native-diffuse-reject-transparent-VERTEX",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   },
+                   {
+                       "name":  "native-diffuse-reject-transparent-FRAGMENT",
+                       "exitCode":  0,
+                       "diagnostics":  ""
+                   }
+               ]
+}

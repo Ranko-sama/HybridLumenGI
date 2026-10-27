@@ -1,0 +1,235 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using HybridLumenGI;
+using UnityEngine;
+using Frame=HybridLumenGI.HybridLumenGIReceiverIdentityFrame;
+using Registry=HybridLumenGI.HybridLumenGIReceiverRegistry;
+using Discovery=HybridLumenGI.HybridLumenGIReceiverDiscovery;
+static class Program
+{
+    static int checks,scenarios;static ulong serial=1;
+    static void Check(bool condition,string reason){checks++;if(!condition)throw new Exception(reason);}
+    static void Scenario(string name,Action run){run();scenarios++;Console.WriteLine("PASS: "+name);}
+    static Bounds Box(float x=0,float y=0,float z=0,float sx=.4f,float sy=.4f,float sz=.4f)=>new(new Vector3(x,y,z),new Vector3(sx,sy,sz));
+    sealed class Fixture
+    {
+        public Renderer Renderer=new();public Mesh Mesh=new();public Material[] Materials;
+        public Registry.Record[] Records;public Discovery.Candidate Candidate;
+        public Fixture(Matrix4x4 matrix,Bounds? bounds=null,int submeshes=1,bool supported=true)
+        {
+            Materials=Enumerable.Range(0,submeshes).Select(_=>new Material()).ToArray();
+            Records=Enumerable.Range(0,submeshes).Select(i=>new Registry.Record(serial++,serial++,serial++,Renderer,Mesh,i,matrix,
+                new HybridLumenGIMaterialSource.Snapshot(Renderer,Materials[i],i,supported,.37f))).ToArray();
+            Candidate=new Discovery.Candidate(Renderer,Mesh,Materials,bounds??Box(),matrix);
+        }
+        public Registry.Snapshot Snapshot()=>new(Records,new Discovery.Snapshot(new[]{Candidate}));
+        public HybridLumenGIReceiverHistory Previous(Matrix4x4 matrix)
+        {
+            var history=new HybridLumenGIReceiverHistory();foreach(var record in Records)
+                history.Previous[record]=new Registry.Record(record.Token,record.GeometryGeneration,record.MaterialGeneration,record.Renderer,record.Mesh,record.Submesh,matrix,record.Material);
+            return history;
+        }
+    }
+    static Frame Build(Fixture f,HybridLumenGIReceiverHistory history=null)=>Frame.Build(f.Snapshot(),history,Matrix4x4.identity,1921,1079);
+    static Matrix4x4 Scale(double x,double y,double z)
+    {var m=Matrix4x4.identity;m.m00=(float)x;m.m11=(float)y;m.m22=(float)z;return m;}
+    // Independent loop matrix product and point oracle; the builder uses an explicit
+    // affine cofactor inverse and column tests, not these forward constructions.
+    static Matrix4x4 Multiply(Matrix4x4 a,Matrix4x4 b)
+    {var m=new Matrix4x4();for(int r=0;r<4;r++)for(int c=0;c<4;c++){double v=0;for(int k=0;k<4;k++)v+=(double)a[r,k]*b[k,c];m[r,c]=(float)v;}return m;}
+    static double[] Point(Matrix4x4 m,double x,double y,double z)
+    {var v=new double[4];for(int r=0;r<4;r++)v[r]=m[r,0]*x+m[r,1]*y+m[r,2]*z+m[r,3];return v;}
+    static Matrix4x4 Rotation(double x,double y,double z)
+    {
+        var rx=Matrix4x4.identity;rx.m11=(float)Math.Cos(x);rx.m12=(float)-Math.Sin(x);rx.m21=-rx.m12;rx.m22=rx.m11;
+        var ry=Matrix4x4.identity;ry.m00=(float)Math.Cos(y);ry.m02=(float)Math.Sin(y);ry.m20=-ry.m02;ry.m22=ry.m00;
+        var rz=Matrix4x4.identity;rz.m00=(float)Math.Cos(z);rz.m01=(float)-Math.Sin(z);rz.m10=-rz.m01;rz.m11=rz.m00;
+        return Multiply(rz,Multiply(ry,rx));
+    }
+    static bool Full(Frame f,int w=1921,int h=1079)=>f.UnknownRects.Count==1&&f.UnknownRects[0].x==0&&f.UnknownRects[0].y==0&&f.UnknownRects[0].width==w&&f.UnknownRects[0].height==h;
+    static Registry.Snapshot Unknown(params Discovery.Candidate[] candidates)=>new(Array.Empty<Registry.Record>(),new Discovery.Snapshot(candidates));
+    static Frame UnknownFrame(Bounds b,Matrix4x4 vp,int width=1921,int height=1079,int cap=1024,bool top=true)
+    {var f=new Fixture(Matrix4x4.identity,b);return Frame.Build(Unknown(f.Candidate),null,vp,width,height,cap,top);}
+    static IEnumerable<double[]> Corners(Bounds b)
+    {for(int i=0;i<8;i++)yield return new[]{(double)b.center.x+((i&1)==0?-1:1)*b.extents.x,(double)b.center.y+((i&2)==0?-1:1)*b.extents.y,(double)b.center.z+((i&4)==0?-1:1)*b.extents.z};}
+    static void Contains(Bounds b,double[] p)
+    {for(int i=0;i<3;i++)Check(p[i]>=(double)b.center[i]-b.extents[i]-1e-7&&p[i]<=(double)b.center[i]+b.extents[i]+1e-7,"Conservative previous bounds contain oracle corner");}
+    static void Main()
+    {
+        Scenario("80-byte row layout zero-based index holes and exact uint key",()=>
+        {
+            Check(Marshal.SizeOf<Frame.Row>()==80&&Frame.RowStride==80,"Actual Row layout is 80 bytes with 64-byte value matrix adapter");
+            foreach(var field in new[]{("keyLow",64),("keyHigh",68),("flags",72),("reserved",76)})Check(Marshal.OffsetOf<Frame.Row>(field.Item1).ToInt32()==field.Item2,"uint field offset");
+            var a=new Fixture(Matrix4x4.identity);var b=new Fixture(Matrix4x4.identity,supported:false);var c=new Fixture(Matrix4x4.identity);
+            var r=c.Records[0];c.Records[0]=new Registry.Record(r.Token,0xFFEEDDCC80000000UL,0x123456789UL,r.Renderer,r.Mesh,0,r.LocalToWorld,r.Material);
+            var source=new Registry.Snapshot(new[]{a.Records[0],b.Records[0],c.Records[0]},new Discovery.Snapshot(new[]{a.Candidate,b.Candidate,c.Candidate}));
+            var frame=Frame.Build(source,null,Matrix4x4.identity,1921,1079);
+            Check(frame.Rows.Count==3&&frame.Draws.Count==2,"Unsupported middle material preserves row allocation");
+            Check(frame.Draws[0].RowIndex==0&&frame.Draws[1].RowIndex==2,"Draw holes never renumber later owners");
+            Check(frame.Rows[2].keyLow==0x80000000u&&frame.Rows[2].keyHigh==0xFFEEDDCCu,"Full 64-bit key preserves high and signed-low bits");
+            Check(frame.Rows.All(row=>row.flags==0),"First-frame current keys exist without previous eligibility");
+            Check(frame.Rows[0].reserved==1&&frame.Rows[1].reserved==2&&frame.Rows[2].reserved==3,"Byte 76 stores first source-row+1 renderer group even across holes");
+            Check(frame.UnknownRects.Count==1,"Unsupported renderer contributes conservative unknown coverage");
+            bool immutable=false;try{((IList<Frame.Row>)frame.Rows)[0]=default;}catch(NotSupportedException){immutable=true;}
+            Check(immutable,"Public row collection cannot be modified");
+            a.Materials[0].MutableAlpha=.99f;Check(frame.Draws[0].Coverage.BaseColorAlpha==.37f,"Draw carries frozen coverage, not live material alpha");
+        });
+        Scenario("renderer groups are reference-local first-row identities shared across submeshes",()=>
+        {
+            var a=new Fixture(Matrix4x4.identity,submeshes:2);var hole=new Fixture(Matrix4x4.identity,supported:false);var b=new Fixture(Matrix4x4.identity);
+            var source=new Registry.Snapshot(new[]{a.Records[0],hole.Records[0],a.Records[1],b.Records[0]},new Discovery.Snapshot(new[]{a.Candidate,hole.Candidate,b.Candidate}));
+            var frame=Frame.Build(source,null,Matrix4x4.identity,1921,1079);
+            Check(frame.Draws.Select(d=>d.RowIndex).SequenceEqual(new[]{0,2,3}),"Unsupported interleaved row does not move draw row indices");
+            Check(frame.Rows.Select(row=>row.reserved).SequenceEqual(new uint[]{1,2,1,4}),"One group per Renderer is its first row+1, never its latest submesh or draw rank");
+            Check(frame.Rows[0].keyLow!=frame.Rows[2].keyLow,"Shared renderer group does not merge submesh identity keys");
+            Check(a.Renderer.Equals(b.Renderer)&&a.Renderer.NativeId==b.Renderer.NativeId,"Fixture intentionally aliases numeric IDs and managed Equals");
+            Check(frame.GetReceiverGroup(a.Renderer)==1&&frame.GetReceiverGroup(b.Renderer)==4,"Reference dictionary distinguishes actual renderers despite aliased IDs/Equals");
+            Check(frame.GetReceiverGroup(null)==0&&frame.GetReceiverGroup(new Renderer())==0,"Unknown/new Renderer references have no exemption group");
+            var reordered=new Registry.Snapshot(new[]{b.Records[0],a.Records[1],a.Records[0]},new Discovery.Snapshot(new[]{a.Candidate,b.Candidate}));
+            var next=Frame.Build(reordered,null,Matrix4x4.identity,1921,1079);
+            Check(next.GetReceiverGroup(b.Renderer)==1&&next.GetReceiverGroup(a.Renderer)==2,"Groups belong only to the current frame order");
+            Check(frame.GetReceiverGroup(a.Renderer)==1&&frame.GetReceiverGroup(b.Renderer)==4,"Building another frame cannot mutate prior frame's group map");
+            Check(Frame.Build(null,null,Matrix4x4.identity,1921,1079).GetReceiverGroup(a.Renderer)==0,"Fail-closed empty source retains no old owner group");
+        });
+        Scenario("frozen source group completeness and no live source property access",()=>
+        {
+            var f=new Fixture(Matrix4x4.identity,submeshes:2);var source=f.Snapshot();f.Records[0]=null;
+            var complete=Frame.Build(source,null,Matrix4x4.identity,1921,1079);
+            Check(complete.Draws.Count==2&&complete.UnknownRects.Count==0,"Frozen record array remains complete after caller mutation");
+            var partial=new Registry.Snapshot(new[]{source.Records[0]},source.Discovery);
+            Check(Frame.Build(partial,null,Matrix4x4.identity,1921,1079).UnknownRects.Count==1,"Missing one submesh masks whole renderer bounds");
+            var duplicate=new Registry.Snapshot(new[]{source.Records[0],source.Records[0]},source.Discovery);
+            Check(Frame.Build(duplicate,null,Matrix4x4.identity,1921,1079).UnknownRects.Count==1,"Duplicate submesh cannot certify group coverage");
+            var mismatched=new Registry.Record(900,901,902,new Renderer(),new Mesh(),0,Matrix4x4.identity,source.Records[0].Material);
+            Check(Full(Frame.Build(new Registry.Snapshot(new[]{mismatched},source.Discovery),null,Matrix4x4.identity,1921,1079)),"Record outside discovery fails closed");
+            Check(complete.Draws[0].Record==source.Records[0],"Draw retains exact immutable record reference");
+        });
+        Scenario("static nonuniform reflected and sheared sources keep identity relative transform",()=>
+        {
+            var shear=Scale(-2,3,.5);shear.m01=.7f;shear.m03=10;
+            foreach(var m in new[]{Scale(2,3,.5),Scale(-2,3,.5),shear,Scale(1e-20,1e20,-1)})
+            {
+                var f=new Fixture(m);var frame=Build(f,f.Previous(m));
+                Check(frame.Rows[0].flags==1&&frame.Rows[0].currentToPrevious.Equals(Matrix4x4.identity),"Identical valid affine matrices have identity relative motion");
+                Check(frame.MovedBounds.Count==0&&frame.UnknownRects.Count==0,"Static source adds no motion domain");
+            }
+        });
+        Scenario("relative reflection nonuniformity shear and invalid matrices reject reuse",()=>
+        {
+            var shear=Matrix4x4.identity;shear.m01=.01f;var projective=Matrix4x4.identity;projective.m30=.01f;
+            var nan=Matrix4x4.identity;nan.m03=float.NaN;var inf=Matrix4x4.identity;inf.m11=float.PositiveInfinity;
+            foreach(var previous in new[]{Scale(-1,1,1),Scale(1,1,1.01),shear,Scale(0,1,1),projective,nan,inf})
+            {
+                var f=new Fixture(Matrix4x4.identity);var frame=Build(f,f.Previous(previous));
+                Check(frame.Rows[0].flags==0&&frame.Rows[0].keyLow!=0,"Invalid motion retains current key but no reuse flag");
+            }
+            foreach(var current in new[]{Scale(0,1,1),projective,nan,inf})
+            {
+                var f=new Fixture(current);var frame=Build(f,f.Previous(current));
+                Check(frame.Draws.Count==0&&frame.UnknownRects.Count==1,"Invalid current transform cannot produce identity draw");
+            }
+        });
+        Scenario("declared relative numerical tolerances are bounded at both sides",()=>
+        {
+            var nearShear=Matrix4x4.identity;nearShear.m01=5e-6f;var farShear=Matrix4x4.identity;farShear.m01=2e-5f;
+            foreach(var pair in new[]{(Scale(1,1,1.000001),true),(Scale(1,1,1.00002),false),(nearShear,true),(farShear,false),(Scale(1e-12,1e-12,1e-12),true),(Scale(1e12,1e12,1e12),true)})
+            {var f=new Fixture(Matrix4x4.identity);Check((Build(f,f.Previous(pair.Item1)).Rows[0].flags==1)==pair.Item2,"Relative length/angle tolerance classification");}
+        });
+        Scenario("random positive similarities recover previous points through arbitrary affine sources",()=>
+        {
+            var rng=new Random(0x1D3F);for(int n=0;n<2000;n++)
+            {
+                var current=Multiply(Rotation(rng.NextDouble()*6,rng.NextDouble()*6,rng.NextDouble()*6),Scale(n%2==0?-1.7:1.7,.3+rng.NextDouble()*3,.3+rng.NextDouble()*3));
+                current.m03=(float)(rng.NextDouble()*20-10);current.m13=(float)(rng.NextDouble()*20-10);current.m23=(float)(rng.NextDouble()*20-10);
+                double s=.25+rng.NextDouble()*3;var relative=Multiply(Rotation(rng.NextDouble()*6,rng.NextDouble()*6,rng.NextDouble()*6),Scale(s,s,s));
+                relative.m03=(float)(rng.NextDouble()*10);relative.m13=(float)(rng.NextDouble()*10);relative.m23=(float)(rng.NextDouble()*10);
+                var previous=Multiply(relative,current);var f=new Fixture(current);var frame=Build(f,f.Previous(previous));
+                Check(frame.Rows[0].flags==1&&frame.Draws.Count==1,"Constructed positive similarity must remain eligible");
+                for(int p=0;p<10;p++)
+                {
+                    double x=rng.NextDouble()*20-10,y=rng.NextDouble()*20-10,z=rng.NextDouble()*20-10;
+                    var cw=Point(current,x,y,z);var expected=Point(previous,x,y,z);var got=Point(frame.Rows[0].currentToPrevious,cw[0],cw[1],cw[2]);
+                    for(int k=0;k<3;k++)Check(Math.Abs(got[k]-expected[k])<3e-4*Math.Max(1,Math.Abs(expected[k])),"Independent forward-point oracle");
+                }
+                Check(frame.MovedBounds.Count==1,"Moved domains emitted once per renderer");
+                foreach(var corner in Corners(f.Candidate.Bounds))Contains(frame.MovedBounds[0].Previous,Point(relative,corner[0],corner[1],corner[2]));
+            }
+        });
+        Scenario("motion domains cover old and new bounds even when normal transport is rejected",()=>
+        {
+            var relative=Scale(-2,3,.7);relative.m01=.25f;relative.m03=8;relative.m13=-4;
+            var f=new Fixture(Matrix4x4.identity,Box(2,-1,3,2,4,6),submeshes:3);var frame=Build(f,f.Previous(relative));
+            Check(frame.Rows.All(row=>row.flags==0)&&frame.MovedBounds.Count==1,"Rejected relative reflection still emits one geometry domain pair");
+            Check(ReferenceEquals(frame.MovedBounds[0].SourceRenderer,f.Renderer),"Motion domain retains the exact source renderer for self-only exemption");
+            foreach(var corner in Corners(f.Candidate.Bounds)){Contains(frame.MovedBounds[0].Current,corner);Contains(frame.MovedBounds[0].Previous,Point(relative,corner[0],corner[1],corner[2]));}
+        });
+        Scenario("orthographic bounds use conservative pixel rounding expansion and clamping",()=>
+        {
+            var result=UnknownFrame(Box(0,0,0,1,1,1),Matrix4x4.identity,101,99);var r=result.UnknownRects[0];
+            Check(r.x==24&&r.y==23&&r.width==53&&r.height==53,"Exact odd-size floor ceil plus one-pixel margin");
+            Check(UnknownFrame(Box(4,0,0),Matrix4x4.identity).UnknownRects.Count==0,"Wholly outside positive-W bounds clamp to empty");
+            var edge=UnknownFrame(Box(-1,0,0,.2f,.2f,.2f),Matrix4x4.identity,101,99).UnknownRects[0];
+            Check(edge.x==0&&edge.width>0&&edge.x+edge.width<=101,"Partially visible bounds clamp to target");
+        });
+        Scenario("perspective unknown rectangles enclose independent interior samples",()=>
+        {
+            var rng=new Random(0xC411);var vp=new Matrix4x4{m00=1.2f,m11=-1.6f,m22=1,m32=1};
+            for(int n=0;n<1600;n++)
+            {
+                var b=Box((float)(rng.NextDouble()*6-3),(float)(rng.NextDouble()*4-2),2+(float)rng.NextDouble()*5,
+                    .1f+(float)rng.NextDouble(),.1f+(float)rng.NextDouble(),.1f+(float)rng.NextDouble());
+                bool top=n%2==0;var frame=UnknownFrame(b,vp,top:top);Check(frame.UnknownRects.Count<=1,"At most one projected box");
+                for(int sample=0;sample<80;sample++)
+                {
+                    double x=b.center.x+(rng.NextDouble()*2-1)*b.extents.x,y=b.center.y+(rng.NextDouble()*2-1)*b.extents.y,z=b.center.z+(rng.NextDouble()*2-1)*b.extents.z;
+                    var clip=Point(vp,x,y,z);double px=(clip[0]/clip[3]*.5+.5)*1921;
+                    // Independent D3D viewport transform: positive clip Y maps upward
+                    // in NDC but toward lower texture Y on a top-origin target.
+                    double py=(top?.5-.5*clip[1]/clip[3]:.5+.5*clip[1]/clip[3])*1079;
+                    if(px<0||py<0||px>=1921||py>=1079)continue;
+                    Check(frame.UnknownRects.Count==1,"Visible sample cannot escape unknown mask");var r=frame.UnknownRects[0];
+                    Check(px>=r.x&&px<r.x+r.width&&py>=r.y&&py<r.y+r.height,"Interior projective sample lies inside conservative rect");
+                }
+            }
+        });
+        Scenario("asymmetric upper and lower masks follow explicit target UV origin",()=>
+        {
+            foreach(float y in new[]{.5f,-.5f})
+            {
+                var bounds=Box(.1f,y,0,.2f,.25f,.1f);
+                var top=UnknownFrame(bounds,Matrix4x4.identity,100,100).UnknownRects[0];
+                var bottom=UnknownFrame(bounds,Matrix4x4.identity,100,100,top:false).UnknownRects[0];
+                Check(top.y==(y>0?17:67)&&top.height==16,"D3D upper/lower world bounds map to correct nonsymmetric texture rows");
+                Check(bottom.y==(y>0?67:17)&&bottom.height==16,"Bottom-origin target reverses mask row placement");
+                Check(top.y==100-bottom.y-bottom.height&&top.x==bottom.x&&top.width==bottom.width,"Y flip preserves exact conservative rectangle extent");
+            }
+        });
+        Scenario("near-plane nonfinite scan and exception failures become fullscreen unknown",()=>
+        {
+            var vp=Matrix4x4.identity;vp.m33=1e-7f;Check(Full(UnknownFrame(Box(),vp)),"Clip W epsilon rejects uncertain projection");
+            vp=Matrix4x4.identity;vp.m32=1;vp.m33=0;Check(Full(UnknownFrame(Box(),vp)),"Eye-plane crossing expands to fullscreen");
+            vp=Matrix4x4.identity;vp.m11=float.NaN;Check(Full(UnknownFrame(Box(),vp)),"Nonfinite projection fails closed");
+            var b=Box();b.extents.x=-1;Check(Full(UnknownFrame(b,Matrix4x4.identity)),"Negative bounds extent fails closed");
+            b=Box();b.center.z=float.PositiveInfinity;Check(Full(UnknownFrame(b,Matrix4x4.identity)),"Nonfinite source bounds fails closed");
+            var none=Frame.Build(null,null,Matrix4x4.identity,1921,1079);Check(none.Rows.Count==0&&none.Draws.Count==0&&Full(none),"Null source has zero rows and fullscreen mask");
+            var f=new Fixture(Matrix4x4.identity);var incomplete=new Registry.Snapshot(f.Records,new Discovery.Snapshot(new[]{f.Candidate},false));
+            var failed=Frame.Build(incomplete,null,Matrix4x4.identity,1921,1079);Check(failed.Rows.Count==1&&failed.Draws.Count==0&&Full(failed),"Incomplete scan preserves row count but disables identity draws");
+            var history=f.Previous(Matrix4x4.identity);history.ThrowOnLookup=true;failed=Build(f,history);
+            Check(Full(failed)&&failed.Draws.Count==0&&failed.Rows[0].keyLow==0&&failed.Rows[0].reserved==0&&failed.GetReceiverGroup(f.Renderer)==0,"Unexpected input exception clears receiver groups and fails closed without escaping to current GI");
+            var invalidSize=Frame.Build(f.Snapshot(),null,Matrix4x4.identity,0,-5);Check(Full(invalidSize,1,1)&&invalidSize.Draws.Count==0,"Invalid target dimensions provide nonempty fail-closed sentinel rectangle");
+        });
+        Scenario("unknown rectangle cap never silently drops an occluder",()=>
+        {
+            var candidates=Enumerable.Range(0,1025).Select(_=>new Fixture(Matrix4x4.identity).Candidate).ToArray();
+            var exact=Frame.Build(Unknown(candidates.Take(1024).ToArray()),null,Matrix4x4.identity,1921,1079);
+            Check(exact.UnknownRects.Count==1024,"Exactly 1024 visible unknown domains fit default cap");
+            Check(Full(Frame.Build(Unknown(candidates),null,Matrix4x4.identity,1921,1079)),"1025th visible domain conservatively replaces list with fullscreen");
+            Check(Full(Frame.Build(Unknown(candidates[0]),null,Matrix4x4.identity,1921,1079,0)),"Zero-cap visible domain cannot disappear");
+            var outside=new Fixture(Matrix4x4.identity,Box(10));
+            Check(Frame.Build(Unknown(outside.Candidate),null,Matrix4x4.identity,1921,1079,0).UnknownRects.Count==0,"Empty offscreen rectangle does not consume cap");
+        });
+        Console.WriteLine($"PASS: {scenarios} actual identity-frame scenarios, {checks} assertions. Unity values and frozen source/receipt producers are explicit adapters; no registry, Unity raster or GPU execution claim.");
+    }
+}

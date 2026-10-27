@@ -1,0 +1,53 @@
+# Object SDF residency and local invalidation
+
+`HybridLumenGISdfAtlas` owns bounded voxel storage and per-instance metadata for already-loaded baked object SDF assets. Multiple instances of one asset share uploaded voxel storage. Invalid, pending and over-budget assets retain the analytic software representation. Upload completion is tracked independently from a scene revision; a static pending asset can become ready in a later frame's upload budget.
+
+## Source validity and asset migration
+
+A baked asset now includes a versioned SHA-256 fingerprint of the source vertex positions and triangle indices. The baker records it before generating voxels and checks it again when assigning the result, rejecting a source that changed during baking. A matching Mesh reference alone is insufficient. Runtime source validation requires a readable source Mesh as well as the readable RFloat distance texture.
+
+**Older SDF assets without the fingerprint must be rebaked.** They are explicitly invalid, as are assets whose geometry fingerprint no longer matches. Use **Tools > Hybrid Lumen GI > Bake Mesh Distance Field**, choose a new asset path and assign the result; the baker preserves existing assets. Rejected sources use analytic tracing fallback, not stale baked voxels. `rejectedSdfSources` in renderer diagnostics reports affected prepared instances; it is distinct from upload-budget backlog and is not a count of all unsupported geometry. An explicitly assigned rejected SDF cannot satisfy the HLOD target's SDF-readiness check.
+
+Validation is cached per asset. A weak-key table associates each source Mesh with a notification token shared by all its SDF assets. Loading, source notification or detectable count/bounds changes force a fresh comparison; ordinary rigid movement does not rehash vertex/index data. The weak-key table does not retain unloaded meshes, and its object tokens do not wrap like integer generations.
+
+After an in-place edit, call `HybridLumenGIProxy.MarkDirty()` on the main thread on a proxy using that Mesh, even if vertex count and bounds are unchanged. This notifies the SDF source once and advances geometry-content and transport revisions for the caller and every active proxy referencing the same Mesh, including instances with a different SDF asset or only surface charts. Disabled instances refresh their local revisions on re-enable. Rebake affected SDF and chart assets before expecting their respective representations to become valid again. `HybridLumenGIMeshSdf.NotifyGeometryChanged(mesh)` alone invalidates SDF validation; it does not notify proxy/chart/RTAS state and is not a substitute for `MarkDirty()` when changing scene geometry.
+
+`Scene.Prepare` calls the proxy's idempotent `RefreshSignatureForRender()` before residency and revision checks, catching transforms applied after its `LateUpdate`. Repeated camera preparations without another change do not advance revisions. Pure transform or uniform-material changes affect transport revision, while mesh-content changes also advance geometry-content revision. Scene classification preserves that content flag even when motion or a material edit occurs simultaneously, so hardware geometry can rebuild rather than retain stale triangles. Same-count/bounds in-place edits still require explicit notification; this is not automatic deforming-mesh support or a promise that sources may mutate during command execution.
+
+Proxy `OnValidate` only sets an atomic pending flag. Main-thread preparation, re-enable or an explicit main-thread `MarkDirty()` consumes the flag once; disabled automatic refresh leaves it pending. This avoids inspecting Unity components or broadcasting to the active registry from a callback that can run on the loading thread. See Unity's [OnValidate contract](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/MonoBehaviour.OnValidate.html). This queued Inspector change is conservative geometry invalidation; it is distinct from the transform-only fast path during normal rendering.
+
+## Representation changes
+
+`RepresentationChangedBounds` contains all local representation-change domains from the last `Prepare`; `GeometryChangedBounds` is its hard-invalidation subset. Consume both after that call and before the next `Prepare`, which clears both lists. Old and new domains are retained when published geometry changes. The snapshot compares the asset reference, texture identity/update count, world transform, local field metadata, signed-field mode and stable instance identity. It includes the padded SDF volume's transformed corners as well as fallback bounds. Material-only revisions and allocator address changes do not change geometric representation.
+
+| Transition | All representation domains | Hard geometry subset |
+| --- | --- | --- |
+| Published analytic fallback → ready SDF | Old fallback and new SDF | Both |
+| Published ready SDF → pending/invalid fallback | Old SDF and new fallback | Both |
+| Published SDF transform/content change | Old and new published bounds | Both |
+| Ready published instance actually deleted | Old bounds | Old bounds |
+| Warming upload/content change | None | None |
+| Unchanged warming ready representation → published | New published bounds | None |
+| Unchanged published representation retired by an exact pure HLOD-removal event | Old published bounds | None |
+| Shape/revision, texture, asset or transform edit during retirement; unexplained disappearance; slot reuse | Published old/new endpoints | All emitted endpoints |
+
+The global clipmap must consume **all** representation domains because even a pure visibility swap changes its contributors. For lighting-cache invalidation, add all domains as reactive-only, then add `GeometryChangedBounds` as hard geometry. Treating every domain as hard would erase the new HLOD representation's already validated warm cache on its publication frame.
+
+Reactive-only retirement requires an explicit `Removed | Representation` scene event for the previous slot, stable identity and revision, with an old endpoint and no new endpoint. Additional Transform/Topology/Manual/Material flags, wrong identity/revision, or same-frame source changes prevent that downgrade. The retained old proxy/source snapshot is rechecked even when the slot has been removed; a texture update need not increment the proxy revision. A concurrent content/fallback change during publication is also hard. A pure publication must have identical ready representation snapshots on both sides.
+
+Analytic-only changes with neither endpoint SDF-ready remain the scene's responsibility. This list does not replace the scene's identity/geometry change events. Warming means `identity.w == 2`; published means `identity.w == 1`. Preparing a staging object must not invalidate the old HLOD representation's lighting merely because its SDF upload completed.
+
+`IsReady(slot, stableId, revision)` is a pure CPU query of the last prepared metadata and upload state. It supports warming slots and compares the exact supplied identity/revision. It is **not a GPU fence** and does not establish published visibility or initialized lighting.
+
+`IsSourceCurrent(slot, proxy, stableId, revision)` additionally checks the current source against the uploaded snapshot, including source fingerprint validity. This prevents a publication ticket from outliving a notified geometry edit, texture update, replacement asset, moved transform, local-bounds/signed-field change or source mesh mismatch even if the proxy revision did not change. It does not call Prepare, upload voxels or consume representation-change events; the asset's CPU source-validation cache may be refreshed. The scene's publication gate and GPU readback coordinator own the remaining material/lighting conditions.
+
+Offline checks:
+
+```powershell
+./Tests/Validate-SdfAtlasRepresentation.ps1
+./Tests/Validate-SdfAtlasAllocator.ps1
+./Tests/Validate-ProxyUpdates.ps1
+./Tests/Validate-SceneResidency.ps1
+```
+
+The representation suite compiles the actual atlas and asset classes against Unity-resource/math substitutes. It checks source provenance, legacy/unreadable/stale rejection, shared-source notification, publication/retirement, concurrent edits, deletions, stale receipts and slot reuse. Separate actual-source proxy and scene tests cover shared-instance revisions, late refresh and combined content/transform/material flags; allocator tests check overlap, capacity and coalescence. Use the candidate's source-matched unified JSON report for exact results. These are CPU/state tests; actual Unity callbacks, uploads, readability behavior, GPU visibility and rendered SDF correctness remain separate validation work.

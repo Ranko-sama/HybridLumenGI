@@ -1,0 +1,305 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Rendering;
+using Batch=HybridLumenGI.HybridLumenGIHitMaterialBatch;
+using Pool=HybridLumenGI.HybridLumenGIRayTexturePool;
+using Record=HybridLumenGI.HybridLumenGIHitMaterialRecord;
+using Binding=HybridLumenGI.HybridLumenGIHitMaterialBinding;
+class Program
+{
+    static int checks,scenarios;
+    static readonly Vector4 Tint=new(0.25f,0.5f,2,1),Emission=new(2,3,4,5);
+    static void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
+    sealed class Fixture
+    {
+        public readonly HybridLumenGIMaterialSource Validator=new();
+        public readonly Renderer Renderer=new();public readonly Material Material;
+        public readonly int Submesh;
+        public Fixture(Texture texture=null,int submesh=0)
+        {
+            Submesh=submesh;Material=new(new Shader{name="Universal Render Pipeline/Lit"});
+            Material.Set("_Cull",2f);Material.Set("_Surface",0f);Material.Set("_BaseColor",new Color(.5f,.25f,.75f,.8f));
+            if(texture!=null)Material.Set("_BaseMap",texture);
+            for(int i=0;i<=submesh;i++)Renderer.Materials.Add(Material);
+        }
+        public Batch.Source Freeze(uint stable=5,uint owner=7,uint geometry=11)
+        {Check(Validator.TryCapture(Renderer,Submesh,Material,out var snapshot,out var reason),"snapshot "+reason);
+         return new(snapshot,stable,owner,geometry,(uint)Submesh,Tint,Emission);}
+    }
+    static Texture2D Texture(int w=4,int h=4,int mips=3)=>new(){width=w,height=h,mipmapCount=mips,graphicsFormat=42,filterMode=2};
+    static Batch Prepare(params Batch.Source[] sources)
+    {Check(Batch.TryCreate(sources,1L<<30,out var batch,out var reason),"create "+reason);return batch;}
+    static Record[] Table(CommandBuffer cmd)=>cmd.Copies.OfType<Record[]>().Last();
+    static Binding[] Bindings(CommandBuffer cmd)=>cmd.Copies.OfType<Binding[]>().Last();
+    static void RecordBatch(Batch batch,CommandBuffer cmd)
+    {Check(batch.Record(cmd,out var reason),"record "+reason);}
+    static void Finish(Batch batch,CommandBuffer cmd)
+    {
+        if(batch.State==Batch.BatchState.Prepared){batch.Dispose();}
+        else if(batch.State!=Batch.BatchState.Released)
+        {
+            cmd.ThrowAt=cmd.ThrowBeforeAt=-1;cmd.OnCall=null;cmd.NextFence=new FenceSignal();
+            if(batch.State!=Batch.BatchState.SealedAwaitingFence)
+                Check(batch.SealAfterConsumers(cmd,out var reason),"final same-command retirement fence "+reason);
+            cmd.NextFence.Complete=true;Batch.PollRetired();
+        }
+        Check(batch.State==Batch.BatchState.Released,"retired");batch.Dispose();
+    }
+    static void Clean()
+    {Batch.PollRetired();Check(Batch.TotalAllocatedBytes==0&&Batch.TotalMaterialBytes==0&&Batch.ResidentBatchCount==0&&
+        Pool.ResidentBatchCount==0&&GraphicsBuffer.Live==0,"no live test resources");}
+    static bool Zero(Binding b)=>b.table.x==0&&b.table.y==0&&b.table.z==0&&b.table.w==0&&b.source.x==0&&b.source.y==0&&b.source.z==0&&b.source.w==0;
+    static void AbiAndConstantOrder()
+    {
+        scenarios++;Check(Marshal.SizeOf<Record>()==240&&Marshal.SizeOf<Binding>()==32,"table ABI sizes");
+        Check(Marshal.OffsetOf<Binding>("source").ToInt32()==16,"binding source offset");
+        var f=new Fixture(submesh:3);var a=f.Freeze();var b=f.Freeze(0x80000001,0xffffffff,0x80000002);
+        var inputs=new[]{a,b};var batch=Prepare(inputs);inputs[0]=default;
+        Check(batch.Count==2&&batch.GetSource(0).StableId==5,"copied source order");
+        Check(batch.ByteCount==2*272+80&&Batch.TotalAllocatedBytes==624,"constant dummy exact native bytes");
+        Check(batch.GetResources(out var r,out var bindings,out var meta,out var tex)&&r.Stride==240&&bindings.Stride==32&&
+            meta.Stride==64&&meta.Count==1&&tex.Stride==16&&tex.Count==1,"four graph resources prepared, no readiness");
+        var cmd=new CommandBuffer();Check(!batch.Bind(cmd,new(),0,out _)&&cmd.Calls==0,"borrow does not authorize bind");
+        RecordBatch(batch,cmd);Check(cmd.Copies.Count==3&&cmd.Dispatches.Count==0,"dummy initialized then two tables, no fake texel dispatch");
+        var init=(HybridLumenGIRayTextureMetadata[])cmd.Copies[0];Check(init[0].flags==0,"dummy unready forever");
+        var t=Table(cmd);var bs=Bindings(cmd);
+        for(int i=0;i<2;i++)
+        {
+            Check(t[i].identity.x==batch.Generation&&bs[i].table.x==(uint)i&&bs[i].table.y==batch.Generation,"per-instance record/binding generation");
+            Check(bs[i].source.w==3&&bs[i].source.x==(i==0?5:0x80000001u)&&bs[i].source.y==(i==0?7:0xffffffffu)&&bs[i].source.z==(i==0?11:0x80000002u),"source tuple exact uint32");
+            Check(t[i].proxyTint.x==.25f&&t[i].proxyTint.z==2&&t[i].proxyEmission.w==5,"linear proxy values unchanged");
+        }
+        Check(batch.UnknownRecords==0&&batch.Bind(cmd,new(),2,out _)&&batch.Bind(cmd,new(),0,out _),"multiple consumers");
+        Check(!batch.Bind(new CommandBuffer(),new(),0,out _)&&!batch.Record(cmd,out _),"foreign/repeated record rejected");
+        Check(batch.SealAfterConsumers(cmd,out _),"seal after all consumers");
+        Check(!batch.Bind(cmd,new(),0,out _)&&!batch.GetResources(out _,out _,out _,out _)&&!batch.SealAfterConsumers(cmd,out _),"sealed immutable");
+        for(int i=0;i<100;i++)Batch.PollRetired();Check(!r.Released&&Batch.TotalAllocatedBytes==624,"unexecuted fence remains pending regardless age");
+        cmd.NextFence.Complete=true;Batch.PollRetired();Check(r.Released&&bindings.Released&&meta.Released&&tex.Released,"all buffers retire on real supplied completion");
+        batch.Dispose();Clean();
+    }
+    static void MapDedupAndFrozenViews()
+    {
+        scenarios++;var tex=Texture();var f=new Fixture(tex);var unused=Texture(3,5,3);
+        foreach(string name in new[]{"_BumpMap","_EmissionMap","_DetailAlbedoMap"})f.Material.Set(name,unused);
+        var a=f.Freeze();var b=f.Freeze(9);var batch=Prepare(a,b);var cmd=new CommandBuffer();RecordBatch(batch,cmd);
+        Check(batch.ByteCount==544+64+21*16,"only used base texture allocated once across instances");
+        Check(cmd.Dispatches.Count==5,"one actual importer begin + 3 mips + finish");
+        var table=Table(cmd);Check(table[0].textures0.x==0&&table[0].textures0.y==batch.TextureGeneration&&
+            table[1].textures0.y==batch.TextureGeneration,"identical handles shared");
+        Check(table[0].textures1.z==0&&table[0].textures1.w==0,"unused normal not assigned handle");
+        Finish(batch,cmd);Clean();
+        f.Material.shaderKeywords=new[]{"_NORMALMAP","_EMISSION"};var all=Prepare(f.Freeze());var c=new CommandBuffer();RecordBatch(all,c);
+        Check(all.ByteCount==272+128+(21+18)*16,"two unique used textures and NPOT mip sum");
+        Check(Table(c)[0].textures1.w==all.TextureGeneration&&Table(c)[0].textures2.w==all.TextureGeneration,"enabled normal/emission handles");Finish(all,c);Clean();
+        // Same Unity hash/instance ID is not reference equality; colliding objects stay independent.
+        var other=new Fixture(Texture());var pair=Prepare(new Fixture(tex).Freeze(),other.Freeze());
+        Check(pair.ByteCount==544+128+42*16,"reference collisions cannot merge separate textures");pair.Dispose();Clean();
+        var observe=new Fixture(tex);var old=observe.Freeze();tex.updateCount++;var newer=observe.Freeze(12);
+        var versions=Prepare(old,newer);var cv=new CommandBuffer();RecordBatch(versions,cv);
+        Check(versions.ByteCount==544+128+42*16&&Zero(Bindings(cv)[0])&&Bindings(cv)[1].table.y!=0,"same texture with different observation is not deduped; stale record unknown");
+        Finish(versions,cv);Clean();
+    }
+    static void SourceRevalidation()
+    {
+        scenarios++;var f=new Fixture();var good=new Fixture();var old=f.Freeze();var batch=Prepare(old,good.Freeze(17));
+        f.Renderer.Block.Set("_BaseColor",new Vector4(.1f,.2f,.3f,.4f));var cmd=new CommandBuffer();RecordBatch(batch,cmd);
+        Check(batch.UnknownRecords==1&&Table(cmd)[0].identity.x==0&&Zero(Bindings(cmd)[0])&&Bindings(cmd)[1].source.x==17,"MPB edit zeros only changed record, no live reencode");
+        Check(old.Snapshot.HitMaterial!=null&&f.Renderer.Block.Writes==1,"read-only original MPB");Finish(batch,cmd);Clean();
+        var tex=Texture();var changed=new Fixture(tex);var after=Prepare(changed.Freeze());var c=new CommandBuffer();bool once=false;
+        c.OnCall=(x,name)=>{if(!once&&name.StartsWith("dispatch:")){once=true;changed.Material.Set("_Metallic",.9f);}};
+        RecordBatch(after,c);Check(after.UnknownRecords==1&&Zero(Bindings(c)[0]),"source changed during importer is unknown before table publish");c.OnCall=null;Finish(after,c);Clean();
+        var rt=new RenderTexture{width=4,height=4,mipmapCount=1,graphicsFormat=42};var dynamic=new Fixture(rt);var frozen=dynamic.Freeze();
+        Check(!frozen.Snapshot.CanReuseHistory,"RT is not history reusable");var current=Prepare(frozen);var cr=new CommandBuffer();RecordBatch(current,cr);
+        Check(current.UnknownRecords==0&&Bindings(cr)[0].table.y!=0&&cr.Dispatches.Count==3,"RT equal current snapshot still copied, not rejected via history IsCurrent");Finish(current,cr);Clean();
+        var failure=new Fixture();var unaffected=new Fixture();var fails=Prepare(failure.Freeze(),unaffected.Freeze(21));failure.Renderer.OnRead=()=>throw new Exception("live read failed");
+        var cf=new CommandBuffer();RecordBatch(fails,cf);Check(fails.UnknownRecords==1&&!Zero(Bindings(cf)[1]),"per-source read exception isolated");failure.Renderer.OnRead=null;Finish(fails,cf);Clean();
+        var invalid=Prepare(default(Batch.Source),good.Freeze());var ci=new CommandBuffer();RecordBatch(invalid,ci);
+        Check(invalid.UnknownRecords==1&&Zero(Bindings(ci)[0])&&!Zero(Bindings(ci)[1]),"source ordinal holes retained");Finish(invalid,ci);Clean();
+    }
+    static void GlobalBudgetsAndCaps()
+    {
+        scenarios++;var source=new Fixture().Freeze();
+        Check(!Batch.TryCreate(new[]{source},351,out _,out _),"exact one constant byte short");
+        Check(Batch.TryCreate(new[]{source},352,out var a,out _),"exact one constant fit");var ca=new CommandBuffer();RecordBatch(a,ca);a.Dispose();
+        Check(!Batch.TryCreate(new[]{source},703,out _,out _),"quarantined material+texture bytes globally retained");
+        Check(Batch.TryCreate(new[]{source},704,out var b,out _),"two cameras exact shared cap");b.Dispose();Finish(a,ca);Clean();
+        using(var external=new Pool())
+        {Check(external.TryPrepare(new[]{default(HybridLumenGIFrozenTextureView)},80,out var lease,out _),"external pool dummy");
+         Check(!Batch.TryCreate(new[]{source},431,out _,out _),"other pool bytes not bypassed");
+         Check(Batch.TryCreate(new[]{source},432,out var withExternal,out _),"other pool exact fit");withExternal.Dispose();}
+        Clean();
+        foreach(int count in new[]{0,4097})Check(!Batch.TryCreate(new Batch.Source[count],long.MaxValue,out _,out _),"count bound "+count);
+        Check(!Batch.TryCreate(null,1000,out _,out _)&&!Batch.TryCreate(new[]{source},-1,out _,out _),"null and negative");
+        var largest=Prepare(Enumerable.Repeat(source,4096).ToArray());Check(largest.Count==4096&&largest.ByteCount==4096L*272+80,"4096 materials constant allocation exact");largest.Dispose();Clean();
+        var many=new Batch.Source[1025];for(int i=0;i<many.Length;i++)many[i]=new Fixture(Texture(1,1,1)).Freeze((uint)i+1);
+        Check(!Batch.TryCreate(many,1L<<30,out _,out var capReason)&&capReason.Contains("Unique"),"1025 unique used textures explicitly rejected");
+        var capped=Prepare(many.Take(1024).ToArray());Check(capped.ByteCount==1024L*(272+64+16),"1024 unique allowed");capped.Dispose();Clean();
+        var shared=Prepare(Enumerable.Repeat(many[0],2048).ToArray());Check(shared.Count==2048&&shared.ByteCount==2048L*272+80,"material count distinct from unique texture count");shared.Dispose();Clean();
+        var active=new List<Batch>();for(int i=0;i<128;i++)active.Add(Prepare(source));
+        Check(!Batch.TryCreate(new[]{source},long.MaxValue,out _,out _),"bounded global outstanding count");foreach(var item in active)item.Dispose();Clean();
+        SystemInfo.supportsGraphicsFence=false;Check(!Batch.TryCreate(new[]{source},1000,out _,out _),"fence capability gate");SystemInfo.supportsGraphicsFence=true;
+    }
+    static void AllocationAndCommandFailures()
+    {
+        scenarios++;var source=new Fixture(Texture()).Freeze();
+        for(int step=1;step<=4;step++)
+        {GraphicsBuffer.FailAllocationAt=GraphicsBuffer.Allocations+step;Check(!Batch.TryCreate(new[]{source},10000,out _,out _),"allocation failure "+step);GraphicsBuffer.FailAllocationAt=-1;Clean();}
+        var baseline=Prepare(source);var baselineCmd=new CommandBuffer();RecordBatch(baseline,baselineCmd);int recordCalls=baselineCmd.Calls;Finish(baseline,baselineCmd);Clean();
+        foreach(bool before in new[]{false,true})for(int point=1;point<=recordCalls;point++)
+        {
+            var batch=Prepare(source);var cmd=new CommandBuffer();if(before)cmd.ThrowBeforeAt=point;else cmd.ThrowAt=point;
+            Check(!batch.Record(cmd,out _)&&batch.State==Batch.BatchState.Quarantined,"record injection quarantines "+point+" before="+before);
+            long bytes=Batch.TotalAllocatedBytes;batch.Dispose();for(int i=0;i<3;i++)Batch.PollRetired();
+            Check(bytes>0&&Batch.TotalAllocatedBytes==bytes&&!batch.Bind(cmd,new(),0,out _),"unknown append retained, no consume");
+            Finish(batch,cmd);Clean();
+        }
+        foreach(bool before in new[]{false,true})for(int point=1;point<=4;point++)
+        {
+            var batch=Prepare(source);var cmd=new CommandBuffer();RecordBatch(batch,cmd);
+            if(before)cmd.ThrowBeforeAt=cmd.Calls+point;else cmd.ThrowAt=cmd.Calls+point;
+            Check(!batch.Bind(cmd,new(),0,out _)&&batch.State==Batch.BatchState.Quarantined,"bind exception isolated "+point);
+            Finish(batch,cmd);Clean();
+        }
+        foreach(bool before in new[]{false,true})
+        {
+            var batch=Prepare(source);var cmd=new CommandBuffer();RecordBatch(batch,cmd);
+            if(before)cmd.ThrowBeforeAt=cmd.Calls+1;else cmd.ThrowAt=cmd.Calls+1;
+            Check(!batch.SealAfterConsumers(cmd,out _)&&batch.State==Batch.BatchState.Quarantined,"fence emit unknown");
+            Check(!batch.SealAfterConsumers(new CommandBuffer(),out _),"foreign fence never accepted");Finish(batch,cmd);Clean();
+        }
+    }
+    static void CancellationsAndCompletionEvidence()
+    {
+        scenarios++;var source=new Fixture().Freeze();
+        var pristine=Prepare(source);pristine.Dispose();pristine.Dispose();Check(!pristine.Record(new(),out _),"pristine dispose idempotent and unrecordable");Clean();
+        var batch=Prepare(source);var cmd=new CommandBuffer();RecordBatch(batch,cmd);batch.Dispose();Check(Batch.TotalAllocatedBytes==352,"recorded dispose quarantines");
+        Check(batch.SealAfterConsumers(cmd,out _),"disposed accepts retirement-only final fence");Check(!batch.Bind(cmd,new(),0,out _),"fence does not restore consumer eligibility");
+        cmd.NextFence.Complete=true;Batch.PollRetired();Clean();
+        var invalid=Prepare(source);var ci=new CommandBuffer();RecordBatch(invalid,ci);ci.NextFence=null;
+        Check(!invalid.SealAfterConsumers(ci,out _)&&invalid.State==Batch.BatchState.Quarantined,"default fence never completion evidence");Finish(invalid,ci);Clean();
+        var lost=Prepare(source);var cl=new CommandBuffer();RecordBatch(lost,cl);Check(lost.SealAfterConsumers(cl,out _),"initial valid fence");
+        cl.NextFence.Throw=true;Batch.PollRetired();Check(lost.State==Batch.BatchState.Quarantined,"failed fence query invalidates retirement evidence");
+        cl.NextFence.Throw=false;cl.NextFence.Complete=true;Batch.PollRetired();Check(Batch.TotalAllocatedBytes==352,"later true alone cannot resurrect revoked evidence");Finish(lost,cl);Clean();
+        var unsupported=Prepare(source);var cu=new CommandBuffer();RecordBatch(unsupported,cu);Check(unsupported.SealAfterConsumers(cu,out _),"seal before support loss");
+        SystemInfo.supportsGraphicsFence=false;Batch.PollRetired();Check(unsupported.State==Batch.BatchState.Quarantined,"support loss retains");SystemInfo.supportsGraphicsFence=true;Finish(unsupported,cu);Clean();
+        var pending=Prepare(source);var cp=new CommandBuffer();RecordBatch(pending,cp);Check(pending.SealAfterConsumers(cp,out _),"seal pending");pending.Dispose();
+        Check(Batch.TotalAllocatedBytes==352,"dispose cannot replace pending GPU evidence");cp.NextFence.Complete=true;Batch.PollRetired();Clean();
+        var release=Prepare(source);Check(release.GetResources(out var records,out _,out _,out _),"borrow for failed-dispose adapter");records.ThrowDispose=true;release.Dispose();
+        Check(Batch.TotalMaterialBytes==272&&Batch.ResidentBatchCount==1,"native release failure conservatively accounted");records.ThrowDispose=false;Batch.PollRetired();Clean();
+        var transient=Prepare(source);var ct=new CommandBuffer();RecordBatch(transient,ct);Check(transient.SealAfterConsumers(ct,out _),"seal for transient query");
+        bool first=true;ct.NextFence.OnRead=()=>{if(first){first=false;throw new Exception("pool-only transient read");}return true;};
+        Batch.PollRetired();Check(transient.State==Batch.BatchState.Released,"same real completed fence recovers pool-only transient failure before coordinator release");Clean();
+        var repeated=Prepare(source);var ce=new CommandBuffer();RecordBatch(repeated,ce);Check(repeated.SealAfterConsumers(ce,out _),"seal before inconsistent query");
+        int query=0;ce.NextFence.OnRead=()=>{query++;if(query!=2)throw new Exception("repeated query error");return true;};
+        Batch.PollRetired();Check(repeated.State==Batch.BatchState.Quarantined&&Batch.TotalAllocatedBytes==352,"one completed read cannot override later invalid actual-fence validation");
+        ce.NextFence.OnRead=null;Finish(repeated,ce);Clean();
+    }
+    static void Reentrancy()
+    {
+        scenarios++;var f=new Fixture();var batch=Prepare(f.Freeze());f.Renderer.OnRead=()=>batch.Dispose();var cmd=new CommandBuffer();
+        Check(!batch.Record(cmd,out _)&&cmd.Calls==0&&batch.State==Batch.BatchState.Released,"source callback pristine Dispose cannot resurrect freed resources");f.Renderer.OnRead=null;Clean();
+        for(int phase=0;phase<4;phase++)
+        {
+            var source=new Fixture();var b=Prepare(source.Freeze());var c=new CommandBuffer();
+            if(phase==0)c.OnCall=(x,n)=>{if(x.Calls==1)b.Dispose();};
+            if(phase==1){int reads=0;source.Renderer.OnRead=()=>{if(++reads==2)b.Dispose();};}
+            bool recorded=b.Record(c,out _);
+            if(phase<2)Check(!recorded&&b.State==Batch.BatchState.Quarantined,"dispose during upload/revalidate rejects");
+            else
+            {Check(recorded,"record before bind reentry");int at=c.Calls+(phase==2?1:4);c.OnCall=(x,n)=>{if(x.Calls==at)b.Dispose();};
+             Check(!b.Bind(c,new(),0,out _)&&b.State==Batch.BatchState.Quarantined,"dispose during bind cannot return true");}
+            c.OnCall=null;source.Renderer.OnRead=null;Finish(b,c);Clean();
+        }
+        var sf=new Fixture();var sealedBatch=Prepare(sf.Freeze());var sc=new CommandBuffer();RecordBatch(sealedBatch,sc);
+        sc.OnCall=(x,n)=>{if(n.StartsWith("fence:"))sealedBatch.Dispose();};Check(sealedBatch.SealAfterConsumers(sc,out _),"Dispose in fence append permits retirement only");
+        Check(!sealedBatch.Bind(sc,new(),0,out _),"sealed canceled cannot consume");sc.NextFence.Complete=true;Batch.PollRetired();Clean();
+    }
+    sealed class BadList:IReadOnlyList<Batch.Source>
+    {
+        public bool CountFails;public int Count=>CountFails?throw new Exception("count"):1;
+        public Batch.Source this[int i]=>throw new Exception("index");
+        public IEnumerator<Batch.Source> GetEnumerator()=>throw new Exception();IEnumerator IEnumerable.GetEnumerator()=>GetEnumerator();
+    }
+    static void GenerationsAndHostileSources()
+    {
+        scenarios++;Check(!Batch.TryCreate(new BadList{CountFails=true},1000,out _,out _)&&!Batch.TryCreate(new BadList(),1000,out _,out _),"collection exceptions isolated");Clean();
+        var field=typeof(Batch).GetField("lastMaterialGeneration",BindingFlags.NonPublic|BindingFlags.Static);
+        uint old=(uint)field.GetValue(null);var source=new Fixture().Freeze();
+        // Explicit test-only counter seeding, never a production reset/reuse API.
+        field.SetValue(null,uint.MaxValue-1);var end=Prepare(source);Check(end.Generation==uint.MaxValue,"last material generation valid");end.Dispose();
+        Check(!Batch.TryCreate(new[]{source},1000,out _,out _)&&(uint)field.GetValue(null)==uint.MaxValue,"generation exhaustion refuses wrap");field.SetValue(null,old);Clean();
+        uint previous=0;for(int i=0;i<32;i++){var next=Prepare(source);Check(next.Generation>previous,"monotonic generation independent of reusable slot");previous=next.Generation;next.Dispose();}Clean();
+    }
+    static void RandomContractSequences()
+    {
+        scenarios++;var rng=new Random(0x5517);var source=new Fixture().Freeze();
+        // Independent observable contract oracle: once recorded never record again; only an
+        // uncanceled recording can consume; a final fence closes use; completion alone retires.
+        for(int trial=0;trial<100;trial++)
+        {
+            var b=Prepare(source);var cmd=new CommandBuffer();bool everRecorded=false,canceled=false,sealedUse=false,released=false;
+            for(int step=0;step<20;step++)
+            {
+                switch(rng.Next(6))
+                {
+                    case 0: {bool expect=!everRecorded&&!canceled;bool actual=b.Record(cmd,out _);Check(actual==expect,"oracle record");if(actual)everRecorded=true;break;}
+                    case 1:Check(b.Bind(cmd,new(),0,out _)==(everRecorded&&!canceled&&!sealedUse&&!released),"oracle consume");break;
+                    case 2: {bool expect=everRecorded&&!sealedUse&&!released;bool actual=b.SealAfterConsumers(cmd,out _);Check(actual==expect,"oracle seal");if(actual)sealedUse=true;break;}
+                    case 3:b.Dispose();canceled=true;if(!everRecorded)released=true;break;
+                    case 4:Batch.PollRetired();Check((b.State==Batch.BatchState.Released)==released,"no implicit age retirement");break;
+                    case 5:if(sealedUse){cmd.NextFence.Complete=true;Batch.PollRetired();released=true;}break;
+                }
+                Check(Batch.TotalAllocatedBytes==(released?0:352),"oracle exact live byte accounting");
+            }
+            if(!released){if(!everRecorded)b.Dispose();else{if(!sealedUse)Check(b.SealAfterConsumers(cmd,out _),"final oracle fence");cmd.NextFence.Complete=true;Batch.PollRetired();}}
+            Clean();
+        }
+    }
+    static void CoveragePrecisionRequests()
+    {
+        scenarios++;
+        var baseMap=Texture();var height=Texture();var normal=Texture();
+        foreach(var texture in new[]{baseMap,height,normal})texture.graphicsFormat=(int)UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm;
+        var clipped=new Fixture(baseMap);clipped.Material.shaderKeywords=new[]{"_ALPHATEST_ON","_PARALLAXMAP","_NORMALMAP"};
+        clipped.Material.Set("_ParallaxMap",height);clipped.Material.Set("_BumpMap",normal);clipped.Material.Set("_AlphaClip",0f);
+        var opaque=new Fixture(baseMap);var batch=Prepare(opaque.Freeze(19),clipped.Freeze());var cmd=new CommandBuffer();RecordBatch(batch,cmd);
+        var metadata=cmd.Copies.OfType<HybridLumenGIRayTextureMetadata[]>().Single();var table=Table(cmd);
+        uint baseIndex=table[1].textures0.x,heightIndex=table[1].textures4.z,normalIndex=table[1].textures1.z;
+        Check((metadata[baseIndex].sampler&HybridLumenGIRayTextureLayout.HalfPairsBit)==0&&
+            (metadata[heightIndex].sampler&HybridLumenGIRayTextureLayout.HalfPairsBit)==0,"alpha keyword forces BaseMap alpha and parallax height to retain float32");
+        Check((metadata[normalIndex].sampler&HybridLumenGIRayTextureLayout.HalfPairsBit)!=0,"bounded normal color retains half savings");
+        Check(table[0].textures0.x==baseIndex&&table[0].textures0.y==table[1].textures0.y,"same texture shared by opaque and cutout promotes one request to wide");
+        Finish(batch,cmd);Clean();
+        opaque.Material.Set("_AlphaClip",1f);var scalar=Prepare(opaque.Freeze());var scalarCommand=new CommandBuffer();RecordBatch(scalar,scalarCommand);
+        Check((scalarCommand.Copies.OfType<HybridLumenGIRayTextureMetadata[]>().Single()[0].sampler&HybridLumenGIRayTextureLayout.HalfPairsBit)!=0,"coverage follows captured shader keyword, not an ineffective scalar");
+        Finish(scalar,scalarCommand);Clean();
+    }
+    static void QuotaDefersUnknownMaterials()
+    {
+        scenarios++;SystemInfo.supportsAsyncGPUReadback=true;Pool.BeginFrame(2000,80);
+        var a=new Fixture(Texture());var b=new Fixture(Texture());var batch=Prepare(a.Freeze(),b.Freeze(19));var command=new CommandBuffer();RecordBatch(batch,command);
+        Check(Pool.UploadBytesUsed==80&&command.CopyRanges.Count==1&&command.Dispatches.Count==2,"actual Batch records one initial row plus one physical element within global frame cap");
+        Check(Table(command)[0].identity.x!=0&&Table(command)[1].identity.x==0&&batch.UnknownRecords==1,"uninitialized deferred texture descriptor cannot enter a valid material row");
+        Check(Bindings(command)[1].table.y==0&&batch.Bind(command,new ComputeShader(),0,out _),"both legal buffers still bind while deferred row is explicitly unknown");
+        Finish(batch,command);Pool.ClearReusable();Clean();
+        Pool.BeginFrame(2001,80);var rt=new RenderTexture{width=4,height=4,mipmapCount=3,graphicsFormat=42};var dynamicBatch=Prepare(new Fixture(rt).Freeze());var dynamicCommand=new CommandBuffer();RecordBatch(dynamicBatch,dynamicCommand);
+        Check(dynamicCommand.Dispatches.Count==0&&Pool.UploadBytesUsed==0&&dynamicBatch.UnknownRecords==1,"unversioned RT larger than frame allowance never publishes a multi-frame stitched image");
+        Finish(dynamicBatch,dynamicCommand);Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
+    }
+    static int Main()
+    {
+        try
+        {
+            Resources.Loaded=new ComputeShader();AbiAndConstantOrder();MapDedupAndFrozenViews();SourceRevalidation();GlobalBudgetsAndCaps();
+            AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();QuotaDefersUnknownMaterials();
+            Console.WriteLine("PASS hit-material-batch "+checks+" assertions / "+scenarios+" scenarios; actual seven C# classes, recording adapters only; no Unity/GPU execution.");return 0;
+        }
+        catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}
+    }
+}

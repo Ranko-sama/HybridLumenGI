@@ -1,0 +1,19 @@
+using UnityEngine;
+var vertices=new Vector3[]{new(-.5f,-.5f,-.5f),new(.5f,-.5f,-.5f),new(.5f,.5f,-.5f),new(-.5f,.5f,-.5f),new(-.5f,-.5f,.5f),new(.5f,-.5f,.5f),new(.5f,.5f,.5f),new(-.5f,.5f,.5f)};
+var indices=new int[]{0,2,1,0,3,2,4,5,6,4,6,7,0,1,5,0,5,4,3,7,6,3,6,2,0,4,7,0,7,3,1,2,6,1,6,5};
+// Duplicate all face vertices to exercise position welding at UV/normal seams.
+var splitVertices=indices.Select(i=>vertices[i]).ToArray();
+var mesh=new Mesh{vertices=splitVertices,triangles=Enumerable.Range(0,indices.Length).ToArray()};
+var size=16;var samples=HybridLumenGIMeshSdfBaker.Bake(mesh,size,null,out var bounds,out var closed);if(!closed)throw new Exception("closed seam-weld failed");
+float worst=0;int negative=0;
+for(int z=0;z<size;z++)for(int y=0;y<size;y++)for(int x=0;x<size;x++){
+ var p=bounds.min+Vector3.Scale(new(x+.5f,y+.5f,z+.5f),bounds.size/size);
+ var q=new Vector3(MathF.Abs(p.x),MathF.Abs(p.y),MathF.Abs(p.z))-Vector3.one*.5f;
+ var expected=new Vector3(MathF.Max(q.x,0),MathF.Max(q.y,0),MathF.Max(q.z,0)).magnitude+MathF.Min(MathF.Max(q.x,MathF.Max(q.y,q.z)),0);
+ var sample=samples[x+size*(y+size*z)];if(sample<0)negative++;worst=MathF.Max(worst,MathF.Abs(expected-sample));
+}
+if(worst>1e-4f||negative==0)throw new Exception($"Cube failed {worst} negative={negative}");
+if(HybridLumenGIMeshSdfBaker.Bake(mesh,16,(_,_)=>false,out _,out _)!=null)throw new Exception("cancel failed");
+var plane=new Mesh{vertices=new Vector3[]{new(-1,0,-1),new(1,0,-1),new(1,0,1),new(-1,0,1)},triangles=new[]{0,1,2,0,2,3}};
+var shell=HybridLumenGIMeshSdfBaker.Bake(plane,16,null,out _,out var planeClosed);if(planeClosed||shell.Any(x=>!float.IsFinite(x)||x<0))throw new Exception("open shell failed");
+Console.WriteLine($"PASS: {samples.Length} cube voxels vs analytic SDF; max error={worst:G6}; negative={negative}; seam welding, cancellation, open shell all pass. Standalone math-adapter test, not Unity shader/runtime validation.");

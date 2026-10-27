@@ -1,0 +1,252 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using Bridge=HybridLumenGI.HybridLumenGINativeGpuTiming;
+
+internal sealed class FakeApi : Bridge.INativeApi
+{
+    internal Bridge.ApiInfo Info=new Bridge.ApiInfo { abiVersion=1,structSize=48,status=1,capacity=128,eventBase=100,deviceEpoch=9,frequency=1000000,callback=new IntPtr(1234) };
+    internal readonly Dictionary<ulong,Bridge.Result> Issued=new Dictionary<ulong,Bridge.Result>();
+    internal readonly Dictionary<ulong,int> Codes=new Dictionary<ulong,int>();
+    internal readonly List<ulong> Cancelled=new List<ulong>(),Polled=new List<ulong>();
+    internal readonly List<Bridge.PluginEvent> Events=new List<Bridge.PluginEvent>();
+    internal bool Supported=true,RingFull;
+    internal string ThrowAt;
+    internal Exception Failure=new DllNotFoundException("fake plugin missing");
+    internal ulong Next=1;
+    internal int Acquires,InfoCalls,SupportReads,GetInfoCode=1;
+    public bool IsSupported { get { SupportReads++;return Supported; } }
+    private void MaybeThrow(string location) { if(ThrowAt==location) throw Failure; }
+    public int GetInfo(out Bridge.ApiInfo info,uint size)
+    { InfoCalls++;MaybeThrow("info");if(size!=48)throw new Exception("Wrong ApiInfo size");info=Info;return GetInfoCode; }
+    public ulong Acquire(ulong owner,ulong generation,long frame)
+    {
+        Acquires++;MaybeThrow("acquire");if(RingFull)return 0;
+        ulong id=Next++;
+        Issued[id]=new Bridge.Result { token=id,owner=owner,generation=generation,deviceEpoch=Info.deviceEpoch,
+            engineFrame=frame,frequency=Info.frequency,begin0=100,end0=1100,begin1=1500,end1=3500,begin2=4000,end2=7000 };
+        return id;
+    }
+    public int Poll(ulong token,out Bridge.Result result,uint size)
+    {
+        MaybeThrow("poll");if(size!=96)throw new Exception("Wrong Result size");Polled.Add(token);
+        Issued.TryGetValue(token,out result);
+        return Codes.TryGetValue(token,out int code)?code:0;
+    }
+    public void Cancel(ulong token) { Cancelled.Add(token);MaybeThrow("cancel"); }
+}
+
+internal static class Program
+{
+    private static int checks;
+    private static void Check(bool value,string message)
+    { checks++;if(!value)throw new Exception("FAIL: "+message); }
+    private static void Equal(double actual,double expected,string message)
+    { Check(Math.Abs(actual-expected)<1e-9,message+" actual="+actual); }
+    private static ulong Id(Bridge.FrameToken token) => token.Id;
+    private static Bridge.FrameToken Start(Bridge bridge,int frame,int generation=1)
+    { bridge.BeginFrame(frame,generation,true,out _);return bridge.CurrentFrameToken; }
+    private static void Record(Bridge bridge,FakeApi api,Bridge.FrameToken token)
+    {
+        foreach(Bridge.Scope scope in Enum.GetValues<Bridge.Scope>())
+        {
+            Check(bridge.TryRecordBegin(scope,token,out var begin),"Begin scope "+scope);
+            Check(bridge.TryRecordEnd(scope,token,out var end),"End scope "+scope);
+            Check(begin.Callback==api.Info.callback && begin.Data.ToInt64()==(long)Id(token) && begin.EventId==api.Info.eventBase+(int)scope*2,"Opaque begin event contract");
+            Check(end.Data==begin.Data && end.Callback==begin.Callback && end.EventId==begin.EventId+1,"End event contract");
+            api.Events.Add(begin);api.Events.Add(end);
+        }
+        Check(bridge.TryResolve(token,out var resolve),"Resolve complete scopes");
+        Check(resolve.EventId==api.Info.eventBase+6 && resolve.Data.ToInt64()==(long)Id(token),"Resolve event identity");
+        api.Events.Add(resolve);
+    }
+    private static void AbiAndPlatform()
+    {
+        Check(Marshal.SizeOf<Bridge.ApiInfo>()==48 && Marshal.OffsetOf<Bridge.ApiInfo>("callback").ToInt32()==40,"ApiInfo ABI layout");
+        Check(Marshal.SizeOf<Bridge.Result>()==96 && Marshal.OffsetOf<Bridge.Result>("begin0").ToInt32()==48,"Result ABI layout");
+        var type=typeof(Bridge).GetNestedType("NativeApi",BindingFlags.NonPublic);
+        var imports=type.GetMethods(BindingFlags.NonPublic|BindingFlags.Static).Where(m=>m.GetCustomAttribute<DllImportAttribute>()!=null).ToArray();
+        Check(imports.Length==4,"Complete actual PInvoke declarations compiled");
+        foreach(var method in imports)
+        { var import=method.GetCustomAttribute<DllImportAttribute>();Check(import.CallingConvention==CallingConvention.Cdecl && import.Value=="HybridLumenGIGpuTiming" && import.ExactSpelling,"Native ABI declaration "+method.Name); }
+        using var real=new Bridge(10);
+        Check(!real.BeginFrame(0,1,true,out _) && !real.Available && real.Status==Bridge.TimingStatus.Unsupported,"Real platform gate bypasses native calls on non-Windows stub");
+        var api=new FakeApi { Supported=false };using var b=new Bridge(api);
+        Check(!b.BeginFrame(0,1,true,out _) && api.InfoCalls==0 && api.Acquires==0,"Unsupported platform makes no native calls");
+        api=new FakeApi { ThrowAt="info" };using var disabled=new Bridge(api);
+        Check(!disabled.BeginFrame(0,1,false,out _) && !disabled.Available && disabled.Status==Bridge.TimingStatus.Disabled &&
+            api.InfoCalls==0 && api.Acquires==0 && api.SupportReads==0,"Default disabled mode performs no capability or DLL probe");
+        api.ThrowAt=null;
+        Check(!disabled.BeginFrame(1,1,true,out _) && disabled.Available && disabled.CurrentFrameToken.IsValid &&
+            api.InfoCalls==1 && api.Acquires==1 && api.SupportReads==1,"First enable performs the first probe and acquisition");
+        var active=disabled.CurrentFrameToken;int probes=api.InfoCalls,capabilities=api.SupportReads,acquires=api.Acquires;
+        Check(!disabled.BeginFrame(2,1,false,out _) && api.Cancelled.Contains(Id(active)) && !disabled.Available &&
+            api.InfoCalls==probes && api.SupportReads==capabilities && api.Acquires==acquires,"Disabling cancels existing work without probing or acquiring");
+        Check(Start(disabled,3).IsValid && disabled.Available,"Re-enable recovers after disabling a live native session");
+        api=new FakeApi { Supported=false };using var unsupportedDisabled=new Bridge(api);
+        Check(!unsupportedDisabled.BeginFrame(0,1,false,out _) && unsupportedDisabled.Status==Bridge.TimingStatus.Disabled && api.SupportReads==0,
+            "Disabled status takes precedence over unsupported-platform discovery");
+    }
+    private static void IdentityLatestAndNoReplay()
+    {
+        var api=new FakeApi();using var b=new Bridge(api);
+        var a=Start(b,0);Record(b,api,a);
+        var c=Start(b,1);Record(b,api,c);
+        api.Codes[Id(a)]=api.Codes[Id(c)]=1;
+        Check(b.BeginFrame(2,1,true,out double ms),"Two completed submissions produce one observation");
+        Equal(ms,6,"Sum three intervals, excluding gaps");
+        Check(b.LastMeasuredSourceFrame==1 && b.AcceptedResults==1 && b.PendingCount==1,"Newest matching result wins and new frame reserved");
+        Record(b,api,b.CurrentFrameToken);
+        int oldPollCount=api.Polled.Count;
+        Check(!b.BeginFrame(3,1,true,out _) && api.Polled.Skip(oldPollCount).All(t=>t!=Id(a)&&t!=Id(c)),"Consumed native results never polled twice");
+        Record(b,api,b.CurrentFrameToken);
+
+        var d=Start(b,4);Record(b,api,d);api.Codes[Id(d)]=1;
+        Check(b.BeginFrame(5,1,true,out _) && b.LastMeasuredSourceFrame==4,"Newer asynchronous completion accepted");
+        Record(b,api,b.CurrentFrameToken);
+        foreach(ulong id in api.Issued.Keys.Where(id=>id<Id(d)))api.Codes[id]=1;
+        Check(!b.BeginFrame(6,1,true,out _) && b.AcceptedResults==2,"Older late results cannot rewind feedback");
+    }
+    private static void MalformedResults()
+    {
+        ActionRef[] changes={
+            (ref Bridge.Result r)=>r.token++, (ref Bridge.Result r)=>r.owner++,
+            (ref Bridge.Result r)=>r.generation++, (ref Bridge.Result r)=>r.deviceEpoch++,
+            (ref Bridge.Result r)=>r.engineFrame++, (ref Bridge.Result r)=>r.frequency=0,
+            (ref Bridge.Result r)=>r.frequency++, (ref Bridge.Result r)=>r.end0=r.begin0-1,
+            (ref Bridge.Result r)=>r.begin1=r.end0-1, (ref Bridge.Result r)=>r.end1=r.begin1-1,
+            (ref Bridge.Result r)=>r.begin2=r.end1-1, (ref Bridge.Result r)=>r.end2=r.begin2-1,
+            (ref Bridge.Result r)=>{r.begin0=r.end0=r.begin1=r.end1=r.begin2=r.end2=3;}
+        };
+        foreach(var change in changes)
+        {
+            var api=new FakeApi();using var b=new Bridge(api);var token=Start(b,0);Record(b,api,token);
+            var value=api.Issued[Id(token)];change(ref value);api.Issued[Id(token)]=value;api.Codes[Id(token)]=1;
+            Check(!b.BeginFrame(1,1,true,out _) && b.Available && b.RejectedResults==1,"Malformed result rejected without provider thrash");
+        }
+        foreach(int code in new[]{-1,-3,-99})
+        {
+            var api=new FakeApi();using var b=new Bridge(api);var token=Start(b,0);Record(b,api,token);api.Codes[Id(token)]=code;
+            Check(!b.BeginFrame(1,1,true,out _) && b.Available && b.RejectedResults==1,"Failed/stale poll rejected: "+code);
+        }
+    }
+    private delegate void ActionRef(ref Bridge.Result result);
+    private static void InvalidationAndSequence()
+    {
+        var api=new FakeApi();using var b=new Bridge(api);var token=Start(b,0);Record(b,api,token);
+        api.Codes[Id(token)]=1;b.Invalidate();
+        Check(api.Cancelled.Contains(Id(token)) && b.PendingCount==0 && b.Available,"Invalidate cancels tickets while native remains available");
+        Check(!b.TryResolve(token,out _) && !b.TryRecordEnd(Bridge.Scope.Composite,token,out _),"Stale token produces no plugin events");
+        var next=Start(b,1);Record(b,api,next);api.Codes[Id(next)]=1;
+        Check(!b.BeginFrame(2,2,true,out _) && api.Cancelled.Contains(Id(next)),"Configuration generation rejects old completed result before polling");
+        Record(b,api,b.CurrentFrameToken);
+        var beforeDevice=b.CurrentFrameToken;api.Info.deviceEpoch++;
+        Check(!b.BeginFrame(3,2,true,out _) && api.Cancelled.Contains(Id(beforeDevice)),"Device epoch rejects old GPU work");
+        Record(b,api,b.CurrentFrameToken);
+        var beforeRepeat=b.CurrentFrameToken;
+        Check(!b.BeginFrame(3,2,true,out _) && !b.CurrentFrameToken.IsValid && api.Cancelled.Contains(Id(beforeRepeat)),"Repeated frame cancels without second acquisition");
+        Check(Start(b,4,2).IsValid,"Frame following repetition recovers acquisition");Record(b,api,b.CurrentFrameToken);
+        var beforeGap=b.CurrentFrameToken;Check(Start(b,8,2).IsValid && api.Cancelled.Contains(Id(beforeGap)),"Gap cancels old records and acquires new frame");
+        Record(b,api,b.CurrentFrameToken);
+        Check(!b.BeginFrame(9,2,false,out _) && !b.Available && b.PendingCount==0,"Disabled bridge reserves nothing and reports unavailable");
+        Check(Start(b,10,2).IsValid,"Enable resumes acquisition");
+        Check(!b.TryResolve(b.CurrentFrameToken,out _) && b.Status==Bridge.TimingStatus.InvalidSequence,"Incomplete query set never resolves");
+        var seq=Start(b,11,2);
+        Check(b.TryRecordBegin(Bridge.Scope.ReceiverCapture,seq,out _),"Initial begin");
+        Check(!b.TryRecordBegin(Bridge.Scope.ReceiverCapture,seq,out _) && api.Cancelled.Contains(Id(seq)),"Duplicate begin invalidates submission");
+        seq=Start(b,12,2);Check(!b.TryRecordEnd(Bridge.Scope.ReceiverCapture,seq,out _),"End without begin rejected");
+        seq=Start(b,13,2);Check(!b.TryRecordBegin(Bridge.Scope.Transport,seq,out _),"Out-of-order scopes rejected");
+        seq=Start(b,14,2);Record(b,api,seq);Check(!b.TryResolve(seq,out _),"Repeated resolve rejected");
+        seq=Start(b,15,2);Start(b,16,2);Check(api.Cancelled.Contains(Id(seq)),"Unrecorded previous submission cancelled");
+    }
+    private static void BoundedPendingAndRetirement()
+    {
+        var api=new FakeApi();var b=new Bridge(api);ulong first=0;
+        for(int frame=0;frame<80;frame++)
+        {
+            var token=Start(b,frame);if(frame==0)first=Id(token);Record(b,api,token);
+            Check(b.PendingCount<=32 && b.Available,"Bounded pending ring maintains capability");
+        }
+        Check(api.Cancelled.Contains(first) && b.PendingCount==32,"Overflow cancels oldest opaque ticket");
+        int count=api.Cancelled.Count;b.Dispose();b.Dispose();
+        Check(api.Cancelled.Count==count+32 && b.PendingCount==0 && !b.Available,"Dispose cancels each pending token exactly once; native owns fence retirement");
+        Check(!b.BeginFrame(81,1,true,out _) && b.Status==Bridge.TimingStatus.Disposed,"Disposed bridge never reacquires");
+
+        api=new FakeApi { RingFull=true };using var full=new Bridge(api);
+        Check(!full.BeginFrame(0,1,true,out _) && full.Available && full.Status==Bridge.TimingStatus.RingFull,"Native ring full keeps provider available");
+        Check(full.DeviceEpoch==api.Info.deviceEpoch && !full.CurrentFrameToken.IsValid,"Device epoch remains observable while the ring has no free ticket");
+        api.RingFull=false;var acquired=Start(full,1);Record(full,api,acquired);api.Codes[Id(acquired)]=1;api.RingFull=true;
+        Check(full.BeginFrame(2,1,true,out double ms) && full.Available && !full.CurrentFrameToken.IsValid,"Completed result remains usable when next reservation is full");Equal(ms,6,"Ring-full completed result");
+        api.Info.deviceEpoch++;
+        Check(!full.BeginFrame(3,1,true,out _) && full.Available && full.DeviceEpoch==api.Info.deviceEpoch && !full.CurrentFrameToken.IsValid,
+            "New native device epoch is observable even when acquisition remains ring-full");
+
+        api=new FakeApi();using var edge=new Bridge(api);var firstToken=Start(edge,0);Record(edge,api,firstToken);
+        for(int frame=1;frame<32;frame++)Record(edge,api,Start(edge,frame));
+        api.Codes[Id(firstToken)]=1;
+        Check(edge.BeginFrame(32,1,true,out _) && edge.LastMeasuredSourceFrame==0,"Maximum 32-frame age accepted exactly at boundary");
+
+        api=new FakeApi();using var timeout=new Bridge(api);var timed=Start(timeout,0);Record(timeout,api,timed);api.RingFull=true;
+        for(int frame=1;frame<=32;frame++)timeout.BeginFrame(frame,1,true,out _);
+        api.Codes[Id(timed)]=1;int polls=api.Polled.Count;
+        Check(!timeout.BeginFrame(33,1,true,out _)&&api.Cancelled.Contains(Id(timed))&&api.Polled.Count==polls&&timeout.Available,
+            "A completed but expired result is cancelled before poll and never consumed");
+    }
+    private static void FailuresAndIsolation()
+    {
+        foreach(uint status in new uint[]{0,2,3,4,5,99})
+        { var api=new FakeApi();api.Info.status=status;using var b=new Bridge(api);Check(!b.BeginFrame(0,1,true,out _)&&!b.Available&&api.Acquires==0,"Native nonready state: "+status); }
+        foreach(int field in Enumerable.Range(0,7))
+        {
+            var api=new FakeApi();switch(field) { case 0:api.Info.abiVersion++;break;case 1:api.Info.structSize++;break;case 2:api.Info.frequency=0;break;case 3:api.Info.deviceEpoch=0;break;case 4:api.Info.callback=IntPtr.Zero;break;case 5:api.Info.eventBase=int.MaxValue;break;case 6:api.Info.capacity=0;break; }
+            using var b=new Bridge(api);Check(!b.BeginFrame(0,1,true,out _)&&!b.Available,"Malformed API info: "+field);
+        }
+        foreach(Exception failure in new Exception[]{new DllNotFoundException(),new EntryPointNotFoundException(),new BadImageFormatException()})
+        {
+            var api=new FakeApi { ThrowAt="info",Failure=failure };using var b=new Bridge(api);
+            Check(!b.BeginFrame(0,1,true,out _)&&!b.Available,"Missing/incompatible DLL is optional");
+            b.BeginFrame(1,1,true,out _);Check(api.InfoCalls==1,"Permanent interop error is not retried every frame");
+        }
+        foreach(string location in new[]{"acquire","poll","cancel"})
+        {
+            var api=new FakeApi();using var b=new Bridge(api);var token=Start(b,0);Record(b,api,token);api.ThrowAt=location;
+            if(location=="cancel")b.Invalidate();else b.BeginFrame(1,1,true,out _);
+            Check(!b.Available,"Interop failure leaves provider unavailable: "+location);
+        }
+        foreach(string transition in new[]{"device","generation","incomplete","overflow"})
+        {
+            var api=new FakeApi();using var b=new Bridge(api);var token=Start(b,0);
+            if(transition!="incomplete")Record(b,api,token);
+            int nextFrame=1;
+            if(transition=="overflow")
+            { for(int frame=1;frame<32;frame++)Record(b,api,Start(b,frame));nextFrame=32; }
+            if(transition=="device")api.Info.deviceEpoch++;
+            api.ThrowAt="cancel";int acquires=api.Acquires;
+            Check(!b.BeginFrame(nextFrame,transition=="generation"?2:1,true,out _)&&!b.Available&&api.Acquires==acquires,
+                "Cancellation failure cannot be overwritten by ready capability or acquire: "+transition);
+        }
+        var lostApi=new FakeApi();using var lost=new Bridge(lostApi);var gone=Start(lost,0);Record(lost,lostApi,gone);lostApi.Codes[Id(gone)]=-2;
+        Check(!lost.BeginFrame(1,1,true,out _)&&!lost.Available&&lost.Status==Bridge.TimingStatus.DeviceLost,"Poll device loss invalidates all work");
+        lostApi.Info.deviceEpoch++;Check(Start(lost,2).IsValid&&lost.Available,"New device epoch can recover");
+        var shared=new FakeApi();using var a=new Bridge(shared);using var c=new Bridge(shared);
+        var ta=Start(a,0);var tc=Start(c,0);Record(a,shared,ta);Record(c,shared,tc);
+        Check(shared.Issued[Id(ta)].owner!=shared.Issued[Id(tc)].owner,"Camera lifetimes use distinct owners");
+        shared.Codes[Id(tc)]=1;a.Dispose();
+        Check(c.BeginFrame(1,1,true,out _)&&!shared.Cancelled.Contains(Id(tc)),"Disposing another camera cannot cancel this camera's result");
+        shared=new FakeApi { Next=ulong.MaxValue };using var oversized=new Bridge(shared);
+        Check(!oversized.BeginFrame(0,1,true,out _)&&!oversized.Available,"Native ticket cannot overflow signed IntPtr payload");
+        shared=new FakeApi();using var duplicate=new Bridge(shared);var first=Start(duplicate,0);Record(duplicate,shared,first);shared.Next=Id(first);
+        Check(!duplicate.BeginFrame(1,1,true,out _)&&!duplicate.Available&&!duplicate.CurrentFrameToken.IsValid,"Reused native IDs cannot alias an outstanding submission");
+    }
+    public static int Main()
+    {
+        try
+        {
+            AbiAndPlatform();IdentityLatestAndNoReplay();MalformedResults();InvalidationAndSequence();BoundedPendingAndRetirement();FailuresAndIsolation();
+            Console.WriteLine("Actual-source native timing bridge: "+checks+" assertions passed. Fake C ABI only; no DLL call, Unity render graph, DX12 query, fence or GPU execution.");return 0;
+        }
+        catch(Exception error) { Console.Error.WriteLine(error);return 1; }
+    }
+}

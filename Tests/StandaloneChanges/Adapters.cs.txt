@@ -1,0 +1,68 @@
+using System;
+using System.Collections.Generic;
+namespace UnityEngine
+{
+    public sealed class Renderer { }
+    public readonly record struct Vector3(float x,float y,float z)
+    {
+        public static Vector3 operator +(Vector3 a,Vector3 b)=>new(a.x+b.x,a.y+b.y,a.z+b.z);
+        public static Vector3 operator -(Vector3 a,Vector3 b)=>new(a.x-b.x,a.y-b.y,a.z-b.z);
+        public static Vector3 operator *(Vector3 a,float b)=>new(a.x*b,a.y*b,a.z*b);
+    }
+    public struct Vector4
+    {
+        public float x,y,z,w;
+        public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}
+    }
+    public readonly record struct Bounds(Vector3 center,Vector3 size)
+    {
+        public Vector3 min=>center-size*.5f;
+        public Vector3 max=>center+size*.5f;
+    }
+    public static class Mathf { public static float Max(float a,float b)=>MathF.Max(a,b); }
+    public sealed class ComputeBuffer
+    {
+        public readonly int count,stride;
+        public readonly object[] data;
+        public string name;
+        public bool released;
+        public int lastUploadCount;
+        public ComputeBuffer(int count,int stride){this.count=count;this.stride=stride;data=new object[count];}
+        public void SetData(Array values,int sourceIndex,int destinationIndex,int length)
+        {
+            if(released)throw new InvalidOperationException("Uploading released buffer.");
+            if(sourceIndex<0||destinationIndex<0||length<0||destinationIndex+length>count)throw new ArgumentOutOfRangeException();
+            for(int i=0;i<length;i++)data[destinationIndex+i]=values.GetValue(sourceIndex+i);
+            lastUploadCount=length;
+        }
+        public void Release(){released=true;}
+    }
+    public sealed class ComputeShader { }
+}
+namespace UnityEngine.Rendering
+{
+    public sealed class CommandBuffer
+    {
+        public readonly Dictionary<string,int> ints=new();
+        public readonly Dictionary<string,float> floats=new();
+        public readonly Dictionary<string,UnityEngine.ComputeBuffer> buffers=new();
+        public void SetComputeBufferParam(UnityEngine.ComputeShader shader,int kernel,string name,UnityEngine.ComputeBuffer buffer)=>buffers[name]=buffer;
+        public void SetComputeIntParam(UnityEngine.ComputeShader shader,string name,int value)=>ints[name]=value;
+        public void SetComputeFloatParam(UnityEngine.ComputeShader shader,string name,float value)=>floats[name]=value;
+    }
+}
+namespace HybridLumenGI
+{
+    public sealed class HybridLumenGIScene
+    {
+        [Flags] public enum ChangeKind { Added=1,Removed=2,Transform=4,Material=8,Topology=16,Manual=32,Representation=64,Lighting=128 }
+        public struct DirtyRegion
+        {
+            public UnityEngine.Bounds PreviousBounds,CurrentBounds;
+            public bool HasPrevious,HasCurrent;
+            public int Slot,StableId;
+            public ChangeKind Kind;
+        }
+        public readonly List<DirtyRegion> DirtyRegions=new();
+    }
+}

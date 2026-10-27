@@ -1,0 +1,85 @@
+using System;
+using System.Collections.Generic;
+namespace UnityEngine
+{
+    public class Object
+    {
+        public string name = ""; public bool Destroyed; public int FakeInstanceId = 1;
+        public static bool operator ==(Object a, Object b) => ReferenceEquals(a, b) || ((ReferenceEquals(a, null) || a.Destroyed) && (ReferenceEquals(b, null) || b.Destroyed));
+        public static bool operator !=(Object a, Object b) => !(a == b);
+        public override bool Equals(object o) => ReferenceEquals(this, o);
+        public override int GetHashCode() => 17; // All sources collide deliberately; equality must never trust this.
+    }
+    public struct Vector2 { public float x,y; public Vector2(float x,float y){this.x=x;this.y=y;} public static Vector2 one=>new(1,1);public static Vector2 zero=>new(0,0); }
+    public struct Vector4 { public float x,y,z,w; public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;} }
+    public struct Color { public float r,g,b,a;public Color(float r,float g,float b,float a=1){this.r=r;this.g=g;this.b=b;this.a=a;} public static implicit operator Vector4(Color c)=>new(c.r,c.g,c.b,c.a); }
+    public class Texture : Object
+    {
+        public bool ThrowOnRead;public int Reads;
+        protected T Read<T>(T value){Reads++;if(ThrowOnRead)throw new Exception("Unexpected live texture read");return value;}
+        uint update;int w=16,h=32,dim=2,fmt=1,mips=5,filter=1,wu,wv,ww,aniso=1;float bias;bool srgb;
+        public uint updateCount {get=>Read(update);set=>update=value;}
+        public int width {get=>Read(w);set=>w=value;} public int height {get=>Read(h);set=>h=value;}
+        public int dimension {get=>Read(dim);set=>dim=value;} public int graphicsFormat {get=>Read(fmt);set=>fmt=value;}
+        public int mipmapCount {get=>Read(mips);set=>mips=value;} public int filterMode {get=>Read(filter);set=>filter=value;}
+        public int wrapModeU {get=>Read(wu);set=>wu=value;} public int wrapModeV {get=>Read(wv);set=>wv=value;}
+        public int wrapModeW {get=>Read(ww);set=>ww=value;} public int anisoLevel {get=>Read(aniso);set=>aniso=value;}
+        public float mipMapBias {get=>Read(bias);set=>bias=value;} public bool isDataSRGB {get=>Read(srgb);set=>srgb=value;}
+    }
+    public class Texture2D:Texture
+    {
+        bool streaming;int active,loaded,loading;
+        public bool streamingMipmaps {get=>Read(streaming);set=>streaming=value;}
+        public int activeMipmapLimit {get=>Read(active);set=>active=value;}
+        public int loadedMipmapLevel {get=>Read(loaded);set=>loaded=value;}
+        public int loadingMipmapLevel {get=>Read(loading);set=>loading=value;}
+    }
+    public class RenderTexture:Texture{}
+    public class CustomRenderTexture:RenderTexture{}
+    public class Shader : Object
+    {
+        public int renderQueue=2000;static readonly Dictionary<string,int> ids=new();
+        public static int PropertyToID(string name){if(!ids.TryGetValue(name,out int id)){id=ids.Count+1;ids.Add(name,id);}return id;}
+    }
+    public class Bag
+    {
+        public readonly Dictionary<int,object> Values=new(); public int Writes;
+        public bool HasProperty(int id)=>Values.ContainsKey(id); public bool HasProperty(string s)=>HasProperty(Shader.PropertyToID(s));
+        public bool HasFloat(int id)=>Values.TryGetValue(id,out var o)&&o is float;
+        public bool HasVector(int id)=>Values.TryGetValue(id,out var o)&&(o is Vector4||o is Color);
+        public bool HasTexture(int id)=>Values.TryGetValue(id,out var o)&&(o==null||o is Texture);
+        public float GetFloat(int id)=>Values.TryGetValue(id,out var o)&&o is float f?f:0;public float GetFloat(string s)=>GetFloat(Shader.PropertyToID(s));
+        public Color GetColor(int id)=>Values.TryGetValue(id,out var o)&&o is Color c?c:default;
+        public Vector4 GetVector(int id)=>Values.TryGetValue(id,out var o)?o is Vector4 v?v:o is Color c?(Vector4)c:default:default;
+        public Texture GetTexture(int id)=>Values.TryGetValue(id,out var o)?o as Texture:null;
+        public void Set(string s,object o){Values[Shader.PropertyToID(s)]=o;Writes++;}
+        public void Clear(){Values.Clear();Writes++;}
+    }
+    public class Material : Object
+    {
+        public readonly Bag Data=new();public Shader shader;public int renderQueue=2000,globalIlluminationFlags;public bool enableInstancing,doubleSidedGI;
+        public string[] shaderKeywords=Array.Empty<string>();public string[] Passes={"ForwardLit","ShadowCaster","DepthOnly","MotionVectors"};
+        public readonly Dictionary<string,bool> Enabled=new();public string Tag="Opaque";
+        public readonly Dictionary<int,Vector2> Scales=new(),Offsets=new();
+        public Material(Shader shader){this.shader=shader;}
+        public bool HasProperty(int id)=>Data.HasProperty(id);public bool HasProperty(string s)=>Data.HasProperty(s);
+        public float GetFloat(int id)=>Data.GetFloat(id);public float GetFloat(string s)=>Data.GetFloat(s);public Color GetColor(int id)=>Data.GetColor(id);public Texture GetTexture(int id)=>Data.GetTexture(id);
+        public Vector2 GetTextureScale(int id)=>Scales.TryGetValue(id,out var v)?v:Vector2.one;
+        public Vector2 GetTextureOffset(int id)=>Offsets.TryGetValue(id,out var v)?v:Vector2.zero;
+        public int passCount=>Passes.Length;public string GetPassName(int i)=>Passes[i];public bool GetShaderPassEnabled(string p)=>!Enabled.TryGetValue(p,out var b)||b;
+        public string GetTag(string tag,bool fallback,string value)=>Tag;
+        public void Set(string s,object o)=>Data.Set(s,o);
+    }
+    public class MaterialPropertyBlock:Bag
+    {
+        public bool isEmpty=>Values.Count==0;
+        public void Copy(MaterialPropertyBlock source){Values.Clear();if(source!=null)foreach(var p in source.Values)Values[p.Key]=p.Value;}
+    }
+    public class Renderer:Object
+    {
+        public bool enabled=true;public readonly List<Material> Materials=new();public MaterialPropertyBlock Block=new();public readonly Dictionary<int,MaterialPropertyBlock> Slots=new();public int Reads;
+        public void GetSharedMaterials(List<Material> output){Reads++;output.Clear();output.AddRange(Materials);}
+        public void GetPropertyBlock(MaterialPropertyBlock output){output.Copy(Block);}
+        public void GetPropertyBlock(MaterialPropertyBlock output,int index){output.Copy(Slots.TryGetValue(index,out var b)?b:null);}
+    }
+}

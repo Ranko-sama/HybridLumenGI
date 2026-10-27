@@ -1,0 +1,40 @@
+HybridLumenGI · runtime-candidate-16 · 朋友测试包
+
+这是可导入、可运行的测试候选，不是生产认证，也不声称与 UE5 Lumen 完全等价。
+请把整个 friend-handoff-16.zip 发给朋友。不要再把 integration-15 当作本次修复版。
+
+包内内容
+- HybridLumenGI-source-16.zip：将其中 HybridLumenGI 放进朋友工程 Assets；已有旧包时更新同一份，避免重复类/GUID。
+- WindowsTestPlayer-16.zip：无需安装 Unity 即可运行固定场景。解压后执行 Run-Software.cmd；需要时执行 Run-Streaming.cmd 或 Run-DXR.cmd。
+- UnityTestProject-16.zip：准备好的独立 Unity 测试工程，不包含 Library 缓存。解压后用 Unity 6000.0.85f1 打开；URP 17.0.4、Windows DX12、Linear、RenderGraph。
+- Evidence：本机结果摘要、实际配置、源码与产物哈希、定向回归记录。完整原始 HDR 留在本机工作区，可按需要取出。
+- Report/REPORT.html：实际图像对照，点击 PNG 可放大。
+
+先测什么
+1. 先运行默认软件 Player，等待固定序列结束；它会自动退出，把结果写进 Player 同目录 TestResults。首次驱动初始化可能较慢，不要叠加启动进程。
+2. 在朋友工程副本中导入源码，给 URP Renderer 添加 HybridLumenGIRendererFeature。默认先精确软件；普通 URP Lit + 合格代理，烘焙实际 mesh SDF 与 charts。
+3. 测自己的代表场景，遇到阻断回传日志、结果目录及 SOURCE-MANIFEST.json；不需要一开始跑完整生产压力表。
+
+独立工程里的场景
+- Assets/RuntimeAudit/Functional.unity：颜色/发光反弹、UV/法线/alpha/多材质、MPB变化、门与可读网格形变、关灯、切镜、黑室。
+- Assets/RuntimeAudit/Streaming.unity：真实 bundle 资源页、预算不足等待、双相机占用、HLOD 近远往返和离场退休。
+- 在场景的 ComparisonCapture 组件中把 outputRoot 改成你自己的绝对输出目录。不要引用作者本机 I 盘路径。
+- 固定采集相机输出到 HDR RenderTexture，Game 窗口可能是黑的；以 TestResults 中的 PNG/EXR 和 run.json 为准。不要仅凭 Game 窗口判断 GI 是否运行。
+
+合成与支持边界
+- Additive 会叠加已有 lightmap / ambient diffuse GI；测试纯动态 GI 时关闭原有环境/烘焙贡献，或明确选择 Replace Native Diffuse GI。
+- Replace 模式只对受支持且有有效 GI 测量的普通 Lit 接收面去除原生漫反射；未知区域保留原生照明。SH 的代表场景已定向核验，完整 lightmap / SSAO / decals / fog / Forward+ 组合未全部验收。
+- DXR 需要支持 inline ray query 的 DX12 GPU。必须查看 hardwareBackend，不把自动软件回退当硬件通过。
+- 可读网格快照形变已检查；GPU 私有变形需提供可读快照。没有逐一认证任意 Skinned/ShaderGraph/自定义材质路径。
+- HLOD 测的是 GI 表示切换；原生可见模型的 LOD 显示仍由场景自身的 LODGroup/渲染管理负责。
+- 初始加载、预算不足和不支持的来源允许明确回退/等待。薄壁场景仍需真值对照；不能按“更亮”判断更正确。
+- 本次不提供可信 GI GPU p95/p99、总峰值显存、长时运行及跨驱动/平台生产结论。采集包含同步读回和磁盘 IO，不能拿其帧时当正式性能。
+- Editor 退出时仍观察到原生资源退休/释放警告；没有把它宣称为无泄漏或长期稳定已通过。
+
+本次修复
+默认精确路径编译展开、相交墙体缓存可见性、Unity 6 RenderGraph/API 接线、发光 keyword 被导入清除、HDR 发光重复线性化、RGB24 贴图被误拒绝、Player 灯光 API、bundle 导出后的失效引用，以及细节卸载后 HLOD 组丢失导致返回近场 GI 空洞。
+
+旧结果与来源
+旧 RAR、integration-15 和原始运行记录均保留。旧场景发光被导入器禁用，不能拿旧关灯段证明面积发光采样。本次使用独立发光/材质场景补证；其画面不直接与旧场景算优劣。
+
+最终本机结果：功能及流式 Player 各720帧/32HDR/零采集错误。默认Player717帧为精确软件，3帧启动等待回退。HLOD返回段无publication空洞，离场后到f487页驻留/bundle均归零。DXR已在Editor运行；最终Player的DXR模式留给可选后续检查。

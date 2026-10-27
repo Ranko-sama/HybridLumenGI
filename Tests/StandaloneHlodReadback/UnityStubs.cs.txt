@@ -1,0 +1,98 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+namespace UnityEngine
+{
+    public struct Vector4
+    {
+        public float x,y,z,w;public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}
+        public static Vector4 zero=>new(0,0,0,0);
+    }
+    public static class Mathf{public static int Max(int a,int b)=>Math.Max(a,b);}
+    public static class SystemInfo{public static bool supportsAsyncGPUReadback=true;}
+    public sealed class ComputeBuffer{}
+    public sealed class Mesh{}
+    public sealed class Texture3D{public uint updateCount;}
+    public readonly record struct Bounds(float Value);
+    public readonly record struct Matrix4x4(float Value);
+}
+namespace UnityEngine.Rendering
+{
+    public readonly struct AsyncGPUReadbackRequest
+    {
+        public readonly bool hasError;private readonly Array values;
+        public AsyncGPUReadbackRequest(Array data,bool error){values=data;hasError=error;}
+        public T[] GetData<T>() where T:struct=>(T[])values;
+    }
+    public sealed class CommandBuffer
+    {
+        public bool ThrowOnRequest;
+        public readonly List<Action<AsyncGPUReadbackRequest>> Callbacks=new();
+        public void RequestAsyncReadback(UnityEngine.ComputeBuffer buffer,Action<AsyncGPUReadbackRequest> callback)
+        {
+            if(ThrowOnRequest)throw new InvalidOperationException("simulated native request recording failure");
+            Callbacks.Add(callback);
+        }
+        public void Complete(int index,Array values,bool error=false)=>Callbacks[index](new AsyncGPUReadbackRequest(values,error));
+    }
+}
+namespace HybridLumenGI
+{
+    public sealed class HybridLumenGIMeshSdf
+    {
+        public UnityEngine.Mesh SourceMesh=new();public UnityEngine.Texture3D DistanceTexture=new();
+        public UnityEngine.Bounds LocalBounds;public int Resolution=16;public bool Watertight=true;public float InterpolationError=.1f;
+    }
+    public sealed class HybridLumenGIProxy{public HybridLumenGIMeshSdf MeshSdf;public int StableId,Revision=3;public UnityEngine.Matrix4x4 SdfLocalToWorld;}
+    public sealed class HybridLumenGIScene
+    {
+        public struct ProxyGpuData{public UnityEngine.Vector4 identity;}
+        public readonly record struct Ticket(int Id,int Revision,bool Geometry,bool Material,bool Lighting);
+        public readonly ProxyGpuData[] Data;public readonly HybridLumenGIProxy[] Proxies;
+        public readonly List<Ticket> Reports=new();public readonly Dictionary<int,Ticket> Latest=new();
+        public int Capacity=>Data.Length;public int WarmingCount=>Data.Count(d=>d.identity.w==2);
+        public HybridLumenGIScene(int count)
+        {
+            Data=new ProxyGpuData[count];Proxies=new HybridLumenGIProxy[count];
+            for(int i=0;i<count;i++){Data[i].identity=new UnityEngine.Vector4(101+i,3,0,2);Proxies[i]=new HybridLumenGIProxy{StableId=101+i};}
+        }
+        public bool IsWarming(int slot)=>slot>=0&&slot<Data.Length&&Data[slot].identity.w==2;
+        public HybridLumenGIProxy GetProxy(int slot)=>Proxies[slot];
+        public bool ReportReadiness(int id,int revision,bool geometry,bool material,bool lighting)
+        {
+            // Mirror Scene's actual current-identity/revision guard; this is not a GPU result.
+            if(!Data.Any(d=>d.identity.w>.5f&&(int)d.identity.x==id&&(int)d.identity.y==revision))return false;
+            var ticket=new Ticket(id,revision,geometry,material,lighting);Reports.Add(ticket);Latest[id]=ticket;return true;
+        }
+        public bool Ready(int id,int revision)=>Latest.TryGetValue(id,out var ticket)&&ticket.Revision==revision&&ticket.Geometry&&ticket.Material&&ticket.Lighting;
+    }
+    public sealed class HybridLumenGISdfAtlas
+    {
+        public bool Ready=true,SourceCurrent=true;
+        public bool IsReady(int slot,int id,int revision)=>Ready;
+        public bool IsSourceCurrent(int slot,HybridLumenGIProxy proxy,int id,int revision)=>SourceCurrent;
+    }
+    public sealed class HybridLumenGISurfaceCache
+    {
+        public uint AtlasGeneration=1;public uint[] Generations;public readonly bool[] Ready,SourceCurrent,RequiredCoverage;
+        public readonly int[] Ids,Revisions;public int[] CardOwners;public int[][] Cards;public readonly uint[] Layouts;
+        public int CardCount=>CardOwners.Length;
+        public HybridLumenGISurfaceCache(int slots)
+        {
+            Generations=new uint[slots*6];Ready=new bool[slots];SourceCurrent=new bool[slots];RequiredCoverage=new bool[slots];Ids=new int[slots];Revisions=new int[slots];
+            CardOwners=new int[slots*6];Cards=new int[slots][];Layouts=new uint[slots];
+            for(int i=0;i<slots;i++)
+            {
+                Ready[i]=SourceCurrent[i]=true;Ids[i]=101+i;Revisions[i]=3;Layouts[i]=1;Cards[i]=new int[6];
+                for(int face=0;face<6;face++){int card=i*6+face;Generations[card]=(uint)(10+card);CardOwners[card]=i;Cards[i][face]=card;}
+            }
+        }
+        public uint GetGeneration(int card)=>Generations[card];
+        public int GetCardCount(int slot)=>Cards[slot].Length;
+        public int GetCardIndex(int slot,int ordinal)=>Cards[slot][ordinal];
+        public uint GetLayoutGeneration(int slot)=>Layouts[slot];
+        public bool RequiresCardCoverage(int slot)=>RequiredCoverage[slot];
+        public bool IsSlotReady(int slot,int id,int revision)=>slot>=0&&slot<Ready.Length&&Ready[slot]&&Ids[slot]==id&&Revisions[slot]==revision;
+        public bool IsSlotSourceCurrent(int slot,int id,int revision)=>IsSlotReady(slot,id,revision)&&SourceCurrent[slot];
+    }
+}

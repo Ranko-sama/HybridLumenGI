@@ -1,0 +1,87 @@
+using System.Runtime.InteropServices;
+using HybridLumenGI;
+using UnityEngine;
+
+if (Marshal.SizeOf<HybridLumenGISceneBvh.Node>() != 32) throw new Exception("GPU node stride mismatch.");
+var random = new Random(0x31572);
+float Next(float lo,float hi)=>(float)(lo+(hi-lo)*random.NextDouble());
+Vector3 Point(float radius)=>new(Next(-radius,radius),Next(-radius,radius),Next(-radius,radius));
+var bounds = new Bounds[256];
+var active = new bool[256];
+for(int i=0;i<256;i++) { bounds[i]=new Bounds(Point(100),new Vector3(Next(.1f,8),Next(.1f,8),Next(.1f,8)));active[i]=i%7!=0; }
+using var bvh = new HybridLumenGISceneBvh();
+long totalVisited=0,totalLeaves=0,bruteChecks=0;
+int queries=0;
+for(int frame=0;frame<20;frame++)
+{
+    if(frame>0)
+    {
+        for(int i=0;i<bounds.Length;i++) if(i%5==frame%5) bounds[i].center+=Point(frame%4==0?30:1);
+        if(frame%4==0) for(int i=0;i<active.Length;i+=11) active[i]=!active[i];
+    }
+    if(!bvh.Update(bounds,active,bounds.Length,false)) throw new Exception("Expected changed bounds or membership.");
+    ValidateStructure(bvh,active);
+    if(bvh.Update(bounds,active,bounds.Length,false)) throw new Exception("Stable input must not trigger update.");
+    for(int ray=0;ray<2500;ray++)
+    {
+        Vector3 origin=Point(140),direction=Point(1).normalized;
+        if(ray%5==0) direction=new Vector3(1,0,0);
+        if(ray%5==1) direction=new Vector3(0,-1,0);
+        if(ray%5==2) { int slot=ray%256; origin=bounds[slot].center; }
+        if(ray%101==0) { origin=bounds[ray%256].min; direction=new Vector3(0,0,1); }
+        float limit=ray%17==0?0:Next(.001f,350);
+        var expected=new HashSet<int>();
+        for(int slot=0;slot<256;slot++) if(active[slot]) { bruteChecks++;if(Reference(origin,direction,bounds[slot],limit))expected.Add(slot); }
+        var actual=new HashSet<int>();int cursor=0,visited=0,leaf;
+        while((leaf=bvh.NextLeaf(ref cursor,origin,direction,limit,ref visited))>=0)
+            if(!actual.Add(leaf))throw new Exception("Duplicate leaf returned.");
+        if(!actual.SetEquals(expected))throw new Exception($"Traversal mismatch frame={frame} ray={ray}, expected {string.Join(',',expected)} actual {string.Join(',',actual)}.");
+        if(visited>bvh.NodeCount)throw new Exception("Traversal exceeded node count.");
+        totalVisited+=visited;totalLeaves+=actual.Count;queries++;
+    }
+}
+Array.Fill(active,false);bvh.Update(bounds,active,256,false);
+if(bvh.NodeCount!=0)throw new Exception("Empty membership retained nodes.");
+active[17]=true;bvh.Update(bounds,active,256,false);
+if(bvh.NodeCount!=1||bvh.Nodes[0].proxySlot!=17)throw new Exception("Single leaf does not retain stable slot.");
+active[18]=true;bounds[18]=new Bounds(new Vector3(float.NaN,0,0),Vector3.one);bvh.Update(bounds,active,256,false);
+if(bvh.NodeCount!=1)throw new Exception("Nonfinite bounds must be rejected.");
+// A broad-phase hit must not be mistaken for a geometry hit: the public API only returns candidates.
+if(bvh.RebuildCount<2||bvh.RefitCount<2)throw new Exception("Fuzz did not exercise rebuild and refit.");
+Console.WriteLine($"PASS: {queries} deterministic BVH queries vs independent double-precision brute bounds; no missing/duplicate leaves. Rebuilds={bvh.RebuildCount}, refits={bvh.RefitCount}, mean nodes={totalVisited/(double)queries:F2}, mean leaf candidates={totalLeaves/(double)queries:F3}, brute tests={bruteChecks}. Stride/empty/single/nonfinite/stable-input checks passed. CPU source test, not GPU execution.");
+
+static bool Reference(Vector3 origin,Vector3 direction,Bounds b,float limit)
+{
+    double enter=0,leave=limit;
+    for(int axis=0;axis<3;axis++)
+    {
+        double d=direction[axis],o=origin[axis],lo=b.min[axis],hi=b.max[axis];
+        if(Math.Abs(d)<1e-12) { if(o<lo||o>hi)return false;continue; }
+        double a=(lo-o)/d,z=(hi-o)/d;
+        enter=Math.Max(enter,Math.Min(a,z));leave=Math.Min(leave,Math.Max(a,z));
+        if(leave<enter)return false;
+    }
+    return true;
+}
+static void ValidateStructure(HybridLumenGISceneBvh bvh,bool[] active)
+{
+    var seen=new HashSet<int>();
+    for(int i=0;i<bvh.NodeCount;i++)
+    {
+        var n=bvh.Nodes[i];
+        if(n.skipIndex<=(uint)i||n.skipIndex>(uint)bvh.NodeCount)throw new Exception("Invalid skip index.");
+        if(n.proxySlot>=0)
+        {
+            if(!active[n.proxySlot]||!seen.Add(n.proxySlot)||n.skipIndex!=i+1)throw new Exception("Leaf slot/skip invalid.");
+        }
+        else
+        {
+            int right=(int)bvh.Nodes[i+1].skipIndex;
+            if(right>=n.skipIndex)throw new Exception("Internal node lacks two children.");
+            foreach(int child in new[]{i+1,right})for(int axis=0;axis<3;axis++)
+                if(bvh.Nodes[child].minimum[axis]<n.minimum[axis]-1e-4||bvh.Nodes[child].maximum[axis]>n.maximum[axis]+1e-4)
+                    throw new Exception("Parent bound excludes child.");
+        }
+    }
+    if(seen.Count!=active.Count(x=>x))throw new Exception("Missing resident leaf.");
+}

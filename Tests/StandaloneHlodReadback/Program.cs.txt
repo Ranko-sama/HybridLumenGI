@@ -1,0 +1,200 @@
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Rendering;
+using System.Runtime.InteropServices;
+using Entry=HybridLumenGI.HybridLumenGIHlodReadback.CacheEntry;
+int checks=0,failures=0;
+void Require(bool condition,string message){checks++;if(!condition){failures++;Console.Error.WriteLine("FAIL: "+message);}}
+Entry Valid(int id=101,int revision=3,int epoch=7,uint generation=10,int count=2)=>new(){irradiance=new Vector4(.1f,.2f,.3f,count),tag=new Vector4(id,revision,epoch,generation)};
+(HybridLumenGIHlodReadback readback,HybridLumenGIScene scene,HybridLumenGISdfAtlas sdf,HybridLumenGISurfaceCache surface,CommandBuffer command,ComputeBuffer cache) Setup(int slots=1)
+    =>(new(),new(slots),new(),new(slots),new(),new());
+void Record((HybridLumenGIHlodReadback readback,HybridLumenGIScene scene,HybridLumenGISdfAtlas sdf,HybridLumenGISurfaceCache surface,CommandBuffer command,ComputeBuffer cache) f,int frame=0,int epoch=7,int grid=2)
+    =>f.readback.Record(f.command,f.scene,f.sdf,f.surface,f.cache,grid,epoch,frame);
+Entry[] Data(HybridLumenGISurfaceCache surface,int slots=1,int grid=2)
+{
+    var data=new Entry[surface.CardCount*grid*grid];
+    for(int card=0;card<surface.CardCount;card++)for(int local=0;local<grid*grid;local++)
+        if(surface.CardOwners[card]>=0)data[card*grid*grid+local]=Valid(101+surface.CardOwners[card],3,7,surface.Generations[card]);
+    return data;
+}
+void Layout(HybridLumenGISurfaceCache surface,int[][] cards,int capacity)
+{
+    surface.Cards=cards.Select(indices=>(int[])indices.Clone()).ToArray();
+    surface.CardOwners=Enumerable.Repeat(-1,capacity).ToArray();
+    surface.Generations=Enumerable.Range(0,capacity).Select(card=>(uint)(100+card)).ToArray();
+    for(int slot=0;slot<cards.Length;slot++)
+    {
+        surface.Layouts[slot]++;surface.RequiredCoverage[slot]=true;
+        foreach(int card in cards[slot])surface.CardOwners[card]=slot;
+    }
+}
+Require(Marshal.SizeOf<Entry>()==80,"Readback CacheEntry stride differs from GPU cache.");
+Require((int)Marshal.OffsetOf<Entry>("tag")==16&&(int)Marshal.OffsetOf<Entry>("guide")==64,"Readback cache offsets differ from GPU cache.");
+Require(HybridLumenGIHlodReadback.ValidatePatch(default,101,3,7,10,2,out bool empty)&&!empty,"Explicitly cleared uncovered patch was rejected.");
+Require(HybridLumenGIHlodReadback.ValidatePatch(Valid(),101,3,7,10,2,out bool covered)&&covered,"Two-sample current patch was rejected.");
+Require(!HybridLumenGIHlodReadback.ValidatePatch(Valid(count:1),101,3,7,10,2,out covered)&&covered,"One-sample covered patch passed two-sample readiness.");
+foreach(var entry in new[]{Valid(id:102),Valid(revision:4),Valid(epoch:8),Valid(generation:11)})Require(!HybridLumenGIHlodReadback.ValidatePatch(entry,101,3,7,10,2,out _),"Wrong ID/revision/epoch/card generation passed patch validation.");
+for(int channel=0;channel<4;channel++)
+{
+    var entry=Valid();if(channel==0)entry.irradiance.x=float.NaN;if(channel==1)entry.irradiance.y=float.PositiveInfinity;if(channel==2)entry.irradiance.z=float.NegativeInfinity;if(channel==3)entry.irradiance.w=float.NaN;
+    Require(!HybridLumenGIHlodReadback.ValidatePatch(entry,101,3,7,10,2,out _),"Nonfinite cache entry passed validation.");
+}
+var partialZero=default(Entry);partialZero.irradiance.x=.1f;Require(!HybridLumenGIHlodReadback.ValidatePatch(partialZero,101,3,7,10,2,out _),"Partially uncleared uncovered cell was accepted.");
+
+var main=Setup();Record(main);Require(main.readback.Pending&&main.command.Callbacks.Count==1&&!main.scene.Ready(101,3),"Recording issued a premature readiness ticket.");
+Record(main,1);Record(main,2);Require(main.command.Callbacks.Count==1&&main.readback.Pending,"Pending readback did not deduplicate requests.");
+main.command.Complete(0,Data(main.surface));Require(!main.readback.Pending&&main.readback.CompletedReadbacks==1&&main.readback.AcceptedTickets==1&&main.scene.Ready(101,3),"Completed current data did not issue a readiness ticket.");
+Record(main,3);Require(main.command.Callbacks.Count==1,"Four-frame request throttle admitted frame 3.");
+Record(main,4);Require(main.command.Callbacks.Count==2&&main.readback.Pending,"Four-frame request throttle rejected frame 4.");
+main.command.Complete(1,Data(main.surface),true);Require(!main.readback.Pending&&main.readback.FailedReadbacks==1&&main.readback.CompletedReadbacks==1&&main.readback.AcceptedTickets==1,"Error callback changed acceptance or failed to release pending state.");
+
+var preconditions=Setup();preconditions.scene.Proxies[0].MeshSdf=new HybridLumenGIMeshSdf();preconditions.sdf.Ready=false;Record(preconditions);
+Require(preconditions.command.Callbacks.Count==0&&!preconditions.readback.Pending&&!preconditions.scene.Ready(101,3)&&!preconditions.scene.Reports[^1].Geometry,"Unready object SDF reached readback or ready ticket.");
+preconditions.sdf.Ready=true;preconditions.surface.Ready[0]=false;Record(preconditions);
+Require(preconditions.command.Callbacks.Count==0&&!preconditions.scene.Reports[^1].Material,"Uncaptured material reached readback.");
+preconditions.surface.Ready[0]=true;Record(preconditions);Require(preconditions.command.Callbacks.Count==1,"Skipped precondition frame incorrectly consumed throttle budget.");
+
+var sparse=Setup();Record(sparse);var sparseData=new Entry[24];sparseData[5]=Valid(generation:sparse.surface.Generations[1]);sparse.command.Complete(0,sparseData);
+Require(sparse.scene.Ready(101,3)&&sparse.readback.AcceptedTickets==1,"Valid covered patches plus explicitly empty cells were rejected.");
+var allEmpty=Setup();Record(allEmpty);allEmpty.command.Complete(0,new Entry[24]);Require(!allEmpty.scene.Ready(101,3)&&allEmpty.readback.AcceptedTickets==0&&!allEmpty.scene.Reports[^1].Lighting,"All-empty readback issued a readiness ticket.");
+for(int invalidIndex=0;invalidIndex<24;invalidIndex++)
+{
+    var f=Setup();Record(f);var data=Data(f.surface);data[invalidIndex].irradiance.w=1;f.command.Complete(0,data);
+    Require(!f.scene.Ready(101,3)&&f.readback.AcceptedTickets==0,"Insufficient covered sample count was ignored at patch "+invalidIndex);
+}
+var truncated=Setup();Record(truncated);truncated.command.Complete(0,new[]{Valid()});Require(!truncated.scene.Ready(101,3)&&truncated.readback.AcceptedTickets==0,"Truncated cache readback was accepted.");
+var noAsync=Setup();SystemInfo.supportsAsyncGPUReadback=false;Record(noAsync);Require(noAsync.command.Callbacks.Count==0&&!noAsync.readback.Pending,"Unsupported async readback platform scheduled a request.");SystemInfo.supportsAsyncGPUReadback=true;
+var published=Setup();published.scene.Data[0].identity.w=1;Record(published);Require(published.command.Callbacks.Count==0,"Published-only scene scheduled unnecessary warming readback.");
+
+var idChanged=Setup();Record(idChanged);idChanged.scene.Data[0].identity.x=999;idChanged.command.Complete(0,Data(idChanged.surface));Require(idChanged.readback.AcceptedTickets==0&&idChanged.scene.Reports.Count==0,"Reused scene slot accepted the old stable ID.");
+var revisionChanged=Setup();Record(revisionChanged);revisionChanged.scene.Data[0].identity.y=4;revisionChanged.command.Complete(0,Data(revisionChanged.surface));Require(revisionChanged.readback.AcceptedTickets==0&&revisionChanged.scene.Reports.Count==0,"New scene revision accepted an old-generation ticket.");
+var epochChanged=Setup();Record(epochChanged);Record(epochChanged,1,8);epochChanged.command.Complete(0,Data(epochChanged.surface));Require(epochChanged.readback.AcceptedTickets==0&&epochChanged.scene.Reports.Count==0&&!epochChanged.readback.Pending,"Pending readback accepted a stale lighting epoch.");
+var atlasChanged=Setup();Record(atlasChanged);atlasChanged.surface.AtlasGeneration++;atlasChanged.command.Complete(0,Data(atlasChanged.surface));Require(atlasChanged.readback.AcceptedTickets==0&&atlasChanged.scene.Reports.Count==0,"Reallocated material atlas accepted old cache readback.");
+for(int face=0;face<6;face++)
+{
+    var f=Setup();Record(f);var data=Data(f.surface);f.surface.Generations[face]++;f.command.Complete(0,data);
+    Require(!f.scene.Ready(101,3)&&f.readback.AcceptedTickets==0,"Card generation change was ignored for face "+face);
+}
+var materialLost=Setup();Record(materialLost);materialLost.surface.Ready[0]=false;materialLost.command.Complete(0,Data(materialLost.surface));Require(materialLost.readback.AcceptedTickets==0&&materialLost.scene.Reports.Count==0,"Material readiness lost in flight was ignored.");
+var geometryLost=Setup();geometryLost.scene.Proxies[0].MeshSdf=new HybridLumenGIMeshSdf();Record(geometryLost);geometryLost.sdf.Ready=false;geometryLost.command.Complete(0,Data(geometryLost.surface));
+Require(!geometryLost.scene.Ready(101,3)&&!geometryLost.scene.Reports[^1].Geometry,"Geometry readiness lost in flight leaked a usable ticket.");
+Require(geometryLost.readback.AcceptedTickets==0,"AcceptedTickets counted geometry-unready readback as an accepted HLOD ticket.");
+var phaseChanged=Setup();Record(phaseChanged);phaseChanged.scene.Data[0].identity.w=1;phaseChanged.command.Complete(0,Data(phaseChanged.surface));Require(phaseChanged.readback.AcceptedTickets==0&&phaseChanged.scene.Reports.Count==0,"No-longer-warming slot received a late readiness ticket.");
+
+var invalidated=Setup();Record(invalidated);invalidated.readback.Invalidate();invalidated.command.Complete(0,Data(invalidated.surface));Require(!invalidated.readback.Pending&&invalidated.readback.AcceptedTickets==0&&invalidated.scene.Reports.Count==0,"Invalidated callback leaked a readiness ticket.");
+Record(invalidated,4);invalidated.command.Complete(1,Data(invalidated.surface));Require(invalidated.readback.AcceptedTickets==1&&invalidated.scene.Ready(101,3),"Fresh generation could not recover after invalidation.");
+var disposed=Setup();Record(disposed);disposed.readback.Dispose();disposed.command.Complete(0,Data(disposed.surface));Record(disposed,4);Require(!disposed.readback.Pending&&disposed.readback.AcceptedTickets==0&&disposed.scene.Reports.Count==0&&disposed.command.Callbacks.Count==1,"Disposed readback leaked a ticket or reissued a request.");
+var error=Setup();Record(error);error.command.Complete(0,Data(error.surface),true);Require(!error.readback.Pending&&error.readback.FailedReadbacks==1&&error.readback.AcceptedTickets==0&&error.scene.Reports.Count==0,"Failed readback leaked a readiness ticket.");
+
+var multiple=Setup(2);Record(multiple);var multipleData=Data(multiple.surface,2);multipleData[24].irradiance.w=1;multiple.command.Complete(0,multipleData);
+Require(multiple.readback.AcceptedTickets==1&&multiple.scene.Ready(101,3)&&!multiple.scene.Ready(102,3),"One slot's invalid cache contaminated another slot's ticket.");
+
+// Native command recording can fail synchronously before any callback exists.
+var recordingFailure=Setup();recordingFailure.command.ThrowOnRequest=true;bool escaped=false;
+try{Record(recordingFailure);}catch(InvalidOperationException){escaped=true;}
+Require(!escaped&&!recordingFailure.readback.Pending&&recordingFailure.readback.FailedReadbacks==1&&recordingFailure.readback.AcceptedTickets==0,"Synchronous request failure escaped or left Pending permanently latched.");
+recordingFailure.command.ThrowOnRequest=false;Record(recordingFailure,4);Require(recordingFailure.command.Callbacks.Count==1,"Synchronous failure prevented later retry.");
+
+// The original legacy six-view tests above remain. New authored charts use variable,
+// noncontiguous physical card indices and require coverage of every chart.
+int[][] variableCards={new[]{4,1,7},new[]{0},new[]{6,3,9,10,12,14,15,16,18}};
+var variable=Setup(3);Layout(variable.surface,variableCards,20);Record(variable);
+var variableData=new Entry[20*4];
+for(int slot=0;slot<3;slot++)foreach(int card in variableCards[slot])variableData[card*4+2]=Valid(101+slot,generation:variable.surface.Generations[card]);
+variable.command.Complete(0,variableData);
+Require(variable.readback.AcceptedTickets==3&&Enumerable.Range(0,3).All(slot=>variable.scene.Ready(101+slot,3)),"Variable/noncontiguous card indices or per-chart sparse coverage failed.");
+for(int slot=0;slot<3;slot++)foreach(int emptyCard in variableCards[slot])
+{
+    var f=Setup(3);Layout(f.surface,variableCards,20);Record(f);var data=Data(f.surface);
+    Array.Clear(data,emptyCard*4,4);f.command.Complete(0,data);
+    Require(f.readback.AcceptedTickets==2&&!f.scene.Ready(101+slot,3),"A required chart was entirely empty but its owner was accepted: "+emptyCard);
+}
+var mixed=Setup(2);Layout(mixed.surface,new[]{new[]{2,5},new[]{0,3,7}},8);mixed.surface.RequiredCoverage[1]=false;Record(mixed);
+var mixedData=new Entry[32];mixedData[2*4]=Valid(generation:mixed.surface.Generations[2]);mixedData[7*4]=Valid(102,generation:mixed.surface.Generations[7]);
+mixed.command.Complete(0,mixedData);
+Require(mixed.readback.AcceptedTickets==1&&!mixed.scene.Ready(101,3)&&mixed.scene.Ready(102,3),"Required chart completeness and legacy object-level coverage were conflated.");
+var underSampled=Setup();Layout(underSampled.surface,new[]{new[]{5,2}},8);Record(underSampled);var underData=Data(underSampled.surface);underData[5*4+3].irradiance.w=1;underSampled.command.Complete(0,underData);
+Require(!underSampled.scene.Ready(101,3),"One initialized patch hid another covered but undersampled patch in the same chart.");
+
+foreach(string mutation in new[]{"layout","order","missing","added","owner","generation","policy","pool shrink","source"})
+{
+    var f=Setup();Layout(f.surface,new[]{new[]{2,5}},8);Record(f);var data=Data(f.surface);
+    switch(mutation)
+    {
+        case "layout":f.surface.Layouts[0]++;break;
+        case "order":Array.Reverse(f.surface.Cards[0]);break;
+        case "missing":f.surface.Cards[0]=new[]{2};break;
+        case "added":f.surface.Cards[0]=new[]{2,5,7};f.surface.CardOwners[7]=0;break;
+        case "owner":f.surface.CardOwners[5]=1;break;
+        case "generation":f.surface.Generations[5]++;break;
+        case "policy":f.surface.RequiredCoverage[0]=false;break;
+        case "pool shrink":Array.Resize(ref f.surface.CardOwners,3);break;
+        case "source":f.surface.SourceCurrent[0]=false;break;
+    }
+    f.command.Complete(0,data);
+    Require(f.readback.AcceptedTickets==0&&f.scene.Reports.Count==0,"Stale readback accepted changed chart mapping/source: "+mutation);
+}
+foreach(string invalid in new[]{"duplicate","negative","out of range","owner","zero layout","zero generation","empty","source"})
+{
+    var f=Setup();Layout(f.surface,new[]{new[]{2,5}},8);
+    switch(invalid)
+    {
+        case "duplicate":f.surface.Cards[0]=new[]{2,2};break;
+        case "negative":f.surface.Cards[0][1]=-1;break;
+        case "out of range":f.surface.Cards[0][1]=8;break;
+        case "owner":f.surface.CardOwners[5]=-1;break;
+        case "zero layout":f.surface.Layouts[0]=0;break;
+        case "zero generation":f.surface.Generations[5]=0;break;
+        case "empty":f.surface.Cards[0]=Array.Empty<int>();break;
+        case "source":f.surface.SourceCurrent[0]=false;break;
+    }
+    Record(f);
+    Require(f.command.Callbacks.Count==0&&!f.readback.Pending&&!f.scene.Ready(101,3),"Malformed or stale chart mapping reached readback: "+invalid);
+}
+var sourceSdf=Setup();sourceSdf.scene.Proxies[0].MeshSdf=new HybridLumenGIMeshSdf();Record(sourceSdf);sourceSdf.sdf.SourceCurrent=false;sourceSdf.command.Complete(0,Data(sourceSdf.surface));
+Require(sourceSdf.readback.AcceptedTickets==0&&!sourceSdf.scene.Reports[^1].Geometry,"Changed SDF source accepted a geometry ticket despite old uploaded-ready state.");
+var preSourceSdf=Setup();preSourceSdf.scene.Proxies[0].MeshSdf=new HybridLumenGIMeshSdf();preSourceSdf.sdf.SourceCurrent=false;Record(preSourceSdf);
+Require(preSourceSdf.command.Callbacks.Count==0&&!preSourceSdf.scene.Reports[^1].Geometry,"Stale SDF source reached a readback request.");
+var liveRevision=Setup();Record(liveRevision);liveRevision.scene.Proxies[0].Revision++;liveRevision.command.Complete(0,Data(liveRevision.surface));
+Require(liveRevision.readback.AcceptedTickets==0&&!liveRevision.scene.Reports[^1].Geometry,"Live source revision changed before scene upload but accepted an old ticket.");
+var liveIdentity=Setup();Record(liveIdentity);liveIdentity.scene.Proxies[0].StableId++;liveIdentity.command.Complete(0,Data(liveIdentity.surface));
+Require(liveIdentity.readback.AcceptedTickets==0&&!liveIdentity.scene.Reports[^1].Geometry,"Proxy identity replacement bypassed the uploaded scene ID guard.");
+var pingPong=Setup();Record(pingPong);pingPong.cache=new ComputeBuffer();Record(pingPong,1);pingPong.command.Complete(0,Data(pingPong.surface));
+Require(pingPong.readback.AcceptedTickets==1&&pingPong.scene.Ready(101,3),"Ordinary cache ping-pong invalidated a completed initialization snapshot.");
+var cacheReplaced=Setup();Record(cacheReplaced);cacheReplaced.cache=new ComputeBuffer();Record(cacheReplaced,1,epoch:8);cacheReplaced.command.Complete(0,Data(cacheReplaced.surface));
+Require(cacheReplaced.readback.AcceptedTickets==0&&cacheReplaced.scene.Reports.Count==0,"Reallocated cache accepted old data after its epoch advanced.");
+var gridChanged=Setup();Record(gridChanged);Record(gridChanged,1,grid:4);gridChanged.command.Complete(0,Data(gridChanged.surface));
+Require(gridChanged.readback.AcceptedTickets==0&&gridChanged.scene.Reports.Count==0,"Changed patch grid accepted old addressing without an epoch change.");
+var recoveredLayout=Setup();Layout(recoveredLayout.surface,new[]{new[]{2,5}},8);Record(recoveredLayout);var staleData=Data(recoveredLayout.surface);
+Layout(recoveredLayout.surface,new[]{new[]{7,0,4}},8);recoveredLayout.command.Complete(0,staleData);
+Require(recoveredLayout.readback.AcceptedTickets==0,"Old-layout callback passed during card pool reuse.");
+Record(recoveredLayout,4);recoveredLayout.command.Complete(1,Data(recoveredLayout.surface));
+Require(recoveredLayout.readback.AcceptedTickets==1&&recoveredLayout.scene.Ready(101,3),"Current variable layout did not recover after stale callback rejection.");
+
+// Even if a changed SDF has already finished reupload and reports current/ready,
+// the irradiance copied before that change belongs to a different geometry source.
+foreach(string change in new[]{"asset","texture","texels","mesh","bounds","resolution","watertight","error","transform","removed"})
+{
+    var f=Setup();f.scene.Proxies[0].MeshSdf=new HybridLumenGIMeshSdf();Record(f);
+    var asset=f.scene.Proxies[0].MeshSdf;
+    switch(change)
+    {
+        case "asset":f.scene.Proxies[0].MeshSdf=new HybridLumenGIMeshSdf();break;
+        case "texture":asset.DistanceTexture=new Texture3D();break;
+        case "texels":asset.DistanceTexture.updateCount++;break;
+        case "mesh":asset.SourceMesh=new Mesh();break;
+        case "bounds":asset.LocalBounds=new Bounds(1);break;
+        case "resolution":asset.Resolution=32;break;
+        case "watertight":asset.Watertight=false;break;
+        case "error":asset.InterpolationError+=.01f;break;
+        case "transform":f.scene.Proxies[0].SdfLocalToWorld=new Matrix4x4(1);break;
+        case "removed":f.scene.Proxies[0].MeshSdf=null;break;
+    }
+    f.command.Complete(0,Data(f.surface));
+    Require(f.readback.AcceptedTickets==0&&!f.scene.Reports[^1].Geometry,"Reuploaded geometry source accepted old lighting data: "+change);
+}
+var addedSdf=Setup();Record(addedSdf);addedSdf.scene.Proxies[0].MeshSdf=new HybridLumenGIMeshSdf();addedSdf.command.Complete(0,Data(addedSdf.surface));
+Require(addedSdf.readback.AcceptedTickets==0&&!addedSdf.scene.Reports[^1].Geometry,"Analytic-to-SDF representation changed while old cache readback stayed publishable.");
+
+Console.WriteLine($"Actual-source HLOD readback: {checks-failures}/{checks} assertions passed; {failures} failures. Readback callbacks are completed manually by recording mocks, not a GPU.");
+if(failures>0)Environment.Exit(1);

@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "status":  "passed",
+    "scope":  "Copy-only native packaging rejection tests; no Unity or physical GPU",
+    "reportSha256":  "29CB93683ED092F3DA9C8FAD05DC062A01CD3710F5F489BFA402593621FF9EA4",
+    "sourceArchiveSha256":  "532FEE3FD3D160091D889C73F4471D067C491F6D1E6BD796764935EA8A63E21B",
+    "dllSha256":  "4EA98B04D7DDE5043492161057B74E6DFEF94C5DBE60DD12C0ACB5E7385DA436",
+    "checks":  [
+                   {
+                       "name":  "old-source-candidate",
+                       "status":  "passed",
+                       "exitCode":  1,
+                       "expected":  "Source archive must contain this exact offline report",
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-delivery-audit-2a6c6267b3604bb5b6d728fe38dc5a35\\old-source-candidate.log",
+                       "destinationCreated":  false
+                   },
+                   {
+                       "name":  "embedded-report-mismatch",
+                       "status":  "passed",
+                       "exitCode":  1,
+                       "expected":  "embeds a different offline report",
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-delivery-audit-2a6c6267b3604bb5b6d728fe38dc5a35\\embedded-report-mismatch.log",
+                       "destinationCreated":  false
+                   },
+                   {
+                       "name":  "changed-tested-dll",
+                       "status":  "passed",
+                       "exitCode":  1,
+                       "expected":  "tested native DLL is missing or changed",
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-native-delivery-audit-2a6c6267b3604bb5b6d728fe38dc5a35\\changed-tested-dll.log",
+                       "destinationCreated":  false
+                   }
+               ],
+    "originalsUnchanged":  true
+}

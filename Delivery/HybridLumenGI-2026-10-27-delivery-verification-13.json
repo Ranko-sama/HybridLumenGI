@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "scope": "Artifact integrity and offline evidence only; production acceptance remains pending",
+  "generatedUtc": "2026-10-27T02:55:30.6998591Z",
+  "source": {
+    "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Delivery\\HybridLumenGI-2026-10-27-integration-13.zip",
+    "bytes": 1015658,
+    "sha256": "8BAC482CF4121181627BCBB6DEA11D199B3426C6A3142D5D750DC4BA805D9B1B",
+    "entries": 512,
+    "payload": 511,
+    "exactCurrentBytesMatched": 511,
+    "metas": 273,
+    "uniqueGuids": 273,
+    "folders": 35,
+    "unexpectedBuildFiles": 0
+  },
+  "native": {
+    "file": "HybridLumenGI-2026-10-27-native-timing-win64-08.zip",
+    "bytes": 86318,
+    "sha256": "85BBF0ACFCC1DBA5004599BCEC4E3F181D37FA0348036E7BA64B7ED9F535EA91",
+    "payloadFiles": 6,
+    "entries": 7,
+    "dllSha256": "C61B2083955F3765FF2663492CA97D675FB33898AB1F156CF7C13E8BDBC30815",
+    "sourceArchiveSha256": "8BAC482CF4121181627BCBB6DEA11D199B3426C6A3142D5D750DC4BA805D9B1B"
+  },
+  "offlineEvidenceSha256": "54C24D2BAA65BC30D725B226C86EBC460307173FA0674145D67A088A455AF7C7",
+  "reportNegativeEvidenceSha256": "1490DF333BEA4A6D658EA7E0ECF44085A208C86CC2E1361D4E16F7C169C24F49",
+  "identityReportNegativeEvidenceSha256": "AFBAF9A2AFED36A96BB07C5D59E1D6C4AB9D1C76B250E9714ACE2C0E2AEDE3CC",
+  "packageNegativeEvidenceSha256": "A558738B2C68D45B8F1EB90116FF84AEC9486847C8DED6888BE0307D056ECA08",
+  "offlineStages": 56,
+  "selectedDxcChecks": 126,
+  "dxcCategories": {
+    "core": 46,
+    "nativeDiffuse": 42,
+    "globalSdf": 3,
+    "receiverPolicy": 22,
+    "receiverIdentity": 12,
+    "receiverTemporalHelper": 1,
+    "total": 126
+  },
+  "validatedSourceHashes": 194,
+  "reportNegativeCases": 79,
+  "identityReportNegativeCases": 62,
+  "disclosedAcceptedMetadataBoundaryProbes": 4,
+  "metadataVerifierBoundary": "Actual valid-format but false hashes, missing actual file paths, and debugVariant boolean alone are outside this metadata verifier gate. The immutable baseline actual artifacts were separately opened and verified by input-audit.json. Accepted probes are disclosed and do not count as rejected negatives.",
+  "packageNegativeCases": 3,
+  "temporalHelperWarpEvidence": {
+    "sha256": "74DED179A6474BCB63A35CC6ED6E6C2C4F7BC25910047632621AB7C940F28788",
+    "actualArtifacts": 7,
+    "originalLogs": 9,
+    "sourceRowsBefore": 8,
+    "sourceRowsAfter": 8,
+    "actualOracleCount": 2179,
+    "actualOracleChecks": 46841,
+    "executableMachine": "x64 PE",
+    "warpRerun": false
+  },
+  "sourceAudit": {
+    "file": "HybridLumenGI-2026-10-27-source-audit-13.json",
+    "sha256": "041CB8950C4A131163854D82215FF479996AAA70AEFC4FBD50CF687A28158135",
+    "checks": 9181
+  },
+  "nativeAudit": {
+    "file": "HybridLumenGI-2026-10-27-native-audit-08.json",
+    "sha256": "CC250E366FF5A4196E34AACC21BA09959CD74BB34DF0E4D71CCED98C23007C96",
+    "checks": 4908
+  },
+  "packageFixtureAudit": {
+    "file": "HybridLumenGI-2026-10-27-packaging-fixture-audit-13.json",
+    "bytes": 1115,
+    "sha256": "FF8207B4475234F657C9F109907B53159B4CC1F5EAD3C24D138319A8D8017523"
+  },
+  "documentAudit": {
+    "file": "HybridLumenGI-2026-10-27-document-audit-13.json",
+    "bytes": 43137,
+    "sha256": "96198A034BE5A4F757CD108AB2BF76740F8B0F6AA54F66A92687BFF4039FC9D1"
+  },
+  "previousArchivesVerifiedUnchanged": 21,
+  "unityExecuted": false,
+  "physicalGpuExecuted": false,
+  "warpSoftwareExecuted": true,
+  "productionAccepted": false,
+  "lumenEquivalent": false,
+  "gpuTimingScope": "Native ABI1: three queue intervals; capture includes optional four receiver-identity passes. Recorder: three or seven locally paired scopes. Costs outside the scopes are excluded; Unity/physical-GPU timing remains unverified."
+}

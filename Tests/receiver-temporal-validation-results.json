@@ -1,0 +1,284 @@
+﻿{
+    "schemaVersion":  1,
+    "kind":  "ReceiverTemporalActualWarpValidation",
+    "status":  "passed",
+    "startedUtc":  "2026-10-27T10:05:07.3460739Z",
+    "artifactDirectory":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63",
+    "scope":  "Actual ReceiverTemporal.hlsl DXIL execution on D3D12 WARP software and independent double source-geometry oracle. Not Unity, raster ownership, RenderGraph synchronization, arbitrary affine normal transport or physical GPU validation.",
+    "unityExecuted":  false,
+    "physicalGpuExecuted":  false,
+    "warpExecuted":  true,
+    "tools":  {
+                  "vsInstallation":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools",
+                  "cmake":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+                  "dxc":  "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+                  "node":  "C:\\Program Files\\nodejs\\node.exe",
+                  "CMAKE_CXX_COMPILER":  "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
+                  "CMAKE_CXX_COMPILER_ID":  "MSVC",
+                  "CMAKE_CXX_COMPILER_VERSION":  "19.44.35227.0"
+              },
+    "oracle":  {
+                   "status":  "passed",
+                   "count":  2179,
+                   "checks":  46841,
+                   "maxPositionError":  0.00001775440529172556,
+                   "maxNormalError":  1.80938697691424E-07,
+                   "scope":  "Actual DXIL helper results read back from D3D12 WARP and compared with independent double source-geometry oracle. Not Unity, raster identity ownership, RenderGraph barriers or physical GPU validation."
+               },
+    "artifacts":  [
+                      {
+                          "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\receiver-temporal.dxil",
+                          "bytes":  6460,
+                          "sha256":  "3440E0C23E79D7A1CB56083CF2E092702060FFC88AFA08A9F372779868767D48"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\receiver-temporal.ll",
+                          "bytes":  17965,
+                          "sha256":  "39B37AD9A489E2DA572A0DB36177F9869966ECECF95A78650E59F5313D761ED3"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\build\\Release\\ReceiverTemporalWarp.exe",
+                          "bytes":  40448,
+                          "sha256":  "D806A1B1832BFCF0CA31BE8F3B5E4B3F45566D90E22BFA60B4866F8C12EDE78B"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\inputs.bin",
+                          "bytes":  383508,
+                          "sha256":  "C299AA40CAB2FB35666CCCBE791FDE9AA3154F240F7534B63DC2C62C258534AE"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\outputs.bin",
+                          "bytes":  139456,
+                          "sha256":  "52B7D64FC597003C083E416707B2B97AEFE184DD0B0318F30172BD87AB067453"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\oracle.json",
+                          "bytes":  852447,
+                          "sha256":  "39E859EB7B0A42739531C66BE1DCDEF4AAFC3543CC1A5E117C144C84CCA39731"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\oracle-results.json",
+                          "bytes":  362,
+                          "sha256":  "B667E14F0E4F9F4BCE41E940F7E394ECE38AFCF13D518E35DBB9DDF511D9E0F7"
+                      }
+                  ],
+    "sources":  [
+                    {
+                        "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+                        "sha256":  "9EFEC293CA3475A00BA584765FBED9ADFD60129EAED3099407F5DDB10498478A"
+                    },
+                    {
+                        "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl",
+                        "sha256":  "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+                    },
+                    {
+                        "file":  "Tests/StandaloneReceiverTemporal/ReceiverTemporalWarp.cpp.txt",
+                        "sha256":  "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+                    },
+                    {
+                        "file":  "Tests/StandaloneReceiverTemporal/ReceiverTemporalHarness.hlsl",
+                        "sha256":  "7EFE065FD39BD16E5497D2DDC676FB020AF62121F8A77C718A5BE70C6F7013B8"
+                    },
+                    {
+                        "file":  "Tests/StandaloneReceiverTemporal/ReceiverTemporalOracle.mjs",
+                        "sha256":  "17210F263EB460794C31F7EEB7E5B3D99955FB3B1E386A94A0E9D9E54EF3AE9A"
+                    },
+                    {
+                        "file":  "Tests/StandaloneReceiverTemporal/CMakeLists.txt",
+                        "sha256":  "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+                    },
+                    {
+                        "file":  "Tests/Invoke-OfflineCheck.ps1",
+                        "sha256":  "A7FD1B3AB734151B816D79941D7381517563AA44514C6CA3C04C12029BEED446"
+                    },
+                    {
+                        "file":  "Tests/Validate-ReceiverTemporal.ps1",
+                        "sha256":  "DDC1F817964F85819B28D335B4E12C58ACC3B03F5EBAB74164EF03525CB4E69F"
+                    }
+                ],
+    "sourcesAfter":  [
+                         {
+                             "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+                             "sha256":  "9EFEC293CA3475A00BA584765FBED9ADFD60129EAED3099407F5DDB10498478A"
+                         },
+                         {
+                             "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl",
+                             "sha256":  "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+                         },
+                         {
+                             "file":  "Tests/StandaloneReceiverTemporal/ReceiverTemporalWarp.cpp.txt",
+                             "sha256":  "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+                         },
+                         {
+                             "file":  "Tests/StandaloneReceiverTemporal/ReceiverTemporalHarness.hlsl",
+                             "sha256":  "7EFE065FD39BD16E5497D2DDC676FB020AF62121F8A77C718A5BE70C6F7013B8"
+                         },
+                         {
+                             "file":  "Tests/StandaloneReceiverTemporal/ReceiverTemporalOracle.mjs",
+                             "sha256":  "17210F263EB460794C31F7EEB7E5B3D99955FB3B1E386A94A0E9D9E54EF3AE9A"
+                         },
+                         {
+                             "file":  "Tests/StandaloneReceiverTemporal/CMakeLists.txt",
+                             "sha256":  "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+                         },
+                         {
+                             "file":  "Tests/Invoke-OfflineCheck.ps1",
+                             "sha256":  "A7FD1B3AB734151B816D79941D7381517563AA44514C6CA3C04C12029BEED446"
+                         },
+                         {
+                             "file":  "Tests/Validate-ReceiverTemporal.ps1",
+                             "sha256":  "DDC1F817964F85819B28D335B4E12C58ACC3B03F5EBAB74164EF03525CB4E69F"
+                         }
+                     ],
+    "checks":  [
+                   {
+                       "name":  "vswhere",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\vswhere.log",
+                       "output":  "[\r\n  {\r\n    \"instanceId\": \"79b86afa\",\r\n    \"installDate\": \"2026-05-29T20:26:15Z\",\r\n    \"installationName\": \"VisualStudio/17.14.33+37314.3.-may.2026-\",\r\n    \"installationPath\": \"C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\2022\\\\BuildTools\",\r\n    \"installationVersion\": \"17.14.37314.3\",\r\n    \"productId\": \"Microsoft.VisualStudio.Product.BuildTools\",\r\n    \"productPath\": \"C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\2022\\\\BuildTools\\\\Common7\\\\Tools\\\\LaunchDevCmd.bat\",\r\n    \"state\": 4294967295,\r\n    \"isComplete\": true,\r\n    \"isLaunchable\": true,\r\n    \"isPrerelease\": false,\r\n    \"isRebootRequired\": false,\r\n    \"displayName\": \"Visual Studio 生成工具 2022\",\r\n    \"description\": \"Visual Studio 生成工具允许生成本机和基于 MSBuild 的托管 .NET 应用程序，而不需要 Visual Studio IDE。还可以选择安装 Visual C++ 编译器和库、MFC、ALT 和 C++/CLI 支持。\",\r\n    \"channelId\": \"VisualStudio.17.Release\",\r\n    \"channelUri\": \"https://aka.ms/vs/17/release/channel\",\r\n    \"enginePath\": \"C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\Installer\\\\resources\\\\app\\\\ServiceHub\\\\Services\\\\Microsoft.VisualStudio.Setup.Service\",\r\n    \"installedChannelId\": \"VisualStudio.17.Release\",\r\n    \"installedChannelUri\": \"https://aka.ms/vs/17/release/channel\",\r\n    \"releaseNotes\": \"https://docs.microsoft.com/en-us/visualstudio/releases/2022/release-notes-v17.14#17.14.33\",\r\n    \"resolvedInstallationPath\": \"C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\2022\\\\BuildTools\",\r\n    \"thirdPartyNotices\": \"https://go.microsoft.com/fwlink/?LinkId=661288\",\r\n    \"updateDate\": \"2026-05-29T20:26:15.5849996Z\",\r\n    \"catalog\": {\r\n      \"buildBranch\": \"d17.14\",\r\n      \"buildVersion\": \"17.14.37314.3\",\r\n      \"id\": \"VisualStudio/17.14.33+37314.3.-may.2026-\",\r\n      \"localBuild\": \"build-lab\",\r\n      \"manifestName\": \"VisualStudio\",\r\n      \"manifestType\": \"installer\",\r\n      \"productDisplayVersion\": \"17.14.33 (May 2026)\",\r\n      \"productLine\": \"Dev17\",\r\n      \"productLineVersion\": \"2022\",\r\n      \"productMilestone\": \"RTW\",\r\n      \"productMilestoneIsPreRelease\": \"False\",\r\n      \"productName\": \"Visual Studio\",\r\n      \"productPatchVersion\": \"33\",\r\n      \"productPreReleaseMilestoneSuffix\": \"1.0\",\r\n      \"productReleaseNameSuffix\": \"(May 2026)\",\r\n      \"productSemanticVersion\": \"17.14.33+37314.3.-may.2026-\",\r\n      \"requiredEngineVersion\": \"3.14.2086.54749\"\r\n    },\r\n    \"properties\": {\r\n      \"campaignId\": \"\",\r\n      \"channelManifestId\": \"VisualStudio.17.Release/17.14.33+37314.3.-may.2026-\",\r\n      \"includeRecommended\": \"0\",\r\n      \"nickname\": \"\",\r\n      \"setupEngineFilePath\": \"C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\Installer\\\\setup.exe\"\r\n    }\r\n  }\r\n]\r\n",
+                       "startedUtc":  "2026-10-27T10:05:07.5507626Z",
+                       "completedUtc":  "2026-10-27T10:05:07.6264673Z",
+                       "executable":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe",
+                       "arguments":  [
+                                         "-latest",
+                                         "-products",
+                                         "*",
+                                         "-version",
+                                         "[17.0,18.0)",
+                                         "-requires",
+                                         "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+                                         "-format",
+                                         "json",
+                                         "-utf8"
+                                     ]
+                   },
+                   {
+                       "name":  "cmake-version",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\cmake-version.log",
+                       "output":  "cmake version 3.31.6-msvc6\r\n\r\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\r\n",
+                       "startedUtc":  "2026-10-27T10:05:07.7101341Z",
+                       "completedUtc":  "2026-10-27T10:05:07.7778443Z",
+                       "executable":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+                       "arguments":  [
+                                         "--version"
+                                     ]
+                   },
+                   {
+                       "name":  "dxc-version",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\dxc-version.log",
+                       "output":  "dxcompiler.dll: 1.8 - 1.8.2502.11 (239921522); dxil.dll: 1.8(1.8.2502.11)\r\n",
+                       "startedUtc":  "2026-10-27T10:05:07.7778443Z",
+                       "completedUtc":  "2026-10-27T10:05:07.7919065Z",
+                       "executable":  "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+                       "arguments":  [
+                                         "--version"
+                                     ]
+                   },
+                   {
+                       "name":  "oracle-prepare",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\oracle-prepare.log",
+                       "output":  "Prepared 2179 cases from independent double source-transform oracle; 80-byte column-major row inside 176-byte input.\r\n",
+                       "startedUtc":  "2026-10-27T10:05:07.7929118Z",
+                       "completedUtc":  "2026-10-27T10:05:07.8978415Z",
+                       "executable":  "C:\\Program Files\\nodejs\\node.exe",
+                       "arguments":  [
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneReceiverTemporal\\ReceiverTemporalOracle.mjs",
+                                         "prepare",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63"
+                                     ]
+                   },
+                   {
+                       "name":  "dxc-actual-helper",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\dxc-actual-helper.log",
+                       "output":  "",
+                       "startedUtc":  "2026-10-27T10:05:07.8978415Z",
+                       "completedUtc":  "2026-10-27T10:05:07.9284605Z",
+                       "executable":  "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-T",
+                                         "cs_6_0",
+                                         "-E",
+                                         "CSReceiverTemporalTest",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\receiver-temporal.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\receiver-temporal.ll",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneReceiverTemporal\\ReceiverTemporalHarness.hlsl"
+                                     ]
+                   },
+                   {
+                       "name":  "cmake-configure",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\cmake-configure.log",
+                       "output":  "-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.\r\n-- The CXX compiler identification is MSVC 19.44.35227.0\r\n-- Detecting CXX compiler ABI info\r\n-- Detecting CXX compiler ABI info - done\r\n-- Check for working CXX compiler: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped\r\n-- Detecting CXX compile features\r\n-- Detecting CXX compile features - done\r\n-- Configuring done (7.9s)\r\n-- Generating done (0.0s)\r\n-- Build files have been written to: C:/Users/Administrator/AppData/Local/Temp/hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63/build\r\n",
+                       "startedUtc":  "2026-10-27T10:05:07.9445765Z",
+                       "completedUtc":  "2026-10-27T10:05:15.9004011Z",
+                       "executable":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+                       "arguments":  [
+                                         "-S",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\source",
+                                         "-B",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\build",
+                                         "-G",
+                                         "Visual Studio 17 2022",
+                                         "-A",
+                                         "x64",
+                                         "-DCMAKE_GENERATOR_INSTANCE=C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools"
+                                     ]
+                   },
+                   {
+                       "name":  "cmake-build",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\cmake-build.log",
+                       "output":  "适用于 .NET Framework MSBuild 版本 17.14.40+3e7442088\r\n\r\nC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Microsoft\\VC\\v170\\Microsoft.CppBuild.targets(548,5): warning MSB8029: 中间目录或输出目录无法驻留在临时目录下，因为这可能会导致增量生成出现问题。 [C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\build\\ZERO_CHECK.vcxproj]\r\n  1\u003eChecking Build System\r\nC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Microsoft\\VC\\v170\\Microsoft.CppBuild.targets(548,5): warning MSB8029: 中间目录或输出目录无法驻留在临时目录下，因为这可能会导致增量生成出现问题。 [C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\build\\ReceiverTemporalWarp.vcxproj]\r\n  Building Custom Rule C:/Users/Administrator/AppData/Local/Temp/hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63/source/CMakeLists.txt\r\n  ReceiverTemporalWarp.cpp\r\n  ReceiverTemporalWarp.vcxproj -\u003e C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\build\\Release\\ReceiverTemporalWarp.exe\r\n",
+                       "startedUtc":  "2026-10-27T10:05:15.9195827Z",
+                       "completedUtc":  "2026-10-27T10:05:19.8289583Z",
+                       "executable":  "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+                       "arguments":  [
+                                         "--build",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\build",
+                                         "--config",
+                                         "Release",
+                                         "--target",
+                                         "ReceiverTemporalWarp"
+                                     ]
+                   },
+                   {
+                       "name":  "warp-execute",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\warp-execute.log",
+                       "output":  "Actual ReceiverTemporal HLSL executed on D3D12 WARP: 2179 cases, inputStride=176 outputStride=64; adapterVendor=5140 adapterDevice=140. No Unity or physical GPU.\r\n",
+                       "startedUtc":  "2026-10-27T10:05:19.8299605Z",
+                       "completedUtc":  "2026-10-27T10:05:19.9109753Z",
+                       "executable":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\build\\Release\\ReceiverTemporalWarp.exe",
+                       "arguments":  [
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\receiver-temporal.dxil",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\inputs.bin",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\outputs.bin"
+                                     ]
+                   },
+                   {
+                       "name":  "oracle-verify",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63\\oracle-verify.log",
+                       "output":  "{\"status\":\"passed\",\"count\":2179,\"checks\":46841,\"maxPositionError\":0.00001775440529172556,\"maxNormalError\":1.80938697691424e-7,\"scope\":\"Actual DXIL helper results read back from D3D12 WARP and compared with independent double source-geometry oracle. Not Unity, raster identity ownership, RenderGraph barriers or physical GPU validation.\"}\r\n",
+                       "startedUtc":  "2026-10-27T10:05:19.9139823Z",
+                       "completedUtc":  "2026-10-27T10:05:20.0135950Z",
+                       "executable":  "C:\\Program Files\\nodejs\\node.exe",
+                       "arguments":  [
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneReceiverTemporal\\ReceiverTemporalOracle.mjs",
+                                         "verify",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-1fb001d08e054896850392d294e3ed63"
+                                     ]
+                   }
+               ],
+    "completedUtc":  "2026-10-27T10:05:20.0559884Z"
+}

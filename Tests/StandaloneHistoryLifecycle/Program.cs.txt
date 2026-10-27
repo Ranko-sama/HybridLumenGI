@@ -1,0 +1,593 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using HybridLumenGI;
+using History = HybridLumenGI.HybridLumenGIHistoryLifecycle;
+
+static class Program
+{
+    static int assertions, scenarios;
+    static void Check(bool value, string message)
+    { assertions++; if(!value) throw new Exception(message); }
+    static void Scenario(string name, Action action)
+    { action(); scenarios++; Console.WriteLine("PASS: " + name); }
+
+    // Bounded source-wiring checks only, not a C# parser or an execution model.
+    // Every boundary must exist exactly once before a relative order is tested.
+    static int UniqueSourceIndex(string source,string marker)
+    {
+        int index=source.IndexOf(marker,StringComparison.Ordinal);
+        Check(index>=0,"Missing source boundary: "+marker);
+        Check(source.IndexOf(marker,index+marker.Length,StringComparison.Ordinal)<0,"Ambiguous source boundary: "+marker);
+        return index;
+    }
+    static string SourceSection(string source,string start,string end)
+    {
+        int first=UniqueSourceIndex(source,start),last=UniqueSourceIndex(source,end);
+        Check(last>first,"Reversed source boundaries: "+start);
+        return source.Substring(first+start.Length,last-first-start.Length);
+    }
+    static string CompactWiring(string source) => Regex.Replace(
+        Regex.Replace(source,@"//[^\r\n]*|/\*[\s\S]*?\*/",string.Empty),@"\s+",string.Empty);
+    static void CheckTimedRender(string section,string phase,string renderOperation,string expectedTail)
+    {
+        string code=CompactWiring(section);
+        string begin="d.frameTiming.Begin(HybridLumenGIGpuFrameTiming.Phase."+phase+",ctx.cmd);";
+        string end="d.frameTiming.End(HybridLumenGIGpuFrameTiming.Phase."+phase+",ctx.cmd);";
+        if(phase=="Transport") { begin=begin.Replace("ctx.cmd","cmd");end=end.Replace("ctx.cmd","cmd"); }
+        string failure="catch{d.state.InvalidateFailedRender();throw;}";
+        UniqueSourceIndex(code,begin);UniqueSourceIndex(code,end);UniqueSourceIndex(code,failure);
+        // The real render body alone is in the history-invalidating try/catch;
+        // safe timing Begin is before it and End is its finally cleanup.
+        var match=Regex.Match(code,@"^\{"+Regex.Escape(begin)+@"try\{(?<body>[\s\S]*)\}"+
+            Regex.Escape(failure)+@"finally\{"+Regex.Escape(end)+@"\}(?<tail>[\s\S]*)$");
+        Check(match.Success,phase+" must keep rendering failure and timing cleanup in their own scopes");
+        string body=match.Groups["body"].Value;
+        UniqueSourceIndex(body,renderOperation);
+        Check(!body.Contains("CompleteScreenHistory("),phase+" cannot publish before rendering and cleanup finish");
+        Check(match.Groups["tail"].Value==CompactWiring(expectedTail),phase+" publication must follow cleanup without another history-invalidating guard");
+    }
+
+    // Actual Execute callback, with dependency spies only. This tests control
+    // flow under failure, not material/GPU completion or timing internals.
+    sealed class CommandBuffer { }
+    static class HybridLumenGIGpuFrameTiming { internal enum Phase { Transport } }
+    sealed class TimingSpy
+    {
+        readonly List<string> events;
+        internal TimingSpy(List<string> events){this.events=events;}
+        internal void Begin(HybridLumenGIGpuFrameTiming.Phase phase,CommandBuffer cmd){events.Add("begin");}
+        internal void End(HybridLumenGIGpuFrameTiming.Phase phase,CommandBuffer cmd){events.Add("end");}
+    }
+    sealed class StateSpy
+    {
+        readonly List<string> events;
+        internal string hardwareMaterialStatus="ready";
+        internal StateSpy(List<string> events){this.events=events;}
+        internal void InvalidateFailedRender(){events.Add("invalidate");}
+    }
+    sealed class MaterialPassSpy
+    {
+        readonly List<string> events;
+        internal bool fail,throwOnFinish;
+        internal CommandBuffer expected;
+        internal MaterialPassSpy(List<string> events){this.events=events;}
+        internal bool Finish(CommandBuffer cmd,out string reason)
+        {
+            Check(ReferenceEquals(expected,cmd),"Final material fence uses the exact consumer command buffer");
+            events.Add("finish");reason="retirement unproven";
+            if(throwOnFinish)throw new InvalidOperationException("finish failure");
+            return !fail;
+        }
+    }
+    sealed class Work
+    { internal TimingSpy frameTiming;internal StateSpy state;internal MaterialPassSpy hitMaterials; }
+    sealed class TransportAdapter
+    {
+        internal readonly List<string> events=new();
+        internal readonly HashSet<MaterialPassSpy> materialPasses=new();
+        internal readonly CommandBuffer command=new();
+        internal bool failRender;
+        internal Action duringRender;
+        internal Work CreateWork(bool materials)
+        {
+            var d=new Work{state=new StateSpy(events),frameTiming=new TimingSpy(events)};
+            if(materials){d.hitMaterials=new MaterialPassSpy(events){expected=command};materialPasses.Add(d.hitMaterials);}
+            return d;
+        }
+        void ExecuteTransport(Work d,CommandBuffer cmd)
+        {
+            Check(ReferenceEquals(command,cmd),"Render consumes the captured command buffer");
+            events.Add("render");duringRender?.Invoke();
+            if(failRender)throw new InvalidOperationException("render failure");
+        }
+        internal void Run(Work d)=>Execute(d,command);
+        __TRANSPORT_EXECUTE_METHOD__
+    }
+    static void CheckActualTransportCleanup()
+    {
+        foreach(bool hasMaterials in new[]{false,true})
+        foreach(bool renderFails in new[]{false,true})
+        foreach(bool fenceFails in new[]{false,true})
+        {
+            var owner=new TransportAdapter{failRender=renderFails};var work=owner.CreateWork(hasMaterials);
+            if(hasMaterials)work.hitMaterials.fail=fenceFails;
+            Exception caught=null;try{owner.Run(work);}catch(Exception ex){caught=ex;}
+            var expected=new List<string>{"begin","render"};
+            if(renderFails)expected.Add("invalidate");if(hasMaterials)expected.Add("finish");expected.Add("end");
+            Check(owner.events.SequenceEqual(expected),"Execute cleanup order independent of rendering and fence outcomes");
+            Check((caught!=null)==renderFails,"Retirement failure must not turn successful rendering into an exception");
+            if(renderFails)Check(caught.Message=="render failure","Render failure is preserved");
+            Check(owner.materialPasses.Count==0,"Executed pass is removed from the owner; batch retains its own fence obligations");
+            Check(work.state.hardwareMaterialStatus==(hasMaterials&&fenceFails?"retirement unproven":"ready"),"Unproven retirement is visible");
+        }
+        {
+            var owner=new TransportAdapter();var work=owner.CreateWork(true);work.hitMaterials.throwOnFinish=true;
+            Exception caught=null;try{owner.Run(work);}catch(Exception ex){caught=ex;}
+            Check(caught?.Message=="finish failure","Unexpected cleanup exception stays observable");
+            Check(owner.events.SequenceEqual(new[]{"begin","render","finish","end"}),"Timing cleanup still runs if material cleanup throws");
+            Check(owner.materialPasses.Contains(work.hitMaterials),"Unexpected cleanup failure keeps the owner reference for teardown");
+        }
+        {
+            var owner=new TransportAdapter();var work=owner.CreateWork(true);var captured=work.hitMaterials;
+            MaterialPassSpy later=null;
+            owner.duringRender=()=>{later=new MaterialPassSpy(owner.events);owner.materialPasses.Add(later);};
+            owner.Run(work);
+            Check(!owner.materialPasses.Contains(captured)&&owner.materialPasses.Contains(later),"Finishing this graph must not cancel another graph's batch");
+        }
+    }
+
+    // Value markers deliberately do not simulate projection math or Unity APIs.
+    // They reveal which successfully completed snapshot the actual helpers assign.
+    readonly record struct Matrix4x4(int Marker);
+    readonly record struct Vector2(int Marker);
+    readonly record struct Vector3(int Marker);
+    readonly record struct Quaternion(int Marker);
+    sealed class RenderTexture
+    { public readonly int NativeId;public RenderTexture(int nativeId) { NativeId=nativeId; } }
+
+    // Only a call/order spy for the actual Feature helpers below. The real
+    // ReceiverHistory state machine has its own separate actual-source harness.
+    sealed class ReceiverHistorySpy
+    {
+        readonly History lifecycle;
+        internal int invalidations;
+        internal readonly List<History.FrameToken> completions=new();
+        internal ReceiverHistorySpy(History lifecycle) { this.lifecycle=lifecycle; }
+        internal void Invalidate()
+        {
+            Check(!lifecycle.HasCompletedHistory && lifecycle.LastCompletedFrame==-1,
+                "Feature must revoke the lifecycle before notifying receiver invalidation");
+            invalidations++;
+        }
+        internal void Complete(History.FrameToken token)
+        {
+            Check(lifecycle.IsCompleted(token) && !lifecycle.IsCurrent(token),
+                "Receiver snapshot publication must follow successful completion of this exact lifecycle receipt");
+            completions.Add(token);
+        }
+    }
+
+    sealed class CameraFailureAdapter
+    {
+        internal ulong uploadedSoftwareVersion=99;
+        internal readonly History historyLifecycle=new History();
+        internal readonly ReceiverHistorySpy receiverHistory;
+        internal bool valid;
+        internal int feedbackInvalidations,epoch=7;
+        internal readonly object worldCache=new object();
+        private RenderTexture historyTarget;
+        private bool hasHistoryTarget;
+        internal Matrix4x4 previousVP,previousInvVP;
+        internal Vector2 previousJitter;
+        internal Vector3 previousPosition;
+        internal Quaternion previousRotation;
+        internal CameraFailureAdapter() { receiverHistory=new ReceiverHistorySpy(historyLifecycle); }
+        internal void InvalidateGpuFeedback() { feedbackInvalidations++; }
+        __CAMERA_FAILURE_METHODS__
+    }
+
+    sealed class Camera
+    { readonly int id;public Camera(int id) { this.id=id; }public int GetInstanceID() => id; }
+    sealed class CameraState : IDisposable
+    {
+        internal readonly Camera camera;internal int disposals;
+        public CameraState(Camera camera) { this.camera=camera; }
+        public void Dispose() { disposals++; }
+    }
+    sealed class RegistryAdapter
+    {
+        readonly Dictionary<int,CameraState> cameras=new();
+        public readonly List<int> evictions=new();
+        void Evict(int current) { evictions.Add(current); }
+        __CAMERA_LOOKUP_METHOD__
+        public CameraState Lookup(Camera camera) => GetCameraState(camera);
+    }
+
+    static void Publish(CameraFailureAdapter camera,History.FrameToken token,int marker) =>
+        camera.CompleteScreenHistory(token,new Matrix4x4(marker),new Matrix4x4(marker+1),new Vector2(marker+2),
+            new Vector3(marker+3),new Quaternion(marker+4));
+    static void CheckSnapshot(CameraFailureAdapter camera,int marker)
+    {
+        Check(camera.previousVP.Marker==marker && camera.previousInvVP.Marker==marker+1 &&
+            camera.previousJitter.Marker==marker+2 && camera.previousPosition.Marker==marker+3 &&
+            camera.previousRotation.Marker==marker+4,"All committed camera fields belong to one accepted receipt");
+    }
+
+    // A log oracle labels image provenance by the last effective event. It uses
+    // neither runtime token sequence numbers nor its private pending/valid state.
+    sealed class Oracle
+    {
+        public enum Kind { Begin, Publish, Reset }
+        public readonly List<(Kind kind,int ticket,int frame)> Events = new();
+        public bool Current(int ticket) => Events.Count>0 && Events[^1].kind==Kind.Begin && Events[^1].ticket==ticket;
+        public bool Reuse(int frame) => frame>=0 && Events.Count>0 && Events[^1].kind==Kind.Publish &&
+            (long)Events[^1].frame+1==frame;
+        public void Begin(int ticket,int frame) => Events.Add((frame>=0?Kind.Begin:Kind.Reset,ticket,frame));
+        public bool Complete(int ticket)
+        {
+            if(!Current(ticket)) return false;
+            Events.Add((Kind.Publish,ticket,Events[^1].frame));return true;
+        }
+        public void Reset() => Events.Add((Kind.Reset,-1,-1));
+        public int CompletedFrame => Events.Count>0 && Events[^1].kind==Kind.Publish?Events[^1].frame:-1;
+        public bool Completed(int ticket) => Events.Count>0 && Events[^1].kind==Kind.Publish && Events[^1].ticket==ticket;
+    }
+
+    // Fixtures carry independent image-coordinate labels: the oracle never calls
+    // FrameContext.Equals/IsValid or inspects runtime token/context fields.
+    sealed class ContextOracle
+    {
+        public readonly List<(string kind,int ticket,int frame,string context)> Events=new();
+        public bool Current(int ticket) => Events.Count>0 && Events[^1].kind=="begin" && Events[^1].ticket==ticket;
+        public bool Reuse(int frame,string context) => frame>=0 && context!=null && Events.Count>0 &&
+            Events[^1].kind=="publish" && (long)Events[^1].frame+1==frame && Events[^1].context==context;
+        public void Begin(int ticket,int frame,string context) => Events.Add((frame>=0&&context!=null?"begin":"reset",ticket,frame,context));
+        public bool Complete(int ticket)
+        {
+            if(!Current(ticket)) return false;
+            var prior=Events[^1];Events.Add(("publish",ticket,prior.frame,prior.context));return true;
+        }
+        public void Reset() => Events.Add(("reset",-1,-1,null));
+        public int CompletedFrame => Events.Count>0 && Events[^1].kind=="publish"?Events[^1].frame:-1;
+        public bool Completed(int ticket) => Events.Count>0 && Events[^1].kind=="publish" && Events[^1].ticket==ticket;
+    }
+
+    static History.FrameContext Context(int fw=1920,int fh=1080,int gw=960,int gh=540,
+        float x=0,float y=0,float w=1920,float h=1080,ulong key=0) => new(fw,fh,gw,gh,x,y,w,h,key);
+
+    static void Main()
+    {
+        Scenario("only successful preceding engine frame is reusable",()=>
+        {
+            var h=new History();var first=h.BeginFrame(10);
+            Check(first.IsValid && !h.CanReuseHistory(first),"First render has no history");
+            Check(!h.HasCompletedHistory && h.LastCompletedFrame==-1,"Construction does not publish output");
+            Check(h.Complete(first),"First output can be published");
+            Check(!h.Complete(first) && h.LastCompletedFrame==10,"Completion is consumed once");
+            var next=h.BeginFrame(11);
+            Check(h.CanReuseHistory(next),"URP 11->10 motion matches completed frame 10");
+            Check(!h.HasCompletedHistory && !h.IsCurrent(first),"Pending frame is not a completed image");
+            Check(h.Complete(next),"Contiguous render commits");
+        });
+        Scenario("repeat, skip and backwards render start fresh and recover",()=>
+        {
+            foreach(var pair in new[]{(10,10),(10,12),(10,4),(int.MaxValue,0)})
+            {
+                var h=new History();h.Complete(h.BeginFrame(pair.Item1));
+                var discontinuous=h.BeginFrame(pair.Item2);
+                Check(!h.CanReuseHistory(discontinuous),"Mismatched source frame must not reuse");
+                Check(h.Complete(discontinuous),"Fresh output can still be produced");
+                var recovered=h.BeginFrame(pair.Item2+1);
+                Check(h.CanReuseHistory(recovered),"Next contiguous render recovers without global cache reset");
+            }
+        });
+        Scenario("unexecuted render and queued late callbacks cannot publish",()=>
+        {
+            var h=new History();h.Complete(h.BeginFrame(0));
+            var notExecuted=h.BeginFrame(1);Check(h.CanReuseHistory(notExecuted),"First pending render could reuse");
+            var repeated=h.BeginFrame(1);Check(!h.CanReuseHistory(repeated),"Repeated pending render has no receipt");
+            var newest=h.BeginFrame(2);
+            Check(!h.Complete(notExecuted) && !h.Complete(repeated),"Superseded callbacks rejected");
+            Check(!h.CanReuseHistory(newest),"A recorded but unexecuted frame cannot seed history");
+            Check(h.Complete(newest) && h.CanReuseHistory(h.BeginFrame(3)),"Fresh successful output restores continuity");
+        });
+        Scenario("each callback failure and reset revoke captured eligibility",()=>
+        {
+            // Receiver, transport, composite, marker-end and native-resolve failures
+            // all call the same screen invalidation hook, independent of timing mode.
+            foreach(string stage in new[]{"receiver","transport","composite","marker end","resolve"})
+            {
+                var h=new History();h.Complete(h.BeginFrame(5));
+                var token=h.BeginFrame(6);Check(h.CanReuseHistory(token),stage+" starts with valid source");
+                bool workValid=h.CanReuseHistory(token);
+                h.Invalidate(); // the actual failure transition; no GPU timing input exists
+                workValid &= h.CanReuseHistory(token);
+                Check(!workValid && !h.Complete(token) && !h.HasCompletedHistory,stage+" cannot revive stale Work.valid");
+                var next=h.BeginFrame(7);Check(!h.CanReuseHistory(next),stage+" forces fresh next output");
+                h.Complete(next);Check(h.CanReuseHistory(h.BeginFrame(8)),stage+" recovers");
+            }
+            var afterSuccess=new History();var done=afterSuccess.BeginFrame(9);afterSuccess.Complete(done);
+            afterSuccess.Invalidate();Check(!afterSuccess.Complete(done),"Resolve failure revokes already completed receipt");
+            Check(!afterSuccess.CanReuseHistory(afterSuccess.BeginFrame(10)),"Late failure cannot leave valid next-frame history");
+        });
+        Scenario("camera identity, negative frames and integer boundaries",()=>
+        {
+            var a=new History();var b=new History();var ta=a.BeginFrame(0);var tb=b.BeginFrame(0);
+            Check(!a.IsCurrent(tb) && !a.Complete(tb) && !b.Complete(ta),"Cross-camera tokens rejected");
+            Check(a.Complete(ta) && b.Complete(tb),"Independent cameras complete");
+            Check(!a.BeginFrame(-1).IsValid && !a.HasCompletedHistory,"Invalid engine frame resets provenance");
+            var negative=a.BeginFrame(int.MinValue);Check(!a.IsCurrent(negative) && !a.Complete(negative),"Negative/default token cannot publish");
+            a.Complete(a.BeginFrame(int.MaxValue-1));var max=a.BeginFrame(int.MaxValue);
+            Check(a.CanReuseHistory(max) && a.Complete(max),"Last positive frame is valid without addition overflow");
+            Check(!a.CanReuseHistory(a.BeginFrame(0)),"Wrap/reset is discontinuous");
+            Check(!a.Complete(default),"Default ticket rejected");
+        });
+        Scenario("completed receipt requires exact sequence owner and unrevised lifecycle",()=>
+        {
+            var a=new History();var b=new History();
+            var first=a.BeginFrame(12,Context());var foreign=b.BeginFrame(12,Context());
+            Check(!a.IsCompleted(default) && !a.IsCompleted(first),"Default and pending receipts are not completed");
+            Check(a.Complete(first) && a.IsCompleted(first),"Only accepted receipt becomes completed");
+            Check(b.Complete(foreign) && b.IsCompleted(foreign) && !a.IsCompleted(foreign) && !b.IsCompleted(first),
+                "Same engine frame and local sequence from another owner cannot match");
+            Check(!a.Complete(first) && a.IsCompleted(first),"Duplicate Complete does not revoke an existing completed receipt");
+            var repeated=a.BeginFrame(12,Context());
+            Check(first.EngineFrame==repeated.EngineFrame && !a.IsCompleted(first) && !a.IsCompleted(repeated),
+                "Same-frame Begin revokes old sequence without falsely completing new receipt");
+            Check(a.Complete(repeated) && a.IsCompleted(repeated) && !a.IsCompleted(first),
+                "Same frame but different sequence cannot validate old publication");
+            var next=a.BeginFrame(13,Context());
+            Check(!a.IsCompleted(repeated) && !a.IsCompleted(next),"Next Begin consumes the completed receipt");
+            Check(a.Complete(next) && a.IsCompleted(next),"Contiguous receipt can publish independently");
+            a.Invalidate();Check(!a.IsCompleted(next) && !a.IsCompleted(first),"Reset revokes all prior receipts");
+            var recover=a.BeginFrame(14,Context());a.Complete(recover);
+            Check(a.IsCompleted(recover),"Fresh publication can recover after reset");
+            a.BeginFrame(15,Context(x:float.NaN));
+            Check(!a.IsCompleted(recover) && !a.IsCompleted(default),"Invalid context also revokes completed proof");
+        });
+        Scenario("full target, GI extent, viewport and projection conventions bind history",()=>
+        {
+            var baseline=Context();
+            var changed=new[]{Context(fw:1921),Context(fh:1081),Context(gw:961),Context(gh:541),
+                Context(x:1),Context(y:1),Context(w:1919),Context(h:1079),Context(key:1),Context(x:0.000001f)};
+            foreach(var context in changed)
+            {
+                Check(context.IsValid && !baseline.Equals(context),"Every coordinate field affects exact context identity");
+                var h=new History();Check(h.Complete(h.BeginFrame(10,baseline)),"Baseline context publishes");
+                var transition=h.BeginFrame(11,context);
+                Check(transition.IsValid && !h.CanReuseHistory(transition),"Changed context rejects even when GI width remains 960");
+                Check(h.Complete(transition),"Changed context can publish fresh output");
+                var stable=h.BeginFrame(12,context);Check(h.CanReuseHistory(stable),"Stable new context recovers");h.Complete(stable);
+                var restored=h.BeginFrame(13,baseline);Check(!h.CanReuseHistory(restored),"Restoring old context still requires fresh output");
+                h.Complete(restored);Check(h.CanReuseHistory(h.BeginFrame(14,baseline)),"Restored context reuses only its own completed output");
+            }
+            var negativeOffset=Context(x:-12.5f,y:-0.25f);Check(negativeOffset.IsValid,"Finite offset need not fit target bounds");
+            Check(baseline.Equals(Context(x:-0f,y:-0f)) && baseline.GetHashCode()==Context(x:-0f,y:-0f).GetHashCode(),"Signed zero is one numeric viewport");
+            Check(!baseline.Equals((object)null),"Context object equality rejects null");
+        });
+        Scenario("invalid contexts revoke both completed and pending receipts",()=>
+        {
+            var invalid=new[]{default(History.FrameContext),Context(fw:0),Context(fh:-1),Context(gw:0),Context(gh:-1),
+                Context(w:0),Context(h:-1),Context(x:float.NaN),Context(y:float.NaN),Context(w:float.NaN),Context(h:float.NaN),
+                Context(x:float.PositiveInfinity),Context(y:float.NegativeInfinity),Context(w:float.PositiveInfinity),Context(h:float.NegativeInfinity)};
+            foreach(var context in invalid)
+            {
+                Check(!context.IsValid,"Invalid dimensions or any nonfinite viewport component are rejected");
+                var h=new History();h.Complete(h.BeginFrame(3,Context()));var pending=h.BeginFrame(4,Context());
+                Check(h.CanReuseHistory(pending),"Valid pending baseline could reuse");var bad=h.BeginFrame(5,context);
+                Check(!bad.IsValid && !h.IsCurrent(bad) && !h.Complete(bad),"Invalid context cannot receive a completion receipt");
+                Check(!h.Complete(pending) && !h.HasCompletedHistory && h.LastCompletedFrame==-1,"Invalid context revokes old callbacks/output");
+                var recovered=h.BeginFrame(6,Context());Check(!h.CanReuseHistory(recovered) && h.Complete(recovered),"Recovery starts fresh");
+                Check(h.CanReuseHistory(h.BeginFrame(7,Context())),"Only new successful context is reusable");
+            }
+        });
+        Scenario("only accepted completion commits context across late callbacks and cameras",()=>
+        {
+            var a=new History();var b=new History();var normal=Context();var moved=Context(x:100);
+            a.Complete(a.BeginFrame(20,normal));b.Complete(b.BeginFrame(20,moved));
+            var waiting=a.BeginFrame(21,moved);Check(!a.CanReuseHistory(waiting),"New viewport is not yet a completed source");
+            var newer=a.BeginFrame(22,normal);Check(!a.CanReuseHistory(newer),"Pending context never creates completed history");
+            Check(!a.Complete(waiting) && !b.Complete(newer),"Stale and foreign commits cannot install context");
+            Check(a.Complete(newer) && a.LastCompletedFrame==22,"Current snapshot commits its own context");
+            var unchanged=a.BeginFrame(23,normal);Check(a.CanReuseHistory(unchanged),"Stale moved context did not replace committed normal context");
+            a.Invalidate();Check(!a.Complete(unchanged),"Failure revokes context alongside receipt");
+            var afterFailure=a.BeginFrame(24,normal);Check(!a.CanReuseHistory(afterFailure) && a.Complete(afterFailure),"Failed frame cannot seed context");
+            Check(b.CanReuseHistory(b.BeginFrame(21,moved)),"Other camera's committed viewport survives first camera failure");
+            var captured=Context();var immutable=a.BeginFrame(25,captured);captured=Context(x:32);
+            Check(a.Complete(immutable) && a.CanReuseHistory(a.BeginFrame(26,Context())),"Caller variable reassignment cannot change captured context");
+        });
+        Scenario("legacy clients remain compatible but cannot inherit context-aware output",()=>
+        {
+            var h=new History();h.Complete(h.BeginFrame(0));
+            var context=h.BeginFrame(1,Context());Check(!h.CanReuseHistory(context) && h.Complete(context),"Legacy-to-context switch is fresh");
+            var legacy=h.BeginFrame(2);Check(!h.CanReuseHistory(legacy) && h.Complete(legacy),"Context-to-legacy switch is fresh");
+            Check(h.CanReuseHistory(h.BeginFrame(3)),"Unchanged legacy clients retain existing continuity");
+        });
+        Scenario("actual CameraState failure hooks revoke output without resetting world cache",()=>
+        {
+            var camera=new CameraFailureAdapter();object originalCache=camera.worldCache;
+            camera.valid=camera.historyLifecycle.Complete(camera.historyLifecycle.BeginFrame(20));
+            var pending=camera.historyLifecycle.BeginFrame(21);
+            Check(camera.valid && camera.historyLifecycle.CanReuseHistory(pending),"Failure adapter begins with completed previous output");
+            camera.InvalidateFailedRender();
+            Check(camera.uploadedSoftwareVersion==0,"A failed recorded graph must not suppress the next software geometry upload");
+            Check(!camera.valid && !camera.historyLifecycle.Complete(pending),"Actual feature hook clears valid and late completion");
+            Check(camera.receiverHistory.invalidations==1 && camera.receiverHistory.completions.Count==0,"Failure notifies source invalidation exactly once without publication");
+            Check(camera.feedbackInvalidations==1 && camera.epoch==7 && ReferenceEquals(originalCache,camera.worldCache),"Failure affects timing/screen provenance only");
+            var next=camera.historyLifecycle.BeginFrame(22);
+            Check(!camera.historyLifecycle.CanReuseHistory(next),"Failed output is not a motion source");
+            camera.valid=camera.historyLifecycle.Complete(next);
+            camera.InvalidateScreenHistory();
+            Check(!camera.valid && !camera.historyLifecycle.HasCompletedHistory && camera.feedbackInvalidations==1,"Explicit screen reset is independent of timing");
+            Check(camera.receiverHistory.invalidations==2,"Explicit screen reset also revokes receiver snapshot");
+        });
+        Scenario("actual publication helper commits camera fields only after accepted completion",()=>
+        {
+            var camera=new CameraFailureAdapter();var first=camera.historyLifecycle.BeginFrame(10,Context());Publish(camera,first,100);
+            Check(camera.valid && camera.historyLifecycle.LastCompletedFrame==10,"Accepted receipt publishes validity and frame");CheckSnapshot(camera,100);
+            Check(camera.receiverHistory.completions.Count==1 && camera.historyLifecycle.IsCompleted(camera.receiverHistory.completions[0]),"Initial source publication receives exact completed receipt");
+            var pending=camera.historyLifecycle.BeginFrame(11,Context());CheckSnapshot(camera,100);
+            Publish(camera,first,999);CheckSnapshot(camera,100);
+            Check(camera.receiverHistory.completions.Count==1,"Stale receipt cannot notify receiver source completion");
+            Publish(camera,pending,200);CheckSnapshot(camera,200);
+            Publish(camera,pending,888);CheckSnapshot(camera,200);
+            Check(camera.receiverHistory.completions.Count==2,"Repeated completion cannot notify receiver source twice");
+            var failed=camera.historyLifecycle.BeginFrame(12,Context());camera.InvalidateFailedRender();Publish(camera,failed,300);
+            Check(!camera.valid && !camera.historyLifecycle.HasCompletedHistory,"Failed recording cannot mark history valid");CheckSnapshot(camera,200);
+            var foreign=new History().BeginFrame(13,Context());Publish(camera,foreign,400);CheckSnapshot(camera,200);
+            Check(camera.receiverHistory.completions.Count==2 && camera.receiverHistory.invalidations==1,"Failure and foreign callbacks cannot publish receiver sources");
+            var superseded=camera.historyLifecycle.BeginFrame(13,Context());var newest=camera.historyLifecycle.BeginFrame(14,Context());
+            Publish(camera,superseded,500);CheckSnapshot(camera,200);Publish(camera,newest,600);CheckSnapshot(camera,600);
+            Check(camera.valid && camera.historyLifecycle.LastCompletedFrame==14 && camera.epoch==7,"Snapshot commit does not reset world epoch");
+            Check(camera.receiverHistory.completions.Count==3 && camera.historyLifecycle.IsCompleted(camera.receiverHistory.completions[2]),"Only newest accepted receipt publishes source snapshot");
+        });
+        Scenario("actual target guard distinguishes reference identity including native ID reuse",()=>
+        {
+            var camera=new CameraFailureAdapter();Publish(camera,camera.historyLifecycle.BeginFrame(0),10);
+            camera.PrepareHistoryTarget(null);Check(!camera.valid,"First observed backbuffer identity initializes provenance");
+            Publish(camera,camera.historyLifecycle.BeginFrame(1),20);camera.PrepareHistoryTarget(null);
+            Check(camera.valid && camera.historyLifecycle.LastCompletedFrame==1,"Same backbuffer identity does not invalidate");
+            var target=new RenderTexture(42);camera.PrepareHistoryTarget(target);Check(!camera.valid,"Backbuffer-to-target change invalidates");
+            Publish(camera,camera.historyLifecycle.BeginFrame(2),30);camera.PrepareHistoryTarget(target);
+            Check(camera.valid && camera.historyLifecycle.LastCompletedFrame==2,"Unchanged target reference preserves output");
+            var reusedId=new RenderTexture(42);Check(target.NativeId==reusedId.NativeId,"Replacement has identical native ID in fixture");
+            camera.PrepareHistoryTarget(reusedId);Check(!camera.valid && !camera.historyLifecycle.HasCompletedHistory,"New reference rejects old target even with same ID");CheckSnapshot(camera,30);
+            Publish(camera,camera.historyLifecycle.BeginFrame(3),40);camera.PrepareHistoryTarget(null);Check(!camera.valid,"Target-to-backbuffer change invalidates");
+            Check(camera.feedbackInvalidations==0 && camera.epoch==7,"Target changes affect only screen-history provenance");
+        });
+        Scenario("actual camera registry retires ID reuse without replacing same-reference state",()=>
+        {
+            var registry=new RegistryAdapter();var a=new Camera(7);var b=new Camera(9);var first=registry.Lookup(a);var second=registry.Lookup(b);
+            Check(ReferenceEquals(first,registry.Lookup(a)) && first.disposals==0,"Same camera reference keeps its state");
+            var replacement=new Camera(7);var fresh=registry.Lookup(replacement);
+            Check(!ReferenceEquals(first,fresh) && first.disposals==1 && ReferenceEquals(fresh.camera,replacement),"Reused numeric ID retires previous owner exactly once");
+            Check(ReferenceEquals(second,registry.Lookup(b)) && second.disposals==0,"Other camera state remains isolated");
+            Check(ReferenceEquals(fresh,registry.Lookup(replacement)) && fresh.disposals==0,"Replacement state persists for its real owner");
+            Check(registry.evictions.SequenceEqual(new[]{7,9,7,7,9,7}),"Actual lookup still delegates existing eviction policy");
+        });
+        Scenario("independent event-log oracle across interleaved cameras",()=>
+        {
+            var random=new Random(0x71a5);var real=new[]{new History(),new History(),new History()};
+            var oracle=new[]{new Oracle(),new Oracle(),new Oracle()};
+            var tokens=new List<(int camera,int ticket,History.FrameToken token,bool expectedReuse)>();
+            int nextTicket=0;int[] frames={0,0,0};
+            for(int step=0;step<50000;step++)
+            {
+                int camera=random.Next(real.Length);int operation=random.Next(10);
+                if(operation<5)
+                {
+                    int frame=frames[camera]+random.Next(-2,5);frames[camera]=frame;
+                    bool reuse=oracle[camera].Reuse(frame);int ticket=nextTicket++;
+                    var token=real[camera].BeginFrame(frame);oracle[camera].Begin(ticket,frame);
+                    Check(real[camera].CanReuseHistory(token)==reuse,"Frame-label oracle reuse mismatch");
+                    tokens.Add((camera,ticket,token,reuse));
+                }
+                else if(operation<9 && tokens.Count>0)
+                {
+                    int index=random.Next(2)==0?tokens.Count-1:random.Next(tokens.Count);
+                    var chosen=tokens[index];
+                    // Mix current, stale and another camera's callbacks.
+                    if(operation<8) camera=chosen.camera;
+                    bool expected=camera==chosen.camera && oracle[camera].Current(chosen.ticket);
+                    Check(real[camera].IsCurrent(chosen.token)==expected,"Callback owner/current mismatch");
+                    Check(real[camera].CanReuseHistory(chosen.token)==(expected&&chosen.expectedReuse),"Snapshot validity resurrected");
+                    bool actual=real[camera].Complete(chosen.token);
+                    bool accepted=camera==chosen.camera && oracle[camera].Complete(chosen.ticket);
+                    Check(actual==accepted,"Late callback acceptance mismatch");
+                    Check(real[camera].IsCompleted(chosen.token)==(camera==chosen.camera && oracle[camera].Completed(chosen.ticket)),"Completed proof differs from independent event log");
+                }
+                else { real[camera].Invalidate();oracle[camera].Reset(); }
+                for(int i=0;i<real.Length;i++)
+                {
+                    Check(real[i].LastCompletedFrame==oracle[i].CompletedFrame,"Published image source-frame mismatch");
+                    Check(real[i].HasCompletedHistory==(oracle[i].CompletedFrame>=0),"Published image availability mismatch");
+                }
+            }
+        });
+        Scenario("independent image-label oracle with context changes and interleaved callbacks",()=>
+        {
+            var fixtures=new (History.FrameContext value,string label,bool legacy)[]{
+                (Context(),"base",false),(Context(x:-0f),"base",false),(Context(fw:1921),"odd-full-width",false),
+                (Context(gw:961),"new-gi-width",false),(Context(x:0.5f),"viewport-offset",false),
+                (Context(w:1919.5f),"viewport-width",false),(Context(key:9),"other-convention",false),
+                (Context(x:float.NaN),null,false),(Context(gh:0),null,false),(default,"legacy",true)};
+            var random=new Random(0x52ca);var real=new[]{new History(),new History(),new History()};
+            var oracle=new[]{new ContextOracle(),new ContextOracle(),new ContextOracle()};
+            var tokens=new List<(int camera,int ticket,History.FrameToken token,bool reuse)>();int[] frames={0,0,0};int ticket=0;
+            for(int step=0;step<40000;step++)
+            {
+                int camera=random.Next(3),operation=random.Next(10);
+                if(operation<5)
+                {
+                    int frame=frames[camera]+random.Next(-2,4);frames[camera]=frame;var fixture=fixtures[random.Next(fixtures.Length)];
+                    bool reuse=oracle[camera].Reuse(frame,fixture.label);int issued=ticket++;
+                    var token=fixture.legacy?real[camera].BeginFrame(frame):real[camera].BeginFrame(frame,fixture.value);
+                    oracle[camera].Begin(issued,frame,fixture.label);
+                    Check(token.IsValid==(frame>=0&&fixture.label!=null),"Context fixture validity differs");
+                    Check(real[camera].CanReuseHistory(token)==reuse,"Independent context label reuse differs");
+                    tokens.Add((camera,issued,token,reuse));
+                }
+                else if(operation<9 && tokens.Count>0)
+                {
+                    var chosen=tokens[random.Next(2)==0?tokens.Count-1:random.Next(tokens.Count)];if(operation<8) camera=chosen.camera;
+                    bool current=camera==chosen.camera && oracle[camera].Current(chosen.ticket);
+                    Check(real[camera].IsCurrent(chosen.token)==current,"Context callback identity differs");
+                    Check(real[camera].CanReuseHistory(chosen.token)==(current&&chosen.reuse),"Context callback resurrected reuse");
+                    bool accepted=camera==chosen.camera && oracle[camera].Complete(chosen.ticket);
+                    Check(real[camera].Complete(chosen.token)==accepted,"Context completion differs from event log");
+                    Check(real[camera].IsCompleted(chosen.token)==(camera==chosen.camera && oracle[camera].Completed(chosen.ticket)),"Completed context proof differs from independent image labels");
+                }
+                else { real[camera].Invalidate();oracle[camera].Reset(); }
+                for(int i=0;i<3;i++)
+                {
+                    Check(real[i].LastCompletedFrame==oracle[i].CompletedFrame,"Committed context frame differs");
+                    Check(real[i].HasCompletedHistory==(oracle[i].CompletedFrame>=0),"Pending context published without completion");
+                }
+            }
+        });
+        Scenario("feature wiring keeps provenance independent and publishes after composite",()=>
+        {
+            const string source=__FEATURE_SOURCE__;
+            Check(source.Contains("new HybridLumenGIHistoryLifecycle.FrameContext("),"Feature must construct image-coordinate provenance");
+            Check(source.Contains("historyLifecycle.BeginFrame(Time.frameCount,historyContext)"),"Feature must bind context to its receipt");
+            Check(source.Contains("state.PrepareHistoryTarget(camera.targetTexture)"),"Feature must validate actual target reference");
+            Check(source.Contains("valid=historyValid && state.historyLifecycle.CanReuseHistory(historyToken)"),"Graph snapshot must require compatible source");
+            Check(source.Contains("d.valid &= state.historyLifecycle.CanReuseHistory(d.historyToken)"),"Execution must recheck revoked snapshot");
+            Check(source.Contains("b.historyToken=a.historyToken"),"Work copy must retain token");
+            Check(source.Contains("data.historyToken=work.historyToken"),"Composite must retain token");
+            Check(source.Split("historyLifecycle.Complete(").Length==2,"Exactly one publication site");
+            int publication=UniqueSourceIndex(source,"d.state.CompleteScreenHistory(d.historyToken");
+            int composite=UniqueSourceIndex(source,"d.frameTiming.Begin(HybridLumenGIGpuFrameTiming.Phase.Composite,ctx.cmd)");
+            int nextPass=UniqueSourceIndex(source,"HLGI Native timestamp resolve");
+            Check(composite<publication && publication<nextPass,"Publish only after composite body and cleanup");
+            Check(!source.Contains("state.previousVP=vp") && !source.Contains("state.previousPosition=camera.transform.position"),"Graph construction cannot overwrite completed camera snapshot");
+            Check(!source.Contains("catch { d.state.InvalidateGpuFeedback();throw; }"),"No GPU-only execution-failure guard");
+            CheckTimedRender(SourceSection(source,
+                "builder.SetRenderFunc(static(SurfacePassData d,RasterGraphContext ctx)=>",
+                "TextureHandle identityRead=default"),"ReceiverCapture","ctx.cmd.DrawRendererList(d.renderers[i]);","});}");
+            CheckActualTransportCleanup();
+            CheckTimedRender(SourceSection(source,
+                "builder.SetRenderFunc(static(CompositeData d,RasterGraphContext ctx)=>",
+                "if(state.useNativeGpuTiming && state.nativeGpuTiming.CurrentFrameToken.IsValid)"),"Composite",
+                "ctx.cmd.DrawProcedural(Matrix4x4.identity,d.material,d.debug==0?0:1,MeshTopology.Triangles,3,1,p);",
+                "d.state.CompleteScreenHistory(d.historyToken,d.completedVP,d.invVP,d.completedJitter,d.completedPosition,d.completedRotation);});}");
+
+            // Actual timing-command exception behavior is covered by the separate
+            // FrameTiming harness. Here verify its Feature callback cannot revoke
+            // otherwise valid image provenance, and diagnostics use that wrapper.
+            string compact=CompactWiring(source);
+            UniqueSourceIndex(compact,"newHybridLumenGIGpuFrameTiming(state.gpuTiming,state.nativeGpuTiming,state.useNativeGpuTiming,identityEnabled,state.InvalidateGpuFeedback)");
+            string feedback=CompactWiring(SourceSection(source,"internal void InvalidateGpuFeedback()","internal void InvalidateScreenHistory()"));
+            Check(feedback=="{gpuTiming.Invalidate();nativeGpuTiming.Invalidate();gpuBudget.Reset();gpuObservationValid=false;gpuGeneration=gpuGeneration==int.MaxValue?1:gpuGeneration+1;}",
+                "Timing-only invalidation must reset feedback without revoking screen or receiver history");
+            Check(!source.Contains(".BeginSample(") && !source.Contains(".EndSample("),"Feature diagnostic markers must use the nonthrowing timing wrapper");
+            foreach(string name in new[]{"Global SDF dirty bricks","World material capture","Emissive proposals","World cache","Gather","Temporal","Atrous"})
+                UniqueSourceIndex(compact,"using(d.frameTiming.Profile(cmd,\""+CompactWiring("HLGI "+name)+"\"))");
+            string resetBody=SourceSection(source,"internal void InvalidateScreenHistory()","internal void PrepareGpuBudget");
+            Check(resetBody.Contains("historyLifecycle.Invalidate()") && !resetBody.Contains("epoch") && !resetBody.Contains("cache"),"Screen invalidation must not reset world transport");
+        });
+        Console.WriteLine($"PASS: {scenarios} screen-history lifecycle scenarios, {assertions} assertions; actual runtime class plus independent event-log oracle. ReceiverHistory is only a Feature-call spy, not its implementation validation. No Unity/GPU execution.");
+    }
+}

@@ -1,0 +1,10 @@
+namespace UnityEngine
+{
+    public enum RuntimePlatform { WindowsEditor, WindowsPlayer, LinuxEditor, OSXEditor }
+    public static class Application { public static RuntimePlatform platform=RuntimePlatform.LinuxEditor; }
+    public static class SystemInfo { public static Rendering.GraphicsDeviceType graphicsDeviceType=Rendering.GraphicsDeviceType.Direct3D12; }
+}
+namespace UnityEngine.Rendering
+{
+    public enum GraphicsDeviceType { Direct3D11, Direct3D12, Vulkan }
+}

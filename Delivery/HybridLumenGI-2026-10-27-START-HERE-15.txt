@@ -1,0 +1,50 @@
+HybridLumenGI integration-15：朋友导入测试候选
+目标：Unity 6 / URP 17，Windows DX12，Linear，Render Graph。
+
+这次交接完成九项朋友测试前实现；Unity导入、Player、真实DXR及实体GPU验收仍待执行。
+不是最终生产认证，也不声称与完整UE5 Lumen等价。
+构建注意：最重精确软件入口在本机离线默认优化约一小时后通过，峰值工作集约9.65GB。
+没有关闭交付shader优化；这些是编译观测，不是Unity导入耗时保证或GPU帧时间。
+
+先做这三步
+1. 解压 integration-15.zip，把其中 HybridLumenGI 文件夹放到现有工程副本的 Assets。
+   更新同一份旧包，避免重复类/GUID。不要把整个外层交付包放进 Assets。
+2. 读 Documentation/FriendHandoff.md，在相机实际使用的 Renderer 添加
+   HybridLumenGIRendererFeature，先保持 preferHardwareTracing 关闭，测试软件路径。
+3. Tools > Hybrid Lumen GI > Create Validation Scene Assets 生成固定场景；
+   按说明烘焙真实 Mesh SDF 和 Surface Charts，先取得导入、首个画面与Player构建结果。
+   有阻断先回传日志；不需要一次完成全部压力项目，也不用安装离线开发工具。
+
+本次补齐
+- 持久纹理页、局部替换、格式压缩与逐帧实际复制额度。
+- 精确软件三角BVH、真实发光三角面积采样/MIS，以及共享UV/Cull/alpha材质求值。
+- Skinned/可读网格快照的后台SDF与charts重建、代次取消和旧资源fence退休。
+- 独立AssetBundle资源页、依赖闭包准入、HLOD原子发布和独立IO/上传/驻留配额。
+- RTAS内存/构建/工作量配额，软硬几何属性与退休分配的完整计账。
+- 九项实现对应关系、固定采集流程及来源一致的离线证据。
+逐项范围与限制见 Documentation/PreFriendReadiness.md。
+
+基础通过后
+按 Documentation/ValidationSequence.md 做720逻辑帧的固定场景采集，回传完整HDR、
+状态和日志目录。没有可信参考图时，画质比较保持待验。随后再开硬件路径，记录实际
+hardwareBackend、exactSoftwareGeometry及material/RTAS状态；请求DXR不代表实际执行DXR。
+记录精确Unity/URP版本、GPU/驱动、分辨率，以及期望帧率、GI时间和显存预算。
+
+可选文件
+native-timing-win64-10.zip 仅提供Windows x64 DX12预算反馈计时DLL，不是DXR追踪后端。
+先完成基础导入，再按 Documentation/NativeGpuTiming.md 决定是否安装。
+
+证据
+选定DXC、CPU实际源码适配器和WARP helper检查不等于Unity API编译或实机画面/性能。
+Documentation/OfflineValidation.md明确记录完整执行、定向修复和已通过工件复用；
+没有把旧包结果继承为新功能通过，也没有把修复后汇总称作单次未变源码全绿运行。
+SOURCE-MANIFEST.json绑定源码包所有文件和主报告；delivery-manifest-15.json绑定外层文件。
+构建机TEMP中的DXIL/EXE/inputs/outputs不随源码包分发，报告保留其身份；朋友导入不依赖它们。
+
+请回传 SOURCE-MANIFEST.json、Feature配置、诊断JSON、导入/Player日志和复现步骤。
+收到反馈后再处理运行问题；本次交付后停止无依据的本机测试扩展。
+
+SHA256
+源码ZIP：EE73A0CEBA0E139E22C2BC7A0AF45D73A489C34AB24A06F2CC62760A1E0AABA9
+可选插件ZIP：F1C8FD5F5962BAD71D99A7DC57F7852B92CC27D91DD7869B2D4D1D419B868BF1
+主报告：79BD33A51C62777250A3CB975E992AF6BE89B565ADE73D82E681A273B3B40A14

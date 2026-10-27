@@ -1,0 +1,160 @@
+// Deliberate CPU dependency substitutes. Actual Registry, ReceiverHistory,
+// HistoryLifecycle and MeshSource are compiled unchanged by the harness.
+// This does not execute Unity discovery, material capture, fingerprinting or GPU work.
+using System;
+using System.Collections.Generic;
+
+namespace UnityEngine
+{
+    public class Object
+    {
+        private static int next=1;
+        public int InstanceId=next++;
+        public bool Destroyed;
+        public int GetInstanceID()=>InstanceId;
+        public static bool operator ==(Object a,Object b)
+        {
+            bool an=ReferenceEquals(a,null)||a.Destroyed,bn=ReferenceEquals(b,null)||b.Destroyed;
+            return an||bn?an==bn:ReferenceEquals(a,b)||a.InstanceId==b.InstanceId;
+        }
+        public static bool operator !=(Object a,Object b)=>!(a==b);
+        public override bool Equals(object other)=>other is Object value&&this==value;
+        public override int GetHashCode()=>InstanceId;
+    }
+    public struct LayerMask { public int value;public static implicit operator LayerMask(int v)=>new LayerMask{value=v}; }
+    public struct Vector4:IEquatable<Vector4>
+    {
+        public float x,y,z,w;
+        public Vector4(float a,float b,float c,float d){x=a;y=b;z=c;w=d;}
+        public float this[int i]=>i==0?x:i==1?y:i==2?z:w;
+        public bool Equals(Vector4 other)=>x.Equals(other.x)&&y.Equals(other.y)&&z.Equals(other.z)&&w.Equals(other.w);
+        public override bool Equals(object other)=>other is Vector4 v&&Equals(v);
+        public override int GetHashCode()=>HashCode.Combine(x,y,z,w);
+    }
+    public struct Matrix4x4:IEquatable<Matrix4x4>
+    {
+        public System.Numerics.Matrix4x4 Value;
+        public static Matrix4x4 identity=>new Matrix4x4{Value=System.Numerics.Matrix4x4.Identity};
+        public static Matrix4x4 Translate(float x)=>new Matrix4x4{Value=System.Numerics.Matrix4x4.CreateTranslation(x,0,0)};
+        public static Matrix4x4 Scale(float x)=>new Matrix4x4{Value=System.Numerics.Matrix4x4.CreateScale(x,1,1)};
+        public float determinant=>Value.GetDeterminant();
+        public Matrix4x4 inverse { get { System.Numerics.Matrix4x4.Invert(Value,out var inverse);return new Matrix4x4{Value=inverse}; } }
+        public float this[int index]=>index switch {
+            0=>Value.M11,1=>Value.M12,2=>Value.M13,3=>Value.M14,4=>Value.M21,5=>Value.M22,6=>Value.M23,7=>Value.M24,
+            8=>Value.M31,9=>Value.M32,10=>Value.M33,11=>Value.M34,12=>Value.M41,13=>Value.M42,14=>Value.M43,_=>Value.M44};
+        public bool Equals(Matrix4x4 other)=>Value.Equals(other.Value);
+        public override bool Equals(object other)=>other is Matrix4x4 value&&Equals(value);
+        public override int GetHashCode()=>Value.GetHashCode();
+    }
+    public struct Bounds:IEquatable<Bounds>
+    {
+        public float Center,Extent;
+        public bool Equals(Bounds other)=>Center==other.Center&&Extent==other.Extent;
+        public override bool Equals(object other)=>other is Bounds value&&Equals(value);
+        public override int GetHashCode()=>HashCode.Combine(Center,Extent);
+    }
+    public enum MeshTopology { Triangles,Lines }
+    public sealed class Mesh:Object
+    {
+        public bool isReadable=true,ThrowTopology,ThrowFingerprint,ThrowAcquire;
+        public int blendShapeCount,FingerprintCalls;
+        public string Content="initial";
+        public MeshTopology[] Topologies={MeshTopology.Triangles};
+        public int subMeshCount=>Topologies.Length;
+        public int[] StreamBytes={96};public int IndexBytes=12,AttributeCount=3,BoneCountBytes,BoneWeights;
+        public Matrix4x4[] bindposes=Array.Empty<Matrix4x4>();
+        public MeshTopology GetTopology(int i) { if(ThrowTopology) throw new InvalidOperationException("Injected topology read failure");return Topologies[i]; }
+        public int[] GetVertexAttributes()=>new int[AttributeCount];
+        public byte[] GetBonesPerVertex()=>new byte[BoneCountBytes];
+        public int[] GetAllBoneWeights()=>new int[BoneWeights];
+        public static MeshDataArray AcquireReadOnlyMeshData(Mesh mesh)
+        { if(mesh.ThrowAcquire) throw new InvalidOperationException("Injected mesh read failure");return new MeshDataArray(mesh); }
+        public sealed class MeshDataArray:IDisposable
+        { private readonly Mesh mesh;public MeshDataArray(Mesh value){mesh=value;}public MeshData this[int i]=>new MeshData(mesh);public void Dispose(){} }
+        public readonly struct MeshData
+        {
+            private readonly Mesh mesh;public MeshData(Mesh value){mesh=value;}
+            public int vertexBufferCount=>mesh.StreamBytes.Length;
+            public int subMeshCount=>mesh.subMeshCount;
+            public T[] GetVertexData<T>(int stream)=>new T[mesh.StreamBytes[stream]];
+            public T[] GetIndexData<T>()=>new T[mesh.IndexBytes];
+        }
+    }
+    public sealed class Material:Object { public int Value;public bool Supported=true,Reusable=true; }
+    public sealed class Renderer:Object
+    {
+        public Mesh Mesh=new Mesh();public Material[] Materials={new Material()};
+        public GameObject gameObject=new GameObject();
+        public uint renderingLayerMask=1;public bool receiveShadows=true;
+        public int lightmapIndex=-1,realtimeLightmapIndex=-1;
+        public Vector4 lightmapScaleOffset=new Vector4(1,1,0,0),realtimeLightmapScaleOffset=new Vector4(1,1,0,0);
+        public Matrix4x4 Matrix=Matrix4x4.identity;
+        public Bounds Bounds=new Bounds{Extent=1};
+        public int[] Mpb={0};public bool ThrowMatrix,ThrowMaterial;
+        public Matrix4x4 localToWorldMatrix=>ThrowMatrix?throw new InvalidOperationException("Injected transform read failure"):Matrix;
+    }
+    public sealed class GameObject { public int layer; }
+    public sealed class Camera:Object { public int cullingMask=-1;public Matrix4x4 cullingMatrix=Matrix4x4.identity; }
+}
+
+namespace HybridLumenGI
+{
+    public sealed class HybridLumenGIReceiverDiscovery
+    {
+        [Flags] public enum IdentityIssues { None=0,Unsupported=1 }
+        public sealed class Candidate
+        {
+            public UnityEngine.Renderer Renderer { get; }
+            public UnityEngine.Mesh Mesh { get; }
+            public IReadOnlyList<UnityEngine.Material> Materials { get; }
+            public UnityEngine.Bounds Bounds { get; }
+            public UnityEngine.Matrix4x4 LocalToWorld { get; }
+            public IdentityIssues IdentityIssues { get; }
+            public bool HasOpaqueMaterials=>true;
+            public Candidate(UnityEngine.Renderer renderer,IdentityIssues issues=IdentityIssues.None)
+            { Renderer=renderer;Mesh=renderer.Mesh;Materials=Array.AsReadOnly((UnityEngine.Material[])renderer.Materials.Clone());Bounds=renderer.Bounds;LocalToWorld=renderer.Matrix;IdentityIssues=issues; }
+        }
+        public sealed class Snapshot
+        {
+            public UnityEngine.Camera Camera { get; }
+            public UnityEngine.LayerMask SelectedLayers { get; }
+            public UnityEngine.Matrix4x4 CullingMatrix { get; }
+            public int CameraCullingMask { get; }
+            public int EffectiveLayerMask { get; }
+            public IReadOnlyList<Candidate> Candidates { get; }
+            public bool ScanComplete { get; }
+            public bool HasUnknownSources { get; }
+            public Snapshot(UnityEngine.Camera camera,IEnumerable<Candidate> values,bool complete=true,bool unknown=false,int layers=-1)
+            { Camera=camera;SelectedLayers=layers;CullingMatrix=camera.cullingMatrix;CameraCullingMask=camera.cullingMask;EffectiveLayerMask=layers&CameraCullingMask;Candidates=Array.AsReadOnly(new List<Candidate>(values).ToArray());ScanComplete=complete;HasUnknownSources=unknown; }
+        }
+    }
+    public sealed class HybridLumenGIMaterialSource
+    {
+        public sealed class Snapshot:IEquatable<Snapshot>
+        {
+            private readonly UnityEngine.Renderer renderer;
+            private readonly UnityEngine.Material material;
+            private readonly int index,value,mpb;
+            public bool CanReuseHistory { get; }
+            internal Snapshot(UnityEngine.Renderer r,int i,UnityEngine.Material m)
+            { renderer=r;material=m;index=i;value=m.Value;mpb=r.Mpb[i];CanReuseHistory=m.Reusable; }
+            public bool Equals(Snapshot other)=>other!=null&&ReferenceEquals(renderer,other.renderer)&&ReferenceEquals(material,other.material)&&index==other.index&&value==other.value&&mpb==other.mpb&&CanReuseHistory==other.CanReuseHistory;
+            public override bool Equals(object other)=>other is Snapshot s&&Equals(s);
+            public override int GetHashCode()=>index;
+        }
+        public bool TryCapture(UnityEngine.Renderer renderer,int index,UnityEngine.Material expected,out Snapshot snapshot,out string reason)
+        {
+            snapshot=null;reason=null;
+            if(renderer.ThrowMaterial) throw new InvalidOperationException("Injected material read failure");
+            if(expected==null||!expected.Supported||index<0||index>=renderer.Materials.Length||!ReferenceEquals(renderer.Materials[index],expected)){reason="unsupported/changed";return false;}
+            snapshot=new Snapshot(renderer,index,expected);return true;
+        }
+        public bool IsCurrent(UnityEngine.Renderer renderer,int index,Snapshot previous)=>
+            TryCapture(renderer,index,renderer.Materials[index],out Snapshot now,out _)&&now.Equals(previous);
+    }
+    public static class HybridLumenGISurfaceCharts
+    {
+        public static string ComputeContentFingerprint(UnityEngine.Mesh mesh)
+        { mesh.FingerprintCalls++;if(mesh.ThrowFingerprint) throw new InvalidOperationException("Injected fingerprint failure");return mesh.Content; }
+    }
+}

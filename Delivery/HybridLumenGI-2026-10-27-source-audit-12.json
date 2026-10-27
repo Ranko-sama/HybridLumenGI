@@ -1,0 +1,1083 @@
+{
+  "status": "passed",
+  "scope": "Independent archive integrity/source binding/evidence audit; no Unity or physical GPU execution",
+  "auditRoot": "C:/Users/Administrator/AppData/Local/Temp/hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac",
+  "startedUtc": "2026-10-27T01:29:04.4069254Z",
+  "formalDxcCategories": {
+    "core": 46,
+    "nativeDiffuse": 42,
+    "globalSdf": 3,
+    "receiverPolicy": 22,
+    "receiverIdentity": 12,
+    "receiverTemporalHelper": 1,
+    "total": 126
+  },
+  "companionReportsMatched": 7,
+  "identity": {
+    "sha256": "758DF91E2477F8D3F895C4C4004AB416D8EFEC678F15A276B1BC67F5F3B4A6A2",
+    "actualListingAndDxilPairs": 12,
+    "actualIncludeFiles": 68,
+    "debugEntries": 3,
+    "sourceRowsBefore": 4,
+    "sourceRowsAfter": 4
+  },
+  "temporal": {
+    "sha256": "3CEA100B196B7D5B61D8BD457B89B1B3936F4B86A38D580FD01D57C7590FBFFA",
+    "actualArtifacts": 7,
+    "originalLogs": 9,
+    "sourceRowsBefore": 8,
+    "sourceRowsAfter": 8,
+    "actualOracleCount": 2179,
+    "actualOracleChecks": 46841,
+    "executableMachine": "x64 PE",
+    "warpRerun": false
+  },
+  "identityNegative": {
+    "sha256": "B0318D01AC9BFE3523F31355FCC0D0C0C620A7266A5FAA01F0D96BB7219E824B",
+    "originalInputsAndLogs": 62,
+    "freshRejectedCases": 62,
+    "freshPositiveControls": 2,
+    "acceptedBoundaryProbes": 4,
+    "originalInputAuditFiles": 120,
+    "boundary": "Actual valid-format but false hashes, missing actual file paths, and debugVariant boolean alone are outside this metadata verifier gate. The immutable baseline actual artifacts were separately opened and verified by input-audit.json. Accepted probes are disclosed and do not count as rejected negatives.",
+    "rechecks": [
+      {
+        "name": "positive-before",
+        "expected": "accepted",
+        "accepted": true,
+        "exception": "",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\positive-before.identity-recheck.log",
+        "logSha256": "B0811BDFD198E9167542F06CAE984576DF4318A7FB80047B66CCA48B9A80B222"
+      },
+      {
+        "name": "positive-after",
+        "expected": "accepted",
+        "accepted": true,
+        "exception": "",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\positive-after.identity-recheck.log",
+        "logSha256": "B0811BDFD198E9167542F06CAE984576DF4318A7FB80047B66CCA48B9A80B222"
+      },
+      {
+        "name": "identity-missing-artifact",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-missing-artifact.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-failed-status",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-failed-status.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-wrong-schema",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-wrong-schema.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-wrong-kind",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-wrong-kind.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-no-completion",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-no-completion.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-script-changed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-script-changed.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-source-change",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-source-change.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-include-change",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-include-change.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-wrong-script-name",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-wrong-script-name.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-wrong-script-sha",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-wrong-script-sha.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-wrong-unity-revision",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity shader artifact is missing, stale or failed.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-wrong-unity-revision.identity-recheck.log",
+        "logSha256": "E327988B307303AF7A8AECC3B09D0630411FA414C9A7AF3187CEAB73E980AD21"
+      },
+      {
+        "name": "identity-source-bad-hash",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-source-bad-hash.identity-recheck.log",
+        "logSha256": "665E74AE019853CFB63F8109AE73FAEB6F96F494F41CCCCAF42573ED53CEAE51"
+      },
+      {
+        "name": "identity-source-missing",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity validation source coverage is incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-source-missing.identity-recheck.log",
+        "logSha256": "A5C8DA4DBAAB5BFB9B15DE78852936D5F43006B374EBC3A47C901DF3FE630C7B"
+      },
+      {
+        "name": "identity-source-duplicate",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-source-duplicate.identity-recheck.log",
+        "logSha256": "665E74AE019853CFB63F8109AE73FAEB6F96F494F41CCCCAF42573ED53CEAE51"
+      },
+      {
+        "name": "identity-source-unknown",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity validation source mismatch: Runtime/Unknown.cs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-source-unknown.identity-recheck.log",
+        "logSha256": "1494E140280F762024D724E167FD5374D03EECEFE98833ADCFBEBCD8F847C191"
+      },
+      {
+        "name": "identity-sources-after-bad-hash",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-sources-after-bad-hash.identity-recheck.log",
+        "logSha256": "665E74AE019853CFB63F8109AE73FAEB6F96F494F41CCCCAF42573ED53CEAE51"
+      },
+      {
+        "name": "identity-sources-after-missing",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity validation source coverage is incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-sources-after-missing.identity-recheck.log",
+        "logSha256": "A5C8DA4DBAAB5BFB9B15DE78852936D5F43006B374EBC3A47C901DF3FE630C7B"
+      },
+      {
+        "name": "identity-compiler-failed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-vs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-compiler-failed.identity-recheck.log",
+        "logSha256": "334642402D247D470E116CD6C57DBDECB8B86918380FAFA04500B5CAF6C63BC1"
+      },
+      {
+        "name": "identity-check-failed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-vs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-check-failed.identity-recheck.log",
+        "logSha256": "334642402D247D470E116CD6C57DBDECB8B86918380FAFA04500B5CAF6C63BC1"
+      },
+      {
+        "name": "identity-compiler-duplicate",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-vs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-compiler-duplicate.identity-recheck.log",
+        "logSha256": "334642402D247D470E116CD6C57DBDECB8B86918380FAFA04500B5CAF6C63BC1"
+      },
+      {
+        "name": "identity-compiler-missing",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity compiler coverage is incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-compiler-missing.identity-recheck.log",
+        "logSha256": "7CFA4480370B314C3E258615F495C846E5D0DFA5C589953D479A8D75A03F18EE"
+      },
+      {
+        "name": "identity-checks-empty",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity compiler coverage is incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-checks-empty.identity-recheck.log",
+        "logSha256": "7CFA4480370B314C3E258615F495C846E5D0DFA5C589953D479A8D75A03F18EE"
+      },
+      {
+        "name": "identity-wrong-debug-variant-name",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-ps-debug-WRONG",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-wrong-debug-variant-name.identity-recheck.log",
+        "logSha256": "05BCCB817A1FC109F7BAF94C3A6A149CAA6BE04580B344C0BC124152136C1AF1"
+      },
+      {
+        "name": "identity-wrong-entry",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-vs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-wrong-entry.identity-recheck.log",
+        "logSha256": "334642402D247D470E116CD6C57DBDECB8B86918380FAFA04500B5CAF6C63BC1"
+      },
+      {
+        "name": "identity-wrong-profile",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-vs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-wrong-profile.identity-recheck.log",
+        "logSha256": "334642402D247D470E116CD6C57DBDECB8B86918380FAFA04500B5CAF6C63BC1"
+      },
+      {
+        "name": "identity-signature-false",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-vs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-signature-false.identity-recheck.log",
+        "logSha256": "334642402D247D470E116CD6C57DBDECB8B86918380FAFA04500B5CAF6C63BC1"
+      },
+      {
+        "name": "identity-validation-error",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-vs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-validation-error.identity-recheck.log",
+        "logSha256": "334642402D247D470E116CD6C57DBDECB8B86918380FAFA04500B5CAF6C63BC1"
+      },
+      {
+        "name": "identity-log-missing",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-vs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-log-missing.identity-recheck.log",
+        "logSha256": "334642402D247D470E116CD6C57DBDECB8B86918380FAFA04500B5CAF6C63BC1"
+      },
+      {
+        "name": "identity-listing-hash-malformed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-vs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-listing-hash-malformed.identity-recheck.log",
+        "logSha256": "334642402D247D470E116CD6C57DBDECB8B86918380FAFA04500B5CAF6C63BC1"
+      },
+      {
+        "name": "identity-dxil-hash-missing",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity compiler evidence: identity-cull-Off-vs",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-dxil-hash-missing.identity-recheck.log",
+        "logSha256": "334642402D247D470E116CD6C57DBDECB8B86918380FAFA04500B5CAF6C63BC1"
+      },
+      {
+        "name": "identity-includes-empty",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Missing identity include: Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-includes-empty.identity-recheck.log",
+        "logSha256": "1DD9990136D4C99B068D3FB803569F3D3860C964B3B3123B375BA76F32763CEA"
+      },
+      {
+        "name": "identity-include-duplicate",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity include evidence.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-include-duplicate.identity-recheck.log",
+        "logSha256": "48D3C083AC163B4311A8C94E6AD316C77C6FA35BDB2E4A018458D4015E8324C5"
+      },
+      {
+        "name": "identity-include-hash-malformed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid identity include evidence.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\identity-include-hash-malformed.identity-recheck.log",
+        "logSha256": "48D3C083AC163B4311A8C94E6AD316C77C6FA35BDB2E4A018458D4015E8324C5"
+      },
+      {
+        "name": "temporal-missing-artifact",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-missing-artifact.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-failed-status",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-failed-status.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-wrong-schema",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-wrong-schema.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-wrong-kind",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-wrong-kind.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-no-completion",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-no-completion.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-error",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-error.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-source-changes",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-source-changes.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-warp-not-executed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-warp-not-executed.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-claims-unity-executed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-claims-unity-executed.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-claims-physical-gpu-executed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-claims-physical-gpu-executed.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-oracle-failed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-oracle-failed.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-oracle-wrong-count",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-oracle-wrong-count.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-oracle-wrong-checks",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-oracle-wrong-checks.identity-recheck.log",
+        "logSha256": "EBBAF6CD4C47B53B34E92D7FD114A6A88D8C82D85374AE0BC68C578B9C56CEDA"
+      },
+      {
+        "name": "temporal-source-bad-hash",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-source-bad-hash.identity-recheck.log",
+        "logSha256": "E2DA84DBA186B3EB6848E711280E248CF714A1CE2B972548AD2E1CFF8BB86E06"
+      },
+      {
+        "name": "temporal-sources-after-bad-hash",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-sources-after-bad-hash.identity-recheck.log",
+        "logSha256": "E2DA84DBA186B3EB6848E711280E248CF714A1CE2B972548AD2E1CFF8BB86E06"
+      },
+      {
+        "name": "temporal-source-missing",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity validation source coverage is incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-source-missing.identity-recheck.log",
+        "logSha256": "A5C8DA4DBAAB5BFB9B15DE78852936D5F43006B374EBC3A47C901DF3FE630C7B"
+      },
+      {
+        "name": "temporal-source-duplicate",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-source-duplicate.identity-recheck.log",
+        "logSha256": "E2DA84DBA186B3EB6848E711280E248CF714A1CE2B972548AD2E1CFF8BB86E06"
+      },
+      {
+        "name": "temporal-stage-failed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid actual temporal stage: warp-execute",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-stage-failed.identity-recheck.log",
+        "logSha256": "13DC7992B44CEACEDC77188D5C929D583EDA20B63A164530E175762C43739B4E"
+      },
+      {
+        "name": "temporal-stage-duplicate",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid actual temporal stage: vswhere",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-stage-duplicate.identity-recheck.log",
+        "logSha256": "EBA85A8999B4984C5191AE49806CDCA1BA6EB4FEFB195E77CBD1471A73939FE6"
+      },
+      {
+        "name": "temporal-stage-missing",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual temporal stages are incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-stage-missing.identity-recheck.log",
+        "logSha256": "8095E45892F5B6F8C369A990B3929AE75D1AB178E204AF0A873C2131CA4AA014"
+      },
+      {
+        "name": "temporal-checks-empty",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual temporal stages are incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-checks-empty.identity-recheck.log",
+        "logSha256": "8095E45892F5B6F8C369A990B3929AE75D1AB178E204AF0A873C2131CA4AA014"
+      },
+      {
+        "name": "temporal-stage-output-empty",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid actual temporal stage: warp-execute",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-stage-output-empty.identity-recheck.log",
+        "logSha256": "13DC7992B44CEACEDC77188D5C929D583EDA20B63A164530E175762C43739B4E"
+      },
+      {
+        "name": "temporal-stage-log-missing",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid actual temporal stage: vswhere",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-stage-log-missing.identity-recheck.log",
+        "logSha256": "EBA85A8999B4984C5191AE49806CDCA1BA6EB4FEFB195E77CBD1471A73939FE6"
+      },
+      {
+        "name": "temporal-binary-artifact-missing",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual temporal artifact coverage is incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-binary-artifact-missing.identity-recheck.log",
+        "logSha256": "AE7598AFB0D57A71EF387D1B4A1058004DC516B556513ECCCDAC3E72018BD4B7"
+      },
+      {
+        "name": "temporal-binary-hash-malformed",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid actual temporal artifact: ReceiverTemporalWarp.exe",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-binary-hash-malformed.identity-recheck.log",
+        "logSha256": "02DFBBD9AAD076C6F3F27C5DE912E0C14598E13D03E00D3DEBF9674DC6682753"
+      },
+      {
+        "name": "temporal-binary-zero-bytes",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid actual temporal artifact: ReceiverTemporalWarp.exe",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-binary-zero-bytes.identity-recheck.log",
+        "logSha256": "02DFBBD9AAD076C6F3F27C5DE912E0C14598E13D03E00D3DEBF9674DC6682753"
+      },
+      {
+        "name": "temporal-artifact-duplicate",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid actual temporal artifact: receiver-temporal.dxil",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-artifact-duplicate.identity-recheck.log",
+        "logSha256": "0A43413A75E1B01A787B8C29D52C09D193A70546CE81062EBE37D5C5B27DB170"
+      },
+      {
+        "name": "temporal-artifact-unknown-name",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Invalid actual temporal artifact: NotExpected.dxil",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-artifact-unknown-name.identity-recheck.log",
+        "logSha256": "FAF5F609AD00B5565F79216C3D7CA1B7F6A03342F81A56ADA617986ABBAF08D5"
+      },
+      {
+        "name": "temporal-artifacts-empty",
+        "expected": "rejected",
+        "accepted": false,
+        "exception": "Actual temporal artifact coverage is incomplete.",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\temporal-artifacts-empty.identity-recheck.log",
+        "logSha256": "AE7598AFB0D57A71EF387D1B4A1058004DC516B556513ECCCDAC3E72018BD4B7"
+      },
+      {
+        "name": "boundary-temporal-valid-format-wrong-content-hash",
+        "expected": "accepted",
+        "accepted": true,
+        "exception": "",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\boundary-temporal-valid-format-wrong-content-hash.identity-recheck.log",
+        "logSha256": "B0811BDFD198E9167542F06CAE984576DF4318A7FB80047B66CCA48B9A80B222"
+      },
+      {
+        "name": "boundary-temporal-unavailable-binary-path",
+        "expected": "accepted",
+        "accepted": true,
+        "exception": "",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\boundary-temporal-unavailable-binary-path.identity-recheck.log",
+        "logSha256": "B0811BDFD198E9167542F06CAE984576DF4318A7FB80047B66CCA48B9A80B222"
+      },
+      {
+        "name": "boundary-identity-valid-format-wrong-dxil-hash",
+        "expected": "accepted",
+        "accepted": true,
+        "exception": "",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\boundary-identity-valid-format-wrong-dxil-hash.identity-recheck.log",
+        "logSha256": "B0811BDFD198E9167542F06CAE984576DF4318A7FB80047B66CCA48B9A80B222"
+      },
+      {
+        "name": "boundary-identity-debug-label-boolean-not-enforced",
+        "expected": "accepted",
+        "accepted": true,
+        "exception": "",
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\boundary-identity-debug-label-boolean-not-enforced.identity-recheck.log",
+        "logSha256": "B0811BDFD198E9167542F06CAE984576DF4318A7FB80047B66CCA48B9A80B222"
+      }
+    ]
+  },
+  "supplementalAuditScriptSha256": "FCDF8E9E1C237046B263AD6BCF1D0B4050549F315E661C77FF95B16C06193F3A",
+  "assertions": 8661,
+  "workspaceModified": false,
+  "auditScriptSha256": "1A748F3EC81153CCF4ECB84ECFA387D940E566E7A8DAC228E01EA3B83D4D210D",
+  "previousAuditScriptSha256": "9F655A44324D83125B5F52E9EB80EED846145C1B07A569DFF85194919E30F2D6",
+  "generatedManifestException": "SOURCE-MANIFEST.json is generated, outside payload, with no Unity meta",
+  "unityIgnoredTree": "Runtime/Native~ is ignored by Unity; its physical source/meta payload bytes were still checked",
+  "archive": {
+    "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Delivery\\HybridLumenGI-2026-10-27-integration-12.zip",
+    "bytes": 986153,
+    "sha256": "2903E0ECDBF38EB1C6745BB51F1B808C72D84BDE8D4DD747C8681E554B04434A",
+    "entries": 501,
+    "payload": 500,
+    "exactCurrentBytesMatched": 500,
+    "metas": 267,
+    "uniqueGuids": 267,
+    "folders": 34,
+    "unexpectedBuildFiles": 0
+  },
+  "mainReport": {
+    "sha256": "F04F87470C97A042927B703C8A8627A3DF329525A1CD30C8DF51753FE514F5B1",
+    "stages": 55,
+    "selectedDxcChecks": 126,
+    "boundSources": 190,
+    "originalLogsChecked": 55
+  },
+  "negative": {
+    "sha256": "A080BBB913F66911A795C8159BE04AA6D692A74E50EB884BD59D58DB58A077E8",
+    "originalInputsAndLogs": 71,
+    "native": 18,
+    "general": 53,
+    "originalControls": 2,
+    "freshRejectedCases": 71,
+    "freshPositiveControls": 2,
+    "rechecks": [
+      {
+        "name": "main-before",
+        "accepted": true,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\main-before.recheck.log"
+      },
+      {
+        "name": "missing-native-gpu-stage",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-native-gpu-stage.recheck.log"
+      },
+      {
+        "name": "missing-native-bridge-stage",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-native-bridge-stage.recheck.log"
+      },
+      {
+        "name": "duplicate-native-gpu-stage",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\duplicate-native-gpu-stage.recheck.log"
+      },
+      {
+        "name": "missing-native-evidence",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-native-evidence.recheck.log"
+      },
+      {
+        "name": "warp-failed",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\warp-failed.recheck.log"
+      },
+      {
+        "name": "warp-missing",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\warp-missing.recheck.log"
+      },
+      {
+        "name": "warp-not-executed",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\warp-not-executed.recheck.log"
+      },
+      {
+        "name": "native-cpp-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\native-cpp-hash.recheck.log"
+      },
+      {
+        "name": "native-after-build-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\native-after-build-hash.recheck.log"
+      },
+      {
+        "name": "unity-header-pin",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\unity-header-pin.recheck.log"
+      },
+      {
+        "name": "unity-header-commit",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\unity-header-commit.recheck.log"
+      },
+      {
+        "name": "cpu-test-exe-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\cpu-test-exe-hash.recheck.log"
+      },
+      {
+        "name": "warp-test-exe-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\warp-test-exe-hash.recheck.log"
+      },
+      {
+        "name": "warp-dll-argument",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\warp-dll-argument.recheck.log"
+      },
+      {
+        "name": "false-unity-validation",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\false-unity-validation.recheck.log"
+      },
+      {
+        "name": "false-physical-gpu-validation",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\false-physical-gpu-validation.recheck.log"
+      },
+      {
+        "name": "failed-native-build-stage",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\failed-native-build-stage.recheck.log"
+      },
+      {
+        "name": "native-script-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\native-script-hash.recheck.log"
+      },
+      {
+        "name": "missing-HistoryLifecycle",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-HistoryLifecycle.recheck.log"
+      },
+      {
+        "name": "missing-ProxyUpdates",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-ProxyUpdates.recheck.log"
+      },
+      {
+        "name": "missing-Validate-SurfaceGeometryNormals",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-Validate-SurfaceGeometryNormals.recheck.log"
+      },
+      {
+        "name": "missing-transport-normal-reference",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-transport-normal-reference.recheck.log"
+      },
+      {
+        "name": "missing-Validate-ScreenGeometryPacking",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-Validate-ScreenGeometryPacking.recheck.log"
+      },
+      {
+        "name": "current-source-hash-1",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-source-hash-1.recheck.log"
+      },
+      {
+        "name": "current-source-hash-2",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-source-hash-2.recheck.log"
+      },
+      {
+        "name": "current-source-hash-3",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-source-hash-3.recheck.log"
+      },
+      {
+        "name": "missing-Validate-SurfaceHitIdentity",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-Validate-SurfaceHitIdentity.recheck.log"
+      },
+      {
+        "name": "current-source-hash-4",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-source-hash-4.recheck.log"
+      },
+      {
+        "name": "current-source-hash-5",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-source-hash-5.recheck.log"
+      },
+      {
+        "name": "current-source-hash-6",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-source-hash-6.recheck.log"
+      },
+      {
+        "name": "missing-Lighting",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-Lighting.recheck.log"
+      },
+      {
+        "name": "missing-Validate-DirectLighting",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-Validate-DirectLighting.recheck.log"
+      },
+      {
+        "name": "missing-Validate-ReceiverPolicyCapture",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-Validate-ReceiverPolicyCapture.recheck.log"
+      },
+      {
+        "name": "missing-ReceiverPolicyShaders",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-ReceiverPolicyShaders.recheck.log"
+      },
+      {
+        "name": "current-lights-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-lights-source-hash.recheck.log"
+      },
+      {
+        "name": "current-lighting-policy-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-lighting-policy-source-hash.recheck.log"
+      },
+      {
+        "name": "missing-receiver-policy-evidence",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-receiver-policy-evidence.recheck.log"
+      },
+      {
+        "name": "receiver-integer-signature-false",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\receiver-integer-signature-false.recheck.log"
+      },
+      {
+        "name": "receiver-instanced-array-false",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\receiver-instanced-array-false.recheck.log"
+      },
+      {
+        "name": "receiver-include-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\receiver-include-hash.recheck.log"
+      },
+      {
+        "name": "duplicate-receiver-compiler-entry",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\duplicate-receiver-compiler-entry.recheck.log"
+      },
+      {
+        "name": "receiver-helper-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\receiver-helper-source-hash.recheck.log"
+      },
+      {
+        "name": "missing-Validate-ScreenSampling",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-Validate-ScreenSampling.recheck.log"
+      },
+      {
+        "name": "current-screen-sampling-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-screen-sampling-source-hash.recheck.log"
+      },
+      {
+        "name": "current-history-lifecycle-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-history-lifecycle-source-hash.recheck.log"
+      },
+      {
+        "name": "receiver-signature-text-float",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\receiver-signature-text-float.recheck.log"
+      },
+      {
+        "name": "receiver-dxil-identity-empty",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\receiver-dxil-identity-empty.recheck.log"
+      },
+      {
+        "name": "receiver-and-core-includes-empty",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\receiver-and-core-includes-empty.recheck.log"
+      },
+      {
+        "name": "missing-MeshSource",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-MeshSource.recheck.log"
+      },
+      {
+        "name": "missing-MaterialSource",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-MaterialSource.recheck.log"
+      },
+      {
+        "name": "missing-ReceiverHistory",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-ReceiverHistory.recheck.log"
+      },
+      {
+        "name": "current-receiver-registry-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-receiver-registry-source-hash.recheck.log"
+      },
+      {
+        "name": "current-receiver-history-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-receiver-history-source-hash.recheck.log"
+      },
+      {
+        "name": "current-mesh-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-mesh-source-hash.recheck.log"
+      },
+      {
+        "name": "current-material-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-material-source-hash.recheck.log"
+      },
+      {
+        "name": "current-receiver-discovery-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-receiver-discovery-source-hash.recheck.log"
+      },
+      {
+        "name": "missing-ReceiverIdentityFrame",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-ReceiverIdentityFrame.recheck.log"
+      },
+      {
+        "name": "missing-ReceiverIdentityPass",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-ReceiverIdentityPass.recheck.log"
+      },
+      {
+        "name": "missing-ScreenBudget",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-ScreenBudget.recheck.log"
+      },
+      {
+        "name": "missing-Validate-ReceiverIdentity",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-Validate-ReceiverIdentity.recheck.log"
+      },
+      {
+        "name": "missing-ReceiverIdentityShaders",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-ReceiverIdentityShaders.recheck.log"
+      },
+      {
+        "name": "missing-ReceiverTemporal",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-ReceiverTemporal.recheck.log"
+      },
+      {
+        "name": "current-receiver-identity-frame-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-receiver-identity-frame-source-hash.recheck.log"
+      },
+      {
+        "name": "current-receiver-identity-pass-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-receiver-identity-pass-source-hash.recheck.log"
+      },
+      {
+        "name": "current-screen-budget-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-screen-budget-source-hash.recheck.log"
+      },
+      {
+        "name": "current-receiver-identity-compute-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-receiver-identity-compute-source-hash.recheck.log"
+      },
+      {
+        "name": "current-receiver-identity-helper-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-receiver-identity-helper-source-hash.recheck.log"
+      },
+      {
+        "name": "current-receiver-identity-shader-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-receiver-identity-shader-source-hash.recheck.log"
+      },
+      {
+        "name": "current-receiver-temporal-helper-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\current-receiver-temporal-helper-source-hash.recheck.log"
+      },
+      {
+        "name": "missing-receiver-identity-artifact",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-receiver-identity-artifact.recheck.log"
+      },
+      {
+        "name": "missing-receiver-temporal-artifact",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\missing-receiver-temporal-artifact.recheck.log"
+      },
+      {
+        "name": "main-after",
+        "accepted": true,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source12-independent-audit-c02bf3203c9f4b379887ed9362c9c0ac\\main-after.recheck.log"
+      }
+    ]
+  },
+  "receiver": {
+    "sha256": "375E77C75EDECBC28E8F59B8773DB9B432444C12892B78DAB85C76333A7A70EF",
+    "embeddedReportMatched": true,
+    "actualListingAndDxilPairs": 22,
+    "actualIncludeFiles": 68,
+    "requiredIncludes": [
+      "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl",
+      "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityInput.hlsl",
+      "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl",
+      "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl",
+      "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl",
+      "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
+    ]
+  },
+  "previousArchiveSha256": "BF26B2F0B55449C010C8A743DACB647E9C2A3655F4A9CD47D2A795FE244CA79B",
+  "unityExecuted": false,
+  "physicalGpuExecuted": false,
+  "completedUtc": "2026-10-27T01:29:11.5887552Z"
+}

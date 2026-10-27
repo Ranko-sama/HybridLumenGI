@@ -1,0 +1,143 @@
+using System;
+using N = System.Numerics;
+namespace UnityEngine
+{
+    [AttributeUsage(AttributeTargets.Field)] public sealed class SerializeField : Attribute { }
+    public class Object { public string name = "test"; }
+    public class ScriptableObject : Object { }
+    public class Mesh : Object
+    {
+        private Vector3[] positions={new(0,0,0),new(1,0,0),new(0,1,0)};
+        private int[] indices={0,1,2};
+        public bool isReadable=true; public int subMeshCount=1,GeometryReads;
+        public Bounds bounds=new(Vector3.zero,Vector3.one*2);
+        public int vertexCount=>positions.Length;
+        public Vector3[] vertices {get{GeometryReads++;return (Vector3[])positions.Clone();}set{positions=(Vector3[])value.Clone();}}
+        public int[] triangles {get{GeometryReads++;return (int[])indices.Clone();}set{indices=(int[])value.Clone();}}
+    }
+    public class MeshFilter { public Mesh sharedMesh; }
+    public class Renderer : Object { public MeshFilter Filter; public T GetComponent<T>() where T : class => Filter as T; }
+    public class MeshRenderer : Renderer { }
+    public struct Vector3 : IEquatable<Vector3>
+    {
+        public float x,y,z; public Vector3(float a,float b,float c){x=a;y=b;z=c;}
+        public static Vector3 zero => new(0,0,0); public static Vector3 one => new(1,1,1);
+        public float magnitude => MathF.Sqrt(x*x+y*y+z*z);
+        public static Vector3 operator +(Vector3 a,Vector3 b)=>new(a.x+b.x,a.y+b.y,a.z+b.z);
+        public static Vector3 operator -(Vector3 a,Vector3 b)=>new(a.x-b.x,a.y-b.y,a.z-b.z);
+        public static Vector3 operator *(Vector3 a,float s)=>new(a.x*s,a.y*s,a.z*s);
+        public static Vector3 operator /(Vector3 a,float s)=>a*(1/s);
+        public bool Equals(Vector3 b)=>x.Equals(b.x)&&y.Equals(b.y)&&z.Equals(b.z);
+    }
+    public struct Vector4 : IEquatable<Vector4>
+    {
+        public float x,y,z,w; public Vector4(float a,float b,float c,float d){x=a;y=b;z=c;w=d;}
+        public bool Equals(Vector4 b)=>x.Equals(b.x)&&y.Equals(b.y)&&z.Equals(b.z)&&w.Equals(b.w);
+        public override bool Equals(object b)=>b is Vector4 v&&Equals(v);
+        public override int GetHashCode()=>HashCode.Combine(x,y,z,w);
+        // Unity's operator is approximate while Equals is component-exact. This
+        // distinction matters when proving that local SDF metadata did not change.
+        public static bool operator ==(Vector4 a,Vector4 b)
+        {float x=a.x-b.x,y=a.y-b.y,z=a.z-b.z,w=a.w-b.w;return x*x+y*y+z*z+w*w<1e-10f;}
+        public static bool operator !=(Vector4 a,Vector4 b)=>!(a==b);
+    }
+    public struct Bounds : IEquatable<Bounds>
+    {
+        public Vector3 center,size; public Bounds(Vector3 c,Vector3 s){center=c;size=s;}
+        public Vector3 min=>center-size*.5f; public Vector3 max=>center+size*.5f;
+        public void Encapsulate(Vector3 p)
+        {
+            Vector3 a=min,b=max;
+            var low=new Vector3(MathF.Min(a.x,p.x),MathF.Min(a.y,p.y),MathF.Min(a.z,p.z));
+            var high=new Vector3(MathF.Max(b.x,p.x),MathF.Max(b.y,p.y),MathF.Max(b.z,p.z));
+            center=(low+high)*.5f;size=high-low;
+        }
+        public bool Contains(Vector3 p)=>p.x>=min.x&&p.y>=min.y&&p.z>=min.z&&p.x<=max.x&&p.y<=max.y&&p.z<=max.z;
+        public bool Equals(Bounds b)=>center.Equals(b.center)&&size.Equals(b.size);
+        public override bool Equals(object b)=>b is Bounds v&&Equals(v);
+        public override int GetHashCode()=>HashCode.Combine(center,size);
+    }
+    public struct Matrix4x4 : IEquatable<Matrix4x4>
+    {
+        public N.Matrix4x4 value;
+        public static Matrix4x4 identity=>new(){value=N.Matrix4x4.Identity};
+        public static Matrix4x4 Translate(Vector3 p)=>new(){value=N.Matrix4x4.CreateTranslation(p.x,p.y,p.z)};
+        public static Matrix4x4 Scale(Vector3 p)=>new(){value=N.Matrix4x4.CreateScale(p.x,p.y,p.z)};
+        public static Matrix4x4 operator *(Matrix4x4 a,Matrix4x4 b)=>new(){value=b.value*a.value};
+        public float determinant=>value.GetDeterminant();
+        public Matrix4x4 inverse {get{N.Matrix4x4.Invert(value,out var m);return new(){value=m};}}
+        public float this[int i]=>i switch {0=>value.M11,1=>value.M12,2=>value.M13,3=>value.M14,4=>value.M21,5=>value.M22,6=>value.M23,7=>value.M24,8=>value.M31,9=>value.M32,10=>value.M33,11=>value.M34,12=>value.M41,13=>value.M42,14=>value.M43,_=>value.M44};
+        public float this[int r,int c]=>this[c*4+r];
+        public Vector3 MultiplyPoint3x4(Vector3 p){var q=N.Vector3.Transform(new N.Vector3(p.x,p.y,p.z),value);return new(q.X,q.Y,q.Z);}
+        public bool Equals(Matrix4x4 b)=>value.Equals(b.value);
+        public override bool Equals(object b)=>b is Matrix4x4 m&&Equals(m);
+        public override int GetHashCode()=>value.GetHashCode();
+        public static bool operator ==(Matrix4x4 a,Matrix4x4 b)=>a.Equals(b);
+        public static bool operator !=(Matrix4x4 a,Matrix4x4 b)=>!a.Equals(b);
+    }
+    public static class Mathf
+    {
+        public static int Clamp(int x,int a,int b)=>Math.Clamp(x,a,b);
+        public static int Max(int a,int b)=>Math.Max(a,b);public static float Max(float a,float b)=>MathF.Max(a,b);
+        public static float Min(float a,float b,float c)=>MathF.Min(a,MathF.Min(b,c));
+        public static float Sqrt(float x)=>MathF.Sqrt(x);public static float Abs(float x)=>MathF.Abs(x);
+    }
+    public enum TextureFormat { RFloat }
+    public class Texture3D : Object
+    {
+        private static int nextId;private readonly int id=++nextId;
+        public int width,height,depth,ReadCount; public bool isReadable=true,throwOnRead; public uint updateCount;
+        public TextureFormat format=TextureFormat.RFloat;public float[] Values;
+        public Texture3D(int size){width=height=depth=size;Values=new float[size*size*size];}
+        public int GetInstanceID()=>id;
+        public T[] GetPixelData<T>(int mip){ReadCount++;if(throwOnRead)throw new InvalidOperationException("Simulated unreadable upload");return (T[])(object)Values;}
+    }
+    public enum ComputeBufferType { Structured }
+    public class ComputeBuffer : IDisposable
+    {
+        public int count; public string name;
+        public ComputeBuffer(int c,int stride,ComputeBufferType t){count=c;}
+        public void SetData<T>(T[] data){if(data.Length>count)throw new Exception("oversized buffer upload");}
+        public void SetData<T>(T[] data,int start,int destination,int length){if(start<0||destination<0||start+length>data.Length||destination+length>count)throw new Exception("invalid buffer range");}
+        public void Release(){}public void Dispose(){}
+    }
+    public class ComputeShader { }
+    public static class Shader { public static int PropertyToID(string s)=>s.GetHashCode(); }
+    public static class Debug { public static void LogWarning(string message,Object context){ } }
+}
+namespace UnityEngine.Rendering
+{
+    public class CommandBuffer
+    {
+        public void SetComputeBufferParam(UnityEngine.ComputeShader c,int k,int id,UnityEngine.ComputeBuffer b){}
+        public void SetComputeIntParam(UnityEngine.ComputeShader c,int id,int value){}
+    }
+}
+namespace HybridLumenGI
+{
+    public static class HybridLumenGIDeformedMesh
+    {
+        public static bool HasSnapshot(UnityEngine.Renderer r)=>false;
+        public static UnityEngine.Mesh GetSourceMesh(UnityEngine.Renderer r)=>r?.GetComponent<UnityEngine.MeshFilter>()?.sharedMesh;
+    }
+    public class HybridLumenGIProxy
+    {
+        public enum Shape { Box, Sphere }
+        public Shape ProxyShape;
+        public int Revision=1;
+        public UnityEngine.Renderer SourceRenderer;
+        public HybridLumenGIMeshSdf MeshSdf;
+        public UnityEngine.Matrix4x4 SdfLocalToWorld=UnityEngine.Matrix4x4.identity;
+    }
+    public class HybridLumenGIScene
+    {
+        [Flags] public enum ChangeKind { Added=1,Removed=2,Transform=4,Material=8,Topology=16,Manual=32,Representation=64,Lighting=128 }
+        public struct DirtyRegion { public int Slot,StableId,PreviousRevision,Revision;public bool HasPrevious,HasCurrent;public ChangeKind Kind; }
+        public readonly System.Collections.Generic.List<DirtyRegion> DirtyRegions=new();
+        public struct ProxyGpuData { public UnityEngine.Vector4 centerShape,extentsRoughness,identity; }
+        public ProxyGpuData[] Data; public HybridLumenGIProxy[] Proxies; public int Revision;
+        public int Capacity=>Data.Length;
+        public HybridLumenGIProxy GetProxy(int slot)=>Proxies[slot];
+        public HybridLumenGIScene(int capacity){Data=new ProxyGpuData[capacity];Proxies=new HybridLumenGIProxy[capacity];}
+    }
+}

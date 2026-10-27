@@ -1,0 +1,725 @@
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Rendering;
+using System.Reflection;
+using System.Runtime.InteropServices;
+int checks=0,failures=0;
+HybridLumenGIRtasBudget.BeginFrame(0,new HybridLumenGIRtasBudget.Settings{MemoryBudgetBytes=2L*1024*1024*1024,MaxBuildsPerFrame=100000,
+    TriangleWorkPerFrame=100000000,InstanceWorkPerFrame=1000000,TriangleBurstCapacity=100000000,InstanceBurstCapacity=1000000,
+    BaseEstimateBytes=65536,BytesPerTriangle=192,BytesPerInstance=1024});
+var surfaceCaches=new Dictionary<HybridLumenGIScene,HybridLumenGISurfaceCache>();
+HybridLumenGISurfaceCache Cache(HybridLumenGIScene scene)
+{
+    if(!surfaceCaches.TryGetValue(scene,out var cache)){cache=new(scene);surfaceCaches.Add(scene,cache);}return cache;
+}
+bool Prepare(HybridLumenGIHardwareBackend backend,HybridLumenGIScene scene,int revision,int budget=250000)
+    =>backend.Prepare(scene,revision,budget,Cache(scene));
+void Require(bool condition,string message){checks++;if(!condition){failures++;Console.Error.WriteLine("FAIL: "+message);}}
+object Private(object obj,string name)=>obj.GetType().GetField(name,BindingFlags.NonPublic|BindingFlags.Instance).GetValue(obj);
+object Field(object obj,string name)=>obj.GetType().GetField(name).GetValue(obj);
+ComputeBuffer Buffer(HybridLumenGIHardwareBackend backend,string name)=>(ComputeBuffer)Private(backend,name);
+bool Near(float a,float b)=>MathF.Abs(a-b)<1e-5f;
+Mesh Mesh(params int[] counts)
+{
+    var mesh=new Mesh();
+    mesh.Vertices.AddRange(new[]{new Vector3(0,0,0),new Vector3(1,0,0),new Vector3(0,1,0),new Vector3(0,0,1)});
+    mesh.Normals.AddRange(new[]{new Vector3(1,1,1),new Vector3(0,1,1),new Vector3(1,0,1),Vector3.up});
+    mesh.UVs.AddRange(new[]{new Vector2(.1f,.2f),new Vector2(.3f,.4f),new Vector2(.5f,.6f),new Vector2(.7f,.8f)});
+    mesh.Tangents.AddRange(new[]{new Vector4(2,-3,4,1),new Vector4(-5,6,7,-1),new Vector4(8,9,-10,1),new Vector4(11,-12,13,-1)});
+    foreach(int count in counts){var indices=new int[count*3];for(int i=0;i<count;i++){indices[i*3]=0;indices[i*3+1]=1;indices[i*3+2]=2;}mesh.Submeshes.Add(indices);mesh.Topologies.Add(MeshTopology.Triangles);}
+    return mesh;
+}
+MeshRenderer Renderer(Mesh mesh)
+{
+    var renderer=new MeshRenderer{Filter=new MeshFilter{sharedMesh=mesh}};
+    for(int i=0;i<mesh.subMeshCount;i++)renderer.Materials.Add(new Material());return renderer;
+}
+void Slot(HybridLumenGIScene scene,int slot,Renderer renderer,float phase=1)
+{scene.Renderers[slot]=renderer;scene.Data[slot].identity=new Vector4(slot+101,1,0,phase);scene.Proxies[slot]=new(){SourceRenderer=renderer,StableId=slot+101};}
+
+var type=typeof(HybridLumenGIHardwareBackend);var triangleType=type.GetNestedType("TriangleNormals",BindingFlags.NonPublic);var instanceType=type.GetNestedType("InstanceData",BindingFlags.NonPublic);
+var surfaceType=type.GetNestedType("TriangleSurface",BindingFlags.NonPublic);
+Require(Marshal.SizeOf(triangleType)==80,"Triangle attribute stride must be 80 bytes.");
+Require(Marshal.SizeOf(surfaceType)==96,"Parallel triangle surface stride must be 96 bytes.");
+var surfaceMembers=new[]{"p0","p1","p2","t0","t1","t2"};
+for(int i=0;i<surfaceMembers.Length;i++)Require((int)Marshal.OffsetOf(surfaceType,surfaceMembers[i])==i*16,"Triangle surface member offset differs: "+surfaceMembers[i]);
+Require(Marshal.SizeOf(instanceType)==128,"Instance identity/material stride must be 128 bytes.");
+Require((int)Marshal.OffsetOf(triangleType,"face")==48&&(int)Marshal.OffsetOf(triangleType,"uvY")==64,"Triangle HLSL member offsets differ.");
+Require((int)Marshal.OffsetOf(instanceType,"slot")==64&&(int)Marshal.OffsetOf(instanceType,"normalOffset")==68&&(int)Marshal.OffsetOf(instanceType,"triangleCount")==72,"Instance HLSL metadata offsets differ.");
+Require((int)Marshal.OffsetOf(instanceType,"submesh")==76&&(int)Marshal.OffsetOf(instanceType,"stableId")==80&&
+    (int)Marshal.OffsetOf(instanceType,"ownerRevision")==84&&(int)Marshal.OffsetOf(instanceType,"geometryRevision")==88&&
+    (int)Marshal.OffsetOf(instanceType,"cullMode")==92&&(int)Marshal.OffsetOf(instanceType,"diffuse")==96&&
+    (int)Marshal.OffsetOf(instanceType,"emission")==112,"Hit identity/material HLSL offsets differ.");
+Require(Marshal.SizeOf<HybridLumenGISurfaceCache.TriangleChartBinding>()==16,"Triangle binding must remain four uints / 16B.");
+
+var mesh=Mesh(1,0,2);var renderer=Renderer(mesh);
+renderer.localToWorldMatrix=Matrix4x4.Translate(new Vector3(2,3,4))*Matrix4x4.RotateZ(.3f)*Matrix4x4.Scale(new Vector3(2,1,.5f));
+var scene=new HybridLumenGIScene(3);Slot(scene,0,renderer);Slot(scene,1,Renderer(Mesh(1)),2);
+using var backend=new HybridLumenGIHardwareBackend();
+Require(Prepare(backend,scene,1),"Readable published opaque mesh did not become ready.");
+var native=RayTracingAccelerationStructure.Last;
+Require(backend.MeshCount==1&&backend.TriangleCount==3&&backend.FallbackCount==0,"Warming instance was included or mesh/submesh counts are wrong.");
+Require(native.Active.Count==2&&native.AddHistory[0].Config.subMeshIndex==0&&native.AddHistory[1].Config.subMeshIndex==2,"Empty submesh handling or one-instance-per-submesh mapping is wrong.");
+Require(native.AddHistory[0].Id==0&&native.AddHistory[1].Id==1,"Committed instance IDs are not attribute-buffer indices.");
+Require(native.AddHistory.All(a=>!a.Config.enableTriangleCulling&&!a.Config.dynamicGeometry&&a.Config.mask==255&&a.Config.subMeshFlags==(RayTracingSubMeshFlags.Enabled|RayTracingSubMeshFlags.ClosestHitOnly)),"Initial RTAS configuration changed opaque/two-sided/static contract.");
+var normalBuffer=Buffer(backend,"normalsBuffer");var instanceBuffer=Buffer(backend,"instancesBuffer");var flagsBuffer=Buffer(backend,"flagsBuffer");
+var bindingBuffer=Buffer(backend,"bindingsBuffer");
+var surfaceBuffer=Buffer(backend,"surfaceBuffer");
+Require(normalBuffer.stride==80&&instanceBuffer.stride==128&&flagsBuffer.stride==4,"Allocated buffer strides do not match shader layouts.");
+Require(bindingBuffer.stride==16&&bindingBuffer.count==3,"Binding allocation is not one 16B record per native primitive.");
+Require(surfaceBuffer.stride==96&&surfaceBuffer.count==normalBuffer.count,"Surface allocation is not parallel to native normal primitive order.");
+Require((uint)flagsBuffer.data[0]==1&&(uint)flagsBuffer.data[1]==0&&(uint)flagsBuffer.data[2]==0,"Hardware mesh flags include warming/absent slots.");
+Require((uint)Field(instanceBuffer.data[0],"normalOffset")==0&&(uint)Field(instanceBuffer.data[1],"normalOffset")==1&&(uint)Field(instanceBuffer.data[1],"triangleCount")==2,"Submesh primitive offsets are wrong.");
+Require((uint)Field(instanceBuffer.data[0],"submesh")==0&&(uint)Field(instanceBuffer.data[1],"submesh")==2,"Empty submesh changed original source-submesh identity.");
+Require((uint)Field(instanceBuffer.data[1],"stableId")==101&&(uint)Field(instanceBuffer.data[1],"ownerRevision")==1&&
+    (uint)Field(instanceBuffer.data[1],"geometryRevision")==1&&(uint)Field(instanceBuffer.data[1],"cullMode")==2,"Instance identity/side metadata lost source values.");
+Require(Near(((Vector4)Field(instanceBuffer.data[1],"diffuse")).x,.3f)&&((Vector4)Field(instanceBuffer.data[1],"emission")).x==2,"Fallback sampled owner's first material instead of committed source submesh.");
+Require(((HybridLumenGISurfaceCache.TriangleChartBinding)bindingBuffer.data[1]).chartId==13&&
+    ((HybridLumenGISurfaceCache.TriangleChartBinding)bindingBuffer.data[2]).cardIndex==5,"Native primitive addresses do not map to correct source submesh charts.");
+var a=(Vector4)Field(normalBuffer.data[0],"a");var face=(Vector4)Field(normalBuffer.data[0],"face");var uvY=(Vector4)Field(normalBuffer.data[0],"uvY");
+Require(Near(a.x,1/MathF.Sqrt(3))&&Near(a.y,a.x)&&Near(a.z,a.x),"Normals were transformed on CPU instead of retained in object space.");
+Require(Near(face.x,0)&&Near(face.y,0)&&Near(face.z,1),"Object-space geometric face normal is wrong.");
+Require(Near(a.w,.1f)&&Near(uvY.x,.2f)&&Near(uvY.y,.4f)&&Near(uvY.z,.6f)&&uvY.w==1,"Triangle UV attributes are not packed correctly.");
+Require(((Matrix4x4)Field(instanceBuffer.data[0],"normalToWorld")).Equals(renderer.localToWorldMatrix.inverse.transpose),"Initial inverse-transpose normal matrix is wrong.");
+Require(backend.AttributeBytes==3*(80+96+16)+2*192+3*4,"Attribute byte accounting must include 64B prepared object matrices.");
+Require(backend.AccelerationBytes==0,"Pending RTAS build must not expose GetSize result.");
+var command=new CommandBuffer();Require(backend.RecordBuild(command)&&command.BuildCalls==1,"Initial build was not recorded.");
+Require(backend.RecordBuild(command)&&command.BuildCalls==1,"Unchanged RecordBuild recorded a duplicate build.");
+Require(backend.AccelerationBytes==123456,"Post-recording acceleration size query was not forwarded.");
+backend.Bind(command,backend.Shader,0);Require(command.Acceleration==native&&command.Buffers.Count==6,"Native command binding omitted acceleration/attributes.");
+backend.Bind(backend.Shader,0);Require(backend.Shader.Acceleration==native&&backend.Shader.Buffers.Count==6,"Direct compute binding omitted resources.");
+Require(command.Buffers[Shader.PropertyToID("_HLGI_HardwareTriangleSurface")]==surfaceBuffer&&backend.Shader.Buffers[Shader.PropertyToID("_HLGI_HardwareTriangleSurface")]==surfaceBuffer,"Parallel surface buffer not bound with its shader identity.");
+
+// The light distribution must use precisely the tracing backend's prepared
+// geometry, including empty-submesh remapping, without rereading a live mesh.
+int preparedVertexReads=mesh.VertexReads,preparedTriangleReads=mesh.TriangleReads;
+Require(backend.GetTriangleCount(0)==1&&backend.GetTriangleCount(1)==2&&backend.GetTriangleCount(-1)==0&&backend.GetTriangleCount(2)==0,"Prepared triangle counts differ from instance/native primitive mapping.");
+Require(backend.TryGetTriangle(1,1,out var emitterTriangle),"Prepared emitter primitive is missing.");
+Require(emitterTriangle.Instance==1&&emitterTriangle.Submesh==2&&emitterTriangle.Primitive==1&&emitterTriangle.OwnerSlot==0&&
+    emitterTriangle.StableId==101&&emitterTriangle.OwnerRevision==1&&emitterTriangle.GeometryRevision==1&&emitterTriangle.Cull==2,"Emitter identity is not the exact prepared instance/submesh/primitive.");
+var expectedEmitterP1=renderer.localToWorldMatrix.MultiplyPoint3x4(new Vector3(1,0,0));
+Require(Near(emitterTriangle.P1.x,expectedEmitterP1.x)&&Near(emitterTriangle.P1.y,expectedEmitterP1.y)&&Near(emitterTriangle.P1.z,expectedEmitterP1.z),"Emitter positions lost prepared object transform.");
+Require(!backend.TryGetTriangle(1,2,out _)&&!backend.TryGetTriangle(-1,0,out _),"Out-of-range emitter source accepted.");
+mesh.Vertices[1]=new Vector3(999,999,999);
+Require(backend.TryGetTriangle(1,1,out var retainedEmitter)&&Near(retainedEmitter.P1.x,expectedEmitterP1.x)&&mesh.VertexReads==preparedVertexReads&&mesh.TriangleReads==preparedTriangleReads,
+    "Emitter provider reread live edited Mesh instead of the prepared triangle snapshot.");
+mesh.Vertices[1]=new Vector3(1,0,0);
+
+int reads=mesh.VertexReads,normalUploads=normalBuffer.UploadCalls,instanceUploads=instanceBuffer.UploadCalls,adds=native.AddHistory.Count,rebuilds=backend.SceneRebuildCount;
+int tangentReads=mesh.TangentReads,surfaceUploads=surfaceBuffer.UploadCalls;
+int bindingQueries=Cache(scene).BindingQueries,bindingUploads=bindingBuffer.UploadCalls;
+Require(Prepare(backend,scene,2)&&backend.SceneRebuildCount==rebuilds&&mesh.VertexReads==reads,"Unchanged scene reloaded mesh data or rebuilt the scene.");
+Require(Cache(scene).BindingQueries==bindingQueries&&bindingBuffer.UploadCalls==bindingUploads,"Unchanged scene rescanned/uploaded per-triangle mappings.");
+renderer.localToWorldMatrix=Matrix4x4.Translate(new Vector3(-4,8,2))*Matrix4x4.Scale(new Vector3(-2,3,.25f));
+scene.DirtyRegions.Add(new(){Slot=0,Kind=HybridLumenGIScene.ChangeKind.Transform});
+Require(Prepare(backend,scene,3),"Rigid transform update lost readiness.");
+Require(backend.SceneRebuildCount==rebuilds&&backend.TriangleUploadCount==1&&normalBuffer.UploadCalls==normalUploads&&mesh.VertexReads==reads,"Rigid transform update reuploaded triangles or rebuilt membership.");
+Require(mesh.TangentReads==tangentReads&&surfaceBuffer.UploadCalls==surfaceUploads,"Rigid/nonuniform/mirrored pose reread or reuploaded surface attributes.");
+Require(backend.TransformUpdateCount==1&&native.Updates.Count==2&&native.AddHistory.Count==adds,"Retained handles were not updated for every nonempty submesh.");
+Require(native.Updates.Select(x=>x.handle).ToHashSet().SetEquals(native.AddHistory.Select(x=>x.Handle)),"Rigid update used instance IDs instead of retained native handles.");
+Require(instanceBuffer.UploadCalls==instanceUploads+1&&((Matrix4x4)Field(instanceBuffer.data[1],"normalToWorld")).Equals(renderer.localToWorldMatrix.inverse.transpose),"Rigid update omitted current normal matrices.");
+Require(backend.AccelerationBytes==0&&backend.RecordBuild(command)&&command.BuildCalls==2,"Rigid transform update did not schedule the RTAS build.");
+Require(Cache(scene).BindingQueries==bindingQueries&&bindingBuffer.UploadCalls==bindingUploads,"Rigid movement reloaded identity mappings.");
+Require(backend.TryGetTriangle(1,1,out emitterTriangle)&&Near(emitterTriangle.P1.x,-6)&&Near(emitterTriangle.P1.y,8)&&Near(emitterTriangle.P1.z,2)&&
+    Near(emitterTriangle.RawNg.z,1),"Rigid/mirrored emitter provider must update positions but preserve inverse-transpose authored Ng, without determinant flip.");
+scene.DirtyRegions.Clear();scene.DirtyRegions.Add(new(){Slot=0,Kind=HybridLumenGIScene.ChangeKind.Material});scene.Data[0].identity.y++;
+renderer.Materials[0]=new Material();
+Require(Prepare(backend,scene,4)&&backend.SceneRebuildCount==rebuilds&&normalBuffer.UploadCalls==normalUploads&&backend.TransformUpdateCount==1,"Material-only update rebuilt geometry or reuploaded triangles.");
+Require(backend.RecordBuild(command)&&command.BuildCalls==2,"Material-only update scheduled an RTAS build.");
+Require((uint)Field(instanceBuffer.data[0],"ownerRevision")==2,"Material-only owner revision remained stale in shader identity.");
+scene.DirtyRegions.Clear();
+
+// Effective side/material changes and independent physical-card reuse must not
+// reupload triangle attributes or rebuild the native geometry membership.
+var cache=Cache(scene);var changedMaterial=new HybridLumenGISurfaceCache.HardwareMaterial
+{cullMode=1,diffuse=new(.7f,.6f,.5f,1),emission=new(7,8,9,0)};
+cache.Materials[(0,2)]=changedMaterial;
+Require(Prepare(backend,scene,4)&&backend.SceneRebuildCount==rebuilds&&normalBuffer.UploadCalls==normalUploads,"Effective material change rebuilt triangle data.");
+Require((uint)Field(instanceBuffer.data[1],"cullMode")==1&&((Vector4)Field(instanceBuffer.data[1],"emission")).z==9,"Effective MPB/submesh material was not refreshed without transport revision.");
+Require(backend.RecordBuild(command)&&command.BuildCalls==2,"Effective Cull update unnecessarily rebuilt RTAS.");
+cache.Layouts[0]=2;cache.Bindings[(0,2,0)]=new(){cardIndex=37,chartId=501,layoutGeneration=2,geometryRevision=1};
+Require(Prepare(backend,scene,4)&&backend.SceneRebuildCount==rebuilds&&normalBuffer.UploadCalls==normalUploads,"Layout change rebuilt geometry.");
+var remapped=(HybridLumenGISurfaceCache.TriangleChartBinding)bindingBuffer.data[1];
+Require(remapped.cardIndex==37&&remapped.chartId==501&&remapped.layoutGeneration==2,"Reused physical card retained old triangle identity.");
+Require(bindingBuffer.UploadCalls==bindingUploads+1&&backend.BindingUploadCount==2,"Layout mapping changed without buffer upload.");
+int afterLayoutQueries=cache.BindingQueries;Prepare(backend,scene,4);
+Require(cache.BindingQueries==afterLayoutQueries,"Stable remapped layout repeatedly walked all triangles.");
+cache.NoBinding.Add(0);Require(Prepare(backend,scene,4),"Missing surface pages incorrectly disabled true mesh constant fallback.");
+Require(Enumerable.Range(0,3).All(i=>((HybridLumenGISurfaceCache.TriangleChartBinding)bindingBuffer.data[i]).cardIndex==uint.MaxValue),"Retired mapping did not invalidate every native primitive.");
+Require(backend.SceneRebuildCount==rebuilds&&normalBuffer.UploadCalls==normalUploads,"Page retirement rebuilt mesh geometry.");
+cache.NoBinding.Remove(0);cache.Layouts[0]=3;cache.Bindings[(0,2,0)]=new(){cardIndex=37,chartId=501,layoutGeneration=3,geometryRevision=999};
+Prepare(backend,scene,4);
+Require(((HybridLumenGISurfaceCache.TriangleChartBinding)bindingBuffer.data[1]).cardIndex==uint.MaxValue,"Stale geometry binding was accepted.");
+cache.Bindings.Clear();cache.Layouts[0]=4;Prepare(backend,scene,4);
+Require(((HybridLumenGISurfaceCache.TriangleChartBinding)bindingBuffer.data[1]).cardIndex!=uint.MaxValue,"A fresh chart layout did not recover mapping.");
+
+// Every eligibility condition is re-evaluated without a revision bump.
+void Eligibility(Action disable,Action restore,string label)
+{
+    disable();int before=backend.SceneRebuildCount;Require(!Prepare(backend,scene,4)&&backend.MeshCount==0&&backend.FallbackCount==1&&backend.SceneRebuildCount==before+1,label+" did not immediately fall back.");
+    Require(!backend.RecordBuild(command),label+" retained ready hardware traversal.");
+    restore();Require(Prepare(backend,scene,4)&&backend.MeshCount==1,label+" did not recover after eligibility returned.");
+    native=RayTracingAccelerationStructure.Last;
+}
+int alphaRebuilds=backend.SceneRebuildCount,alphaTriangleUploads=backend.TriangleUploadCount;
+renderer.Materials[0].Keywords.Add("_ALPHATEST_ON");
+Require(Prepare(backend,scene,4)&&backend.MeshCount==1&&backend.SceneRebuildCount==alphaRebuilds&&backend.TriangleUploadCount==alphaTriangleUploads,
+    "Alpha-test keyword must retain true geometry; the candidate material evaluator owns coverage.");
+renderer.Materials[0].Floats["_AlphaClip"]=1;
+Require(Prepare(backend,scene,4)&&backend.MeshCount==1&&backend.SceneRebuildCount==alphaRebuilds,"Alpha clip property must not remove prepared triangles.");
+renderer.Materials[0].Keywords.Remove("_ALPHATEST_ON");renderer.Materials[0].Floats["_AlphaClip"]=0;
+Eligibility(()=>renderer.Materials[0].Floats["_Surface"]=1,()=>renderer.Materials[0].Floats["_Surface"]=0,"Transparent surface property");
+Eligibility(()=>renderer.Materials[0].renderQueue=3000,()=>renderer.Materials[0].renderQueue=2000,"Transparent render queue");
+Eligibility(()=>renderer.enabled=false,()=>renderer.enabled=true,"Disabled renderer");
+Eligibility(()=>mesh.isReadable=false,()=>mesh.isReadable=true,"Unreadable mesh");
+Eligibility(()=>mesh.Topologies[0]=MeshTopology.Lines,()=>mesh.Topologies[0]=MeshTopology.Triangles,"Non-triangle topology");
+Eligibility(()=>cache.UnknownMaterial.Add(0),()=>cache.UnknownMaterial.Remove(0),"Unknown effective side/material");
+Eligibility(()=>cache.Materials[(0,2)]=new(){cullMode=99},()=>cache.Materials[(0,2)]=changedMaterial,"Out-of-range effective Cull");
+Eligibility(()=>cache.Materials[(0,2)]=new(){cullMode=0,emission=new(float.NaN,0,0,0)},()=>cache.Materials[(0,2)]=changedMaterial,"Nonfinite effective material");
+var originalMaterial=renderer.Materials[0];Eligibility(()=>renderer.Materials[0]=null,()=>renderer.Materials[0]=originalMaterial,"Missing material");
+var matrix=renderer.localToWorldMatrix;Eligibility(()=>renderer.localToWorldMatrix=Matrix4x4.Scale(new Vector3(0,1,1)),()=>renderer.localToWorldMatrix=matrix,"Singular transform");
+
+int oldRebuild=backend.SceneRebuildCount;scene.Data[0].identity.w=2;Require(!Prepare(backend,scene,5)&&backend.MeshCount==0&&backend.FallbackCount==0,"Published-to-warming instance remained in RTAS.");
+scene.Data[0].identity.w=1;Require(Prepare(backend,scene,6)&&backend.SceneRebuildCount==oldRebuild+2,"Warming-to-published instance failed to join RTAS.");
+native=RayTracingAccelerationStructure.Last;
+foreach(var kind in new[]{HybridLumenGIScene.ChangeKind.Manual,HybridLumenGIScene.ChangeKind.Topology,
+    HybridLumenGIScene.ChangeKind.Manual|HybridLumenGIScene.ChangeKind.Transform,
+    HybridLumenGIScene.ChangeKind.Manual|HybridLumenGIScene.ChangeKind.Material,
+    HybridLumenGIScene.ChangeKind.Manual|HybridLumenGIScene.ChangeKind.Transform|HybridLumenGIScene.ChangeKind.Material})
+{
+    scene.DirtyRegions.Add(new(){Slot=0,Kind=kind});oldRebuild=backend.SceneRebuildCount;int oldTriangleUploads=backend.TriangleUploadCount;
+    int oldTangentReads=mesh.TangentReads,oldParallelUploads=Buffer(backend,"surfaceBuffer").UploadCalls;
+    mesh.Vertices[2]=new Vector3(0,1,1);Require(Prepare(backend,scene,7)&&backend.SceneRebuildCount==oldRebuild+1&&backend.TriangleUploadCount==oldTriangleUploads+1,"Manual/topology change failed to rebuild same-count geometry.");
+    Require(mesh.TangentReads==oldTangentReads+1&&Buffer(backend,"surfaceBuffer").UploadCalls==oldParallelUploads+1,
+        "Manual/topology change did not refresh the parallel surface buffer with normals.");
+    Require(native.Active.Values.All(record=>record.Config.dynamicGeometry),"Manual/topology rebuild did not request dynamic geometry.");scene.DirtyRegions.Clear();
+}
+scene.Data[0].identity.x=999;oldRebuild=backend.SceneRebuildCount;Require(Prepare(backend,scene,8)&&backend.SceneRebuildCount==oldRebuild+1,"Stable-slot reuse was not detected.");
+
+// Membership is validated before touching any old native handles.
+var two=new HybridLumenGIScene(2);var firstRenderer=Renderer(Mesh(1));var secondRenderer=Renderer(Mesh(1));Slot(two,0,firstRenderer);Slot(two,1,secondRenderer);
+using var twoBackend=new HybridLumenGIHardwareBackend();Prepare(twoBackend,two,1);var twoNative=RayTracingAccelerationStructure.Last;
+firstRenderer.localToWorldMatrix=Matrix4x4.Translate(new Vector3(9,0,0));secondRenderer.Materials[0].Floats["_Surface"]=1;
+Require(Prepare(twoBackend,two,2)&&twoNative.Updates.Count==0&&twoBackend.TransformUpdateCount==0&&twoBackend.MeshCount==1,"Membership check mutated retained transforms before deciding to rebuild.");
+
+// Triangle budgets affect all submeshes atomically, and excluded meshes stay on software.
+var budgetScene=new HybridLumenGIScene(3);Slot(budgetScene,0,Renderer(Mesh(600)));Slot(budgetScene,1,Renderer(Mesh(600)));Slot(budgetScene,2,Renderer(Mesh(10)));
+using var budgetBackend=new HybridLumenGIHardwareBackend();Require(Prepare(budgetBackend,budgetScene,1,1024)&&budgetBackend.MeshCount==2&&budgetBackend.FallbackCount==1&&budgetBackend.TriangleCount==610,"Budget failed to exclude a whole oversized mesh while admitting later smaller mesh.");
+int budgetRebuild=budgetBackend.SceneRebuildCount;Prepare(budgetBackend,budgetScene,2,1024);Require(budgetBackend.SceneRebuildCount==budgetRebuild,"Unchanged over-budget mesh triggered repeated full rebuilds.");
+Require(Prepare(budgetBackend,budgetScene,3,2048)&&budgetBackend.MeshCount==3&&budgetBackend.TriangleCount==1210,"Increased triangle budget did not reconsider fallback geometry.");
+budgetScene.Data[0].identity.w=0;Require(Prepare(budgetBackend,budgetScene,4,2048)&&budgetBackend.MeshCount==2&&budgetBackend.TriangleCount==610,"Removed mesh retained native membership or triangle attributes.");
+
+// Missing normals/UVs have explicit geometric fallback and availability flag.
+var noAttributes=Mesh(1);noAttributes.Normals.Clear();noAttributes.UVs.Clear();var attributeScene=new HybridLumenGIScene(1);Slot(attributeScene,0,Renderer(noAttributes));
+using var attributeBackend=new HybridLumenGIHardwareBackend();Require(Prepare(attributeBackend,attributeScene,1),"Mesh without optional attributes was incorrectly rejected.");
+var packed=Buffer(attributeBackend,"normalsBuffer").data[0];Require(((Vector4)Field(packed,"uvY")).w==0&&Near(((Vector4)Field(packed,"a")).z,1),"Missing-attribute fallback is not geometric normal plus unavailable UV flag.");
+Require(((Vector4)Field(packed,"face")).w==0,"Missing source vertex normals were advertised as real interpolated Ns.");
+foreach(float scale in new[]{1e-4f,1f,1e8f})
+{
+    var tiny=Mesh(1);tiny.Vertices[1]=new(scale,0,0);tiny.Vertices[2]=new(0,scale,0);
+    tiny.Normals[0]=new(1e30f,1e30f,1e30f);
+    var tinyScene=new HybridLumenGIScene(1);Slot(tinyScene,0,Renderer(tiny));
+    using var tinyBackend=new HybridLumenGIHardwareBackend();Require(Prepare(tinyBackend,tinyScene,1),"Finite face/normal scales unexpectedly disabled the mesh.");
+    var data=Buffer(tinyBackend,"normalsBuffer").data[0];var tinyFace=(Vector4)Field(data,"face");var hugeNormal=(Vector4)Field(data,"a");
+    Require(tinyFace.x==0&&tinyFace.y==0&&Near(tinyFace.z,1),"Valid tiny/large face received an invented up-axis or overflowed.");
+    Require(Near(hugeNormal.x,1/MathF.Sqrt(3)),"Large finite source Ns was rejected due to squared-length overflow.");
+}
+foreach(bool nonfinite in new[]{false,true})
+{
+    var invalid=Mesh(1);invalid.Vertices[2]=nonfinite?new(float.NaN,0,0):new(2,0,0);
+    var invalidScene=new HybridLumenGIScene(1);Slot(invalidScene,0,Renderer(invalid));
+    using var invalidBackend=new HybridLumenGIHardwareBackend();Prepare(invalidBackend,invalidScene,1);
+    var invalidFace=(Vector4)Field(Buffer(invalidBackend,"normalsBuffer").data[0],"face");
+    Require(invalidFace.x==0&&invalidFace.y==0&&invalidFace.z==0,"Zero/nonfinite face was replaced with a fake orientation.");
+}
+
+// Capability/missing resource gates do not allocate a backend.
+SystemInfo.graphicsDeviceType=GraphicsDeviceType.Direct3D11;using(var unsupported=new HybridLumenGIHardwareBackend())Require(!Prepare(unsupported,scene,1)&&!unsupported.IsReady,"DX11 passed inline-DXR capability gate.");
+SystemInfo.graphicsDeviceType=GraphicsDeviceType.Direct3D12;SystemInfo.supportsInlineRayTracing=false;using(var unsupported=new HybridLumenGIHardwareBackend())Require(!Prepare(unsupported,scene,1),"Missing inline ray tracing passed gate.");
+var softwareScene=new HybridLumenGIScene(1);Slot(softwareScene,0,Renderer(Mesh(2)));
+var lastNative=RayTracingAccelerationStructure.Last;Resources.Available=false;
+using(var softwareBackend=new HybridLumenGIHardwareBackend(softwareOnly:true))
+{
+    Require(Prepare(softwareBackend,softwareScene,1)&&softwareBackend.IsReady&&softwareBackend.InstanceCount==1,"Software preparation incorrectly requires inline DXR or hardware shader resource.");
+    var softwareCommand=new CommandBuffer();var softwareShader=new ComputeShader();
+    Require(softwareBackend.RecordBuild(softwareCommand)&&softwareCommand.BuildCalls==0&&RayTracingAccelerationStructure.Last==lastNative,"Software geometry preparation created/built an RTAS.");
+    softwareBackend.Bind(softwareCommand,softwareShader,0);
+    Require(softwareCommand.Acceleration==null&&softwareCommand.Buffers.Count==6,"Software binding omitted real attributes or attempted RTAS binding.");
+    var matrixBuffer=softwareCommand.Buffers[Shader.PropertyToID("_HLGI_HardwareObjectToWorld")];
+    Require(matrixBuffer.stride==64&&((Matrix4x4)matrixBuffer.data[0]).Equals(Matrix4x4.identity),"Prepared software material object matrix differs from geometry.");
+    Require(softwareBackend.TryGetTriangle(0,1,out var softwareTriangle)&&softwareTriangle.Primitive==1&&softwareTriangle.StableId==101,"Software exact source identity was lost without DXR.");
+}
+Resources.Available=true;
+SystemInfo.supportsInlineRayTracing=true;Resources.Available=false;using(var missing=new HybridLumenGIHardwareBackend())Require(!Prepare(missing,scene,1),"Missing hardware compute shader did not fall back.");Resources.Available=true;
+
+// Native failures disable this camera backend once, retaining software fallback.
+Debug.Warnings.Clear();RayTracingAccelerationStructure.RejectNextAdd=true;using(var rejected=new HybridLumenGIHardwareBackend())
+{Require(!Prepare(rejected,scene,1)&&!rejected.IsReady&&Debug.Warnings.Count==1,"Rejected native instance did not disable/log once.");Require(!Prepare(rejected,scene,2)&&Debug.Warnings.Count==1,"Failed backend retried/logged repeatedly.");}
+Debug.Warnings.Clear();using(var failedBuild=new HybridLumenGIHardwareBackend())
+{Prepare(failedBuild,scene,1);Require(!failedBuild.RecordBuild(new CommandBuffer{ThrowOnBuild=true})&&!failedBuild.IsReady&&Debug.Warnings.Count==1,"Native build exception did not disable/log once.");}
+var toRelease=Buffer(attributeBackend,"normalsBuffer");var surfaceToRelease=Buffer(attributeBackend,"surfaceBuffer");attributeBackend.Dispose();Require(toRelease.Released&&surfaceToRelease.Released&&!attributeBackend.IsReady,"Dispose retained GPU buffers or readiness.");
+
+// Actual source surface attributes: raw values retain native primitive order,
+// do not absorb instance transforms and never invent an unavailable tangent.
+bool Exact4(Vector4 left,Vector4 right)=>BitConverter.SingleToInt32Bits(left.x)==BitConverter.SingleToInt32Bits(right.x)&&
+    BitConverter.SingleToInt32Bits(left.y)==BitConverter.SingleToInt32Bits(right.y)&&BitConverter.SingleToInt32Bits(left.z)==BitConverter.SingleToInt32Bits(right.z)&&BitConverter.SingleToInt32Bits(left.w)==BitConverter.SingleToInt32Bits(right.w);
+var surfaceMesh=Mesh(2,0,2);
+surfaceMesh.Vertices[0]=new(-41,2.5f,7);surfaceMesh.Vertices[1]=new(900,12,-.03125f);
+surfaceMesh.Vertices[2]=new(3e20f,-4e-20f,19);surfaceMesh.Vertices[3]=new(0,0,0);
+surfaceMesh.Submeshes[0]=new[]{3,1,0,2,0,1};surfaceMesh.Submeshes[2]=new[]{1,2,3,0,3,2};
+surfaceMesh.Tangents[0]=new(1e30f,-2e30f,3e30f,-1);surfaceMesh.Tangents[1]=new(float.Epsilon,0,0,1);
+var surfaceScene=new HybridLumenGIScene(2);var firstSurfaceRenderer=Renderer(surfaceMesh);var secondSurfaceRenderer=Renderer(surfaceMesh);
+firstSurfaceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(123,-44,77))*Matrix4x4.RotateZ(.67f)*Matrix4x4.Scale(new(-3,.125f,8));
+secondSurfaceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(-89,37,10))*Matrix4x4.Scale(new(.5f,-7,2));
+Slot(surfaceScene,0,firstSurfaceRenderer);Slot(surfaceScene,1,secondSurfaceRenderer);
+using var surfaceBackend=new HybridLumenGIHardwareBackend();Require(Prepare(surfaceBackend,surfaceScene,1),"Raw surface fixture did not prepare.");
+var packedSurfaces=Buffer(surfaceBackend,"surfaceBuffer");var packedNormals=Buffer(surfaceBackend,"normalsBuffer");var packedInstances=Buffer(surfaceBackend,"instancesBuffer");
+Require(surfaceMesh.TangentReads==1,"A Mesh shared by two renderers read tangents more than once per rebuild.");
+Require(packedSurfaces.count==8&&packedSurfaces.stride==96&&surfaceBackend.AttributeBytes==8*(80+96+16)+4*192+2*4,"Shared-mesh surface count/byte accounting is not per native primitive.");
+for(int instanceIndex=0;instanceIndex<packedInstances.count;instanceIndex++)
+{
+    int submesh=(int)(uint)Field(packedInstances.data[instanceIndex],"submesh"),offset=(int)(uint)Field(packedInstances.data[instanceIndex],"normalOffset");
+    var sourceIndices=surfaceMesh.Submeshes[submesh];Require((int)(uint)Field(packedInstances.data[instanceIndex],"triangleCount")==sourceIndices.Length/3,"Primitive count lost original submesh index.");
+    for(int primitive=0;primitive<sourceIndices.Length/3;primitive++)for(int corner=0;corner<3;corner++)
+    {
+        int vertex=sourceIndices[primitive*3+corner];var p=surfaceMesh.Vertices[vertex];var t=surfaceMesh.Tangents[vertex];
+        var packedPosition=(Vector4)Field(packedSurfaces.data[offset+primitive],"p"+corner);
+        var packedTangent=(Vector4)Field(packedSurfaces.data[offset+primitive],"t"+corner);
+        Require(Exact4(packedPosition,new(p.x,p.y,p.z,1)),"Raw object position was normalized, transformed, reordered, or origin marked invalid.");
+        Require(Exact4(packedTangent,t),"Raw tangent magnitude/handedness changed for a mirrored nonuniform instance.");
+        var oldUV=(Vector4)Field(packedNormals.data[offset+primitive],new[]{"a","b","c"}[corner]);
+        Require(oldUV.w==surfaceMesh.UVs[vertex].x,"Parallel surface and original UV primitive indexing diverged.");
+    }
+}
+int oldSurfaceUploads=packedSurfaces.UploadCalls,oldSurfaceTangents=surfaceMesh.TangentReads,oldSurfaceReads=surfaceMesh.VertexReads;
+var savedSurfaceData=(object[])packedSurfaces.data.Clone();
+firstSurfaceRenderer.localToWorldMatrix=Matrix4x4.RotateZ(-.3f)*Matrix4x4.Scale(new(5,-2,.7f));
+secondSurfaceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(91,22,-33));
+surfaceScene.DirtyRegions.Add(new(){Slot=0,Kind=HybridLumenGIScene.ChangeKind.Transform});
+Require(Prepare(surfaceBackend,surfaceScene,2)&&packedSurfaces.UploadCalls==oldSurfaceUploads&&surfaceMesh.TangentReads==oldSurfaceTangents&&surfaceMesh.VertexReads==oldSurfaceReads,"Pose-only update reread/reuploaded surface attributes.");
+for(int i=0;i<savedSurfaceData.Length;i++)foreach(string member in surfaceMembers)
+    Require(Exact4((Vector4)Field(savedSurfaceData[i],member),(Vector4)Field(packedSurfaces.data[i],member)),"Retained pose update modified original positions/tangents.");
+surfaceScene.DirtyRegions.Clear();Cache(surfaceScene).Materials[(0,0)]=new(){cullMode=1,diffuse=new(.2f,.3f,.4f,1)};
+Require(Prepare(surfaceBackend,surfaceScene,3)&&packedSurfaces.UploadCalls==oldSurfaceUploads&&surfaceMesh.TangentReads==oldSurfaceTangents,"Material-only update touched parallel surface data.");
+surfaceMesh.Vertices[3]=new(-7,8,9);surfaceMesh.Tangents[3]=new(21,22,-23,1);
+surfaceScene.DirtyRegions.Add(new(){Slot=0,Kind=HybridLumenGIScene.ChangeKind.Manual});
+Require(Prepare(surfaceBackend,surfaceScene,4)&&packedSurfaces.UploadCalls==oldSurfaceUploads+1&&surfaceMesh.TangentReads==oldSurfaceTangents+1,"Manual shared-mesh notification did not rebuild tangent channel exactly once.");
+Require(Exact4((Vector4)Field(packedSurfaces.data[0],"p0"),new(-7,8,9,1))&&Exact4((Vector4)Field(packedSurfaces.data[0],"t0"),new(21,22,-23,1)),"Same-count source change retained stale original attributes.");
+surfaceScene.DirtyRegions.Clear();surfaceMesh.Tangents[1]=new(31,32,33,-1);Cache(surfaceScene).Geometry[0]=Cache(surfaceScene).GetGeometryRevision(0)+1;
+int beforeGeometryRead=surfaceMesh.TangentReads,beforeGeometryUpload=packedSurfaces.UploadCalls;
+Require(Prepare(surfaceBackend,surfaceScene,5)&&surfaceMesh.TangentReads==beforeGeometryRead+1&&packedSurfaces.UploadCalls==beforeGeometryUpload+1,"Geometry revision without dirty list did not refresh parallel surfaces.");
+Require(Exact4((Vector4)Field(packedSurfaces.data[0],"t1"),new(31,32,33,-1)),"Geometry revision uploaded stale tangent values.");
+surfaceBackend.Dispose();Require(packedSurfaces.Released,"Parallel surface GPU allocation survived owner disposal.");
+
+foreach(var bad in new[]{new Vector4(0,0,0,1),new Vector4(float.NaN,1,2,1),new Vector4(1,float.PositiveInfinity,2,-1),
+    new Vector4(1,2,float.NegativeInfinity,1),new Vector4(1,2,3,0),new Vector4(1,2,3,.5f),new Vector4(1,2,3,float.NaN),new Vector4(1,2,3,float.PositiveInfinity)})
+{
+    var invalidTangentMesh=Mesh(1);invalidTangentMesh.Tangents[1]=bad;var invalidTangentScene=new HybridLumenGIScene(1);Slot(invalidTangentScene,0,Renderer(invalidTangentMesh));
+    using var invalidTangentBackend=new HybridLumenGIHardwareBackend();Require(Prepare(invalidTangentBackend,invalidTangentScene,1),"Invalid optional tangent unnecessarily removed occluding geometry.");
+    var triangleSurface=Buffer(invalidTangentBackend,"surfaceBuffer").data[0];
+    Require(Exact4((Vector4)Field(triangleSurface,"t1"),Vector4.zero),"Invalid source tangent invented a usable tangent/sign.");
+    Require(Exact4((Vector4)Field(triangleSurface,"t0"),invalidTangentMesh.Tangents[0])&&((Vector4)Field(triangleSurface,"p1")).w==1,"Bad tangent contaminated valid position/other source tangent.");
+}
+foreach(int tangentCount in new[]{0,1,3,5})
+{
+    var absentMesh=Mesh(1);absentMesh.Tangents.Clear();for(int i=0;i<tangentCount;i++)absentMesh.Tangents.Add(new(1,2,3,1));
+    var absentScene=new HybridLumenGIScene(1);Slot(absentScene,0,Renderer(absentMesh));using var absentBackend=new HybridLumenGIHardwareBackend();Prepare(absentBackend,absentScene,1);
+    var triangleSurface=Buffer(absentBackend,"surfaceBuffer").data[0];
+    Require(Enumerable.Range(0,3).All(i=>Exact4((Vector4)Field(triangleSurface,"t"+i),Vector4.zero)),"Missing/malformed-length tangent channel did not become explicitly unavailable.");
+}
+foreach(float invalidCoordinate in new[]{float.NaN,float.PositiveInfinity,float.NegativeInfinity})
+{
+    var invalidPositionMesh=Mesh(1);invalidPositionMesh.Vertices[1]=new(4,invalidCoordinate,6);var invalidPositionScene=new HybridLumenGIScene(1);Slot(invalidPositionScene,0,Renderer(invalidPositionMesh));
+    using var invalidPositionBackend=new HybridLumenGIHardwareBackend();Prepare(invalidPositionBackend,invalidPositionScene,1);var triangleSurface=Buffer(invalidPositionBackend,"surfaceBuffer").data[0];
+    Require(Exact4((Vector4)Field(triangleSurface,"p1"),Vector4.zero)&&((Vector4)Field(triangleSurface,"p0")).w==1,"Nonfinite position was published valid or contaminated a finite origin.");
+}
+
+// A new source generation is independently sufficient to rebuild, even when a
+// caller's dirty-region list was cleared before this subsystem prepared.
+int generationRebuild=backend.SceneRebuildCount;cache.Geometry[0]=2;
+Require(Prepare(backend,scene,9)&&backend.SceneRebuildCount==generationRebuild+1,"Geometry content revision did not rebuild retained native membership.");
+Require(native.Active.Values.All(record=>record.Config.dynamicGeometry),"Changed source generation did not force dynamic geometry refresh.");
+Require((uint)Field(Buffer(backend,"instancesBuffer").data[0],"geometryRevision")==2,"GPU instance lost new source generation.");
+var releasedBinding=Buffer(backend,"bindingsBuffer");
+Require(!backend.Prepare(scene,9)&&!backend.IsReady,"Missing SurfaceCache silently guessed first-material side policy.");
+Require(Prepare(backend,scene,10),"Valid material source could not recover after null-source rejection.");
+backend.Dispose();Require(releasedBinding.Released,"Binding buffer survived backend disposal/reallocation.");
+
+// Independent CPU affine-normal invariant, not native DXR traversal: source
+// winding's inverse transpose preserves ray-side sign even for negative scales.
+float Dot(Vector3 x,Vector3 y)=>x.x*y.x+x.y*y.y+x.z*y.z;
+for(int i=0;i<1000;i++)
+{
+    var transform=Matrix4x4.RotateZ(i*.017f)*Matrix4x4.Scale(new Vector3(i%2==0?-2:2,.3f+(i%7),i%3==0?-.7f:.7f));
+    var objectNormal=new Vector3(.3f,.2f,1);var worldDirection=new Vector3(MathF.Cos(i*.3f),MathF.Sin(i*.4f),i%2==0?.5f:-.5f);
+    var rawNg=transform.inverse.transpose.MultiplyVector(objectNormal);var localDirection=transform.inverse.MultiplyVector(worldDirection);
+    float worldSide=Dot(rawNg,worldDirection),localSide=Dot(objectNormal,localDirection);
+    Require(MathF.Abs(worldSide-localSide)<2e-5f,"Inverse-transpose source orientation changed under an affine/mirrored instance.");
+}
+// A rejected nearest face must not turn the whole ray into a miss. Enumerate
+// candidate visit orders independently of shader traversal implementation.
+bool SideAllowed(uint cull,bool front)=>cull==0||(cull==1&&!front)||(cull==2&&front);
+foreach(uint cull in new uint[]{0,1,2}) foreach(bool front in new[]{false,true})
+    Require(SideAllowed(cull,front)==(cull==0||(cull==1?!front:front)),"Cull truth table mismatch.");
+foreach(var order in new[]{new[]{0,1,2},new[]{2,0,1},new[]{1,2,0},new[]{1,0,2},new[]{2,1,0},new[]{0,2,1}})
+{
+    var candidates=new[]{(t:1f,cull:2u,front:false),(t:2f,cull:1u,front:false),(t:3f,cull:0u,front:true)};
+    float committed=100;foreach(int i in order)if(candidates[i].t<committed&&SideAllowed(candidates[i].cull,candidates[i].front))committed=candidates[i].t;
+    Require(committed==2,"Rejecting a nearer backface lost the farther allowed triangle.");
+}
+
+// Diagnostic regression: unsupported-only membership changes must still update fallback count.
+var diagnosticScene=new HybridLumenGIScene(3);Slot(diagnosticScene,0,Renderer(Mesh(1)));Slot(diagnosticScene,1,null);
+using var diagnosticBackend=new HybridLumenGIHardwareBackend();Prepare(diagnosticBackend,diagnosticScene,1);
+Require(diagnosticBackend.FallbackCount==1,"Initial unsupported fallback count wrong.");Slot(diagnosticScene,2,null);Prepare(diagnosticBackend,diagnosticScene,2);
+Require(diagnosticBackend.FallbackCount==2,"Unsupported instance addition left FallbackCount stale in retained-handle path.");
+diagnosticScene.Data[1].identity.w=0;diagnosticScene.Data[2].identity.w=0;Prepare(diagnosticBackend,diagnosticScene,3);
+Require(diagnosticBackend.FallbackCount==0,"Unsupported instance removal left FallbackCount stale in retained-handle path.");
+
+// Lighting policy is a separate owner buffer. The real backend must retain its
+// native mesh and triangle attributes when only layers/shadow policy change.
+var policyScene=new HybridLumenGIScene(1);var policyMesh=Mesh(1);Slot(policyScene,0,Renderer(policyMesh));
+using var policyBackend=new HybridLumenGIHardwareBackend();Prepare(policyBackend,policyScene,1);
+var policyNative=RayTracingAccelerationStructure.Last;var policyCommand=new CommandBuffer();policyBackend.RecordBuild(policyCommand);
+var policyNormals=Buffer(policyBackend,"normalsBuffer");var policyInstances=Buffer(policyBackend,"instancesBuffer");
+int policyReads=policyMesh.VertexReads,policyRebuilds=policyBackend.SceneRebuildCount,policyUploads=policyBackend.TriangleUploadCount;
+int policyNormalUploads=policyNormals.UploadCalls,policyBindingUploads=policyBackend.BindingUploadCount;
+int policyBindingQueries=Cache(policyScene).BindingQueries,policyAdds=policyNative.AddHistory.Count;
+Require(Marshal.SizeOf<HybridLumenGIScene.LightingPolicyData>()==16,"Policy fixture must preserve uint4 / 16B layout.");
+for(uint mode=0;mode<4;mode++)
+{
+    policyScene.LightingPolicies[0]=new(){objectLayerBit=1u<<31,renderingLayerMask=mode==0?0:0x80000000u,shadowCastingMode=mode};
+    policyScene.DirtyRegions.Clear();policyScene.DirtyRegions.Add(new(){Slot=0,Kind=HybridLumenGIScene.ChangeKind.Lighting});
+    policyScene.Data[0].identity.y++;
+    Require(Prepare(policyBackend,policyScene,(int)mode+2),"A lighting-only policy update excluded the visible surface from hardware GI.");
+    Require(policyBackend.SceneRebuildCount==policyRebuilds&&policyBackend.TriangleUploadCount==policyUploads&&
+        policyNormals.UploadCalls==policyNormalUploads&&policyMesh.VertexReads==policyReads,"Lighting-only change rebuilt or reuploaded mesh geometry.");
+    Require(policyBackend.BindingUploadCount==policyBindingUploads&&Cache(policyScene).BindingQueries==policyBindingQueries,
+        "Independent lighting policy rescanned/reuploaded triangle-to-chart identities.");
+    Require(policyNative.AddHistory.Count==policyAdds&&policyNative.Updates.Count==0,"Shadow mode mutated RTAS membership or rigid transforms.");
+    Require(policyBackend.RecordBuild(policyCommand)&&policyCommand.BuildCalls==1,"Lighting-only mode/layer edit scheduled an RTAS rebuild.");
+    Require((uint)Field(policyInstances.data[0],"ownerRevision")==2+mode,"Lighting-only revision was not refreshed in native hit identity.");
+}
+policyScene.DirtyRegions.Clear();policyScene.DirtyRegions.Add(new(){Slot=0,Kind=HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Material});
+policyScene.Data[0].identity.y++;Cache(policyScene).Materials[(0,0)]=new(){cullMode=0,diffuse=new(.2f,.4f,.6f,1)};
+Require(Prepare(policyBackend,policyScene,6)&&policyBackend.SceneRebuildCount==policyRebuilds&&policyBackend.TriangleUploadCount==policyUploads,
+    "Combined Lighting|Material policy edit rebuilt unchanged geometry.");
+Require((uint)Field(policyInstances.data[0],"cullMode")==0&&(uint)Field(policyInstances.data[0],"ownerRevision")==6,
+    "Combined Lighting|Material edit did not update effective source material identity.");
+
+// Independent shadow candidate oracle. These cases describe the intended query
+// semantics; the source checks below link them to candidate-time HLSL decisions.
+// They are not executions of RayQuery, Unity layer culling, or a GPU driver.
+bool QueryCandidate(bool shadow,uint mode,uint ownerBit,uint ownerLayers,uint lightMask,uint shadowLayers,
+    bool useLayers,uint cull,bool front,bool rawValid=true)
+{
+    if(shadow&&(mode==0||(ownerBit&lightMask)==0||(useLayers&&(ownerLayers&shadowLayers)==0)))return false;
+    return !rawValid||SideAllowed(cull,front)||(shadow&&mode==2);
+}
+bool[,] expectedCull={{true,true},{true,false},{false,true}}; // columns: back, front
+foreach(uint mode in new uint[]{0,1,2,3}) foreach(uint cull in new uint[]{0,1,2}) foreach(bool front in new[]{false,true})
+{
+    bool surfaceExpected=expectedCull[cull,front?1:0];
+    Require(QueryCandidate(false,mode,0,0,0,0,true,cull,front)==surfaceExpected,
+        "Shadow mode/light masks affected ordinary surface candidate admission.");
+    bool shadowExpected=mode!=0&&(mode==2||surfaceExpected);
+    Require(QueryCandidate(true,mode,1,1,1,1,true,cull,front)==shadowExpected,
+        "Shadow Off/On/TwoSided/ShadowsOnly side admission differs from the mode truth table.");
+}
+for(int bit=0;bit<32;bit++)for(int other=0;other<32;other++)
+{
+    uint own=1u<<bit,light=1u<<other;bool expected=bit==other;
+    Require(QueryCandidate(true,1,own,1,light,1,true,0,true)==expected,"GameObject culling mask lost a bit or used signed comparison.");
+    Require(QueryCandidate(true,1,1,own,1,light,true,0,true)==expected,"Shadow rendering-layer mask lost a bit or used signed comparison.");
+    Require(QueryCandidate(true,1,1,own,1,light,false,0,true),"Disabled rendering layers still filtered a caster.");
+}
+Require(QueryCandidate(true,1,0x80000000u,0,uint.MaxValue,uint.MaxValue,false,0,true),"Disabled layers rejected an owner whose rendering mask is zero.");
+Require(!QueryCandidate(true,1,0x80000000u,0,uint.MaxValue,uint.MaxValue,true,0,true),"Enabled all-bits light mask treated a zero owner mask as wildcard.");
+Require(!QueryCandidate(true,1,1,uint.MaxValue,0,uint.MaxValue,false,0,true),"Disabled rendering layers also bypassed the independent GameObject culling mask.");
+Require(QueryCandidate(true,1,0x80000000u,0x80000000u,unchecked((uint)int.MinValue),unchecked((uint)int.MinValue),true,0,true),
+    "Signed API high-bit masks did not retain their exact uint bit pattern.");
+Require(QueryCandidate(true,1,1,0x80000001u,uint.MaxValue,0x80000002u,true,0,true),
+    "Rendering layers require any shared bit, not equality or all-bit containment.");
+Require(!QueryCandidate(true,0,1,1,1,1,true,0,true,false),"Missing raw Ng made a non-caster shadow despite ShadowCastingMode.Off.");
+Require(!QueryCandidate(true,1,2,1,1,1,true,0,true,false),"Missing raw Ng bypassed owner layer filtering.");
+Require(QueryCandidate(true,1,1,1,1,1,true,2,false,false),"Unusable face data lost the existing conservative occlusion fallback.");
+// Four candidates: nearer Off, nearer wrong layer, valid farther backface that
+// requires TwoSided, and still farther On. Every visit permutation must agree.
+foreach(bool mismatchRendering in new[]{false,true})
+{
+var shadowCandidates=new[]{
+    (t:1f,mode:0u,bit:1u,layers:1u,cull:0u,front:true),
+    (t:2f,mode:1u,bit:mismatchRendering?1u:2u,layers:mismatchRendering?2u:1u,cull:0u,front:true),
+    (t:3f,mode:2u,bit:1u,layers:1u,cull:2u,front:false),
+    (t:4f,mode:1u,bit:1u,layers:1u,cull:2u,front:true)};
+for(int i=0;i<4;i++)for(int j=0;j<4;j++)for(int k=0;k<4;k++)for(int l=0;l<4;l++)
+{
+    var order=new[]{i,j,k,l};if(order.Distinct().Count()!=4)continue;
+    float shadowT=100,surfaceT=100;
+    foreach(int index in order)
+    {
+        var candidate=shadowCandidates[index];
+        if(candidate.t<shadowT&&QueryCandidate(true,candidate.mode,candidate.bit,candidate.layers,1,1,true,candidate.cull,candidate.front))shadowT=candidate.t;
+        if(candidate.t<surfaceT&&QueryCandidate(false,candidate.mode,candidate.bit,candidate.layers,0,0,true,candidate.cull,candidate.front))surfaceT=candidate.t;
+    }
+    Require(shadowT==3,"A rejected nearer non-caster/layer mismatch hid the valid farther TwoSided caster.");
+    Require(surfaceT==1,"Independent shadow exclusion removed a visible surface from GI traversal.");
+}
+}
+
+// The actual backend captures original material slots in native instance order.
+// MaterialSource/Batch.Source are recording adapters here, independently tested elsewhere.
+var captureScene=new HybridLumenGIScene(2);var captureMeshA=Mesh(1,0,2);var captureMeshB=Mesh(0,1);
+var captureRendererA=Renderer(captureMeshA);var captureRendererB=Renderer(captureMeshB);
+captureRendererA.RendererMpbValue=19;captureRendererA.SlotMpbValues[0]=42;captureRendererA.SlotMpbValues[2]=420;
+captureRendererB.SlotMpbValues[1]=711;captureRendererA.Materials[2].UsesRenderTexture=true;
+Slot(captureScene,0,captureRendererA);Slot(captureScene,1,captureRendererB);
+captureScene.Proxies[0].AlbedoTint=new(.5f,.25f,.75f);captureScene.Proxies[0].EmissionOverride=new(.1f,.2f,.3f);captureScene.Proxies[0].EmissionIntensity=3.5f;
+using var captureBackend=new HybridLumenGIHardwareBackend();Require(Prepare(captureBackend,captureScene,1),"Source capture fixture did not prepare.");
+HybridLumenGIMaterialSource.Calls.Clear();
+Require(captureBackend.TryCaptureHitMaterialSources(captureScene,out var capturedSources,out var captureReason)&&captureReason==null,"Complete source table was rejected: "+captureReason);
+Require(capturedSources.Length==3&&HybridLumenGIMaterialSource.Calls.Count==3,"Source table is not one capture per native instance.");
+Require(HybridLumenGIMaterialSource.Calls.Select(c=>c.index).SequenceEqual(new[]{0,2,1}),"Source capture compressed original empty-submesh slots or used owner material zero.");
+Require(ReferenceEquals(HybridLumenGIMaterialSource.Calls[0].renderer,captureRendererA)&&ReferenceEquals(HybridLumenGIMaterialSource.Calls[1].renderer,captureRendererA)&&
+    ReferenceEquals(HybridLumenGIMaterialSource.Calls[2].renderer,captureRendererB),"Source table renderer order differs from hardware instance order.");
+Require(capturedSources[0].Snapshot.FrozenValue==42&&capturedSources[1].Snapshot.FrozenValue==420&&capturedSources[2].Snapshot.FrozenValue==711,"Original per-submesh MPB slot was not passed to the snapshot reader.");
+Require(!capturedSources[1].Snapshot.CanReuseHistory&&capturedSources[0].Snapshot.CanReuseHistory,"Current RT input was rejected or marked reusable.");
+Require(capturedSources.Select(s=>s.Submesh).SequenceEqual(new uint[]{0,2,1})&&capturedSources.Select(s=>s.StableId).SequenceEqual(new uint[]{101,101,102}),"Sources lost exact instance owner/submesh identity.");
+Require(capturedSources.All(s=>s.OwnerRevision==1&&s.GeometryRevision==1),"Sources did not copy current native owner/geometry epochs.");
+double StandardSrgb(double value)=>value<=.04045?value/12.92:Math.Exp(2.4*Math.Log((value+.055)/1.055));
+Require(Math.Abs(capturedSources[0].LinearProxyTint.x-StandardSrgb(.5f))<1e-6&&capturedSources[0].LinearProxyTint.w==1&&
+    Math.Abs(capturedSources[1].LinearProxyEmission.y-StandardSrgb(.2f))<1e-6&&capturedSources[1].LinearProxyEmission.w==3.5f,
+    "Proxy authoring tint/extra emission or unmodified intensity were not encoded as required.");
+var frozenTint=capturedSources[0].LinearProxyTint;captureRendererA.SlotMpbValues[0]=999;captureScene.Proxies[0].AlbedoTint=new(.9f,.8f,.7f);
+Require(capturedSources[0].Snapshot.FrozenValue==42&&Exact4(capturedSources[0].LinearProxyTint,frozenTint),"Returned Source value aliased mutable proxy or adapter snapshot data.");
+captureRendererA.SlotMpbValues[0]=42;captureScene.Proxies[0].AlbedoTint=new(.5f,.25f,.75f);
+int capturesSurfaceUploads=Buffer(captureBackend,"surfaceBuffer").UploadCalls;
+void RejectCapture(Action mutate,Action restore,string why)
+{
+    mutate();try
+    {
+        Require(!captureBackend.TryCaptureHitMaterialSources(captureScene,out var rejectedSources,out var reason)&&rejectedSources==null&&reason!=null,
+            "Partial/stale source table was published: "+why);
+        Require(captureBackend.IsReady&&Buffer(captureBackend,"surfaceBuffer").UploadCalls==capturesSurfaceUploads,
+            "Read-only source rejection modified backend geometry/readiness: "+why);
+    }finally{restore();}
+}
+RejectCapture(()=>captureScene.Data[0].identity.x=999,()=>captureScene.Data[0].identity.x=101,"scene stable ID");
+RejectCapture(()=>captureScene.Data[0].identity.y=2,()=>captureScene.Data[0].identity.y=1,"scene owner revision");
+RejectCapture(()=>captureScene.Data[0].identity.x=101.5f,()=>captureScene.Data[0].identity.x=101,"fractional identity");
+RejectCapture(()=>captureScene.Data[0].identity.w=2,()=>captureScene.Data[0].identity.w=1,"warming phase");
+RejectCapture(()=>captureScene.Data[0].identity.z=float.NaN,()=>captureScene.Data[0].identity.z=0,"nonfinite owner metadata");
+RejectCapture(()=>captureScene.Proxies[0].StableId=999,()=>captureScene.Proxies[0].StableId=101,"proxy stable ID");
+RejectCapture(()=>captureScene.Proxies[0].Revision=2,()=>captureScene.Proxies[0].Revision=1,"proxy revision");
+RejectCapture(()=>captureScene.Proxies[0].GeometryContentRevision=2,()=>captureScene.Proxies[0].GeometryContentRevision=1,"proxy geometry revision");
+RejectCapture(()=>Cache(captureScene).Geometry[0]=2,()=>Cache(captureScene).Geometry[0]=1,"surface geometry revision");
+RejectCapture(()=>captureScene.Proxies[0].SourceRenderer=captureRendererB,()=>captureScene.Proxies[0].SourceRenderer=captureRendererA,"proxy source renderer");
+RejectCapture(()=>captureScene.Renderers[0]=captureRendererB,()=>captureScene.Renderers[0]=captureRendererA,"scene renderer replacement");
+RejectCapture(()=>captureRendererA.Filter.sharedMesh=Mesh(1,0,2),()=>captureRendererA.Filter.sharedMesh=captureMeshA,"same-count mesh replacement");
+var oldCaptureIndices=captureMeshA.Submeshes[0];RejectCapture(()=>captureMeshA.Submeshes[0]=new[]{0,1,2,0,1,2},()=>captureMeshA.Submeshes[0]=oldCaptureIndices,"native primitive count changed");
+RejectCapture(()=>captureRendererA.localToWorldMatrix=Matrix4x4.Scale(new(-2,3,4)),()=>captureRendererA.localToWorldMatrix=Matrix4x4.identity,"pose changed after Prepare");
+RejectCapture(()=>captureScene.Proxies[0].isActiveAndEnabled=false,()=>captureScene.Proxies[0].isActiveAndEnabled=true,"inactive proxy");
+RejectCapture(()=>captureRendererA.enabled=false,()=>captureRendererA.enabled=true,"disabled source renderer");
+RejectCapture(()=>captureRendererA.gameObject.activeInHierarchy=false,()=>captureRendererA.gameObject.activeInHierarchy=true,"inactive renderer object");
+var originalCaptureMaterial=captureRendererA.Materials[2];RejectCapture(()=>captureRendererA.Materials[2]=null,()=>captureRendererA.Materials[2]=originalCaptureMaterial,"missing original material");
+RejectCapture(()=>captureScene.Proxies[0].EmissionIntensity=-1,()=>captureScene.Proxies[0].EmissionIntensity=3.5f,"negative proxy intensity");
+RejectCapture(()=>captureScene.Proxies[0].AlbedoTint=new(float.NaN,1,1),()=>captureScene.Proxies[0].AlbedoTint=new(.5f,.25f,.75f),"nonfinite proxy tint");
+RejectCapture(()=>HybridLumenGIMaterialSource.RejectIndex=2,()=>HybridLumenGIMaterialSource.RejectIndex=-1,"source reader fails after earlier slot");
+RejectCapture(()=>HybridLumenGIMaterialSource.ThrowCapture=true,()=>HybridLumenGIMaterialSource.ThrowCapture=false,"source reader exception");
+RejectCapture(()=>HybridLumenGIMaterialSource.WrongSnapshot=true,()=>HybridLumenGIMaterialSource.WrongSnapshot=false,"reader snapshot original slot mismatch");
+RejectCapture(()=>HybridLumenGIMaterialSource.OnCapture=index=>{if(index==1)captureScene.Data[0].identity.y=7;},
+    ()=>{HybridLumenGIMaterialSource.OnCapture=null;captureScene.Data[0].identity.y=1;},"late capture callback changed previous owner");
+var previousSlotZero=captureRendererA.Materials[0];
+RejectCapture(()=>HybridLumenGIMaterialSource.OnCapture=index=>{if(index==1)captureRendererA.Materials[0]=new Material();},
+    ()=>{HybridLumenGIMaterialSource.OnCapture=null;captureRendererA.Materials[0]=previousSlotZero;},"late callback replaced previous material");
+RejectCapture(()=>HybridLumenGIMaterialSource.OnCapture=index=>{if(index==1)captureScene.Proxies[0].EmissionIntensity=22;},
+    ()=>{HybridLumenGIMaterialSource.OnCapture=null;captureScene.Proxies[0].EmissionIntensity=3.5f;},"late callback changed proxy parameters");
+Require(captureBackend.TryCaptureHitMaterialSources(captureScene,out var recoveredSources,out _)&&recoveredSources.Length==3,"Source capture did not recover after reversible mismatch.");
+captureRendererA.Materials.ForEach(m=>m.UsesRenderTexture=false);Require(captureBackend.TryCaptureHitMaterialSources(captureScene,out var constantSources,out _)&&constantSources.All(s=>s.Snapshot.CanReuseHistory),"Constant-only source table rejected.");
+Require(!captureBackend.TryCaptureHitMaterialSources(null,out var absentSources,out _)&&absentSources==null,"Null scene published sources.");
+captureBackend.Dispose();Require(!captureBackend.TryCaptureHitMaterialSources(captureScene,out var disposedSources,out _)&&disposedSources==null,"Disposed backend published a source table.");
+
+// Source-contract checks connect the CPU metadata/candidate oracle to the real
+// shader entry. They do not execute GPU traversal or validate Unity dispatch.
+Require(args.Length==1,"Pass source root so the actual shader contract is inspected.");
+if(args.Length==1)
+{
+    string shader=System.IO.File.ReadAllText(System.IO.Path.Combine(args[0],"Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl"));
+    string compact=System.Text.RegularExpressions.Regex.Replace(System.Text.RegularExpressions.Regex.Replace(shader,@"//[^\n]*",""),@"\s+","");
+    Require(compact.Contains("RAY_FLAG_FORCE_NON_OPAQUE|RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES"),"All opaque mesh candidates must permit side evaluation before commit.");
+    int loop=compact.IndexOf("while(query.Proceed())"),commit=compact.IndexOf("query.CommitNonOpaqueTriangleHit()"),status=compact.IndexOf("query.CommittedStatus()");
+    Require(loop>=0&&commit>loop&&status>commit&&compact.IndexOf("HLGIHardwareSideAllowed(candidate.identity.w,frontFace)",loop)<commit,"Cull decision moved after closest-hit commitment.");
+    int ownerPolicy=compact.IndexOf("if(shadowQuery&&!HLGIShadowOwnerAllowed(candidate.geometry.x,cullingMask,shadowRenderingLayers,useRenderingLayers))continue;",loop);
+    int twoSided=compact.IndexOf("(shadowQuery&&HLGIShadowTwoSided(candidate.geometry.x))",loop);
+    Require(ownerPolicy>loop&&ownerPolicy<commit&&twoSided>ownerPolicy&&twoSided<commit,"Shadow policy/layer/TwoSided filtering is absent or happens after commitment.");
+    Require(compact.Contains("boolHLGIHardwareTraceQuery(float3origin,float3direction,floatmaxT,boolshadowQuery,uintcullingMask,uintshadowRenderingLayers,booluseRenderingLayers,outHLGIHithit)"),
+        "Independent hardware shadow query lost its uint masks or explicit rendering-layer enable flag.");
+    Require(compact.Contains("returnHLGIHardwareTraceQuery(origin,direction,maxT,false,true,0xffffffffu,0xffffffffu,false,hit);"),
+        "The compatibility surface wrapper must resolve materials without shadow exclusion or rendering-layer filtering.");
+    string shared=System.IO.File.ReadAllText(System.IO.Path.Combine(args[0],"Runtime/Resources/HybridLumenGI/HybridLumenGIExactMesh.hlsl"));
+    Require(compact.Contains("#include\"HybridLumenGIExactMesh.hlsl\"")&&shared.Contains("#include \"HybridLumenGILightingPolicy.hlsl\""),"Hardware shader omitted the shared exact geometry/owner-policy snapshot dependency.");
+    Require(!compact.Contains("RAY_FLAG_ACCEPT_FIRST_HIT")&&!compact.Contains("RAY_FLAG_FORCE_OPAQUE"),"Traversal can stop before the nearest allowed surface.");
+    Require(compact.Contains("hit.submesh=instance.geometry.w;")&&compact.Contains("hit.primitive=primitive;")&&compact.Contains("hit.hardwareInstance=instanceIndex;"),"Unified hit lost exact native primitive identity.");
+    Require(compact.Contains("hit.barycentrics=barycentric;")&&compact.Contains("hit.uv=uv;"),"Unified hit lost barycentric/UV attributes.");
+    Require(compact.Contains("hit.rawNg=rawNg;")&&compact.Contains("hit.shadingNormal=shadingNormal;"),"Raw geometry and source shading normal were conflated.");
+    Require(!compact.Contains("rawNg=-rawNg")&&!compact.Contains("shadingNormal=-shadingNormal"),"Source normals were face-forwarded before material identity lookup.");
+    int sideAdmission=compact.IndexOf("boolsideAllowed=dot(rawNg,rawNg)<0.5||HLGIHardwareSideAllowed",loop);
+    int sideRejection=compact.IndexOf("if(!sideAllowed)continue;",loop);
+    int coverage=compact.IndexOf("coverageKnown=HLGIHardwareEvaluateHit(",loop);
+    int coverageRejection=compact.IndexOf("if(!HLGIHitCoverageBlocks(coverageKnown,covered))continue;",loop);
+    Require(sideAdmission>loop&&sideRejection>sideAdmission&&sideRejection<commit,
+        "Invalid face attributes must survive side rejection as an occluder rather than an unexplained miss.");
+    Require(coverage>sideRejection&&coverageRejection>coverage&&coverageRejection<commit,
+        "Alpha coverage must be checked after side admission and before candidate commit, including two-sided casters.");
+    Require(compact.Contains("if(dot(rawNg,rawNg)>0.5)")&&compact.Contains("HLGI_HIT_GEOMETRIC_NORMAL|HLGI_HIT_ORIENTED_NG|HLGI_HIT_FRONT_FACE_KNOWN"),"Unusable face received geometric/front-face authority.");
+    Require(compact.Contains("if(normalValid)hit.flags|=HLGI_HIT_SHADING_NORMAL;"),"A fallback normal was labeled a source interpolated normal.");
+    Require(compact.Contains("binding.w==hit.geometryRevision")&&compact.Contains("hit.surfaceBinding=binding;"),"Triangle/chart binding lost its geometry generation.");
+    Require(compact.Contains("if(!HLGIHitMaterialKnown(hit)||!HLGIHitHas(hit.flags,HLGI_HIT_VALID|HLGI_HIT_TRIANGLE|HLGI_HIT_UV_MATERIAL))returnfalse;")&&
+        compact.Contains("diffuse=hit.materialDiffuse;emission=hit.materialEmission;returntrue;"),
+        "Material compatibility accessor must require the committed known UV payload rather than invent constant radiance.");
+}
+
+// Actual shared budget + actual backend admission. Retirement completion below is
+// a controlled callback, not a GPU fence or driver allocation measurement.
+int quotaStart=checks;
+HybridLumenGIRtasBudget.Settings Quota(long memory=2L*1024*1024*1024,long rate=2,long burst=6,int builds=1)=>new(){
+    MemoryBudgetBytes=memory,MaxBuildsPerFrame=builds,TriangleWorkPerFrame=rate,InstanceWorkPerFrame=rate,
+    TriangleBurstCapacity=burst,InstanceBurstCapacity=burst,BaseEstimateBytes=65536,BytesPerTriangle=192,BytesPerInstance=1024};
+(HybridLumenGIHardwareBackend backend,HybridLumenGIScene scene,MeshRenderer renderer) BudgetCamera(int triangles,bool software=false)
+{var r=Renderer(Mesh(triangles));var s=new HybridLumenGIScene(1);Slot(s,0,r);return(new(software),s,r);}
+void MoveBudgetCamera((HybridLumenGIHardwareBackend backend,HybridLumenGIScene scene,MeshRenderer renderer) camera,int revision)
+{camera.renderer.localToWorldMatrix=Matrix4x4.Translate(new Vector3(revision,0,0));camera.scene.Data[0].identity.y=revision;
+ camera.scene.Proxies[0].Revision=revision;camera.scene.DirtyRegions.Clear();camera.scene.DirtyRegions.Add(new(){Slot=0,Kind=HybridLumenGIScene.ChangeKind.Transform});}
+HybridLumenGIResourceRetirement.Immediate=false;
+HybridLumenGIRtasBudget.BeginFrame(1000,Quota(rate:0,burst:0,builds:0));
+long beforeSoftware=HybridLumenGIRtasBudget.AccountedBytes;
+var swBudget=BudgetCamera(3,true);var previousNative=RayTracingAccelerationStructure.Last;
+Require(Prepare(swBudget.backend,swBudget.scene,1)&&swBudget.backend.RecordBuild(new CommandBuffer()),"Software geometry consumed disabled RTAS work quota.");
+Require(HybridLumenGIRtasBudget.AccountedBytes==beforeSoftware&&HybridLumenGIRtasBudget.BuildsThisFrame==0&&ReferenceEquals(previousNative,RayTracingAccelerationStructure.Last),"Software-only preparation reserved native memory or constructed RTAS.");
+swBudget.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
+
+HybridLumenGIRtasBudget.BeginFrame(1001,Quota());
+var camA=BudgetCamera(2);var camB=BudgetCamera(2);var cmdA=new CommandBuffer();var cmdB=new CommandBuffer();
+Require(Prepare(camA.backend,camA.scene,1)&&Prepare(camB.backend,camB.scene,1),"Two camera demand setup failed.");
+Require(camA.backend.RecordBuild(cmdA)&&!camB.backend.RecordBuild(cmdB),"Global build cap did not defer the second camera.");
+var deferredBindings=new CommandBuffer();camB.backend.Bind(deferredBindings,camB.backend.Shader,0);
+Require(!camB.backend.CanDispatch&&deferredBindings.Buffers.Count==0&&deferredBindings.Acceleration==null&&cmdB.BuildCalls==0,"Deferred geometry bound stale acceleration/identity.");
+HybridLumenGIRtasBudget.BeginFrame(1001,Quota(rate:100,burst:100,builds:100));
+Require(!camB.backend.RecordBuild(cmdB)&&HybridLumenGIRtasBudget.BuildsThisFrame==1,"A second same-frame budget call relaxed limits or refilled credits.");
+HybridLumenGIRtasBudget.BeginFrame(1002,Quota());MoveBudgetCamera(camA,2);
+Require(Prepare(camA.backend,camA.scene,2)&&!camA.backend.RecordBuild(cmdA),"First camera refit stole the older second-camera ticket.");
+Require(Prepare(camB.backend,camB.scene,1)&&camB.backend.RecordBuild(cmdB),"Older waiting camera did not receive the next frame's admission.");
+Require(HybridLumenGIRtasBudget.TriangleWorkThisFrame==2&&HybridLumenGIRtasBudget.InstanceWorkThisFrame==1&&HybridLumenGIRtasBudget.BuildsThisFrame==1,"Shared per-frame work counts are wrong.");
+HybridLumenGIRtasBudget.BeginFrame(1003,Quota());
+Require(Prepare(camA.backend,camA.scene,2)&&camA.backend.RecordBuild(cmdA)&&cmdA.BuildCalls==2,"Deferred rigid refit did not resume or was not charged.");
+Require(camA.backend.RecordBuild(cmdA)&&HybridLumenGIRtasBudget.BuildsThisFrame==1&&cmdA.BuildCalls==2,"Unchanged geometry consumed a duplicate work ticket.");
+HybridLumenGIRtasBudget.BeginFrame(999,Quota(rate:100,burst:100,builds:100));
+Require(HybridLumenGIRtasBudget.Frame==1003&&HybridLumenGIRtasBudget.BuildsThisFrame==1,"A late budget callback rewound the engine frame.");
+camA.backend.Dispose();camB.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
+
+HybridLumenGIRtasBudget.BeginFrame(1100,Quota(rate:0,burst:0,builds:0));
+var large=BudgetCamera(6);var small=BudgetCamera(1);var largeCmd=new CommandBuffer();var smallCmd=new CommandBuffer();
+for(int frame=1101;frame<=1103;frame++)
+{
+    HybridLumenGIRtasBudget.BeginFrame(frame,Quota());
+    Require(Prepare(large.backend,large.scene,1)&&Prepare(small.backend,small.scene,1),"Large/small accumulation setup failed.");
+    Require(large.backend.RecordBuild(largeCmd)==(frame==1103),"Large build did not wait for its complete burst or never became executable.");
+    Require(!small.backend.RecordBuild(smallCmd),"Younger small work stole credits accumulated for older large work.");
+}
+HybridLumenGIRtasBudget.BeginFrame(1104,Quota());
+Require(Prepare(small.backend,small.scene,1)&&small.backend.RecordBuild(smallCmd),"Small build did not execute after older large work completed.");
+Require(largeCmd.BuildCalls==1&&smallCmd.BuildCalls==1,"Deferred work emitted partial or duplicate native builds.");
+large.backend.Dispose();small.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
+HybridLumenGIRtasBudget.BeginFrame(1110,Quota());var tooLarge=BudgetCamera(7);var oversizedCmd=new CommandBuffer();
+Require(Prepare(tooLarge.backend,tooLarge.scene,1)&&!tooLarge.backend.RecordBuild(oversizedCmd)&&tooLarge.backend.BudgetStatus.Contains("burst cap"),"Oversized single build has no explicit actionable cap failure.");
+Require(oversizedCmd.BuildCalls==0&&HybridLumenGIRtasBudget.PendingDemands==0,"Over-burst demand emitted work or permanently blocked other owners.");
+tooLarge.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
+
+HybridLumenGIRtasBudget.BeginFrame(1200,Quota(rate:0,burst:0,builds:0));
+var abandoned=BudgetCamera(6);var nextCamera=BudgetCamera(1);var nextCmd=new CommandBuffer();
+HybridLumenGIRtasBudget.BeginFrame(1201,Quota());Require(Prepare(abandoned.backend,abandoned.scene,1)&&!abandoned.backend.RecordBuild(new CommandBuffer()),"Abandoned demand setup failed.");
+HybridLumenGIRtasBudget.BeginFrame(1202,Quota());Require(Prepare(nextCamera.backend,nextCamera.scene,1)&&!nextCamera.backend.RecordBuild(nextCmd),"A demand expired without one complete absent frame.");
+long heldDemandMemory=HybridLumenGIRtasBudget.AccountedBytes;
+HybridLumenGIRtasBudget.BeginFrame(1203,Quota());
+Require(Prepare(nextCamera.backend,nextCamera.scene,1)&&nextCamera.backend.RecordBuild(nextCmd),"Absent demand blocked a later camera forever.");
+Require(HybridLumenGIRtasBudget.AccountedBytes>=heldDemandMemory,"Demand age incorrectly released GPU memory.");
+abandoned.backend.Dispose();nextCamera.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
+
+HybridLumenGIRtasBudget.BeginFrame(1300,Quota(rate:0,burst:0,builds:0));
+var canceled=BudgetCamera(6);var afterCancel=BudgetCamera(1);
+HybridLumenGIRtasBudget.BeginFrame(1301,Quota());Prepare(canceled.backend,canceled.scene,1);Require(!canceled.backend.RecordBuild(new CommandBuffer()),"Cancel demand setup failed.");
+Prepare(afterCancel.backend,afterCancel.scene,1);Require(!afterCancel.backend.RecordBuild(new CommandBuffer()),"Older demand did not block newer work before cancellation.");
+long cancelMemory=HybridLumenGIRtasBudget.AccountedBytes;canceled.backend.CancelBuildDemand();
+Require(afterCancel.backend.RecordBuild(new CommandBuffer())&&HybridLumenGIRtasBudget.AccountedBytes>=cancelMemory,"Explicit demand cancellation failed to release scheduling priority or released GPU memory.");
+canceled.backend.Dispose();afterCancel.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
+
+HybridLumenGIRtasBudget.BeginFrame(1400,Quota());var late=BudgetCamera(1);Prepare(late.backend,late.scene,1);
+HybridLumenGIRtasBudget.BeginFrame(1401,Quota());var lateCmd=new CommandBuffer();
+Require(!late.backend.RecordBuild(lateCmd)&&lateCmd.BuildCalls==0&&HybridLumenGIRtasBudget.BuildsThisFrame==0,"Late previous-frame build callback consumed current credits.");
+late.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
+
+long memoryBaseline=HybridLumenGIRtasBudget.AccountedBytes;long oneEstimate=65536+192+1024;
+HybridLumenGIRtasBudget.BeginFrame(1500,Quota(memoryBaseline+oneEstimate-1));var noMemory=BudgetCamera(1);previousNative=RayTracingAccelerationStructure.Last;
+Require(!Prepare(noMemory.backend,noMemory.scene,1)&&!noMemory.backend.CanDispatch&&ReferenceEquals(previousNative,RayTracingAccelerationStructure.Last),"Preallocation estimate exceeded memory quota or still created a native AS.");
+Require(HybridLumenGIRtasBudget.AccountedBytes==memoryBaseline,"Rejected allocation retained a nonexistent reservation.");noMemory.backend.Dispose();
+HybridLumenGIRtasBudget.BeginFrame(1501,Quota(memoryBaseline+oneEstimate));var measured=BudgetCamera(1);Require(Prepare(measured.backend,measured.scene,1),"Exact estimate boundary was rejected.");
+var measuredNative=RayTracingAccelerationStructure.Last;var measuredCmd=new CommandBuffer();
+Require(!measured.backend.RecordBuild(measuredCmd)&&measuredCmd.BuildCalls==1&&!measured.backend.CanDispatch,"Measured GetSize overrun remained dispatchable or was hidden.");
+Require(measured.backend.BudgetStatus.Contains("Measured")&&HybridLumenGIRtasBudget.AccountedBytes==memoryBaseline+123456&&HybridLumenGIRtasBudget.RetiredBytes>=123456&&!measuredNative.Disposed,"Measured overrun reservation was not retained through retirement.");
+var blockedByRetired=BudgetCamera(1);Require(!Prepare(blockedByRetired.backend,blockedByRetired.scene,1),"Pending retirement bytes were reusable by another camera.");
+HybridLumenGIRtasBudget.BeginFrame(1509,Quota(memoryBaseline+oneEstimate));
+Require(HybridLumenGIRtasBudget.AccountedBytes==memoryBaseline+123456&&!measuredNative.Disposed,"Frame age released uncompleted native resources.");
+HybridLumenGIResourceRetirement.Complete();
+Require(measuredNative.Disposed&&HybridLumenGIRtasBudget.AccountedBytes==memoryBaseline,"Successful destruction did not release the measured reservation.");
+measured.backend.Dispose();blockedByRetired.backend.Dispose();
+
+HybridLumenGIRtasBudget.BeginFrame(1600,Quota());var retired=BudgetCamera(1);Prepare(retired.backend,retired.scene,1);Require(retired.backend.RecordBuild(new CommandBuffer()),"Normal retirement setup failed.");
+var retiredNative=RayTracingAccelerationStructure.Last;long readyMemory=HybridLumenGIRtasBudget.AccountedBytes;retired.backend.Dispose();
+Require(!retiredNative.Disposed&&HybridLumenGIRtasBudget.AccountedBytes==readyMemory&&HybridLumenGIRtasBudget.RetiredBytes>=123456,"Dispose bypassed actual destruction completion accounting.");
+HybridLumenGIResourceRetirement.Complete();Require(retiredNative.Disposed&&HybridLumenGIRtasBudget.AccountedBytes==memoryBaseline,"Completed normal retirement retained its reservation.");
+HybridLumenGIRtasBudget.BeginFrame(1700,Quota());var failedCommand=BudgetCamera(1);Prepare(failedCommand.backend,failedCommand.scene,1);
+var failedNative=RayTracingAccelerationStructure.Last;var unknownCommand=new CommandBuffer{ThrowOnBuild=true};
+Require(!failedCommand.backend.RecordBuild(unknownCommand)&&unknownCommand.BuildCalls==1&&!failedCommand.backend.CanDispatch&&HybridLumenGIRtasBudget.BuildsThisFrame==1,
+    "A throwing build API refunded potentially appended work or kept a usable stale backend.");
+long unknownMemory=HybridLumenGIRtasBudget.AccountedBytes;failedCommand.backend.Dispose();
+Require(!failedNative.Disposed&&HybridLumenGIRtasBudget.AccountedBytes==unknownMemory,"Unknown native recording result bypassed deferred destruction.");
+HybridLumenGIResourceRetirement.Complete();Require(failedNative.Disposed&&HybridLumenGIRtasBudget.AccountedBytes==memoryBaseline,"Fenced destruction after a command failure did not release its reservation.");
+
+// Allocation admission counts physical attributes, including detached replacements.
+// A topology change cannot allocate first and hide the old buffers behind list sizes.
+var attributeCamera=BudgetCamera(1,true);var attributeQuotaBackend=attributeCamera.backend;
+const long oneAttributeSet=4+128+64+80+96+16;
+Require(attributeQuotaBackend.Prepare(attributeCamera.scene,1,250000,Cache(attributeCamera.scene),oneAttributeSet)&&attributeQuotaBackend.CurrentAttributeBytes==oneAttributeSet,
+    "Exact initial attribute budget did not match six real allocations.");
+var originalAttributeNormals=Buffer(attributeQuotaBackend,"normalsBuffer");
+attributeCamera.renderer.Filter.sharedMesh=Mesh(2);attributeCamera.scene.Proxies[0].GeometryContentRevision=2;Cache(attributeCamera.scene).Geometry[0]=2;
+int allocationsBeforeResize=ComputeBuffer.AllocationCount;
+const long twoAttributeSet=4+128+64+2*(80+96+16);
+Require(!attributeQuotaBackend.Prepare(attributeCamera.scene,2,250000,Cache(attributeCamera.scene),twoAttributeSet)&&!attributeQuotaBackend.CanDispatch,
+    "Resize ignored the peak of old and replacement attribute buffers.");
+Require(ComputeBuffer.AllocationCount==allocationsBeforeResize&&attributeQuotaBackend.CurrentAttributeBytes==0&&attributeQuotaBackend.RetiredAttributeBytes==oneAttributeSet&&
+    attributeQuotaBackend.AttributeBytes==oneAttributeSet&&!originalAttributeNormals.Released,"Rejected resize allocated new buffers or lost detached bytes.");
+Require(!attributeQuotaBackend.Prepare(attributeCamera.scene,2,250000,Cache(attributeCamera.scene),twoAttributeSet)&&ComputeBuffer.AllocationCount==allocationsBeforeResize,
+    "Repeated pending resize allocated while uncompleted old attributes still occupied the budget.");
+HybridLumenGIResourceRetirement.Complete();
+Require(originalAttributeNormals.Released&&attributeQuotaBackend.AttributeBytes==0&&attributeQuotaBackend.Prepare(attributeCamera.scene,2,250000,Cache(attributeCamera.scene),twoAttributeSet),
+    "Resize could not recover after actual old-buffer release.");
+Require(attributeQuotaBackend.AttributeBytes==twoAttributeSet&&attributeQuotaBackend.RetiredAttributeBytes==0,"Recovered resize accounting differs from actual capacity.");
+var replacedNormals=Buffer(attributeQuotaBackend,"normalsBuffer");attributeCamera.renderer.Filter.sharedMesh=Mesh(3);
+attributeCamera.scene.Proxies[0].GeometryContentRevision=3;Cache(attributeCamera.scene).Geometry[0]=3;
+long thirdReplacement=3*(80+96+16);long thirdSet=4+128+64+thirdReplacement;
+Require(attributeQuotaBackend.Prepare(attributeCamera.scene,3,250000,Cache(attributeCamera.scene),twoAttributeSet+thirdReplacement),"Exact replacement peak was rejected.");
+Require(attributeQuotaBackend.CurrentAttributeBytes==thirdSet&&attributeQuotaBackend.RetiredAttributeBytes==2*(80+96+16)&&attributeQuotaBackend.AttributeBytes==twoAttributeSet+thirdReplacement&&!replacedNormals.Released,
+    "Successful resize stopped counting replaced triangle buffers before release.");
+HybridLumenGIResourceRetirement.Complete();
+Require(replacedNormals.Released&&attributeQuotaBackend.AttributeBytes==thirdSet&&attributeQuotaBackend.RetiredAttributeBytes==0,"Completed replacement did not release only the retired bytes.");
+attributeQuotaBackend.Dispose();Require(attributeQuotaBackend.CurrentAttributeBytes==0&&attributeQuotaBackend.AttributeBytes==thirdSet,"Dispose removed live attributes from budget before release.");
+HybridLumenGIResourceRetirement.Complete();Require(attributeQuotaBackend.AttributeBytes==0,"Dispose callback did not clear released attribute allocation accounting.");
+HybridLumenGIResourceRetirement.Immediate=true;
+Console.WriteLine($"Shared RTAS budget integration: {checks-quotaStart} checks; recorded API/retirement adapters, no GPU completion claims.");
+
+Console.WriteLine($"Actual-source hardware backend: {checks-failures}/{checks} assertions passed; {failures} failures. RTAS, mesh and buffer APIs are recording mocks; affine/candidate cases are CPU reference calculations and shader checks are source contracts, not Unity/driver execution.");
+if(failures>0)Environment.Exit(1);
+
+
+

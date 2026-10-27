@@ -1,0 +1,131 @@
+using System;
+using System.Collections;
+using System.Reflection;
+using System.Threading.Tasks;
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Rendering;
+
+static class Program
+{
+    const BindingFlags PrivateInstance=BindingFlags.NonPublic|BindingFlags.Instance;
+    const BindingFlags PrivateStatic=BindingFlags.NonPublic|BindingFlags.Static;
+    sealed class Owner {public HybridLumenGIDeformedMesh component;public HybridLumenGIProxy proxy;public Renderer renderer;public Mesh original;}
+    static void Require(bool result,string message){if(!result)throw new Exception(message);}
+    static Mesh Mesh(int marker)
+    {
+        var mesh=new Mesh{vertices=new[]{new Vector3(marker,0,0),new Vector3(marker,1,0),new Vector3(marker,0,1)},
+            normals=new Vector3[3],tangents=new Vector4[3],uv=new Vector2[3],bounds=new Bounds(new Vector3(marker,0,0),new Vector3(1,1,1)),subMeshCount=1};
+        mesh.SetIndices(new[]{0,1,2},MeshTopology.Triangles,0,false);return mesh;
+    }
+    static Owner Add(int marker,bool skinned=false)
+    {
+        var go=new GameObject();var proxy=go.Add<HybridLumenGIProxy>();Renderer renderer;
+        Mesh mesh=Mesh(marker);
+        if(skinned){var skin=go.Add<SkinnedMeshRenderer>();skin.sharedMesh=mesh;renderer=skin;}
+        else{renderer=go.Add<MeshRenderer>();go.Add<MeshFilter>().sharedMesh=mesh;}
+        proxy.SourceRenderer=renderer;var component=go.Add<HybridLumenGIDeformedMesh>();component.sdfResolution=16;component.updateIntervalFrames=1;
+        typeof(HybridLumenGIDeformedMesh).GetMethod("OnEnable",PrivateInstance).Invoke(component,null);
+        return new Owner{component=component,proxy=proxy,renderer=renderer,original=mesh};
+    }
+    static void Disable(Owner owner)
+    {
+        owner.proxy.OnDirty=null;owner.component.enabled=false;
+        typeof(HybridLumenGIDeformedMesh).GetMethod("OnDisable",PrivateInstance).Invoke(owner.component,null);
+    }
+    static void Frame(){Time.frameCount++;RenderPipelineManager.Begin();}
+    static object Job(Owner owner)
+    {
+        var jobs=(IList)typeof(HybridLumenGIDeformedMesh).GetField("Jobs",PrivateStatic).GetValue(null);
+        foreach(var job in jobs)if(ReferenceEquals(job.GetType().GetField("owner",PrivateInstance).GetValue(job),owner.component))return job;
+        return null;
+    }
+    static Mesh PendingMesh(Owner owner)
+    {
+        var job=Job(owner);var snapshot=job.GetType().GetField("snapshot",PrivateInstance).GetValue(job);
+        return (Mesh)snapshot.GetType().GetField("mesh",PrivateInstance).GetValue(snapshot);
+    }
+    static void Started(int marker)=>Require(ControlledBake.For(marker).Started.Wait(5000),"Worker did not reach controlled bake: "+marker);
+    static void Finish(Owner owner,int marker)
+    {
+        var job=Job(owner);Require(job!=null,"No actual component job to complete.");
+        var work=(Task)job.GetType().GetField("work",PrivateInstance).GetValue(job);
+        ControlledBake.For(marker).Release.Set();Require(work.Wait(5000),"Worker did not finish after its barrier.");
+    }
+    static void Defaults()
+    {
+        HybridLumenGIDeformedMesh.VertexBudgetPerFrame=65536;HybridLumenGIDeformedMesh.MaximumWorkers=2;
+        HybridLumenGIDeformedMesh.MemoryBudgetBytes=128L<<20;HybridLumenGIDeformedMesh.UploadBudgetBytesPerFrame=8L<<20;
+    }
+    static void AtomicGenerationAndRetirement()
+    {
+        Defaults();var owner=Add(10);HybridLumenGIDeformedMesh.MaximumWorkers=0;Frame();
+        Require(Job(owner)==null && owner.component.PendingFrame==-1,"MaximumWorkers=0 still admitted a capture.");
+        HybridLumenGIDeformedMesh.MaximumWorkers=1;Frame();Started(10);
+        Mesh pendingA=PendingMesh(owner);Require(!ReferenceEquals(pendingA,owner.original),"Capture aliased producer-owned mesh.");
+        Finish(owner,10);HybridLumenGIDeformedMesh.UploadBudgetBytesPerFrame=0;Frame();
+        Require(!HybridLumenGIDeformedMesh.HasSnapshot(owner.renderer) && Job(owner)!=null && Texture3D.Created==0,"Completed worker bypassed the publication upload budget.");
+        int preparations=0,publications=0;
+        Action beforeSet=()=>{preparations++;Require(ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),owner.original),"Partially built snapshot became visible before atomic publication.");};
+        HybridLumenGIMeshSdf.BeforeSet=beforeSet;HybridLumenGISurfaceCharts.BeforeSet=beforeSet;
+        owner.proxy.OnDirty=()=>
+        {
+            publications++;Mesh mesh=HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer);
+            var sdf=HybridLumenGIDeformedMesh.GetSdf(owner.renderer,null);var charts=HybridLumenGIDeformedMesh.GetCharts(owner.renderer,null);
+            Require(ReferenceEquals(mesh,pendingA) && ReferenceEquals(sdf.SourceMesh,mesh) && ReferenceEquals(charts.SourceMesh,mesh) && charts.CaptureMesh!=null,"Mesh/SDF/charts were not published as one snapshot.");
+        };
+        HybridLumenGIDeformedMesh.UploadBudgetBytesPerFrame=8L<<20;Frame();
+        Require(preparations==2 && publications==1 && owner.component.PublishedFrame>=0,"Snapshot construction/publication observation missing.");
+        Require(ReferenceEquals(owner.renderer.GetComponent<MeshFilter>().sharedMesh,owner.original),"GI publication mutated the visible renderer's original mesh.");
+        HybridLumenGIMeshSdf.BeforeSet=HybridLumenGISurfaceCharts.BeforeSet=null;owner.proxy.OnDirty=null;
+        long oneReservation=HybridLumenGIDeformedMesh.ReservedBytes;
+        var sdfA=HybridLumenGIDeformedMesh.GetSdf(owner.renderer,null);var chartsA=HybridLumenGIDeformedMesh.GetCharts(owner.renderer,null);
+
+        owner.component.RequestCapture(Mesh(20));Frame();Started(20);Mesh pendingB=PendingMesh(owner);
+        owner.component.RequestCapture(Mesh(30));Finish(owner,20);Frame();Started(30);
+        Require(pendingB.Destroyed && ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),pendingA),"Cancelled older generation replaced the live snapshot or leaked its private mesh.");
+        Mesh pendingC=PendingMesh(owner);Finish(owner,30);Frame();
+        var sdfC=HybridLumenGIDeformedMesh.GetSdf(owner.renderer,null);var chartsC=HybridLumenGIDeformedMesh.GetCharts(owner.renderer,null);
+        Require(ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),pendingC) &&
+            ReferenceEquals(sdfC.SourceMesh,pendingC) && ReferenceEquals(chartsC.SourceMesh,pendingC),"Replacement snapshot published mixed identities.");
+        Require(!pendingA.Destroyed && !sdfA.Destroyed && !chartsA.Destroyed && HybridLumenGIDeformedMesh.ReservedBytes==2*oneReservation,"Replacement destroyed/released old snapshot before final-context completion.");
+        int previousFences=RecordedGpu.Fences.Count;RenderPipelineManager.End();
+        Require(RecordedGpu.Fences.Count==previousFences+1 && RecordedGpu.Submits>0 && !pendingA.Destroyed,"Retirement did not submit a final-context fence or assumed it completed immediately.");
+        Frame();RenderPipelineManager.End();
+        Require(!pendingA.Destroyed && HybridLumenGIDeformedMesh.ReservedBytes==2*oneReservation,"Elapsed context/frame released unfinished GPU work.");
+        RecordedGpu.CompleteSubmitted();RenderPipelineManager.End();
+        Require(pendingA.Destroyed && sdfA.Destroyed && sdfA.Texture.Destroyed && chartsA.Destroyed && chartsA.CaptureMesh.Destroyed &&
+            !pendingC.Destroyed && HybridLumenGIDeformedMesh.ReservedBytes==oneReservation,"Completed old snapshot did not retire all owned resources exactly once.");
+
+        owner.component.RequestCapture(Mesh(40));Frame();Started(40);Mesh rejected=PendingMesh(owner);Finish(owner,40);
+        HybridLumenGISurfaceCharts.FailSet=true;Frame();HybridLumenGISurfaceCharts.FailSet=false;
+        Require(rejected.Destroyed && ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),pendingC) &&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetSdf(owner.renderer,null),sdfC) && ReferenceEquals(HybridLumenGIDeformedMesh.GetCharts(owner.renderer,null),chartsC) &&
+            HybridLumenGIDeformedMesh.ReservedBytes==oneReservation,"Failed publication exposed mixed/invalid state or lost the previous snapshot.");
+        Disable(owner);Require(!pendingC.Destroyed && ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),owner.original),"Disable failed to withdraw atomically or destroyed GPU consumers immediately.");
+        RenderPipelineManager.End();Require(!pendingC.Destroyed,"Disable treated fence submission as completion.");
+        RecordedGpu.CompleteSubmitted();RenderPipelineManager.End();Require(pendingC.Destroyed && HybridLumenGIDeformedMesh.ReservedBytes==0,"Disabled snapshot did not retire after actual completion.");
+    }
+    static void FailedCaptureConsumesBudgetAndBacksOff()
+    {
+        Defaults();HybridLumenGIDeformedMesh.VertexBudgetPerFrame=3;
+        var bad=Add(100,true);var skin=(SkinnedMeshRenderer)bad.renderer;skin.FailBake=true;bad.component.updateIntervalFrames=4;
+        var good=Add(200);
+        // Seed the existing round-robin cursor only to make the failing owner the first contender.
+        typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).SetValue(null,0);
+        Frame();Require(skin.BakeCount==1 && Job(good)==null && good.component.Status=="Capture vertex budget pending" &&
+            HybridLumenGIDeformedMesh.ReservedBytes==0,"Failed capture bypassed vertex admission or leaked its reservation.");
+        RenderPipelineManager.Begin();Require(skin.BakeCount==1,"Repeated camera context in one frame repeated failed capture.");
+        Frame();Started(200);Require(skin.BakeCount==1,"Failure retried before its capture interval.");
+        Frame();Frame();Require(skin.BakeCount==1,"Failed capture ignored retry interval while another worker ran.");
+        Frame();Require(skin.BakeCount==2,"Failed capture did not become eligible after its retry interval.");
+        Disable(bad);Disable(good);Finish(good,200);HybridLumenGIDeformedMesh.MaximumWorkers=0;Frame();
+        Require(Job(good)==null && !HybridLumenGIDeformedMesh.HasSnapshot(good.renderer) && HybridLumenGIDeformedMesh.ReservedBytes==0,"Cancelled disabled worker published or leaked while new workers were paused.");
+    }
+    public static void Main()
+    {
+        AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();
+        Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
+        Console.WriteLine("Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.");
+    }
+}

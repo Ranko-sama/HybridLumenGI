@@ -1,0 +1,74 @@
+using HybridLumenGI;
+using UnityEngine;
+static void Require(bool condition,string message){if(!condition)throw new Exception(message);}
+static HybridLumenGIChunkStreaming.Definition Def(string id,float x)=>new(){id=id,scenePath=$"Assets/Chunks/{id}.unity",worldBounds=new Bounds(new Vector3(x,0,0),Vector3.one)};
+var definitions=new[]{Def("A",0),Def("B",10),Def("C",100)};
+var backend=new Backend();var stream=new HybridLumenGIChunkStreaming(definitions,backend);
+void Step(float x=0)=>stream.Step(new Vector3(x,0,0),20,40,2,1,1);
+Step();Require(stream.ActiveOperations==1&&stream.OperationsStarted==1&&backend.operations[0].path.EndsWith("A.unity"),"Nearest load/concurrency budget failed.");
+Step();Require(backend.operations.Count==1,"In-flight operation did not reserve concurrency.");
+backend.Complete();Step();Require(stream.States[0].Owned&&stream.States[0].Loaded&&backend.operations.Count==2,"Completed load not owned or next load not started.");
+backend.Complete();Step();Require(stream.OwnedScenes==2&&stream.ActiveOperations==0,"Owned capacity mismatch.");
+Step(30);Require(stream.States[0].Wanted,"Distance hysteresis dropped a loaded near-edge chunk.");
+Step(100);Require(stream.BlockedUnloads==2&&stream.PendingLoads==1&&stream.OperationsStarted==0,"Unready fallback unloaded or resident budget exceeded.");
+Require(!stream.ReportUnloadSafe("A",stream.States[0].Generation+1,true),"Stale unload receipt was accepted.");
+Require(stream.ReportUnloadSafe("A",stream.States[0].Generation,true),"Current safe receipt rejected.");
+Step(100);Require(stream.States[0].Unloading&&stream.ActiveOperations==1,"Safe chunk did not start async unload.");
+backend.Complete();Step(100);Require(stream.States[2].Loading&&!stream.States[0].Owned,"Unloaded slot was not reused within resident budget.");
+// A load cannot be cancelled. Returning to another chunk must not trigger unsafe automatic unloading.
+Step();Require(stream.States[2].Loading&&!stream.States[2].Wanted,"In-flight unwanted load was incorrectly cancelled.");
+backend.Complete();Step();Require(stream.States[2].Owned&&stream.BlockedUnloads>=1&&!stream.States[2].Unloading,"Completed unwanted load bypassed the safe-unload gate.");
+Require(stream.ReportUnloadSafe("C",stream.States[2].Generation,true),"Finished unwanted load could not be released by coordinator.");
+Step();backend.Complete();Step();Require(stream.States[0].Loading&&stream.States[0].Generation==2,"Reload did not create a new generation.");
+Require(!stream.ReportUnloadSafe("A",1,true),"Prior load generation authorized a new scene instance.");
+
+var externalBackend=new Backend();externalBackend.loaded["Assets/Chunks/X.unity"]=999;
+var external=new HybridLumenGIChunkStreaming(new[]{Def("X",0)},externalBackend);
+external.Step(Vector3.zero,20,40,1,1,1);external.Step(new Vector3(100,0,0),20,40,1,1,1);
+Require(external.States[0].Loaded&&!external.States[0].Owned&&externalBackend.operations.Count==0,"Streamer adopted/unloaded an externally loaded scene.");
+
+var replacedBackend=new Backend();var replaced=new HybridLumenGIChunkStreaming(new[]{Def("X",0)},replacedBackend);
+replaced.Step(Vector3.zero,20,40,1,1,1);replacedBackend.Complete();replaced.Step(Vector3.zero,20,40,1,1,1);
+replacedBackend.loaded["Assets/Chunks/X.unity"]=888;
+replaced.Step(new Vector3(100,0,0),20,40,1,1,1);
+Require(!replaced.States[0].Owned&&!replaced.ReportUnloadSafe("X",1,true),"Scene handle replacement inherited ownership/unload authority.");
+
+var failingBackend=new Backend{failPath="Assets/Chunks/A.unity"};
+var failing=new HybridLumenGIChunkStreaming(new[]{Def("A",0),Def("B",1)},failingBackend);
+failing.Step(Vector3.zero,20,40,2,2,1);
+Require(failing.OperationsStarted==1&&failingBackend.attempts==1&&failing.States[0].LastError!=null,"Failed operations bypassed the per-step attempt budget.");
+failing.Step(Vector3.zero,20,40,2,2,1);
+Require(failingBackend.attempts==2&&failing.States[1].Loading,"Retry backoff blocked independent work or retried the failed chunk immediately.");
+int attempts=failingBackend.attempts;
+for(int i=0;i<10;i++)failing.Step(Vector3.zero,20,40,2,2,1);
+Require(failingBackend.attempts==attempts,"Failed load ignored retry backoff.");
+bool duplicateRejected=false;
+try{_ = new HybridLumenGIChunkStreaming(new[]{Def("A",0),Def("A",1)},new Backend());}catch(ArgumentException){duplicateRejected=true;}
+Require(duplicateRejected,"Manifest accepted duplicate identity/path.");
+AssetPageStreamingChecks.Run();
+Console.WriteLine("PASS: actual chunk-streaming source bounded async starts/concurrency/residency, hysteresis, safe-unload generation gate, non-cancellable load completion, reload generations, external/replaced scene ownership, failed-operation budget/backoff and manifest validation. Fake async backend; Unity SceneManager IO itself is not executed.");
+
+sealed class Backend : HybridLumenGIChunkStreaming.IBackend
+{
+    public sealed class Op : HybridLumenGIChunkStreaming.IOperation
+    { public string path;public int handle;public bool unload;public bool IsDone{get;set;} }
+    public readonly Dictionary<string,int> loaded=new();public readonly List<Op> operations=new();
+    public string failPath;public int attempts;private int nextHandle;
+    public int LoadedHandle(string path)=>loaded.TryGetValue(path,out int handle)?handle:0;
+    public HybridLumenGIChunkStreaming.IOperation BeginLoad(string path)
+    {
+        attempts++;if(path==failPath)throw new InvalidOperationException("Scene is not in Build Settings.");
+        var op=new Op{path=path,handle=++nextHandle};operations.Add(op);return op;
+    }
+    public HybridLumenGIChunkStreaming.IOperation BeginUnload(string path,int handle)
+    {
+        attempts++;if(LoadedHandle(path)!=handle)throw new InvalidOperationException("Ownership changed.");
+        var op=new Op{path=path,handle=handle,unload=true};operations.Add(op);return op;
+    }
+    public void Complete()
+    {
+        var op=operations.First(x=>!x.IsDone);
+        if(op.unload)loaded.Remove(op.path);else loaded[op.path]=op.handle;
+        op.IsDone=true;
+    }
+}

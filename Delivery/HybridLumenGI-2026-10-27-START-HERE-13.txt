@@ -1,0 +1,51 @@
+HybridLumenGI integration-13：朋友端集成验收包
+日期：2026-10-27
+
+这是研发集成候选，尚未完成 Unity、Player、实体 GPU 或生产验收，
+不能作为 UE5 Lumen 完全等价系统的交付证明。
+
+文件
+1. HybridLumenGI-2026-10-27-integration-13.zip：源码、Editor 工具、说明和离线测试报告。
+2. HybridLumenGI-2026-10-27-native-timing-win64-08.zip：可选 Windows x64 DX12 GPU 计时插件。
+   该 DLL 用于预算反馈，不是 DXR 追踪后端。它保留三个计时区间，
+   首段现在覆盖材质捕获及可选身份四个 pass；不代表整个应用 GPU 时间。
+3. *.sha256、*-audit-*.json、*-verification-13.json：完整性与离线证据。
+   审计记录中的 TEMP 路径属于构建机器，原始编译产物不随源码包分发。
+
+开始集成
+1. 使用现有工程的副本或版本控制分支，记录 Unity/URP 精确版本和目标显卡。
+   当前目标：Unity 6 / URP 17、Windows DX12、Linear、Render Graph。
+2. 仅解压 integration-13.zip，将其中 HybridLumenGI 文件夹放入工程 Assets。
+   更新同一份旧包，避免重复类和 GUID；不要把整个交付归档导入 Assets。
+3. 阅读 HybridLumenGI/Documentation/FriendHandoff.md，按步骤添加
+   HybridLumenGIRendererFeature、配置代理、烘焙 Mesh SDF 与 Surface Charts。
+4. 先用默认设置验证 Console、Player 构建和基础画面，再单独开启实验选项。
+   receiverObjectHistory 与 adaptiveGpuBudget 默认均关闭。
+5. 基础集成通过后，按 NativeGpuTiming.md 安装可选计时 DLL 至
+   Assets/Plugins/x86_64，仅启用 Windows Editor x86_64 和 Windows x86_64 Player。
+   替换已加载的原生插件时重启 Editor，不要重复安装或手动热卸载。
+
+本次主要变化
+- 原生首段计时延伸至身份解析，Recorder 改为三个或七个局部配对范围。
+- 身份实际开关因能力或预算变化时，清空旧计时反馈并重置控制器。
+- 计时标记异常与 GI 执行隔离；未知标记录制结果停用对应 Recorder 通道。
+  真实计算或绘制失败仍须撤销屏幕历史，完成后才发布历史相机快照。
+- 保留此前对象历史重投影、身份冲突拒绝和显存超预算回退。
+
+已执行：56 个离线阶段、126 项选定 DXC 检查、194 份来源哈希核验、
+41 份 C# 语法输入；实际时域 helper 在 D3D12 WARP 完成 2,179 个案例。
+这些检查不证明 Unity API 编译、真实光栅覆盖、RenderGraph 同步或实体 GPU 性能。
+仍缺少的生产功能和验收条件见 OfflineValidation.md 与 ProductionPlan.md。
+
+请回传
+- Unity/URP 精确版本、显卡/驱动、分辨率、目标帧率及 GI 时间和显存预算。
+- Editor 导入/运行日志、Player 构建/运行日志。
+- FriendHandoff.md 所列场景的截图或视频、GI 各阶段 GPU 时间与峰值显存。
+- 出错场景、复现步骤、Renderer Feature 配置与 Runtime Diagnostics。
+
+两个内层 ZIP 的 SHA256
+源码：8BAC482CF4121181627BCBB6DEA11D199B3426C6A3142D5D750DC4BA805D9B1B
+插件：85BBF0ACFCC1DBA5004599BCEC4E3F181D37FA0348036E7BA64B7ED9F535EA91
+
+PowerShell 校验示例：
+Get-FileHash -Algorithm SHA256 -LiteralPath .\HybridLumenGI-2026-10-27-integration-13.zip

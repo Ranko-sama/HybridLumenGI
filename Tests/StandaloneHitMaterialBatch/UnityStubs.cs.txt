@@ -1,0 +1,112 @@
+using System;
+using System.Collections.Generic;
+namespace UnityEngine
+{
+    public static class SystemInfo
+    {
+        public static bool supportsGraphicsFence=true,supportsComputeShaders=true,FormatSupported=true; public static bool supportsAsyncGPUReadback;
+        public static Rendering.GraphicsDeviceType graphicsDeviceType=Rendering.GraphicsDeviceType.Direct3D12;
+        public static bool IsFormatSupported(Experimental.Rendering.GraphicsFormat format,Rendering.GraphicsFormatUsage usage)=>FormatSupported;
+    }
+    public static class Resources { public static Object Loaded;public static T Load<T>(string path) where T:Object => Loaded as T; }
+    public sealed class ComputeShader : Object
+    {
+        public readonly Dictionary<string,int> Kernels=new Dictionary<string,int>{
+            {"CSBeginRayTextureCopy",0},{"CSCopyRayTextureMip",1},{"CSFinishRayTextureCopy",2},{"CSCopyRayTextureRange",3}};
+        public string ThrowKernel;public int Lookups;
+        public int FindKernel(string name){Lookups++;if(name==ThrowKernel)throw new Exception("lookup failed");return Kernels.TryGetValue(name,out var index)?index:-1;}
+    }
+    public sealed class GraphicsBuffer : IDisposable
+    {
+        public enum Target { Structured }
+        public static int Allocations, FailAllocationAt = -1, Live;
+        public readonly int Count, Stride;
+        public int count=>Count;public int stride=>Stride;
+        public bool Released, ThrowDispose;
+        public GraphicsBuffer(Target target, int count, int stride)
+        {
+            if (++Allocations == FailAllocationAt) throw new InvalidOperationException("allocation failure");
+            Count=count; Stride=stride; Live++;
+        }
+        public void Dispose()
+        {
+            if (ThrowDispose) throw new InvalidOperationException("dispose failure");
+            if (Released) throw new InvalidOperationException("double dispose");
+            Released=true; Live--;
+        }
+    }
+}
+namespace UnityEngine.Experimental.Rendering { public enum GraphicsFormat { Test=42,R8_UNorm=100,R8G8_UNorm,R8G8B8A8_UNorm,R8G8B8A8_SRGB,B8G8R8A8_UNorm,B8G8R8A8_SRGB,R16_SFloat,R16G16_SFloat,R16G16B16A16_SFloat,RGBA_DXT1_UNorm,RGBA_DXT1_SRGB,RGBA_DXT3_UNorm,RGBA_DXT3_SRGB,RGBA_DXT5_UNorm,RGBA_DXT5_SRGB,R_BC4_UNorm,R_BC4_SNorm,RG_BC5_UNorm,RG_BC5_SNorm,RGBA_BC7_UNorm,RGBA_BC7_SRGB,R8G8B8_UNorm,R8G8B8_SRGB } }
+namespace UnityEngine.Rendering
+{
+    public enum GraphicsFenceType { AsyncQueueSynchronisation }
+    public enum SynchronisationStageFlags { AllGPUOperations }
+    public enum GraphicsFormatUsage { Sample }
+    public enum GraphicsDeviceType { Direct3D12,Vulkan }
+    [Flags] public enum RenderTextureMemoryless { None=0,Color=1 }
+    public sealed class FenceSignal { public bool Complete, Throw; public int Reads; public Func<bool> OnRead; }
+    public struct GraphicsFence
+    {
+        public FenceSignal Signal;
+        public bool passed { get { if(Signal==null || Signal.Throw) throw new InvalidOperationException("invalid fence"); Signal.Reads++; return Signal.OnRead!=null?Signal.OnRead():Signal.Complete; } }
+    }
+    public sealed class CommandBuffer
+    {
+        public readonly List<string> Events=new List<string>();
+        public readonly List<Array> Copies=new List<Array>();
+        public readonly List<UnityEngine.GraphicsBuffer> Buffers=new List<UnityEngine.GraphicsBuffer>();
+        public readonly Dictionary<int,int> Integers=new Dictionary<int,int>();
+        public readonly List<(int Kernel,int X,int Y,int Z,Dictionary<int,int> Parameters)> Dispatches=new();
+        public int Calls, ThrowAt=-1,ThrowBeforeAt=-1;
+        public Action<CommandBuffer,string> OnCall;
+        public FenceSignal NextFence=new FenceSignal();
+        private void Call(string name,UnityEngine.GraphicsBuffer buffer)
+        {
+            if(++Calls==ThrowBeforeAt) throw new InvalidOperationException("before native append");
+            Events.Add(name); Buffers.Add(buffer);
+            if(buffer!=null&&buffer.Released) throw new InvalidOperationException("use after release");
+            OnCall?.Invoke(this,name);
+            if(Calls==ThrowAt) throw new InvalidOperationException("unknown native recording result");
+        }
+        public void SetBufferData(UnityEngine.GraphicsBuffer buffer,Array source)
+        { Call("metadata-initialize",buffer); Copies.Add((Array)source.Clone()); }
+        public readonly List<(int Source,int Destination,int Count)> CopyRanges=new();
+        public void SetBufferData(UnityEngine.GraphicsBuffer buffer,Array source,int sourceStart,int destinationStart,int count)
+        { Call("metadata-range",buffer); Copies.Add((Array)source.Clone()); CopyRanges.Add((sourceStart,destinationStart,count)); }
+        public void SetComputeBufferParam(UnityEngine.ComputeShader shader,int kernel,int name,UnityEngine.GraphicsBuffer buffer)
+        { Call("bind:"+name,buffer); }
+        public void SetComputeIntParam(UnityEngine.ComputeShader shader,int name,int value)
+        { Call("int:"+name,null);Integers[name]=value; }
+        public void SetComputeTextureParam(UnityEngine.ComputeShader shader,int kernel,int name,UnityEngine.Texture source)
+        { Call("texture:"+kernel,null); }
+        public void DispatchCompute(UnityEngine.ComputeShader shader,int kernel,int x,int y,int z)
+        { Call("dispatch:"+kernel,null);Dispatches.Add((kernel,x,y,z,new Dictionary<int,int>(Integers))); }
+        public GraphicsFence CreateGraphicsFence(GraphicsFenceType type,SynchronisationStageFlags stage)
+        { Call("fence:"+type+":"+stage,null);return new GraphicsFence{Signal=NextFence}; }
+    }
+}
+
+namespace UnityEngine.Rendering
+{
+    public readonly struct AsyncGPUReadbackRequest
+    {
+        private readonly System.Array data;
+        public bool hasError {get;}
+        public AsyncGPUReadbackRequest(System.Array data,bool error){this.data=data;hasError=error;}
+        public T[] GetData<T>() where T:struct => (T[])data;
+    }
+    public static class AsyncGPUReadback
+    {
+        public static bool ThrowDuringRequest;
+        public static readonly System.Collections.Generic.Queue<(UnityEngine.GraphicsBuffer Buffer,System.Action<AsyncGPUReadbackRequest> Callback)> Pending=new();
+        public static AsyncGPUReadbackRequest Request(UnityEngine.GraphicsBuffer buffer,System.Action<AsyncGPUReadbackRequest> callback)
+        {
+            if(buffer.Released)throw new System.Exception("readback after release");
+            Pending.Enqueue((buffer,callback));
+            if(ThrowDuringRequest)throw new System.Exception("unknown native request result");
+            return default;
+        }
+        public static void CompleteNext(System.Array data,bool error=false)
+        {var next=Pending.Dequeue();if(next.Buffer.Released)throw new System.Exception("pending readback buffer released");next.Callback(new AsyncGPUReadbackRequest(data,error));}
+    }
+}

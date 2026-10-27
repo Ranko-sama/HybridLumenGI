@@ -1,0 +1,354 @@
+using HybridLumenGI;
+using UnityEngine;
+int checks=0;
+void Require(bool value,string message){if(!value)throw new Exception(message);checks++;}
+HybridLumenGIMeshSdf Asset(Texture3D texture=null)
+{
+    var asset=new HybridLumenGIMeshSdf();
+    asset.SetBakedData(new Mesh(),texture??new Texture3D(16),new Bounds(Vector3.zero,Vector3.one*4),16,true);
+    return asset;
+}
+void SetSlot(HybridLumenGIScene s,int slot,HybridLumenGIMeshSdf asset,int id,float x=0)
+{
+    s.Proxies[slot]=new HybridLumenGIProxy{MeshSdf=asset,SdfLocalToWorld=Matrix4x4.Translate(new Vector3(x,0,0))};
+    s.Data[slot]=new HybridLumenGIScene.ProxyGpuData{centerShape=new Vector4(x,0,0,0),extentsRoughness=new Vector4(1,1,1,1),identity=new Vector4(id,1,0,1)};
+}
+const int voxels=16*16*16;
+var scene=new HybridLumenGIScene(2);
+var asset=Asset();SetSlot(scene,0,asset,1);SetSlot(scene,1,null,2,100);
+using var atlas=new HybridLumenGISdfAtlas{UploadVoxelBudget=0};
+atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==0,"Pending SDF must not emit a representation change.");
+Require(atlas.ResidentMeshCount==0,"Budget-zero upload incorrectly became ready.");
+atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==0,"Pending state emitted repeatedly.");
+atlas.UploadVoxelBudget=voxels;atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2,"Fallback-to-ready must report old and new bounds.");
+Require(atlas.UploadedVoxels==voxels&&atlas.ResidentMeshCount==1,"Upload did not become ready in the same Prepare.");
+Require(atlas.RepresentationChangedBounds[1].Contains(new Vector3(2,2,2)),"Ready bounds must include padded local SDF corners.");
+Require(!atlas.Prepare(scene,voxels)&&atlas.RepresentationChangedBounds.Count==0,"Unchanged ready state reported a transition.");
+scene.Revision++;scene.Data[1].centerShape.x=101;
+Require(!atlas.Prepare(scene,voxels)&&atlas.RepresentationChangedBounds.Count==0,"Unrelated analytic scene revision invalidated SDF representation.");
+scene.Data[0].identity.y++;
+atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==0,"Material-only revision emitted geometry change.");
+scene.Proxies[0].SdfLocalToWorld=Matrix4x4.Translate(new Vector3(10,0,0));scene.Data[0].centerShape.x=10;
+atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2,"Rigid transform did not emit both domains.");
+Require(atlas.RepresentationChangedBounds[0].Contains(Vector3.zero)&&atlas.RepresentationChangedBounds[1].Contains(new Vector3(10,0,0)),"Old/new moved domains were not preserved.");
+asset.DistanceTexture.updateCount++;atlas.UploadVoxelBudget=0;atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2&&atlas.ResidentMeshCount==0,"Edited pending volume must leave ready representation immediately.");
+atlas.Prepare(scene,voxels);Require(atlas.RepresentationChangedBounds.Count==0,"Unchanged fallback emitted repeatedly.");
+atlas.UploadVoxelBudget=voxels;atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2&&atlas.ResidentMeshCount==1,"Budget completion without scene revision did not emit ready event.");
+asset.DistanceTexture.updateCount++;atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2,"In-place ready voxel update was missed because metadata stayed identical.");
+var replacement=Asset(asset.DistanceTexture);scene.Proxies[0].MeshSdf=replacement;atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2,"Asset identity replacement was missed.");
+scene.Data[0].identity.x=99;atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2,"Stable slot reuse must change representation identity.");
+scene.Proxies[0].SdfLocalToWorld=Matrix4x4.Translate(new Vector3(10,0,0))*Matrix4x4.Scale(new Vector3(-2,3,1));
+atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2,"Nonuniform reflected transform was missed.");
+Require(atlas.RepresentationChangedBounds[1].Contains(new Vector3(6,6,2))&&atlas.RepresentationChangedBounds[1].Contains(new Vector3(14,-6,-2)),"Transformed padded bounds are not conservative.");
+replacement.DistanceTexture.updateCount++;replacement.DistanceTexture.throwOnRead=true;
+atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2&&atlas.ResidentMeshCount==0,"Failed upload must emit ready-to-fallback transition.");
+atlas.Prepare(scene,voxels);Require(atlas.RepresentationChangedBounds.Count==0,"Failed allocation emitted a false repeated event.");
+replacement.DistanceTexture.throwOnRead=false;replacement.DistanceTexture.updateCount++;atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2,"Retry after voxel version change did not restore ready representation.");
+scene.Proxies[0].MeshSdf=null;atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==2,"Removing SDF from a live proxy must report old SDF and fallback bounds.");
+scene.Proxies[0].MeshSdf=replacement;atlas.Prepare(scene,voxels);
+scene.Data[0].identity.w=0;atlas.Prepare(scene,voxels);
+Require(atlas.RepresentationChangedBounds.Count==1,"Removing a ready instance must retain its old domain.");
+
+// Shared asset updates emit each instance domain but upload the voxels only once.
+var shared=new HybridLumenGIScene(2);var sharedAsset=Asset();SetSlot(shared,0,sharedAsset,7);SetSlot(shared,1,sharedAsset,8,20);
+using var sharedAtlas=new HybridLumenGISdfAtlas{UploadVoxelBudget=voxels};sharedAtlas.Prepare(shared,voxels);
+Require(sharedAtlas.UploadedVoxels==voxels&&sharedAtlas.ResidentMeshCount==2,"Shared SDF uploaded more than once.");
+sharedAsset.DistanceTexture.updateCount++;sharedAtlas.Prepare(shared,voxels);
+Require(sharedAtlas.RepresentationChangedBounds.Count==4&&sharedAtlas.UploadedVoxels==voxels,"Shared voxel edit did not notify both instance domains.");
+Array.Resize(ref shared.Data,1);Array.Resize(ref shared.Proxies,1);sharedAtlas.Prepare(shared,voxels);
+Require(sharedAtlas.RepresentationChangedBounds.Count==1&&sharedAtlas.RepresentationChangedBounds[0].Contains(new Vector3(20,0,0)),"Capacity shrink lost retired slot bounds.");
+// Repacking equal voxel content is an address change, not a geometric representation change.
+sharedAtlas.Prepare(shared,voxels*2);
+Require(sharedAtlas.RepresentationChangedBounds.Count==0,"Equivalent atlas reallocation spuriously invalidated geometry.");
+sharedAsset.SetBakedData(sharedAsset.SourceMesh,sharedAsset.DistanceTexture,new Bounds(Vector3.zero,Vector3.one*6),16,true);
+sharedAtlas.Prepare(shared,voxels*2);
+Require(sharedAtlas.RepresentationChangedBounds.Count==2&&sharedAtlas.RepresentationChangedBounds[0].Contains(new Vector3(2,0,0))&&sharedAtlas.RepresentationChangedBounds[1].Contains(new Vector3(3,0,0)),"Local metadata bounds edit lost old/new coverage.");
+sharedAsset.SetBakedData(sharedAsset.SourceMesh,sharedAsset.DistanceTexture,sharedAsset.LocalBounds,16,false);
+sharedAtlas.Prepare(shared,voxels*2);
+Require(sharedAtlas.RepresentationChangedBounds.Count==2,"Signed/watertight tracing mode change was missed.");
+sharedAsset.SetBakedData(sharedAsset.SourceMesh,new Texture3D(16),sharedAsset.LocalBounds,16,false);
+sharedAtlas.Prepare(shared,voxels*2);
+Require(sharedAtlas.RepresentationChangedBounds.Count==2,"Texture replacement with the same updateCount was missed.");
+sharedAtlas.Dispose();Require(sharedAtlas.RepresentationChangedBounds.Count==0,"Dispose left stale region events.");
+
+// HLOD warming slots may prepare resources, but only published endpoints invalidate lighting.
+var warming=new HybridLumenGIScene(1);var warmingAsset=Asset();SetSlot(warming,0,warmingAsset,23);
+warming.Data[0].identity.w=2;
+using var warmAtlas=new HybridLumenGISdfAtlas{UploadVoxelBudget=voxels};
+warmAtlas.Prepare(warming,voxels);
+Require(warmAtlas.ResidentMeshCount==1&&warmAtlas.RepresentationChangedBounds.Count==0,"Warming upload must not invalidate the visible HLOD representation.");
+Require(warmAtlas.IsReady(0,23,1)&&warmAtlas.IsReady(0,23u,1u),"Readiness must support warming slots and exact identity/revision.");
+Require(!warmAtlas.IsReady(-1,23,1)&&!warmAtlas.IsReady(1,23,1)&&!warmAtlas.IsReady(0,24,1)&&!warmAtlas.IsReady(0,23,2),"Readiness accepted stale identity/revision or an invalid slot.");
+warming.Data[0].identity.w=1;
+Require(warmAtlas.Prepare(warming,voxels)&&warmAtlas.RepresentationChangedBounds.Count==1,"Warming-to-published must report only the new published domain.");
+Require(!warmAtlas.Prepare(warming,voxels)&&warmAtlas.RepresentationChangedBounds.Count==0,"Unchanged published endpoint emitted repeatedly.");
+warming.Data[0].identity.w=2;warmAtlas.Prepare(warming,voxels);
+Require(warmAtlas.RepresentationChangedBounds.Count==1,"Published-to-warming must report only the old published domain.");
+warmingAsset.DistanceTexture.updateCount++;warmAtlas.UploadVoxelBudget=0;warmAtlas.Prepare(warming,voxels);
+Require(!warmAtlas.IsReady(0,23,1)&&warmAtlas.RepresentationChangedBounds.Count==0,"Pending warming update retained readiness or emitted a lighting domain.");
+warmAtlas.UploadVoxelBudget=voxels;warmAtlas.Prepare(warming,voxels);
+Require(warmAtlas.IsReady(0,23,1)&&warmAtlas.RepresentationChangedBounds.Count==0,"Warming upload completion must remain invisible to lighting invalidation.");
+warming.Data[0].identity.w=1;warmAtlas.Prepare(warming,voxels);
+warmingAsset.DistanceTexture.updateCount++;warmAtlas.UploadVoxelBudget=0;warmAtlas.Prepare(warming,voxels);
+Require(!warmAtlas.IsReady(0,23,1)&&warmAtlas.RepresentationChangedBounds.Count==2,"Published SDF fallback transition must retain both published endpoints.");
+warmAtlas.Dispose();Require(!warmAtlas.IsReady(0,23,1),"Disposed atlas reported a ready slot.");
+
+// The pre-publication query must reject changes occurring after Prepare without consuming events.
+var queryScene=new HybridLumenGIScene(1);var queryAsset=Asset();SetSlot(queryScene,0,queryAsset,42);
+using var queryAtlas=new HybridLumenGISdfAtlas{UploadVoxelBudget=voxels};queryAtlas.Prepare(queryScene,voxels);
+var queryProxy=queryScene.Proxies[0];var originalTexture=queryAsset.DistanceTexture;var originalMesh=queryAsset.SourceMesh;var originalBounds=queryAsset.LocalBounds;
+int retainedEvents=queryAtlas.RepresentationChangedBounds.Count,retainedUploads=queryAtlas.UploadedVoxels,retainedReads=originalTexture.ReadCount;
+Require(queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Current uploaded SDF source failed pre-publication validation.");
+Require(!queryAtlas.IsSourceCurrent(-1,queryProxy,42,1)&&!queryAtlas.IsSourceCurrent(1,queryProxy,42,1)&&!queryAtlas.IsSourceCurrent(0,null,42,1)&&!queryAtlas.IsSourceCurrent(0,queryProxy,43,1),"Source-current query accepted invalid slot/proxy/identity.");
+queryProxy.Revision++;
+Require(!queryAtlas.IsSourceCurrent(0,queryProxy,42,1)&&!queryAtlas.IsSourceCurrent(0,queryProxy,42,2),"Source-current query accepted stale proxy or uploaded revision.");queryProxy.Revision=1;
+originalTexture.updateCount++;
+Require(queryAtlas.IsReady(0,42,1)&&!queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Same proxy revision allowed a modified texture to retain a current-source ticket.");originalTexture.updateCount--;
+queryAsset.SetBakedData(originalMesh,new Texture3D(16),originalBounds,16,true);
+Require(!queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Replaced texture with same updateCount was accepted.");queryAsset.SetBakedData(originalMesh,originalTexture,originalBounds,16,true);
+queryProxy.MeshSdf=Asset(originalTexture);
+Require(!queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Different SDF asset reference was accepted.");queryProxy.MeshSdf=queryAsset;
+queryProxy.SdfLocalToWorld=Matrix4x4.Translate(new Vector3(3,0,0));
+Require(!queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Moved SDF transform was accepted before its metadata update.");queryProxy.SdfLocalToWorld=Matrix4x4.identity;
+queryAsset.SetBakedData(originalMesh,originalTexture,new Bounds(Vector3.zero,Vector3.one*6),16,true);
+Require(!queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Changed SDF local bounds were accepted.");queryAsset.SetBakedData(originalMesh,originalTexture,originalBounds,16,true);
+queryAsset.SetBakedData(originalMesh,originalTexture,originalBounds,16,false);
+Require(!queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Changed signed/watertight tracing mode was accepted.");queryAsset.SetBakedData(originalMesh,originalTexture,originalBounds,16,true);
+queryProxy.SourceRenderer=new MeshRenderer{Filter=new MeshFilter{sharedMesh=new Mesh()}};
+Require(!queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Renderer source-mesh replacement was accepted.");queryProxy.SourceRenderer=null;
+originalTexture.isReadable=false;
+Require(!queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Unreadable SDF source retained current-source validation.");originalTexture.isReadable=true;
+for(int repeat=0;repeat<16;repeat++)Require(queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Repeated pure source-current query changed readiness.");
+Require(queryAtlas.RepresentationChangedBounds.Count==retainedEvents&&queryAtlas.UploadedVoxels==retainedUploads&&originalTexture.ReadCount==retainedReads,"Read-only source validation consumed events or performed a voxel read/upload.");
+originalTexture.updateCount++;queryAtlas.UploadVoxelBudget=0;queryAtlas.Prepare(queryScene,voxels);
+Require(!queryAtlas.IsSourceCurrent(0,queryProxy,42,1),"Pending upload passed source-current publication gate.");
+
+// Preserve initialized HLOD lighting on a pure phase switch while still invalidating global SDF pages.
+(HybridLumenGIScene scene,HybridLumenGISdfAtlas atlas,HybridLumenGIMeshSdf asset) PhaseFixture(bool published,bool renderer=false)
+{
+    var s=new HybridLumenGIScene(1);var a=Asset();SetSlot(s,0,a,81);s.Data[0].identity.w=published?1:2;
+    if(renderer)s.Proxies[0].SourceRenderer=new MeshRenderer{Filter=new MeshFilter{sharedMesh=a.SourceMesh}};
+    var atlas=new HybridLumenGISdfAtlas{UploadVoxelBudget=voxels};atlas.Prepare(s,voxels);return(s,atlas,a);
+}
+HybridLumenGIScene.DirtyRegion Retirement(int id=81,int revision=1,HybridLumenGIScene.ChangeKind extra=0)=>new()
+{
+    Slot=0,StableId=id,PreviousRevision=revision,HasPrevious=true,
+    Kind=HybridLumenGIScene.ChangeKind.Removed|HybridLumenGIScene.ChangeKind.Representation|extra
+};
+var promoted=PhaseFixture(false);
+Require(promoted.atlas.GeometryChangedBounds.Count==0,"Warming initialization produced a hard geometry domain.");
+promoted.scene.Data[0].identity.w=1;promoted.atlas.Prepare(promoted.scene,voxels);
+Require(promoted.atlas.RepresentationChangedBounds.Count==1&&promoted.atlas.GeometryChangedBounds.Count==0,"Pure warming-to-published transition would erase its initialized lighting.");
+promoted.atlas.Prepare(promoted.scene,voxels);
+Require(promoted.atlas.RepresentationChangedBounds.Count==0&&promoted.atlas.GeometryChangedBounds.Count==0,"Next Prepare did not clear both event lists.");
+promoted.scene.Data[0].identity.w=0;promoted.scene.DirtyRegions.Add(Retirement());promoted.atlas.Prepare(promoted.scene,voxels);
+Require(promoted.atlas.RepresentationChangedBounds.Count==1&&promoted.atlas.GeometryChangedBounds.Count==0,"Explicit unchanged HLOD retirement should retain only a reactive domain.");promoted.atlas.Dispose();
+
+var demoted=PhaseFixture(true);demoted.scene.Data[0].identity.w=2;demoted.scene.DirtyRegions.Add(Retirement());demoted.atlas.Prepare(demoted.scene,voxels);
+Require(demoted.atlas.RepresentationChangedBounds.Count==1&&demoted.atlas.GeometryChangedBounds.Count==0,"Explicit unchanged published-to-warming retirement became hard.");demoted.atlas.Dispose();
+var unknownDemotion=PhaseFixture(true);unknownDemotion.scene.Data[0].identity.w=2;unknownDemotion.atlas.Prepare(unknownDemotion.scene,voxels);
+Require(unknownDemotion.atlas.GeometryChangedBounds.Count==1,"Unexplained published disappearance was silently classified as HLOD retirement.");unknownDemotion.atlas.Dispose();
+
+foreach(var extra in new[]{HybridLumenGIScene.ChangeKind.Transform,HybridLumenGIScene.ChangeKind.Topology,HybridLumenGIScene.ChangeKind.Manual,HybridLumenGIScene.ChangeKind.Material})
+{
+    var f=PhaseFixture(true);f.scene.Data[0].identity.w=0;f.scene.DirtyRegions.Add(Retirement(extra:extra));f.atlas.Prepare(f.scene,voxels);
+    Require(f.atlas.GeometryChangedBounds.Count==1,"Concurrent "+extra+" edit was hidden by a Representation retirement flag.");f.atlas.Dispose();
+}
+foreach(var eventKind in new[]{0,1,2,3,4})
+{
+    var f=PhaseFixture(true);f.scene.Data[0].identity.w=0;
+    if(eventKind==1)f.scene.DirtyRegions.Add(new(){Slot=0,StableId=81,PreviousRevision=1,HasPrevious=true,Kind=HybridLumenGIScene.ChangeKind.Removed});
+    if(eventKind==2)f.scene.DirtyRegions.Add(Retirement(id:82));
+    if(eventKind==3)f.scene.DirtyRegions.Add(Retirement(revision:2));
+    if(eventKind==4){var region=Retirement();region.HasCurrent=true;f.scene.DirtyRegions.Add(region);}
+    f.atlas.Prepare(f.scene,voxels);
+    Require(f.atlas.RepresentationChangedBounds.Count==1&&f.atlas.GeometryChangedBounds.Count==1,"Missing/mismatched retirement evidence softened a real deletion: "+eventKind);f.atlas.Dispose();
+}
+foreach(var edit in new[]{"texture","asset","transform","fallback"})
+{
+    var f=PhaseFixture(false);f.scene.Data[0].identity.w=1;
+    if(edit=="texture")f.asset.DistanceTexture.updateCount++;
+    if(edit=="asset")f.scene.Proxies[0].MeshSdf=Asset();
+    if(edit=="transform")f.scene.Proxies[0].SdfLocalToWorld=Matrix4x4.Translate(new Vector3(1,0,0));
+    if(edit=="fallback"){f.asset.DistanceTexture.updateCount++;f.atlas.UploadVoxelBudget=0;}
+    f.atlas.Prepare(f.scene,voxels);
+    Require(f.atlas.RepresentationChangedBounds.Count==1&&f.atlas.GeometryChangedBounds.Count==1,"Concurrent "+edit+" change during publication must remain hard.");f.atlas.Dispose();
+}
+foreach(var edit in new[]{"texture","asset","transform"})
+{
+    var f=PhaseFixture(true);f.scene.Data[0].identity.w=0;f.scene.DirtyRegions.Add(Retirement());
+    if(edit=="texture")f.asset.DistanceTexture.updateCount++;
+    if(edit=="asset")f.scene.Proxies[0].MeshSdf=Asset();
+    if(edit=="transform")f.scene.Proxies[0].SdfLocalToWorld=Matrix4x4.Translate(new Vector3(1,0,0));
+    f.atlas.Prepare(f.scene,voxels);
+    Require(f.atlas.GeometryChangedBounds.Count==1,"Retiring source "+edit+" change escaped snapshot validation.");f.atlas.Dispose();
+}
+foreach(float phase in new[]{1f,2f})
+{
+    var f=PhaseFixture(true);f.scene.DirtyRegions.Add(Retirement());SetSlot(f.scene,0,f.asset,82);f.scene.Data[0].identity.w=phase;f.atlas.Prepare(f.scene,voxels);
+    Require(f.atlas.GeometryChangedBounds.Count==(phase==1?2:1),"Slot reuse was mistaken for unchanged HLOD retirement.");f.atlas.Dispose();
+}
+var shapeRetirement=PhaseFixture(true);shapeRetirement.scene.Data[0].identity.w=0;shapeRetirement.scene.DirtyRegions.Add(Retirement());
+shapeRetirement.scene.Proxies[0].ProxyShape=HybridLumenGIProxy.Shape.Sphere;shapeRetirement.scene.Proxies[0].Revision++; // Real Proxy shape edits advance Revision.
+shapeRetirement.atlas.Prepare(shapeRetirement.scene,voxels);
+Require(shapeRetirement.atlas.GeometryChangedBounds.Count==1,"Same-frame shape/revision edit was hidden by an old pure-retirement receipt.");shapeRetirement.atlas.Dispose();
+var disposal=PhaseFixture(true);Require(disposal.atlas.GeometryChangedBounds.Count>0,"Initial published geometry must have a hard domain.");disposal.atlas.Dispose();
+Require(disposal.atlas.GeometryChangedBounds.Count==0&&disposal.atlas.RepresentationChangedBounds.Count==0,"Dispose left geometry classification events behind.");
+
+// Actual SdfAtlas pose classification uses a frozen before/after SDF snapshot plus
+// an exact scene change receipt. Scene/proxy lifecycle remains an explicit adapter.
+HybridLumenGIScene.DirtyRegion PoseReceipt(HybridLumenGIScene.ChangeKind kind=HybridLumenGIScene.ChangeKind.Transform,
+    int slot=0,int id=81,int previous=1,int current=2,bool hasPrevious=true,bool hasCurrent=true)=>new()
+{Slot=slot,StableId=id,PreviousRevision=previous,Revision=current,HasPrevious=hasPrevious,HasCurrent=hasCurrent,Kind=kind};
+void MovePose(HybridLumenGIScene s,Matrix4x4 matrix)
+{
+    s.Proxies[0].Revision=2;s.Data[0].identity.y=2;s.Proxies[0].SdfLocalToWorld=matrix;
+    Vector3 center=matrix.MultiplyPoint3x4(Vector3.zero);s.Data[0].centerShape=new Vector4(center.x,center.y,center.z,0);
+}
+var movement=new[]{Matrix4x4.Translate(new Vector3(5,2,-3)),
+    new Matrix4x4{value=System.Numerics.Matrix4x4.CreateRotationY(.7f)},
+    Matrix4x4.Translate(new Vector3(3,0,0))*Matrix4x4.Scale(new Vector3(-2,3,.5f))};
+foreach(var matrix in movement)
+foreach(var policy in new[]{HybridLumenGIScene.ChangeKind.Transform,HybridLumenGIScene.ChangeKind.Transform|HybridLumenGIScene.ChangeKind.Lighting})
+{
+    var f=PhaseFixture(true,renderer:true);
+    MovePose(f.scene,matrix);f.scene.DirtyRegions.Add(PoseReceipt(policy));f.atlas.Prepare(f.scene,voxels);
+    Require(f.atlas.ResidentMeshCount==1&&f.atlas.UploadedVoxels==0,"Ordinary readable MeshRenderer motion need not reupload asset voxels.");
+    Require(f.atlas.TransformChangedBounds.Count==2&&f.atlas.GeometryChangedBounds.Count==0&&f.atlas.RepresentationChangedBounds.Count==2,
+        "Proven pure transform/light-policy update must emit pose domains and retain reactive domains.");
+    Require(f.atlas.TransformChanges.Count==2&&ReferenceEquals(f.atlas.TransformChanges[0].SourceRenderer,f.scene.Proxies[0].SourceRenderer)&&
+        ReferenceEquals(f.atlas.TransformChanges[1].SourceRenderer,f.scene.Proxies[0].SourceRenderer),"Both SDF pose endpoints must carry the same exact renderer owner.");
+    Require(f.atlas.TransformChanges[0].Bounds.Equals(f.atlas.TransformChangedBounds[0])&&f.atlas.TransformChanges[1].Bounds.Equals(f.atlas.TransformChangedBounds[1]),"Legacy pose bounds and owned pose domains stay in lockstep.");
+    var frozenOwner=f.atlas.TransformChanges[0].SourceRenderer;
+    f.scene.Proxies[0].SourceRenderer=new MeshRenderer{Filter=new MeshFilter{sharedMesh=f.asset.SourceMesh}};
+    Require(ReferenceEquals(f.atlas.TransformChanges[0].SourceRenderer,frozenOwner)&&ReferenceEquals(f.atlas.TransformChanges[1].SourceRenderer,frozenOwner),"Published transform event cannot follow a later mutable proxy renderer change.");
+    f.scene.Proxies[0].SourceRenderer=frozenOwner;
+    Require(f.atlas.TransformChangedBounds[0].Contains(Vector3.zero),"Pose classification lost previous volume domain.");
+    foreach(float x in new[]{-2f,2f})foreach(float y in new[]{-2f,2f})foreach(float z in new[]{-2f,2f})
+        Require(f.atlas.TransformChangedBounds[1].Contains(matrix.MultiplyPoint3x4(new Vector3(x,y,z))),"Moved SDF bounds do not contain a transformed local corner.");
+    f.scene.DirtyRegions.Clear();f.atlas.Prepare(f.scene,voxels);
+    Require(f.atlas.TransformChangedBounds.Count==0&&f.atlas.TransformChanges.Count==0&&f.atlas.GeometryChangedBounds.Count==0&&f.atlas.RepresentationChangedBounds.Count==0,"New Prepare must clear every change list.");
+    f.atlas.Dispose();Require(f.atlas.TransformChangedBounds.Count==0&&f.atlas.TransformChanges.Count==0,"Dispose retained pose domains.");
+}
+foreach(var extra in new[]{HybridLumenGIScene.ChangeKind.Material,HybridLumenGIScene.ChangeKind.Topology,HybridLumenGIScene.ChangeKind.Manual,
+    HybridLumenGIScene.ChangeKind.Representation,HybridLumenGIScene.ChangeKind.Added,HybridLumenGIScene.ChangeKind.Removed})
+{
+    var f=PhaseFixture(true);MovePose(f.scene,movement[0]);f.scene.DirtyRegions.Add(PoseReceipt(HybridLumenGIScene.ChangeKind.Transform|extra));f.atlas.Prepare(f.scene,voxels);
+    Require(f.atlas.TransformChangedBounds.Count==0&&f.atlas.GeometryChangedBounds.Count==2,"Mixed "+extra+" change was incorrectly downgraded to pose-only.");f.atlas.Dispose();
+}
+foreach(var mode in new[]{"absent","slot","identity","old revision","new revision","old endpoint","new endpoint","only lighting","conflicting receipt","live revision"})
+{
+    var f=PhaseFixture(true);MovePose(f.scene,movement[0]);var receipt=PoseReceipt();
+    switch(mode)
+    {
+        case "slot":receipt.Slot=1;break;case "identity":receipt.StableId=82;break;case "old revision":receipt.PreviousRevision=9;break;
+        case "new revision":receipt.Revision=9;break;case "old endpoint":receipt.HasPrevious=false;break;case "new endpoint":receipt.HasCurrent=false;break;
+        case "only lighting":receipt.Kind=HybridLumenGIScene.ChangeKind.Lighting;break;case "live revision":f.scene.Proxies[0].Revision=3;break;
+    }
+    if(mode!="absent")f.scene.DirtyRegions.Add(receipt);
+    if(mode=="conflicting receipt")f.scene.DirtyRegions.Add(PoseReceipt(HybridLumenGIScene.ChangeKind.Material));
+    f.atlas.Prepare(f.scene,voxels);Require(f.atlas.TransformChangedBounds.Count==0&&f.atlas.GeometryChangedBounds.Count==2,"Unproven "+mode+" pose receipt must stay strong.");f.atlas.Dispose();
+}
+foreach(var mode in new[]{"texture version","texture identity","asset identity","local bounds","tiny local offset","signed mode","proxy identity","renderer identity","stable identity","pending"})
+{
+    var f=PhaseFixture(true);MovePose(f.scene,movement[0]);f.scene.DirtyRegions.Add(PoseReceipt());
+    switch(mode)
+    {
+        case "texture version":f.asset.DistanceTexture.updateCount++;break;
+        case "texture identity":f.asset.SetBakedData(f.asset.SourceMesh,new Texture3D(16),f.asset.LocalBounds,16,true);break;
+        case "asset identity":f.scene.Proxies[0].MeshSdf=Asset(f.asset.DistanceTexture);break;
+        case "local bounds":f.asset.SetBakedData(f.asset.SourceMesh,f.asset.DistanceTexture,new Bounds(Vector3.zero,Vector3.one*6),16,true);break;
+        case "tiny local offset":f.asset.SetBakedData(f.asset.SourceMesh,f.asset.DistanceTexture,new Bounds(new Vector3(1e-6f,0,0),Vector3.one*4),16,true);break;
+        case "signed mode":f.asset.SetBakedData(f.asset.SourceMesh,f.asset.DistanceTexture,f.asset.LocalBounds,16,false);break;
+        case "proxy identity":f.scene.Proxies[0]=new HybridLumenGIProxy{Revision=2,MeshSdf=f.asset,SdfLocalToWorld=movement[0]};break;
+        case "renderer identity":f.scene.Proxies[0].SourceRenderer=new MeshRenderer{Filter=new MeshFilter{sharedMesh=f.asset.SourceMesh}};break;
+        case "stable identity":f.scene.Data[0].identity.x=82;break;
+        case "pending":f.asset.DistanceTexture.updateCount++;f.atlas.UploadVoxelBudget=0;break;
+    }
+    f.atlas.Prepare(f.scene,voxels);Require(f.atlas.TransformChangedBounds.Count==0&&f.atlas.TransformChanges.Count==0&&f.atlas.GeometryChangedBounds.Count==2,"Concurrent "+mode+" must not inherit transform exemption.");f.atlas.Dispose();
+}
+var warmPose=PhaseFixture(false);MovePose(warmPose.scene,movement[0]);warmPose.scene.Data[0].identity.w=1;warmPose.scene.DirtyRegions.Add(PoseReceipt());warmPose.atlas.Prepare(warmPose.scene,voxels);
+Require(warmPose.atlas.TransformChangedBounds.Count==0&&warmPose.atlas.GeometryChangedBounds.Count==1,"Moved warming publication lacks a published previous pose.");warmPose.atlas.Dispose();
+var otherOwner=PhaseFixture(true);MovePose(otherOwner.scene,movement[0]);otherOwner.scene.DirtyRegions.Add(PoseReceipt());otherOwner.scene.DirtyRegions.Add(PoseReceipt(HybridLumenGIScene.ChangeKind.Material,id:999));otherOwner.atlas.Prepare(otherOwner.scene,voxels);
+Require(otherOwner.atlas.TransformChangedBounds.Count==2&&otherOwner.atlas.GeometryChangedBounds.Count==0,"Other owner's material change must not erase a proved pose receipt.");otherOwner.atlas.Dispose();
+var noRenderer=PhaseFixture(true);MovePose(noRenderer.scene,movement[0]);noRenderer.scene.DirtyRegions.Add(PoseReceipt());noRenderer.atlas.Prepare(noRenderer.scene,voxels);
+Require(noRenderer.atlas.TransformChanges.Count==2&&noRenderer.atlas.TransformChanges[0].SourceRenderer==null&&noRenderer.atlas.TransformChanges[1].SourceRenderer==null,
+    "Rendererless pose domains remain unowned and cannot borrow another receiver's group.");noRenderer.atlas.Dispose();
+// Geometry provenance: same Mesh identity/count/bounds is insufficient after an edit.
+var sourceMesh=new Mesh();
+Require(HybridLumenGIMeshSdf.ComputeGeometryFingerprint(sourceMesh)=="9811F907EA1E7806EBD6A8912C8CBB01F2D988CE15D12F1E6B9C316B8071A615",
+    "Fingerprint differs from independently encoded little-endian triangle fixture (Node SHA256 oracle).");
+var sdfA=new HybridLumenGIMeshSdf();var sdfB=new HybridLumenGIMeshSdf();
+sdfA.SetBakedData(sourceMesh,new Texture3D(16),new Bounds(Vector3.zero,Vector3.one*4),16,true);
+sdfB.SetBakedData(sourceMesh,new Texture3D(16),new Bounds(Vector3.zero,Vector3.one*4),16,true);
+Require(sdfA.MatchesSource(sourceMesh)&&sdfB.MatchesSource(sourceMesh),"Fresh independent assets did not match one shared source.");
+int sourceReads=sourceMesh.GeometryReads;
+for(int repeat=0;repeat<100;repeat++)Require(sdfA.MatchesSource(sourceMesh)&&sdfB.MatchesSource(sourceMesh),"Stable source failed validation.");
+Require(sourceMesh.GeometryReads==sourceReads,"Stable validation rehashed geometry per query.");
+var provenanceScene=new HybridLumenGIScene(2);SetSlot(provenanceScene,0,sdfA,111);SetSlot(provenanceScene,1,sdfB,112,20);
+using var provenanceAtlas=new HybridLumenGISdfAtlas{UploadVoxelBudget=voxels*2};provenanceAtlas.Prepare(provenanceScene,voxels*2);
+Require(provenanceAtlas.ResidentMeshCount==2,"Both valid assets must become resident.");
+for(int move=1;move<=12;move++)
+{
+    provenanceScene.Proxies[0].SdfLocalToWorld=Matrix4x4.Translate(new Vector3(move,0,0));
+    provenanceScene.Data[0].centerShape.x=move;provenanceAtlas.Prepare(provenanceScene,voxels*2);
+}
+Require(sourceMesh.GeometryReads==sourceReads,"Rigid movement rehashed immutable source geometry.");
+string beforeGeometry=HybridLumenGIMeshSdf.ComputeGeometryFingerprint(sourceMesh);
+var editedVertices=sourceMesh.vertices;editedVertices[2]=new Vector3(0,1,.25f);sourceMesh.vertices=editedVertices;
+sourceReads=sourceMesh.GeometryReads;
+var sharedBefore=HybridLumenGIMeshSource.GetVersion(sourceMesh);
+Require(sdfA.MatchesSource(sourceMesh)&&sdfB.MatchesSource(sourceMesh),"Notification-only cache contract unexpectedly detects unnotified same-count editing.");
+Require(ReferenceEquals(sharedBefore,HybridLumenGIMeshSource.GetVersion(sourceMesh)),"Version lookup claimed implicit source detection.");
+var sharedAfter=HybridLumenGIMeshSource.NotifyGeometryChanged(sourceMesh);
+Require(!ReferenceEquals(sharedBefore,sharedAfter),"Ordinary receiver notification did not replace shared source identity.");
+Require(sourceMesh.GeometryReads==sourceReads,"Invalidation must not read Mesh buffers.");
+Require(!sdfA.MatchesSource(sourceMesh)&&!sdfB.MatchesSource(sourceMesh),"Shared invalidation left another SDF asset falsely current.");
+sourceReads=sourceMesh.GeometryReads;
+for(int repeat=0;repeat<10;repeat++)Require(!sdfA.MatchesSource(sourceMesh),"Known stale asset became valid without a rebake.");
+Require(sourceMesh.GeometryReads==sourceReads,"Known stale geometry was rehashed every query.");
+Require(!provenanceAtlas.IsSourceCurrent(0,provenanceScene.Proxies[0],111,1)&&!provenanceAtlas.IsSourceCurrent(1,provenanceScene.Proxies[1],112,1),
+    "HLOD pre-publication accepted stale source voxels.");
+provenanceAtlas.Prepare(provenanceScene,voxels*2);
+Require(provenanceAtlas.ResidentMeshCount==0&&!provenanceAtlas.IsReady(0,111,1)&&!provenanceAtlas.IsReady(1,112,1),"Edited source retained ready GPU metadata.");
+Require(provenanceAtlas.RejectedSourceCount==2,"Rejected source diagnostic did not count each affected instance.");
+Require(provenanceAtlas.GeometryChangedBounds.Count==4,"Stale shared assets failed to invalidate old/new domains of both instances.");
+Texture3D originalSdfTexture=sdfA.DistanceTexture;bool staleBakeRejected=false;
+try { sdfA.SetBakedData(sourceMesh,new Texture3D(16),sdfA.LocalBounds,16,true,beforeGeometry); }
+catch(InvalidOperationException){staleBakeRejected=true;}
+Require(staleBakeRejected&&ReferenceEquals(sdfA.DistanceTexture,originalSdfTexture),"Changed-during-bake result replaced a previous valid asset transaction.");
+sdfA.SetBakedData(sourceMesh,new Texture3D(16),sdfA.LocalBounds,16,true);
+provenanceAtlas.Prepare(provenanceScene,voxels*2);
+Require(provenanceAtlas.ResidentMeshCount==1&&provenanceAtlas.IsReady(0,111,1)&&!provenanceAtlas.IsReady(1,112,1),"Rebaking one asset revived an unrelated stale asset.");
+Require(provenanceAtlas.RejectedSourceCount==1,"Successful rebake did not update rejected-source diagnostics.");
+var editedIndices=sourceMesh.triangles;(editedIndices[0],editedIndices[1])=(editedIndices[1],editedIndices[0]);sourceMesh.triangles=editedIndices;
+var beforeLegacy=HybridLumenGIMeshSource.GetVersion(sourceMesh);
+HybridLumenGIMeshSdf.NotifyGeometryChanged(sourceMesh);
+Require(!ReferenceEquals(beforeLegacy,HybridLumenGIMeshSource.GetVersion(sourceMesh)),"SDF compatibility notifier did not forward to shared service.");
+Require(!sdfA.MatchesSource(sourceMesh),"Same-count index/winding edit was missed.");
+sdfA.SetBakedData(sourceMesh,new Texture3D(16),sdfA.LocalBounds,16,true);
+Require(!sdfA.MatchesSource(new Mesh()),"Different Mesh identity accepted an asset.");
+sourceMesh.isReadable=false;Require(!sdfA.MatchesSource(sourceMesh),"Unreadable source treated as validated.");
+sourceMesh.isReadable=true;Require(sdfA.MatchesSource(sourceMesh),"Readable unchanged source failed to recover.");
+typeof(HybridLumenGIMeshSdf).GetField("fingerprintVersion",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.SetValue(sdfA,0);
+Require(!sdfA.IsValid&&!sdfA.HasSourceFingerprint&&!sdfA.MatchesSource(sourceMesh),"Legacy asset without provenance was silently trusted.");
+sdfA.SetBakedData(sourceMesh,new Texture3D(16),sdfA.LocalBounds,16,true);
+var invalidVertices=sourceMesh.vertices;invalidVertices[1].x=float.NaN;sourceMesh.vertices=invalidVertices;
+HybridLumenGIMeshSdf.NotifyGeometryChanged(sourceMesh);Require(!sdfA.MatchesSource(sourceMesh),"Nonfinite source was accepted.");
+invalidVertices[1].x=1;sourceMesh.vertices=invalidVertices;sourceMesh.triangles=new[]{0,1,99};
+HybridLumenGIMeshSdf.NotifyGeometryChanged(sourceMesh);Require(!sdfA.MatchesSource(sourceMesh),"Out-of-range source indices were accepted.");
+Console.WriteLine($"Actual-source SDF atlas representation/provenance contract: {checks} assertions passed. Native texture/buffer APIs are inert shims; no Unity or GPU execution.");

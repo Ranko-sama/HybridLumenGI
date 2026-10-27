@@ -1,0 +1,613 @@
+{
+  "revision": "local-development-denoise-01",
+  "status": "targeted-local-editor-validation",
+  "checkedUtc": "2026-10-27T15:43:50.963045+00:00",
+  "frozenBaseline": "runtime-candidate-16",
+  "scope": "Five actual CSTemporal GPU cases plus a 420-frame bounded Editor sequence, not a full 720-frame run or new Player build.",
+  "runs": {
+    "diagnosticBaseline": {
+      "path": "I:\\Unity test\\Comparison\\Results\\20261027-152612-574958fa6ca74fe58416590f2e4c56ed",
+      "status": "incomplete-probe",
+      "requestedFrames": 180,
+      "renderedFrames": 180,
+      "captures": 8,
+      "errors": 0,
+      "fullSequenceCompleted": false,
+      "firstRenderWaitSeconds": 1.4083566000000012
+    },
+    "initialFix": {
+      "path": "I:\\Unity test\\Comparison\\Results\\20261027-152839-6d07e26d25944292a0c006b478319789",
+      "status": "incomplete-probe",
+      "requestedFrames": 420,
+      "renderedFrames": 420,
+      "captures": 21,
+      "errors": 0,
+      "fullSequenceCompleted": false,
+      "firstRenderWaitSeconds": 182.61567110000001
+    },
+    "final": {
+      "path": "I:\\Unity test\\Comparison\\Results\\20261027-153457-43786b6cdf404df0bb43c9a24eafbb03",
+      "status": "incomplete-probe",
+      "requestedFrames": 420,
+      "renderedFrames": 420,
+      "captures": 21,
+      "errors": 0,
+      "fullSequenceCompleted": false,
+      "firstRenderWaitSeconds": 335.4431154
+    }
+  },
+  "captureIntegrity": {
+    "receipts": 420,
+    "exactSoftwareFrames": 419,
+    "captures": 21,
+    "allCapturesFinite": true
+  },
+  "gpuRegression": {
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "passed": true,
+    "cases": [
+      {
+        "name": "measured-black",
+        "historyLength": 1.0,
+        "spatialVariance": 0.0,
+        "confidence": 1.0,
+        "luminance": 0.0,
+        "passed": true
+      },
+      {
+        "name": "short-history-noise",
+        "historyLength": 1.0,
+        "spatialVariance": 0.0987548828125,
+        "confidence": 1.0,
+        "luminance": 0.0,
+        "passed": true
+      },
+      {
+        "name": "bright-neighbor-half-storage",
+        "historyLength": 1.0,
+        "spatialVariance": 65504.0,
+        "confidence": 1.0,
+        "luminance": 0.0,
+        "passed": true
+      },
+      {
+        "name": "separate-plane",
+        "historyLength": 1.0,
+        "spatialVariance": 0.0,
+        "confidence": 1.0,
+        "luminance": 0.0,
+        "passed": true
+      },
+      {
+        "name": "unknown-center",
+        "historyLength": 0.0,
+        "spatialVariance": 0.0,
+        "confidence": 0.0,
+        "luminance": 0.0,
+        "passed": true
+      }
+    ]
+  },
+  "pairedComparison": {
+    "before": "I:\\Unity test\\Comparison\\Results\\20261027-152612-574958fa6ca74fe58416590f2e4c56ed",
+    "after": "I:\\Unity test\\Comparison\\Results\\20261027-153457-43786b6cdf404df0bb43c9a24eafbb03",
+    "scope": "Saved linear HDR image statistics, not ground truth, temporal stability, or performance acceptance.",
+    "frames": {
+      "119": {
+        "before": {
+          "meanY": 0.2023797930837565,
+          "planeResidualRms": 0.2630063837891163,
+          "neighborResidualRms": 0.037883063259262176,
+          "finite": true
+        },
+        "after": {
+          "meanY": 0.2023323732545066,
+          "planeResidualRms": 0.262491715142049,
+          "neighborResidualRms": 0.037716259719372584,
+          "finite": true
+        },
+        "meanAbsRgbDifference": 0.0002897529338952154,
+        "sceneStateMatches": true,
+        "unfilteredHistoryMaxAbsDifference": 0.0
+      },
+      "179": {
+        "before": {
+          "meanY": 0.2100973449577781,
+          "planeResidualRms": 0.26998046318003466,
+          "neighborResidualRms": 0.039116438495218384,
+          "finite": true
+        },
+        "after": {
+          "meanY": 0.2130352385484667,
+          "planeResidualRms": 0.26972751251803057,
+          "neighborResidualRms": 0.037674477739702415,
+          "finite": true
+        },
+        "meanAbsRgbDifference": 0.006923271343111992,
+        "sceneStateMatches": true,
+        "doorRoi": {
+          "bounds": [
+            340,
+            144,
+            400,
+            250
+          ],
+          "before": {
+            "meanY": 0.3484180930610116,
+            "planeResidualRms": 0.11377871212879975,
+            "neighborResidualRms": 0.03334195007386077,
+            "finite": true,
+            "historyOneFraction": 0.7735849056603774,
+            "temporalVarianceMedian": 0.0
+          },
+          "after": {
+            "meanY": 0.3441850841729323,
+            "planeResidualRms": 0.08533280945346366,
+            "neighborResidualRms": 0.01089995444334079,
+            "finite": true,
+            "historyOneFraction": 0.7735849056603774,
+            "temporalVarianceMedian": 0.0,
+            "spatialVarianceMedian": 0.0274200439453125
+          }
+        },
+        "unfilteredHistoryMaxAbsDifference": 0.0
+      }
+    },
+    "featureSettingsMatch": true
+  },
+  "priorEditorComparison": "I:\\Unity test\\Comparison\\Evidence\\local-denoise-01\\frozenEditor-comparison.json",
+  "productSources": [
+    {
+      "file": "Runtime/HybridLumenGIAreaEmission.cs",
+      "sha256": "90A14AAEA059CF6743E622B22DFF80E0E57C782FDF087D3CE3C83EE504A63764"
+    },
+    {
+      "file": "Runtime/HybridLumenGIAssetPageManifest.cs",
+      "sha256": "59010848C42D60E3FD67C1D5DB1AC467CE480F458B5D11E1347CCC7BA44BCC35"
+    },
+    {
+      "file": "Runtime/HybridLumenGIAssetPageRetirementPump.cs",
+      "sha256": "F67CC8FEABBCBE2C92E8A2913CF3F548B2E59DCFD71295BE4FF9A8A2DEB6890C"
+    },
+    {
+      "file": "Runtime/HybridLumenGIAssetPageStreamer.cs",
+      "sha256": "C42E20EBED49E2F8AE641E86F20AA190472D10DA8E8B85CC33BAB2C364428973"
+    },
+    {
+      "file": "Runtime/HybridLumenGIAssetPageStreaming.cs",
+      "sha256": "41A73C4CA77953BDCF706A6D5A589A3A714FDA1CCF5CD2733059AD7FD4DA762A"
+    },
+    {
+      "file": "Runtime/HybridLumenGICacheScheduler.cs",
+      "sha256": "42D3C7BA461EB759911B63AFC0BE321CE8B9AEB363AECEB65E53FF7ECE292776"
+    },
+    {
+      "file": "Runtime/HybridLumenGIChangeRegions.cs",
+      "sha256": "B003B71A0E82FDB89A21917C5429A383D640E0540033167FCCE50C2B93E2EA18"
+    },
+    {
+      "file": "Runtime/HybridLumenGIChunkStreamer.cs",
+      "sha256": "4459BEABCF0C7E6CE9BAF396185206E5FB646452AD0EA2476EF4278B7C7BF51C"
+    },
+    {
+      "file": "Runtime/HybridLumenGIChunkStreaming.cs",
+      "sha256": "FAC232BE82C99C6B90F0260CECAA5648942E4473EA6CF51E1A54CA2BC61D5673"
+    },
+    {
+      "file": "Runtime/HybridLumenGIDeformedMesh.cs",
+      "sha256": "3EAACB57198365E82B86D0716E274A399C182F2BA6BE8C9EDCE4315A71CB3EBC"
+    },
+    {
+      "file": "Runtime/HybridLumenGIEmissiveSampling.cs",
+      "sha256": "5BE9F0A4CD2904B4204F7F550E1831019A3EAF4E18B28957A0291BC420AA6820"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGlobalSdf.cs",
+      "sha256": "9DD2F78CABF90D2C9EDFAD464D3042487AAAFF50E8933FD948F0B8B5C1952033"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGpuBudgetController.cs",
+      "sha256": "EEDCD0226A7B2E9BB445D3CE2280FF7962F3EA9EB8F65472A173D628899BFD2C"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGpuFrameTiming.cs",
+      "sha256": "6735E30D7A75CE5A9638ED293F52D1274F2B69DD21235C9B0EF72EE23441AAB8"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGpuTiming.cs",
+      "sha256": "C895D10DAA0995B68672D1989D7FDABEF5C76B6F86ABAD0C4A098214B3C8C7ED"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHardwareBackend.cs",
+      "sha256": "E36AEEA78A54F4DF3E08F703A9AFFC0D6DA55BB59B7D7576ECBD21FF625013FE"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHistoryLifecycle.cs",
+      "sha256": "C349E3C00399CD8D4D041F43911F8B24EF1605AF109D7A98396EE3684AD4B288"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHitMaterialBatch.cs",
+      "sha256": "9C50B6939BE54D16A2FE62A0E7D7D4DD1BBF7F42F9B91DAD1F1136452FF0DE1F"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHitMaterialData.cs",
+      "sha256": "5EB8CFF0CE5A8418D3DC81CA3FFFE49C0B588CD863C4E844A4C5195736F33689"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHitMaterialLayout.cs",
+      "sha256": "17786C8CA01FB97F539757AB1BF9855C68D5A02E6E2075012F9006FC66A23075"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHitMaterialPass.cs",
+      "sha256": "4041C2135CE7A7E95B3C4AB79AB00BF55128FF96C49C83C5B6D970BE7B8467DC"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHlodReadback.cs",
+      "sha256": "9EDDFB61D8207F2B6A500C75285419182F19CB9D79BFB2E6508E77CBAFB80D51"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHlodReadiness.cs",
+      "sha256": "CACAC592064E13A89A8A484FF89C226F2222788F86670727FD5ACA14FA77D148"
+    },
+    {
+      "file": "Runtime/HybridLumenGILights.cs",
+      "sha256": "BEE6F17AAEC8B00AB2299C561CAB624FEED062131B77056D40C14F2134D0ED1E"
+    },
+    {
+      "file": "Runtime/HybridLumenGILitQualification.cs",
+      "sha256": "DBF049F4C649FA2EFFB72AF8C91D8A19CD43DF9877716FDA74F2240CAF2DE670"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMaterialSource.cs",
+      "sha256": "26B45B372A6FCAB865E24FFBAABE56CEB1DD1FAFE12DC33BFFD990C02F9F58D3"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMeshSdf.cs",
+      "sha256": "00E31015CCC28EDD7D85768F17633859540B75BAB701489D7F33D8FFC0C4FCDF"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMeshSdfBake.cs",
+      "sha256": "13CB9BB95BBFA7475D863955F5378EC6DE2916EB6FE1E2A77C46639A6E35C9AC"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMeshSource.cs",
+      "sha256": "AFFDD1711B6FB80755F6927AF61CE73E8D4FDF748FC93027F470CD70968CA7B8"
+    },
+    {
+      "file": "Runtime/HybridLumenGINativeGpuTiming.cs",
+      "sha256": "0AF2965F5901D8E35F40DE798F17F48E33A51157CE740DDA12183232ED67FB60"
+    },
+    {
+      "file": "Runtime/HybridLumenGIProxy.cs",
+      "sha256": "81D6BEDC2A371CF1AE763D21592742CC80E435D1F9E94D9F7C7C347B60980B04"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRayTextureImporter.cs",
+      "sha256": "6D01ECE181FB0A9413B58F807BB07963DA375B770197D9BCC3DF5EBBC15146A6"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRayTextureLayout.cs",
+      "sha256": "920DB1699C7B4D2454310B54CE5D517508955C873E8A6AD05D422327CE83D083"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRayTexturePool.cs",
+      "sha256": "88628C6A0827147AFE728417EC813C2BD2A057D2C1C12897837E83C39311C4E9"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverDiscovery.cs",
+      "sha256": "7C945DD142CB1590D79CB1A0C58AB11AC96CF25E953EFA875FF038AFAC7848E8"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverHistory.cs",
+      "sha256": "7992332F09E74B513F8DEA44A4468D212806CB4A41AD2A13A9458E65397DB5AB"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverIdentityFrame.cs",
+      "sha256": "8D30BF95213890854B08593714E41F39AE7B7148C21D3C83032912D8B7C6EF9F"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverIdentityPass.cs",
+      "sha256": "CFD2B3566A1ACBE446C483689CC527EE65C41037F2D5FA9FA3C27E53D6FB56F9"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverRegistry.cs",
+      "sha256": "7298EE0BF8787C715235B56454381E1CB7FE1BF9CFFEFA93E39261736B5630D4"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRendererFeature.cs",
+      "sha256": "DD2204974423C74D01F47F19F1D3E33D46E9A34B7AA5DC79EF7AE18A939C6138"
+    },
+    {
+      "file": "Runtime/HybridLumenGIResourceRetirement.cs",
+      "sha256": "07B3A227FE43579374378228876CCC624F93BD7C070D351AA05FC6D44E6CCE70"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRtasBudget.cs",
+      "sha256": "7E8B58BEEB1413939B3A2411E0E1037B93E216C3B3432BF2BF36BDAC5C3E50B5"
+    },
+    {
+      "file": "Runtime/HybridLumenGIScene.cs",
+      "sha256": "85215E8A6D6CFD0FE97D17A4616625142925760422324A7613E670714C84530E"
+    },
+    {
+      "file": "Runtime/HybridLumenGISceneBvh.cs",
+      "sha256": "0DD488E459BEE8033AC7DE06D7A399151C5310AC5F5CCD18293E42BE079D9EC1"
+    },
+    {
+      "file": "Runtime/HybridLumenGIScreenBudget.cs",
+      "sha256": "DC137DC4645C3AD77EF884A28A7D6488B504247410B6F92CF3F73B82ECB8D5CF"
+    },
+    {
+      "file": "Runtime/HybridLumenGISdfAtlas.cs",
+      "sha256": "734524C6A97B0AC2D327119ACD62EEA338C130F8F67EB5535D224D6F1C107EB5"
+    },
+    {
+      "file": "Runtime/HybridLumenGISoftwareTriangleBvh.cs",
+      "sha256": "34AB4C246A39862B30627994F8F6680BAF3AC7F9628D4DAB7E91EC24C9E2B08E"
+    },
+    {
+      "file": "Runtime/HybridLumenGIStreamedRepresentation.cs",
+      "sha256": "0673D367E310E0A21E2C6C417FB040A98A3F5D6EA633A5E82B22AFC0F1FE8193"
+    },
+    {
+      "file": "Runtime/HybridLumenGIStreamingManifest.cs",
+      "sha256": "B94679FC93CC10DAA801BCA769FDCD2AA946C3C46A56051DAB1AB190BAB80016"
+    },
+    {
+      "file": "Runtime/HybridLumenGISurfaceCache.cs",
+      "sha256": "3069A6FFE01A9042696A67C907FA1F05A74BCBCB54BF67E6B50EC3E2A19FAB9F"
+    },
+    {
+      "file": "Runtime/HybridLumenGISurfaceCharts.cs",
+      "sha256": "04C1A2EC9468A3524DEB845C06F5480346D25E7D97FA0B699422C6EABCDB2E92"
+    },
+    {
+      "file": "Runtime/HybridLumenGIValidationMotion.cs",
+      "sha256": "65253D52CF3312D8E75788353CEDACDE34EC1D67C7054912B67FED4842E48C2F"
+    },
+    {
+      "file": "Runtime/HybridLumenGIValidationSequence.cs",
+      "sha256": "DB6A3BBA4A0D9564723AA9D2146AD72FE14DE2EC152EB6B080C15FE7B4BAC204"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/CMakeLists.txt",
+      "sha256": "CA07E71FC9100D00D5E9F91CCA1B8C848035F1C0B4A1ACDF789B8700EEAF991F"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/GpuTimingPlugin.cpp",
+      "sha256": "6820685F00F7E235136319B4BCC315F357B2EC9A55BBA5666052B4E94FBF68FF"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/NativeAbi.h",
+      "sha256": "948C4E8107FF9C3EC2409A51A90E9685AD00D52B7585FA9EDADC900E1967B959"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/QueryPool.h",
+      "sha256": "7A835E481FBFA5E03F195639F86B8BEAD1FD1DCC73718CBD1B09B9DB58B4D4DF"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/tests/NativeTimingSmoke.cpp",
+      "sha256": "C4F2808C0293803C4B07AD0AD6ACEADC62790993E17E6435CFB1BAE6943FAAD7"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/tests/QueryPoolTests.cpp",
+      "sha256": "5688CDA317DA0562036FBDAF38B05B30B1562E7BAA24E8684A8A8C4B13B5B3C3"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGI.compute",
+      "sha256": "B75C71BFA33A46DBFB4430A486C559010D4418B0E5A13441EF731FFD31A65319"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIAreaEmission.hlsl",
+      "sha256": "1AFA21078910F749D24393020B7F8204AFDD3285233E82683071C5297F5DEC0E"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGICardCapture.shader",
+      "sha256": "20ADF46A44A368D09CE9386E5E924CE0D324FFE3D60804D68390921E4FD2106B"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl",
+      "sha256": "36DD5C0EA5F29F4AE0A28A2363667C65A215D5FA5543E93B14112B7D96437720"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIColorContractProbe.shader",
+      "sha256": "D6436CFE2EFF1DF880FCF8BBB7C30BA6FE7DEB0571119DEE013203440470F391"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader",
+      "sha256": "FE0D0DC4305FD4DCFF97434382D6D8AB7D407D6A110B0FC91B5BC7260FED7E3E"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveProposals.compute",
+      "sha256": "43EDA35C8872CF8F53AD6DF5BA6E4DB4B0434855F74337C4C884478898CBA0F9"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveRecords.hlsl",
+      "sha256": "B6083A3522D11DA35FB9D73251F3E9C6A339B82D668EE8E7CAA5010AC1996A16"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl",
+      "sha256": "5A06573326A31FB757BD504F4F938C97D8C9D48E1DE801E07936D680E2A09724"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIExactMesh.hlsl",
+      "sha256": "80F873B8A83002E78ADF8BC4215DC58E43FFD6C6472DF67594E1FC537B8DE678"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIExactSoftware.compute",
+      "sha256": "F94CA5B81AA5AFA5DF35CC66E5D45185461D0A573F5990232D0DC1390A6A9F1F"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIGlobalSdf.compute",
+      "sha256": "A11F5122B6CB87FF9E431F688C769B4F81B3BEE2CAA25E3522C2D3797A2056C7"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIGlobalSdf.hlsl",
+      "sha256": "3BF31A3B3BCB082CA702CD98C0640E6D5DB081E8DCC5A8D6F685BE06B77042FF"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardware.compute",
+      "sha256": "810088F829DB38B717821B5AA7956EEB1192BE5583233E76929D3A6C687B5AE0"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareMaterials.hlsl",
+      "sha256": "B8D132CAFAEC85D2A00ABA500E4DFB0046DE3A766C3FE63084C28F18D042BF75"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareNormals.hlsl",
+      "sha256": "419BFF04B6F9B44CFFDA3343AE0DDDDB4B0F3EE185B8DE309404D7475CD22A4B"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareSurface.hlsl",
+      "sha256": "A87C4778D7E14D5D236D5B0E351AA2766C33767440084DE0A3AA18A032F19164"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl",
+      "sha256": "EB42D3EDA7A7DDFE22581C5E35BD8BAD6F64C4CEC19053046DF8B7841E629AE8"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl",
+      "sha256": "C9BC5A9089102DE5D70814E077C7E3394013B8542BD14CADE7F9C1DFFE37B284"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHitMaterials.hlsl",
+      "sha256": "77CA138DBCC6DD6E9543DBFDA38963780CCA9658F0498142647863C5A174E0A4"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl",
+      "sha256": "6B54CE83BA228DE3045742AD3EB2DB991EA923F2F96889B180855B3ED680852C"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGILightingPolicy.hlsl",
+      "sha256": "581F74482B70C8AE02C5D5BB0CEBBBF49886CFC9E76417F6F6677632961844D7"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGINativeDiffuseCapture.shader",
+      "sha256": "96E53CDE485DA77C7DC98587EC15E8F6561F479FF0669A9B6E82601B07F4B537"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl",
+      "sha256": "C86A90BB01DA33D26D06D2F34686AC24ED5D0086F7202E79846ABB25CA17637E"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIRayFootprint.hlsl",
+      "sha256": "6EA7286E57ABDE318F1E318E17CEC6ED1E1C0E8451DD7E3546FB62977741B1AC"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextureCopy.compute",
+      "sha256": "C9E91AF98BB614D09F493C28344A25C5A3BC1A311084A686B2C62D09611BC6F2"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextureCopy.hlsl",
+      "sha256": "3AF3352DAA3A053C31CE4D3F5A7669993A3FD9DC5170050165F9A82E7C6C43F6"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextures.hlsl",
+      "sha256": "F09E5FA8EC91938707B246B1A67B7024FBF34AEF4C3D5E6240FBE9DF715BD4FB"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.compute",
+      "sha256": "78F60FEAC6235395A7E986EED84A3BDEDA7B8AEC503954981E8D47229A46775F"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl",
+      "sha256": "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+      "sha256": "2F3C467D36FBE63A6F9581A4517A24CBA77F19D9B14510C6D5F7DC0DFA35480A"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverPolicyCapture.hlsl",
+      "sha256": "5772F5CFC8DD7FB3EAAA59F6E7A5C65BF10CD2D0A16FD6671D0A6B7278440845"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+      "sha256": "9EFEC293CA3475A00BA584765FBED9ADFD60129EAED3099407F5DDB10498478A"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISceneBvh.hlsl",
+      "sha256": "7B39FFAF26F71045A192E614B7B5D9793993C0C4051AF6172B564EFCDD7B0D51"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIScreenGeometry.hlsl",
+      "sha256": "5BA1DD165E0DF7E852E125407B9F26FE1371A545630662838A4174F7FA72B563"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIScreenSampling.hlsl",
+      "sha256": "25607FFEBA963C9C7A2E1474F99337C3E4AC4079DB5CC6AC54E6D1D3505F52CF"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISdfTrace.hlsl",
+      "sha256": "DD94FEB356D7ADD0197029F0921B0C61A885D88560FE25FCCBD13E0E8EA73E89"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISoftwareTriangleBvh.hlsl",
+      "sha256": "595C56C351D66C393244FF7B934FE3FE3EB5E05D6A21F6D2E400D9495EAED3F7"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISurface.shader",
+      "sha256": "ED86E063802466811141EF1A16276406471953D0EA8CFB868723B59D3B6C82B1"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceAnchors.compute",
+      "sha256": "DC19A4AE6A31C54AEDF46D2C636C78AFB09E76099A798A4E195F16B38BDEF414"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceCache.hlsl",
+      "sha256": "44ED0A0F51905578766824EC58D40F13E4976069FE12FD938924E8E4D87F1AE2"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl",
+      "sha256": "02487F569FC24B2C62E10399846C8D015A5F64A044278A1D5CE579E2B7D69B7B"
+    },
+    {
+      "file": "Editor/HybridLumenGIAssetPageBuilder.cs",
+      "sha256": "58378E20C81BED75E75E255805ED09CFFFD2522F7D733364A7F63502368F62CA"
+    },
+    {
+      "file": "Editor/HybridLumenGIColorContractValidation.cs",
+      "sha256": "41124A44766A922B218332B646B93F8A397387B3B831992224D0F283B41EB394"
+    },
+    {
+      "file": "Editor/HybridLumenGIDiagnostics.cs",
+      "sha256": "8E82A424E0B0CBBCACCA42AC01602E97F18318CF0C667A5E8EA3237AEB311C8B"
+    },
+    {
+      "file": "Editor/HybridLumenGIMeshSdfBaker.cs",
+      "sha256": "B94829F00B76CD9BEFC9AB8FDBBC1D26E9D37E2F1788C11ABCC10054338967ED"
+    },
+    {
+      "file": "Editor/HybridLumenGIMeshSdfValidation.cs",
+      "sha256": "C08C400893B847F6AA17EE8738672A3BAAAEE09AF1D7DA4EB07769115FED17DD"
+    },
+    {
+      "file": "Editor/HybridLumenGISetupWindow.cs",
+      "sha256": "0E1CFDD481E0A1C51662A80CB81C53BEBEF1883D586F86ED78F1F7CECDADD54B"
+    },
+    {
+      "file": "Editor/HybridLumenGISurfaceChartBaker.cs",
+      "sha256": "321BB06E7BEEDA6AD26E4A58307D7B20ED0A30DE6244A85A0B6E75FC6178365F"
+    },
+    {
+      "file": "Editor/HybridLumenGIValidationScene.cs",
+      "sha256": "B7BBEA7F61E8F9374F6DD14589D65CD404D2D9577622491BEA39361AD55575FD"
+    }
+  ],
+  "changedProductFiles": [
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl"
+  ],
+  "doorNeighborResidualReduction": 0.6730858747255436,
+  "doorMeanLuminanceRelativeChange": -0.012149222363541434,
+  "playerBuildVerified": false,
+  "hardwareRunVerified": false,
+  "productionAccepted": false,
+  "limits": [
+    "Single-frame spatial noise metric is not temporal flicker/ghosting acceptance.",
+    "Thin-wall ground truth, resource shutdown, GPU time/VRAM and broader support remain open.",
+    "Final run stops at frame419; sealed-room/HLOD/old/off/SDF and frozen Player evidence were not rerun.",
+    "Shader/driver startup and capture IO are not per-frame GI performance."
+  ]
+}

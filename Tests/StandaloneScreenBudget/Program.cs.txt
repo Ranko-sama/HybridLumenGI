@@ -1,0 +1,120 @@
+using System;
+using System.Numerics;
+using HybridLumenGI;
+using Budget=HybridLumenGI.HybridLumenGIScreenBudget;
+class Program
+{
+    static int checks,cases;
+    static void Check(bool value,string message){checks++;if(!value)throw new Exception(message);}
+    static BigInteger Cost(int fw,int fh,int w,int h,bool native,bool identity,int capacity)
+    {
+        // Itemized allocation oracle: no use of helper constants/result cost and no floating bytes.
+        BigInteger full=(BigInteger)fw*fh,low=(BigInteger)w*h;
+        BigInteger capture=full*(native?36:24),gi=low*96;
+        BigInteger extra=identity?full*4+full*12+low*16*2+(BigInteger)Math.Max(1,Math.Min(16384,capacity))*80:0;
+        return capture+gi+extra;
+    }
+    static bool Shape(int fw,int fh,int w,int h)
+    {
+        // Enumerate integer rectangles independently of binary search. The shorter side
+        // occupies its rational interval, or the explicit floor(full/8) minimum plateau.
+        int fwLong=fw>=fh?fw:fh,shortFull=fw>=fh?fh:fw;
+        int q=fw>=fh?w:h,s=fw>=fh?h:w;
+        int minimum=Math.Max(1,shortFull/8);
+        BigInteger product=(BigInteger)shortFull*q;
+        return s>=minimum && product<(BigInteger)fwLong*(s+1) && (s==minimum || product>=(BigInteger)fwLong*s);
+    }
+    static (bool fits,int w,int h) Enumerate(int fw,int fh,float scale,long bytes,bool native,bool identity,int capacity,bool fullGrid)
+    {
+        double clamped=Math.Max(.25,Math.Min(1,(double)scale));
+        int maxW=Math.Max(1,(int)Math.Floor(fw*clamped)),maxH=Math.Max(1,(int)Math.Floor(fh*clamped));
+        int minW=Math.Max(1,fw/8),minH=Math.Max(1,fh/8);int bestW=0,bestH=0;
+        if(fullGrid)
+        {
+            for(int w=minW;w<=maxW;w++)for(int h=minH;h<=maxH;h++)
+                if(Shape(fw,fh,w,h)&&Cost(fw,fh,w,h,native,identity,capacity)<=bytes && Math.Max(w,h)>Math.Max(bestW,bestH))
+                {bestW=w;bestH=h;}
+        }
+        else
+        {
+            // Large-resolution oracle visits every long-side integer, not a binary search.
+            int longer=Math.Max(fw,fh),shorter=Math.Min(fw,fh);
+            for(int q=Math.Max(1,longer/8);q<=Math.Max(maxW,maxH);q++)
+            {
+                int s=Math.Max(Math.Max(1,shorter/8),(int)((BigInteger)shorter*q/longer));
+                int w=fw>=fh?q:s,h=fw>=fh?s:q;
+                if(Cost(fw,fh,w,h,native,identity,capacity)<=bytes){bestW=w;bestH=h;}
+            }
+        }
+        return (bestW!=0,bestW,bestH);
+    }
+    static void Compare(int fw,int fh,float scale,long bytes,bool native,bool request,int rows,bool grid=false)
+    {
+        cases++;var r=Budget.Plan(fw,fh,scale,bytes,native,request,rows);
+        var expected=Enumerate(fw,fh,scale,bytes,native,request,rows,grid);bool identity=request;
+        if(request&&!expected.fits){identity=false;expected=Enumerate(fw,fh,scale,bytes,native,false,0,grid);}
+        Check(r.Fits==expected.fits,"oracle fit");
+        Check(r.IdentityEnabled==identity,"identity fallback selection");
+        Check(r.IdentityBudgetFallback==(request&&!identity),"fallback status");
+        Check(r.FullPixelBytes==(native?36:24)+(identity?4:0)&&r.LowPixelBytes==(identity?128:96),"resource byte strides");
+        if(r.Fits)
+        {
+            Check(r.Width==expected.w&&r.Height==expected.h,"largest affordable integer rectangle");
+            BigInteger exact=Cost(fw,fh,r.Width,r.Height,native,identity,rows);
+            Check(exact==r.EstimatedBytes&&exact<=bytes,"exact estimated byte sum and budget upper bound");
+            Check(r.Width>=Math.Max(1,fw/8)&&r.Height>=Math.Max(1,fh/8),"minimum dimension contract");
+            double clamped=Math.Max(.25,Math.Min(1,(double)scale));
+            Check(r.Width<=Math.Max(1,(int)Math.Floor(fw*clamped))&&r.Height<=Math.Max(1,(int)Math.Floor(fh*clamped)),"requested scale upper bound");
+        }
+        else Check(r.Width==0&&r.Height==0&&r.EstimatedBytes>bytes,"unaffordable minimum is explicit");
+        int expectedRows=identity?Math.Max(1,Math.Min(16384,rows)):0;
+        Check(r.IdentityRowCapacity==expectedRows&&r.IdentityBufferBytes==(identity?(long)fw*fh*12+expectedRows*80L:0),"candidate/object reserve including dummy");
+    }
+    static void Main()
+    {
+        var regression=Budget.Plan(1920,1080,.5f,64L*1024*1024,false,true,1024);
+        Check(regression.Fits&&!regression.IdentityEnabled&&regression.IdentityBudgetFallback,"1080p 64MiB preserves current GI");
+        var baseline=Budget.Plan(1920,1080,.5f,64L*1024*1024,false,false,1024);
+        Check(regression.Width==baseline.Width&&regression.Height==baseline.Height&&regression.EstimatedBytes==baseline.EstimatedBytes,"fallback equals standalone baseline");
+        Compare(1920,1080,.5f,64L*1024*1024,false,true,1024);
+        Compare(1920,1080,.5f,64L*1024*1024,true,true,1024);
+        // Exhaustively compare feasible 2D rectangles for small odd/even/minimal sizes,
+        // all composition/identity combinations and budgets immediately on either side.
+        for(int fw=1;fw<=21;fw++)for(int fh=1;fh<=19;fh++)
+        foreach(bool native in new[]{false,true})foreach(bool identity in new[]{false,true})
+        {
+            int rows=(fw+fh)%5==0?0:7;
+            long minimum=(long)Cost(fw,fh,Math.Max(1,fw/8),Math.Max(1,fh/8),native,identity,rows);
+            long maximum=(long)Cost(fw,fh,Math.Max(1,fw/2),Math.Max(1,fh/2),native,identity,rows);
+            foreach(long bytes in new[]{0L,minimum-1,minimum,minimum+1,maximum-1,maximum,maximum+1})
+                Compare(fw,fh,.5f,bytes,native,identity,rows,true);
+        }
+        var random=new Random(0x621f);
+        for(int n=0;n<180;n++)
+        {
+            int fw=random.Next(1,16385),fh=random.Next(1,16385),rows=random.Next(-1,20000);
+            float scale=new[]{.25f,.33333334f,.5f,.731f,1f}[n%5];bool native=(n&1)!=0,identity=(n&2)!=0;
+            long budget=(long)Cost(fw,fh,Math.Max(1,fw/3),Math.Max(1,fh/3),native,identity,rows)+random.Next(-1000,1001);
+            Compare(fw,fh,scale,budget,native,identity,rows);
+        }
+        foreach(int rows in new[]{int.MinValue,0,1,1024,16384,int.MaxValue})
+        {
+            long exact=(long)Cost(1,1,1,1,false,true,rows);
+            Compare(1,1,1,exact-1,false,true,rows,true);Compare(1,1,1,exact,false,true,rows,true);
+            var r=Budget.Plan(1,1,1,exact,false,true,rows);Check(r.IdentityEnabled&&r.Width==1&&r.Height==1,"1x1 exact allocation");
+        }
+        foreach(var shape in new[]{(16384,16384),(1,16384),(16383,1),(1919,1079),(3,7)})
+        {
+            Compare(shape.Item1,shape.Item2,1,long.MaxValue,true,true,16384);
+            Compare(shape.Item1,shape.Item2,-3,long.MaxValue,false,true,1);
+            Compare(shape.Item1,shape.Item2,3,long.MaxValue,false,false,1);
+        }
+        foreach(float invalid in new[]{float.NaN,float.PositiveInfinity,float.NegativeInfinity})
+            Check(!Budget.Plan(1,1,invalid,10000,false,true,1).Fits,"nonfinite scale explicitly rejected");
+        foreach(var shape in new[]{(0,1),(1,0),(-1,4),(16385,1),(int.MaxValue,int.MaxValue)})
+            Check(!Budget.Plan(shape.Item1,shape.Item2,.5f,long.MaxValue,false,true,1).Fits,"invalid/unsupported dimensions rejected before arithmetic");
+        Check(!Budget.Plan(1,1,1,-1,false,true,1).Fits,"negative byte budget");
+        Console.WriteLine($"ScreenBudget PASS: {cases} oracle plans, {checks} assertions. Actual runtime helper; exhaustive integer rectangles and BigInteger allocation oracle.");
+        Console.WriteLine("Evidence: logical CPU allocation planning only; excludes driver/native allocation overhead and does not execute Unity or GPU.");
+    }
+}

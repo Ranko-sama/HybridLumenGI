@@ -1,0 +1,105 @@
+using HybridLumenGI;
+using UnityEngine;
+using System.Runtime.InteropServices;
+using UnityEngine.Rendering;
+int assertions=0;
+void Require(bool condition,string message){assertions++;if(!condition)throw new Exception(message);}
+HybridLumenGIProxy.ActiveProxies.Clear();
+for(int i=0;i<48;i++) HybridLumenGIProxy.ActiveProxies.Add(new HybridLumenGIProxy{StableId=i+1,bounds=new Bounds(new Vector3(i*4,0,0),Vector3.one)});
+using var scene=new HybridLumenGIScene();
+bool Prepare(int capacity=32,int budget=4)=>scene.Prepare(Vector3.zero,capacity,50,500,16,budget);
+Require(Prepare(),"Initial residency must report change.");
+Require(scene.RequiresFullInvalidation&&scene.ValidCount==4&&scene.PendingUploadCount==28,"Initial capacity/upload budget mismatch.");
+Require(scene.DirtyRegions.Count==4&&scene.DirtyRegions.All(x=>x.HasCurrent&&!x.HasPrevious),"Initial additions incorrectly described.");
+for(int i=1;i<8;i++)Prepare();
+Require(scene.ValidCount==32&&scene.PendingUploadCount==0,"Residency did not complete within upload budget.");
+Require(!Prepare()&&!scene.RequiresFullInvalidation&&scene.DirtyRegions.Count==0,"Stable scene emitted dirty/global reset.");
+int Slot(int id)=>Array.FindIndex(scene.Data,x=>(int)x.identity.x==id&&x.identity.w>.5f);
+var first=HybridLumenGIProxy.ActiveProxies[0];int firstSlot=Slot(first.StableId);
+Require(Marshal.SizeOf<HybridLumenGIScene.ProxyGpuData>()==80&&Marshal.SizeOf<HybridLumenGIScene.LightingPolicyData>()==16,"Scene/policy ABI changed.");
+Require(scene.LightingPolicyBuffer.count==32&&scene.LightingPolicyBuffer.stride==16&&scene.LightingPolicies.Length==32,"Policy buffer capacity or stride differs from scene slots.");
+void PoliciesMatch()
+{
+    for(int i=0;i<scene.Capacity;i++)
+    {
+        var cpu=scene.LightingPolicies[i];var gpu=(HybridLumenGIScene.LightingPolicyData)scene.LightingPolicyBuffer.Data[i];
+        Require(cpu.Equals(gpu),"GPU policy snapshot differs from CPU slot.");
+        Require(cpu.reserved==0,"Policy reserved field not zero.");
+        if(scene.Data[i].identity.w==0)Require(cpu.Equals(default(HybridLumenGIScene.LightingPolicyData)),"Absent/pending slot leaked old policy.");
+    }
+    Require(scene.Buffer.Uploads.SequenceEqual(scene.LightingPolicyBuffer.Uploads),"Scene and policy uploads did not use identical dirty spans.");
+}
+int contentVersion=first.GeometryContentRevision;
+foreach(var mode in new[]{ShadowCastingMode.Off,ShadowCastingMode.On,ShadowCastingMode.TwoSided,ShadowCastingMode.ShadowsOnly})
+{
+    first.SourceRenderer.shadowCastingMode=mode;first.Revision++;int nodes=scene.Bvh.NodeCount;Prepare(budget:1);
+    Require(scene.DirtyRegions.Count==1&&scene.DirtyRegions[0].Kind==HybridLumenGIScene.ChangeKind.Lighting,"Policy must not fall through to Manual/topology.");
+    Require(Slot(first.StableId)==firstSlot&&scene.ValidCount==32&&scene.PendingUploadCount==0&&scene.Bvh.NodeCount==nodes,"Pure policy update must retain resident geometry outside replacement budget.");
+    Require(scene.LightingPolicies[firstSlot].shadowCastingMode==(uint)mode&&first.GeometryContentRevision==contentVersion,"Policy mode or geometry content changed incorrectly.");PoliciesMatch();
+    int uploads=scene.LightingPolicyBuffer.Uploads.Count;Require(!Prepare()&&scene.LightingPolicyBuffer.Uploads.Count==uploads,"Unchanged policy uploaded again.");
+}
+first.SourceRenderer.gameObject.layer=31;first.SourceRenderer.renderingLayerMask=0xffffffffu;first.Revision++;Prepare();
+Require(scene.LightingPolicies[firstSlot].objectLayerBit==0x80000000u&&scene.LightingPolicies[firstSlot].renderingLayerMask==0xffffffffu,"Full uint policy bits passed through float or signed conversion.");PoliciesMatch();
+foreach(uint mask in new[]{0u,1u,0x55555555u,0xaaaaaaaau,0x80000000u})
+{
+    first.SourceRenderer.renderingLayerMask=mask;first.Revision++;Prepare();
+    Require(scene.LightingPolicies[firstSlot].renderingLayerMask==mask&&scene.DirtyRegions.Single().Kind==HybridLumenGIScene.ChangeKind.Lighting,"Zero/high/all alternating uint rendering bits changed classification or payload.");PoliciesMatch();
+}
+using(var secondCamera=new HybridLumenGIScene())
+{
+    secondCamera.Prepare(Vector3.zero,32,50,500,16,32);
+    int secondSlot=Array.FindIndex(secondCamera.Data,x=>x.identity.x==first.StableId&&x.identity.w>0);
+    Require(!ReferenceEquals(secondCamera.LightingPolicyBuffer,scene.LightingPolicyBuffer)&&secondCamera.LightingPolicies[secondSlot].Equals(scene.LightingPolicies[firstSlot]),"Per-camera policy storage is not isolated or differs for same live source.");
+}
+first.SourceRenderer.renderingLayerMask=0x80000001u;first.diffuse=new Color(.4f,.2f,.1f);first.Revision++;Prepare(budget:1);
+Require(scene.DirtyRegions.Single().Kind==(HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Material)&&scene.PendingUploadCount==0,"Material+Lighting must preserve geometry.");PoliciesMatch();
+first.bounds.center+=new Vector3(1,0,0);first.SourceRenderer.shadowCastingMode=ShadowCastingMode.Off;first.Revision++;
+Prepare();
+var motion=scene.DirtyRegions.Single(x=>x.StableId==first.StableId);
+Require(motion.HasPrevious&&motion.HasCurrent&&(motion.Kind&HybridLumenGIScene.ChangeKind.Transform)!=0,"Move did not preserve old/new regions.");
+Require((motion.Kind&HybridLumenGIScene.ChangeKind.Lighting)!=0&&(motion.Kind&HybridLumenGIScene.ChangeKind.Manual)==0,"Policy+rigid motion became an unnecessary mesh-content rebuild.");
+Require(motion.PreviousBounds.center.x==0&&motion.CurrentBounds.center.x==1&&Slot(first.StableId)==firstSlot,"Move lost bounds/stable slot.");
+Require(!scene.RequiresFullInvalidation,"Local motion requested global reset.");
+first.diffuse=new Color(.2f,.4f,.8f);first.Revision++;Prepare();
+Require((scene.DirtyRegions.Single().Kind&HybridLumenGIScene.ChangeKind.Material)!=0,"Material delta not classified.");
+first.SourceRenderer.filter.sharedMesh=new Mesh();first.Revision++;Prepare();
+Require((scene.DirtyRegions.Single().Kind&HybridLumenGIScene.ChangeKind.Topology)!=0,"Mesh replacement not classified.");
+first.Revision++;Prepare();
+Require((scene.DirtyRegions.Single().Kind&HybridLumenGIScene.ChangeKind.Manual)!=0,"Explicit revision invalidation was lost.");
+// Independent event combinations: same-size content edits must survive every
+// concurrent transport change, including material-only fast-path eligibility.
+for(int combination=0;combination<4;combination++)
+{
+    first.GeometryContentRevision++;first.Revision++;
+    first.SourceRenderer.renderingLayerMask^=0x80000000u;
+    if((combination&1)!=0)first.bounds.center+=new Vector3(.02f,0,0);
+    if((combination&2)!=0)first.diffuse=new Color(.1f+combination*.02f,.3f,.7f);
+    Prepare();
+    var kind=scene.DirtyRegions.Single(x=>x.StableId==first.StableId).Kind;
+    Require((kind&HybridLumenGIScene.ChangeKind.Manual)!=0,"Concurrent content edit lost its mandatory rebuild flag.");
+    Require((kind&HybridLumenGIScene.ChangeKind.Lighting)!=0,"Combined content/policy edit lost lighting flag.");
+    Require((kind&HybridLumenGIScene.ChangeKind.Transform)!=0==((combination&1)!=0),"Transform flag changed with content edit.");
+    Require((kind&HybridLumenGIScene.ChangeKind.Material)!=0==((combination&2)!=0),"Material flag changed with content edit.");
+}
+var removed=HybridLumenGIProxy.ActiveProxies[1];int reusedSlot=Slot(removed.StableId);removed.isActiveAndEnabled=false;Prepare();
+Require(scene.DirtyRegions.Any(x=>x.StableId==removed.StableId&&x.HasPrevious&&!x.HasCurrent&&(x.Kind&HybridLumenGIScene.ChangeKind.Removed)!=0),"Removal region lost.");
+Require(scene.DirtyRegions.Any(x=>x.Slot==reusedSlot&&x.StableId!=removed.StableId&&x.HasCurrent),"Reused slot merged two different objects.");
+PoliciesMatch();Require(scene.LightingPolicies[reusedSlot].renderingLayerMask==1u&&scene.LightingPolicies[reusedSlot].shadowCastingMode==1u,"Reused slot inherited old owner policy.");
+var moving=HybridLumenGIProxy.ActiveProxies.Where(x=>x.isActiveAndEnabled).Take(4).ToArray();var serviced=new HashSet<int>();
+for(int frame=0;frame<8;frame++)
+{
+    foreach(var p in moving){p.bounds.center+=new Vector3(.01f,0,0);p.Revision++;}
+    Prepare(budget:1);
+    foreach(var p in moving)if(Slot(p.StableId)>=0)serviced.Add(p.StableId);
+    Require(scene.PendingUploadCount>=3,"Dirty geometry exceeded the hard replacement budget.");
+    PoliciesMatch();
+}
+Require(serviced.Count==4,"Continuously moving near objects starved pending uploads.");
+var oldPolicy=scene.LightingPolicyBuffer;Prepare(64,64);Require(scene.RequiresFullInvalidation,"Capacity reset must request global resource invalidation.");
+Require(oldPolicy.Released&&scene.LightingPolicyBuffer.count==64,"Capacity change leaked old policy allocation.");PoliciesMatch();
+Require(scene.ValidCount==47,"Capacity change lost active instances.");
+// No renderer still has deterministic proxy-layer/default rendering and casting policy.
+var bare=HybridLumenGIProxy.ActiveProxies[47];bare.SourceRenderer=null;bare.gameObject.layer=31;bare.Revision++;Prepare(64,64);int bareSlot=Slot(bare.StableId);
+Require(scene.LightingPolicies[bareSlot].objectLayerBit==0x80000000u&&scene.LightingPolicies[bareSlot].renderingLayerMask==1u&&scene.LightingPolicies[bareSlot].shadowCastingMode==1u,"Rendererless policy defaults differ.");PoliciesMatch();
+var finalBuffer=scene.LightingPolicyBuffer;scene.Dispose();Require(finalBuffer.Released&&scene.LightingPolicyBuffer==null&&scene.LightingPolicies.Length==0,"Dispose retained policy resources.");
+Console.WriteLine($"PASS: actual scene source {assertions} assertions; residency, 80B/16B snapshots, uint policy bits, lighting/material/geometry classification, upload spans, removal+slot reuse, starvation, and capacity/disposal. GPU API/proxy adapters; Unity lifecycle and GPU execution are not tested.");

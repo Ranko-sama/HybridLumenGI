@@ -1,0 +1,84 @@
+# Native URP Lit diffuse-GI replacement
+
+The default additive mode adds HLGI to the native URP result. It can double-count ambient probes or lightmaps that are already contributing diffuse illumination. The optional **Replace Native Diffuse GI** mode captures the ordinary Lit shader's native diffuse term and applies a signed difference. A limited Unity 6000.0.85f1 / URP 17.0.4 Forward/SH check now passes representative receiving surfaces; the broader matrix below remains experimental. See [the runtime evidence](LocalRuntimeFunctionalAudit.md). The feature changes no global Lighting settings and does not estimate any component from camera color.
+
+## Lighting contract
+
+For opaque `Universal Render Pipeline/Lit` in the supported Forward paths, define `rho = BRDFData.diffuse`, `a = min(materialOcclusion, screenSpaceIndirectAO)`, `B = inputData.bakedGI` after `MixRealtimeAndBakedGI`, and `T = MixFogColor(1, 0, inputData.fogCoord)`. The native diffuse contribution is `N = B * rho * a`. HLGI stores `D = E/pi`, so the replacement is:
+
+```text
+delta = (HLGI_D * rho * a * indirectIntensity - N) * T
+cameraColor += delta
+```
+
+Keep the signed delta through HDR blending. A negative value removes the old diffuse term; clamping it to zero recreates double counting whenever HLGI is darker. Fog color, direct lighting, native reflection/specular, and emission remain in the original camera result. `indirectIntensity = 0` removes native diffuse GI in replacement mode; it is not an on/off switch. Invalid capture produces zero delta and leaves the original pixel unchanged. A capture must never be interpreted as valid merely because its native term is zero.
+
+There is no extra `1/pi` conversion in this replacement. The fixed URP source's `EnvironmentBRDF` directly multiplies bakedGI by `BRDFData.diffuse`, and its AO helper combines material and screen AO using `min`. No-fog transmittance must be one: the bare `ComputeFogIntensity` helper returns zero when no fog keyword is defined, so the capture uses `MixFogColor(1,0)` instead. See the pinned [BRDF](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/ShaderLibrary/BRDF.hlsl), [AO](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/ShaderLibrary/AmbientOcclusion.hlsl), and [fog](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl) implementations.
+
+## Capture and integration
+
+`Hidden/HybridLumenGI/NativeDiffuseCapture`, pass 0, reuses the installed URP `LitInput.hlsl` and `LitForwardPass.hlsl`. The audited source revision is Graphics `feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53` on Unity 6000.0. A different package version needs a new audit. The fragment follows the same material, displacement, normal/detail, alpha clip, LOD fade, decal, baked-GI, BRDF, AO, main-light and mixed-lighting ordering as [ordinary Lit Forward](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl) and [UniversalFragmentPBR](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl).
+
+| Target | Linear format | Contents |
+| --- | --- | --- |
+| 0 | RGBA16 float | `rho.rgb`, native indirect AO |
+| 1 | RGBA16 float | emission RGB, `1 + materialAO` in alpha (1–2 valid; zero invalid) |
+| 2 | RGBA16 float | native diffuse **before fog** RGB, fog transmittance |
+| Depth | D32 | Independent full-resolution capture depth |
+
+The targets cost 28 bytes per full-resolution pixel, before engine overhead and all other GI textures. Keep target 0 floating point: UNorm quantization of rho would mismatch the native term being removed. For replacement, screen-hit transport decodes material-only AO as target 1 alpha minus one; only the final receiver uses target 0 alpha's combined AO. This prevents camera SSAO from entering the world-bounce feedback. Zero alpha remains invalid, including material AO zero (encoded alpha one).
+
+Use the same viewport and camera transforms as the opaque pass. Cross-check capture depth against camera depth before composition. The render event must be after ordinary opaque lighting and available depth/motion resources, before transparent objects and post processing. The normal SSAO path runs before opaques and sets the native shader's SSAO keyword; Forward SSAO's optional **After Opaque** path instead runs at `BeforeRenderingTransparents` and multiplies the camera image without setting that keyword. HLGI replacement must run strictly before that latter pass, e.g. at `AfterRenderingSkybox + 1`, so the later SSAO operation acts on the complete replaced image. Sharing its event leaves ordering dependent on renderer-feature order. See the fixed [SSAO pass](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/Runtime/Passes/ScreenSpaceAmbientOcclusionPass.cs) and [Render Graph ordering](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/Runtime/UniversalRendererRenderGraph.cs). Use a linear HDR camera target; if lighting was already clipped or tone mapped, the original term cannot be recovered by subtraction. Extremely bright native half-precision lighting can also saturate, which this method cannot undo.
+
+Draw via a `RendererList` using URP `RenderingUtils.CreateDrawingSettings` and preserve its `perObjectData`, main-light index, lightmap indices/transforms, probe data and camera lighting globals. Declare the Render Graph reads of global SSAO, DBuffer, lightmap, probe and shadow resources, e.g. using the supported `UseAllGlobalTextures(true)` builder API. An explicit `CommandBuffer.DrawRenderer` is not equivalent: its [API contract](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Rendering.CommandBuffer.DrawRenderer.html) warns that lighting/probe data are not set. World material-card capture does not need these data and remains a separate pass.
+
+`DrawingSettings.overrideShader` preserves material properties according to its [public contract](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Rendering.DrawingSettings-overrideShader.html). That contract does not establish how source **local keywords** are mapped into the override shader. All relevant variants are retained here, but engine selection and property-block parity require actual Unity verification. A compile check cannot certify this. Restrict eligible layers to ordinary opaque Lit; the shader cannot identify an arbitrary source Shader Graph by inspecting the override material's properties. BRG/DOTS, GPU Resident Drawer and arbitrary custom vertex deformation are outside this contract.
+
+`HybridLumenGILitQualification.Validate(camera, selectedLayers, out reason)` provides a conservative current-frame CPU gate for ordinary Renderer components. Call it immediately before recording capture; a false result requires skipping replacement for the camera. It scans live objects on every call, intersects camera and selected layer masks, excludes inactive/disabled/force-hidden renderers and asset/unloaded scenes, uses the camera's actual culling matrix for frustum rejection, then checks every remaining opaque material's shader name for an exact `Universal Render Pipeline/Lit` match. Material changes and newly created renderers are not hidden by a multi-frame success cache. Missing material/shader or invalid culling data fail closed. Occlusion and LOD selection are not reproduced, so some renderers that would ultimately be culled can conservatively reject the camera.
+
+The gate deliberately uses `Resources.FindObjectsOfTypeAll<Renderer>()`: [FindObjectsByType](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Object.FindObjectsByType.html) excludes `HideFlags.DontSave`, which could otherwise omit a visible runtime renderer. This allocates a Renderer array and scans loaded objects for each camera/frame; shared-material lists and six frustum planes are reused, but the global scan is a real CPU/GC cost. Profile it before enabling the experimental mode in large scenes. Qualification covers ordinary Renderer components at validation time, not BRG or arbitrary procedural rendering; callers must not mutate capture eligibility between validation and recording.
+
+`RendererListParams.tagName/tagValues/stateBlocks` are not used as a stock-Lit filter. Their [documented contract](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Rendering.ScriptableRenderContext.DrawRenderers.html) matches shader tags to render-state overrides, and `UniversalMaterialType=Lit` would not uniquely identify the stock shader anyway. `Tests/Validate-LitQualification.ps1` exercises the actual qualification class against minimal Unity API stubs, including source shader changes, new objects, all material slots, queue boundaries and exclusions. It does not run Unity culling or RendererList construction.
+
+## Support matrix and rejection conditions
+
+The entries below describe implemented source paths, not GPU certification.
+
+| Configuration | Current behavior / condition |
+| --- | --- |
+| Ordinary opaque Lit, Forward | Source path implemented; explicit opt-in and Unity parity qualification required |
+| Forward+ | Source path implemented; test clustered-light state and source keywords; same diffuse formula |
+| Metallic/specular workflow, normal/detail/parallax maps, alpha test | Native Lit sampling reused; keyword and MPB parity not yet verified in Unity |
+| Ambient SH / legacy Light Probes | Native SH evaluation reused, including vertex/mixed/pixel modes; renderer probe bindings required |
+| Static/dynamic, directional/non-directional lightmaps | Native UV and decode branches reused; replace the complete native term, not a physically separated baked-indirect component |
+| Shadowmask / Baked Indirect mixed lighting | Native GI and shadowmask setup reused; native realtime direct lighting remains in camera color |
+| Baked-only lights or historical baked direct illumination | No claim of preserving baked direct lighting: it can be inseparable from the replaced native term; scene qualification must exclude it when preserving all direct light is required |
+| Subtractive | Rejected in shader; baked direct and shadow subtraction make the physical separation ambiguous |
+| APV L1/L2 | Rejected in shader; no silent fallback to SH |
+| Deferred | Rejected by the feature; its GBuffer/SSAO/fog sequence is a different contract |
+| SSAO | Native helper uses `min(materialAO, screenAO)`; only a matching enabled keyword and matching SSAO texture yield parity |
+| DBuffer decals | Same native decal function is called before bakedGI/BRDF; requires identical DBuffer globals and graph dependencies |
+| Screen-space/custom decal systems | Not a general guarantee; qualify their ordering and effect independently |
+| Linear/exp/exp2 fog | Native camera fog coordinates and transmittance reused |
+| Debug rendering override, transparent keyword | Shader outputs validity zero |
+| Complex Lit/clear coat, Shader Graph, Terrain, custom renderer, XR, MSAA | Outside this bounded contract; exclude rather than silently treat as ordinary Lit |
+
+`UniversalRenderer.renderingModeActual` and `renderingModeRequested` are internal in the pinned source. Do not access them through assumed public APIs or reflection. `UniversalRendererData.renderingMode` is public and can qualify an explicitly assigned renderer-data asset. `UniversalResourceData.gBuffer` is also public: after opaque rendering, any valid GBuffer handle is a conservative rejection of Deferred. The feature must additionally require an ordinary `UniversalRenderer`; an absent GBuffer alone does not prove an arbitrary custom renderer supports this capture. See [renderer](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/Runtime/UniversalRenderer.cs), [renderer data](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/Runtime/UniversalRendererData.cs), and [frame resources](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/Runtime/FrameData/UniversalResourceData.cs).
+
+Deferred cannot be enabled by merely removing this gate. [LitGBufferPass](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/Shaders/LitGBufferPass.hlsl) evaluates the initial GI using material occlusion, writes GI plus emission into the GBuffer, and relies on later rendering stages. Its SSAO and fog need a separate source and pixel audit. APV likewise needs matching volume variants, rendering layers, probe occlusion, screen-space stochastic sampling and runtime resources before it can be admitted.
+
+The shader currently retains many keyword combinations to avoid silently stripping an override shader's required variants. This has a potentially substantial player build cost. A project-specific variant-retention/stripping policy and actual build measurements are required before enabling it in production; selected standalone compilations do not measure total build size.
+
+## Validation evidence and remaining acceptance
+
+`Tests/Validate-NativeDiffuseCapture.ps1` compiles selected vertex/fragment variants against the pinned official includes, including explicit rejection branches. HLSL 2018 mode matches the vector conditional syntax in this URP source. `Tests/native-diffuse-reference.mjs` checks signed replacement algebra, AO combination, fog, zero/negative contributions and invalid captures. Use the source-hashed `Tests/Validate-Offline.ps1` report for the current candidate's outcomes and counts. These checks do not run Unity, validate material binding or measure GPU results.
+
+Broader production acceptance should compare the original Lit result with a replacement using the **same** native irradiance, and cover metallic/specular, detail/parallax, lightmaps, SSAO, decals, fog and Forward+. The finite local check instead sets nonzero ambient SH with replacement intensity zero and compares valid receivers to a zero-ambient GI-off image; native direct light and emission remain. Unknown GI regions deliberately retain native light. This is evidence for that configuration, not a pass for the entire matrix or GPU performance.
+
+## Current concave surface integration
+
+The world material cache now consumes `HybridLumenGISurfaceCharts` assets baked from connected source triangles, with bounded normal variation and no accepted positive-area overlap in each chart projection. A separate capture mesh keeps source vertex attributes and draws only each chart's assigned triangles. Variable owner ranges and physical-card indirection replace the fixed `slot * 6` mapping. This source path is integrated with cache scheduling and HLOD readback; rendered acceptance is still pending.
+
+After each chart capture, a compute pass chooses real covered texels within irradiance patch cells. Source identity, layout and card generations invalidate reused lighting data. Every required chart must have a covered patch before HLOD publication; tiny or fully alpha-clipped empty charts remain unready. Complete-owner capacity admission avoids declaring a partial chart set ready. An assigned invalid/stale asset or unsupported chart material rejects the owner. Six first-layer views remain only when no asset is assigned and are explicitly approximate; average proxy material does not count as chart coverage.
+
+Static geometry edits require rebaking; the separate deformed-mesh component publishes mesh/SDF/charts snapshots together. Local GPU checks now include a readable mesh deformation, texture/normal/emission atlas data and HLOD initialization; arbitrary displacement and full surface-area coverage remain unproven. See [SurfaceCache.md](SurfaceCache.md) and [runtime evidence](LocalRuntimeFunctionalAudit.md). These checks do not broaden the camera-native replacement matrix above.

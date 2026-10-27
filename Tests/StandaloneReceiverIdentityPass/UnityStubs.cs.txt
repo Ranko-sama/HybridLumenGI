@@ -1,0 +1,207 @@
+// Recording substitutes only. They do not execute a GPU, Unity RenderGraph, or shader.
+// Public API signatures checked against UnityCsReference 1c2d7db69c060103b6dc087af725442d1efaef9c
+// and Graphics feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53. Resource handle casts deliberately
+// fail outside the render callback so construction cannot silently depend on a native buffer.
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
+namespace UnityEngine
+{
+    public class Object { public string name; }
+    public class Texture : Object { }
+    public class Texture2D : Texture { public static readonly Texture2D whiteTexture=new Texture2D(); }
+    public class Mesh : Object { }
+    public class Camera : Object { }
+    public static class Time {public static int frameCount;}
+    public enum FilterMode { Point }
+    public struct Vector4 { public float x,y,z,w; public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;} }
+    [StructLayout(LayoutKind.Sequential)] public struct Matrix4x4
+    {
+        private float a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p;
+        public float this[int index] { get { switch(index){case 0:return a;case 1:return b;case 2:return c;case 3:return d;case 4:return e;case 5:return f;case 6:return g;case 7:return h;case 8:return i;case 9:return j;case 10:return k;case 11:return l;case 12:return m;case 13:return n;case 14:return o;default:return p;} }
+            set {switch(index){case 0:a=value;break;case 1:b=value;break;case 2:c=value;break;case 3:d=value;break;case 4:e=value;break;case 5:f=value;break;case 6:g=value;break;case 7:h=value;break;case 8:i=value;break;case 9:j=value;break;case 10:k=value;break;case 11:l=value;break;case 12:m=value;break;case 13:n=value;break;case 14:o=value;break;default:p=value;break;}} }
+        public static Matrix4x4 identity {get {var m=new Matrix4x4();m[0]=m[5]=m[10]=m[15]=1;return m;}}
+    }
+    public struct Rect {public float x,y,width,height;public Rect(float x,float y,float w,float h){this.x=x;this.y=y;width=w;height=h;}}
+    public struct RectInt {public int x,y,width,height;public int xMin=>x;public int yMin=>y;public int xMax=>x+width;public int yMax=>y+height;public RectInt(int x,int y,int w,int h){this.x=x;this.y=y;width=w;height=h;}}
+    public static class Mathf {public static int Clamp(int v,int lo,int hi)=>Math.Max(lo,Math.Min(v,hi));}
+    public class Shader : Object
+    {
+        private static readonly Dictionary<string,int> ids=new Dictionary<string,int>();
+        public bool isSupported=true; public static Shader Current=new Shader();
+        public static Shader Find(string name)=>Current;
+        public static int PropertyToID(string name){if(!ids.TryGetValue(name,out int id))ids[name]=id=ids.Count+1;return id;}
+    }
+    public class Material : Object {public readonly Shader Shader;public Material(Shader shader){Shader=shader;} public bool Destroyed;}
+    public class MaterialPropertyBlock
+    {
+        public readonly Dictionary<int,object> Values=new Dictionary<int,object>();
+        public void SetInteger(int id,int v)=>Values[id]=v;
+        public void SetMatrix(int id,Matrix4x4 v)=>Values[id]=v;
+        public void SetVector(int id,Vector4 v)=>Values[id]=v;
+        public void SetFloat(int id,float v)=>Values[id]=v;
+        public void SetTexture(int id,Texture v)=>Values[id]=v;
+    }
+    public class ComputeShader : Object
+    {
+        public bool FailFind;
+        public int FindKernel(string name){if(FailFind)throw new Exception("Find kernel");return name=="CSClearIdentity"?0:name=="CSMaskUnknownIdentity"?1:2;}
+    }
+    public static class Resources {public static ComputeShader Compute=new ComputeShader();public static T Load<T>(string path) where T:class => Compute as T;}
+    public class GraphicsBuffer
+    {
+        [Flags]public enum Target {Structured=16}
+        public int count,stride;public Array Uploaded;
+    }
+    public static class SystemInfo
+    {
+        public static bool supportsComputeShaders=true,supportsGraphicsFence=true,supportsAsyncCompute=true;
+        public static int supportedRandomWriteTargetCount=8;
+        public static Rendering.GraphicsDeviceType graphicsDeviceType=Rendering.GraphicsDeviceType.Direct3D12;
+    }
+}
+namespace UnityEngine.Experimental.Rendering {public enum GraphicsFormat {R8G8B8A8_UNorm,R32G32B32A32_UInt}}
+namespace UnityEngine.Rendering
+{
+    public enum GraphicsDeviceType {Direct3D12,Vulkan}
+    public enum GraphicsFenceType {AsyncQueueSynchronisation,CPUSynchronisation}
+    [Flags]public enum SynchronisationStageFlags {VertexProcessing=1,PixelProcessing=2,ComputeProcessing=4,AllGPUOperations=7}
+    public sealed class FenceState {public bool Passed,Throw;}
+    public struct GraphicsFence {public FenceState State;public bool passed {get {if(State.Throw)throw new Exception("Fence lost");return State.Passed;}}}
+    public struct RenderTargetIdentifier {public int Id;public RenderTargetIdentifier(int id){Id=id;}}
+    public struct ScriptableRenderContext {}
+    public static class RenderPipelineManager
+    {
+        public static event Action<ScriptableRenderContext,List<Camera>> endContextRendering;
+        public static void EndFrame()=>endContextRendering?.Invoke(default,new List<Camera>());
+    }
+    public static class CoreUtils
+    {
+        public static readonly List<Material> Created=new List<Material>();
+        public static Material CreateEngineMaterial(Shader shader){var m=new Material(shader);Created.Add(m);return m;}
+        public static void Destroy(Material m){m.Destroyed=true;}
+    }
+    public class UnsafeCommandBuffer {public CommandBuffer Native;}
+    public static class CommandBufferHelpers {public static CommandBuffer GetNativeCommandBuffer(UnsafeCommandBuffer c)=>c.Native;}
+    public sealed class RecordedCommand
+    {
+        public string Name;public int Kernel,Index;public object Value;
+        public Dictionary<int,object> Parameters;
+    }
+    public sealed class DrawInfo
+    {
+        public Mesh Mesh;public Matrix4x4 Matrix;public Material Material;public int Submesh,Pass;
+        public MaterialPropertyBlock Block;public Dictionary<int,object> Values;
+    }
+    public sealed class CommandBuffer
+    {
+        public readonly List<RecordedCommand> Commands=new List<RecordedCommand>();
+        public readonly Dictionary<int,object> Parameters=new Dictionary<int,object>();
+        public static readonly List<FenceState> Fences=new List<FenceState>();
+        public int ThrowDrawAt=-1,DrawCount,ThrowClearUavAt=-1,ClearUavCount;public bool ThrowFence,ThrowUpload;public int ThrowDispatchKernel=-1;
+        private void Add(string name,int index=0,object value=null){Commands.Add(new RecordedCommand{Name=name,Index=index,Value=value});}
+        public void SetBufferData(GraphicsBuffer b,Array values){if(ThrowUpload)throw new Exception("Upload");b.Uploaded=(Array)values.Clone();Add("Upload",0,b);}
+        public void SetComputeIntParams(ComputeShader c,int id,params int[] values){Parameters[id]=(int[])values.Clone();Add("Ints",id,(int[])values.Clone());}
+        public void SetComputeIntParam(ComputeShader c,int id,int value){Parameters[id]=value;Add("Int",id,value);}
+        public void SetComputeBufferParam(ComputeShader c,int k,int id,GraphicsBuffer b){Parameters[id]=b;Add("ComputeBuffer",id,b);}
+        public void SetComputeTextureParam(ComputeShader c,int k,int id,RenderTargetIdentifier t){Parameters[id]=t;Add("ComputeTexture",id,t);}
+        public void DispatchCompute(ComputeShader c,int k,int x,int y,int z)
+        {if(k==ThrowDispatchKernel)throw new Exception("Dispatch");Commands.Add(new RecordedCommand{Name="Dispatch",Kernel=k,Value=new[]{x,y,z},Parameters=new Dictionary<int,object>(Parameters)});}
+        public void ClearRandomWriteTargets(){if(ClearUavCount++==ThrowClearUavAt)throw new Exception("Clear UAV");Add("ClearUav");}
+        public void SetRenderTarget(RenderTargetIdentifier target)=>Add("Target",target.Id);
+        public void SetViewport(Rect value)=>Add("Viewport",0,value);
+        public void SetRandomWriteTarget(int index,GraphicsBuffer buffer)=>Add("Uav",index,buffer);
+        public void DrawMesh(Mesh mesh,Matrix4x4 matrix,Material material,int submesh,int pass,MaterialPropertyBlock block)
+        {
+            if(DrawCount++==ThrowDrawAt)throw new Exception("Draw");
+            Add("Draw",0,new DrawInfo{Mesh=mesh,Matrix=matrix,Material=material,Submesh=submesh,Pass=pass,Block=block,Values=new Dictionary<int,object>(block.Values)});
+        }
+        public GraphicsFence CreateGraphicsFence(GraphicsFenceType type,SynchronisationStageFlags stages)
+        {
+            if(ThrowFence)throw new Exception("Fence creation");
+            var f=new FenceState();Fences.Add(f);Add("Fence",(int)stages,type);return new GraphicsFence{State=f};
+        }
+    }
+}
+namespace UnityEngine.Rendering.RenderGraphModule
+{
+    [Flags]public enum AccessFlags {Read=1,Write=2,ReadWrite=3}
+    public struct BufferDesc {public int count,stride;public string name;public BufferDesc(int count,int stride){this.count=count;this.stride=stride;name=null;}}
+    public struct TextureDesc
+    {
+        public int width,height;public string name;public Experimental.Rendering.GraphicsFormat colorFormat;
+        public bool clearBuffer,enableRandomWrite;public FilterMode filterMode;
+        public TextureDesc(int w,int h){width=w;height=h;name=null;colorFormat=default;clearBuffer=enableRandomWrite=false;filterMode=default;}
+    }
+    public struct BufferHandle
+    {
+        internal int Id;internal GraphicsBuffer Buffer;
+        public bool IsValid()=>Id!=0;
+        public static implicit operator GraphicsBuffer(BufferHandle b){if(!RenderGraph.Executing)throw new Exception("Native buffer converted outside callback");return b.Buffer;}
+    }
+    public struct TextureHandle
+    {
+        internal int Id;internal Texture Texture;
+        public bool IsValid()=>Id!=0;
+        public static implicit operator RenderTargetIdentifier(TextureHandle t){if(!RenderGraph.Executing)throw new Exception("Texture target outside callback");return new RenderTargetIdentifier(t.Id);}
+        public static implicit operator Texture(TextureHandle t){if(!RenderGraph.Executing)throw new Exception("Texture outside callback");return t.Texture;}
+    }
+    public sealed class UnsafeGraphContext {public UnsafeCommandBuffer cmd;}
+    public sealed class Pass
+    {
+        public string Name;public Action<UnsafeGraphContext> Execute;
+        public readonly List<(string type,int id,AccessFlags flags)> Dependencies=new List<(string,int,AccessFlags)>();
+        public bool Cull=true,Global;
+    }
+    public sealed class Builder<T> : IDisposable where T:class,new()
+    {
+        private Pass pass;private T data;private bool failDispose;internal Builder(Pass p,T d,bool failDispose){pass=p;data=d;this.failDispose=failDispose;}
+        public BufferHandle UseBuffer(in BufferHandle h,AccessFlags flags=AccessFlags.Read){pass.Dependencies.Add(("buffer",h.Id,flags));return h;}
+        public void UseTexture(in TextureHandle h,AccessFlags flags=AccessFlags.Read)=>pass.Dependencies.Add(("texture",h.Id,flags));
+        public void AllowPassCulling(bool v)=>pass.Cull=v;public void AllowGlobalStateModification(bool v)=>pass.Global=v;
+        public void SetRenderFunc(Action<T,UnsafeGraphContext> fn)=>pass.Execute=c=>fn(data,c);
+        public void Dispose(){if(failDispose)throw new Exception("builder finalization");}
+    }
+    public sealed class RenderGraph
+    {
+        public static bool Executing;private int next=1;
+        public int ThrowCreateBufferAt=-1,ThrowAddAt=-1,ThrowCreateTextureAt=-1,ThrowBuilderDisposeAt=-1;
+        public readonly List<Pass> Passes=new List<Pass>();
+        public readonly List<(BufferDesc desc,BufferHandle handle)> Buffers=new List<(BufferDesc,BufferHandle)>();
+        public readonly List<(TextureDesc desc,TextureHandle handle)> Textures=new List<(TextureDesc,TextureHandle)>();
+        public BufferHandle CreateBuffer(in BufferDesc d){if(Buffers.Count==ThrowCreateBufferAt)throw new Exception("buffer allocation");var h=new BufferHandle{Id=next++,Buffer=new GraphicsBuffer{count=d.count,stride=d.stride}};Buffers.Add((d,h));return h;}
+        public TextureHandle CreateTexture(in TextureDesc d){if(Textures.Count==ThrowCreateTextureAt)throw new Exception("texture allocation");var h=new TextureHandle{Id=next++,Texture=new Texture()};Textures.Add((d,h));return h;}
+        public Builder<T> AddUnsafePass<T>(string name,out T data)where T:class,new(){if(Passes.Count==ThrowAddAt)throw new Exception("graph construction");bool failDispose=Passes.Count==ThrowBuilderDisposeAt;var p=new Pass{Name=name};data=new T();Passes.Add(p);return new Builder<T>(p,data,failDispose);}
+        public void Execute(CommandBuffer cmd){for(int i=0;i<Passes.Count;i++)ExecutePass(i,cmd);}
+        public void ExecutePass(int i,CommandBuffer cmd){Executing=true;try{Passes[i].Execute(new UnsafeGraphContext{cmd=new UnsafeCommandBuffer{Native=cmd}});}finally{Executing=false;}}
+    }
+}
+namespace HybridLumenGI
+{
+    public sealed class HybridLumenGIReceiverRegistry
+    {
+        public sealed class Record {public UnityEngine.Mesh Mesh;public UnityEngine.Matrix4x4 LocalToWorld=UnityEngine.Matrix4x4.identity;public int Submesh;}
+    }
+    public sealed class HybridLumenGIMaterialSource
+    {
+        public struct IdentityCoverageData
+        {public UnityEngine.Texture BaseMap;public UnityEngine.Vector4 BaseMapST;public float BaseColorAlpha,Cutoff;public int SourceCull;public bool AlphaTest,SmoothnessFromAlbedoAlpha,Supported;}
+    }
+    public sealed class HybridLumenGIReceiverIdentityFrame
+    {
+        public const int RowStride=80;
+        [StructLayout(LayoutKind.Sequential)] public readonly struct Row
+        {
+            public readonly UnityEngine.Matrix4x4 currentToPrevious;public readonly uint keyLow,keyHigh,flags,reserved;
+            public Row(uint key){currentToPrevious=UnityEngine.Matrix4x4.identity;keyLow=key;keyHigh=0;flags=0;reserved=0;}
+        }
+        public readonly struct Draw
+        {
+            public readonly HybridLumenGIReceiverRegistry.Record Record;public readonly int RowIndex;public readonly HybridLumenGIMaterialSource.IdentityCoverageData Coverage;
+            public Draw(HybridLumenGIReceiverRegistry.Record r,int i,HybridLumenGIMaterialSource.IdentityCoverageData c){Record=r;RowIndex=i;Coverage=c;}
+        }
+        public readonly ReadOnlyCollection<Row> Rows;public readonly ReadOnlyCollection<Draw> Draws;public readonly ReadOnlyCollection<UnityEngine.RectInt> UnknownRects;
+        public HybridLumenGIReceiverIdentityFrame(Row[] rows,Draw[] draws,UnityEngine.RectInt[] rects){Rows=Array.AsReadOnly((Row[])rows.Clone());Draws=Array.AsReadOnly((Draw[])draws.Clone());UnknownRects=Array.AsReadOnly((UnityEngine.RectInt[])rects.Clone());}
+    }
+}

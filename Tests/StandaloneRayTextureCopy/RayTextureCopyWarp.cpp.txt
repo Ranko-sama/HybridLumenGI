@@ -1,0 +1,119 @@
+// Real Texture2D/SRV -> actual runtime four-kernel DXIL -> readback on WARP.
+// This is not a Unity host, physical GPU, streaming system or DXR traversal test.
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#include <d3d12.h>
+#include <dxgi1_4.h>
+#include <wrl/client.h>
+#include <algorithm>
+#include <array>
+#include <cstdint>
+#include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+using Microsoft::WRL::ComPtr;
+namespace {
+void Hr(HRESULT h,const char* message){if(FAILED(h)){std::cerr<<message<<" HRESULT="<<std::hex<<static_cast<unsigned long>(h)<<std::dec<<'\n';throw std::runtime_error(message);}}
+std::vector<std::uint8_t> Read(const std::filesystem::path& path){
+    std::ifstream stream(path,std::ios::binary|std::ios::ate);if(!stream)throw std::runtime_error("open input");auto size=stream.tellg();
+    if(size<=0||size>64*1024*1024)throw std::runtime_error("input size");std::vector<std::uint8_t> result(static_cast<std::size_t>(size));
+    stream.seekg(0);stream.read(reinterpret_cast<char*>(result.data()),size);if(!stream)throw std::runtime_error("read input");return result;
+}
+class Reader{
+    const std::vector<std::uint8_t>& bytes;std::size_t position=0;
+public: explicit Reader(const std::vector<std::uint8_t>& source):bytes(source){}
+    const std::uint8_t* Take(std::size_t count){if(count>bytes.size()-position)throw std::runtime_error("fixture truncated");auto result=bytes.data()+position;position+=count;return result;}
+    UINT Uint(){UINT value;std::memcpy(&value,Take(4),4);return value;}
+    void Complete(){if(position!=bytes.size())throw std::runtime_error("fixture trailing bytes");}
+};
+ComPtr<ID3D12Resource> Resource(ID3D12Device* device,const D3D12_RESOURCE_DESC& desc,D3D12_HEAP_TYPE type,D3D12_RESOURCE_STATES state){
+    D3D12_HEAP_PROPERTIES heap{};heap.Type=type;heap.CreationNodeMask=1;heap.VisibleNodeMask=1;
+    ComPtr<ID3D12Resource> result;Hr(device->CreateCommittedResource(&heap,D3D12_HEAP_FLAG_NONE,&desc,state,nullptr,IID_PPV_ARGS(&result)),"CreateCommittedResource");return result;
+}
+ComPtr<ID3D12Resource> Buffer(ID3D12Device* device,UINT64 bytes,D3D12_HEAP_TYPE type,D3D12_RESOURCE_STATES state,D3D12_RESOURCE_FLAGS flags=D3D12_RESOURCE_FLAG_NONE){
+    D3D12_RESOURCE_DESC desc{};desc.Dimension=D3D12_RESOURCE_DIMENSION_BUFFER;desc.Width=bytes;desc.Height=1;desc.DepthOrArraySize=1;desc.MipLevels=1;
+    desc.SampleDesc.Count=1;desc.Layout=D3D12_TEXTURE_LAYOUT_ROW_MAJOR;desc.Flags=flags;return Resource(device,desc,type,state);
+}
+ComPtr<ID3D12Resource> Upload(ID3D12Device* device,const void* source,UINT64 bytes){
+    auto buffer=Buffer(device,bytes,D3D12_HEAP_TYPE_UPLOAD,D3D12_RESOURCE_STATE_GENERIC_READ);void* mapped=nullptr;D3D12_RANGE empty{};
+    Hr(buffer->Map(0,&empty,&mapped),"Map upload");std::memcpy(mapped,source,static_cast<std::size_t>(bytes));buffer->Unmap(0,nullptr);return buffer;
+}
+void Transition(ID3D12GraphicsCommandList* list,ID3D12Resource* resource,D3D12_RESOURCE_STATES before,D3D12_RESOURCE_STATES after){
+    D3D12_RESOURCE_BARRIER barrier{};barrier.Type=D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;barrier.Transition.pResource=resource;barrier.Transition.StateBefore=before;
+    barrier.Transition.StateAfter=after;barrier.Transition.Subresource=D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;list->ResourceBarrier(1,&barrier);
+}
+void Uav(ID3D12GraphicsCommandList* list){D3D12_RESOURCE_BARRIER barrier{};barrier.Type=D3D12_RESOURCE_BARRIER_TYPE_UAV;list->ResourceBarrier(1,&barrier);}
+}
+int wmain(int argc,wchar_t** argv){
+    try{
+        if(argc!=7)throw std::runtime_error("Usage: RayTextureCopyWarp begin.dxil copy.dxil finish.dxil range.dxil inputs.bin outputs.bin");
+        const std::array<std::vector<std::uint8_t>,4> shaders={Read(argv[1]),Read(argv[2]),Read(argv[3]),Read(argv[4])};auto fixture=Read(argv[5]);Reader reader(fixture);
+        const UINT caseCount=reader.Uint();if(caseCount==0||caseCount>1000)throw std::runtime_error("fixture count");
+        ComPtr<IDXGIFactory4> factory;ComPtr<IDXGIAdapter> adapter;ComPtr<ID3D12Device> device;
+        HRESULT h=CreateDXGIFactory2(0,IID_PPV_ARGS(&factory));if(FAILED(h)){std::cerr<<"WARP unavailable: factory\n";return 2;}
+        h=factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));if(FAILED(h)){std::cerr<<"WARP unavailable: adapter\n";return 2;}
+        h=D3D12CreateDevice(adapter.Get(),D3D_FEATURE_LEVEL_11_0,IID_PPV_ARGS(&device));if(FAILED(h)){std::cerr<<"WARP unavailable: device\n";return 2;}
+        D3D12_COMMAND_QUEUE_DESC queueDesc{};queueDesc.Type=D3D12_COMMAND_LIST_TYPE_DIRECT;ComPtr<ID3D12CommandQueue> queue;
+        Hr(device->CreateCommandQueue(&queueDesc,IID_PPV_ARGS(&queue)),"CreateCommandQueue");
+        D3D12_DESCRIPTOR_RANGE ranges[2]{};ranges[0].RangeType=D3D12_DESCRIPTOR_RANGE_TYPE_SRV;ranges[0].NumDescriptors=1;
+        ranges[1].RangeType=D3D12_DESCRIPTOR_RANGE_TYPE_UAV;ranges[1].NumDescriptors=2;
+        D3D12_ROOT_PARAMETER parameters[3]{};for(UINT i=0;i<2;i++){parameters[i].ParameterType=D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;parameters[i].DescriptorTable.NumDescriptorRanges=1;parameters[i].DescriptorTable.pDescriptorRanges=&ranges[i];}
+        parameters[2].ParameterType=D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;parameters[2].Constants.Num32BitValues=6;
+        D3D12_ROOT_SIGNATURE_DESC signatureDesc{};signatureDesc.NumParameters=3;signatureDesc.pParameters=parameters;
+        ComPtr<ID3DBlob> signatureBytes,diagnostics;Hr(D3D12SerializeRootSignature(&signatureDesc,D3D_ROOT_SIGNATURE_VERSION_1,&signatureBytes,&diagnostics),"SerializeRootSignature");
+        ComPtr<ID3D12RootSignature> signature;Hr(device->CreateRootSignature(0,signatureBytes->GetBufferPointer(),signatureBytes->GetBufferSize(),IID_PPV_ARGS(&signature)),"CreateRootSignature");
+        std::array<ComPtr<ID3D12PipelineState>,4> pipelines;
+        for(UINT i=0;i<4;i++){D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};desc.pRootSignature=signature.Get();desc.CS={shaders[i].data(),shaders[i].size()};Hr(device->CreateComputePipelineState(&desc,IID_PPV_ARGS(&pipelines[i])),"CreateComputePipelineState actual runtime copy");}
+        std::ofstream output(std::filesystem::path(argv[6]),std::ios::binary);if(!output)throw std::runtime_error("open output");output.write(reinterpret_cast<const char*>(&caseCount),4);
+        for(UINT caseIndex=0;caseIndex<caseCount;caseIndex++){
+            std::array<UINT,12> header{};std::memcpy(header.data(),reader.Take(48),48);
+            const UINT width=header[0],height=header[1],mips=header[2],viewFirst=header[3],viewCount=header[4],format=header[5],poolCount=header[6],commandCount=header[7],sourceBytes=header[8];
+            if(width==0||width>16384||height==0||height>16384||mips==0||mips>15||viewFirst>=mips||viewCount==0||viewCount>mips-viewFirst||format>1||poolCount==0||poolCount>1000000||commandCount>1000)throw std::runtime_error("fixture resource bounds");
+            const auto* metadataBytes=reader.Take(64);std::vector<std::array<UINT,10>> commands(commandCount);
+            if(commandCount)std::memcpy(commands.data(),reader.Take(static_cast<std::size_t>(commandCount)*40),static_cast<std::size_t>(commandCount)*40);
+            const auto* source=reader.Take(sourceBytes);
+            D3D12_RESOURCE_DESC textureDesc{};textureDesc.Dimension=D3D12_RESOURCE_DIMENSION_TEXTURE2D;textureDesc.Width=width;textureDesc.Height=height;textureDesc.DepthOrArraySize=1;
+            textureDesc.MipLevels=static_cast<UINT16>(mips);textureDesc.Format=format==0?DXGI_FORMAT_R32G32B32A32_FLOAT:DXGI_FORMAT_R8G8B8A8_TYPELESS;textureDesc.SampleDesc.Count=1;
+            auto texture=Resource(device.Get(),textureDesc,D3D12_HEAP_TYPE_DEFAULT,D3D12_RESOURCE_STATE_COPY_DEST);
+            std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> footprints(mips);std::vector<UINT> rows(mips);std::vector<UINT64> rowBytes(mips);UINT64 uploadSize=0;
+            device->GetCopyableFootprints(&textureDesc,0,mips,0,footprints.data(),rows.data(),rowBytes.data(),&uploadSize);
+            std::vector<std::uint8_t> staged(static_cast<std::size_t>(uploadSize),0);std::size_t sourceOffset=0;
+            for(UINT mip=0;mip<mips;mip++)for(UINT row=0;row<rows[mip];row++){
+                const auto length=static_cast<std::size_t>(rowBytes[mip]);if(length>sourceBytes-sourceOffset)throw std::runtime_error("fixture texture bytes");
+                std::memcpy(staged.data()+static_cast<std::size_t>(footprints[mip].Offset)+static_cast<std::size_t>(row)*footprints[mip].Footprint.RowPitch,source+sourceOffset,length);sourceOffset+=length;
+            }
+            if(sourceOffset!=sourceBytes)throw std::runtime_error("fixture unused texture bytes");auto textureUpload=Upload(device.Get(),staged.data(),uploadSize);
+            auto metadataUpload=Upload(device.Get(),metadataBytes,64);auto metadata=Buffer(device.Get(),64,D3D12_HEAP_TYPE_DEFAULT,D3D12_RESOURCE_STATE_COPY_DEST,D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+            const std::array<float,4> sentinel={-1234.5f,2468.25f,-5678.75f,0.3125f};std::vector<std::array<float,4>> guard(poolCount,sentinel);
+            auto texelUpload=Upload(device.Get(),guard.data(),static_cast<UINT64>(poolCount)*16);auto texels=Buffer(device.Get(),static_cast<UINT64>(poolCount)*16,D3D12_HEAP_TYPE_DEFAULT,D3D12_RESOURCE_STATE_COPY_DEST,D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+            auto readback=Buffer(device.Get(),64+static_cast<UINT64>(poolCount)*16,D3D12_HEAP_TYPE_READBACK,D3D12_RESOURCE_STATE_COPY_DEST);
+            D3D12_DESCRIPTOR_HEAP_DESC heapDesc{};heapDesc.Type=D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;heapDesc.NumDescriptors=3;heapDesc.Flags=D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            ComPtr<ID3D12DescriptorHeap> heap;Hr(device->CreateDescriptorHeap(&heapDesc,IID_PPV_ARGS(&heap)),"CreateDescriptorHeap");const UINT increment=device->GetDescriptorHandleIncrementSize(heapDesc.Type);auto cpu=heap->GetCPUDescriptorHandleForHeapStart();
+            D3D12_SHADER_RESOURCE_VIEW_DESC srv{};srv.Format=format==0?DXGI_FORMAT_R32G32B32A32_FLOAT:DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;srv.ViewDimension=D3D12_SRV_DIMENSION_TEXTURE2D;srv.Shader4ComponentMapping=D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;srv.Texture2D.MostDetailedMip=viewFirst;srv.Texture2D.MipLevels=viewCount;
+            device->CreateShaderResourceView(texture.Get(),&srv,cpu);cpu.ptr+=increment;
+            D3D12_UNORDERED_ACCESS_VIEW_DESC uav{};uav.ViewDimension=D3D12_UAV_DIMENSION_BUFFER;uav.Buffer.NumElements=1;uav.Buffer.StructureByteStride=64;device->CreateUnorderedAccessView(metadata.Get(),nullptr,&uav,cpu);cpu.ptr+=increment;
+            uav.Buffer.NumElements=poolCount;uav.Buffer.StructureByteStride=16;device->CreateUnorderedAccessView(texels.Get(),nullptr,&uav,cpu);
+            ComPtr<ID3D12CommandAllocator> allocator;Hr(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,IID_PPV_ARGS(&allocator)),"CreateCommandAllocator");
+            ComPtr<ID3D12GraphicsCommandList> list;Hr(device->CreateCommandList(0,D3D12_COMMAND_LIST_TYPE_DIRECT,allocator.Get(),nullptr,IID_PPV_ARGS(&list)),"CreateCommandList");
+            for(UINT mip=0;mip<mips;mip++){D3D12_TEXTURE_COPY_LOCATION dst{},src{};dst.pResource=texture.Get();dst.Type=D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;dst.SubresourceIndex=mip;src.pResource=textureUpload.Get();src.Type=D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;src.PlacedFootprint=footprints[mip];list->CopyTextureRegion(&dst,0,0,0,&src,nullptr);}
+            list->CopyBufferRegion(metadata.Get(),0,metadataUpload.Get(),0,64);list->CopyBufferRegion(texels.Get(),0,texelUpload.Get(),0,static_cast<UINT64>(poolCount)*16);
+            Transition(list.Get(),texture.Get(),D3D12_RESOURCE_STATE_COPY_DEST,D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);Transition(list.Get(),metadata.Get(),D3D12_RESOURCE_STATE_COPY_DEST,D3D12_RESOURCE_STATE_UNORDERED_ACCESS);Transition(list.Get(),texels.Get(),D3D12_RESOURCE_STATE_COPY_DEST,D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+            ID3D12DescriptorHeap* heaps[]={heap.Get()};list->SetDescriptorHeaps(1,heaps);list->SetComputeRootSignature(signature.Get());auto gpu=heap->GetGPUDescriptorHandleForHeapStart();list->SetComputeRootDescriptorTable(0,gpu);gpu.ptr+=increment;list->SetComputeRootDescriptorTable(1,gpu);
+            for(const auto& command:commands){
+                if(command[0]>=4||command[2]>2048||command[3]>2048||command[4]>16)throw std::runtime_error("fixture dispatch bounds");
+                const UINT constants[]={command[5],command[6],command[1],command[7],command[8],command[9]};list->SetPipelineState(pipelines[command[0]].Get());list->SetComputeRoot32BitConstants(2,6,constants,0);list->Dispatch(command[2],command[3],command[4]);Uav(list.Get());
+            }
+            Transition(list.Get(),metadata.Get(),D3D12_RESOURCE_STATE_UNORDERED_ACCESS,D3D12_RESOURCE_STATE_COPY_SOURCE);Transition(list.Get(),texels.Get(),D3D12_RESOURCE_STATE_UNORDERED_ACCESS,D3D12_RESOURCE_STATE_COPY_SOURCE);
+            list->CopyBufferRegion(readback.Get(),0,metadata.Get(),0,64);list->CopyBufferRegion(readback.Get(),64,texels.Get(),0,static_cast<UINT64>(poolCount)*16);Hr(list->Close(),"Close");ID3D12CommandList* lists[]={list.Get()};queue->ExecuteCommandLists(1,lists);
+            ComPtr<ID3D12Fence> fence;Hr(device->CreateFence(0,D3D12_FENCE_FLAG_NONE,IID_PPV_ARGS(&fence)),"CreateFence");Hr(queue->Signal(fence.Get(),1),"Signal");HANDLE event=CreateEventW(nullptr,FALSE,FALSE,nullptr);if(!event)throw std::runtime_error("CreateEvent");
+            h=fence->SetEventOnCompletion(1,event);if(FAILED(h)){CloseHandle(event);Hr(h,"SetEventOnCompletion");}DWORD wait=WaitForSingleObject(event,10000);CloseHandle(event);if(wait!=WAIT_OBJECT_0)throw std::runtime_error("WARP dispatch timeout");Hr(device->GetDeviceRemovedReason(),"DeviceRemovedReason");
+            void* mapped=nullptr;D3D12_RANGE range{0,static_cast<SIZE_T>(64)+static_cast<SIZE_T>(poolCount)*16},empty{};Hr(readback->Map(0,&range,&mapped),"Map readback");output.write(reinterpret_cast<const char*>(&poolCount),4);output.write(static_cast<const char*>(mapped),static_cast<std::streamsize>(range.End));readback->Unmap(0,&empty);
+            if(!output)throw std::runtime_error("write result");
+        }
+        reader.Complete();output.close();std::cout<<"Actual RayTextureCopy begin/copy/finish DXIL executed on WARP: "<<caseCount<<" real Texture2D cases, float32/sRGB SRVs and explicit mip views. No Unity or physical GPU.\n";return 0;
+    }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}
+}

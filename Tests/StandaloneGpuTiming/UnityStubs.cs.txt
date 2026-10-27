@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+
+namespace UnityEngine
+{
+    public static class SystemInfo { public static bool supportsGpuRecorder=true; }
+}
+namespace UnityEngine.Profiling
+{
+    // Recording substitutions only: no Unity native profiler, GPU or driver runs.
+    public sealed class Recorder
+    {
+        public bool isValid=true;
+        bool running;
+        public bool enabled { get=>running;set { running=value;EnableWrites++; } }
+        public int EnableWrites,CountReads,ElapsedReads;
+        public int Count=1,CountAfter=-1;
+        public long Nanoseconds=1000000;
+        public bool ThrowCount,ThrowElapsed,ThrowEnable;
+        public int gpuSampleBlockCount
+        {
+            get
+            {
+                CountReads++;
+                if(ThrowCount)throw new InvalidOperationException("mock count unavailable");
+                return CountAfter>=0 && CountReads%2==0?CountAfter:Count;
+            }
+        }
+        public long gpuElapsedNanoseconds
+        {
+            get { ElapsedReads++;if(ThrowElapsed)throw new InvalidOperationException("mock elapsed unavailable");return Nanoseconds; }
+        }
+        public void Set(long nanoseconds=1000000,int count=1)
+        { Nanoseconds=nanoseconds;Count=count;CountAfter=-1;ThrowCount=false;ThrowElapsed=false;CountReads=0;ElapsedReads=0; }
+    }
+    public sealed class CustomSampler
+    {
+        public static readonly List<CustomSampler> Created=new List<CustomSampler>();
+        public static readonly HashSet<string> LifetimeNames=new HashSet<string>();
+        public static bool ReturnNull,InvalidSampler,InvalidRecorder,ThrowCreate;
+        public readonly string name;
+        public readonly bool CollectGpu;
+        public bool isValid=true;
+        public readonly Recorder Recorder=new Recorder();
+        CustomSampler(string name,bool gpu){this.name=name;CollectGpu=gpu;}
+        public static CustomSampler Create(string name,bool collectGpuData=false)
+        {
+            if(ThrowCreate)throw new InvalidOperationException("mock sampler unavailable");
+            if(ReturnNull)return null;
+            var value=new CustomSampler(name,collectGpuData){isValid=!InvalidSampler};
+            value.Recorder.isValid=!InvalidRecorder;Created.Add(value);LifetimeNames.Add(name);return value;
+        }
+        public Recorder GetRecorder()=>Recorder;
+        public static void Reset()
+        { Created.Clear();ReturnNull=false;InvalidSampler=false;InvalidRecorder=false;ThrowCreate=false;UnityEngine.SystemInfo.supportsGpuRecorder=true; }
+    }
+}
+namespace UnityEngine.Rendering
+{
+    public sealed class CommandBuffer
+    {
+        public readonly List<(string operation,UnityEngine.Profiling.CustomSampler sampler)> Calls=new();
+        public void BeginSample(UnityEngine.Profiling.CustomSampler sampler)=>Calls.Add(("begin",sampler));
+        public void EndSample(UnityEngine.Profiling.CustomSampler sampler)=>Calls.Add(("end",sampler));
+    }
+    public sealed class RasterCommandBuffer
+    {
+        public readonly CommandBuffer Wrapped;
+        public RasterCommandBuffer(CommandBuffer cmd){Wrapped=cmd;}
+        public void BeginSample(UnityEngine.Profiling.CustomSampler sampler)=>Wrapped.BeginSample(sampler);
+        public void EndSample(UnityEngine.Profiling.CustomSampler sampler)=>Wrapped.EndSample(sampler);
+    }
+}

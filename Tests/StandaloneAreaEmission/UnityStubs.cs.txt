@@ -1,0 +1,20 @@
+using System;
+namespace UnityEngine {
+    public struct Vector3 { public float x,y,z;public Vector3(float x,float y,float z){this.x=x;this.y=y;this.z=z;} }
+    public struct Vector4 { public float x,y,z,w;public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;} }
+}
+namespace HybridLumenGI {
+    public struct HybridLumenGIHitMaterialUInt4 {public uint x,y,z,w;public HybridLumenGIHitMaterialUInt4(uint x,uint y,uint z,uint w){this.x=x;this.y=y;this.z=z;this.w=w;}}
+    public sealed class HybridLumenGIHitMaterialData {public bool Emission;public bool IsKeywordEnabled(string s)=>Emission&&s=="_EMISSION";}
+    public sealed class HybridLumenGIMaterialSource {public sealed class Snapshot {public HybridLumenGIHitMaterialData HitMaterial;public int MaterialIndex;}}
+    public sealed class HybridLumenGIHitMaterialBatch {
+        public const int MaxMaterials=4096;
+        public readonly struct Source {
+            public readonly HybridLumenGIMaterialSource.Snapshot Snapshot;
+            public readonly uint StableId,OwnerRevision,GeometryRevision,Submesh;
+            public readonly UnityEngine.Vector4 LinearProxyTint,LinearProxyEmission;
+            public Source(HybridLumenGIMaterialSource.Snapshot snapshot,uint stable,uint revision,uint geometry,uint submesh,UnityEngine.Vector4 tint,UnityEngine.Vector4 emission)
+            {Snapshot=snapshot;StableId=stable;OwnerRevision=revision;GeometryRevision=geometry;Submesh=submesh;LinearProxyTint=tint;LinearProxyEmission=emission;}
+        }
+    }
+}

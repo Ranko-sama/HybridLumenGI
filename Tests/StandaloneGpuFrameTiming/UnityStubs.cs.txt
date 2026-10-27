@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+
+namespace UnityEngine
+{
+    public enum RuntimePlatform { WindowsEditor, WindowsPlayer, LinuxEditor, OSXEditor }
+    public static class Application { public static RuntimePlatform platform=RuntimePlatform.LinuxEditor; }
+    public static class SystemInfo
+    {
+        public static bool supportsGpuRecorder=true;
+        public static Rendering.GraphicsDeviceType graphicsDeviceType=Rendering.GraphicsDeviceType.Direct3D12;
+    }
+}
+namespace UnityEngine.Profiling
+{
+    // API recording substitutes, not Unity profiling implementation.
+    public sealed class Recorder
+    {
+        public bool isValid=true,enabled;
+        public int gpuSampleBlockCount=>1;
+        public long gpuElapsedNanoseconds=>1000000;
+    }
+    public sealed class CustomSampler
+    {
+        public static readonly List<CustomSampler> Created=new();
+        public readonly string name;
+        public bool isValid=true;
+        public readonly Recorder recorder=new();
+        CustomSampler(string value){name=value;}
+        public static CustomSampler Create(string name,bool collectGpuData=false)
+        {var value=new CustomSampler(name);Created.Add(value);return value;}
+        public Recorder GetRecorder()=>recorder;
+    }
+}
+namespace UnityEngine.Rendering
+{
+    public enum GraphicsDeviceType { Direct3D11, Direct3D12, Vulkan }
+    public sealed class Call
+    {
+        public int Buffer,Phase,EventId;
+        public string Operation,Name;
+        public UnityEngine.Profiling.CustomSampler Sampler;
+        public IntPtr Callback,Data;
+    }
+    public sealed class Trace
+    {
+        public readonly List<Call> Calls=new();
+        public int Attempts,ThrowAt=-1,NextBuffer;
+        public bool ThrowAfterAppend;
+        public bool NoAllocation;
+        public void Emit(Call call)
+        {
+            Attempts++;
+            if(Attempts==ThrowAt)
+            {
+                if(ThrowAfterAppend)Calls.Add(call);
+                throw new InvalidOperationException("injected command failure "+call.Operation);
+            }
+            Calls.Add(call);
+        }
+    }
+    public sealed class CommandBuffer
+    {
+        readonly Trace trace;
+        public readonly int Id,Phase;
+        public CommandBuffer(Trace trace,int phase){this.trace=trace;Id=++trace.NextBuffer;Phase=phase;}
+        public void BeginSample(UnityEngine.Profiling.CustomSampler value)
+            =>trace.Emit(new Call{Buffer=Id,Phase=Phase,Operation="Begin",Sampler=value});
+        public void EndSample(UnityEngine.Profiling.CustomSampler value)
+            =>trace.Emit(new Call{Buffer=Id,Phase=Phase,Operation="End",Sampler=value});
+        public void BeginSample(string name)
+        {if(!trace.NoAllocation)trace.Emit(new Call{Buffer=Id,Phase=Phase,Operation="DiagnosticBegin",Name=name});}
+        public void EndSample(string name)
+        {if(!trace.NoAllocation)trace.Emit(new Call{Buffer=Id,Phase=Phase,Operation="DiagnosticEnd",Name=name});}
+        public void IssuePluginEventAndData(IntPtr callback,int eventId,IntPtr data)
+            =>trace.Emit(new Call{Buffer=Id,Phase=Phase,Operation="Event",Callback=callback,EventId=eventId,Data=data});
+    }
+    // Fixed Graphics feb4de2d exposes these operations directly. It does NOT
+    // provide a public GetNativeCommandBuffer(RasterCommandBuffer) conversion.
+    public sealed class RasterCommandBuffer
+    {
+        readonly CommandBuffer cmd;
+        public RasterCommandBuffer(CommandBuffer cmd){this.cmd=cmd;}
+        public void BeginSample(UnityEngine.Profiling.CustomSampler sampler)=>cmd.BeginSample(sampler);
+        public void EndSample(UnityEngine.Profiling.CustomSampler sampler)=>cmd.EndSample(sampler);
+        public void IssuePluginEventAndData(IntPtr callback,int eventId,IntPtr data)=>cmd.IssuePluginEventAndData(callback,eventId,data);
+    }
+}

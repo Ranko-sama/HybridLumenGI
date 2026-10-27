@@ -1,0 +1,81 @@
+// Minimal CPU adapters, not a claim that Unity native APIs were executed.
+using System;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+namespace Unity.Collections {
+ public readonly struct NativeArray<T> where T:struct {
+  private readonly T[] data; public NativeArray(T[] value){data=value;} public int Length=>data?.Length??0; public T this[int i]=>data[i];
+ }
+}
+namespace UnityEngine.Rendering {
+ public enum IndexFormat { UInt16,UInt32 }
+ public struct VertexAttributeDescriptor { public int attribute,format,dimension,stream; }
+ public struct SubMeshDescriptor {
+  public int indexStart,indexCount,baseVertex,firstVertex,vertexCount;public UnityEngine.MeshTopology topology;public UnityEngine.Bounds bounds;
+ }
+}
+namespace UnityEngine {
+ [AttributeUsage(AttributeTargets.Field)] public class SerializeField:Attribute {}
+ public class Object {
+  public string name="mesh";
+  public static T Instantiate<T>(T source) where T:Object => (T)(object)((Mesh)(object)source).Clone();
+  public static void DestroyImmediate(Object value) {}
+ }
+ public class ScriptableObject:Object {}
+ public struct Vector3 {
+  public float x,y,z;public Vector3(float x,float y,float z){this.x=x;this.y=y;this.z=z;}
+  public static Vector3 zero=>new(0,0,0);
+  public static Vector3 operator+(Vector3 a,Vector3 b)=>new(a.x+b.x,a.y+b.y,a.z+b.z);
+  public static Vector3 operator-(Vector3 a,Vector3 b)=>new(a.x-b.x,a.y-b.y,a.z-b.z);
+  public static Vector3 operator*(Vector3 a,float b)=>new(a.x*b,a.y*b,a.z*b);
+ }
+ public struct Bounds {
+  public Vector3 center,size;public Bounds(Vector3 c,Vector3 s){center=c;size=s;}
+  public Vector3 min=>center-size*.5f;public Vector3 max=>center+size*.5f;
+  public void Encapsulate(Vector3 p){var lo=min;var hi=max;lo=new(MathF.Min(lo.x,p.x),MathF.Min(lo.y,p.y),MathF.Min(lo.z,p.z));hi=new(MathF.Max(hi.x,p.x),MathF.Max(hi.y,p.y),MathF.Max(hi.z,p.z));center=(lo+hi)*.5f;size=hi-lo;}
+ }
+ public struct Matrix4x4 {
+  private float a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p;
+  public float this[int index] {
+   get=>index switch{0=>a,1=>b,2=>c,3=>d,4=>e,5=>f,6=>g,7=>h,8=>i,9=>j,10=>k,11=>l,12=>m,13=>n,14=>o,15=>p,_=>throw new IndexOutOfRangeException()};
+   set{switch(index){case 0:a=value;break;case 1:b=value;break;case 2:c=value;break;case 3:d=value;break;case 4:e=value;break;case 5:f=value;break;case 6:g=value;break;case 7:h=value;break;case 8:i=value;break;case 9:j=value;break;case 10:k=value;break;case 11:l=value;break;case 12:m=value;break;case 13:n=value;break;case 14:o=value;break;case 15:p=value;break;default:throw new IndexOutOfRangeException();}}
+  }
+  public float this[int row,int column]{get=>this[row+column*4];set=>this[row+column*4]=value;}
+  public static Matrix4x4 identity {get{var m=new Matrix4x4();for(int i=0;i<4;i++)m[i,i]=1;return m;}}
+ }
+ public enum MeshTopology {Triangles,Lines,Points}
+ public struct BoneWeight1 {public int boneIndex;public float weight;}
+ public class Mesh:Object {
+  public bool isReadable=true;public Vector3[] vertices=Array.Empty<Vector3>();
+  // Represents raw, non-position channels (normal, tangent, UV0..7 etc.) in tests.
+  public byte[] channelBytes=Array.Empty<byte>();
+  public Rendering.VertexAttributeDescriptor[] attributes={new(){attribute=0,format=0,dimension=3,stream=0}};
+  public Bounds bounds;public Rendering.IndexFormat indexFormat=Rendering.IndexFormat.UInt16;
+  public Matrix4x4[] bindposes=Array.Empty<Matrix4x4>();public byte[] boneCounts=Array.Empty<byte>();public BoneWeight1[] weights=Array.Empty<BoneWeight1>();
+  public sealed class BlendFrame {public string name="shape";public float weight=100;public Vector3[] positions,normals,tangents;}
+  public List<BlendFrame> shapes=new();
+  private readonly List<int[]> indices=new();private readonly List<MeshTopology> topologies=new();private readonly List<int> bases=new();
+  public int vertexCount=>vertices.Length;
+  public int subMeshCount {get=>indices.Count;set{while(indices.Count<value){indices.Add(Array.Empty<int>());topologies.Add(MeshTopology.Triangles);bases.Add(0);}while(indices.Count>value){indices.RemoveAt(indices.Count-1);topologies.RemoveAt(topologies.Count-1);bases.RemoveAt(bases.Count-1);}}}
+  public void SetIndices(int[] value,MeshTopology topology,int submesh,bool calculateBounds=true,int baseVertex=0){indices[submesh]=(int[])value.Clone();topologies[submesh]=topology;bases[submesh]=baseVertex;}
+  public int[] GetIndices(int submesh,bool applyBaseVertex=true)=>indices[submesh].Select(v=>v+(applyBaseVertex?bases[submesh]:0)).ToArray();
+  public uint GetIndexCount(int submesh)=>(uint)indices[submesh].Length;
+  public MeshTopology GetTopology(int submesh)=>topologies[submesh];
+  public Rendering.VertexAttributeDescriptor[] GetVertexAttributes()=>(Rendering.VertexAttributeDescriptor[])attributes.Clone();
+  public Unity.Collections.NativeArray<byte> GetBonesPerVertex()=>new(boneCounts);
+  public Unity.Collections.NativeArray<BoneWeight1> GetAllBoneWeights()=>new(weights);
+  public int blendShapeCount=>shapes.Count;public string GetBlendShapeName(int shape)=>shapes[shape].name;
+  public int GetBlendShapeFrameCount(int shape)=>1;public float GetBlendShapeFrameWeight(int shape,int frame)=>shapes[shape].weight;
+  public void GetBlendShapeFrameVertices(int shape,int frame,Vector3[] p,Vector3[] n,Vector3[] t){Array.Copy(shapes[shape].positions,p,vertexCount);Array.Copy(shapes[shape].normals,n,vertexCount);Array.Copy(shapes[shape].tangents,t,vertexCount);}
+  public Mesh Clone(){var m=new Mesh{vertices=(Vector3[])vertices.Clone(),channelBytes=(byte[])channelBytes.Clone(),attributes=GetVertexAttributes(),bounds=bounds,indexFormat=indexFormat,bindposes=(Matrix4x4[])bindposes.Clone(),boneCounts=(byte[])boneCounts.Clone(),weights=(BoneWeight1[])weights.Clone(),isReadable=isReadable,name=name};m.subMeshCount=subMeshCount;for(int i=0;i<subMeshCount;i++)m.SetIndices(indices[i],topologies[i],i,false,bases[i]);foreach(var s in shapes)m.shapes.Add(new BlendFrame{name=s.name,weight=s.weight,positions=(Vector3[])s.positions.Clone(),normals=(Vector3[])s.normals.Clone(),tangents=(Vector3[])s.tangents.Clone()});return m;}
+  public static MeshDataArray AcquireReadOnlyMeshData(Mesh mesh)=>new(mesh);
+  public readonly struct MeshDataArray:IDisposable {private readonly Mesh mesh;public MeshDataArray(Mesh value){mesh=value;}public MeshData this[int i]=>new(mesh);public void Dispose(){}}
+  public readonly struct MeshData {
+   private readonly Mesh mesh;public MeshData(Mesh value){mesh=value;}public int vertexBufferCount=>2;public int subMeshCount=>mesh.subMeshCount;
+   public Unity.Collections.NativeArray<T> GetVertexData<T>(int stream) where T:struct {if(stream==1)return new((T[])(object)mesh.channelBytes);using var memory=new MemoryStream();using(var w=new BinaryWriter(memory,System.Text.Encoding.UTF8,true))foreach(var p in mesh.vertices){w.Write(p.x);w.Write(p.y);w.Write(p.z);}return new((T[])(object)memory.ToArray());}
+   public Unity.Collections.NativeArray<T> GetIndexData<T>() where T:struct {using var memory=new MemoryStream();using(var w=new BinaryWriter(memory,System.Text.Encoding.UTF8,true))foreach(var sub in mesh.indices)foreach(int v in sub){if(mesh.indexFormat==Rendering.IndexFormat.UInt16)w.Write((ushort)v);else w.Write(v);}return new((T[])(object)memory.ToArray());}
+   public Rendering.SubMeshDescriptor GetSubMesh(int index)=>new(){indexStart=mesh.indices.Take(index).Sum(a=>a.Length),indexCount=mesh.indices[index].Length,baseVertex=mesh.bases[index],firstVertex=0,vertexCount=mesh.vertexCount,topology=mesh.topologies[index],bounds=mesh.bounds};
+  }
+ }
+}

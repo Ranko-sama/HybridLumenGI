@@ -1,0 +1,54 @@
+HybridLumenGI integration-14：朋友测试候选
+日期：2026-10-27
+
+这是供朋友在现有工程导入、构建和运行的测试候选。
+尚未经过 Unity / Player / 实体 GPU 验收，不是生产认证，也不等价于完整 UE5 Lumen。
+
+文件
+1. HybridLumenGI-2026-10-27-integration-14.zip：源码、Editor 工具、固定场景/采集组件、说明与离线报告。
+2. HybridLumenGI-2026-10-27-native-timing-win64-09.zip：可选 Windows x64 DX12 计时插件。
+   DLL 用于预算反馈，不是 DXR 后端。先完成基础导入，再按 NativeGpuTiming.md 选择安装。
+3. SHA256 文件和 delivery-manifest-14.json：传输完整性清单。
+
+先做这一轮
+1. 使用朋友现有 Unity 工程的副本或分支，记录精确 Unity / URP 版本、显卡和驱动。
+   当前目标是 Unity 6 / URP 17、Windows DX12、Linear、Render Graph。
+2. 只解压 integration-14.zip，将 HybridLumenGI 文件夹放入 Assets。
+   更新同一份旧包，避免重复类/GUID；不要把整个外层交付 ZIP 导入 Assets。
+3. 阅读 HybridLumenGI/Documentation/FriendHandoff.md，添加 Renderer Feature，
+   配置代理，按说明烘焙 Mesh SDF 和 Surface Charts。
+4. 首先选择软件路径，检查 Editor 导入、基础画面和 Player 构建。
+   有阻断就先回传日志，不必一次完成全部压力项目。
+5. 基础通过后按 Documentation/ValidationSequence.md 运行固定 720 帧序列。
+   保存完整 HDR/状态/日志目录，连同 SOURCE-MANIFEST.json 回传。
+   每个对照从新 Player 或新 Play 开始；没有可信参考图时，质量状态保持待建立。
+6. 再选择硬件路径，记录实际 hardwareBackend 与 hardwareMaterialStatus。
+   开启 preferHardwareTracing 不代表实际运行了 DXR。
+   当前每批复制完整 mip 链，三张不同 2048² 纹理可超过默认 256 MiB 材质预算；
+   先用小贴图建立正向用例，再测预算回退。不要靠增大预算掩盖重复分配。
+
+本次收尾
+- 源 UV 命中材质、不可变材质批次、空间射线足迹、透视/正交观察源接入传输。
+- 未知材质和辐亮度保留有效性语义，覆盖不足不能当作已测黑色。
+- 增加固定色墙、薄壁、移动门、关灯、镜头切换与封闭灰白房间的采集流程。
+- 修复旧测试接线/换行契约，并用同一冻结源码完成 70 阶段回归。
+- 保留 integration-13 历史基线；不新增研究或测试矩阵。
+
+已执行：70 个离线阶段、147 项选定 DXC、275 份来源哈希、49 份 C# 语法输入。
+包含 D3D12 WARP helper 检查，但不证明 Unity API 编译、Render Graph、真实 DXR 或实体 GPU 性能。
+CPU alpha 准入、形变、面积光 NEE、完整漫反射角度过滤、跨帧纹理复用及完整流式预算仍有缺口。
+详细范围见 Documentation/ProductionPlan.md 和 Documentation/OfflineValidation.md。
+
+源码包不包含构建机 TEMP 中的编译/执行工件。朋友可用 Tests/VerifySourcePackage.ps1 检查 ZIP 完整性；
+完整离线复验需在本机重跑套件生成本机证据。导入 Unity 不要求先安装这些离线工具。
+
+请回传
+- 精确 Unity / URP 版本、显卡/驱动、分辨率，以及期望帧率、GI GPU 时间和显存预算。
+- 导入、Player 构建/运行日志；失败复现步骤及场景/烘焙资产。
+- 固定序列的完整输出目录、Feature 配置、Runtime Diagnostics、SOURCE-MANIFEST.json。
+- 通过基础测试后，再补软件/DXR 对照、GPU p95/p99、峰值显存及长时数据。
+
+SHA256
+源码 ZIP：7E2D81810A360FB354B6B184EABB27A260C427947584184DF5EE31446DFFA079
+可选插件 ZIP：F3AA5247B8D90286CAB25C836EA397C4E9DADEBDF4C9429D010753166FE7A95C
+统一离线主报告：BC0AE87C79357568FE53F1CF73E4F787B4BF3DD40C260BC3FF5263164D361FF7

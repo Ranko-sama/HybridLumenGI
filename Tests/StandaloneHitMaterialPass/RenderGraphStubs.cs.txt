@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+namespace UnityEngine.Rendering
+{
+    // These adapters encode the documented ownership boundary, not Unity/native execution.
+    public sealed class RTHandle
+    {
+        public static int Live;
+        public readonly Texture ExternalTexture;
+        public readonly RenderTexture OwnedTexture;
+        public bool Released,ThrowRelease;
+        public int ReleaseCalls;
+        public RTHandle(Texture texture,bool owned)
+        {if(owned)OwnedTexture=texture as RenderTexture;else ExternalTexture=texture;Live++;}
+        public void Release()
+        {
+            ReleaseCalls++;
+            if(ThrowRelease)throw new InvalidOperationException("wrapper release failed");
+            if(Released)throw new InvalidOperationException("wrapper double release");
+            Released=true;Live--;if(OwnedTexture!=null)OwnedTexture.Destroyed=true;
+        }
+    }
+    public static class RTHandles
+    {
+        public static int BorrowedAllocations,OwnedAllocations,FailAt=-1,NullAt=-1;
+        public static readonly List<RTHandle> Handles=new();
+        public static RTHandle Alloc(Texture texture)
+        {
+            int index=++BorrowedAllocations;
+            if(index==FailAt)throw new InvalidOperationException("wrapper allocation failed");
+            if(index==NullAt)return null;
+            var handle=new RTHandle(texture,false);Handles.Add(handle);return handle;
+        }
+        public static RTHandle Alloc(RenderTexture texture)
+        {OwnedAllocations++;var handle=new RTHandle(texture,true);Handles.Add(handle);return handle;}
+    }
+}
+namespace UnityEngine.Rendering.RenderGraphModule
+{
+    public readonly struct BufferHandle
+    {public readonly GraphicsBuffer Buffer;public BufferHandle(GraphicsBuffer buffer){Buffer=buffer;}}
+    public readonly struct TextureHandle
+    {public readonly RTHandle Handle;public TextureHandle(RTHandle handle){Handle=handle;}}
+    public sealed class RenderGraph
+    {
+        public readonly List<(GraphicsBuffer Buffer,bool ForceRelease)> ImportedBuffers=new();
+        public readonly List<RTHandle> ImportedTextures=new();
+        public int Calls,ThrowBeforeAt=-1,ThrowAfterAt=-1;
+        public BufferHandle ImportBuffer(GraphicsBuffer buffer,bool forceRelease=false)
+        {
+            if(++Calls==ThrowBeforeAt)throw new InvalidOperationException("buffer import before");
+            ImportedBuffers.Add((buffer,forceRelease));
+            if(Calls==ThrowAfterAt)throw new InvalidOperationException("buffer import after");
+            return new BufferHandle(buffer);
+        }
+        public TextureHandle ImportTexture(RTHandle wrapper)
+        {
+            if(++Calls==ThrowBeforeAt)throw new InvalidOperationException("texture import before");
+            ImportedTextures.Add(wrapper);
+            if(Calls==ThrowAfterAt)throw new InvalidOperationException("texture import after");
+            return new TextureHandle(wrapper);
+        }
+    }
+}

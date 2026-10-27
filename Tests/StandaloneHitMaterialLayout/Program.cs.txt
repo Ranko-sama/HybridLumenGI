@@ -1,0 +1,164 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using HybridLumenGI;
+using UnityEngine;
+using Layout=HybridLumenGI.HybridLumenGIHitMaterialLayout;
+using Record=HybridLumenGI.HybridLumenGIHitMaterialRecord;
+using Pool=HybridLumenGI.HybridLumenGIRayTexturePool;
+using Source=HybridLumenGI.HybridLumenGIMaterialSource;
+class Program
+{
+    static int checks,scenarios;
+    static void Check(bool condition,string why){checks++;if(!condition)throw new Exception(why);}
+    static readonly string[] Maps={"_BaseMap","_MetallicGlossMap","_SpecGlossMap","_BumpMap","_OcclusionMap","_EmissionMap","_DetailMask","_DetailAlbedoMap","_DetailNormalMap","_ParallaxMap"};
+    static readonly string[] Keywords={"_ALPHATEST_ON","_SPECULAR_SETUP","_METALLICSPECGLOSSMAP","_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A",
+        "_NORMALMAP","_EMISSION","_OCCLUSIONMAP","_DETAIL_MULX2","_DETAIL_SCALED","_PARALLAXMAP",
+        "_RECEIVE_SHADOWS_OFF","_SPECULARHIGHLIGHTS_OFF","_ENVIRONMENTREFLECTIONS_OFF"};
+    static readonly Vector4 Tint=new(1,1,1,1),Emission=new(0,0,0,0);
+    static (Source source,Renderer renderer,Material material) Fixture(bool maps=true)
+    {
+        var source=new Source();var renderer=new Renderer();var material=new Material(new Shader{name="Universal Render Pipeline/Lit"});
+        material.Set("_Cull",2f);material.Set("_Surface",0f);renderer.Materials.Add(material);
+        if(maps)foreach(string map in Maps)material.Set(map,new Texture2D());return(source,renderer,material);
+    }
+    static HybridLumenGIHitMaterialData Capture((Source source,Renderer renderer,Material material) f)
+    {Check(f.source.TryCapture(f.renderer,0,f.material,out var snapshot,out var reason),"actual snapshot "+reason);return snapshot.HitMaterial;}
+    static Pool.Handle[] Handles()=>Enumerable.Range(0,10).Select(i=>new Pool.Handle((uint)(101+i),(uint)(0x80000010u+i))).ToArray();
+    static Record Encode(HybridLumenGIHitMaterialData data,Pool.Handle[] handles=null,uint generation=0x90000001u)
+    {Check(Layout.TryEncode(data,generation,handles??Handles(),Tint,Emission,out var record,out var reason),"encode "+reason);return record;}
+    static bool Eq(Vector4 a,Vector4 b)=>Bits(a.x)==Bits(b.x)&&Bits(a.y)==Bits(b.y)&&Bits(a.z)==Bits(b.z)&&Bits(a.w)==Bits(b.w);
+    static int Bits(float x)=>BitConverter.SingleToInt32Bits(x);
+    static double DecodeSrgb(double x)=>x<=0.04045?x/12.92:Math.Exp(2.4*Math.Log((x+0.055)/1.055));
+    static void Close(float actual,double expected,string why)=>Check(Math.Abs(actual-expected)<2e-6*Math.Max(1,Math.Abs(expected)),why);
+    static uint[] Fields(HybridLumenGIHitMaterialUInt4 v)=>new[]{v.x,v.y,v.z,v.w};
+    static uint[] Bindings(Record r)=>new[]{r.textures0,r.textures1,r.textures2,r.textures3,r.textures4}.SelectMany(Fields).ToArray();
+    static void Abi()
+    {
+        scenarios++;Check(Layout.Stride==240&&Marshal.SizeOf<Record>()==240,"record stride");
+        Check(Marshal.SizeOf<HybridLumenGIHitMaterialUInt4>()==16&&Marshal.SizeOf<Vector4>()==16,"four-component strides");
+        string[] fields={"identity","baseColor","specColor","emissionColor","surface","detail","baseST","detailST","proxyTint","proxyEmission","textures0","textures1","textures2","textures3","textures4"};
+        Check(typeof(Record).GetFields().Length==fields.Length,"ABI field count");
+        for(int i=0;i<fields.Length;i++)Check(Marshal.OffsetOf<Record>(fields[i]).ToInt32()==i*16,"offset "+fields[i]);
+        foreach(var name in new[]{"x","y","z","w"})Check(Marshal.OffsetOf<HybridLumenGIHitMaterialUInt4>(name).ToInt32()==Array.IndexOf(new[]{"x","y","z","w"},name)*4,"uint component offset");
+    }
+    static void KeywordAndMapContracts()
+    {
+        scenarios++;var fixture=Fixture();fixture.material.Set("_AlphaClip",1f);fixture.material.Set("_WorkflowMode",0f);fixture.material.Set("_ReceiveShadows",0f);
+        Check(Layout.KeywordFlags(Capture(fixture))==0,"uniforms do not invent shader variants");
+        uint[] expected={1,2,4,8,16,32,64,128,128|256,512,1024,2048,4096};
+        for(int i=0;i<Keywords.Length;i++)
+        {fixture.material.shaderKeywords=new[]{Keywords[i]};Check(Layout.KeywordFlags(Capture(fixture))==expected[i],"explicit keyword bit "+Keywords[i]);}
+        fixture.material.Set("_AlphaClip",0f);fixture.material.Set("_WorkflowMode",1f);
+        foreach(bool specular in new[]{false,true})
+        {
+            fixture.material.shaderKeywords=Keywords.Where(x=>specular||x!="_SPECULAR_SETUP").ToArray();var material=Capture(fixture);var handles=Handles();var record=Encode(material,handles);
+            Check(record.identity.x==0x90000001u&&record.identity.w==1023&&record.identity.z==2,"identity/presence/cull bits");
+            Check(((record.identity.y&Layout.SpecularWorkflow)!=0)==specular,"workflow from keyword alone");
+            var binding=Bindings(record);
+            for(int map=0;map<10;map++)
+            {
+                bool used=map!=1&&map!=2||map==(specular?2:1);
+                Check(Layout.UsesTexture(record.identity.y,map)==used,"metal/spec exclusivity "+map);
+                Check(binding[map*2]==(used?handles[map].Index:0)&&binding[map*2+1]==(used?handles[map].Generation:0),"ten-map handle order "+map);
+                Check(ReferenceEquals(Layout.GetTexture(material,map).Texture,fixture.material.GetTexture(Shader.PropertyToID(Maps[map]))),"map accessor order "+map);
+            }
+        }
+        fixture.material.shaderKeywords=Array.Empty<string>();var disabled=Encode(Capture(fixture));var disabledBindings=Bindings(disabled);
+        Check(disabled.identity.w==1023,"disabled specified maps still have presence");
+        for(int map=1;map<10;map++)Check(disabledBindings[map*2]==0&&disabledBindings[map*2+1]==0,"disabled maps not uploaded/used");
+        foreach(int bad in new[]{-1,10,int.MaxValue})
+        {bool rejected=false;try{Layout.GetTexture(Capture(fixture),bad);}catch(ArgumentOutOfRangeException){rejected=true;}Check(rejected,"bad accessor map index");
+         rejected=false;try{Layout.UsesTexture(0,bad);}catch(ArgumentOutOfRangeException){rejected=true;}Check(rejected,"bad use index");}
+    }
+    static void DefaultsPresenceAndNoLiveReads()
+    {
+        scenarios++;var empty=Fixture(false);var missing=Encode(Capture(empty));
+        Check(missing.identity.w==0&&Bindings(missing).All(x=>x==0),"absent textures are default, not invalid supplied maps");
+        Check(Eq(missing.baseST,new Vector4(1,1,0,0))&&Eq(missing.detailST,new Vector4(1,1,0,0)),"absent transforms identity");
+        Check(Eq(missing.surface,new Vector4(0,.5f,1,1))&&Eq(missing.detail,new Vector4(.5f,1,1,.005f)),"Lit scalar defaults");
+        Check(Eq(missing.baseColor,new Vector4(1,1,1,1))&&Eq(missing.emissionColor,new Vector4(0,0,0,1)),"default color vectors");
+        Close(missing.specColor.x,DecodeSrgb(.2f),"default spec authoring conversion");
+        var fixture=Fixture();fixture.material.shaderKeywords=Keywords;var source=Capture(fixture);var handles=Handles();handles[3]=default;
+        var before=Encode(source,handles);Check((before.identity.w&(1u<<3))!=0&&before.textures1.z==0&&before.textures1.w==0,"specified normal with missing handle stays present unknown");
+        foreach(var map in Maps){var t=fixture.material.GetTexture(Shader.PropertyToID(map));t.ThrowOnRead=true;t.Destroyed=true;fixture.material.Set(map,null);}
+        fixture.material.Set("_BaseColor",new Color(.9f,.8f,.7f));fixture.material.Set("_Metallic",.9f);fixture.material.shaderKeywords=Array.Empty<string>();fixture.material.Destroyed=true;
+        var after=Encode(source,handles);Check(Bindings(before).SequenceEqual(Bindings(after))&&Eq(before.baseColor,after.baseColor)&&Eq(before.surface,after.surface)&&before.identity.y==after.identity.y,"encoding frozen input ignores live edits/destruction");
+        handles[0]=default;Check(before.textures0.y!=0,"encoded record not alias caller handle array");
+        empty.material.Set("_BaseMap",null);var explicitNull=Encode(Capture(empty));Check(explicitNull.identity.w==0&&explicitNull.textures0.y==0,"explicit null uses shader default");
+    }
+    static void ColorOriginsAndMpbPriority()
+    {
+        scenarios++;var fixture=Fixture();fixture.material.Set("_BaseColor",new Color(.02f,.5f,.9f,2.5f));fixture.material.Set("_SpecColor",new Color(.1f,.3f,.8f,-.2f));
+        fixture.material.Set("_EmissionColor",new Color(17000,-3,0.125f,6));fixture.material.Set("_Cull",1f);
+        var authoring=Capture(fixture);int before=Color.LinearCalls;var material=Encode(authoring);
+        Check(Color.LinearCalls-before==2,"only non-HDR authoring colors converted once");
+        Close(material.baseColor.x,DecodeSrgb(.02f),"linear branch");Close(material.baseColor.y,DecodeSrgb(.5f),"nonlinear branch");Close(material.baseColor.z,DecodeSrgb(.9f),"high sRGB");
+        Check(material.baseColor.w==2.5f&&material.specColor.w==-.2f&&Eq(material.emissionColor,new Vector4(17000,-3,.125f,6)),"alpha/HDR untouched");
+        var shaderBase=new Vector4(-2,1.25f,7.5f,-4);var shaderSpec=new Vector4(.02f,.3f,.9f,2);var shaderEmission=new Vector4(90000,-8,3,4);
+        fixture.renderer.Block.Set("_BaseColor",shaderBase);fixture.renderer.Block.Set("_SpecColor",shaderSpec);fixture.renderer.Block.Set("_EmissionColor",shaderEmission);
+        fixture.renderer.Block.Set("_Cull",0f);fixture.renderer.Block.Set("_BaseMap_ST",new Vector4(3,-2,4,5));
+        before=Color.LinearCalls;var renderer=Encode(Capture(fixture));Check(Color.LinearCalls==before,"MPB non-HDR values already shader space");
+        Check(Eq(renderer.baseColor,shaderBase)&&Eq(renderer.specColor,shaderSpec)&&Eq(renderer.emissionColor,shaderEmission),"MPB values raw including HDR/negative");
+        Check(renderer.identity.z==1&&Eq(renderer.baseST,new Vector4(3,-2,4,5)),"MPB cannot override raster cull but may override ST");
+        var perSlot=new MaterialPropertyBlock();perSlot.Set("_Unrelated",1f);fixture.renderer.Slots[0]=perSlot;
+        var wholePriority=Encode(Capture(fixture));Check(Eq(wholePriority.baseColor,material.baseColor)&&Eq(wholePriority.baseST,new Vector4(1,1,0,0)),"whole slot MPB suppresses renderer block");
+        perSlot.Set("_BaseColor",new Vector4(.7f,.6f,.5f,3));var slot=Encode(Capture(fixture));Check(Eq(slot.baseColor,new Vector4(.7f,.6f,.5f,3)),"slot shader value not gamma converted");
+    }
+    static void RandomNumericalOracle()
+    {
+        scenarios++;var random=new Random(4277);
+        for(int i=0;i<800;i++)
+        {
+            var fixture=Fixture(false);var color=new Color((float)random.NextDouble(),(float)random.NextDouble(),(float)random.NextDouble(),(float)(random.NextDouble()*8-4));
+            var hdr=new Color((float)(random.NextDouble()*10000-200),(float)(random.NextDouble()*2000),(float)random.NextDouble(),(float)(random.NextDouble()*3));
+            fixture.material.Set("_BaseColor",color);fixture.material.Set("_SpecColor",color);fixture.material.Set("_EmissionColor",hdr);
+            float metallic=(float)random.NextDouble(),smooth=(float)random.NextDouble(),occ=(float)random.NextDouble(),bump=(float)(random.NextDouble()*3);
+            fixture.material.Set("_Metallic",metallic);fixture.material.Set("_Smoothness",smooth);fixture.material.Set("_OcclusionStrength",occ);fixture.material.Set("_BumpScale",bump);
+            float cutoff=(float)random.NextDouble(),da=(float)(random.NextDouble()*2),dn=(float)(random.NextDouble()*2),par=(float)(random.NextDouble()*.08);
+            fixture.material.Set("_Cutoff",cutoff);fixture.material.Set("_DetailAlbedoMapScale",da);fixture.material.Set("_DetailNormalMapScale",dn);fixture.material.Set("_Parallax",par);
+            var input=Capture(fixture);var record=Encode(input);
+            Close(record.baseColor.x,DecodeSrgb(color.r),"random sRGB R");Close(record.baseColor.y,DecodeSrgb(color.g),"random sRGB G");Close(record.specColor.z,DecodeSrgb(color.b),"random sRGB B");
+            Check(Bits(record.baseColor.w)==Bits(color.a)&&Eq(record.emissionColor,(Vector4)hdr),"random alpha/HDR exact");
+            Check(Eq(record.surface,new Vector4(metallic,smooth,occ,bump))&&Eq(record.detail,new Vector4(cutoff,da,dn,par)),"random scalar packing");
+            var tint=new Vector4((float)random.NextDouble(),2,3,4);var emission=new Vector4(2,-5,7,1);
+            Check(Layout.TryEncode(input,(uint)(i+1),Handles(),tint,emission,out var custom,out _)&&Eq(custom.proxyTint,tint)&&Eq(custom.proxyEmission,emission),"proxy shader-space values preserved");
+        }
+    }
+    static void InvalidInputsNeverPublish()
+    {
+        scenarios++;var fixture=Fixture(false);var input=Capture(fixture);
+        void Reject(HybridLumenGIHitMaterialData data,uint generation,IReadOnlyList<Pool.Handle> handles,Vector4 tint,Vector4 emission,string why)
+        {
+            Check(!Layout.TryEncode(data,generation,handles,tint,emission,out var record,out var reason)&&reason!=null,"reject "+why);
+            Check(record.identity.x==0&&record.identity.y==0&&Bindings(record).All(x=>x==0)&&Eq(record.baseColor,default),"no partial published record "+why);
+        }
+        Reject(null,1,Handles(),Tint,Emission,"missing input");Reject(input,0,Handles(),Tint,Emission,"zero generation");Reject(input,1,null,Tint,Emission,"null handles");
+        Reject(input,1,new Pool.Handle[9],Tint,Emission,"short handles");Reject(input,1,new Pool.Handle[11],Tint,Emission,"long handles");
+        foreach(float bad in new[]{float.NaN,float.PositiveInfinity,float.NegativeInfinity})
+        {Reject(input,1,Handles(),new Vector4(bad,1,1,1),Emission,"proxy tint");Reject(input,1,Handles(),Tint,new Vector4(0,bad,0,1),"proxy emission");}
+        Reject(input,1,Handles(),Tint,new Vector4(1,1,1,-1),"negative intensity");
+        foreach(string keyword in new[]{"_SURFACE_TYPE_TRANSPARENT","_ALPHAPREMULTIPLY_ON","_ALPHAMODULATE_ON","_CLEARCOAT","_CLEARCOATMAP"})
+        {fixture.material.shaderKeywords=new[]{keyword};Reject(Capture(fixture),1,Handles(),Tint,Emission,keyword);}
+        // Malformed same-assembly frozen values test final publication validation independently
+        // of Source.TryCapture's earlier finite checks; they are not a public construction path.
+        foreach(string property in new[]{"_BaseColor","_SpecColor","_EmissionColor","_Metallic","_Smoothness","_BaseMap_ST","_DetailAlbedoMap_ST","_Cutoff"})
+        {
+            var value=new Source.Value(Shader.PropertyToID(property),1,new Vector4(float.NaN,0,0,0));
+            var malformed=new HybridLumenGIHitMaterialData(new[]{value},Array.Empty<Source.TextureValue>(),Array.Empty<string>());
+            Reject(malformed,1,Handles(),Tint,Emission,"nonfinite "+property);
+        }
+        var cull=new Source.Value(Shader.PropertyToID("_Cull"),1,new Vector4(7,0,0,0));
+        Reject(new HybridLumenGIHitMaterialData(new[]{cull},Array.Empty<Source.TextureValue>(),Array.Empty<string>()),1,Handles(),Tint,Emission,"invalid cull");
+        var surface=new Source.Value(Shader.PropertyToID("_Surface"),1,new Vector4(1,0,0,0));
+        Reject(new HybridLumenGIHitMaterialData(new[]{surface},Array.Empty<Source.TextureValue>(),Array.Empty<string>()),1,Handles(),Tint,Emission,"transparent scalar");
+    }
+    static int Main()
+    {
+        try{Abi();KeywordAndMapContracts();DefaultsPresenceAndNoLiveReads();ColorOriginsAndMpbPriority();RandomNumericalOracle();InvalidInputsNeverPublish();
+            Console.WriteLine($"Hit material layout: {checks} assertions, {scenarios} scenarios. Actual C# record/source classes with explicit Color.linear and Unity API substitutes; not Unity/GPU material execution.");return 0;}
+        catch(Exception e){Console.Error.WriteLine(e);return 1;}
+    }
+}

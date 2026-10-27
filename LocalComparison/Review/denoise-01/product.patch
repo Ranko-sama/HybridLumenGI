@@ -1,0 +1,57 @@
+--- candidate-16/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
++++ local-development/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
+@@ -428,6 +428,11 @@
+     // Invalid/uninitialized textures may contain NaNs; lerp(old,current,1) does not remove NaNs.
+     if(!valid) { history=current; moments=float4(lum,lum*lum,0,0); }
+     float3 mean=current.rgb, second=current.rgb*current.rgb; float count=1;
++    // A rejected history has E[L^2]-E[L]^2 == 0 even for a noisy ray estimate.
++    // Keep a spatial luminance estimate for short histories, independently of
++    // history acceptance. Do not use radiance similarity to reject its taps:
++    // that would classify the very noise we need to measure as an edge.
++    float2 spatialMoments=float2(lum,lum*lum);float spatialCount=1;
+     [unroll] for(int y=-1;y<=1;y++) [unroll] for(int x=-1;x<=1;x++)
+     {
+         int2 q=clamp(pixel+int2(x,y),0,(int2)_HLGI_Size.xy-1);
+@@ -442,6 +447,13 @@
+         float4 neighbor=_HLGI_Input.Load(int3(q,0));
+         if(!HLGIHasRadianceMeasurement(neighbor) || !all(isfinite(neighbor.rgb*neighbor.rgb))) continue;
+         float3 c=neighbor.rgb; mean+=c; second+=c*c; count++;
++        // Match the filter's absolute plane gate; reprojection's distance-scaled
++        // tolerance alone could mix variance across nearby parallel surfaces.
++        if(max(abs(dot(qp-p,geometricNormal)),abs(dot(qp-p,neighborGeometricNormal)))<=max(_HLGI_DepthThreshold,0.001))
++        {
++            float neighborLum=LuminanceGI(c);
++            spatialMoments+=float2(neighborLum,neighborLum*neighborLum);spatialCount++;
++        }
+     }
+     mean/=max(count,1); second/=max(count,1);
+     if(!all(isfinite(mean)) || !all(isfinite(second)))
+@@ -456,7 +468,13 @@
+     float alpha=valid?max(_HLGI_CurrentWeight,1/samples):1;
+     alpha=max(alpha,valid?0.25*abs(current.a-history.a):1);
+     float2 newMoments=lerp(moments.xy,float2(lum,lum*lum),alpha);
+-    float4 resolved=lerp(history,current,alpha),resolvedMoments=float4(newMoments,samples,valid?1:0);
++    spatialMoments/=spatialCount;
++    // Moments are stored in RGBA16F. A bright neighbor must not overflow w and
++    // invalidate an otherwise finite center/history on the following frame.
++    float spatialVariance=min(max(spatialMoments.y-spatialMoments.x*spatialMoments.x,0),65504);
++    // xy = temporal luminance moments, z = history length, w = spatial variance.
++    // Spatial variance never grants history validity or replaces current GI.
++    float4 resolved=lerp(history,current,alpha),resolvedMoments=float4(newMoments,samples,spatialVariance);
+     if(!HLGIHasTemporalHistory(resolved,resolvedMoments))
+     { _HLGI_Output[pixel]=0;_HLGI_MomentsOut[pixel]=0;return; }
+     _HLGI_Output[pixel]=resolved;
+@@ -476,8 +494,12 @@
+     if(!hasGeometry) { _HLGI_Output[pixel]=center; return; }
+     float3 p=WorldPosition(HLGIGiSampleUv((uint2)pixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),g.w,_HLGI_InvVP);
+     float3 rho=_HLGI_Material.Load(int3(pixel,0)).rgb;
+-    float2 moments=_HLGI_Moments.Load(int3(pixel,0)).xy;
++    float4 moments=_HLGI_Moments.Load(int3(pixel,0));
+     float variance=max(moments.y-moments.x*moments.x,0);
++    // Until four accepted observations exist, a temporal estimate alone cannot
++    // distinguish zero variance from missing history. Boost the same-surface
++    // spatial estimate for disocclusion, cuts and moving receivers (SVGF).
++    if(moments.z<4) variance=max(variance,moments.w*(4/max(moments.z,1)));
+     float sigma=max(sqrt(variance)*4,0.05);
+     float3 sum=center.rgb*4; float weight=4;
+     [unroll] for(int y=-1;y<=1;y++) [unroll] for(int x=-1;x<=1;x++)

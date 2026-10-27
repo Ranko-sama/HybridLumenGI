@@ -1,0 +1,281 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using HybridLumenGI;
+using UnityEngine;
+using Registry=HybridLumenGI.HybridLumenGIReceiverRegistry;
+using History=HybridLumenGI.HybridLumenGIReceiverHistory;
+using Lifecycle=HybridLumenGI.HybridLumenGIHistoryLifecycle;
+using Discovery=HybridLumenGI.HybridLumenGIReceiverDiscovery;
+
+internal static class HarnessEntry
+{
+    private static int checks,failures,scenarios;
+    private const long Budget=1024*1024;
+    private static readonly Lifecycle.FrameContext Context=new Lifecycle.FrameContext(1920,1080,960,540,0,0,1920,1080);
+    private static void Check(bool value,string message)
+    { checks++;if(!value){failures++;Console.Error.WriteLine("FAIL: "+message);} }
+    private static void Case(string name,Action run)
+    { scenarios++;try{run();}catch(Exception e){failures++;Console.Error.WriteLine("FAIL scenario "+name+": "+e);} }
+    private static Discovery.Snapshot D(Camera camera,params Renderer[] renderers)
+    { var values=new List<Discovery.Candidate>();foreach(var r in renderers) values.Add(new Discovery.Candidate(r));return new Discovery.Snapshot(camera,values); }
+    private static Registry.Snapshot P(Registry registry,Camera camera,params Renderer[] renderers)=>registry.Prepare(D(camera,renderers),32,Budget);
+    private static Renderer R(Mesh mesh=null,int submeshes=1)
+    {
+        if(mesh==null) mesh=new Mesh{Topologies=new MeshTopology[submeshes]};
+        var materials=new Material[submeshes];for(int i=0;i<materials.Length;i++) materials[i]=new Material();
+        return new Renderer{Mesh=mesh,Materials=materials,Mpb=new int[submeshes]};
+    }
+    private static void PrivateSet(object owner,string field,ulong value)=>owner.GetType().GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).SetValue(owner,value);
+    private static void Publish(History history,Lifecycle lifecycle,Lifecycle.FrameToken token)
+    { Check(history.MarkCaptureRecorded(token,true),"capture marks exact current ticket");Check(lifecycle.Complete(token),"screen receipt accepts exact token");Check(history.Complete(token),"source receipt follows completed screen receipt"); }
+
+    private static void IdentityAndVersions()
+    {
+        var camera=new Camera();var registry=new Registry();var mesh=new Mesh();var a=R(mesh);var b=R(mesh);b.InstanceId=a.InstanceId;
+        var stampBeforeFirstObservation=HybridLumenGIMeshSource.GetVersion(mesh);
+        var first=P(registry,camera,a,b);
+        Check(!ReferenceEquals(stampBeforeFirstObservation,HybridLumenGIMeshSource.GetVersion(mesh)),"first verified fingerprint revokes preexisting unverified source positives");
+        Check(first.Records.Count==2&&!first.HasUnknownSources,"two unproxied renderers sharing mesh tracked");
+        var fa=first.Records[0];var fb=first.Records[1];
+        Check(fa.Token!=0&&fb.Token!=0&&fa.Token!=fb.Token,"same numeric InstanceID cannot alias reference tokens");
+        Check(mesh.FingerprintCalls==1&&first.FingerprintedMeshes==1,"one mesh fingerprint for shared instances per Prepare");
+        Check(first.FingerprintBytes==1244,"logical default fingerprint byte cost matches independent fixture size");
+        Check(ReferenceEquals(fa.MeshVersion,fb.MeshVersion),"shared mesh shares opaque actual source version");
+        a.Matrix=Matrix4x4.Translate(3);var moved=P(registry,camera,a,b);
+        Check(moved.Records[0].SameSource(fa)&&moved.Records[0].Token==fa.Token&&moved.Records[0].GeometryGeneration==fa.GeometryGeneration,"rigid motion does not change content generation");
+        Check(!moved.Records[0].LocalToWorld.Equals(fa.LocalToWorld)&&fa.LocalToWorld.Equals(Matrix4x4.identity),"matrix copied into immutable prior record");
+        var replacement=R(mesh);replacement.InstanceId=a.InstanceId;
+        Check(P(registry,camera,replacement).Records[0].Token!=fa.Token,"new renderer reference cannot inherit old token");
+        var oldVersion=HybridLumenGIMeshSource.GetVersion(mesh);mesh.Content="in-place same metadata edit";
+        var edited=P(registry,camera,a,b);
+        Check(!ReferenceEquals(oldVersion,HybridLumenGIMeshSource.GetVersion(mesh)),"unnotified fingerprint change broadcasts shared actual version");
+        Check(edited.Records[0].Token==fa.Token&&edited.Records[1].Token==fb.Token,"content edit retains renderer lifetime identities");
+        Check(edited.Records[0].GeometryGeneration!=fa.GeometryGeneration&&edited.Records[1].GeometryGeneration!=fb.GeometryGeneration,"all shared mesh instances reject old geometry");
+        Check(!edited.Records[0].SameSource(fa),"old geometry record not reusable");
+        HybridLumenGIMeshSource.NotifyGeometryChanged(mesh);var notified=P(registry,camera,a,b);
+        Check(notified.Records[0].GeometryGeneration!=edited.Records[0].GeometryGeneration&&notified.Records[1].GeometryGeneration!=edited.Records[1].GeometryGeneration,"explicit notification updates all instance generations even unchanged fingerprint");
+        a.Materials[0].Value=37;var materialEdit=P(registry,camera,a,b);
+        Check(materialEdit.Records[0].GeometryGeneration==notified.Records[0].GeometryGeneration&&materialEdit.Records[0].MaterialGeneration!=notified.Records[0].MaterialGeneration,"material-only edit changes only material generation");
+        Check(materialEdit.Records[1].SameSource(notified.Records[1]),"other material instance unchanged");
+        a.Mpb[0]=8;var mpbEdit=P(registry,camera,a,b);
+        Check(mpbEdit.Records[0].MaterialGeneration!=materialEdit.Records[0].MaterialGeneration&&mpbEdit.Records[0].Token==fa.Token,"read-only MPB observation advances source material generation");
+        a.Materials[0]=new Material{Value=37};var materialRefEdit=P(registry,camera,a,b);
+        Check(materialRefEdit.Records[0].MaterialGeneration!=mpbEdit.Records[0].MaterialGeneration,"material reference replacement invalidates even same scalar");
+        a.Mesh=new Mesh{Content=mesh.Content};var meshRefEdit=P(registry,camera,a);
+        Check(meshRefEdit.Records[0].Token!=fa.Token,"mesh reference replacement creates new source lifetime");
+        var sub=R(null,2);var subFirst=P(registry,camera,sub);
+        Check(subFirst.Records.Count==2&&subFirst.Records[0].Submesh==0&&subFirst.Records[1].Submesh==1&&subFirst.Records[0].Token!=subFirst.Records[1].Token,"source submeshes have distinct identities");
+        sub.Mpb[1]=4;var subEdit=P(registry,camera,sub);
+        Check(subEdit.Records[0].SameSource(subFirst.Records[0])&&!subEdit.Records[1].SameSource(subFirst.Records[1]),"material versions are per source submesh");
+        var oldToken=subEdit.Records[0].Token;sub.Mesh.Topologies=new MeshTopology[1];sub.Materials=new []{sub.Materials[0]};sub.Mpb=new int[1];
+        Check(P(registry,camera,sub).Records[0].Token!=oldToken,"changed submesh layout cannot reuse old source slot identity");
+        bool readOnly=false;try{((IList<Registry.Record>)first.Records).Clear();}catch(NotSupportedException){readOnly=true;}
+        Check(readOnly,"published source record list immutable");
+    }
+
+    private static void BudgetsAndFailures()
+    {
+        var camera=new Camera();var registry=new Registry();var pair=R(null,2);var one=R();
+        var capacity=registry.Prepare(D(camera,pair,one),1,Budget);
+        Check(capacity.Records.Count==1&&ReferenceEquals(capacity.Records[0].Renderer,one)&&capacity.UntrackedRenderers==1&&capacity.HasUnknownSources,"capacity rejects whole two-submesh owner then admits fitting later owner");
+        Check(pair.Mesh.FingerprintCalls==0,"capacity rejection avoids unnecessary mesh read");
+        var zero=registry.Prepare(D(camera,one),0,Budget);Check(zero.Records.Count==0&&zero.HasUnknownSources,"zero record budget explicit unknown");
+        var budgetMesh=new Mesh();var a=R(budgetMesh);var b=R(budgetMesh);
+        var small=registry.Prepare(D(camera,a,b),4,1243);
+        Check(small.Records.Count==0&&small.UntrackedRenderers==2&&small.FingerprintBytes==0&&budgetMesh.FingerprintCalls==0,"insufficient byte budget does not hash or pretend readiness");
+        var exact=registry.Prepare(D(camera,a,b),4,1244);
+        Check(exact.Records.Count==2&&exact.FingerprintBytes==1244&&budgetMesh.FingerprintCalls==1,"exact byte budget covers one shared mesh and both instances");
+        a.Mesh.isReadable=false;Check(P(registry,camera,a).HasUnknownSources&&P(registry,camera,a).Records.Count==0,"unreadable mesh explicit unknown");a.Mesh.isReadable=true;
+        a.Mesh.blendShapeCount=1;Check(P(registry,camera,a).Records.Count==0,"blend shape source unsupported");a.Mesh.blendShapeCount=0;
+        a.Mesh.ThrowFingerprint=true;var fail=P(registry,camera,a,b);Check(fail.Records.Count==0&&fail.UntrackedRenderers==2,"failed fingerprint retained as unknown for all sharers");a.Mesh.ThrowFingerprint=false;
+        a.Mesh.ThrowAcquire=true;Check(P(registry,camera,a).Records.Count==0,"mesh buffer acquisition failure fails closed");a.Mesh.ThrowAcquire=false;
+        a.Materials[0].Supported=false;Check(P(registry,camera,a).Records.Count==0,"unsupported material not published");a.Materials[0].Supported=true;
+        a.Materials[0].Reusable=false;Check(P(registry,camera,a).Records.Count==0,"current-capturable but nonhistorical material not published for history");a.Materials[0].Reusable=true;
+        var incomplete=new Discovery.Snapshot(camera,new []{new Discovery.Candidate(a)},false);
+        Check(registry.Prepare(incomplete,4,Budget).HasUnknownSources&&registry.Prepare(incomplete,4,Budget).Records.Count==0,"incomplete discovery cannot publish source proof");
+        var unknown=new Discovery.Snapshot(camera,new []{new Discovery.Candidate(a,Discovery.IdentityIssues.Unsupported)});
+        Check(registry.Prepare(unknown,4,Budget).UntrackedRenderers==1,"identity restriction becomes explicit untracked source");
+        Check(registry.Prepare(null,4,Budget).HasUnknownSources,"null discovery explicit unknown");
+        a.Matrix=Matrix4x4.Scale(0);Check(P(registry,camera,a).Records.Count==0,"singular source transform rejected");a.Matrix=Matrix4x4.identity;
+        var exhausted=new Registry();PrivateSet(exhausted,"nextIdentity",ulong.MaxValue);
+        Check(exhausted.Prepare(D(camera,pair),2,Budget).Records.Count==0,"identity exhaustion cannot partially admit owner");
+        Check(exhausted.Prepare(D(camera,one),2,Budget).Records.Count==0,"identity overflow never wraps to reused token");
+        exhausted=new Registry();PrivateSet(exhausted,"nextGeneration",ulong.MaxValue);
+        Check(exhausted.Prepare(D(camera,one),2,Budget).Records.Count==0,"generation exhaustion fails closed");
+    }
+
+    private static void Revalidation()
+    {
+        var camera=new Camera();var registry=new Registry();var a=R();var b=R();var original=P(registry,camera,a,b);
+        Check(registry.IsCurrent(original,D(camera,a,b),Budget),"unchanged sources remain current");
+        Check(registry.IsCurrent(original,D(camera,b,a),Budget),"enumeration reorder alone is not a source change");
+        Check(!registry.IsCurrent(original,D(camera,a),Budget),"removed source revokes source set");
+        Check(!registry.IsCurrent(original,D(camera,a,b,R()),Budget),"new source revokes source set");
+        Check(!registry.IsCurrent(original,D(camera,a,a),Budget),"duplicate cannot replace another current renderer");
+        Check(!registry.IsCurrent(original,D(new Camera(),a,b),Budget),"different camera rejected despite same sources");
+        camera.cullingMask=3;Check(!registry.IsCurrent(original,D(camera,a,b),Budget),"camera layer context change detected");camera.cullingMask=-1;
+        var selected=new Discovery.Snapshot(camera,new []{new Discovery.Candidate(a),new Discovery.Candidate(b)},layers:3);
+        Check(!registry.IsCurrent(original,selected,Budget),"selected-layer context change detected");
+        var newlyUnknown=new Discovery.Snapshot(camera,new []{new Discovery.Candidate(a),new Discovery.Candidate(b)},unknown:true);
+        Check(!registry.IsCurrent(original,newlyUnknown,Budget),"unknown-source global status change revokes source proof even with same candidate references");
+        camera.cullingMatrix=Matrix4x4.Translate(1);Check(!registry.IsCurrent(original,D(camera,a,b),Budget),"culling matrix change detected");camera.cullingMatrix=Matrix4x4.identity;
+        a.Matrix=Matrix4x4.Translate(2);Check(!registry.IsCurrent(original,D(camera,a,b),Budget),"current source transform change invalidates pending capture");a.Matrix=Matrix4x4.identity;
+        a.Bounds=new Bounds{Center=9,Extent=1};Check(!registry.IsCurrent(original,D(camera,a,b),Budget),"source bounds change detected");a.Bounds=new Bounds{Extent=1};
+        var material=a.Materials[0];a.Materials[0]=new Material();Check(!registry.IsCurrent(original,D(camera,a,b),Budget),"same-size material slot replacement detected");a.Materials[0]=material;
+        a.Mpb[0]++;Check(!registry.IsCurrent(original,D(camera,a,b),Budget),"MPB changed after preparation rejected");a.Mpb[0]--;
+        material.Value++;Check(!registry.IsCurrent(original,D(camera,a,b),Budget),"material scalar changed after preparation rejected");material.Value--;
+        a.Mesh.Content="unnotified change";Check(!registry.IsCurrent(original,D(camera,a,b),Budget),"same-reference unnotified mesh edit rejected before capture");
+        var fresh=P(registry,camera,a,b);Check(registry.IsCurrent(fresh,D(camera,a,b),Budget),"new prepared version restores current state");
+        Check(!registry.IsCurrent(fresh,D(camera,a,b),0),"revalidation byte exhaustion fails closed");
+        Check(!new Registry().IsCurrent(fresh,D(camera,a,b),Budget),"foreign registry snapshot rejected");
+        a.Destroyed=true;Check(!registry.IsCurrent(fresh,D(camera,a,b),Budget),"destroyed renderer cannot retain valid source receipt");a.Destroyed=false;
+        a.Mesh.Destroyed=true;Check(!registry.IsCurrent(fresh,D(camera,a,b),Budget),"destroyed mesh cannot retain valid source receipt");a.Mesh.Destroyed=false;
+    }
+
+    private static void ReadFailuresAreContained()
+    {
+        var camera=new Camera();var registry=new Registry();var bad=R();var good=R();var snapshot=P(registry,camera,bad,good);var discovery=D(camera,bad,good);
+        bad.ThrowMatrix=true;Check(!registry.IsCurrent(snapshot,discovery,Budget),"IsCurrent transform exception returns false");bad.ThrowMatrix=false;
+        bad.ThrowMaterial=true;Check(!registry.IsCurrent(snapshot,discovery,Budget),"IsCurrent material exception returns false");
+        var prepared=P(registry,camera,bad,good);
+        Check(prepared.HasUnknownSources&&prepared.UntrackedRenderers==1&&prepared.Records.Count==1&&ReferenceEquals(prepared.Records[0].Renderer,good),"Prepare material exception keeps later eligible source");bad.ThrowMaterial=false;
+        bad.Mesh.ThrowTopology=true;prepared=P(registry,camera,bad,good);
+        Check(prepared.HasUnknownSources&&prepared.UntrackedRenderers==1&&prepared.Records.Count==1,"Prepare topology exception contained per source");
+    }
+
+    private static void ReceiverPolicies()
+    {
+        var camera=new Camera();var registry=new Registry();var renderer=R();
+        Action<Renderer>[] mutations={r=>r.gameObject.layer=31,r=>r.renderingLayerMask=0x80000000u,
+            r=>r.receiveShadows=false,r=>r.lightmapIndex=7,r=>r.realtimeLightmapIndex=12,
+            r=>r.lightmapScaleOffset=new Vector4(.5f,.5f,.2f,.1f),r=>r.realtimeLightmapScaleOffset=new Vector4(.3f,.3f,.4f,.6f)};
+        foreach(var mutation in mutations)
+        {
+            var before=P(registry,camera,renderer);mutation(renderer);
+            Check(!registry.IsCurrent(before,D(camera,renderer),Budget),"receiver policy/lightmap context change rejects pending source");
+            var after=P(registry,camera,renderer);
+            Check(after.Records[0].Token==before.Records[0].Token&&after.Records[0].GeometryGeneration==before.Records[0].GeometryGeneration&&
+                after.Records[0].MaterialGeneration!=before.Records[0].MaterialGeneration&&!after.Records[0].SameSource(before.Records[0]),"policy/lightmap context advances only material generation");
+            Check(registry.IsCurrent(after,D(camera,renderer),Budget),"new receiver policy context revalidates");
+        }
+        renderer.gameObject.layer=32;Check(P(registry,camera,renderer).Records.Count==0,"illegal layer cannot publish");renderer.gameObject.layer=0;
+        renderer.lightmapScaleOffset=new Vector4(float.NaN,1,0,0);Check(P(registry,camera,renderer).Records.Count==0,"nonfinite lightmap transform rejected");renderer.lightmapScaleOffset=new Vector4(1,1,0,0);
+        renderer.realtimeLightmapScaleOffset=new Vector4(1,float.PositiveInfinity,0,0);Check(P(registry,camera,renderer).Records.Count==0,"nonfinite realtime lightmap transform rejected");
+    }
+
+    private static void Receipts()
+    {
+        var camera=new Camera();var registry=new Registry();var renderer=R();var life=new Lifecycle();var history=new History();Registry.Record old;
+        var s0=P(registry,camera,renderer);var t0=life.BeginFrame(10,Context);
+        Check(history.Begin(t0,s0)&&history.PendingRecords==1&&!history.IsPublished,"begin stages records but does not publish");
+        Check(!history.TryGetPrevious(s0.Records[0],out old),"first capture has no previous source");
+        Check(!history.Complete(t0),"unrecorded/uncompleted receipt cannot publish");
+        Check(history.MarkCaptureRecorded(t0,true)&&!history.Complete(t0),"capture alone is not completed screen receipt");
+        Check(life.Complete(t0)&&life.IsCompleted(t0)&&history.Complete(t0)&&history.IsPublished&&history.CompletedRecords==1,"exact successful screen receipt publishes source snapshot");
+        Check(!history.Complete(t0)&&!life.Complete(t0),"duplicate consume rejected");
+        renderer.Matrix=Matrix4x4.Translate(4);var s1=P(registry,camera,renderer);var t1=life.BeginFrame(11,Context);
+        Check(!history.IsPublished&&history.Begin(t1,s1),"new pending frame consumes visible publication");
+        Check(history.TryGetPrevious(s1.Records[0],out old)&&ReferenceEquals(old,s0.Records[0])&&old.LocalToWorld.Equals(Matrix4x4.identity),"f-1 source reuses identity with copied previous matrix");
+        var foreign=P(new Registry(),camera,renderer);
+        Check(!history.TryGetPrevious(foreign.Records[0],out old),"same numeric token from foreign registry record rejected");
+        Check(!history.MarkCaptureRecorded(t0,true)&&!history.Complete(t0),"late previous callback cannot update pending frame");Publish(history,life,t1);
+        var t2=life.BeginFrame(12,Context);var s2=P(registry,camera,renderer);Check(history.Begin(t2,s2),"next pending frame begins");
+        Check(!history.Begin(t2,s2)&&history.PendingRecords==0&&!history.IsPublished,"same token duplicate Begin invalidates source receipt");
+        Check(!history.MarkCaptureRecorded(t2,true)&&!history.Complete(t2),"duplicate Begin cannot be repaired by late capture");
+        life.Invalidate();var t3=life.BeginFrame(13,Context);Check(history.Begin(t3,P(registry,camera,renderer)),"recovery after invalidation");Publish(history,life,t3);
+        var t4=life.BeginFrame(15,Context);var s4=P(registry,camera,renderer);history.Begin(t4,s4);
+        Check(!history.TryGetPrevious(s4.Records[0],out old),"skipped engine frame rejects previous");Publish(history,life,t4);
+        var same=life.BeginFrame(15,Context);var sameSnapshot=P(registry,camera,renderer);history.Begin(same,sameSnapshot);
+        Check(!history.TryGetPrevious(sameSnapshot.Records[0],out old),"same engine frame rejects previous");Publish(history,life,same);
+        var back=life.BeginFrame(14,Context);var backSnapshot=P(registry,camera,renderer);history.Begin(back,backSnapshot);
+        Check(!history.TryGetPrevious(backSnapshot.Records[0],out old),"backwards frame rejects previous");Publish(history,life,back);
+        var failed=life.BeginFrame(15,Context);var fs=P(registry,camera,renderer);history.Begin(failed,fs);
+        Check(!history.MarkCaptureRecorded(failed,false)&&history.PendingRecords==0&&!history.TryGetPrevious(fs.Records[0],out old),"changed sources revoke pending and prior lookup");
+        Check(!history.Begin(failed,fs),"failed source capture cannot restart the same frame ticket");
+        Check(life.Complete(failed)&&!history.Complete(failed)&&!history.IsPublished,"screen completion cannot publish failed source capture");
+        var next=life.BeginFrame(16,Context);var ns=P(registry,camera,renderer);history.Begin(next,ns);
+        Check(!history.TryGetPrevious(ns.Records[0],out old),"failed source frame is not a previous source");Publish(history,life,next);
+        life.Invalidate();Check(!history.IsPublished&&history.CompletedRecords==0&&!life.IsCompleted(next),"lifecycle invalidation revokes source publication");history.Invalidate();
+        Check(!history.Begin(default,s0)&&history.PendingRecords==0,"invalid frame token cannot begin");
+        var pending=life.BeginFrame(20,Context);Check(!history.Begin(pending,null),"null source snapshot cannot begin");
+        Check(!history.Begin(pending,registry.Prepare(null,32,Budget)),"source snapshot without camera discovery cannot bind history");
+        history.Begin(pending,s0);var otherLife=new Lifecycle();var otherToken=otherLife.BeginFrame(20,Context);
+        Check(!history.MarkCaptureRecorded(otherToken,true)&&!history.Complete(otherToken),"foreign camera ticket cannot publish another pending snapshot");
+        Check(!otherLife.IsCompleted(pending)&&!life.IsCompleted(otherToken),"IsCompleted checks lifecycle owner");
+        history.Invalidate();Check(history.PendingRecords==0&&!history.IsPublished,"explicit source invalidation clears state");
+    }
+
+    private static void RandomFrameOracle()
+    {
+        var random=new Random(0x484C47);var camera=new Camera();var registry=new Registry();var renderer=R();var life=new Lifecycle();var history=new History();
+        int frame=0,geometryVersion=0,materialVersion=0;bool previousSucceeded=false;int previousFrame=-1,previousGeometry=-1,previousMaterial=-1,previousContext=0;
+        for(int step=0;step<400;step++)
+        {
+            frame+=random.Next(4)==0?2:random.Next(5)==0?0:1;
+            int edit=random.Next(8);if(edit==0){geometryVersion++;renderer.Mesh.Content="content-"+geometryVersion;}else if(edit==1){materialVersion++;renderer.Mpb[0]=materialVersion;}
+            renderer.Matrix=Matrix4x4.Translate(step%17);
+            int contextKey=random.Next(10)==0?1:0;
+            var context=new Lifecycle.FrameContext(100,60,50,30,contextKey,0,100,60);
+            var snapshot=P(registry,camera,renderer);var token=life.BeginFrame(frame,context);
+            Check(history.Begin(token,snapshot),"random valid source frame begins "+step);
+            bool expected=previousSucceeded&&frame==previousFrame+1&&contextKey==previousContext&&geometryVersion==previousGeometry&&materialVersion==previousMaterial;
+            bool actual=history.TryGetPrevious(snapshot.Records[0],out var old);
+            Check(actual==expected,"independent successful f-1/version/context oracle "+step);
+            if(actual) Check(old.Token==snapshot.Records[0].Token,"random matched source token "+step);
+            int outcome=random.Next(5);
+            if(outcome<=1)
+            {
+                Check(history.MarkCaptureRecorded(token,true)&&life.Complete(token)&&history.Complete(token),"random successful receipt "+step);
+                previousSucceeded=true;previousFrame=frame;previousGeometry=geometryVersion;previousMaterial=materialVersion;previousContext=contextKey;
+            }
+            else if(outcome==2)
+            {
+                history.MarkCaptureRecorded(token,false);life.Complete(token);Check(!history.Complete(token),"random source failure cannot publish "+step);previousSucceeded=false;
+            }
+            else if(outcome==3)
+            {
+                history.MarkCaptureRecorded(token,true);Check(!history.Complete(token),"random missing screen completion cannot publish "+step);previousSucceeded=false;
+            }
+            else
+            {
+                history.MarkCaptureRecorded(token,true);life.Complete(token);history.Complete(token);life.Invalidate();
+                Check(!history.IsPublished,"random revoked screen receipt "+step);previousSucceeded=false;
+            }
+            Check(history.IsPublished==previousSucceeded,"random publication oracle "+step);
+        }
+    }
+
+    private static void MultipleCameras()
+    {
+        var registry=new Registry();var renderer=R();var a=new Camera();var b=new Camera();
+        var la=new Lifecycle();var lb=new Lifecycle();var ha=new History();var hb=new History();
+        var a0=P(registry,a,renderer);var ta0=la.BeginFrame(1,Context);Check(ha.Begin(ta0,a0),"camera A source begins");Publish(ha,la,ta0);
+        renderer.Matrix=Matrix4x4.Translate(2);var b0=P(registry,b,renderer);var tb0=lb.BeginFrame(1,Context);Check(hb.Begin(tb0,b0),"camera B source begins");Publish(hb,lb,tb0);
+        renderer.Matrix=Matrix4x4.Translate(3);var a1=P(registry,a,renderer);var ta1=la.BeginFrame(2,Context);ha.Begin(ta1,a1);
+        Check(ha.TryGetPrevious(a1.Records[0],out var oldA)&&oldA.LocalToWorld.Equals(Matrix4x4.identity),"camera A keeps its own successful matrix");
+        renderer.Matrix=Matrix4x4.Translate(4);var b1=P(registry,b,renderer);var tb1=lb.BeginFrame(2,Context);hb.Begin(tb1,b1);
+        Check(hb.TryGetPrevious(b1.Records[0],out var oldB)&&oldB.LocalToWorld.Equals(Matrix4x4.Translate(2)),"camera B keeps its own successful matrix");
+        hb.MarkCaptureRecorded(tb1,false);lb.Complete(tb1);Check(!hb.Complete(tb1),"camera B source failure cannot publish");Publish(ha,la,ta1);
+        Check(ha.IsPublished&&!hb.IsPublished,"failure in B does not revoke completed A");
+        var wrong=P(registry,b,renderer);var ta2=la.BeginFrame(3,Context);ha.Begin(ta2,wrong);
+        Check(!ha.TryGetPrevious(wrong.Records[0],out _),"foreign camera snapshot cannot inherit current camera's prior receiver receipt");
+        Check(!ha.MarkCaptureRecorded(ta2,true),"foreign camera snapshot cannot be recorded or published");
+        Check(!ha.MarkCaptureRecorded(tb1,true),"other camera late token rejected even with shared registry");
+        var sourceA=P(registry,a,renderer);var alternateLifecycle=new Lifecycle();var alternateToken=alternateLifecycle.BeginFrame(4,Context);
+        Check(!ha.Begin(alternateToken,sourceA),"same camera with foreign lifecycle rejected after failed foreign begin");
+        ha.Invalidate();
+        Check(!ha.Begin(alternateToken,sourceA)&&!ha.Begin(ta2,wrong),"explicit invalidation preserves lifetime camera and lifecycle binding");
+        var recovery=la.BeginFrame(4,Context);Check(ha.Begin(recovery,sourceA),"correct camera and original lifecycle recover after rejection");Publish(ha,la,recovery);
+        var freshHistory=new History();Check(freshHistory.Begin(alternateToken,sourceA),"new camera-state history can bind its own lifecycle");
+    }
+
+    private static int Main()
+    {
+        Case("identity and generations",IdentityAndVersions);Case("budgets and fallback",BudgetsAndFailures);
+        Case("source revalidation",Revalidation);Case("source read exceptions",ReadFailuresAreContained);Case("receiver policies and lightmaps",ReceiverPolicies);
+        Case("camera receipts",Receipts);Case("multiple cameras and foreign snapshots",MultipleCameras);Case("random frame receipt oracle",RandomFrameOracle);
+        Console.WriteLine("Receiver registry/history: "+checks+" assertions across "+scenarios+" scenarios; failures="+failures+". Four actual source classes; explicit Unity/discovery/material/fingerprint CPU substitutes. No Unity visibility, pixel identity, GPU completion or rendered-motion proof.");
+        return failures==0?0:1;
+    }
+}

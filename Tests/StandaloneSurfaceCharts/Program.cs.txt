@@ -1,0 +1,224 @@
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using Charts = HybridLumenGI.HybridLumenGISurfaceCharts;
+
+internal static class Program
+{
+    private static int assertions, fixtures;
+    private readonly record struct P(double x, double y);
+    private static void Check(bool value, string message) { assertions++; if (!value) throw new InvalidOperationException(message); }
+    private static int Main()
+    {
+        try
+        {
+            var planar = MeshOf(new[] { new Vector3(0,0,0), new Vector3(1,0,0), new Vector3(1,1,0), new Vector3(0,1,0) }, new[] {0,1,2,0,2,3});
+            Validate("coplanar quad", planar);
+            var seam = MeshOf(new[] {new Vector3(0,0,0),new Vector3(1,0,0),new Vector3(1,1,0),new Vector3(0,0,0),new Vector3(1,1,0),new Vector3(0,1,0)},new[]{0,1,2,3,4,5});
+            var seamCharts=Validate("UV seam adjacency",seam);
+            Check(seamCharts.Length==1,"exact position edge welding should connect a planar UV seam");
+            var materials=MeshOf(planar.vertices,new[]{0,1,2},new[]{0,2,3});
+            Check(Validate("material boundary",materials).Length==2,"charts cannot cross source submesh/material boundaries");
+            var overlap=MeshOf(new[]{new Vector3(0,0,0),new Vector3(2,0,0),new Vector3(0,2,0),new Vector3(0.25f,1,0)},new[]{0,1,2,0,1,3});
+            Check(Validate("same-normal overlapping triangles",overlap).Length==2,"normal cone alone must not admit folded projected overlap");
+            var duplicate=MeshOf(new[]{new Vector3(0,0,0),new Vector3(1,0,0),new Vector3(0,1,0)},new[]{0,1,2,0,1,2});
+            Check(Validate("duplicate overlapping surfaces",duplicate).Length==2,"duplicate triangles require separate captures");
+
+            var uVertices=new List<Vector3>();var uIndices=new List<int>();
+            Quad(uVertices,uIndices,new(-1,0,-1),new(1,0,-1),new(1,0,1),new(-1,0,1));
+            Quad(uVertices,uIndices,new(-1,0,1),new(-1,0,-1),new(-1,2,-1),new(-1,2,1));
+            Quad(uVertices,uIndices,new(1,0,-1),new(1,0,1),new(1,2,1),new(1,2,-1));
+            Check(Validate("U channel",MeshOf(uVertices.ToArray(),uIndices.ToArray())).Length>=3,"U channel folds must retain separate oriented charts");
+
+            var roomV=new List<Vector3>();var roomI=new List<int>();
+            Quad(roomV,roomI,new(-2,-2,-2),new(2,-2,-2),new(2,2,-2),new(-2,2,-2));
+            Quad(roomV,roomI,new(-2,2,2),new(2,2,2),new(2,-2,2),new(-2,-2,2));
+            Quad(roomV,roomI,new(-2,-2,2),new(2,-2,2),new(2,-2,-2),new(-2,-2,-2));
+            Quad(roomV,roomI,new(-2,2,-2),new(2,2,-2),new(2,2,2),new(-2,2,2));
+            Quad(roomV,roomI,new(-2,-2,2),new(-2,-2,-2),new(-2,2,-2),new(-2,2,2));
+            Quad(roomV,roomI,new(2,-2,-2),new(2,-2,2),new(2,2,2),new(2,2,-2));
+            // Both surfaces are hidden from an outer first-layer six-card capture.
+            Quad(roomV,roomI,new(-1,-1,-0.4f),new(1,-1,-0.4f),new(1,1,-0.4f),new(-1,1,-0.4f));
+            Quad(roomV,roomI,new(-1,-1,0.4f),new(1,-1,0.4f),new(1,1,0.4f),new(-1,1,0.4f));
+            var room=MeshOf(roomV.ToArray(),roomI.ToArray());var roomCharts=Validate("enclosed room and interior sandwich",room);
+            Check(roomCharts.SelectMany(c=>c.triangleIndices).Count(t=>t>=12)==4,"all hidden internal-face triangles retained");
+
+            var thin=MeshOf(new[]{new Vector3(0,0,0),new Vector3(1,1,0),new Vector3(1,1.00001f,0)},new[]{0,1,2});
+            Validate("slender diagonal",thin);
+            Validate("tiny nonzero area",MeshOf(new[]{new Vector3(0,0,0),new Vector3(1e-10f,0,0),new Vector3(0,1e-10f,0)},new[]{0,1,2}));
+            var degenerates=MeshOf(new[]{new Vector3(-3,-5,-7),new Vector3(-2,-5,-7),new Vector3(-1,-5,-7),new Vector3(-2,-4,-7)},new[]{0,0,1,0,1,2,0,1,3});
+            var dCharts=Validate("negative coordinates and degenerate triangles",degenerates);
+            Check(dCharts.Length==1 && dCharts[0].triangleIndices.SequenceEqual(new[]{2}),"only exactly zero-area triangles are excluded");
+            var onePer= new Charts.BakeSettings {maxTrianglesPerChart=1,chartBudget=1};
+            Check(Validate("budget pressure never drops triangles",room,onePer).Length==16,"all sixteen valid triangles survive budget pressure");
+            for(int seed=0;seed<80;seed++)
+            {
+                var random=new Random(seed);var v=new Vector3[9];for(int i=0;i<v.Length;i++)v[i]=new((float)random.NextDouble()*8-6,(float)random.NextDouble()*8-6,(float)random.NextDouble()*8-6);
+                Validate("random soup "+seed,MeshOf(v,new[]{0,1,2,3,4,5,6,7,8}));
+            }
+            InvalidInputs();FingerprintAndCapture(planar,materials,seam);InvalidAssets(planar);
+            Console.WriteLine($"Surface charts: {fixtures} fixtures, {assertions} assertions passed against actual runtime source. Coverage/adjacency/material/cone checks, independent polygon-clipping overlap oracle, deterministic matrices, 32x32 CPU sample-grid checks, clone indices and content fingerprints. Unity native APIs, asset persistence and GPU rasterization were NOT executed.");
+            return 0;
+        }
+        catch(Exception error){Console.Error.WriteLine(error);return 1;}
+    }
+
+    private static Charts.Chart[] Validate(string name,Mesh mesh,Charts.BakeSettings settings=null)
+    {
+        fixtures++;settings??=new Charts.BakeSettings();
+        var charts=Charts.Bake(mesh,settings,out var report);
+        var repeat=Charts.Bake(mesh,settings,out var repeatReport);
+        Check(Encode(charts)==Encode(repeat),name+": stable IDs/order/projections must be bitwise deterministic");
+        Check(report.requiredCharts==charts.Length,name+": report card count");
+        Check(report.capacityExceeded==(settings.chartBudget>0&&charts.Length>settings.chartBudget),name+": capacity report");
+        var assigned=new HashSet<(int,int)>();var ids=new HashSet<uint>();int valid=0;
+        foreach(var chart in charts)
+        {
+            Check(ids.Add(chart.stableId)&&chart.stableId!=0,name+": unique chart identity");
+            int[] indices=mesh.GetIndices(chart.sourceSubmesh);var projected=new List<P[]>();
+            foreach(int ordinal in chart.triangleIndices)
+            {
+                Check(ordinal>=0&&ordinal<indices.Length/3&&assigned.Add((chart.sourceSubmesh,ordinal)),name+": exact single ownership");
+                var triangle=new[]{mesh.vertices[indices[ordinal*3]],mesh.vertices[indices[ordinal*3+1]],mesh.vertices[indices[ordinal*3+2]]};
+                var p=triangle.Select(v=>Project(chart.localToCard,v)).ToArray();projected.Add(p);
+                Check(Math.Abs(Area(p))>0,name+": valid projected triangle");
+                foreach(var point in p)Check(point.x>=-1e-4&&point.x<=1.0001&&point.y>=-1e-4&&point.y<=1.0001,name+": normalized capture rectangle");
+                var n=Normal(triangle[0],triangle[1],triangle[2]);double dot=n.x*chart.direction.x+n.y*chart.direction.y+n.z*chart.direction.z;
+                Check(dot>=Math.Cos(Math.Min(75,settings.maxNormalAngleDegrees)*Math.PI/180)-1e-6,name+": seed normal cone");
+            }
+            for(int a=0;a<projected.Count;a++)for(int b=a+1;b<projected.Count;b++)
+                Check(IntersectionArea(projected[a],projected[b])<1e-10,name+": independent clipping found positive projected area overlap");
+            Check(Connected(mesh,chart),name+": chart must be edge-connected in geometric positions");
+            double zDirection=chart.localToCard[2,0]*chart.direction.x+chart.localToCard[2,1]*chart.direction.y+chart.localToCard[2,2]*chart.direction.z;
+            Check(zDirection<0,name+": card depth increases from outside towards -direction");
+            if(projected.Count==1)
+            {
+                Check(Math.Abs(Area(projected[0]))>=0.2,name+": singleton tile area must remain useful for slender triangles");
+                int covered=0;for(int y=0;y<32;y++)for(int x=0;x<32;x++)if(Inside(projected[0],new P((x+.5)/32,(y+.5)/32)))covered++;
+                Check(covered>=128,name+": singleton must cover CPU pixel-center oracle; this is not GPU coverage evidence");
+            }
+        }
+        for(int sub=0;sub<mesh.subMeshCount;sub++)
+        {
+            if(mesh.GetTopology(sub)!=MeshTopology.Triangles)continue;int[] indices=mesh.GetIndices(sub);
+            for(int offset=0;offset<indices.Length;offset+=3)
+            {
+                var cross=Cross3(mesh.vertices[indices[offset]],mesh.vertices[indices[offset+1]],mesh.vertices[indices[offset+2]]);
+                bool nonzero=cross.x!=0||cross.y!=0||cross.z!=0;
+                Check(assigned.Contains((sub,offset/3))==nonzero,name+": every and only nonzero-area triangle is assigned");if(nonzero)valid++;
+            }
+        }
+        Check(valid==report.validTriangles&&assigned.Count==valid,name+": complete coverage count");
+        return charts;
+    }
+
+    private static bool Connected(Mesh mesh,Charts.Chart chart)
+    {
+        int[] all=mesh.GetIndices(chart.sourceSubmesh);var reachable=new HashSet<int>{chart.triangleIndices[0]};bool changed;
+        do{changed=false;foreach(int candidate in chart.triangleIndices)if(!reachable.Contains(candidate))foreach(int member in reachable.ToArray())
+        {int shared=0;for(int a=0;a<3;a++)if(Enumerable.Range(0,3).Any(b=>mesh.vertices[all[candidate*3+a]].Equals(mesh.vertices[all[member*3+b]])))shared++;if(shared>=2){reachable.Add(candidate);changed=true;break;}}}while(changed);
+        return reachable.Count==chart.triangleIndices.Length;
+    }
+    private static string Encode(Charts.Chart[] charts)
+    {
+        var text=new StringBuilder();foreach(var c in charts){text.Append(c.stableId).Append(':').Append(c.sourceSubmesh).Append(':').AppendJoin(',',c.triangleIndices);for(int i=0;i<16;i++)text.Append(':').Append(BitConverter.SingleToInt32Bits(c.localToCard[i]));}return text.ToString();
+    }
+    private static P Project(Matrix4x4 m,Vector3 v)=>new((double)m[0,0]*v.x+(double)m[0,1]*v.y+(double)m[0,2]*v.z+m[0,3],(double)m[1,0]*v.x+(double)m[1,1]*v.y+(double)m[1,2]*v.z+m[1,3]);
+    private static double Cross(P a,P b,P c)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+    private static double Area(IReadOnlyList<P> p){double sum=0;for(int i=0;i<p.Count;i++){var a=p[i];var b=p[(i+1)%p.Count];sum+=a.x*b.y-a.y*b.x;}return sum*.5;}
+    private static bool Inside(P[] triangle,P p){double sign=Area(triangle)>=0?1:-1;return Enumerable.Range(0,3).All(i=>sign*Cross(triangle[i],triangle[(i+1)%3],p)>=0);}
+    private static double IntersectionArea(P[] subject,P[] clip)
+    {
+        var polygon=subject.ToList();var boundary=clip.ToArray();if(Area(boundary)<0)Array.Reverse(boundary);
+        for(int edge=0;edge<3&&polygon.Count>0;edge++)
+        {
+            var next=new List<P>();var a=boundary[edge];var b=boundary[(edge+1)%3];var previous=polygon[^1];double pd=Cross(a,b,previous);
+            foreach(var current in polygon){double cd=Cross(a,b,current);if((cd>=0)!=(pd>=0)){double t=pd/(pd-cd);next.Add(new(previous.x+(current.x-previous.x)*t,previous.y+(current.y-previous.y)*t));}if(cd>=0)next.Add(current);previous=current;pd=cd;}polygon=next;
+        }
+        return Math.Abs(Area(polygon));
+    }
+    private static (double x,double y,double z) Cross3(Vector3 a,Vector3 b,Vector3 c){double x=(double)b.x-a.x,y=(double)b.y-a.y,z=(double)b.z-a.z,u=(double)c.x-a.x,v=(double)c.y-a.y,w=(double)c.z-a.z;return(y*w-z*v,z*u-x*w,x*v-y*u);}
+    private static (double x,double y,double z) Normal(Vector3 a,Vector3 b,Vector3 c){var n=Cross3(a,b,c);double l=Math.Sqrt(n.x*n.x+n.y*n.y+n.z*n.z);return(n.x/l,n.y/l,n.z/l);}
+    private static Mesh MeshOf(Vector3[] vertices,params int[][] submeshes){var m=new Mesh{vertices=(Vector3[])vertices.Clone(),subMeshCount=submeshes.Length,bounds=new Bounds(vertices[0],Vector3.zero),channelBytes=new byte[]{3,7,9,11}};foreach(var p in vertices)m.bounds.Encapsulate(p);for(int i=0;i<submeshes.Length;i++)m.SetIndices(submeshes[i],MeshTopology.Triangles,i);return m;}
+    private static void Quad(List<Vector3> vertices,List<int> indices,Vector3 a,Vector3 b,Vector3 c,Vector3 d){int start=vertices.Count;vertices.AddRange(new[]{a,b,c,d});indices.AddRange(new[]{start,start+1,start+2,start,start+2,start+3});}
+    private static void InvalidInputs()
+    {
+        bool failed=false;try{Charts.BakeTriangles(new[]{Vector3.zero},new[]{new[]{0,1,2}},new(),out _);}catch(ArgumentException){failed=true;}Check(failed,"malformed index fails rather than producing partial coverage");
+        failed=false;try{Charts.BakeTriangles(new[]{new Vector3(float.NaN,0,0)},new[]{new[]{0,0,0}},new(),out _);}catch(ArgumentException){failed=true;}Check(failed,"nonfinite source fails");
+        failed=false;try{Charts.BakeTriangles(new[]{new Vector3(0,0,0),new Vector3(1,0,0),new Vector3(0,1,0)},new[]{new[]{0,1,2}},new(),out _,(_,_)=>false);}catch(OperationCanceledException){failed=true;}Check(failed,"cancellation produces no partial chart array");
+    }
+    private static void FingerprintAndCapture(params Mesh[] meshes)
+    {
+        foreach(var source in meshes)
+        {
+            var charts=Charts.Bake(source,new(),out _);string before=Charts.ComputeContentFingerprint(source);
+            var capture=Charts.CreateCaptureMesh(source,charts);
+            Check(before==Charts.ComputeContentFingerprint(source),"capture clone must not mutate source");
+            Check(capture!=source&&capture.vertices.SequenceEqual(source.vertices)&&capture.channelBytes.SequenceEqual(source.channelBytes),"source vertex indices and attribute streams retained");
+            Check(capture.subMeshCount==charts.Length,"one capture submesh per chart");
+            for(int i=0;i<charts.Length;i++){var c=charts[i];var original=source.GetIndices(c.sourceSubmesh);var expected=c.triangleIndices.SelectMany(t=>original.Skip(t*3).Take(3));Check(capture.GetIndices(i).SequenceEqual(expected),"capture indices preserve original source triangle/UV seam indices");}
+            var asset=new Charts();asset.SetBakedData(source,capture,charts);Check(asset.IsValid&&asset.ContentVersion==1&&asset.MatchesSource(source),"valid complete source fingerprint");
+            source.channelBytes[0]++;Check(!asset.MatchesSource(source),"same-count nonposition material channels invalidate charts");source.channelBytes[0]--;
+            Check(asset.MatchesSource(source),"restored source content matches");Check(!asset.MatchesSource(source.Clone()),"source object identity remains explicit");
+            asset.SetBakedData(source,capture,charts);Check(asset.ContentVersion==2,"rebake content version advances");
+            source.isReadable=false;Check(!asset.MatchesSource(source),"nonreadable source fails closed");source.isReadable=true;
+        }
+        var mesh=meshes[0].Clone();
+        void Changes(Action mutation,string label){string before=Charts.ComputeContentFingerprint(mesh);mutation();Check(before!=Charts.ComputeContentFingerprint(mesh),"fingerprint includes "+label);}
+        Changes(()=>mesh.vertices[0].x+=.125f,"vertex position with unchanged counts");
+        Changes(()=>mesh.channelBytes[1]++,"raw normal/tangent/UV bytes");
+        Changes(()=>mesh.attributes[0].format++,"vertex attribute storage format");
+        Changes(()=>mesh.SetIndices(new[]{0,2,1,0,2,3},MeshTopology.Triangles,0),"same-count indices");
+        Changes(()=>mesh.SetIndices(mesh.GetIndices(0,false),MeshTopology.Triangles,0,false,1),"submesh base vertex descriptor");
+        Changes(()=>mesh.indexFormat=UnityEngine.Rendering.IndexFormat.UInt32,"raw index format");
+        Changes(()=>mesh.bounds.center.x+=.5f,"local bounds");
+        Changes(()=>mesh.bindposes=new[]{Matrix4x4.identity},"bind poses");
+        Changes(()=>mesh.boneCounts=new byte[]{1,1,1,1},"full per-vertex bone counts");
+        Changes(()=>mesh.weights=new[]{new BoneWeight1{boneIndex=7,weight=1}},"all bone weights");
+        Changes(()=>mesh.shapes.Add(new Mesh.BlendFrame{positions=new Vector3[mesh.vertexCount],normals=new Vector3[mesh.vertexCount],tangents=new Vector3[mesh.vertexCount]}),"blend shape presence");
+        Changes(()=>mesh.shapes[0].positions[0].z=.25f,"blend shape delta positions");
+        Changes(()=>mesh.shapes[0].normals[0].y=.5f,"blend shape delta normals");
+        Changes(()=>mesh.shapes[0].tangents[0].x=.75f,"blend shape delta tangents");
+        Changes(()=>mesh.shapes[0].weight=50,"blend shape frame weight");
+        Changes(()=>mesh.shapes[0].name="renamed","blend shape frame name");
+    }
+
+    private static void InvalidAssets(Mesh source)
+    {
+        void Reject(Action<Charts.Chart[],Mesh> mutation,string label)
+        {
+            var charts=Charts.Bake(source,new(),out _);var capture=Charts.CreateCaptureMesh(source,charts);
+            mutation(charts,capture);bool rejected=false;
+            try{new Charts().SetBakedData(source,capture,charts);}catch(ArgumentException){rejected=true;}
+            Check(rejected,"asset validation rejects "+label);
+        }
+        Reject((charts,_)=>charts[0].localToCard[0,0]=float.NaN,"nonfinite matrix");
+        Reject((charts,_)=>charts[0].localToCard[0,0]=float.PositiveInfinity,"infinite matrix");
+        Reject((charts,_)=>{for(int column=0;column<4;column++)charts[0].localToCard[0,column]=0;},"singular matrix");
+        Reject((charts,_)=>charts[0].localToCard[3,0]=.1f,"perspective matrix");
+        Reject((charts,_)=>charts[0].direction=Vector3.zero,"zero direction");
+        Reject((charts,_)=>charts[0].direction=new(float.NaN,0,0),"nonfinite direction");
+        Reject((charts,_)=>charts[0].direction=charts[0].direction*-1,"inverted depth direction");
+        Reject((charts,_)=>charts[0].localBounds.size.x=float.NaN,"nonfinite bounds");
+        Reject((charts,_)=>charts[0].triangleIndices[1]=charts[0].triangleIndices[0],"duplicate triangle ordinals");
+        Reject((charts,_)=>charts[0].triangleIndices[0]=42,"out-of-range triangle ordinal");
+        Reject((_,capture)=>capture.SetIndices(new[]{0,2,1,0,2,3},MeshTopology.Triangles,0),"same-count incorrect capture indices");
+        Reject((_,capture)=>capture.channelBytes[0]++,"changed capture attribute stream");
+        Reject((charts,capture)=>{charts[0].triangleIndices=new[]{0};capture.SetIndices(new[]{0,1,2},MeshTopology.Triangles,0);},"omitted valid source triangle");
+        var good=Charts.Bake(source,new(),out _);var mesh=Charts.CreateCaptureMesh(source,good);var asset=new Charts();asset.SetBakedData(source,mesh,good);
+        uint version=asset.ContentVersion;
+        var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+        // Model serialized Inspector edits and Unity's callback; this is not a Unity lifecycle test.
+        good[0].localToCard[0,0]=float.NaN;
+        typeof(Charts).GetMethod("OnValidate",flags).Invoke(asset,null);
+        Check(asset.ContentVersion==version+1&&!asset.IsValid,"serialized edits advance content version and fail closed after invalidation");
+        good=Charts.Bake(source,new(),out _);mesh=Charts.CreateCaptureMesh(source,good);asset.SetBakedData(source,mesh,good);
+        typeof(Charts).GetMethod("OnEnable",flags).Invoke(asset,null);
+        Check(asset.IsValid,"loaded valid asset passes deferred full validation");
+        mesh.channelBytes[0]++;
+        typeof(Charts).GetMethod("OnEnable",flags).Invoke(asset,null);
+        Check(!asset.IsValid,"loaded malformed capture fails deferred validation");
+    }
+}

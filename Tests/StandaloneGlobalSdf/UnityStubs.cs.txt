@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+namespace UnityEngine
+{
+    public readonly record struct Vector3(float x,float y,float z)
+    {
+        public static Vector3 zero=>new(0,0,0);public static Vector3 one=>new(1,1,1);
+        public static Vector3 operator +(Vector3 a,Vector3 b)=>new(a.x+b.x,a.y+b.y,a.z+b.z);
+        public static Vector3 operator -(Vector3 a,Vector3 b)=>new(a.x-b.x,a.y-b.y,a.z-b.z);
+        public static Vector3 operator *(Vector3 a,float b)=>new(a.x*b,a.y*b,a.z*b);
+    }
+    public struct Vector4
+    {
+        public float x,y,z,w;
+        public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}
+    }
+    public struct Bounds
+    {
+        public Vector3 center,size;
+        public Bounds(Vector3 c,Vector3 s){center=c;size=s;}
+        public Vector3 min=>center-size*.5f;public Vector3 max=>center+size*.5f;
+        public void Encapsulate(Vector3 p)
+        {
+            var a=min;var b=max;
+            var lo=new Vector3(MathF.Min(a.x,p.x),MathF.Min(a.y,p.y),MathF.Min(a.z,p.z));
+            var hi=new Vector3(MathF.Max(b.x,p.x),MathF.Max(b.y,p.y),MathF.Max(b.z,p.z));
+            center=(lo+hi)*.5f;size=hi-lo;
+        }
+    }
+    public struct Matrix4x4 { public Vector3 translation;public Vector3 MultiplyPoint3x4(Vector3 p)=>p+translation; }
+    public static class Mathf
+    {
+        public static int Clamp(int x,int a,int b)=>Math.Clamp(x,a,b);public static float Clamp(float x,float a,float b)=>Math.Clamp(x,a,b);
+        public static float Max(float a,float b)=>MathF.Max(a,b);public static float Abs(float a)=>MathF.Abs(a);
+    }
+    public enum ComputeBufferType { Structured }
+    public sealed class ComputeBuffer
+    {
+        public readonly int count,stride;public readonly object[] data;public string name;public bool released;
+        public ComputeBuffer(int count,int stride,ComputeBufferType type=ComputeBufferType.Structured){this.count=count;this.stride=stride;data=new object[count];}
+        public void SetData(Array values)=>SetData(values,0,0,values.Length);
+        public void SetData(Array values,int source,int destination,int length)
+        {
+            if(released||source<0||destination<0||source+length>values.Length||destination+length>count)throw new InvalidOperationException("Invalid buffer update");
+            for(int i=0;i<length;i++)data[destination+i]=values.GetValue(source+i);
+        }
+        public void Release(){released=true;}
+    }
+    public sealed class ComputeShader { public int FindKernel(string name)=>name=="CSMergeBricks"?0:1; }
+    public static class Resources { public static T Load<T>(string path) where T:class=>new ComputeShader() as T; }
+    public class Renderer { public Bounds bounds; }
+}
+namespace UnityEngine.Rendering
+{
+    public sealed class CommandBuffer
+    {
+        public readonly List<string> events=new();
+        public readonly Dictionary<string,int> ints=new();
+        public readonly Dictionary<string,UnityEngine.ComputeBuffer> buffers=new();
+        public void SetBufferData(UnityEngine.ComputeBuffer buffer,Array values)=>SetBufferData(buffer,values,0,0,values.Length);
+        public void SetBufferData(UnityEngine.ComputeBuffer buffer,Array values,int source,int destination,int length)
+        { events.Add("data:"+buffer.name);buffer.SetData(values,source,destination,length); }
+        public void SetComputeBufferParam(UnityEngine.ComputeShader shader,int kernel,string name,UnityEngine.ComputeBuffer buffer)=>buffers[name]=buffer;
+        public void SetComputeIntParam(UnityEngine.ComputeShader shader,string name,int value)=>ints[name]=value;
+        public void DispatchCompute(UnityEngine.ComputeShader shader,int kernel,int x,int y,int z){if(x<1||y<1||z<1)throw new Exception("Invalid dispatch");events.Add("dispatch:"+kernel);}
+    }
+}
+namespace HybridLumenGI
+{
+    public sealed class HybridLumenGIMeshSdf { public UnityEngine.Bounds LocalBounds; }
+    public sealed class HybridLumenGIProxy { public HybridLumenGIMeshSdf MeshSdf;public UnityEngine.Matrix4x4 SdfLocalToWorld;public UnityEngine.Renderer Renderer; }
+    public sealed class HybridLumenGIScene
+    {
+        public struct ProxyGpuData { public UnityEngine.Vector4 centerShape,extentsRoughness,identity; }
+        public struct DirtyRegion { public UnityEngine.Bounds PreviousBounds,CurrentBounds;public bool HasPrevious,HasCurrent; }
+        public readonly List<DirtyRegion> DirtyRegions=new();
+        public ProxyGpuData[] Data=new ProxyGpuData[4];public HybridLumenGIProxy[] Proxies=new HybridLumenGIProxy[4];
+        public int Capacity=>Data.Length;public bool RequiresFullInvalidation;
+        public UnityEngine.ComputeBuffer Buffer=new(4,80);
+        public HybridLumenGIProxy GetProxy(int i)=>Proxies[i];
+        public UnityEngine.Renderer GetRenderer(int i)=>Proxies[i]?.Renderer;
+    }
+    public sealed class HybridLumenGISdfAtlas
+    {
+        public readonly List<UnityEngine.Bounds> RepresentationChangedBounds=new();
+        public void Bind(UnityEngine.Rendering.CommandBuffer command,UnityEngine.ComputeShader shader,int kernel){}
+    }
+}

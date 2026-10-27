@@ -1,0 +1,29 @@
+using System;
+namespace UnityEngine {
+public struct Vector3 {
+ public float x,y,z; public Vector3(float x,float y,float z){this.x=x;this.y=y;this.z=z;}
+ public static Vector3 zero=>new(0,0,0); public static Vector3 one=>new(1,1,1);
+ public float this[int i]=>i==0?x:i==1?y:z; public float sqrMagnitude=>x*x+y*y+z*z; public float magnitude=>MathF.Sqrt(sqrMagnitude); public Vector3 normalized=>this/magnitude;
+ public static Vector3 operator +(Vector3 a,Vector3 b)=>new(a.x+b.x,a.y+b.y,a.z+b.z);
+ public static Vector3 operator -(Vector3 a,Vector3 b)=>new(a.x-b.x,a.y-b.y,a.z-b.z);
+ public static Vector3 operator *(Vector3 a,float b)=>new(a.x*b,a.y*b,a.z*b);
+ public static Vector3 operator /(Vector3 a,float b)=>new(a.x/b,a.y/b,a.z/b);
+ public static Vector3 Scale(Vector3 a,Vector3 b)=>new(a.x*b.x,a.y*b.y,a.z*b.z);
+ public static float Dot(Vector3 a,Vector3 b)=>a.x*b.x+a.y*b.y+a.z*b.z;
+ public static Vector3 Cross(Vector3 a,Vector3 b)=>new(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x);
+}
+public readonly record struct Vector3Int(int x,int y,int z);
+public struct Bounds {
+ public Vector3 center,size; public Bounds(Vector3 c,Vector3 s){center=c;size=s;}
+ public Vector3 min=>center-size*.5f; public Vector3 max=>center+size*.5f;
+ public void Encapsulate(Vector3 p){var a=min;var b=max;var lo=new Vector3(MathF.Min(a.x,p.x),MathF.Min(a.y,p.y),MathF.Min(a.z,p.z));var hi=new Vector3(MathF.Max(b.x,p.x),MathF.Max(b.y,p.y),MathF.Max(b.z,p.z));center=(lo+hi)*.5f;size=hi-lo;}
+ public void Encapsulate(Bounds b){Encapsulate(b.min);Encapsulate(b.max);}
+ public float SqrDistance(Vector3 p){var lo=min;var hi=max;float x=MathF.Max(MathF.Max(lo.x-p.x,p.x-hi.x),0),y=MathF.Max(MathF.Max(lo.y-p.y,p.y-hi.y),0),z=MathF.Max(MathF.Max(lo.z-p.z,p.z-hi.z),0);return x*x+y*y+z*z;}
+}
+public static class Mathf {
+ public static float Max(float a,float b)=>MathF.Max(a,b); public static float Max(float a,float b,float c)=>Max(Max(a,b),c);public static int Max(int a,int b)=>Math.Max(a,b);
+ public static float Min(float a,float b)=>MathF.Min(a,b);public static float Min(float a,float b,float c)=>Min(Min(a,b),c);public static int Min(int a,int b)=>Math.Min(a,b);
+ public static float Sqrt(float x)=>MathF.Sqrt(x);public static float Abs(float x)=>MathF.Abs(x);public static int RoundToInt(float x)=>(int)MathF.Round(x);
+}
+public class Mesh {public bool isReadable=true;public Vector3[] vertices;public int[] triangles;}
+}

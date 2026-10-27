@@ -1,0 +1,98 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
+namespace UnityEngine
+{
+    [StructLayout(LayoutKind.Sequential)] public struct Vector3
+    {
+        public float x,y,z;public Vector3(float x,float y,float z){this.x=x;this.y=y;this.z=z;}
+        public float this[int i] {get=>i==0?x:i==1?y:i==2?z:throw new IndexOutOfRangeException();set{if(i==0)x=value;else if(i==1)y=value;else if(i==2)z=value;else throw new IndexOutOfRangeException();}}
+    }
+    [StructLayout(LayoutKind.Sequential)] public struct Matrix4x4:IEquatable<Matrix4x4>
+    {
+        public float m00,m10,m20,m30,m01,m11,m21,m31,m02,m12,m22,m32,m03,m13,m23,m33;
+        public static Matrix4x4 identity=>new Matrix4x4{m00=1,m11=1,m22=1,m33=1};
+        public float this[int r,int c] {get=>this[r+c*4];set=>this[r+c*4]=value;}
+        public float this[int i]
+        {
+            get=>i switch{0=>m00,1=>m10,2=>m20,3=>m30,4=>m01,5=>m11,6=>m21,7=>m31,8=>m02,9=>m12,10=>m22,11=>m32,12=>m03,13=>m13,14=>m23,15=>m33,_=>throw new IndexOutOfRangeException()};
+            set {switch(i){case 0:m00=value;break;case 1:m10=value;break;case 2:m20=value;break;case 3:m30=value;break;case 4:m01=value;break;case 5:m11=value;break;case 6:m21=value;break;case 7:m31=value;break;case 8:m02=value;break;case 9:m12=value;break;case 10:m22=value;break;case 11:m32=value;break;case 12:m03=value;break;case 13:m13=value;break;case 14:m23=value;break;case 15:m33=value;break;default:throw new IndexOutOfRangeException();}}
+        }
+        public bool Equals(Matrix4x4 b){for(int i=0;i<16;i++)if(!this[i].Equals(b[i]))return false;return true;}
+        public override bool Equals(object b)=>b is Matrix4x4 m&&Equals(m);public override int GetHashCode()=>0;
+    }
+    public struct Bounds
+    {
+        public Vector3 center,extents;
+        public Bounds(Vector3 center,Vector3 size){this.center=center;extents=new Vector3(size.x*.5f,size.y*.5f,size.z*.5f);}
+        public void SetMinMax(Vector3 lo,Vector3 hi){center=new Vector3((lo.x+hi.x)*.5f,(lo.y+hi.y)*.5f,(lo.z+hi.z)*.5f);extents=new Vector3((hi.x-lo.x)*.5f,(hi.y-lo.y)*.5f,(hi.z-lo.z)*.5f);}
+    }
+    public readonly struct RectInt
+    {public readonly int x,y,width,height;public RectInt(int x,int y,int width,int height){this.x=x;this.y=y;this.width=width;this.height=height;}}
+    // Any accidental live lookup is a failure rather than an inert success.
+    public sealed class Renderer
+    {
+        public readonly int NativeId=7;
+        public override bool Equals(object other)=>other is Renderer r&&r.NativeId==NativeId;
+        public override int GetHashCode()=>NativeId;
+        public Bounds bounds=>throw new Exception("LIVE renderer bounds");public Matrix4x4 localToWorldMatrix=>throw new Exception("LIVE renderer matrix");
+    }
+    public sealed class Mesh {public Bounds bounds=>throw new Exception("LIVE mesh bounds");}
+    public sealed class Material {public float MutableAlpha;public float GetFloat(string name)=>throw new Exception("LIVE material lookup");}
+}
+namespace HybridLumenGI
+{
+    using UnityEngine;
+    public sealed class HybridLumenGIMaterialSource
+    {
+        public readonly struct IdentityCoverageData
+        {public readonly bool Supported;public readonly float BaseColorAlpha;public IdentityCoverageData(bool supported,float alpha=1){Supported=supported;BaseColorAlpha=alpha;}}
+        public sealed class Snapshot
+        {
+            public Renderer SourceRenderer{get;}public Material SourceMaterial{get;}public int MaterialIndex{get;}
+            public bool CanReuseHistory{get;}public IdentityCoverageData IdentityCoverage{get;}
+            public Snapshot(Renderer renderer,Material material,int index,bool supported=true,float alpha=1,bool reusable=true)
+            {SourceRenderer=renderer;SourceMaterial=material;MaterialIndex=index;CanReuseHistory=reusable;IdentityCoverage=new IdentityCoverageData(supported,alpha);}
+        }
+    }
+    public sealed class HybridLumenGIReceiverDiscovery
+    {
+        [Flags]public enum IdentityIssues{None=0,UnsupportedMaterial=1}
+        public sealed class Candidate
+        {
+            public Renderer Renderer{get;}public Mesh Mesh{get;}public IReadOnlyList<Material> Materials{get;}
+            public Bounds Bounds{get;}public Matrix4x4 LocalToWorld{get;}public IdentityIssues IdentityIssues{get;}
+            public Candidate(Renderer renderer,Mesh mesh,Material[] materials,Bounds bounds,Matrix4x4 matrix,IdentityIssues issues=IdentityIssues.None)
+            {Renderer=renderer;Mesh=mesh;Materials=Array.AsReadOnly((Material[])materials.Clone());Bounds=bounds;LocalToWorld=matrix;IdentityIssues=issues;}
+        }
+        public sealed class Snapshot
+        {
+            public bool ScanComplete{get;}public IReadOnlyList<Candidate> Candidates{get;}
+            public Snapshot(Candidate[] candidates,bool complete=true){Candidates=Array.AsReadOnly((Candidate[])candidates.Clone());ScanComplete=complete;}
+        }
+    }
+    public sealed class HybridLumenGIReceiverRegistry
+    {
+        public sealed class Record
+        {
+            public readonly ulong Token,GeometryGeneration,MaterialGeneration;
+            public readonly Renderer Renderer;public readonly Mesh Mesh;public readonly int Submesh;
+            public readonly Matrix4x4 LocalToWorld;public readonly HybridLumenGIMaterialSource.Snapshot Material;
+            public Record(ulong token,ulong geometry,ulong material,Renderer renderer,Mesh mesh,int submesh,Matrix4x4 matrix,HybridLumenGIMaterialSource.Snapshot source)
+            {Token=token;GeometryGeneration=geometry;MaterialGeneration=material;Renderer=renderer;Mesh=mesh;Submesh=submesh;LocalToWorld=matrix;Material=source;}
+        }
+        public sealed class Snapshot
+        {
+            public readonly ReadOnlyCollection<Record> Records;internal readonly HybridLumenGIReceiverDiscovery.Snapshot Discovery;
+            public Snapshot(Record[] records,HybridLumenGIReceiverDiscovery.Snapshot discovery){Records=Array.AsReadOnly((Record[])records.Clone());Discovery=discovery;}
+        }
+    }
+    // Frozen receipt lookup adapter only. The real ReceiverHistory has a separate suite.
+    public sealed class HybridLumenGIReceiverHistory
+    {
+        public bool ThrowOnLookup;public readonly Dictionary<HybridLumenGIReceiverRegistry.Record,HybridLumenGIReceiverRegistry.Record> Previous=new();
+        public bool TryGetPrevious(HybridLumenGIReceiverRegistry.Record current,out HybridLumenGIReceiverRegistry.Record old)
+        {if(ThrowOnLookup)throw new Exception("Receipt adapter failure");return Previous.TryGetValue(current,out old);}
+    }
+}

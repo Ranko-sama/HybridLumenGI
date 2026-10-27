@@ -1,0 +1,112 @@
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using HybridLumenGI;
+using UnityEngine;
+using Source=HybridLumenGI.HybridLumenGIMeshSource;
+
+static class Program
+{
+    static int checks,scenarios;
+    static void Require(bool value,string message){checks++;if(!value)throw new Exception(message);}
+    static void Scenario(string name,Action action){action();scenarios++;Console.WriteLine("PASS: "+name);}
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    static (WeakReference mesh,Source.Version retained) DetachedMesh()
+    {
+        var mesh=new Mesh(97);var version=Source.GetVersion(mesh);
+        Source.NotifyGeometryChanged(mesh);
+        return (new WeakReference(mesh),version);
+    }
+
+    static void Main()
+    {
+        Scenario("live Mesh reference identity overrides colliding native IDs and Equals",()=>
+        {
+            var a=new Mesh(42);var b=new Mesh(42);
+            Require(a.Equals(b)&&a.GetHashCode()==b.GetHashCode(),"Fixture must deliberately collide native equality/hash");
+            var av=Source.GetVersion(a);var bv=Source.GetVersion(b);
+            Require(av!=null&&bv!=null&&!ReferenceEquals(av,bv),"Different Mesh references received one version");
+            Require(ReferenceEquals(av,Source.GetVersion(a))&&ReferenceEquals(bv,Source.GetVersion(b)),"Unchanged reference lost its version");
+            var notified=Source.NotifyGeometryChanged(a);
+            Require(!ReferenceEquals(av,notified)&&ReferenceEquals(notified,Source.GetVersion(a)),"Notification did not replace the shared version");
+            Require(ReferenceEquals(bv,Source.GetVersion(b))&&a.IdReads==0&&b.IdReads==0,"Notification leaked across numeric IDs");
+            Require(typeof(Source.Version).GetConstructors().Length==0,"Opaque version must not expose a public constructor");
+        });
+        Scenario("null and simulated destroyed Mesh have no reusable version",()=>
+        {
+            Require(Source.GetVersion(null)==null&&Source.NotifyGeometryChanged(null)==null,"Null source has a version");
+            var mesh=new Mesh(8);var before=Source.GetVersion(mesh);mesh.Destroyed=true;
+            Require(Source.GetVersion(mesh)==null&&Source.NotifyGeometryChanged(mesh)==null,"Destroyed source remained eligible");
+            var replacement=new Mesh(8);
+            Require(!ReferenceEquals(before,Source.GetVersion(replacement)),"Reused native ID inherited destroyed source version");
+        });
+        Scenario("100000 retained versions never wrap or become current again",()=>
+        {
+            var mesh=new Mesh(4);var all=new HashSet<Source.Version>{Source.GetVersion(mesh)};
+            for(int i=0;i<100000;i++)
+            {
+                var before=Source.GetVersion(mesh);var next=Source.NotifyGeometryChanged(mesh);
+                Require(next!=null&&all.Add(next)&&!ReferenceEquals(next,before),"An old version was republished");
+                Require(ReferenceEquals(next,Source.GetVersion(mesh)),"Published replacement not shared with next observer");
+            }
+            Require(all.Count==100001&&mesh.IdReads==0&&mesh.GeometryReads==0,"Version lifetime depended on numeric IDs or buffer reads");
+        });
+        Scenario("lookup is notification provenance, not an implicit contents detector",()=>
+        {
+            var mesh=new Mesh(7);var before=Source.GetVersion(mesh);
+            mesh.Positions[1]=12;mesh.Indices[1]=2;mesh.LocalBoundsMarker=900;mesh.TransformMarker=123;
+            Require(ReferenceEquals(before,Source.GetVersion(mesh)),"Lookup silently promises content/transform detection");
+            var after=Source.NotifyGeometryChanged(mesh);
+            Require(!ReferenceEquals(before,after)&&mesh.GeometryReads==0,"Explicit edit notification read geometry buffers");
+            mesh.TransformMarker=999;
+            Require(ReferenceEquals(after,Source.GetVersion(mesh)),"Transform changed shared Mesh content version");
+        });
+        Scenario("shared source events do not disturb other live sources",()=>
+        {
+            var meshes=new Mesh[13];var expected=new Source.Version[13];
+            for(int i=0;i<meshes.Length;i++){meshes[i]=new Mesh(i%3);expected[i]=Source.GetVersion(meshes[i]);}
+            var random=new Random(0x4537);
+            for(int step=0;step<12000;step++)
+            {
+                int selected=random.Next(meshes.Length);var old=expected[selected];
+                expected[selected]=Source.NotifyGeometryChanged(meshes[selected]);
+                Require(!ReferenceEquals(old,expected[selected]),"Chosen source retained prior version");
+                for(int i=0;i<meshes.Length;i++)Require(ReferenceEquals(expected[i],Source.GetVersion(meshes[i])),"Unrelated/source observer version mismatch");
+            }
+        });
+        Scenario("weak source table and retained retired version do not keep Mesh alive",()=>
+        {
+            var detached=DetachedMesh();
+            for(int i=0;i<8;i++){GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();}
+            Require(!detached.mesh.IsAlive,"Source table or retained version kept its Mesh alive");
+            GC.KeepAlive(detached.retained);
+        });
+        Console.WriteLine($"PASS: {scenarios} actual MeshSource scenarios, {checks} assertions. Mesh/native lifetime substitutes only; no Unity/GPU execution or implicit content validation.");
+    }
+}
+
+namespace UnityEngine
+{
+    // Deliberately hostile equality tests CWT reference keys, not Unity semantics.
+    public sealed class Mesh
+    {
+        public readonly int NativeId;
+        public int IdReads,GeometryReads,TransformMarker,LocalBoundsMarker;
+        public bool Destroyed;
+        public int[] Positions={0,1,2},Indices={0,1,2};
+        public Mesh(int id){NativeId=id;}
+        public int GetInstanceID(){IdReads++;return NativeId;}
+        public int vertexCount{get{GeometryReads++;return Positions.Length;}}
+        public override bool Equals(object obj)=>obj is Mesh other&&NativeId==other.NativeId;
+        public override int GetHashCode()=>NativeId;
+        public static bool operator ==(Mesh a,Mesh b)
+        {
+            if(ReferenceEquals(a,b))return true;
+            if(ReferenceEquals(a,null))return b.Destroyed;
+            if(ReferenceEquals(b,null))return a.Destroyed;
+            return a.NativeId==b.NativeId;
+        }
+        public static bool operator !=(Mesh a,Mesh b)=>!(a==b);
+    }
+}

@@ -1,0 +1,327 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine.Rendering;
+using Frame=HybridLumenGI.HybridLumenGIGpuFrameTiming;
+using Recorder=HybridLumenGI.HybridLumenGIGpuTiming;
+using Native=HybridLumenGI.HybridLumenGINativeGpuTiming;
+
+sealed class FakeApi : Native.INativeApi
+{
+    public bool IsSupported=>true;
+    public int Acquires;
+    public ulong Next=1;
+    public readonly List<ulong> Canceled=new();
+    public int GetInfo(out Native.ApiInfo info,uint size)
+    {info=new Native.ApiInfo{abiVersion=1,structSize=48,status=1,capacity=128,eventBase=70,deviceEpoch=9,frequency=1000000,callback=new IntPtr(1234)};return 1;}
+    public ulong Acquire(ulong owner,ulong generation,long frame){Acquires++;return Next++;}
+    public int Poll(ulong token,out Native.Result result,uint size){result=default;return 0;}
+    public void Cancel(ulong token){Canceled.Add(token);}
+}
+sealed class Fixture : IDisposable
+{
+    public readonly Recorder Recorder=new(8);
+    public readonly FakeApi Api=new();
+    public readonly Native Native;
+    public int EngineFrame=-1,Invalidations;
+    public bool NativeMode,Include,ThrowCallback;
+    public Trace Trace;
+    public Frame Frame;
+    public Fixture(){Native=new Native(Api);}
+    public void Start(bool native,bool identity,bool enabled=true,bool nullCallback=false)
+    {
+        EngineFrame++;NativeMode=native;Include=identity;Invalidations=0;ThrowCallback=false;Trace=new Trace();
+        Recorder.BeginFrame(EngineFrame,1,enabled&&!native,out _,identity);
+        Native.BeginFrame(EngineFrame,1,enabled&&native,out _);
+        Frame=new Frame(Recorder,Native,native,identity,nullCallback?null:()=>
+        {Invalidations++;if(ThrowCallback)throw new InvalidOperationException("callback");Recorder.Invalidate();Native.Invalidate();});
+    }
+    public void Dispose(){Recorder.Dispose();Native.Dispose();}
+}
+static class Program
+{
+    static int checks,scenarios;
+    static void Check(bool value,string message){checks++;if(!value)throw new Exception("FAIL: "+message);}
+    static Frame.Phase[] Phases(bool identity)=>identity?new[]{Frame.Phase.ReceiverCapture,Frame.Phase.IdentityClear,Frame.Phase.IdentityMask,Frame.Phase.IdentityCapture,Frame.Phase.IdentityResolve,Frame.Phase.Transport,Frame.Phase.Composite}:new[]{Frame.Phase.ReceiverCapture,Frame.Phase.Transport,Frame.Phase.Composite};
+    static void Begin(Frame frame,Frame.Phase phase,CommandBuffer cmd)
+    {if(phase==Frame.Phase.ReceiverCapture||phase==Frame.Phase.Composite)frame.Begin(phase,new RasterCommandBuffer(cmd));else frame.Begin(phase,cmd);}
+    static void End(Frame frame,Frame.Phase phase,CommandBuffer cmd)
+    {if(phase==Frame.Phase.ReceiverCapture||phase==Frame.Phase.Composite)frame.End(phase,new RasterCommandBuffer(cmd));else frame.End(phase,cmd);}
+    static void Pair(Fixture f,Frame.Phase phase)
+    {var cmd=new CommandBuffer(f.Trace,(int)phase);Begin(f.Frame,phase,cmd);End(f.Frame,phase,cmd);}
+    static void Full(Fixture f)
+    {foreach(var phase in Phases(f.Include))Pair(f,phase);f.Frame.Resolve(new CommandBuffer(f.Trace,7));}
+    static void CheckRecorderPairs(Trace trace,int expected)
+    {
+        Check(trace.Calls.Count==expected*2,"exact marker count");
+        for(int i=0;i<trace.Calls.Count;i+=2)
+        {
+            var a=trace.Calls[i];var b=trace.Calls[i+1];
+            Check(a.Operation=="Begin"&&b.Operation=="End"&&ReferenceEquals(a.Sampler,b.Sampler),"adjacent same sampler pairing");
+            Check(a.Buffer==b.Buffer&&a.Phase==b.Phase,"marker is inside one pass command buffer");
+        }
+    }
+    static void NormalChains()
+    {
+        scenarios++;
+        using var f=new Fixture();
+        foreach(bool native in new[]{false,true})foreach(bool identity in new[]{false,true})
+        {
+            f.Start(native,identity);Full(f);
+            Check(f.Invalidations==0,"normal chain never invalidates");
+            if(native)
+            {
+                Check(f.Trace.Calls.Count==7,"ABI1 remains exactly seven events");
+                for(int i=0;i<7;i++)
+                {
+                    var call=f.Trace.Calls[i];
+                    Check(call.Operation=="Event"&&call.EventId==70+i&&call.Callback==new IntPtr(1234),"native ABI1 exact event order");
+                    Check(call.Data.ToInt64()==(long)f.Native.CurrentFrameToken.Id,"frozen submission token");
+                }
+                Check(f.Trace.Calls[0].Phase==0&&f.Trace.Calls[1].Phase==(identity?4:0),"native capture brackets complete optional identity chain");
+                Check(f.Trace.Calls[2].Phase==5&&f.Trace.Calls[3].Phase==5&&f.Trace.Calls[4].Phase==6&&f.Trace.Calls[5].Phase==6&&f.Trace.Calls[6].Phase==7,"transport/composite/unsafe resolve mapping");
+            }
+            else
+            {
+                CheckRecorderPairs(f.Trace,identity?7:3);
+                var names=f.Trace.Calls.Where(c=>c.Operation=="Begin").Select(c=>c.Sampler.name.Substring(c.Sampler.name.LastIndexOf('.')+1)).ToArray();
+                Check(names.SequenceEqual(Phases(identity).Select(p=>p.ToString())),"recorder scope mapping matches seven ordered phases");
+            }
+        }
+    }
+    static void Disabled()
+    {
+        scenarios++;
+        using var f=new Fixture();
+        foreach(bool native in new[]{false,true})foreach(bool identity in new[]{false,true})
+        {
+            f.Start(native,identity,false);int before=f.Api.Acquires;Full(f);
+            f.Frame.Begin((Frame.Phase)99,(CommandBuffer)null);f.Frame.End((Frame.Phase)99,(CommandBuffer)null);f.Frame.Invalidate();
+            Check(f.Invalidations==0&&f.Trace.Attempts==0&&f.Api.Acquires==before,"disabled token is a total timing no-op");
+        }
+        var empty=new Frame(null,null,false,true,()=>throw new Exception("must not invoke"));
+        empty.Begin(Frame.Phase.ReceiverCapture,(CommandBuffer)null);empty.End(Frame.Phase.ReceiverCapture,(CommandBuffer)null);empty.Resolve(null);empty.Invalidate();
+        Check(true,"null disabled providers do not throw");
+    }
+    static void EveryCommandException()
+    {
+        scenarios++;
+        foreach(bool native in new[]{false,true})foreach(bool identity in new[]{false,true})
+        {
+            int emits=native?7:Phases(identity).Length*2;
+            for(int fault=1;fault<=emits;fault++)
+            {
+                using var faultFrame=new Fixture();
+                faultFrame.Start(native,identity);var token=faultFrame.Native.CurrentFrameToken;faultFrame.Trace.ThrowAt=fault;
+                Full(faultFrame);
+                Check(faultFrame.Invalidations==1,"each command failure invalidates exactly once");
+                Check(faultFrame.Trace.Attempts==fault,"no retry or subsequent measurement command after failed emit");
+                if(native)Check(faultFrame.Api.Canceled.Contains(token.Id),"native failure invokes cancellation callback");
+                int attempts=faultFrame.Trace.Attempts;Full(faultFrame);faultFrame.Frame.Invalidate();
+                Check(faultFrame.Trace.Attempts==attempts&&faultFrame.Invalidations==1,"failed coordinator is idempotent");
+                using(faultFrame.Frame.Profile(new CommandBuffer(faultFrame.Trace,8),"after-command-fault")){}
+                Check(faultFrame.Trace.Attempts==attempts+(native?2:0),"only unknown marker append disables later diagnostics; native event errors retain diagnostics");
+                if(!native)
+                {
+                    Check(faultFrame.Recorder.Status==Recorder.TimingStatus.CommandRecordingFailure,"marker emit uncertainty latches Recorder channel");
+                    int created=UnityEngine.Profiling.CustomSampler.Created.Count;
+                    for(int next=0;next<10;next++)
+                    {
+                        faultFrame.Start(false,!identity);Full(faultFrame);
+                        Check(faultFrame.Invalidations==0&&faultFrame.Trace.Attempts==0&&!faultFrame.Recorder.CurrentFrameToken.IsValid,"failed marker channel never warms up or emits again");
+                    }
+                    Check(UnityEngine.Profiling.CustomSampler.Created.Count==created,"failed Recorder never allocates replacement markers");
+                }
+                else
+                {
+                    faultFrame.Start(true,identity);Full(faultFrame);
+                    Check(faultFrame.Invalidations==0&&faultFrame.Trace.Calls.Count==7,"native command failure retains cancellation-based recovery without Recorder latch");
+                }
+            }
+        }
+        foreach(bool native in new[]{false,true})
+        {
+            using var throwing=new Fixture();throwing.Start(native,true);throwing.ThrowCallback=true;throwing.Trace.ThrowAt=1;Full(throwing);
+            Check(throwing.Invalidations==1&&!(native?throwing.Native.CurrentFrameToken.IsValid:throwing.Recorder.CurrentFrameToken.IsValid),"throwing feedback callback is isolated and provider invalidated");
+            using var missing=new Fixture();missing.Start(native,true,true,true);missing.Trace.ThrowAt=1;Full(missing);
+            Check(!(native?missing.Native.CurrentFrameToken.IsValid:missing.Recorder.CurrentFrameToken.IsValid),"null callback falls back to provider invalidation");
+        }
+        foreach(int fault in new[]{1,2})
+        {
+            using var partial=new Fixture();partial.Start(false,true);partial.Trace.ThrowAt=fault;partial.Trace.ThrowAfterAppend=true;Full(partial);
+            Check(partial.Trace.Calls.Count==fault&&partial.Recorder.Status==Recorder.TimingStatus.CommandRecordingFailure,"throw after appending Begin or End also permanently retires Recorder channel");
+            partial.Start(false,true);Full(partial);Check(partial.Trace.Attempts==0,"possibly appended marker never permits a new frame on channel");
+        }
+        using var f=new Fixture();
+        foreach(bool native in new[]{false,true})foreach(bool duplicate in new[]{false,true})
+        {
+            f.Start(native,true);int callbacks=0;
+            f.Frame=new Frame(f.Recorder,f.Native,native,true,()=>callbacks++);
+            var token=f.Native.CurrentFrameToken;Full(f);
+            if(duplicate)f.Frame.Resolve(new CommandBuffer(f.Trace,7));else f.Frame.Invalidate();
+            Check(callbacks==1&&!(native?f.Native.CurrentFrameToken.IsValid:f.Recorder.CurrentFrameToken.IsValid),"no-op callback still revokes completed provider receipt");
+            if(native)Check(f.Api.Canceled.Contains(token.Id),"completed native result canceled despite no-op callback");
+            else Check(f.Recorder.StableCompletedFrames==0,"completed recorder history erased despite no-op callback");
+        }
+        foreach(bool native in new[]{false,true})
+        {
+            f.Start(native,true);int callbacks=0;
+            f.Frame=new Frame(f.Recorder,f.Native,native,true,()=>
+            {
+                callbacks++;
+                f.Recorder.Invalidate();f.Native.Invalidate();
+                f.EngineFrame++;
+                f.Recorder.BeginFrame(f.EngineFrame,1,!native,out _,true);
+                f.Native.BeginFrame(f.EngineFrame,1,native,out _);
+            });
+            var old=f.Frame;Full(f);old.Invalidate();
+            Check(callbacks==1&&(native?f.Native.CurrentFrameToken.IsValid:f.Recorder.CurrentFrameToken.IsValid),"callback may install new frame without fallback invalidating it");
+            Check((native?f.Native.CurrentFrameToken.EngineFrame:f.Recorder.CurrentFrameToken.EngineFrame)==f.EngineFrame,"new frame installed by callback preserved");
+            old.Invalidate();old.Resolve(new CommandBuffer(f.Trace,7));
+            Check(callbacks==1,"old coordinator cannot repeat invalidation after callback changes token");
+        }
+    }
+    static void InvalidOrdering()
+    {
+        scenarios++;
+        using var f=new Fixture();
+        foreach(bool native in new[]{false,true})foreach(bool identity in new[]{false,true})for(int mode=0;mode<8;mode++)
+        {
+            f.Start(native,identity);var cmd=new CommandBuffer(f.Trace,0);
+            switch(mode)
+            {
+                case 0:Begin(f.Frame,Frame.Phase.ReceiverCapture,cmd);Begin(f.Frame,Frame.Phase.ReceiverCapture,cmd);End(f.Frame,Frame.Phase.ReceiverCapture,cmd);break;
+                case 1:Pair(f,Frame.Phase.ReceiverCapture);End(f.Frame,Frame.Phase.ReceiverCapture,cmd);break;
+                case 2:Pair(f,Frame.Phase.Transport);break;
+                case 3:End(f.Frame,Frame.Phase.ReceiverCapture,cmd);break;
+                case 4:f.Frame.Resolve(cmd);break;
+                case 5:Pair(f,Frame.Phase.ReceiverCapture);f.Frame.Resolve(cmd);break;
+                case 6:f.Frame.Begin((Frame.Phase)8,cmd);break;
+                case 7:Full(f);f.Frame.Resolve(cmd);break;
+            }
+            Check(f.Invalidations==1,"duplicate/invalid/incomplete phase sequence invalidates once");
+            f.Frame.Invalidate();Check(f.Invalidations==1,"repeat explicit invalidation is harmless");
+            if(!native&&mode==0)CheckRecorderPairs(f.Trace,1);
+        }
+        f.Start(false,false);Pair(f,Frame.Phase.ReceiverCapture);Pair(f,Frame.Phase.IdentityClear);
+        Check(f.Invalidations==1,"inactive identity phase is rejected");
+        f.Start(false,false);f.Frame=new Frame(f.Recorder,f.Native,false,true,()=>{f.Invalidations++;f.Recorder.Invalidate();});
+        Pair(f,Frame.Phase.ReceiverCapture);Pair(f,Frame.Phase.IdentityClear);
+        Check(f.Invalidations==1&&f.Recorder.Status!=Recorder.TimingStatus.CommandRecordingFailure,"RecordBegin logical rejection is not a marker command fault");
+        f.Start(false,false);Full(f);Check(f.Invalidations==0,"logical metadata rejection allows a later valid Recorder frame");
+    }
+    static void CleanupAndLateFrames()
+    {
+        scenarios++;
+        using var f=new Fixture();
+        foreach(bool native in new[]{false,true})
+        {
+            f.Start(native,true);var old=f.Frame;var oldTrace=f.Trace;var cmd=new CommandBuffer(oldTrace,0);
+            Begin(old,Frame.Phase.ReceiverCapture,cmd);
+            old.Invalidate();End(old,Frame.Phase.ReceiverCapture,cmd);End(old,Frame.Phase.ReceiverCapture,cmd);
+            Check(f.Invalidations==1,"invalidated frame callback occurs only once");
+            if(!native)CheckRecorderPairs(oldTrace,1);
+            f.Start(native,true);int count=f.Invalidations;
+            old.Begin(Frame.Phase.Transport,new CommandBuffer(oldTrace,5));old.Resolve(new CommandBuffer(oldTrace,7));old.Invalidate();
+            Check(f.Invalidations==count,"old callbacks cannot invalidate a new frame");Full(f);Check(f.Invalidations==0,"new frame is still usable");
+        }
+        f.Start(false,true);var late=f.Frame;var trace=f.Trace;var previous=new CommandBuffer(trace,0);
+        Begin(late,Frame.Phase.ReceiverCapture,previous);
+        f.Start(false,true);var current=f.Recorder.CurrentFrameToken;
+        End(late,Frame.Phase.ReceiverCapture,previous);late.Invalidate();
+        CheckRecorderPairs(trace,1);
+        Check(f.Invalidations==0&&f.Recorder.CurrentFrameToken.Epoch==current.Epoch,"late old cleanup does not clear new frame");
+        Full(f);Check(f.Invalidations==0,"new recorder frame works after old cleanup");
+        f.Start(false,true);var disposed=f.Frame;trace=f.Trace;previous=new CommandBuffer(trace,0);
+        Begin(disposed,Frame.Phase.ReceiverCapture,previous);f.Recorder.Dispose();End(disposed,Frame.Phase.ReceiverCapture,previous);
+        CheckRecorderPairs(trace,1);Check(f.Invalidations==0,"provider disposal still closes same-pass old marker without feedback");
+        using var poison=new Fixture();poison.Start(false,true);var oldMarker=poison.Frame;var poisonedTrace=poison.Trace;
+        var oldCmd=new CommandBuffer(poisonedTrace,0);Begin(oldMarker,Frame.Phase.ReceiverCapture,oldCmd);
+        poison.Start(false,true);poisonedTrace.ThrowAt=2;End(oldMarker,Frame.Phase.ReceiverCapture,oldCmd);
+        Check(poison.Invalidations==0,"late failed End does not call old frame controller callback");
+        Check(poison.Recorder.Status==Recorder.TimingStatus.CommandRecordingFailure&&!poison.Recorder.CurrentFrameToken.IsValid,"late failed End still poisons the shared native Recorder channel");
+        Full(poison);Check(poison.Trace.Attempts==0,"poisoned new frame emits no markers while caller GI can continue");
+    }
+    readonly record struct Step(bool Begin,Frame.Phase Phase);
+    static void DiagnosticMarkers()
+    {
+        scenarios++;
+        using var f=new Fixture();f.Start(false,false,false);
+        var cmd=new CommandBuffer(f.Trace,8);int body=0;
+        var scope=f.Frame.Profile(cmd,"normal");body++;scope.Dispose();scope.Dispose();
+        Check(body==1&&f.Trace.Calls.Count==2&&f.Trace.Calls[0].Operation=="DiagnosticBegin"&&f.Trace.Calls[1].Operation=="DiagnosticEnd","diagnostics preserved with feedback off and same-instance Dispose once");
+        Check(f.Trace.Calls.All(c=>c.Name=="normal"&&c.Buffer==cmd.Id)&&f.Invalidations==0,"diagnostic name and command buffer preserved");
+        var expected=new InvalidOperationException("body failure");Exception actual=null;
+        try{using(f.Frame.Profile(cmd,"body-throws")){body++;throw expected;}}catch(Exception error){actual=error;}
+        Check(ReferenceEquals(actual,expected)&&body==2&&f.Trace.Calls.Last().Operation=="DiagnosticEnd","real body exception propagates after marker cleanup");
+        foreach(bool after in new[]{false,true})foreach(int fault in new[]{1,2})
+        {
+            using var broken=new Fixture();broken.Start(false,false,false);
+            var buffer=new CommandBuffer(broken.Trace,8);broken.Trace.ThrowAt=fault;broken.Trace.ThrowAfterAppend=after;
+            int executions=0;
+            using(broken.Frame.Profile(buffer,"fault")){executions++;}
+            Check(executions==1&&broken.Trace.Attempts==fault,"diagnostic Begin/End fault never suppresses using body or retries marker");
+            Check(broken.Recorder.Status==Recorder.TimingStatus.CommandRecordingFailure,"diagnostic command failure latches Recorder even with feedback disabled");
+            int before=broken.Trace.Attempts;
+            using(broken.Frame.Profile(buffer,"suppressed")){executions++;}
+            Check(executions==2&&broken.Trace.Attempts==before,"unknown marker outcome disables only subsequent diagnostic Begins, not bodies");
+            Check(broken.Invalidations==0,"feedback-off marker fault does not invent frame-token controller callback");
+        }
+        using var nested=new Fixture();nested.Start(false,false,false);var nestedCmd=new CommandBuffer(nested.Trace,8);
+        var outer=nested.Frame.Profile(nestedCmd,"outer");var inner=nested.Frame.Profile(nestedCmd,"inner");
+        nested.Trace.ThrowAt=3;inner.Dispose();
+        using(nested.Frame.Profile(nestedCmd,"skipped")){}
+        outer.Dispose();outer.Dispose();
+        Check(nested.Trace.Attempts==4&&nested.Trace.Calls.Last().Name=="outer"&&nested.Trace.Calls.Last().Operation=="DiagnosticEnd","successful outer Begin still gets its one End after inner marker poisons channel");
+        using var doubleFailure=new Fixture();doubleFailure.Start(false,false,false);var failingCmd=new CommandBuffer(doubleFailure.Trace,8);
+        doubleFailure.Trace.ThrowAt=2;actual=null;
+        try{using(doubleFailure.Frame.Profile(failingCmd,"body-and-end-fail")){throw expected;}}catch(Exception error){actual=error;}
+        Check(ReferenceEquals(actual,expected),"End marker exception cannot replace the real body exception");
+        using var active=new Fixture();active.Start(true,true);var token=active.Native.CurrentFrameToken;
+        active.Trace.ThrowAt=1;using(active.Frame.Profile(new CommandBuffer(active.Trace,8),"active-fail")){body++;}
+        Check(active.Invalidations==1&&active.Api.Canceled.Contains(token.Id),"diagnostic marker fault also revokes selected native frame through callback");
+        // The no-op command API removes allocations made by the recording substitute;
+        // this measures only the helper value-type scope path, not Unity's profiler.
+        f.Trace.NoAllocation=true;
+        using(f.Frame.Profile(cmd,"allocation-check")){}
+        long beforeAllocation=GC.GetAllocatedBytesForCurrentThread();
+        for(int i=0;i<1024;i++)using(f.Frame.Profile(cmd,"allocation-check")){body++;}
+        long allocated=GC.GetAllocatedBytesForCurrentThread()-beforeAllocation;
+        Check(allocated==0&&typeof(Frame.DiagnosticScope).IsValueType,"diagnostic helper scope does not allocate or box under normal using");
+    }
+    static void MutatedWordOracle()
+    {
+        scenarios++;
+        using var f=new Fixture();var random=new Random(7411);
+        foreach(bool identity in new[]{false,true})
+        {
+            var word=Phases(identity).SelectMany(p=>new[]{new Step(true,p),new Step(false,p)}).ToArray();
+            for(int n=0;n<96;n++)
+            {
+                var mutation=word.ToList();int index=random.Next(mutation.Count);
+                if(n%4==0)mutation.RemoveAt(index);
+                if(n%4==1)mutation.Insert(index,mutation[index]);
+                if(n%4==2){int other=random.Next(mutation.Count);(mutation[index],mutation[other])=(mutation[other],mutation[index]);}
+                bool expectedValid=mutation.SequenceEqual(word);
+                f.Start(true,identity);
+                foreach(var step in mutation)
+                {var cmd=new CommandBuffer(f.Trace,(int)step.Phase);if(step.Begin)Begin(f.Frame,step.Phase,cmd);else End(f.Frame,step.Phase,cmd);}
+                f.Frame.Resolve(new CommandBuffer(f.Trace,7));
+                bool actualResolved=f.Trace.Calls.Any(c=>c.EventId==76);
+                Check(actualResolved==expectedValid,"independent legal-word oracle for optional event sequence");
+                Check(f.Invalidations==(expectedValid?0:1),"word oracle rejection has one invalidation");
+                if(expectedValid)Check(f.Trace.Calls.Select(c=>c.EventId).SequenceEqual(Enumerable.Range(70,7)),"accepted mutated word retains exact ABI1 sequence");
+            }
+        }
+    }
+    static int Main()
+    {
+        try
+        {
+            NormalChains();Disabled();EveryCommandException();InvalidOrdering();CleanupAndLateFrames();MutatedWordOracle();DiagnosticMarkers();
+            Console.WriteLine($"GpuFrameTiming PASS: {scenarios} scenarios, {checks} assertions. Actual FrameTiming + Recorder + Native bridge classes; recording API substitutes and fake native ABI only.");
+            Console.WriteLine("No Unity engine, actual profiler, GPU timestamps, D3D12 fence, RenderGraph execution or DLL execution occurred.");return 0;
+        }
+        catch(Exception e){Console.Error.WriteLine(e);return 1;}
+    }
+}

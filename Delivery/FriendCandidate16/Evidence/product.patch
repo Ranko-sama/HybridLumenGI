@@ -1,0 +1,2806 @@
+--- integration-15/Runtime/HybridLumenGILights.cs
++++ runtime-candidate-16/Runtime/HybridLumenGILights.cs
+@@ -75,6 +75,18 @@
+         public static bool TryPack(Light light, bool useRenderingLayers, out Data value)
+             => TryPack(light, useRenderingLayers, GetDefinedLayers(useRenderingLayers), out value);
+ 
++        public static LightmapBakeType GetBakeType(Light light)
++        {
++#if UNITY_EDITOR
++            // The Inspector choice is available before a bake in the Editor.
++            return light.lightmapBakeType;
++#else
++            // lightmapBakeType itself is Editor-only in Unity 6. Players expose
++            // the serialized baking result, also used by URP ForwardLights.
++            return light.bakingOutput.lightmapBakeType;
++#endif
++        }
++
+         private static uint GetDefinedLayers(bool enabled)
+         {
+             // Match URP's internal RenderingLayerUtils without depending on an
+@@ -86,7 +98,7 @@
+         private static bool TryPack(Light light, bool useRenderingLayers, uint definedLayers, out Data value)
+         {
+             value = default;
+-            if (light == null || !light.isActiveAndEnabled || light.lightmapBakeType == LightmapBakeType.Baked ||
++            if (light == null || !light.isActiveAndEnabled || GetBakeType(light) == LightmapBakeType.Baked ||
+                 !Finite(light.intensity) || light.intensity <= 0 ||
+                 (light.type != LightType.Directional && light.type != LightType.Point && light.type != LightType.Spot)) return false;
+             bool directional = light.type == LightType.Directional;
+@@ -118,7 +130,7 @@
+                 // AdditionalLightData normally synchronizes its custom-shadow policy
+                 // here. Read the effective native value also used by ShadowDrawingSettings,
+                 // so a later explicit Light.renderingLayerMask edit is observed too.
+-                shadowLayers = light.renderingLayerMask;
++                shadowLayers = unchecked((uint)light.renderingLayerMask);
+             }
+             value = new Data
+             {
+--- integration-15/Runtime/HybridLumenGIProxy.cs
++++ runtime-candidate-16/Runtime/HybridLumenGIProxy.cs
+@@ -323,7 +323,9 @@
+             Color value = emissionOverride.linear;
+             Material material = readMaterialProperties && sourceRenderer != null ? sourceRenderer.sharedMaterial : null;
+             if (material != null && material.IsKeywordEnabled("_EMISSION") && material.HasProperty("_EmissionColor"))
+-                value += material.GetColor("_EmissionColor").linear;
++                // URP Lit's HDR emission property is uploaded without sRGB
++                // conversion. Confirmed by the actual Linear GPU color probe.
++                value += material.GetColor("_EmissionColor");
+             return new Color(Mathf.Max(0f, value.r * emissionIntensity), Mathf.Max(0f, value.g * emissionIntensity),
+                 Mathf.Max(0f, value.b * emissionIntensity), 1f);
+         }
+--- integration-15/Runtime/HybridLumenGIRayTextureImporter.cs
++++ runtime-candidate-16/Runtime/HybridLumenGIRayTextureImporter.cs
+@@ -68,8 +68,15 @@
+             if(!SystemInfo.supportsComputeShaders || SystemInfo.graphicsDeviceType!=GraphicsDeviceType.Direct3D12)
+             { LastRejection="The original-texel importer currently requires DX12 compute.";return; }
+             var view=upload.View;var layout=upload.Layout;
++            var format=(GraphicsFormat)view.GraphicsFormat;
++            // Imported RGB24 assets retain their logical RGB format in Unity,
++            // although DX12 binds them through a supported RGBA backing texture.
++            // Test that exact expansion; the GPU copy still validates the bound
++            // dimensions, mapped texels and completed chain before publishing.
++            var samplingFormat=format==GraphicsFormat.R8G8B8_SRGB?GraphicsFormat.R8G8B8A8_SRGB:
++                format==GraphicsFormat.R8G8B8_UNorm?GraphicsFormat.R8G8B8A8_UNorm:format;
+             if(view.Dimension!=2 || !SourceStillMatches(view) ||
+-                !SystemInfo.IsFormatSupported((GraphicsFormat)view.GraphicsFormat,GraphicsFormatUsage.Sample))
++                !SystemInfo.IsFormatSupported(samplingFormat,GraphicsFormatUsage.Sample))
+             { LastRejection="Source changed, is unavailable, or cannot be sampled as a 2D color texture.";return; }
+             if(layout.FirstMip!=0 || layout.Width!=view.Width || layout.Height!=view.Height || layout.MipCount!=view.MipmapCount ||
+                 !layout.Fits(upload.TexelOffset,texels.count) || metadata.stride!=64 || texels.stride!=16 ||
+--- integration-15/Runtime/HybridLumenGIRendererFeature.cs
++++ runtime-candidate-16/Runtime/HybridLumenGIRendererFeature.cs
+@@ -553,7 +553,8 @@
+                     !SystemInfo.IsFormatSupported(GraphicsFormat.R32G32B32A32_SFloat,GraphicsFormatUsage.LoadStore) ||
+                     !SystemInfo.IsFormatSupported(GraphicsFormat.R8G8B8A8_UNorm,GraphicsFormatUsage.LoadStore) ||
+                     !SystemInfo.IsFormatSupported(GraphicsFormat.R32G32_UInt,GraphicsFormatUsage.Render) ||
+-                    !SystemInfo.IsFormatSupported(GraphicsFormat.R32G32_UInt,GraphicsFormatUsage.Sample) ||
++                    // Integer policy pixels use Texture2D<uint2>.Load, never filtered Sample.
++                    !SystemInfo.IsFormatSupported(GraphicsFormat.R32G32_UInt,GraphicsFormatUsage.LoadStore) ||
+                     SystemInfo.supportedRenderTargetCount<(replace?4:3)) return;
+                 var camera=cameraData.camera;
+                 var state=GetCameraState(camera);
+@@ -564,7 +565,7 @@
+                     camera.rect.Equals(new Rect(0,0,1,1)) &&
+                     fullW>0 && fullH>0 && fullW<=16384 && fullH<=16384 &&
+                     SystemInfo.IsFormatSupported(GraphicsFormat.R32G32B32A32_UInt,GraphicsFormatUsage.LoadStore) &&
+-                    SystemInfo.IsFormatSupported(GraphicsFormat.R32G32B32A32_UInt,GraphicsFormatUsage.Sample) &&
++                    // Identity is UAV-written and read with Texture2D<uint4>.Load.
+                     receiverIdentityPass.IsAvailable;
+                 state.receiverIdentityStatus=!s.receiverObjectHistory?"Disabled":identityEnabled?"Capture scheduled; runtime receipt pending":
+                     "Unavailable camera/format/platform: "+receiverIdentityPass.Status;
+@@ -609,8 +610,8 @@
+                 for(int slot=0;slot<state.scene.Capacity;slot++)
+                 {
+                     if(!state.scene.IsWarming(slot)) continue;
+-                    var identity=state.scene.Data[slot].identity;var proxy=state.scene.GetProxy(slot);
+-                    int id=(int)identity.x,revision=(int)identity.y;
++                    var slotIdentity=state.scene.Data[slot].identity;var proxy=state.scene.GetProxy(slot);
++                    int id=(int)slotIdentity.x,revision=(int)slotIdentity.y;
+                     bool geometry=proxy!=null && proxy.Revision==revision && (proxy.MeshSdf==null || state.sdf.IsSourceCurrent(slot,proxy,id,revision));
+                     if(!geometry || !state.surfaceCache.IsSlotSourceCurrent(slot,id,revision))
+                         state.scene.ReportReadiness(id,revision,false,false,false);
+@@ -673,7 +674,9 @@
+                     state.InvalidateScreenHistory();state.epoch=state.epoch%8000000+1;state.lastHardware=hardware;
+                     state.scene.InvalidateReadiness();state.readiness.Invalidate();
+                 }
+-                Matrix4x4 view=cameraData.GetViewMatrix(),vp=cameraData.GetGPUProjectionMatrix()*view;
++                // RenderGraph has no compatibility cameraColorTargetHandle. This pass already
++                // rejects the backbuffer, so use URP's explicit render-into-texture conversion.
++                Matrix4x4 view=cameraData.GetViewMatrix(),vp=GL.GetGPUProjectionMatrix(cameraData.GetProjectionMatrix(),true)*view;
+                 // Freeze the observer with this graph's camera matrices. In view
+                 // space +Z points toward the viewer; orthographic rays share it.
+                 Vector4 materialView=view.inverse.GetColumn(camera.orthographic?2:3);
+@@ -906,7 +909,12 @@
+             { return graph.CreateTexture(new TextureDesc(w,h){name=name,colorFormat=format,enableRandomWrite=randomWrite,clearBuffer=true,filterMode=FilterMode.Point}); }
+             private static Vector2 GetJitter(UniversalCameraData c)
+             {
+-                Matrix4x4 delta=c.GetGPUProjectionMatrix()*c.GetGPUProjectionMatrixNoJitter().inverse;
++                // In this URP version non-XR Base cameras store camera.projectionMatrix
++                // before applying their separate jitter matrix. Keep the GPU-space delta
++                // without querying the null RenderGraph compatibility color target.
++                Matrix4x4 jittered=GL.GetGPUProjectionMatrix(c.GetProjectionMatrix(),true);
++                Matrix4x4 unjittered=GL.GetGPUProjectionMatrix(c.camera.projectionMatrix,true);
++                Matrix4x4 delta=jittered*unjittered.inverse;
+                 // Derive UV translation in GPU space for both orthographic and perspective cameras.
+                 return new Vector2(delta.m03*0.5f,delta.m13*(SystemInfo.graphicsUVStartsAtTop?-0.5f:0.5f));
+             }
+--- integration-15/Runtime/HybridLumenGIScene.cs
++++ runtime-candidate-16/Runtime/HybridLumenGIScene.cs
+@@ -401,7 +401,14 @@
+         {
+             HybridLumenGIProxy parent = proxy.HLODParent;
+             if (parent == null || !parent.isActiveAndEnabled)
+-                return aggregates.Contains(proxy.StableId) ? proxy : null;
++            {
++                // Unloading the last detail disables its proxy. Keep an existing
++                // group's live root and publication receipt through that interval;
++                // otherwise returning near recreates an empty group and drops the
++                // old aggregate while the reloaded detail warms up.
++                bool retainedRoot=groups.TryGetValue(proxy.StableId,out var group) && ReferenceEquals(group.root,proxy);
++                return aggregates.Contains(proxy.StableId) || retainedRoot ? proxy : null;
++            }
+             HybridLumenGIProxy root = parent;
+             for (int depth = 0; depth < 64; depth++)
+             {
+--- integration-15/Runtime/HybridLumenGIValidationMotion.cs
++++ runtime-candidate-16/Runtime/HybridLumenGIValidationMotion.cs
+@@ -31,4 +31,4 @@
+ 
+         private void OnDisable() => Restore();
+     }
+-}
++}
+--- integration-15/Runtime/HybridLumenGIValidationSequence.cs
++++ runtime-candidate-16/Runtime/HybridLumenGIValidationSequence.cs
+@@ -150,9 +150,9 @@
+                     Light light = switchedLights[i];
+                     previousLightStates[i] = light != null && light.enabled;
+                     if (light != null) run.lights[i] = new LightInfo { name = light.name, type = light.type.ToString(), shadows = light.shadows.ToString(),
+-                        bakeType = light.lightmapBakeType.ToString(), color = light.color, intensity = light.intensity, range = light.range,
++                        bakeType = HybridLumenGILights.GetBakeType(light).ToString(), color = light.color, intensity = light.intensity, range = light.range,
+                         spotAngle = light.spotAngle, innerSpotAngle = light.innerSpotAngle, position = light.transform.position,
+-                        rotation = light.transform.rotation, enabled = light.enabled, cullingMask = light.cullingMask, renderingLayerMask = light.renderingLayerMask };
++                        rotation = light.transform.rotation, enabled = light.enabled, cullingMask = light.cullingMask, renderingLayerMask = unchecked((uint)light.renderingLayerMask) };
+                 }
+                 initialized = true;
+                 output = new RenderTexture(width, height, 24, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear)
+@@ -339,4 +339,4 @@
+         private void OnDisable() { if (running || initialized) Finish(false); }
+         private void OnDestroy() { if (running || initialized) Finish(false); }
+     }
+-}
++}
+--- integration-15/Runtime/Resources/HybridLumenGI/HybridLumenGIExactMesh.hlsl
++++ runtime-candidate-16/Runtime/Resources/HybridLumenGI/HybridLumenGIExactMesh.hlsl
+@@ -1,97 +1,97 @@
+-#ifndef HLGI_EXACT_MESH_INCLUDED
+-#define HLGI_EXACT_MESH_INCLUDED
+-#include "HybridLumenGIHit.hlsl"
+-#include "HybridLumenGILightingPolicy.hlsl"
+-#include "HybridLumenGIHardwareNormals.hlsl"
+-
+-
+-StructuredBuffer<uint> _HLGI_HardwareMeshFlags;
+-// 128B, identical to HybridLumenGIHardwareBackend.InstanceData.
+-struct HLGIHardwareInstance
+-{
+-    column_major float4x4 normalToWorld;
+-    uint4 geometry; // owner slot, triangle offset, triangle count, source submesh
+-    uint4 identity; // stable ID, owner revision, geometry revision, effective Cull
+-    float4 diffuse,emission; // same-submesh constant approximation, not texture evaluation
+-};
+-StructuredBuffer<HLGIHardwareInstance> _HLGI_HardwareInstances;
+-struct HLGITriangleNormals { float4 a; float4 b; float4 c; float4 face; float4 uvY; };
+-StructuredBuffer<HLGITriangleNormals> _HLGI_HardwareTriangleNormals;
+-StructuredBuffer<uint4> _HLGI_HardwareTriangleBindings;
+-#include "HybridLumenGIHardwareMaterials.hlsl"
+-
+-bool HLGIHardwareHasMesh(int slot)
+-{
+-    uint count,stride;_HLGI_HardwareMeshFlags.GetDimensions(count,stride);
+-    if(slot<0 || (uint)slot>=count) return false;
+-    return _HLGI_HardwareMeshFlags[slot]!=0;
+-}
+-bool HLGIHardwareInstanceValid(HLGIHardwareInstance instance)
+-{
+-    if(instance.geometry.x>=(uint)_HLGI_ProxyCount || instance.identity.z==0u || instance.identity.w>2u) return false;
+-    HLGIProxy proxy=_HLGI_Proxies[instance.geometry.x];
+-    return proxy.identity.w>0.5 && proxy.identity.w<1.5 &&
+-        (uint)proxy.identity.x==instance.identity.x && (uint)proxy.identity.y==instance.identity.y;
+-}
+-bool HLGIHardwareGeometry(uint instanceIndex,uint primitive,out HLGIHardwareInstance instance,
+-    out HLGITriangleNormals attributes,out float3 rawNg)
+-{
+-    instance=(HLGIHardwareInstance)0;attributes=(HLGITriangleNormals)0;rawNg=0;
+-    uint count,stride;_HLGI_HardwareInstances.GetDimensions(count,stride);
+-    if(instanceIndex>=count) return false;
+-    instance=_HLGI_HardwareInstances[instanceIndex];
+-    if(!HLGIHardwareInstanceValid(instance) || primitive>=instance.geometry.z) return false;
+-    _HLGI_HardwareTriangleNormals.GetDimensions(count,stride);
+-    if(instance.geometry.y>=count || primitive>=count-instance.geometry.y) return false;
+-    attributes=_HLGI_HardwareTriangleNormals[instance.geometry.y+primitive];
+-    float3 face=mul((float3x3)instance.normalToWorld,attributes.face.xyz);
+-    float scale=max(abs(face.x),max(abs(face.y),abs(face.z)));
+-    // Keep the geometric occluder if an attribute is unusable. It has no trusted
+-    // front-face/material orientation; do not replace it with an invented axis.
+-    if(!all(isfinite(face)) || scale==0) return true;
+-    face/=scale;float lengthSquared=dot(face,face);
+-    // Source winding is transformed as a covector, without a determinant sign.
+-    // DXR's instance front/back convention is also defined in object space; a
+-    // mirrored instance transform alone does not reverse it. Card identity uses
+-    // this same inverse-transpose source orientation, never a face-forward Ns.
+-    rawNg=face*rsqrt(lengthSquared);return true;
+-}
+-bool HLGIHardwareSideAllowed(uint cullMode,bool frontFace)
+-{
+-    return cullMode==0u || (cullMode==1u && !frontFace) || (cullMode==2u && frontFace);
+-}
+-// Coverage is required for every purpose. Visibility does not require a full
+-// material payload; a failure in an unrequested map cannot invalidate coverage.
+-void HLGIHardwareResolveCommittedMaterial(uint instanceIndex,uint primitive,
+-    HLGIHardwareInstance instance,HLGITriangleNormals attributes,float3x4 objectToWorld,float2 barycentric,
+-    float4 materialView,float3 direction,float coneRadiusAtOrigin,float coneSlope,
+-    bool shadowQuery,bool resolveMaterial,inout HLGIHit hit)
+-{
+-    float hitRadius=coneRadiusAtOrigin+coneSlope*hit.t;
+-    bool footprintKnown=isfinite(coneRadiusAtOrigin) && coneRadiusAtOrigin>=0 && isfinite(coneSlope) &&
+-        isfinite(hit.t) && hit.t>=0 && isfinite(hitRadius) && hitRadius>=0;
+-    bool covered=true;HLGIHitMaterialSurface material;float3 materialNormal;
+-    bool coverageKnown=false;
+-    if(footprintKnown)
+-        coverageKnown=HLGIHardwareEvaluateHit(instanceIndex,primitive,instance,attributes,objectToWorld,barycentric,
+-            materialView,direction,hitRadius,true,shadowQuery,covered,material,materialNormal);
+-    // Recheck the committed identity against the frozen material/texture batch.
+-    // An unexpected transparent or stale result is unknown, never a miss that
+-    // would silently expose geometry beyond this committed nearest triangle.
+-    if(!coverageKnown || !covered) hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN;
+-    else if(resolveMaterial && !shadowQuery)
+-    {
+-        bool materialKnown=HLGIHardwareEvaluateHit(instanceIndex,primitive,instance,attributes,objectToWorld,barycentric,
+-            materialView,direction,hitRadius,false,false,covered,material,materialNormal);
+-        if(!materialKnown) hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN;
+-        else
+-        {
+-            hit.materialDiffuse=material.diffuseReflectance;hit.materialEmission=material.emission;
+-            hit.materialOcclusion=material.occlusion;hit.materialReceivesShadows=material.receivesShadows?1u:0u;
+-            hit.shadingNormal=materialNormal;hit.flags|=HLGI_HIT_UV_MATERIAL|HLGI_HIT_SHADING_NORMAL;
+-        }
+-    }
+-}
++#ifndef HLGI_EXACT_MESH_INCLUDED
++#define HLGI_EXACT_MESH_INCLUDED
++#include "HybridLumenGIHit.hlsl"
++#include "HybridLumenGILightingPolicy.hlsl"
++#include "HybridLumenGIHardwareNormals.hlsl"
++
++
++StructuredBuffer<uint> _HLGI_HardwareMeshFlags;
++// 128B, identical to HybridLumenGIHardwareBackend.InstanceData.
++struct HLGIHardwareInstance
++{
++    column_major float4x4 normalToWorld;
++    uint4 geometry; // owner slot, triangle offset, triangle count, source submesh
++    uint4 identity; // stable ID, owner revision, geometry revision, effective Cull
++    float4 diffuse,emission; // same-submesh constant approximation, not texture evaluation
++};
++StructuredBuffer<HLGIHardwareInstance> _HLGI_HardwareInstances;
++struct HLGITriangleNormals { float4 a; float4 b; float4 c; float4 face; float4 uvY; };
++StructuredBuffer<HLGITriangleNormals> _HLGI_HardwareTriangleNormals;
++StructuredBuffer<uint4> _HLGI_HardwareTriangleBindings;
++#include "HybridLumenGIHardwareMaterials.hlsl"
++
++bool HLGIHardwareHasMesh(int slot)
++{
++    uint count,stride;_HLGI_HardwareMeshFlags.GetDimensions(count,stride);
++    if(slot<0 || (uint)slot>=count) return false;
++    return _HLGI_HardwareMeshFlags[slot]!=0;
++}
++bool HLGIHardwareInstanceValid(HLGIHardwareInstance instance)
++{
++    if(instance.geometry.x>=(uint)_HLGI_ProxyCount || instance.identity.z==0u || instance.identity.w>2u) return false;
++    HLGIProxy proxy=_HLGI_Proxies[instance.geometry.x];
++    return proxy.identity.w>0.5 && proxy.identity.w<1.5 &&
++        (uint)proxy.identity.x==instance.identity.x && (uint)proxy.identity.y==instance.identity.y;
++}
++bool HLGIHardwareGeometry(uint instanceIndex,uint primitive,out HLGIHardwareInstance instance,
++    out HLGITriangleNormals attributes,out float3 rawNg)
++{
++    instance=(HLGIHardwareInstance)0;attributes=(HLGITriangleNormals)0;rawNg=0;
++    uint count,stride;_HLGI_HardwareInstances.GetDimensions(count,stride);
++    if(instanceIndex>=count) return false;
++    instance=_HLGI_HardwareInstances[instanceIndex];
++    if(!HLGIHardwareInstanceValid(instance) || primitive>=instance.geometry.z) return false;
++    _HLGI_HardwareTriangleNormals.GetDimensions(count,stride);
++    if(instance.geometry.y>=count || primitive>=count-instance.geometry.y) return false;
++    attributes=_HLGI_HardwareTriangleNormals[instance.geometry.y+primitive];
++    float3 face=mul((float3x3)instance.normalToWorld,attributes.face.xyz);
++    float scale=max(abs(face.x),max(abs(face.y),abs(face.z)));
++    // Keep the geometric occluder if an attribute is unusable. It has no trusted
++    // front-face/material orientation; do not replace it with an invented axis.
++    if(!all(isfinite(face)) || scale==0) return true;
++    face/=scale;float lengthSquared=dot(face,face);
++    // Source winding is transformed as a covector, without a determinant sign.
++    // DXR's instance front/back convention is also defined in object space; a
++    // mirrored instance transform alone does not reverse it. Card identity uses
++    // this same inverse-transpose source orientation, never a face-forward Ns.
++    rawNg=face*rsqrt(lengthSquared);return true;
++}
++bool HLGIHardwareSideAllowed(uint cullMode,bool frontFace)
++{
++    return cullMode==0u || (cullMode==1u && !frontFace) || (cullMode==2u && frontFace);
++}
++// Coverage is required for every purpose. Visibility does not require a full
++// material payload; a failure in an unrequested map cannot invalidate coverage.
++void HLGIHardwareResolveCommittedMaterial(uint instanceIndex,uint primitive,
++    HLGIHardwareInstance instance,HLGITriangleNormals attributes,float3x4 objectToWorld,float2 barycentric,
++    float4 materialView,float3 direction,float coneRadiusAtOrigin,float coneSlope,
++    bool shadowQuery,bool resolveMaterial,inout HLGIHit hit)
++{
++    float hitRadius=coneRadiusAtOrigin+coneSlope*hit.t;
++    bool footprintKnown=isfinite(coneRadiusAtOrigin) && coneRadiusAtOrigin>=0 && isfinite(coneSlope) &&
++        isfinite(hit.t) && hit.t>=0 && isfinite(hitRadius) && hitRadius>=0;
++    bool covered=true;HLGIHitMaterialSurface material;float3 materialNormal;
++    bool coverageKnown=false;
++    if(footprintKnown)
++        coverageKnown=HLGIHardwareEvaluateHit(instanceIndex,primitive,instance,attributes,objectToWorld,barycentric,
++            materialView,direction,hitRadius,true,shadowQuery,covered,material,materialNormal);
++    // Recheck the committed identity against the frozen material/texture batch.
++    // An unexpected transparent or stale result is unknown, never a miss that
++    // would silently expose geometry beyond this committed nearest triangle.
++    if(!coverageKnown || !covered) hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN;
++    else if(resolveMaterial && !shadowQuery)
++    {
++        bool materialKnown=HLGIHardwareEvaluateHit(instanceIndex,primitive,instance,attributes,objectToWorld,barycentric,
++            materialView,direction,hitRadius,false,false,covered,material,materialNormal);
++        if(!materialKnown) hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN;
++        else
++        {
++            hit.materialDiffuse=material.diffuseReflectance;hit.materialEmission=material.emission;
++            hit.materialOcclusion=material.occlusion;hit.materialReceivesShadows=material.receivesShadows?1u:0u;
++            hit.shadingNormal=materialNormal;hit.flags|=HLGI_HIT_UV_MATERIAL|HLGI_HIT_SHADING_NORMAL;
++        }
++    }
++}
+ // Software traversal uses the same prepared transform, not a live Renderer value.
+ struct HLGIExactObjectTransform { column_major float4x4 objectToWorld; };
+ StructuredBuffer<HLGIExactObjectTransform> _HLGI_HardwareObjectToWorld;
+--- integration-15/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl
++++ runtime-candidate-16/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl
+@@ -1,138 +1,138 @@
+-#ifndef HYBRID_LUMEN_GI_HARDWARE_TRACE_INCLUDED
+-#define HYBRID_LUMEN_GI_HARDWARE_TRACE_INCLUDED
+-
+-#include "UnityRayQuery.cginc"
+-#include "HybridLumenGIExactMesh.hlsl"
+-RaytracingAccelerationStructure _HLGI_AccelerationStructure;
+-bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shadowQuery,bool resolveMaterial,
+-    uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
+-    float coneRadiusAtOrigin,float coneSlope,float4 materialView,out HLGIHit hit)
+-{
+-    hit=HLGIEmptyHit(maxT);
+-    if(!isfinite(maxT) || maxT<=0.0001 || !all(isfinite(origin)) || !all(isfinite(direction)) || dot(direction,direction)<1e-16) return false;
+-    // Force candidate evaluation even if the instance/submesh is marked opaque.
+-    // Rejecting a COMMITTED closest hit would incorrectly lose farther valid
+-    // surfaces. No accept-first flag: continue traversal after every accepted hit.
+-    const uint flags=RAY_FLAG_FORCE_NON_OPAQUE | RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES;
+-    UnityRayQuery<flags> query;
+-    RayDesc ray;ray.Origin=origin;ray.Direction=direction;ray.TMin=0.0001;ray.TMax=maxT;
+-    query.TraceRayInline(_HLGI_AccelerationStructure,flags,0xff,ray);
+-    while(query.Proceed())
+-    {
+-        if(query.CandidateType()!=CANDIDATE_NON_OPAQUE_TRIANGLE) continue;
+-        HLGIHardwareInstance candidate;HLGITriangleNormals attributes;float3 rawNg;
+-        if(!HLGIHardwareGeometry(query.CandidateInstanceID(),query.CandidatePrimitiveIndex(),candidate,attributes,rawNg)) continue;
+-        // An excluded nearer caster must not hide a farther valid caster. Keep
+-        // the decision inside traversal, before committing this candidate.
+-        // Surface queries intentionally ignore shadow casting and light layers.
+-        if(shadowQuery && !HLGIShadowOwnerAllowed(candidate.geometry.x,cullingMask,shadowRenderingLayers,useRenderingLayers)) continue;
+-        bool frontFace=dot(rawNg,direction)<0;
+-        bool sideAllowed=dot(rawNg,rawNg)<0.5 || HLGIHardwareSideAllowed(candidate.identity.w,frontFace) ||
+-            (shadowQuery && HLGIShadowTwoSided(candidate.geometry.x));
+-        if(!sideAllowed) continue;
+-        float candidateT=query.CandidateTriangleRayT();
+-        float candidateRadius=coneRadiusAtOrigin+coneSlope*candidateT;
+-        bool footprintKnown=isfinite(coneRadiusAtOrigin) && coneRadiusAtOrigin>=0 && isfinite(coneSlope) &&
+-            isfinite(candidateT) && candidateT>=0 && isfinite(candidateRadius) && candidateRadius>=0;
+-        bool covered=true;HLGIHitMaterialSurface candidateMaterial;float3 candidateNormal;
+-        bool coverageKnown=false;
+-        if(footprintKnown)
+-            coverageKnown=HLGIHardwareEvaluateHit(query.CandidateInstanceID(),query.CandidatePrimitiveIndex(),candidate,attributes,
+-                query.CandidateObjectToWorld3x4(),query.CandidateTriangleBarycentrics(),materialView,direction,candidateRadius,true,shadowQuery,
+-                covered,candidateMaterial,candidateNormal);
+-        if(!HLGIHitCoverageBlocks(coverageKnown,covered)) continue;
+-        query.CommitNonOpaqueTriangleHit();
+-    }
+-    if(query.CommittedStatus()!=COMMITTED_TRIANGLE_HIT) return false;
+-    uint instanceIndex=query.CommittedInstanceID(),primitive=query.CommittedPrimitiveIndex();
+-    HLGIHardwareInstance instance;HLGITriangleNormals normals;float3 rawNg;
+-    if(!HLGIHardwareGeometry(instanceIndex,primitive,instance,normals,rawNg)) return false;
+-    float2 barycentric=query.CommittedTriangleBarycentrics();
+-    float3 weights=float3(1-barycentric.x-barycentric.y,barycentric.xy);
+-    float3 shadingNormal=0;
+-    bool normalValid=normals.face.w>0.5 && HLGITryHardwareShadingNormal((float3x3)instance.normalToWorld,
+-        normals.a.xyz,normals.b.xyz,normals.c.xyz,weights,shadingNormal);
+-    if(!normalValid) shadingNormal=rawNg;
+-    hit.t=query.CommittedRayT();hit.position=origin+direction*hit.t;
+-    hit.rawNg=rawNg;hit.shadingNormal=shadingNormal;
+-    hit.ownerSlot=instance.geometry.x;hit.submesh=instance.geometry.w;hit.primitive=primitive;hit.hardwareInstance=instanceIndex;
+-    hit.stableId=instance.identity.x;hit.ownerRevision=instance.identity.y;hit.geometryRevision=instance.identity.z;
+-    hit.barycentrics=barycentric;hit.representation=HLGI_REPRESENTATION_TRIANGLE;
+-    hit.flags=HLGI_HIT_VALID|HLGI_HIT_TRIANGLE;
+-    if(dot(rawNg,rawNg)>0.5)
+-    {
+-        hit.flags|=HLGI_HIT_GEOMETRIC_NORMAL|HLGI_HIT_ORIENTED_NG|HLGI_HIT_FRONT_FACE_KNOWN;
+-        if(dot(rawNg,direction)<0) hit.flags|=HLGI_HIT_FRONT_FACE;
+-    }
+-    if(normalValid) hit.flags|=HLGI_HIT_SHADING_NORMAL;
+-    HLGIHardwareResolveCommittedMaterial(instanceIndex,primitive,instance,normals,query.CommittedObjectToWorld3x4(),barycentric,
+-        materialView,direction,coneRadiusAtOrigin,coneSlope,shadowQuery,resolveMaterial,hit);
+-    float2 uv=float2(dot(float3(normals.a.w,normals.b.w,normals.c.w),weights),dot(normals.uvY.xyz,weights));
+-    if(normals.uvY.w>0.5 && all(isfinite(uv))) { hit.uv=uv;hit.flags|=HLGI_HIT_UV; }
+-    uint count,stride;_HLGI_HardwareTriangleBindings.GetDimensions(count,stride);
+-    if(instance.geometry.y<count && primitive<count-instance.geometry.y)
+-    {
+-        uint4 binding=_HLGI_HardwareTriangleBindings[instance.geometry.y+primitive];
+-        if(binding.x!=0xffffffffu && binding.y!=0u && binding.z!=0u && binding.w==hit.geometryRevision)
+-        { hit.surfaceBinding=binding;hit.flags|=HLGI_HIT_SURFACE_BINDING; }
+-    }
+-    return true;
+-}
+-// Legacy callers describe point queries. Filtered transport supplies an explicit
+-// footprint and a homogeneous material view (point w=1, direction w=0).
+-bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shadowQuery,bool resolveMaterial,
+-    uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
+-    float coneRadiusAtOrigin,float coneSlope,float3 materialViewOrigin,out HLGIHit hit)
+-{
+-    return HLGIHardwareTraceQuery(origin,direction,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,
+-        coneRadiusAtOrigin,coneSlope,float4(materialViewOrigin,1),hit);
+-}
+-bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shadowQuery,bool resolveMaterial,
+-    uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit hit)
+-{
+-    return HLGIHardwareTraceQuery(origin,direction,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,0,0,origin,hit);
+-}
+-// Public legacy overloads preserve their original surface/full and shadow/coverage purposes.
+-bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shadowQuery,
+-    uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
+-    float coneRadiusAtOrigin,float coneSlope,float3 materialViewOrigin,out HLGIHit hit)
+-{
+-    return HLGIHardwareTraceQuery(origin,direction,maxT,shadowQuery,!shadowQuery,cullingMask,shadowRenderingLayers,useRenderingLayers,coneRadiusAtOrigin,coneSlope,materialViewOrigin,hit);
+-}
+-bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shadowQuery,
+-    uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit hit)
+-{
+-    return HLGIHardwareTraceQuery(origin,direction,maxT,shadowQuery,!shadowQuery,cullingMask,shadowRenderingLayers,useRenderingLayers,0,0,origin,hit);
+-}
+-bool HLGIHardwareTraceHit(float3 origin,float3 direction,float maxT,float coneRadiusAtOrigin,float coneSlope,float3 materialViewOrigin,out HLGIHit hit)
+-{
+-    return HLGIHardwareTraceQuery(origin,direction,maxT,false,true,0xffffffffu,0xffffffffu,false,coneRadiusAtOrigin,coneSlope,materialViewOrigin,hit);
+-}
+-bool HLGIHardwareTraceHit(float3 origin,float3 direction,float maxT,out HLGIHit hit)
+-{
+-    return HLGIHardwareTraceQuery(origin,direction,maxT,false,true,0xffffffffu,0xffffffffu,false,hit);
+-}
+-bool HLGIHardwareFallbackMaterial(HLGIHit hit,out float3 diffuse,out float3 emission)
+-{
+-    diffuse=0;emission=0;
+-    // Retained name for callers compiled against the old API. No constant
+-    // approximation can turn failed texture/coverage evaluation into known GI.
+-    if(!HLGIHitMaterialKnown(hit) || !HLGIHitHas(hit.flags,HLGI_HIT_VALID|HLGI_HIT_TRIANGLE|HLGI_HIT_UV_MATERIAL)) return false;
+-    diffuse=hit.materialDiffuse;emission=hit.materialEmission;return true;
+-}
+-
+-// Compatibility accessors. New transport code must keep HLGIHit until material
+-// resolution, otherwise submesh/chart identity is lost again.
+-bool HLGIHardwareTraceAttributes(float3 origin,float3 direction,float maxT,
+-    out float hitT,out float3 hitNormal,out float3 geometricNormal,out float2 uv,out bool hasUV,out int hitIndex)
+-{
+-    HLGIHit hit;bool found=HLGIHardwareTraceHit(origin,direction,maxT,hit);
+-    hitT=hit.t;hitNormal=hit.shadingNormal;geometricNormal=hit.rawNg;uv=hit.uv;
+-    hasUV=HLGIHitHas(hit.flags,HLGI_HIT_UV);hitIndex=found?(int)hit.ownerSlot:-1;return found;
+-}
+-bool HLGIHardwareTrace(float3 origin,float3 direction,float maxT,out float hitT,out float3 hitNormal,out int hitIndex)
+-{
+-    HLGIHit hit;bool found=HLGIHardwareTraceHit(origin,direction,maxT,hit);
+-    hitT=hit.t;hitNormal=HLGIOffsetNormal(hit.rawNg,-direction);hitIndex=found?(int)hit.ownerSlot:-1;return found;
+-}
+-#endif
++#ifndef HYBRID_LUMEN_GI_HARDWARE_TRACE_INCLUDED
++#define HYBRID_LUMEN_GI_HARDWARE_TRACE_INCLUDED
++
++#include "UnityRayQuery.cginc"
++#include "HybridLumenGIExactMesh.hlsl"
++RaytracingAccelerationStructure _HLGI_AccelerationStructure;
++bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shadowQuery,bool resolveMaterial,
++    uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
++    float coneRadiusAtOrigin,float coneSlope,float4 materialView,out HLGIHit hit)
++{
++    hit=HLGIEmptyHit(maxT);
++    if(!isfinite(maxT) || maxT<=0.0001 || !all(isfinite(origin)) || !all(isfinite(direction)) || dot(direction,direction)<1e-16) return false;
++    // Force candidate evaluation even if the instance/submesh is marked opaque.
++    // Rejecting a COMMITTED closest hit would incorrectly lose farther valid
++    // surfaces. No accept-first flag: continue traversal after every accepted hit.
++    const uint flags=RAY_FLAG_FORCE_NON_OPAQUE | RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES;
++    UnityRayQuery<flags> query;
++    RayDesc ray;ray.Origin=origin;ray.Direction=direction;ray.TMin=0.0001;ray.TMax=maxT;
++    query.TraceRayInline(_HLGI_AccelerationStructure,flags,0xff,ray);
++    while(query.Proceed())
++    {
++        if(query.CandidateType()!=CANDIDATE_NON_OPAQUE_TRIANGLE) continue;
++        HLGIHardwareInstance candidate;HLGITriangleNormals attributes;float3 rawNg;
++        if(!HLGIHardwareGeometry(query.CandidateInstanceID(),query.CandidatePrimitiveIndex(),candidate,attributes,rawNg)) continue;
++        // An excluded nearer caster must not hide a farther valid caster. Keep
++        // the decision inside traversal, before committing this candidate.
++        // Surface queries intentionally ignore shadow casting and light layers.
++        if(shadowQuery && !HLGIShadowOwnerAllowed(candidate.geometry.x,cullingMask,shadowRenderingLayers,useRenderingLayers)) continue;
++        bool frontFace=dot(rawNg,direction)<0;
++        bool sideAllowed=dot(rawNg,rawNg)<0.5 || HLGIHardwareSideAllowed(candidate.identity.w,frontFace) ||
++            (shadowQuery && HLGIShadowTwoSided(candidate.geometry.x));
++        if(!sideAllowed) continue;
++        float candidateT=query.CandidateTriangleRayT();
++        float candidateRadius=coneRadiusAtOrigin+coneSlope*candidateT;
++        bool footprintKnown=isfinite(coneRadiusAtOrigin) && coneRadiusAtOrigin>=0 && isfinite(coneSlope) &&
++            isfinite(candidateT) && candidateT>=0 && isfinite(candidateRadius) && candidateRadius>=0;
++        bool covered=true;HLGIHitMaterialSurface candidateMaterial;float3 candidateNormal;
++        bool coverageKnown=false;
++        if(footprintKnown)
++            coverageKnown=HLGIHardwareEvaluateHit(query.CandidateInstanceID(),query.CandidatePrimitiveIndex(),candidate,attributes,
++                query.CandidateObjectToWorld3x4(),query.CandidateTriangleBarycentrics(),materialView,direction,candidateRadius,true,shadowQuery,
++                covered,candidateMaterial,candidateNormal);
++        if(!HLGIHitCoverageBlocks(coverageKnown,covered)) continue;
++        query.CommitNonOpaqueTriangleHit();
++    }
++    if(query.CommittedStatus()!=COMMITTED_TRIANGLE_HIT) return false;
++    uint instanceIndex=query.CommittedInstanceID(),primitive=query.CommittedPrimitiveIndex();
++    HLGIHardwareInstance instance;HLGITriangleNormals normals;float3 rawNg;
++    if(!HLGIHardwareGeometry(instanceIndex,primitive,instance,normals,rawNg)) return false;
++    float2 barycentric=query.CommittedTriangleBarycentrics();
++    float3 weights=float3(1-barycentric.x-barycentric.y,barycentric.xy);
++    float3 shadingNormal=0;
++    bool normalValid=normals.face.w>0.5 && HLGITryHardwareShadingNormal((float3x3)instance.normalToWorld,
++        normals.a.xyz,normals.b.xyz,normals.c.xyz,weights,shadingNormal);
++    if(!normalValid) shadingNormal=rawNg;
++    hit.t=query.CommittedRayT();hit.position=origin+direction*hit.t;
++    hit.rawNg=rawNg;hit.shadingNormal=shadingNormal;
++    hit.ownerSlot=instance.geometry.x;hit.submesh=instance.geometry.w;hit.primitive=primitive;hit.hardwareInstance=instanceIndex;
++    hit.stableId=instance.identity.x;hit.ownerRevision=instance.identity.y;hit.geometryRevision=instance.identity.z;
++    hit.barycentrics=barycentric;hit.representation=HLGI_REPRESENTATION_TRIANGLE;
++    hit.flags=HLGI_HIT_VALID|HLGI_HIT_TRIANGLE;
++    if(dot(rawNg,rawNg)>0.5)
++    {
++        hit.flags|=HLGI_HIT_GEOMETRIC_NORMAL|HLGI_HIT_ORIENTED_NG|HLGI_HIT_FRONT_FACE_KNOWN;
++        if(dot(rawNg,direction)<0) hit.flags|=HLGI_HIT_FRONT_FACE;
++    }
++    if(normalValid) hit.flags|=HLGI_HIT_SHADING_NORMAL;
++    HLGIHardwareResolveCommittedMaterial(instanceIndex,primitive,instance,normals,query.CommittedObjectToWorld3x4(),barycentric,
++        materialView,direction,coneRadiusAtOrigin,coneSlope,shadowQuery,resolveMaterial,hit);
++    float2 uv=float2(dot(float3(normals.a.w,normals.b.w,normals.c.w),weights),dot(normals.uvY.xyz,weights));
++    if(normals.uvY.w>0.5 && all(isfinite(uv))) { hit.uv=uv;hit.flags|=HLGI_HIT_UV; }
++    uint count,stride;_HLGI_HardwareTriangleBindings.GetDimensions(count,stride);
++    if(instance.geometry.y<count && primitive<count-instance.geometry.y)
++    {
++        uint4 binding=_HLGI_HardwareTriangleBindings[instance.geometry.y+primitive];
++        if(binding.x!=0xffffffffu && binding.y!=0u && binding.z!=0u && binding.w==hit.geometryRevision)
++        { hit.surfaceBinding=binding;hit.flags|=HLGI_HIT_SURFACE_BINDING; }
++    }
++    return true;
++}
++// Legacy callers describe point queries. Filtered transport supplies an explicit
++// footprint and a homogeneous material view (point w=1, direction w=0).
++bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shadowQuery,bool resolveMaterial,
++    uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
++    float coneRadiusAtOrigin,float coneSlope,float3 materialViewOrigin,out HLGIHit hit)
++{
++    return HLGIHardwareTraceQuery(origin,direction,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,
++        coneRadiusAtOrigin,coneSlope,float4(materialViewOrigin,1),hit);
++}
++bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shadowQuery,bool resolveMaterial,
++    uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit hit)
++{
++    return HLGIHardwareTraceQuery(origin,direction,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,0,0,origin,hit);
++}
++// Public legacy overloads preserve their original surface/full and shadow/coverage purposes.
++bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shadowQuery,
++    uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
++    float coneRadiusAtOrigin,float coneSlope,float3 materialViewOrigin,out HLGIHit hit)
++{
++    return HLGIHardwareTraceQuery(origin,direction,maxT,shadowQuery,!shadowQuery,cullingMask,shadowRenderingLayers,useRenderingLayers,coneRadiusAtOrigin,coneSlope,materialViewOrigin,hit);
++}
++bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shadowQuery,
++    uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit hit)
++{
++    return HLGIHardwareTraceQuery(origin,direction,maxT,shadowQuery,!shadowQuery,cullingMask,shadowRenderingLayers,useRenderingLayers,0,0,origin,hit);
++}
++bool HLGIHardwareTraceHit(float3 origin,float3 direction,float maxT,float coneRadiusAtOrigin,float coneSlope,float3 materialViewOrigin,out HLGIHit hit)
++{
++    return HLGIHardwareTraceQuery(origin,direction,maxT,false,true,0xffffffffu,0xffffffffu,false,coneRadiusAtOrigin,coneSlope,materialViewOrigin,hit);
++}
++bool HLGIHardwareTraceHit(float3 origin,float3 direction,float maxT,out HLGIHit hit)
++{
++    return HLGIHardwareTraceQuery(origin,direction,maxT,false,true,0xffffffffu,0xffffffffu,false,hit);
++}
++bool HLGIHardwareFallbackMaterial(HLGIHit hit,out float3 diffuse,out float3 emission)
++{
++    diffuse=0;emission=0;
++    // Retained name for callers compiled against the old API. No constant
++    // approximation can turn failed texture/coverage evaluation into known GI.
++    if(!HLGIHitMaterialKnown(hit) || !HLGIHitHas(hit.flags,HLGI_HIT_VALID|HLGI_HIT_TRIANGLE|HLGI_HIT_UV_MATERIAL)) return false;
++    diffuse=hit.materialDiffuse;emission=hit.materialEmission;return true;
++}
++
++// Compatibility accessors. New transport code must keep HLGIHit until material
++// resolution, otherwise submesh/chart identity is lost again.
++bool HLGIHardwareTraceAttributes(float3 origin,float3 direction,float maxT,
++    out float hitT,out float3 hitNormal,out float3 geometricNormal,out float2 uv,out bool hasUV,out int hitIndex)
++{
++    HLGIHit hit;bool found=HLGIHardwareTraceHit(origin,direction,maxT,hit);
++    hitT=hit.t;hitNormal=hit.shadingNormal;geometricNormal=hit.rawNg;uv=hit.uv;
++    hasUV=HLGIHitHas(hit.flags,HLGI_HIT_UV);hitIndex=found?(int)hit.ownerSlot:-1;return found;
++}
++bool HLGIHardwareTrace(float3 origin,float3 direction,float maxT,out float hitT,out float3 hitNormal,out int hitIndex)
++{
++    HLGIHit hit;bool found=HLGIHardwareTraceHit(origin,direction,maxT,hit);
++    hitT=hit.t;hitNormal=HLGIOffsetNormal(hit.rawNg,-direction);hitIndex=found?(int)hit.ownerSlot:-1;return found;
++}
++#endif
+--- integration-15/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
++++ runtime-candidate-16/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
+@@ -1,504 +1,504 @@
+-#include "HybridLumenGITransport.hlsl"
+-#include "HybridLumenGIScreenGeometry.hlsl"
+-#include "HybridLumenGIScreenSampling.hlsl"
+-#if defined(HLGI_RECEIVER_IDENTITY)
+-#include "HybridLumenGIReceiverTemporal.hlsl"
+-Texture2D<uint4> _HLGI_IdentityCurrent, _HLGI_IdentityPrevious;
+-StructuredBuffer<uint3> _HLGI_IdentityCandidates;
+-StructuredBuffer<HLGIReceiverIdentityObject> _HLGI_IdentityObjects;
+-uint _HLGI_IdentityObjectCount;
+-#endif
+-Texture2D<float> _HLGI_Depth;
+-Texture2D<float> _HLGI_CaptureDepth;
+-Texture2D<float4> _HLGI_Normals, _HLGI_Diffuse, _HLGI_Emission;
+-Texture2D<uint2> _HLGI_ReceiverPolicy;
+-Texture2D<float2> _HLGI_Motion;
+-Texture2D<float4> _HLGI_History, _HLGI_PreviousGeometry, _HLGI_PreviousMaterial, _HLGI_PreviousMoments;
+-Texture2D<float4> _HLGI_Input, _HLGI_Geometry, _HLGI_Material, _HLGI_Moments;
+-RWTexture2D<float4> _HLGI_Output, _HLGI_GeometryOut, _HLGI_MaterialOut, _HLGI_MomentsOut;
+-float4 _HLGI_Size, _HLGI_FullSize;
+-float4x4 _HLGI_VP, _HLGI_InvVP, _HLGI_PreviousVP, _HLGI_PreviousInvVP, _HLGI_View;
+-float4 _HLGI_JitterDelta;
+-float4 _HLGI_MaterialView; // point w=1 or constant direction toward viewer w=0
+-int _HLGI_Rays, _HLGI_ScreenSteps, _HLGI_HistoryValid, _HLGI_HasMotion, _HLGI_NormalsOct;
+-int _HLGI_NativeComposition;
+-int _HLGI_FilterStep, _HLGI_MaxHistory;
+-float _HLGI_Thickness, _HLGI_DepthThreshold, _HLGI_NormalThreshold, _HLGI_CurrentWeight, _HLGI_RadianceClamp;
+-
+-bool ValidDepth(float d)
+-{
+-#if UNITY_REVERSED_Z
+-    return d > 1e-6;
+-#else
+-    return d < 1-1e-6;
+-#endif
+-}
+-float3 WorldPosition(float2 uv,float depth,float4x4 invVP)
+-{
+-    // uv is already the exact center of the full-resolution depth sample.
+-    // GI/history callers use HLGIGiSampleUv; do not snap a second time here.
+-#if !UNITY_REVERSED_Z
+-    depth=lerp(UNITY_NEAR_CLIP_VALUE,1,depth);
+-#endif
+-    // ComputeWorldSpacePosition includes the UV-origin transform needed by Unity GPU matrices.
+-    return ComputeWorldSpacePosition(uv,depth,invVP);
+-}
+-float2 ProjectUV(float3 p,float4x4 vp,out float w)
+-{
+-    float4 clip=mul(vp,float4(p,1)); w=clip.w;
+-    float2 uv=clip.xy/max(clip.w,1e-7)*0.5+0.5;
+-#if UNITY_UV_STARTS_AT_TOP
+-    uv.y=1-uv.y;
+-#endif
+-    return uv;
+-}
+-float3 NormalAt(float2 uv)
+-{
+-    float3 n=_HLGI_Normals.SampleLevel(sampler_PointClamp,uv,0).xyz;
+-    if(_HLGI_NormalsOct!=0) n=UnpackNormalOctQuadEncode(Unpack888ToFloat2(n)*2-1);
+-    return dot(n,n)>0.01 ? normalize(n) : float3(0,1,0);
+-}
+-bool HLGIScreenDepthDelta(int2 pixel,int2 axis,float depth,float3 position,out float3 derivative)
+-{
+-    derivative=0;
+-    int2 size=(int2)_HLGI_FullSize.xy;
+-    float bestError=1e20,bestDepth=0,bestPrediction=0;int bestSide=0;
+-    // The raw-depth slope selection follows URP's ReconstructNormalTap9 at
+-    // Graphics feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53. Unlike that shading
+-    // helper, reject missing/ambiguous support instead of clamping edge samples.
+-    [unroll] for(int side=-1;side<=1;side+=2)
+-    {
+-        int2 nearPixel=pixel+axis*side,farPixel=pixel+axis*(side*2);
+-        if(any(nearPixel<0)||any(nearPixel>=size)||any(farPixel<0)||any(farPixel>=size)) continue;
+-        float nearDepth=_HLGI_Depth.Load(int3(nearPixel,0)),farDepth=_HLGI_Depth.Load(int3(farPixel,0));
+-        if(!isfinite(nearDepth)||!isfinite(farDepth)||nearDepth<0||nearDepth>1||farDepth<0||farDepth>1||
+-            !ValidDepth(nearDepth)||!ValidDepth(farDepth)) continue;
+-        float predictedDepth=2*nearDepth-farDepth;
+-        float error=abs(predictedDepth-depth);
+-        if(predictedDepth<0||predictedDepth>1||error>=bestError) continue;
+-        bestError=error;bestSide=side;bestDepth=nearDepth;bestPrediction=predictedDepth;
+-    }
+-    if(bestSide==0) return false;
+-    float2 uv=HLGIFullPixelCenterUv((uint2)pixel,(uint2)_HLGI_FullSize.xy);
+-    float3 predictedPosition=WorldPosition(uv,bestPrediction,_HLGI_InvVP);
+-    float tolerance=max(0.002,abs(mul(_HLGI_View,float4(position,1)).z)*1e-4);
+-    if(!all(isfinite(predictedPosition))||distance(predictedPosition,position)>tolerance) return false;
+-    float2 neighborUv=HLGIFullPixelCenterUv((uint2)(pixel+axis*bestSide),(uint2)_HLGI_FullSize.xy);
+-    derivative=(WorldPosition(neighborUv,bestDepth,_HLGI_InvVP)-position)*bestSide;
+-    float lengthSquared=dot(derivative,derivative);
+-    if(!all(isfinite(derivative))||!isfinite(lengthSquared)||lengthSquared<1e-16) return false;
+-    return true;
+-}
+-bool HLGIScreenDepthDerivative(int2 pixel,int2 axis,float depth,float3 position,out float3 derivative)
+-{
+-    if(!HLGIScreenDepthDelta(pixel,axis,depth,position,derivative)) return false;
+-    derivative*=rsqrt(dot(derivative,derivative));return true;
+-}
+-bool HLGITryScreenRayFootprint(float2 uv,float depth,float3 position,float3 direction,out HLGIRayFootprint footprint)
+-{
+-    footprint=(HLGIRayFootprint)0;
+-    if(!isfinite(depth)||depth<0||depth>1||!ValidDepth(depth)||!all(isfinite(position))||!all(isfinite(uv))) return false;
+-    int2 pixel=(int2)floor(uv*_HLGI_FullSize.xy);
+-    if(any(pixel<0)||any(pixel>=(int2)_HLGI_FullSize.xy)) return false;
+-    float3 dx,dy;
+-    if(!HLGIScreenDepthDelta(pixel,int2(1,0),depth,position,dx)||
+-        !HLGIScreenDepthDelta(pixel,int2(0,1),depth,position,dy)) return false;
+-    // Delta retains world units per full pixel. The GI grid selects a full-pixel
+-    // center; it does not represent a larger pixel footprint at lower GI scales.
+-    return HLGITryScreenFootprint(position,position+dx,position+dy,float2(1,1),float2(1,1),direction,footprint);
+-}
+-bool HLGITryScreenGeometricNormal(float2 uv,float depth,float3 position,out float3 geometricNormal)
+-{
+-    geometricNormal=0;
+-    if(!isfinite(depth)||depth<0||depth>1||!ValidDepth(depth)||!all(isfinite(position))) return false;
+-    int2 pixel=(int2)floor(uv*_HLGI_FullSize.xy);
+-    if(any(pixel<0)||any(pixel>=(int2)_HLGI_FullSize.xy)) return false;
+-    float3 horizontal,vertical;
+-    if(!HLGIScreenDepthDerivative(pixel,int2(1,0),depth,position,horizontal)||
+-        !HLGIScreenDepthDerivative(pixel,int2(0,1),depth,position,vertical)) return false;
+-    float3 crossNormal=cross(horizontal,vertical);
+-    float lengthSquared=dot(crossNormal,crossNormal);
+-    if(!all(isfinite(crossNormal))||!isfinite(lengthSquared)||lengthSquared<1e-6) return false;
+-    geometricNormal=crossNormal*rsqrt(lengthSquared);
+-    // An inverse-projected near point supplies the camera-facing orientation for
+-    // perspective/orthographic matrices and either UV origin. Ns is never used
+-    // to infer geometric orientation. This remains a depth estimate, not mesh Ng.
+-#if UNITY_REVERSED_Z
+-    const float nearDepth=1;
+-#else
+-    const float nearDepth=0;
+-#endif
+-    float3 towardCamera=WorldPosition(HLGIFullPixelCenterUv((uint2)pixel,(uint2)_HLGI_FullSize.xy),nearDepth,_HLGI_InvVP)-position;
+-    float facing=dot(geometricNormal,towardCamera);
+-    if(!all(isfinite(towardCamera))||!isfinite(facing)||abs(facing)<1e-8) { geometricNormal=0;return false; }
+-    if(facing<0) geometricNormal=-geometricNormal;
+-    return true;
+-}
+-bool HLGITryScreenWorldMatch(float2 uv,float depth,float3 position,float3 estimatedGeometricNormal,out HLGIHit hit)
+-{
+-    float probeDistance=max(_HLGI_RayBias*2,0.03);
+-    HLGIRayFootprint footprint;
+-    HLGITryScreenRayFootprint(uv,depth,position,-estimatedGeometricNormal,footprint);
+-    if(!TraceSceneVisibilityHit(position+estimatedGeometricNormal*probeDistance,-estimatedGeometricNormal,probeDistance*2,
+-        footprint,_HLGI_MaterialView,hit)) return false;
+-    if(!HLGIHitMaterialKnown(hit) || !HLGIHitHas(hit.flags,HLGI_HIT_GEOMETRIC_NORMAL) ||
+-        abs(hit.t-probeDistance)>max(0.002,min(_HLGI_RayBias,0.03)) ||
+-        abs(dot(hit.rawNg,estimatedGeometricNormal))<0.85) return false;
+-    // The screen estimate faces the camera. A CullOff/CullFront triangle's raw
+-    // source winding may face away; preserve it in hit for exact card lookup.
+-    return true;
+-}
+-float LuminanceGI(float3 c) { return dot(c,float3(0.2126,0.7152,0.0722)); }
+-float3 LimitRadiance(float3 c)
+-{
+-    c=max(c,0);
+-    // Optional biased firefly clamp; 0 means unbounded transport.
+-    return _HLGI_RadianceClamp>0 ? c*min(1,_HLGI_RadianceClamp/max(LuminanceGI(c),1e-5)) : c;
+-}
+-
+-bool ScreenPoint(float3 origin,float3 dir,float t,out float2 uv,out float delta,out float3 p)
+-{
+-    float3 q=origin+dir*t; float w;
+-    uv=ProjectUV(q,_HLGI_VP,w); delta=-1e10; p=0;
+-    if(w<=0 || any(uv<=0) || any(uv>=1)) return false;
+-    uint width,height; _HLGI_Depth.GetDimensions(width,height);
+-    uint2 fullPixel=HLGIFullPixelForUv(uv,uint2(width,height));
+-    uv=HLGIFullPixelCenterUv(fullPixel,uint2(width,height));
+-    float raw=_HLGI_Depth.Load(int3(fullPixel,0));
+-    if(!ValidDepth(raw)) return true;
+-    p=WorldPosition(uv,raw,_HLGI_InvVP);
+-    delta=mul(_HLGI_View,float4(p-q,0)).z;
+-    return true;
+-}
+-bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out float distanceHit,out bool known)
+-{
+-    radiance=0; distanceHit=maxT;known=true;
+-    float lastT=_HLGI_RayBias*2, lastDelta=-1e10;
+-    [loop] for(int i=0;i<_HLGI_ScreenSteps;i++)
+-    {
+-        float u=(i+1.0)/max(_HLGI_ScreenSteps,1);
+-        float t=lerp(_HLGI_RayBias*2,maxT,u*u);
+-        float2 uv; float delta; float3 p;
+-        if(!ScreenPoint(origin,dir,t,uv,delta,p)) return false;
+-        if(delta>=0 && lastDelta<0)
+-        {
+-            float lo=lastT,hi=t;
+-            [unroll] for(int refine=0;refine<5;refine++)
+-            {
+-                float mid=(lo+hi)*0.5; float2 mu; float md; float3 mp;
+-                if(ScreenPoint(origin,dir,mid,mu,md,mp) && md>=0) hi=mid; else lo=mid;
+-            }
+-            if(ScreenPoint(origin,dir,hi,uv,delta,p) && delta>=0 && delta<_HLGI_Thickness &&
+-                length(origin+dir*hi-p)<_HLGI_Thickness*2)
+-            {
+-                float3 n=NormalAt(uv);
+-                float4 emission=_HLGI_Emission.SampleLevel(sampler_PointClamp,uv,0);
+-                float captureRaw=_HLGI_CaptureDepth.SampleLevel(sampler_PointClamp,uv,0);
+-                bool captured=ValidDepth(captureRaw) && distance(p,WorldPosition(uv,captureRaw,_HLGI_InvVP))<0.03;
+-                float surfaceT=dot(p-origin,dir);
+-                if(emission.a>0.5 && captured && surfaceT>0 && surfaceT<=maxT)
+-                {
+-                    float raw=_HLGI_Depth.SampleLevel(sampler_PointClamp,uv,0);
+-                    float3 geometricNormal;
+-                    bool hasGeometry=HLGITryScreenGeometricNormal(uv,raw,p,geometricNormal);
+-                    // No reliable depth neighborhood: retain the existing single-bounce
+-                    // shading fallback, but never use Ns to locate a world-cache layer.
+-                    float3 biasNormal=hasGeometry?geometricNormal:n;
+-                    if(dot(biasNormal,-dir)<=0.05) { lastT=t;lastDelta=delta;continue; }
+-                    HLGIHit match;
+-                    bool worldMatch=false;
+-                    if(hasGeometry) worldMatch=HLGITryScreenWorldMatch(uv,raw,p,geometricNormal,match);
+-                    if(worldMatch) biasNormal=match.rawNg;
+-                    float4 diffuse=_HLGI_Diffuse.SampleLevel(sampler_PointClamp,uv,0);
+-                    // No lit camera color or screen-history feedback enters the transport equation.
+-                    uint policyWidth,policyHeight;_HLGI_ReceiverPolicy.GetDimensions(policyWidth,policyHeight);
+-                    uint2 policyPixel=min((uint2)(uv*float2(policyWidth,policyHeight)),uint2(policyWidth-1,policyHeight-1));
+-                    uint2 receiverLayers=_HLGI_ReceiverPolicy.Load(int3(policyPixel,0));
+-                    // Captured material represents this camera pixel. Express
+-                    // its spatial support perpendicular to the camera ray before
+-                    // projecting it onto each light connection in DirectIrradiance.
+-                    float3 cameraRay=p*_HLGI_MaterialView.w-_HLGI_MaterialView.xyz;
+-                    HLGIRayFootprint screenFootprint;
+-                    HLGITryScreenRayFootprint(uv,raw,p,cameraRay,screenFootprint);
+-                    bool directKnown;
+-                    float3 direct=DirectIrradiance(p,n,biasNormal,receiverLayers,true,cameraRay,screenFootprint,directKnown);
+-                    // A captured surface with unknown incident light is still a
+-                    // hit. Never continue behind it or reinterpret it as a miss.
+-                    distanceHit=surfaceT;
+-                    if(!directKnown) { known=false;return true; }
+-                    radiance=emission.rgb+diffuse.rgb*direct;
+-                    // Only registered spatially matching surfaces can contribute higher-order cache light.
+-                    if(worldMatch)
+-                    {
+-                        float materialAO=_HLGI_NativeComposition!=0?saturate(emission.a-1):diffuse.a;
+-                        radiance+=diffuse.rgb*materialAO*_HLGI_BounceFeedback*CachedIrradiance(match,n);
+-                    }
+-                    known=all(isfinite(radiance));return true;
+-                }
+-            }
+-        }
+-        lastT=t; lastDelta=delta;
+-    }
+-    return false;
+-}
+-[numthreads(8,8,1)]
+-void CSTrace(uint3 id:SV_DispatchThreadID)
+-{
+-    if(any(id.xy>=(uint2)_HLGI_Size.xy)) return;
+-    uint2 fullPixel=HLGIFullPixelForGiPixel(id.xy,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy);
+-    float2 uv=HLGIFullPixelCenterUv(fullPixel,(uint2)_HLGI_FullSize.xy);
+-    float depth=_HLGI_Depth.Load(int3(fullPixel,0));
+-    float4 material=_HLGI_Diffuse.Load(int3(fullPixel,0));
+-    float capturedDepth=_HLGI_CaptureDepth.Load(int3(fullPixel,0));
+-    bool sameSurface=ValidDepth(capturedDepth) && distance(WorldPosition(uv,depth,_HLGI_InvVP),WorldPosition(uv,capturedDepth,_HLGI_InvVP))<0.03;
+-    if(!ValidDepth(depth) || !sameSurface || _HLGI_Emission.Load(int3(fullPixel,0)).a<0.5)
+-    {
+-        _HLGI_Output[id.xy]=0; _HLGI_GeometryOut[id.xy]=0; _HLGI_MaterialOut[id.xy]=0; return;
+-    }
+-    float3 p=WorldPosition(uv,depth,_HLGI_InvVP), n=NormalAt(uv);
+-    _HLGI_MaterialOut[id.xy]=material;
+-    uint rng=HLGIHash((id.x+id.y*(uint)_HLGI_Size.x+HLGIHash((uint)_HLGI_FrameIndex+1))^0x63D83595u);
+-    HLGICacheEntry receiverCache=(HLGICacheEntry)0;
+-    float3 geometricNormal;
+-    bool hasGeometry=HLGITryScreenGeometricNormal(uv,depth,p,geometricNormal);
+-    if(hasGeometry && _HLGI_GuideWeight>0)
+-    {
+-        HLGIHit receiverHit;
+-        if(HLGITryScreenWorldMatch(uv,depth,p,geometricNormal,receiverHit))
+-        {
+-            geometricNormal=HLGIOffsetNormal(receiverHit.rawNg,geometricNormal);
+-            HLGICachedSample(receiverHit,n,receiverCache);
+-        }
+-    }
+-    _HLGI_GeometryOut[id.xy]=HLGIPackScreenGeometry(n,geometricNormal,hasGeometry,depth);
+-    float3 sum=0; float confidence=0;bool estimateKnown=true;
+-    [loop] for(int r=0;r<_HLGI_Rays;r++)
+-    {
+-        float sampleWeight;
+-        // History Ng faces the camera, while stock Lit Ns retains its authored
+-        // direction on a visible back face. Bias toward the sampled hemisphere
+-        // without changing either normal; otherwise every ray hits its own plane.
+-        float3 origin=p+(hasGeometry?HLGIOffsetNormal(geometricNormal,n):n)*_HLGI_RayBias;
+-        float3 dir=HLGISampleTransportDirection(origin,n,receiverCache.guide,rng,sampleWeight);
+-        if(!HLGIAreaMatchedDirectionWeight(origin,n,receiverCache.guide,dir,sampleWeight)) { estimateKnown=false;break; }
+-        if(!all(isfinite(dir))) { estimateKnown=false;break; }
+-        HLGIHit hit;
+-        HLGIRayFootprint footprint;
+-        HLGITryScreenRayFootprint(uv,depth,p,dir,footprint);
+-        bool worldHit=sampleWeight>0 && TraceSceneHit(origin,dir,_HLGI_MaxDistance,footprint,float4(p,1),hit);
+-        float3 incoming=0; float screenT;bool screenKnown;
+-        // World occluders bound the screen ray, so a visible hit behind an off-screen wall cannot win.
+-        float sampleConfidence=1;
+-        if(sampleWeight>0 && TraceScreen(origin,dir,worldHit?hit.t:_HLGI_MaxDistance,incoming,screenT,screenKnown) && (!worldHit || screenT<=hit.t))
+-            sampleConfidence=screenKnown?1:0;
+-        else if(worldHit)
+-        {
+-            HLGIRayFootprint hitFootprint;HLGIAdvanceRayFootprint(footprint,hit.t,hitFootprint);
+-            float emissionWeight;
+-            if(!HLGIAreaDirectionEmissionWeight(origin,n,receiverCache.guide,dir,hit,emissionWeight)) { estimateKnown=false;break; }
+-            float materialConfidence;incoming=ProxyRadiance(hit,dir,hitFootprint,emissionWeight,materialConfidence);sampleConfidence=0.65*materialConfidence;
+-        }
+-        else if(sampleWeight>0) { incoming=_HLGI_Environment.rgb;sampleConfidence=0.25; }
+-        // Check before a clamp can conceal a NaN/infinity. Reject the complete
+-        // estimate, without dividing by a smaller known-sample population.
+-        if(!HLGIHasRadianceMeasurement(float4(incoming,sampleConfidence)) ||
+-            !HLGIAccumulateRadianceSample(_HLGI_AreaEmitterCount>0?incoming:LimitRadiance(incoming),sampleConfidence,sampleWeight,sum))
+-        { estimateKnown=false;break; }
+-        // One independent area draw is required even when the direction draw
+-        // lies below the receiver hemisphere. Do not conditionally omit it.
+-        HLGIAreaSample lightSample;
+-        uint lightStatus=HLGI_AREA_NONE;
+-        if(_HLGI_AreaEmitterCount>0)lightStatus=HLGISampleAreaEmitter(origin,float3(Random(rng),Random(rng),Random(rng)),lightSample);
+-        if(lightStatus==HLGI_AREA_UNKNOWN) { estimateKnown=false;break; }
+-        if(lightStatus==HLGI_AREA_SAMPLE && dot(n,lightSample.direction)>0 && lightSample.distance<_HLGI_MaxDistance)
+-        {
+-            HLGITryScreenRayFootprint(uv,depth,p,lightSample.direction,footprint);
+-            float3 lightValue;bool lightWorldHit;HLGIHit lightHit;
+-            bool lightKnown=HLGIAreaLightContribution(origin,n,receiverCache.guide,lightSample,footprint,float4(p,1),lightValue,lightWorldHit,lightHit);
+-            float3 screenValue;float lightScreenT;bool lightScreenKnown;
+-            if(TraceScreen(origin,lightSample.direction,lightWorldHit?lightHit.t:lightSample.distance,
+-                screenValue,lightScreenT,lightScreenKnown) && (!lightWorldHit || lightScreenT<=lightHit.t))
+-            {
+-                // The matching direction estimator uses the screen endpoint at
+-                // weight one. Suppress area NEE on exactly that same support.
+-                lightValue=0;lightKnown=lightScreenKnown;
+-            }
+-            if(!lightKnown || !HLGIAccumulateRadianceSample(lightValue,1,1,sum)) { estimateKnown=false;break; }
+-        }
+-        confidence+=sampleConfidence;
+-    }
+-    _HLGI_Output[id.xy]=estimateKnown?float4(sum/max(_HLGI_Rays,1),confidence/max(_HLGI_Rays,1)):float4(0,0,0,-1);
+-}
+-[numthreads(8,8,1)]
+-#if defined(HLGI_RECEIVER_IDENTITY)
+-void CSTemporalIdentity(uint3 id:SV_DispatchThreadID)
+-#else
+-void CSTemporal(uint3 id:SV_DispatchThreadID)
+-#endif
+-{
+-    if(any(id.xy>=(uint2)_HLGI_Size.xy)) return;
+-    int2 pixel=id.xy;
+-    uint2 fullPixel=HLGIFullPixelForGiPixel(id.xy,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy);
+-    float2 uv=HLGIFullPixelCenterUv(fullPixel,(uint2)_HLGI_FullSize.xy);
+-    float4 current=_HLGI_Input.Load(int3(pixel,0));
+-    float4 geometry=_HLGI_Geometry.Load(int3(pixel,0));
+-    float3 rho=_HLGI_Material.Load(int3(pixel,0)).rgb;
+-    float3 shadingNormal,geometricNormal;bool hasGeometry;
+-    if(!HLGIDecodeScreenGeometry(geometry,shadingNormal,geometricNormal,hasGeometry))
+-    { _HLGI_Output[pixel]=0; _HLGI_MomentsOut[pixel]=0; return; }
+-    bool currentKnown=HLGIHasRadianceMeasurement(current);
+-    float lum=currentKnown?LuminanceGI(current.rgb):0;
+-    currentKnown=currentKnown && isfinite(lum) && isfinite(lum*lum) && all(isfinite(current.rgb*current.rgb));
+-    // A valid receiver with unknown Ng still owns a useful single-frame GI
+-    // estimate. Preserve it, but do not blend across pixels or engine frames.
+-    if(!hasGeometry)
+-    { _HLGI_Output[pixel]=currentKnown?current:0; _HLGI_MomentsOut[pixel]=currentKnown?float4(lum,lum*lum,1,0):0; return; }
+-    float3 p=WorldPosition(uv,geometry.w,_HLGI_InvVP); float w;
+-    float3 expectedP=p,expectedNs=shadingNormal,expectedNg=geometricNormal;
+-    bool identityValid=true;
+-#if defined(HLGI_RECEIVER_IDENTITY)
+-    uint4 identity=_HLGI_IdentityCurrent.Load(int3(pixel,0));
+-    uint receiverGroup=0u;
+-    uint3 candidate=_HLGI_IdentityCandidates[fullPixel.y*(uint)_HLGI_FullSize.x+fullPixel.x];
+-    identityValid=false;
+-    // Explicit bounds guard before reading a transient object row.
+-    if(candidate.x>0u && candidate.x<=_HLGI_IdentityObjectCount)
+-    {
+-        HLGIReceiverIdentityObject row=_HLGI_IdentityObjects[candidate.x-1u];
+-        identityValid=HLGITryReceiverMotion(identity,candidate,row,
+-            p,shadingNormal,geometricNormal,expectedP,expectedNs,expectedNg);
+-        if(identityValid) receiverGroup=row.reserved;
+-    }
+-#endif
+-    float2 prevUV=ProjectUV(expectedP,_HLGI_PreviousVP,w);
+-    if(_HLGI_HasMotion!=0)
+-    {
+-        // URP's non-jittered current-minus-previous UV velocity, sampled at the
+-        // same full-resolution point as depth. Graphics feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53:
+-        // ObjectMotionVectors.hlsl / MotionVectorsCommon.hlsl. JitterDelta is
+-        // previousJitter-currentJitter in GPU UV space; do not apply it twice.
+-        float2 motionUV=uv-_HLGI_Motion.Load(int3(fullPixel,0))+_HLGI_JitterDelta.xy;
+-#if defined(HLGI_RECEIVER_IDENTITY)
+-        // A missing/forced-zero object velocity must not override the verified
+-        // rigid pose. Accept motion only when it agrees within one full texel.
+-        if(all(isfinite(motionUV)) && all(abs(motionUV-prevUV)*_HLGI_FullSize.xy<=1)) prevUV=motionUV;
+-#else
+-        prevUV=motionUV;
+-#endif
+-    }
+-    bool valid=_HLGI_HistoryValid!=0 && identityValid && isfinite(w) && w>0 && all(isfinite(prevUV)) && all(prevUV>0) && all(prevUV<1);
+-    // Never cast a nonfinite UV to an integer, including on an invalid history.
+-    int2 previousPixel=0;
+-    if(valid) previousPixel=(int2)HLGIClosestGiPixel(prevUV,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy);
+-#if defined(HLGI_RECEIVER_IDENTITY)
+-    valid=valid && HLGISameReceiverPrimitive(identity,_HLGI_IdentityPrevious.Load(int3(previousPixel,0)));
+-#endif
+-    float4 oldGeometry=_HLGI_PreviousGeometry.Load(int3(previousPixel,0));
+-    float3 oldRho=_HLGI_PreviousMaterial.Load(int3(previousPixel,0)).rgb;
+-    float3 oldShadingNormal,oldGeometricNormal;bool oldHasGeometry;
+-    bool oldReceiver=HLGIDecodeScreenGeometry(oldGeometry,oldShadingNormal,oldGeometricNormal,oldHasGeometry);
+-    // Previous raw depth belongs to this GI texel's stored full-resolution
+-    // sample. Frame-context validation must reject a changed full/low size.
+-    float3 oldP=WorldPosition(HLGIGiSampleUv((uint2)previousPixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),oldGeometry.w,_HLGI_PreviousInvVP);
+-    float tolerance=_HLGI_DepthThreshold*max(1,abs(mul(_HLGI_View,float4(p,1)).z));
+-    float geometricAgreement=dot(expectedNg,oldGeometricNormal);
+-#if defined(HLGI_RECEIVER_IDENTITY)
+-    // Screen Ng faces its own camera; its sign may differ between rigid poses.
+-    geometricAgreement=abs(geometricAgreement);
+-#endif
+-    valid=valid && oldReceiver && oldHasGeometry && dot(expectedNs,oldShadingNormal)>_HLGI_NormalThreshold &&
+-        geometricAgreement>0.85 &&
+-        abs(dot(expectedP-oldP,expectedNg))<tolerance && abs(dot(expectedP-oldP,oldGeometricNormal))<tolerance &&
+-        distance(expectedP,oldP)<tolerance && max(abs(rho.x-oldRho.x),max(abs(rho.y-oldRho.y),abs(rho.z-oldRho.z)))<0.1;
+-#if defined(HLGI_RECEIVER_IDENTITY)
+-    float2 change=HLGIChangeAtReceiver(p,valid?receiverGroup:0u);
+-#else
+-    float2 change=HLGIChangeAt(p);
+-#endif
+-    valid=valid && change.x<0.5;
+-    float4 history=_HLGI_History.Load(int3(previousPixel,0));
+-    float4 moments=_HLGI_PreviousMoments.Load(int3(previousPixel,0));
+-    valid=valid && HLGIHasTemporalHistory(history,moments);
+-    if(!currentKnown)
+-    {
+-        float4 retained,retainedMoments;
+-        HLGIResolveUnknownHistory(valid,history,moments,retained,retainedMoments);
+-        _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
+-    }
+-    // Invalid/uninitialized textures may contain NaNs; lerp(old,current,1) does not remove NaNs.
+-    if(!valid) { history=current; moments=float4(lum,lum*lum,0,0); }
+-    float3 mean=current.rgb, second=current.rgb*current.rgb; float count=1;
+-    [unroll] for(int y=-1;y<=1;y++) [unroll] for(int x=-1;x<=1;x++)
+-    {
+-        int2 q=clamp(pixel+int2(x,y),0,(int2)_HLGI_Size.xy-1);
+-        if(all(q==pixel)) continue;
+-        float4 g=_HLGI_Geometry.Load(int3(q,0));
+-        float3 neighborShadingNormal,neighborGeometricNormal;bool neighborHasGeometry;
+-        if(!HLGIDecodeScreenGeometry(g,neighborShadingNormal,neighborGeometricNormal,neighborHasGeometry) || !neighborHasGeometry) continue;
+-        if(dot(neighborShadingNormal,shadingNormal)<_HLGI_NormalThreshold || dot(neighborGeometricNormal,geometricNormal)<0.85) continue;
+-        float3 qp=WorldPosition(HLGIGiSampleUv((uint2)q,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),g.w,_HLGI_InvVP);
+-        if(max(abs(dot(qp-p,geometricNormal)),abs(dot(qp-p,neighborGeometricNormal)))>tolerance) continue;
+-        if(length(_HLGI_Material.Load(int3(q,0)).rgb-rho)>0.15) continue;
+-        float4 neighbor=_HLGI_Input.Load(int3(q,0));
+-        if(!HLGIHasRadianceMeasurement(neighbor) || !all(isfinite(neighbor.rgb*neighbor.rgb))) continue;
+-        float3 c=neighbor.rgb; mean+=c; second+=c*c; count++;
+-    }
+-    mean/=max(count,1); second/=max(count,1);
+-    if(!all(isfinite(mean)) || !all(isfinite(second)))
+-    {
+-        float4 retained,retainedMoments;
+-        HLGIResolveUnknownHistory(valid,history,moments,retained,retainedMoments);
+-        _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
+-    }
+-    float3 sigma=sqrt(max(second-mean*mean,0))+0.02;
+-    history.rgb=clamp(history.rgb,mean-2*sigma,mean+2*sigma);
+-    float samples=valid?min(moments.z+1,change.y>0.5?2:(float)_HLGI_MaxHistory):1;
+-    float alpha=valid?max(_HLGI_CurrentWeight,1/samples):1;
+-    alpha=max(alpha,valid?0.25*abs(current.a-history.a):1);
+-    float2 newMoments=lerp(moments.xy,float2(lum,lum*lum),alpha);
+-    float4 resolved=lerp(history,current,alpha),resolvedMoments=float4(newMoments,samples,valid?1:0);
+-    if(!HLGIHasTemporalHistory(resolved,resolvedMoments))
+-    { _HLGI_Output[pixel]=0;_HLGI_MomentsOut[pixel]=0;return; }
+-    _HLGI_Output[pixel]=resolved;
+-    _HLGI_MomentsOut[pixel]=resolvedMoments;
+-}
+-[numthreads(8,8,1)]
+-void CSFilter(uint3 id:SV_DispatchThreadID)
+-{
+-    if(any(id.xy>=(uint2)_HLGI_Size.xy)) return;
+-    int2 pixel=id.xy; float4 center=_HLGI_Input.Load(int3(pixel,0));
+-    // An invalid center is not filled from neighbors: that would manufacture a
+-    // valid measurement and let native replacement subtract real lighting.
+-    if(!HLGIHasRadianceMeasurement(center)) { _HLGI_Output[pixel]=0;return; }
+-    float4 g=_HLGI_Geometry.Load(int3(pixel,0));
+-    float3 shadingNormal,geometricNormal;bool hasGeometry;
+-    if(!HLGIDecodeScreenGeometry(g,shadingNormal,geometricNormal,hasGeometry)) { _HLGI_Output[pixel]=0; return; }
+-    if(!hasGeometry) { _HLGI_Output[pixel]=center; return; }
+-    float3 p=WorldPosition(HLGIGiSampleUv((uint2)pixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),g.w,_HLGI_InvVP);
+-    float3 rho=_HLGI_Material.Load(int3(pixel,0)).rgb;
+-    float2 moments=_HLGI_Moments.Load(int3(pixel,0)).xy;
+-    float variance=max(moments.y-moments.x*moments.x,0);
+-    float sigma=max(sqrt(variance)*4,0.05);
+-    float3 sum=center.rgb*4; float weight=4;
+-    [unroll] for(int y=-1;y<=1;y++) [unroll] for(int x=-1;x<=1;x++)
+-    {
+-        int2 q=pixel+int2(x,y)*_HLGI_FilterStep;
+-        if(any(q<0)||any(q>=(int2)_HLGI_Size.xy)||all(q==pixel)) continue;
+-        float4 ng=_HLGI_Geometry.Load(int3(q,0));
+-        float3 neighborShadingNormal,neighborGeometricNormal;bool neighborHasGeometry;
+-        if(!HLGIDecodeScreenGeometry(ng,neighborShadingNormal,neighborGeometricNormal,neighborHasGeometry) || !neighborHasGeometry) continue;
+-        if(dot(neighborGeometricNormal,geometricNormal)<0.85) continue;
+-        float3 qp=WorldPosition(HLGIGiSampleUv((uint2)q,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),ng.w,_HLGI_InvVP);
+-        float4 sampleGI=_HLGI_Input.Load(int3(q,0));
+-        if(!HLGIHasRadianceMeasurement(sampleGI)) continue;
+-        float3 qrho=_HLGI_Material.Load(int3(q,0)).rgb;
+-        float normalWeight=pow(saturate(dot(shadingNormal,neighborShadingNormal)),32);
+-        float planeDistance=max(abs(dot(qp-p,geometricNormal)),abs(dot(qp-p,neighborGeometricNormal)));
+-        float w=exp(-planeDistance/max(_HLGI_DepthThreshold,0.001)-length(qrho-rho)*8-
+-            abs(LuminanceGI(sampleGI.rgb)-LuminanceGI(center.rgb))/sigma)*normalWeight;
+-        w*= (x==0?2:1)*(y==0?2:1);
+-        sum+=sampleGI.rgb*w; weight+=w;
+-    }
+-    float4 filtered=float4(sum/max(weight,1e-6),center.a);
+-    _HLGI_Output[pixel]=HLGIHasRadianceMeasurement(filtered)?filtered:0;
+-}
++#include "HybridLumenGITransport.hlsl"
++#include "HybridLumenGIScreenGeometry.hlsl"
++#include "HybridLumenGIScreenSampling.hlsl"
++#if defined(HLGI_RECEIVER_IDENTITY)
++#include "HybridLumenGIReceiverTemporal.hlsl"
++Texture2D<uint4> _HLGI_IdentityCurrent, _HLGI_IdentityPrevious;
++StructuredBuffer<uint3> _HLGI_IdentityCandidates;
++StructuredBuffer<HLGIReceiverIdentityObject> _HLGI_IdentityObjects;
++uint _HLGI_IdentityObjectCount;
++#endif
++Texture2D<float> _HLGI_Depth;
++Texture2D<float> _HLGI_CaptureDepth;
++Texture2D<float4> _HLGI_Normals, _HLGI_Diffuse, _HLGI_Emission;
++Texture2D<uint2> _HLGI_ReceiverPolicy;
++Texture2D<float2> _HLGI_Motion;
++Texture2D<float4> _HLGI_History, _HLGI_PreviousGeometry, _HLGI_PreviousMaterial, _HLGI_PreviousMoments;
++Texture2D<float4> _HLGI_Input, _HLGI_Geometry, _HLGI_Material, _HLGI_Moments;
++RWTexture2D<float4> _HLGI_Output, _HLGI_GeometryOut, _HLGI_MaterialOut, _HLGI_MomentsOut;
++float4 _HLGI_Size, _HLGI_FullSize;
++float4x4 _HLGI_VP, _HLGI_InvVP, _HLGI_PreviousVP, _HLGI_PreviousInvVP, _HLGI_View;
++float4 _HLGI_JitterDelta;
++float4 _HLGI_MaterialView; // point w=1 or constant direction toward viewer w=0
++int _HLGI_Rays, _HLGI_ScreenSteps, _HLGI_HistoryValid, _HLGI_HasMotion, _HLGI_NormalsOct;
++int _HLGI_NativeComposition;
++int _HLGI_FilterStep, _HLGI_MaxHistory;
++float _HLGI_Thickness, _HLGI_DepthThreshold, _HLGI_NormalThreshold, _HLGI_CurrentWeight, _HLGI_RadianceClamp;
++
++bool ValidDepth(float d)
++{
++#if UNITY_REVERSED_Z
++    return d > 1e-6;
++#else
++    return d < 1-1e-6;
++#endif
++}
++float3 WorldPosition(float2 uv,float depth,float4x4 invVP)
++{
++    // uv is already the exact center of the full-resolution depth sample.
++    // GI/history callers use HLGIGiSampleUv; do not snap a second time here.
++#if !UNITY_REVERSED_Z
++    depth=lerp(UNITY_NEAR_CLIP_VALUE,1,depth);
++#endif
++    // ComputeWorldSpacePosition includes the UV-origin transform needed by Unity GPU matrices.
++    return ComputeWorldSpacePosition(uv,depth,invVP);
++}
++float2 ProjectUV(float3 p,float4x4 vp,out float w)
++{
++    float4 clip=mul(vp,float4(p,1)); w=clip.w;
++    float2 uv=clip.xy/max(clip.w,1e-7)*0.5+0.5;
++#if UNITY_UV_STARTS_AT_TOP
++    uv.y=1-uv.y;
++#endif
++    return uv;
++}
++float3 NormalAt(float2 uv)
++{
++    float3 n=_HLGI_Normals.SampleLevel(sampler_PointClamp,uv,0).xyz;
++    if(_HLGI_NormalsOct!=0) n=UnpackNormalOctQuadEncode(Unpack888ToFloat2(n)*2-1);
++    return dot(n,n)>0.01 ? normalize(n) : float3(0,1,0);
++}
++bool HLGIScreenDepthDelta(int2 pixel,int2 axis,float depth,float3 position,out float3 derivative)
++{
++    derivative=0;
++    int2 size=(int2)_HLGI_FullSize.xy;
++    float bestError=1e20,bestDepth=0,bestPrediction=0;int bestSide=0;
++    // The raw-depth slope selection follows URP's ReconstructNormalTap9 at
++    // Graphics feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53. Unlike that shading
++    // helper, reject missing/ambiguous support instead of clamping edge samples.
++    [unroll] for(int side=-1;side<=1;side+=2)
++    {
++        int2 nearPixel=pixel+axis*side,farPixel=pixel+axis*(side*2);
++        if(any(nearPixel<0)||any(nearPixel>=size)||any(farPixel<0)||any(farPixel>=size)) continue;
++        float nearDepth=_HLGI_Depth.Load(int3(nearPixel,0)),farDepth=_HLGI_Depth.Load(int3(farPixel,0));
++        if(!isfinite(nearDepth)||!isfinite(farDepth)||nearDepth<0||nearDepth>1||farDepth<0||farDepth>1||
++            !ValidDepth(nearDepth)||!ValidDepth(farDepth)) continue;
++        float predictedDepth=2*nearDepth-farDepth;
++        float error=abs(predictedDepth-depth);
++        if(predictedDepth<0||predictedDepth>1||error>=bestError) continue;
++        bestError=error;bestSide=side;bestDepth=nearDepth;bestPrediction=predictedDepth;
++    }
++    if(bestSide==0) return false;
++    float2 uv=HLGIFullPixelCenterUv((uint2)pixel,(uint2)_HLGI_FullSize.xy);
++    float3 predictedPosition=WorldPosition(uv,bestPrediction,_HLGI_InvVP);
++    float tolerance=max(0.002,abs(mul(_HLGI_View,float4(position,1)).z)*1e-4);
++    if(!all(isfinite(predictedPosition))||distance(predictedPosition,position)>tolerance) return false;
++    float2 neighborUv=HLGIFullPixelCenterUv((uint2)(pixel+axis*bestSide),(uint2)_HLGI_FullSize.xy);
++    derivative=(WorldPosition(neighborUv,bestDepth,_HLGI_InvVP)-position)*bestSide;
++    float lengthSquared=dot(derivative,derivative);
++    if(!all(isfinite(derivative))||!isfinite(lengthSquared)||lengthSquared<1e-16) return false;
++    return true;
++}
++bool HLGIScreenDepthDerivative(int2 pixel,int2 axis,float depth,float3 position,out float3 derivative)
++{
++    if(!HLGIScreenDepthDelta(pixel,axis,depth,position,derivative)) return false;
++    derivative*=rsqrt(dot(derivative,derivative));return true;
++}
++bool HLGITryScreenRayFootprint(float2 uv,float depth,float3 position,float3 direction,out HLGIRayFootprint footprint)
++{
++    footprint=(HLGIRayFootprint)0;
++    if(!isfinite(depth)||depth<0||depth>1||!ValidDepth(depth)||!all(isfinite(position))||!all(isfinite(uv))) return false;
++    int2 pixel=(int2)floor(uv*_HLGI_FullSize.xy);
++    if(any(pixel<0)||any(pixel>=(int2)_HLGI_FullSize.xy)) return false;
++    float3 dx,dy;
++    if(!HLGIScreenDepthDelta(pixel,int2(1,0),depth,position,dx)||
++        !HLGIScreenDepthDelta(pixel,int2(0,1),depth,position,dy)) return false;
++    // Delta retains world units per full pixel. The GI grid selects a full-pixel
++    // center; it does not represent a larger pixel footprint at lower GI scales.
++    return HLGITryScreenFootprint(position,position+dx,position+dy,float2(1,1),float2(1,1),direction,footprint);
++}
++bool HLGITryScreenGeometricNormal(float2 uv,float depth,float3 position,out float3 geometricNormal)
++{
++    geometricNormal=0;
++    if(!isfinite(depth)||depth<0||depth>1||!ValidDepth(depth)||!all(isfinite(position))) return false;
++    int2 pixel=(int2)floor(uv*_HLGI_FullSize.xy);
++    if(any(pixel<0)||any(pixel>=(int2)_HLGI_FullSize.xy)) return false;
++    float3 horizontal,vertical;
++    if(!HLGIScreenDepthDerivative(pixel,int2(1,0),depth,position,horizontal)||
++        !HLGIScreenDepthDerivative(pixel,int2(0,1),depth,position,vertical)) return false;
++    float3 crossNormal=cross(horizontal,vertical);
++    float lengthSquared=dot(crossNormal,crossNormal);
++    if(!all(isfinite(crossNormal))||!isfinite(lengthSquared)||lengthSquared<1e-6) return false;
++    geometricNormal=crossNormal*rsqrt(lengthSquared);
++    // An inverse-projected near point supplies the camera-facing orientation for
++    // perspective/orthographic matrices and either UV origin. Ns is never used
++    // to infer geometric orientation. This remains a depth estimate, not mesh Ng.
++#if UNITY_REVERSED_Z
++    const float nearDepth=1;
++#else
++    const float nearDepth=0;
++#endif
++    float3 towardCamera=WorldPosition(HLGIFullPixelCenterUv((uint2)pixel,(uint2)_HLGI_FullSize.xy),nearDepth,_HLGI_InvVP)-position;
++    float facing=dot(geometricNormal,towardCamera);
++    if(!all(isfinite(towardCamera))||!isfinite(facing)||abs(facing)<1e-8) { geometricNormal=0;return false; }
++    if(facing<0) geometricNormal=-geometricNormal;
++    return true;
++}
++bool HLGITryScreenWorldMatch(float2 uv,float depth,float3 position,float3 estimatedGeometricNormal,out HLGIHit hit)
++{
++    float probeDistance=max(_HLGI_RayBias*2,0.03);
++    HLGIRayFootprint footprint;
++    HLGITryScreenRayFootprint(uv,depth,position,-estimatedGeometricNormal,footprint);
++    if(!TraceSceneVisibilityHit(position+estimatedGeometricNormal*probeDistance,-estimatedGeometricNormal,probeDistance*2,
++        footprint,_HLGI_MaterialView,hit)) return false;
++    if(!HLGIHitMaterialKnown(hit) || !HLGIHitHas(hit.flags,HLGI_HIT_GEOMETRIC_NORMAL) ||
++        abs(hit.t-probeDistance)>max(0.002,min(_HLGI_RayBias,0.03)) ||
++        abs(dot(hit.rawNg,estimatedGeometricNormal))<0.85) return false;
++    // The screen estimate faces the camera. A CullOff/CullFront triangle's raw
++    // source winding may face away; preserve it in hit for exact card lookup.
++    return true;
++}
++float LuminanceGI(float3 c) { return dot(c,float3(0.2126,0.7152,0.0722)); }
++float3 LimitRadiance(float3 c)
++{
++    c=max(c,0);
++    // Optional biased firefly clamp; 0 means unbounded transport.
++    return _HLGI_RadianceClamp>0 ? c*min(1,_HLGI_RadianceClamp/max(LuminanceGI(c),1e-5)) : c;
++}
++
++bool ScreenPoint(float3 origin,float3 dir,float t,out float2 uv,out float delta,out float3 p)
++{
++    float3 q=origin+dir*t; float w;
++    uv=ProjectUV(q,_HLGI_VP,w); delta=-1e10; p=0;
++    if(w<=0 || any(uv<=0) || any(uv>=1)) return false;
++    uint width,height; _HLGI_Depth.GetDimensions(width,height);
++    uint2 fullPixel=HLGIFullPixelForUv(uv,uint2(width,height));
++    uv=HLGIFullPixelCenterUv(fullPixel,uint2(width,height));
++    float raw=_HLGI_Depth.Load(int3(fullPixel,0));
++    if(!ValidDepth(raw)) return true;
++    p=WorldPosition(uv,raw,_HLGI_InvVP);
++    delta=mul(_HLGI_View,float4(p-q,0)).z;
++    return true;
++}
++bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out float distanceHit,out bool known)
++{
++    radiance=0; distanceHit=maxT;known=true;
++    float lastT=_HLGI_RayBias*2, lastDelta=-1e10;
++    [loop] for(int i=0;i<_HLGI_ScreenSteps;i++)
++    {
++        float u=(i+1.0)/max(_HLGI_ScreenSteps,1);
++        float t=lerp(_HLGI_RayBias*2,maxT,u*u);
++        float2 uv; float delta; float3 p;
++        if(!ScreenPoint(origin,dir,t,uv,delta,p)) return false;
++        if(delta>=0 && lastDelta<0)
++        {
++            float lo=lastT,hi=t;
++            [unroll] for(int refine=0;refine<5;refine++)
++            {
++                float mid=(lo+hi)*0.5; float2 mu; float md; float3 mp;
++                if(ScreenPoint(origin,dir,mid,mu,md,mp) && md>=0) hi=mid; else lo=mid;
++            }
++            if(ScreenPoint(origin,dir,hi,uv,delta,p) && delta>=0 && delta<_HLGI_Thickness &&
++                length(origin+dir*hi-p)<_HLGI_Thickness*2)
++            {
++                float3 n=NormalAt(uv);
++                float4 emission=_HLGI_Emission.SampleLevel(sampler_PointClamp,uv,0);
++                float captureRaw=_HLGI_CaptureDepth.SampleLevel(sampler_PointClamp,uv,0);
++                bool captured=ValidDepth(captureRaw) && distance(p,WorldPosition(uv,captureRaw,_HLGI_InvVP))<0.03;
++                float surfaceT=dot(p-origin,dir);
++                if(emission.a>0.5 && captured && surfaceT>0 && surfaceT<=maxT)
++                {
++                    float raw=_HLGI_Depth.SampleLevel(sampler_PointClamp,uv,0);
++                    float3 geometricNormal;
++                    bool hasGeometry=HLGITryScreenGeometricNormal(uv,raw,p,geometricNormal);
++                    // No reliable depth neighborhood: retain the existing single-bounce
++                    // shading fallback, but never use Ns to locate a world-cache layer.
++                    float3 biasNormal=hasGeometry?geometricNormal:n;
++                    if(dot(biasNormal,-dir)<=0.05) { lastT=t;lastDelta=delta;continue; }
++                    HLGIHit match;
++                    bool worldMatch=false;
++                    if(hasGeometry) worldMatch=HLGITryScreenWorldMatch(uv,raw,p,geometricNormal,match);
++                    if(worldMatch) biasNormal=match.rawNg;
++                    float4 diffuse=_HLGI_Diffuse.SampleLevel(sampler_PointClamp,uv,0);
++                    // No lit camera color or screen-history feedback enters the transport equation.
++                    uint policyWidth,policyHeight;_HLGI_ReceiverPolicy.GetDimensions(policyWidth,policyHeight);
++                    uint2 policyPixel=min((uint2)(uv*float2(policyWidth,policyHeight)),uint2(policyWidth-1,policyHeight-1));
++                    uint2 receiverLayers=_HLGI_ReceiverPolicy.Load(int3(policyPixel,0));
++                    // Captured material represents this camera pixel. Express
++                    // its spatial support perpendicular to the camera ray before
++                    // projecting it onto each light connection in DirectIrradiance.
++                    float3 cameraRay=p*_HLGI_MaterialView.w-_HLGI_MaterialView.xyz;
++                    HLGIRayFootprint screenFootprint;
++                    HLGITryScreenRayFootprint(uv,raw,p,cameraRay,screenFootprint);
++                    bool directKnown;
++                    float3 direct=DirectIrradiance(p,n,biasNormal,receiverLayers,true,cameraRay,screenFootprint,directKnown);
++                    // A captured surface with unknown incident light is still a
++                    // hit. Never continue behind it or reinterpret it as a miss.
++                    distanceHit=surfaceT;
++                    if(!directKnown) { known=false;return true; }
++                    radiance=emission.rgb+diffuse.rgb*direct;
++                    // Only registered spatially matching surfaces can contribute higher-order cache light.
++                    if(worldMatch)
++                    {
++                        float materialAO=_HLGI_NativeComposition!=0?saturate(emission.a-1):diffuse.a;
++                        radiance+=diffuse.rgb*materialAO*_HLGI_BounceFeedback*CachedIrradiance(match,n);
++                    }
++                    known=all(isfinite(radiance));return true;
++                }
++            }
++        }
++        lastT=t; lastDelta=delta;
++    }
++    return false;
++}
++[numthreads(8,8,1)]
++void CSTrace(uint3 id:SV_DispatchThreadID)
++{
++    if(any(id.xy>=(uint2)_HLGI_Size.xy)) return;
++    uint2 fullPixel=HLGIFullPixelForGiPixel(id.xy,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy);
++    float2 uv=HLGIFullPixelCenterUv(fullPixel,(uint2)_HLGI_FullSize.xy);
++    float depth=_HLGI_Depth.Load(int3(fullPixel,0));
++    float4 material=_HLGI_Diffuse.Load(int3(fullPixel,0));
++    float capturedDepth=_HLGI_CaptureDepth.Load(int3(fullPixel,0));
++    bool sameSurface=ValidDepth(capturedDepth) && distance(WorldPosition(uv,depth,_HLGI_InvVP),WorldPosition(uv,capturedDepth,_HLGI_InvVP))<0.03;
++    if(!ValidDepth(depth) || !sameSurface || _HLGI_Emission.Load(int3(fullPixel,0)).a<0.5)
++    {
++        _HLGI_Output[id.xy]=0; _HLGI_GeometryOut[id.xy]=0; _HLGI_MaterialOut[id.xy]=0; return;
++    }
++    float3 p=WorldPosition(uv,depth,_HLGI_InvVP), n=NormalAt(uv);
++    _HLGI_MaterialOut[id.xy]=material;
++    uint rng=HLGIHash((id.x+id.y*(uint)_HLGI_Size.x+HLGIHash((uint)_HLGI_FrameIndex+1))^0x63D83595u);
++    HLGICacheEntry receiverCache=(HLGICacheEntry)0;
++    float3 geometricNormal;
++    bool hasGeometry=HLGITryScreenGeometricNormal(uv,depth,p,geometricNormal);
++    if(hasGeometry && _HLGI_GuideWeight>0)
++    {
++        HLGIHit receiverHit;
++        if(HLGITryScreenWorldMatch(uv,depth,p,geometricNormal,receiverHit))
++        {
++            geometricNormal=HLGIOffsetNormal(receiverHit.rawNg,geometricNormal);
++            HLGICachedSample(receiverHit,n,receiverCache);
++        }
++    }
++    _HLGI_GeometryOut[id.xy]=HLGIPackScreenGeometry(n,geometricNormal,hasGeometry,depth);
++    float3 sum=0; float confidence=0;bool estimateKnown=true;
++    [loop] for(int r=0;r<_HLGI_Rays;r++)
++    {
++        float sampleWeight;
++        // History Ng faces the camera, while stock Lit Ns retains its authored
++        // direction on a visible back face. Bias toward the sampled hemisphere
++        // without changing either normal; otherwise every ray hits its own plane.
++        float3 origin=p+(hasGeometry?HLGIOffsetNormal(geometricNormal,n):n)*_HLGI_RayBias;
++        float3 dir=HLGISampleTransportDirection(origin,n,receiverCache.guide,rng,sampleWeight);
++        if(!HLGIAreaMatchedDirectionWeight(origin,n,receiverCache.guide,dir,sampleWeight)) { estimateKnown=false;break; }
++        if(!all(isfinite(dir))) { estimateKnown=false;break; }
++        HLGIHit hit;
++        HLGIRayFootprint footprint;
++        HLGITryScreenRayFootprint(uv,depth,p,dir,footprint);
++        bool worldHit=sampleWeight>0 && TraceSceneHit(origin,dir,_HLGI_MaxDistance,footprint,float4(p,1),hit);
++        float3 incoming=0; float screenT;bool screenKnown;
++        // World occluders bound the screen ray, so a visible hit behind an off-screen wall cannot win.
++        float sampleConfidence=1;
++        if(sampleWeight>0 && TraceScreen(origin,dir,worldHit?hit.t:_HLGI_MaxDistance,incoming,screenT,screenKnown) && (!worldHit || screenT<=hit.t))
++            sampleConfidence=screenKnown?1:0;
++        else if(worldHit)
++        {
++            HLGIRayFootprint hitFootprint;HLGIAdvanceRayFootprint(footprint,hit.t,hitFootprint);
++            float emissionWeight;
++            if(!HLGIAreaDirectionEmissionWeight(origin,n,receiverCache.guide,dir,hit,emissionWeight)) { estimateKnown=false;break; }
++            float materialConfidence;incoming=ProxyRadiance(hit,dir,hitFootprint,emissionWeight,materialConfidence);sampleConfidence=0.65*materialConfidence;
++        }
++        else if(sampleWeight>0) { incoming=_HLGI_Environment.rgb;sampleConfidence=0.25; }
++        // Check before a clamp can conceal a NaN/infinity. Reject the complete
++        // estimate, without dividing by a smaller known-sample population.
++        if(!HLGIHasRadianceMeasurement(float4(incoming,sampleConfidence)) ||
++            !HLGIAccumulateRadianceSample(_HLGI_AreaEmitterCount>0?incoming:LimitRadiance(incoming),sampleConfidence,sampleWeight,sum))
++        { estimateKnown=false;break; }
++        // One independent area draw is required even when the direction draw
++        // lies below the receiver hemisphere. Do not conditionally omit it.
++        HLGIAreaSample lightSample;
++        uint lightStatus=HLGI_AREA_NONE;
++        if(_HLGI_AreaEmitterCount>0)lightStatus=HLGISampleAreaEmitter(origin,float3(Random(rng),Random(rng),Random(rng)),lightSample);
++        if(lightStatus==HLGI_AREA_UNKNOWN) { estimateKnown=false;break; }
++        if(lightStatus==HLGI_AREA_SAMPLE && dot(n,lightSample.direction)>0 && lightSample.distance<_HLGI_MaxDistance)
++        {
++            HLGITryScreenRayFootprint(uv,depth,p,lightSample.direction,footprint);
++            float3 lightValue;bool lightWorldHit;HLGIHit lightHit;
++            bool lightKnown=HLGIAreaLightContribution(origin,n,receiverCache.guide,lightSample,footprint,float4(p,1),lightValue,lightWorldHit,lightHit);
++            float3 screenValue;float lightScreenT;bool lightScreenKnown;
++            if(TraceScreen(origin,lightSample.direction,lightWorldHit?lightHit.t:lightSample.distance,
++                screenValue,lightScreenT,lightScreenKnown) && (!lightWorldHit || lightScreenT<=lightHit.t))
++            {
++                // The matching direction estimator uses the screen endpoint at
++                // weight one. Suppress area NEE on exactly that same support.
++                lightValue=0;lightKnown=lightScreenKnown;
++            }
++            if(!lightKnown || !HLGIAccumulateRadianceSample(lightValue,1,1,sum)) { estimateKnown=false;break; }
++        }
++        confidence+=sampleConfidence;
++    }
++    _HLGI_Output[id.xy]=estimateKnown?float4(sum/max(_HLGI_Rays,1),confidence/max(_HLGI_Rays,1)):float4(0,0,0,-1);
++}
++[numthreads(8,8,1)]
++#if defined(HLGI_RECEIVER_IDENTITY)
++void CSTemporalIdentity(uint3 id:SV_DispatchThreadID)
++#else
++void CSTemporal(uint3 id:SV_DispatchThreadID)
++#endif
++{
++    if(any(id.xy>=(uint2)_HLGI_Size.xy)) return;
++    int2 pixel=id.xy;
++    uint2 fullPixel=HLGIFullPixelForGiPixel(id.xy,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy);
++    float2 uv=HLGIFullPixelCenterUv(fullPixel,(uint2)_HLGI_FullSize.xy);
++    float4 current=_HLGI_Input.Load(int3(pixel,0));
++    float4 geometry=_HLGI_Geometry.Load(int3(pixel,0));
++    float3 rho=_HLGI_Material.Load(int3(pixel,0)).rgb;
++    float3 shadingNormal,geometricNormal;bool hasGeometry;
++    if(!HLGIDecodeScreenGeometry(geometry,shadingNormal,geometricNormal,hasGeometry))
++    { _HLGI_Output[pixel]=0; _HLGI_MomentsOut[pixel]=0; return; }
++    bool currentKnown=HLGIHasRadianceMeasurement(current);
++    float lum=currentKnown?LuminanceGI(current.rgb):0;
++    currentKnown=currentKnown && isfinite(lum) && isfinite(lum*lum) && all(isfinite(current.rgb*current.rgb));
++    // A valid receiver with unknown Ng still owns a useful single-frame GI
++    // estimate. Preserve it, but do not blend across pixels or engine frames.
++    if(!hasGeometry)
++    { _HLGI_Output[pixel]=currentKnown?current:0; _HLGI_MomentsOut[pixel]=currentKnown?float4(lum,lum*lum,1,0):0; return; }
++    float3 p=WorldPosition(uv,geometry.w,_HLGI_InvVP); float w;
++    float3 expectedP=p,expectedNs=shadingNormal,expectedNg=geometricNormal;
++    bool identityValid=true;
++#if defined(HLGI_RECEIVER_IDENTITY)
++    uint4 identity=_HLGI_IdentityCurrent.Load(int3(pixel,0));
++    uint receiverGroup=0u;
++    uint3 candidate=_HLGI_IdentityCandidates[fullPixel.y*(uint)_HLGI_FullSize.x+fullPixel.x];
++    identityValid=false;
++    // Explicit bounds guard before reading a transient object row.
++    if(candidate.x>0u && candidate.x<=_HLGI_IdentityObjectCount)
++    {
++        HLGIReceiverIdentityObject row=_HLGI_IdentityObjects[candidate.x-1u];
++        identityValid=HLGITryReceiverMotion(identity,candidate,row,
++            p,shadingNormal,geometricNormal,expectedP,expectedNs,expectedNg);
++        if(identityValid) receiverGroup=row.reserved;
++    }
++#endif
++    float2 prevUV=ProjectUV(expectedP,_HLGI_PreviousVP,w);
++    if(_HLGI_HasMotion!=0)
++    {
++        // URP's non-jittered current-minus-previous UV velocity, sampled at the
++        // same full-resolution point as depth. Graphics feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53:
++        // ObjectMotionVectors.hlsl / MotionVectorsCommon.hlsl. JitterDelta is
++        // previousJitter-currentJitter in GPU UV space; do not apply it twice.
++        float2 motionUV=uv-_HLGI_Motion.Load(int3(fullPixel,0))+_HLGI_JitterDelta.xy;
++#if defined(HLGI_RECEIVER_IDENTITY)
++        // A missing/forced-zero object velocity must not override the verified
++        // rigid pose. Accept motion only when it agrees within one full texel.
++        if(all(isfinite(motionUV)) && all(abs(motionUV-prevUV)*_HLGI_FullSize.xy<=1)) prevUV=motionUV;
++#else
++        prevUV=motionUV;
++#endif
++    }
++    bool valid=_HLGI_HistoryValid!=0 && identityValid && isfinite(w) && w>0 && all(isfinite(prevUV)) && all(prevUV>0) && all(prevUV<1);
++    // Never cast a nonfinite UV to an integer, including on an invalid history.
++    int2 previousPixel=0;
++    if(valid) previousPixel=(int2)HLGIClosestGiPixel(prevUV,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy);
++#if defined(HLGI_RECEIVER_IDENTITY)
++    valid=valid && HLGISameReceiverPrimitive(identity,_HLGI_IdentityPrevious.Load(int3(previousPixel,0)));
++#endif
++    float4 oldGeometry=_HLGI_PreviousGeometry.Load(int3(previousPixel,0));
++    float3 oldRho=_HLGI_PreviousMaterial.Load(int3(previousPixel,0)).rgb;
++    float3 oldShadingNormal,oldGeometricNormal;bool oldHasGeometry;
++    bool oldReceiver=HLGIDecodeScreenGeometry(oldGeometry,oldShadingNormal,oldGeometricNormal,oldHasGeometry);
++    // Previous raw depth belongs to this GI texel's stored full-resolution
++    // sample. Frame-context validation must reject a changed full/low size.
++    float3 oldP=WorldPosition(HLGIGiSampleUv((uint2)previousPixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),oldGeometry.w,_HLGI_PreviousInvVP);
++    float tolerance=_HLGI_DepthThreshold*max(1,abs(mul(_HLGI_View,float4(p,1)).z));
++    float geometricAgreement=dot(expectedNg,oldGeometricNormal);
++#if defined(HLGI_RECEIVER_IDENTITY)
++    // Screen Ng faces its own camera; its sign may differ between rigid poses.
++    geometricAgreement=abs(geometricAgreement);
++#endif
++    valid=valid && oldReceiver && oldHasGeometry && dot(expectedNs,oldShadingNormal)>_HLGI_NormalThreshold &&
++        geometricAgreement>0.85 &&
++        abs(dot(expectedP-oldP,expectedNg))<tolerance && abs(dot(expectedP-oldP,oldGeometricNormal))<tolerance &&
++        distance(expectedP,oldP)<tolerance && max(abs(rho.x-oldRho.x),max(abs(rho.y-oldRho.y),abs(rho.z-oldRho.z)))<0.1;
++#if defined(HLGI_RECEIVER_IDENTITY)
++    float2 change=HLGIChangeAtReceiver(p,valid?receiverGroup:0u);
++#else
++    float2 change=HLGIChangeAt(p);
++#endif
++    valid=valid && change.x<0.5;
++    float4 history=_HLGI_History.Load(int3(previousPixel,0));
++    float4 moments=_HLGI_PreviousMoments.Load(int3(previousPixel,0));
++    valid=valid && HLGIHasTemporalHistory(history,moments);
++    if(!currentKnown)
++    {
++        float4 retained,retainedMoments;
++        HLGIResolveUnknownHistory(valid,history,moments,retained,retainedMoments);
++        _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
++    }
++    // Invalid/uninitialized textures may contain NaNs; lerp(old,current,1) does not remove NaNs.
++    if(!valid) { history=current; moments=float4(lum,lum*lum,0,0); }
++    float3 mean=current.rgb, second=current.rgb*current.rgb; float count=1;
++    [unroll] for(int y=-1;y<=1;y++) [unroll] for(int x=-1;x<=1;x++)
++    {
++        int2 q=clamp(pixel+int2(x,y),0,(int2)_HLGI_Size.xy-1);
++        if(all(q==pixel)) continue;
++        float4 g=_HLGI_Geometry.Load(int3(q,0));
++        float3 neighborShadingNormal,neighborGeometricNormal;bool neighborHasGeometry;
++        if(!HLGIDecodeScreenGeometry(g,neighborShadingNormal,neighborGeometricNormal,neighborHasGeometry) || !neighborHasGeometry) continue;
++        if(dot(neighborShadingNormal,shadingNormal)<_HLGI_NormalThreshold || dot(neighborGeometricNormal,geometricNormal)<0.85) continue;
++        float3 qp=WorldPosition(HLGIGiSampleUv((uint2)q,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),g.w,_HLGI_InvVP);
++        if(max(abs(dot(qp-p,geometricNormal)),abs(dot(qp-p,neighborGeometricNormal)))>tolerance) continue;
++        if(length(_HLGI_Material.Load(int3(q,0)).rgb-rho)>0.15) continue;
++        float4 neighbor=_HLGI_Input.Load(int3(q,0));
++        if(!HLGIHasRadianceMeasurement(neighbor) || !all(isfinite(neighbor.rgb*neighbor.rgb))) continue;
++        float3 c=neighbor.rgb; mean+=c; second+=c*c; count++;
++    }
++    mean/=max(count,1); second/=max(count,1);
++    if(!all(isfinite(mean)) || !all(isfinite(second)))
++    {
++        float4 retained,retainedMoments;
++        HLGIResolveUnknownHistory(valid,history,moments,retained,retainedMoments);
++        _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
++    }
++    float3 sigma=sqrt(max(second-mean*mean,0))+0.02;
++    history.rgb=clamp(history.rgb,mean-2*sigma,mean+2*sigma);
++    float samples=valid?min(moments.z+1,change.y>0.5?2:(float)_HLGI_MaxHistory):1;
++    float alpha=valid?max(_HLGI_CurrentWeight,1/samples):1;
++    alpha=max(alpha,valid?0.25*abs(current.a-history.a):1);
++    float2 newMoments=lerp(moments.xy,float2(lum,lum*lum),alpha);
++    float4 resolved=lerp(history,current,alpha),resolvedMoments=float4(newMoments,samples,valid?1:0);
++    if(!HLGIHasTemporalHistory(resolved,resolvedMoments))
++    { _HLGI_Output[pixel]=0;_HLGI_MomentsOut[pixel]=0;return; }
++    _HLGI_Output[pixel]=resolved;
++    _HLGI_MomentsOut[pixel]=resolvedMoments;
++}
++[numthreads(8,8,1)]
++void CSFilter(uint3 id:SV_DispatchThreadID)
++{
++    if(any(id.xy>=(uint2)_HLGI_Size.xy)) return;
++    int2 pixel=id.xy; float4 center=_HLGI_Input.Load(int3(pixel,0));
++    // An invalid center is not filled from neighbors: that would manufacture a
++    // valid measurement and let native replacement subtract real lighting.
++    if(!HLGIHasRadianceMeasurement(center)) { _HLGI_Output[pixel]=0;return; }
++    float4 g=_HLGI_Geometry.Load(int3(pixel,0));
++    float3 shadingNormal,geometricNormal;bool hasGeometry;
++    if(!HLGIDecodeScreenGeometry(g,shadingNormal,geometricNormal,hasGeometry)) { _HLGI_Output[pixel]=0; return; }
++    if(!hasGeometry) { _HLGI_Output[pixel]=center; return; }
++    float3 p=WorldPosition(HLGIGiSampleUv((uint2)pixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),g.w,_HLGI_InvVP);
++    float3 rho=_HLGI_Material.Load(int3(pixel,0)).rgb;
++    float2 moments=_HLGI_Moments.Load(int3(pixel,0)).xy;
++    float variance=max(moments.y-moments.x*moments.x,0);
++    float sigma=max(sqrt(variance)*4,0.05);
++    float3 sum=center.rgb*4; float weight=4;
++    [unroll] for(int y=-1;y<=1;y++) [unroll] for(int x=-1;x<=1;x++)
++    {
++        int2 q=pixel+int2(x,y)*_HLGI_FilterStep;
++        if(any(q<0)||any(q>=(int2)_HLGI_Size.xy)||all(q==pixel)) continue;
++        float4 ng=_HLGI_Geometry.Load(int3(q,0));
++        float3 neighborShadingNormal,neighborGeometricNormal;bool neighborHasGeometry;
++        if(!HLGIDecodeScreenGeometry(ng,neighborShadingNormal,neighborGeometricNormal,neighborHasGeometry) || !neighborHasGeometry) continue;
++        if(dot(neighborGeometricNormal,geometricNormal)<0.85) continue;
++        float3 qp=WorldPosition(HLGIGiSampleUv((uint2)q,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),ng.w,_HLGI_InvVP);
++        float4 sampleGI=_HLGI_Input.Load(int3(q,0));
++        if(!HLGIHasRadianceMeasurement(sampleGI)) continue;
++        float3 qrho=_HLGI_Material.Load(int3(q,0)).rgb;
++        float normalWeight=pow(saturate(dot(shadingNormal,neighborShadingNormal)),32);
++        float planeDistance=max(abs(dot(qp-p,geometricNormal)),abs(dot(qp-p,neighborGeometricNormal)));
++        float w=exp(-planeDistance/max(_HLGI_DepthThreshold,0.001)-length(qrho-rho)*8-
++            abs(LuminanceGI(sampleGI.rgb)-LuminanceGI(center.rgb))/sigma)*normalWeight;
++        w*= (x==0?2:1)*(y==0?2:1);
++        sum+=sampleGI.rgb*w; weight+=w;
++    }
++    float4 filtered=float4(sum/max(weight,1e-6),center.a);
++    _HLGI_Output[pixel]=HLGIHasRadianceMeasurement(filtered)?filtered:0;
++}
+--- integration-15/Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceCache.hlsl
++++ runtime-candidate-16/Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceCache.hlsl
+@@ -259,4 +259,4 @@
+     sample=candidate;return true;
+ }
+ #endif
+-#endif
++#endif
+--- integration-15/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
++++ runtime-candidate-16/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
+@@ -1,550 +1,557 @@
+-#ifndef HLGI_TRANSPORT_INCLUDED
+-#define HLGI_TRANSPORT_INCLUDED
+-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+-#include "HybridLumenGIRadianceValidity.hlsl"
+-#include "HybridLumenGIRayFootprint.hlsl"
+-
+-// Cached quantity D = irradiance / pi in linear URP units. Cosine sampling has unit weight.
+-struct HLGIProxy { float4 centerShape, extentsRoughness, albedo, emission, identity; };
+-struct HLGILight
+-{
+-    float4 positionType; // 0 directional, 1 point, 2 spot
+-    float4 directionRange;
+-    float4 color;
+-    float4 spot; // cos outer, reciprocal(cos inner - cos outer), shadow strength, reserved
+-    uint4 masks; // GameObject culling, illumination layers, shadow layers, flags(bit0: layers enabled)
+-};
+-struct HLGICacheEntry { float4 irradiance; float4 tag; float4 anchor; float4 normal; float4 guide; };
+-StructuredBuffer<HLGIProxy> _HLGI_Proxies;
+-StructuredBuffer<HLGILight> _HLGI_Lights;
+-StructuredBuffer<HLGICacheEntry> _HLGI_CacheRead;
+-RWStructuredBuffer<HLGICacheEntry> _HLGI_CacheWrite;
+-int _HLGI_ProxyCount, _HLGI_LightCount, _HLGI_Epoch, _HLGI_FrameIndex;
+-int _HLGI_CacheGrid, _HLGI_CacheRays;
+-StructuredBuffer<uint> _HLGI_CacheUpdateMask;
+-float _HLGI_GuideWeight;
+-float _HLGI_MaxDistance, _HLGI_ShadowDistance, _HLGI_RayBias, _HLGI_BounceFeedback;
+-float4 _HLGI_Environment;
+-#include "HybridLumenGILightingPolicy.hlsl"
+-#include "HybridLumenGISdfTrace.hlsl"
+-#include "HybridLumenGISceneBvh.hlsl"
+-#include "HybridLumenGIChanges.hlsl"
+-#include "HybridLumenGISurfaceCache.hlsl"
+-#include "HybridLumenGIGlobalSdf.hlsl"
+-int _HLGI_GlobalSdfEnabled;
+-float _HLGI_DetailTraceDistance;
+-
+-uint HLGIHash(uint x)
+-{
+-    x ^= x >> 16; x *= 0x7feb352du; x ^= x >> 15; x *= 0x846ca68bu; return x ^ (x >> 16);
+-}
+-float Random(inout uint s) { s = HLGIHash(s); return (s >> 8) * (1.0 / 16777216.0); }
+-float3 CosineHemisphere(float3 n, float2 xi)
+-{
+-    float r = sqrt(xi.x), phi = TWO_PI * xi.y;
+-    float3 t = normalize(cross(abs(n.z) < 0.999 ? float3(0,0,1) : float3(0,1,0), n));
+-    return t * (r * cos(phi)) + cross(n,t) * (r * sin(phi)) + n * sqrt(1-xi.x);
+-}
+-float3 HLGISampleDirection(float3 n,float4 guide,inout uint rng,out float weight)
+-{
+-    float mixture=guide.w>1e-6 && dot(guide.xyz,guide.xyz)>0.5 ? _HLGI_GuideWeight:0;
+-    float3 axis=mixture>0 ? normalize(guide.xyz):n;
+-    float branch=Random(rng);
+-    float2 xi=float2(Random(rng),Random(rng));
+-    float3 direction=CosineHemisphere(branch<mixture?axis:n,xi);
+-    float cosine=saturate(dot(n,direction)), guidedCosine=saturate(dot(axis,direction));
+-    // One-sample mixture estimator: full mixture PDF, including the branch not chosen.
+-    // Samples below the receiver hemisphere have zero contribution, never get resampled.
+-    weight=cosine/max((1-mixture)*cosine+mixture*guidedCosine,1e-8);
+-    return direction;
+-}
+-#include "HybridLumenGIEmissiveSampling.hlsl"
+-#include "HybridLumenGIAreaEmission.hlsl"
+-uint _HLGI_AreaMaterialGeneration;
+-bool IntersectProxy(float3 o, float3 d, HLGIProxy p, float limit, out float t, out float3 n)
+-{
+-    t = limit; n = 0;
+-    float3 local = o - p.centerShape.xyz;
+-    if (p.centerShape.w > 0.5)
+-    {
+-        float radius = max(p.extentsRoughness.x, max(p.extentsRoughness.y,p.extentsRoughness.z));
+-        float b = dot(local,d), c = dot(local,local) - radius*radius;
+-        float disc = b*b-c;
+-        if (disc < 0) return false;
+-        float root = sqrt(disc); t = -b-root;
+-        if (t <= 1e-4) t = -b+root;
+-        if (t <= 1e-4 || t >= limit) return false;
+-        n = normalize(local + d*t); return true;
+-    }
+-    float enter = -1e20, leave = 1e20;
+-    float3 enterN = 0, leaveN = 0;
+-    [unroll] for (int axis=0; axis<3; axis++)
+-    {
+-        if (abs(d[axis]) < 1e-7)
+-        {
+-            if (abs(local[axis]) > p.extentsRoughness[axis]) return false;
+-            continue;
+-        }
+-        float a = (-p.extentsRoughness[axis]-local[axis])/d[axis];
+-        float b = ( p.extentsRoughness[axis]-local[axis])/d[axis];
+-        float3 axisN = 0; axisN[axis] = d[axis]>0 ? -1 : 1;
+-        if (min(a,b)>enter) { enter=min(a,b); enterN=axisN; }
+-        if (max(a,b)<leave) { leave=max(a,b); leaveN=-axisN; }
+-    }
+-    if (leave < max(enter,0)) return false;
+-    bool inside = enter <= 1e-4;
+-    t = inside ? leave : enter; n = inside ? leaveN : enterN;
+-    return t > 1e-4 && t < limit;
+-}
+-#if defined(HLGI_INLINE_RT)
+-#include "HybridLumenGIHardwareTrace.hlsl"
+-#elif defined(HLGI_SOFTWARE_TRIANGLES)
+-#include "HybridLumenGISoftwareTriangleBvh.hlsl"
+-#endif
+-// A deliberate point query, for geometric visibility/legacy callers. An unknown
+-// filtered footprint must remain invalid instead of passing through this helper.
+-HLGIRayFootprint HLGIPointQueryFootprint()
+-{ HLGIRayFootprint value;HLGITryMakeRayFootprint(0,0,value);return value; }
+-bool TraceSceneDetailQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool resolveMaterial,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
+-    HLGIRayFootprint footprint,float4 materialView,out HLGIHit result)
+-{
+-    result=HLGIEmptyHit(maxT);
+-#if defined(HLGI_INLINE_RT)
+-    HLGIHardwareTraceQuery(o,d,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,
+-        footprint.valid==1u?footprint.radius:-1,footprint.slope,materialView,result);
+-#elif defined(HLGI_SOFTWARE_TRIANGLES)
+-    HLGISoftwareTraceQuery(o,d,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,
+-        footprint.valid==1u?footprint.radius:-1,footprint.slope,materialView,result);
+-#endif
+-    uint cursor=0;
+-    [loop] while(cursor<(uint)_HLGI_SceneBvhCount)
+-    {
+-        int i=HLGIBvhNextLeaf(cursor,o,d,result.t);
+-        if(i<0) break;
+-        if(_HLGI_Proxies[i].identity.w < 0.5 || _HLGI_Proxies[i].identity.w >= 1.5) continue;
+-        if(shadowQuery && !HLGIShadowOwnerAllowed((uint)i,cullingMask,shadowRenderingLayers,useRenderingLayers)) continue;
+-#if defined(HLGI_INLINE_RT) || defined(HLGI_SOFTWARE_TRIANGLES)
+-        if (HLGIHardwareHasMesh(i)) continue;
+-#endif
+-        HLGIHit candidate=HLGIEmptyHit(result.t);
+-        bool found;
+-        if(HLGIHasMeshSdf(i)) found=HLGITraceMeshSdfHit(o,d,result.t,i,candidate);
+-        else
+-        {
+-            float distanceHit;float3 normal;
+-            found=IntersectProxy(o,d,_HLGI_Proxies[i],result.t,distanceHit,normal);
+-            if(found)
+-            {
+-                candidate.t=distanceHit;candidate.position=o+d*distanceHit;
+-                candidate.rawNg=candidate.shadingNormal=normal;
+-                candidate.ownerSlot=(uint)i;
+-                candidate.stableId=(uint)_HLGI_Proxies[i].identity.x;
+-                candidate.ownerRevision=(uint)_HLGI_Proxies[i].identity.y;
+-                candidate.representation=HLGI_REPRESENTATION_ANALYTIC;
+-                candidate.flags=HLGI_HIT_VALID|HLGI_HIT_GEOMETRIC_NORMAL|HLGI_HIT_ORIENTED_NG|HLGI_HIT_FRONT_FACE_KNOWN;
+-                if(dot(normal,d)<0) candidate.flags|=HLGI_HIT_FRONT_FACE;
+-            }
+-        }
+-        if(found)
+-        {
+-            // Software geometry already matched the current scene owner/revision.
+-            // Carry that owner's current surface geometry version if resident;
+-            // this version is not a primitive/front-face/material identity.
+-            uint4 surfaceRange;
+-            if(HLGISurfaceOwnerRange(i,surfaceRange)) candidate.geometryRevision=surfaceRange.w;
+-            result=candidate;
+-        }
+-    }
+-    return HLGIHitHas(result.flags,HLGI_HIT_VALID);
+-}
+-bool TraceSceneQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool resolveMaterial,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
+-    HLGIRayFootprint footprint,float4 materialView,out HLGIHit result)
+-{
+-    float detailLimit=min(maxT,_HLGI_DetailTraceDistance);
+-    if(_HLGI_GlobalSdfEnabled==0 || detailLimit>=maxT)
+-        return TraceSceneDetailQuery(o,d,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,footprint,materialView,result);
+-    if(TraceSceneDetailQuery(o,d,detailLimit,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,footprint,materialView,result)) return true;
+-    // Overlap avoids losing a surface exactly at the boundary due to strict t < maxT.
+-    float advance=max(0,detailLimit-0.001);
+-    [loop] for(int step=0;step<8 && advance<maxT;step++)
+-    {
+-        float emptyDistance;
+-        if(!HLGIGlobalSdfEmptyDistance(o+d*advance,emptyDistance) || emptyDistance<=0) break;
+-        if(emptyDistance>=maxT-advance) { result=HLGIEmptyHit(maxT);return false; }
+-        // Leave more than the detailed trace's positive TMin before the next possible surface.
+-        // Landing on a zero surface (or within TMin) could otherwise skip a thin wall entirely.
+-        float guard=max(0.001,abs(advance)*2e-6);
+-        float next=advance+max(0,emptyDistance-guard);
+-        if(next<=advance) break;
+-        advance=next;
+-    }
+-    if(advance>=maxT) { result=HLGIEmptyHit(maxT);return false; }
+-    // Empty-space traversal shifts the geometric origin only. Advance the cone
+-    // once and retain the original observer, including an orthographic w=0 view.
+-    // Invalid/focused-past footprints remain unknown; they cannot erase occluders.
+-    HLGIRayFootprint farFootprint;
+-    HLGIAdvanceRayFootprint(footprint,advance,farFootprint);
+-    if(!TraceSceneDetailQuery(o+d*advance,d,maxT-advance,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,farFootprint,materialView,result))
+-    { result=HLGIEmptyHit(maxT);return false; }
+-    // Identity and barycentrics remain attached to the winning primitive. Restore
+-    // the caller's distance/position after a far-field empty-space advance.
+-    result.t+=advance;result.position=o+d*result.t;
+-    return true;
+-}
+-// Public legacy query overloads retain their original material purpose.
+-bool TraceSceneDetailQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool resolveMaterial,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit result)
+-{ return TraceSceneDetailQuery(o,d,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,HLGIPointQueryFootprint(),float4(o,1),result); }
+-bool TraceSceneQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool resolveMaterial,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit result)
+-{ return TraceSceneQuery(o,d,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,HLGIPointQueryFootprint(),float4(o,1),result); }
+-bool TraceSceneDetailQuery(float3 o,float3 d,float maxT,bool shadowQuery,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit result)
+-{ return TraceSceneDetailQuery(o,d,maxT,shadowQuery,!shadowQuery,cullingMask,shadowRenderingLayers,useRenderingLayers,result); }
+-bool TraceSceneQuery(float3 o,float3 d,float maxT,bool shadowQuery,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit result)
+-{ return TraceSceneQuery(o,d,maxT,shadowQuery,!shadowQuery,cullingMask,shadowRenderingLayers,useRenderingLayers,result); }
+-bool TraceSceneDetailHit(float3 o,float3 d,float maxT,out HLGIHit result)
+-{ return TraceSceneDetailQuery(o,d,maxT,false,true,0xffffffffu,0xffffffffu,false,result); }
+-bool TraceSceneHit(float3 o,float3 d,float maxT,out HLGIHit result)
+-{ return TraceSceneQuery(o,d,maxT,false,true,0xffffffffu,0xffffffffu,false,result); }
+-bool TraceSceneHit(float3 o,float3 d,float maxT,HLGIRayFootprint footprint,float4 materialView,out HLGIHit result)
+-{ return TraceSceneQuery(o,d,maxT,false,true,0xffffffffu,0xffffffffu,false,footprint,materialView,result); }
+-// Ordinary visibility preserves surface Cull/alpha and ignores shadow-caster policy.
+-bool TraceSceneVisibilityHit(float3 o,float3 d,float maxT,out HLGIHit result)
+-{ return TraceSceneQuery(o,d,maxT,false,false,0xffffffffu,0xffffffffu,false,result); }
+-bool TraceSceneVisibilityHit(float3 o,float3 d,float maxT,HLGIRayFootprint footprint,float4 materialView,out HLGIHit result)
+-{ return TraceSceneQuery(o,d,maxT,false,false,0xffffffffu,0xffffffffu,false,footprint,materialView,result); }
+-bool TraceShadow(float3 o,float3 d,float maxT,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
+-    HLGIRayFootprint footprint,float4 materialView,out bool known)
+-{
+-    HLGIHit result;
+-    bool blocked=TraceSceneQuery(o,d,maxT,true,false,cullingMask,shadowRenderingLayers,useRenderingLayers,footprint,materialView,result);
+-    known=!blocked || HLGIHitMaterialKnown(result);
+-    return blocked;
+-}
+-bool TraceShadow(float3 o,float3 d,float maxT,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out bool known)
+-{ return TraceShadow(o,d,maxT,cullingMask,shadowRenderingLayers,useRenderingLayers,HLGIPointQueryFootprint(),float4(o,1),known); }
+-// Visibility-only compatibility: unknown coverage conservatively blocks. This
+-// overload does not prove known radiance; transport must consume the known flag.
+-bool TraceShadow(float3 o,float3 d,float maxT,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers)
+-{ bool known;return TraceShadow(o,d,maxT,cullingMask,shadowRenderingLayers,useRenderingLayers,known); }
+-// Visibility-only compatibility entry. Radiance/material consumers use the full
+-// record, so this projection of it cannot discard their primitive identity.
+-bool TraceScene(float3 o,float3 d,float maxT,out float t,out float3 n,out int index)
+-{
+-    HLGIHit result;bool found=TraceSceneVisibilityHit(o,d,maxT,result);
+-    t=result.t;n=result.rawNg;index=found?(int)result.ownerSlot:-1;
+-    return found;
+-}
+-int FaceIndex(float3 n)
+-{
+-    float3 a=abs(n);
+-    int axis = a.x>=a.y && a.x>=a.z ? 0 : a.y>=a.z ? 1 : 2;
+-    return axis*2 + (n[axis]<0 ? 1 : 0);
+-}
+-float3 FaceNormal(int face) { float3 n=0; n[face/2]=(face&1)==0?1:-1; return n; }
+-bool HLGIHitOwnerCurrent(HLGIHit hit)
+-{
+-    if(!HLGIHitHas(hit.flags,HLGI_HIT_VALID) || hit.ownerSlot>=(uint)_HLGI_ProxyCount) return false;
+-    HLGIProxy proxy=_HLGI_Proxies[hit.ownerSlot];
+-    return proxy.identity.w>0.5 && proxy.identity.w<1.5 &&
+-        hit.stableId==(uint)proxy.identity.x && hit.ownerRevision==(uint)proxy.identity.y;
+-}
+-bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 shadingNormal,
+-    HLGISurfaceSample surface,out HLGICacheEntry result)
+-{
+-    result=(HLGICacheEntry)0;
+-    HLGIProxy p=_HLGI_Proxies[index];
+-    float2 uv;
+-    if(!HLGISurfaceCardUv(surface.cardIndex,position,uv)) return false;
+-    float2 patchPosition=uv*_HLGI_CacheGrid-0.5;
+-    int2 baseCell=(int2)floor(patchPosition);
+-    float2 fraction=frac(patchPosition); float totalWeight=0;
+-    // Geometry selects the card; its capture axis is never inferred from the dominant hit normal.
+-    [unroll] for(int y=0;y<2;y++) [unroll] for(int x=0;x<2;x++)
+-    {
+-        int2 cell=baseCell+int2(x,y);
+-        if(any(cell<0)||any(cell>=_HLGI_CacheGrid)) continue;
+-        uint entry=surface.cardIndex*_HLGI_CacheGrid*_HLGI_CacheGrid+cell.y*_HLGI_CacheGrid+cell.x;
+-        HLGICacheEntry e=_HLGI_CacheRead[entry];
+-        if(any(e.tag.xyz != float3(p.identity.xy,_HLGI_Epoch)) || !HLGIHasCacheMeasurement(e.irradiance,e.guide)) continue;
+-        if(e.tag.w!=(float)surface.generation) continue;
+-        float3 delta=position-e.anchor.xyz;
+-        float3 anchorGeometricNormal=UnpackNormalOctQuadEncode(float2(e.anchor.w,e.normal.w));
+-        // Shading normals compare lighting orientation; geometry normals compare the
+-        // actual layer. A normal map must not tilt this plane test into the surface.
+-        if(dot(shadingNormal,e.normal.xyz)<0.85 || dot(geometricNormal,anchorGeometricNormal)<0.85 ||
+-            abs(dot(delta,anchorGeometricNormal))>max(_HLGI_RayBias*2,0.03)) continue;
+-        float separation=length(delta);
+-        // A point-to-point visibility gate rejects disconnected coplanar rooms.
+-        // It does not prove visibility of the whole patch; a wider alpha LOD
+-        // would not turn a single geometric ray into that proof.
+-        if(separation>_HLGI_RayBias*2)
+-        {
+-            HLGIHit blocker;
+-            if(TraceSceneVisibilityHit(e.anchor.xyz+HLGIOffsetNormal(anchorGeometricNormal,shadingNormal)*_HLGI_RayBias,delta/separation,
+-                max(0,separation-_HLGI_RayBias),HLGIPointQueryFootprint(),float4(e.anchor.xyz,1),blocker)) continue;
+-        }
+-        float weight=(x==0?1-fraction.x:fraction.x)*(y==0?1-fraction.y:fraction.y);
+-        totalWeight+=weight;result.irradiance+=e.irradiance*weight;result.guide+=e.guide*weight;
+-    }
+-    if(totalWeight<=1e-5) return false;
+-    result.irradiance/=totalWeight;result.guide/=totalWeight;
+-    if(dot(result.guide.xyz,result.guide.xyz)>1e-6) result.guide.xyz=normalize(result.guide.xyz);
+-    return true;
+-}
+-bool HLGICachedSample(HLGIHit hit,float3 shadingNormal,out HLGICacheEntry result)
+-{
+-    result=(HLGICacheEntry)0;
+-    if(!HLGIHitOwnerCurrent(hit) || !HLGIHitMaterialKnown(hit)) return false;
+-    HLGISurfaceSample surface;
+-    if(!HLGITrySurfaceMaterialHit(hit,surface)) return false;
+-    // Unsigned SDF gradients have no stable source orientation. Once material is
+-    // approximately resolved, use that sample's recorded Ng for its cache plane.
+-    float3 geometricNormal=HLGIHitHas(hit.flags,HLGI_HIT_ORIENTED_NG)?hit.rawNg:surface.geometricNormal;
+-    return HLGICachedSurface((int)hit.ownerSlot,hit.position,geometricNormal,shadingNormal,surface,result);
+-}
+-float3 CachedIrradiance(HLGIHit hit,float3 shadingNormal)
+-{
+-    HLGICacheEntry entry;
+-    return HLGICachedSample(hit,shadingNormal,entry)?max(entry.irradiance.rgb,0):0;
+-}
+-float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,bool receivesShadows,
+-    float3 footprintDirection,HLGIRayFootprint footprint,out bool known)
+-{
+-    known=all(isfinite(p)) && all(isfinite(n)) && all(isfinite(biasNormal));
+-    if(!known) return 0;
+-    float3 sum=0;
+-    [loop] for(int i=0;i<_HLGI_LightCount;i++)
+-    {
+-        HLGILight light=_HLGI_Lights[i];
+-        bool useRenderingLayers=(light.masks.w&1u)!=0;
+-        if(!HLGILightAffectsReceiver(receiverLayers,light.masks.x,light.masks.y,useRenderingLayers)) continue;
+-        float3 toLight=light.directionRange.xyz;
+-        float maxT=_HLGI_ShadowDistance, attenuation=1;
+-        if(light.positionType.w>0.5)
+-        {
+-            float3 offset=light.positionType.xyz-p;
+-            float d2=max(dot(offset,offset),0.0001);
+-            maxT=sqrt(d2); toLight=offset/maxT;
+-            float factor=d2/max(light.directionRange.w*light.directionRange.w,0.0001);
+-            float smooth=saturate(1-factor*factor);
+-            attenuation=smooth*smooth/d2;
+-            if(light.positionType.w>1.5)
+-            {
+-                float spot=saturate((dot(-toLight,light.directionRange.xyz)-light.spot.x)*light.spot.y);
+-                attenuation*=spot*spot;
+-            }
+-        }
+-        float rawNdl=dot(n,toLight);
+-        if(!all(isfinite(toLight)) || !isfinite(rawNdl) || !isfinite(attenuation) || !all(isfinite(light.color.rgb))) { known=false;return 0; }
+-        float ndl=saturate(rawNdl);
+-        if(ndl*attenuation<=0 || !any(light.color.rgb>0)) continue;
+-        float visibility=1;
+-        if(receivesShadows)
+-        {
+-            float strength=saturate(light.spot.z);
+-            if(!isfinite(light.spot.z) || !isfinite(maxT)) { known=false;return 0; }
+-            if(strength>0)
+-            {
+-                float3 shadowOrigin=p+HLGIOffsetNormal(biasNormal,toLight)*_HLGI_RayBias;
+-                float3 shadowDirection=toLight;
+-                float shadowDistance=maxT;
+-                if(light.positionType.w>0.5)
+-                {
+-                    // The biased ray must still focus at the actual point light.
+-                    // Lighting N.L/attenuation above remain evaluated at p.
+-                    float3 connection=light.positionType.xyz-shadowOrigin;
+-                    if(!HLGIFootprintLength(connection,shadowDistance) || !(shadowDistance>0) ||
+-                        !HLGIFootprintUnit(connection,shadowDirection)) { known=false;return 0; }
+-                }
+-                HLGIRayFootprint projected,shadowFootprint=(HLGIRayFootprint)0;
+-                if(HLGITryRetargetFootprint(footprint,footprintDirection,biasNormal,shadowDirection,projected))
+-                {
+-                    if(light.positionType.w>0.5) HLGITryPointShadowFootprint(projected,shadowDistance,shadowFootprint);
+-                    else HLGITryDirectionalShadowFootprint(projected,shadowFootprint);
+-                }
+-                bool shadowKnown;
+-                bool blocked=TraceShadow(shadowOrigin,shadowDirection,max(0,shadowDistance-_HLGI_RayBias),
+-                    light.masks.x,light.masks.z,useRenderingLayers,shadowFootprint,float4(p,1),shadowKnown);
+-                if(!shadowKnown) { known=false;return 0; }
+-                if(blocked) visibility=1-strength;
+-            }
+-        }
+-        sum+=light.color.rgb*(ndl*attenuation*visibility);
+-    }
+-    known=all(isfinite(sum));return known?sum:0;
+-}
+-float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,bool receivesShadows,out bool known)
+-{ return DirectIrradiance(p,n,biasNormal,receiverLayers,receivesShadows,biasNormal,HLGIPointQueryFootprint(),known); }
+-// Existing callers retain shadow receiving until their material source proves
+-// an explicit _RECEIVE_SHADOWS_OFF policy.
+-float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,out bool known)
+-{ return DirectIrradiance(p,n,biasNormal,receiverLayers,true,known); }
+-// Compatibility value only. A zero return on unknown shadows is not measured
+-// black; callers that accumulate radiance must use the explicit known overload.
+-float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers)
+-{ bool known;return DirectIrradiance(p,n,biasNormal,receiverLayers,known); }
+-float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFootprint,float emissionWeight,out float confidence)
+-{
+-    confidence=0;
+-    if(!HLGIHitOwnerCurrent(hit) || !HLGIHitMaterialKnown(hit)) return 0;
+-    HLGIProxy proxy=_HLGI_Proxies[hit.ownerSlot];
+-    HLGISurfaceSample surface;
+-    float3 diffuse=proxy.albedo.rgb,emission=proxy.emission.rgb;
+-    float3 shadingNormal=HLGIHitHas(hit.flags,HLGI_HIT_SHADING_NORMAL)?hit.shadingNormal:hit.rawNg;
+-    float3 biasNormal=hit.rawNg;float ao=1;bool receivesShadows=true;
+-    bool materialResolved=HLGITrySurfaceMaterialHit(hit,surface);
+-    if(HLGIHitHas(hit.flags,HLGI_HIT_TRIANGLE))
+-    {
+-        // A real triangle's committed UV material owns Ns/rho/Le/AO. Card data
+-        // may locate an incoming-irradiance patch, but must not replace those
+-        // physical material values or act as a fallback for unknown coverage.
+-        if(!HLGIHitHas(hit.flags,HLGI_HIT_UV_MATERIAL|HLGI_HIT_SHADING_NORMAL) || hit.materialReceivesShadows>1u) return 0;
+-        diffuse=hit.materialDiffuse;emission=hit.materialEmission;ao=hit.materialOcclusion;
+-        receivesShadows=hit.materialReceivesShadows!=0u;confidence=1;
+-    }
+-    else if(materialResolved)
+-    {
+-        diffuse=surface.diffuse;emission=surface.emission;shadingNormal=surface.normal;
+-        biasNormal=surface.geometricNormal;ao=surface.occlusion;
+-        confidence=saturate(surface.confidence);
+-    }
+-    else confidence=0.1; // Uncharted analytic/SDF owner-level approximation.
+-    HLGICacheEntry cached=(HLGICacheEntry)0;
+-    if(materialResolved)
+-    {
+-        float3 queryNg=HLGIHitHas(hit.flags,HLGI_HIT_ORIENTED_NG)?hit.rawNg:surface.geometricNormal;
+-        HLGICachedSurface((int)hit.ownerSlot,hit.position,queryNg,shadingNormal,surface,cached);
+-    }
+-    bool directKnown;
+-    float3 direct=DirectIrradiance(hit.position,shadingNormal,biasNormal,_HLGI_LightingPolicies[hit.ownerSlot].xy,
+-        receivesShadows,incomingDirection,hitFootprint,directKnown);
+-    if(!directKnown || !all(isfinite(diffuse)) || !all(isfinite(emission)) || !isfinite(ao)) { confidence=0;return 0; }
+-    float3 value=max(emission,0)*emissionWeight+clamp(diffuse,0,0.98)*(direct+ao*_HLGI_BounceFeedback*max(cached.irradiance.rgb,0));
+-    if(!HLGIHasRadianceMeasurement(float4(value,confidence))) { confidence=0;return 0; }
+-    return value;
+-}
+-float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFootprint,out float confidence)
+-{ return ProxyRadiance(hit,incomingDirection,hitFootprint,1,confidence); }
+-float3 ProxyRadiance(HLGIHit hit,out float confidence)
+-{ return ProxyRadiance(hit,hit.rawNg,HLGIPointQueryFootprint(),confidence); }
+-bool HLGIAreaDirectionEmissionWeight(float3 origin,float3 n,float4 guide,float3 direction,HLGIHit hit,out float weight)
+-{
+-    weight=1;float lightPdf;
+-    uint status=HLGIAreaHitPdf(origin,hit,_HLGI_AreaMaterialGeneration,lightPdf);
+-    if(status==HLGI_AREA_NONE)return true;
+-    if(status==HLGI_AREA_UNKNOWN)return false;
+-    float inverseSum;
+-    return HLGIAreaBalance(HLGITransportDirectionPdf(origin,n,guide,direction),lightPdf,weight,inverseSum);
+-}
+-bool HLGIAreaMatchedDirectionWeight(float3 origin,float3 n,float4 guide,float3 direction,inout float weight)
+-{
+-    if(_HLGI_AreaEmitterCount<=0)return isfinite(weight) && weight>=0;
+-    float cosine=max(0,dot(n,direction));
+-    if(cosine==0) { weight=0;return true; }
+-    float pdf=HLGITransportDirectionPdf(origin,n,guide,direction);
+-    if(!isfinite(pdf) || pdf<=0)return false;
+-    // No grazing-angle denominator clamp: both MIS techniques must integrate
+-    // the same cosine/PDF, including very small but representable densities.
+-    weight=(cosine/pdf)/PI;
+-    return isfinite(weight) && weight>=0;
+-}
+-// Return the nearest world hit as well: screen gathering must apply its same
+-// nearest-screen winner to this sample before adding the light contribution.
+-bool HLGIAreaLightContribution(float3 origin,float3 n,float4 guide,HLGIAreaSample sample,
+-    HLGIRayFootprint footprint,float4 materialView,out float3 value,out bool worldHit,out HLGIHit hit)
+-{
+-    value=0;worldHit=false;hit=HLGIEmptyHit(_HLGI_MaxDistance);
+-    float cosine=max(0,dot(n,sample.direction));
+-    if(cosine==0 || sample.distance>=_HLGI_MaxDistance)return true;
+-    float scale=max(sample.distance,max(abs(sample.position.x),max(abs(sample.position.y),abs(sample.position.z))));
+-    float limit=min(_HLGI_MaxDistance,sample.distance+max(1e-5,16*1.192092896e-7*scale));
+-    worldHit=TraceSceneHit(origin,sample.direction,limit,footprint,materialView,hit);
+-    if(!worldHit)return true; // Alpha hole/back side has zero contribution; never resample.
+-    if(!HLGIHitMaterialKnown(hit))return false;
+-    if(!HLGIAreaSampleMatchesHit(sample,hit,_HLGI_AreaMaterialGeneration))return true;
+-    if(!HLGIHitHas(hit.flags,HLGI_HIT_UV_MATERIAL) || !all(isfinite(hit.materialEmission)))return false;
+-    float directionWeight,inverseSum;
+-    if(!HLGIAreaBalance(HLGITransportDirectionPdf(origin,n,guide,sample.direction),sample.pdf,directionWeight,inverseSum))return false;
+-    value=max(hit.materialEmission,0)*(cosine/PI)*inverseSum;
+-    return all(isfinite(value));
+-}
+-bool HLGITrySurfacePatchRayFootprint(HLGISurfaceSample surface,uint2 cell,float3 direction,out HLGIRayFootprint footprint)
+-{
+-    footprint=(HLGIRayFootprint)0;
+-    if(!HLGISurfaceCardValid(surface.cardIndex)) return false;
+-    HLGISurfaceCard card=_HLGI_SurfaceCards[surface.cardIndex];
+-    int2 minimum,count;
+-    if(!HLGISurfaceAtlasRect(card.atlasRect,minimum,count)) return false;
+-    return HLGITryCardPatchFootprint(card.worldToCard,surface.position,surface.geometricNormal,
+-        (uint2)count,cell,(uint)_HLGI_CacheGrid,direction,footprint);
+-}
+-// Jacobi reads only the old buffer. Every output entry is written, including invalid slots.
+-[numthreads(64,1,1)]
+-void CSUpdateCache(uint3 id:SV_DispatchThreadID)
+-{
+-    if(_HLGI_CacheGrid<1 || _HLGI_CacheGrid>4 || _HLGI_SurfaceCardCount<=0) return;
+-    uint patches=(uint)(_HLGI_CacheGrid*_HLGI_CacheGrid);
+-    uint count=(uint)_HLGI_SurfaceCardCount*patches;
+-    if(id.x>=count) return;
+-    uint card=id.x/patches,local=id.x%patches;
+-    HLGISurfaceSample surface;
+-    bool covered=HLGITrySurfacePatch(card,uint2(local%_HLGI_CacheGrid,local/_HLGI_CacheGrid),_HLGI_CacheGrid,surface);
+-    if(!covered) { _HLGI_CacheWrite[id.x]=(HLGICacheEntry)0;return; }
+-    // Patch validation rejects unused/invalid owners before reading the proxy buffer.
+-    HLGIProxy p=_HLGI_Proxies[surface.ownerSlot];
+-    HLGICacheEntry e=_HLGI_CacheRead[id.x];
+-    float3 tag=float3(p.identity.xy,_HLGI_Epoch);
+-    float2 change=HLGIChangeAt(surface.position);
+-    if(any(e.tag.xyz!=tag) || e.tag.w!=(float)surface.generation || change.x>0.5 || !HLGIHasCacheMeasurement(e.irradiance,e.guide))
+-        e=(HLGICacheEntry)0;
+-    // Nearby changes retain an estimate but shorten its history, even if this patch awaits budget.
+-    if(change.y>0.5) e.irradiance.a=min(e.irradiance.a,1);
+-    e.tag=float4(tag,surface.generation);
+-    float2 geometricOct=PackNormalOctQuadEncode(surface.geometricNormal);
+-    e.anchor=float4(surface.position,geometricOct.x);e.normal=float4(surface.normal,geometricOct.y);
+-    if(_HLGI_CacheUpdateMask[id.x]!=0)
+-    {
+-        float3 position=surface.position,n=surface.normal;
+-        // Separate cache-update and camera-gather domains: an equal physical
+-        // patch/pixel index must not reuse the guide-producing random stream.
+-        uint rng=HLGIHash((id.x+HLGIHash((uint)_HLGI_FrameIndex+1))^0xA511E9B3u);
+-        float3 sum=0,guide=0;float guidePower=0;bool estimateKnown=true;
+-        [loop] for(int r=0;r<_HLGI_CacheRays;r++)
+-        {
+-            float3 origin=position+HLGIOffsetNormal(surface.geometricNormal,n)*_HLGI_RayBias;
+-            float weight;float3 direction=HLGISampleTransportDirection(origin,n,e.guide,rng,weight);
+-            if(!HLGIAreaMatchedDirectionWeight(origin,n,e.guide,direction,weight)) { estimateKnown=false;break; }
+-            if(!all(isfinite(direction))) { estimateKnown=false;break; }
+-            HLGIHit hit;
+-            float3 incoming=0;float materialConfidence=1;
+-            HLGIRayFootprint footprint;
+-            HLGITrySurfacePatchRayFootprint(surface,uint2(local%_HLGI_CacheGrid,local/_HLGI_CacheGrid),direction,footprint);
+-            if(weight>0 && TraceSceneHit(origin,direction,_HLGI_MaxDistance,footprint,float4(position,1),hit))
+-            {
+-                HLGIRayFootprint hitFootprint;HLGIAdvanceRayFootprint(footprint,hit.t,hitFootprint);
+-                float emissionWeight;
+-                if(!HLGIAreaDirectionEmissionWeight(origin,n,e.guide,direction,hit,emissionWeight)) { estimateKnown=false;break; }
+-                incoming=ProxyRadiance(hit,direction,hitFootprint,emissionWeight,materialConfidence);
+-            }
+-            else if(weight>0) incoming=_HLGI_Environment.rgb;
+-            if(!HLGIAccumulateRadianceSample(incoming,materialConfidence,weight,sum)) { estimateKnown=false;break; }
+-            float power=dot(max(incoming,0),float3(0.2126,0.7152,0.0722))*weight;
+-            guide+=direction*power;guidePower+=power;
+-            HLGIAreaSample lightSample;
+-            uint lightStatus=HLGI_AREA_NONE;
+-            if(_HLGI_AreaEmitterCount>0)lightStatus=HLGISampleAreaEmitter(origin,float3(Random(rng),Random(rng),Random(rng)),lightSample);
+-            if(lightStatus==HLGI_AREA_UNKNOWN) { estimateKnown=false;break; }
+-            if(lightStatus==HLGI_AREA_SAMPLE)
+-            {
+-                HLGITrySurfacePatchRayFootprint(surface,uint2(local%_HLGI_CacheGrid,local/_HLGI_CacheGrid),lightSample.direction,footprint);
+-                float3 lightValue;bool lightWorldHit;HLGIHit lightHit;
+-                if(!HLGIAreaLightContribution(origin,n,e.guide,lightSample,footprint,float4(position,1),lightValue,lightWorldHit,lightHit) ||
+-                    !HLGIAccumulateRadianceSample(lightValue,1,1,sum)) { estimateKnown=false;break; }
+-                float lightPower=dot(lightValue,float3(0.2126,0.7152,0.0722));
+-                guide+=lightSample.direction*lightPower;guidePower+=lightPower;
+-            }
+-        }
+-        HLGICommitCacheEstimate(estimateKnown,sum,guide,guidePower,_HLGI_CacheRays,n,e.irradiance,e.guide);
+-    }
+-    _HLGI_CacheWrite[id.x]=e;
+-}
+-#endif
++#ifndef HLGI_TRANSPORT_INCLUDED
++#define HLGI_TRANSPORT_INCLUDED
++#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
++#include "HybridLumenGIRadianceValidity.hlsl"
++#include "HybridLumenGIRayFootprint.hlsl"
++
++// Cached quantity D = irradiance / pi in linear URP units. Cosine sampling has unit weight.
++struct HLGIProxy { float4 centerShape, extentsRoughness, albedo, emission, identity; };
++struct HLGILight
++{
++    float4 positionType; // 0 directional, 1 point, 2 spot
++    float4 directionRange;
++    float4 color;
++    float4 spot; // cos outer, reciprocal(cos inner - cos outer), shadow strength, reserved
++    uint4 masks; // GameObject culling, illumination layers, shadow layers, flags(bit0: layers enabled)
++};
++struct HLGICacheEntry { float4 irradiance; float4 tag; float4 anchor; float4 normal; float4 guide; };
++StructuredBuffer<HLGIProxy> _HLGI_Proxies;
++StructuredBuffer<HLGILight> _HLGI_Lights;
++StructuredBuffer<HLGICacheEntry> _HLGI_CacheRead;
++RWStructuredBuffer<HLGICacheEntry> _HLGI_CacheWrite;
++int _HLGI_ProxyCount, _HLGI_LightCount, _HLGI_Epoch, _HLGI_FrameIndex;
++int _HLGI_CacheGrid, _HLGI_CacheRays;
++StructuredBuffer<uint> _HLGI_CacheUpdateMask;
++float _HLGI_GuideWeight;
++float _HLGI_MaxDistance, _HLGI_ShadowDistance, _HLGI_RayBias, _HLGI_BounceFeedback;
++float4 _HLGI_Environment;
++#include "HybridLumenGILightingPolicy.hlsl"
++#include "HybridLumenGISdfTrace.hlsl"
++#include "HybridLumenGISceneBvh.hlsl"
++#include "HybridLumenGIChanges.hlsl"
++#include "HybridLumenGISurfaceCache.hlsl"
++#include "HybridLumenGIGlobalSdf.hlsl"
++int _HLGI_GlobalSdfEnabled;
++float _HLGI_DetailTraceDistance;
++
++uint HLGIHash(uint x)
++{
++    x ^= x >> 16; x *= 0x7feb352du; x ^= x >> 15; x *= 0x846ca68bu; return x ^ (x >> 16);
++}
++float Random(inout uint s) { s = HLGIHash(s); return (s >> 8) * (1.0 / 16777216.0); }
++float3 CosineHemisphere(float3 n, float2 xi)
++{
++    float r = sqrt(xi.x), phi = TWO_PI * xi.y;
++    float3 t = normalize(cross(abs(n.z) < 0.999 ? float3(0,0,1) : float3(0,1,0), n));
++    return t * (r * cos(phi)) + cross(n,t) * (r * sin(phi)) + n * sqrt(1-xi.x);
++}
++float3 HLGISampleDirection(float3 n,float4 guide,inout uint rng,out float weight)
++{
++    float mixture=guide.w>1e-6 && dot(guide.xyz,guide.xyz)>0.5 ? _HLGI_GuideWeight:0;
++    float3 axis=mixture>0 ? normalize(guide.xyz):n;
++    float branch=Random(rng);
++    float2 xi=float2(Random(rng),Random(rng));
++    float3 direction=CosineHemisphere(branch<mixture?axis:n,xi);
++    float cosine=saturate(dot(n,direction)), guidedCosine=saturate(dot(axis,direction));
++    // One-sample mixture estimator: full mixture PDF, including the branch not chosen.
++    // Samples below the receiver hemisphere have zero contribution, never get resampled.
++    weight=cosine/max((1-mixture)*cosine+mixture*guidedCosine,1e-8);
++    return direction;
++}
++#include "HybridLumenGIEmissiveSampling.hlsl"
++#include "HybridLumenGIAreaEmission.hlsl"
++uint _HLGI_AreaMaterialGeneration;
++bool IntersectProxy(float3 o, float3 d, HLGIProxy p, float limit, out float t, out float3 n)
++{
++    t = limit; n = 0;
++    float3 local = o - p.centerShape.xyz;
++    if (p.centerShape.w > 0.5)
++    {
++        float radius = max(p.extentsRoughness.x, max(p.extentsRoughness.y,p.extentsRoughness.z));
++        float b = dot(local,d), c = dot(local,local) - radius*radius;
++        float disc = b*b-c;
++        if (disc < 0) return false;
++        float root = sqrt(disc); t = -b-root;
++        if (t <= 1e-4) t = -b+root;
++        if (t <= 1e-4 || t >= limit) return false;
++        n = normalize(local + d*t); return true;
++    }
++    float enter = -1e20, leave = 1e20;
++    float3 enterN = 0, leaveN = 0;
++    [unroll] for (int axis=0; axis<3; axis++)
++    {
++        if (abs(d[axis]) < 1e-7)
++        {
++            if (abs(local[axis]) > p.extentsRoughness[axis]) return false;
++            continue;
++        }
++        float a = (-p.extentsRoughness[axis]-local[axis])/d[axis];
++        float b = ( p.extentsRoughness[axis]-local[axis])/d[axis];
++        float3 axisN = 0; axisN[axis] = d[axis]>0 ? -1 : 1;
++        if (min(a,b)>enter) { enter=min(a,b); enterN=axisN; }
++        if (max(a,b)<leave) { leave=max(a,b); leaveN=-axisN; }
++    }
++    if (leave < max(enter,0)) return false;
++    bool inside = enter <= 1e-4;
++    t = inside ? leave : enter; n = inside ? leaveN : enterN;
++    return t > 1e-4 && t < limit;
++}
++#if defined(HLGI_INLINE_RT)
++#include "HybridLumenGIHardwareTrace.hlsl"
++#elif defined(HLGI_SOFTWARE_TRIANGLES)
++#include "HybridLumenGISoftwareTriangleBvh.hlsl"
++#endif
++// A deliberate point query, for geometric visibility/legacy callers. An unknown
++// filtered footprint must remain invalid instead of passing through this helper.
++HLGIRayFootprint HLGIPointQueryFootprint()
++{ HLGIRayFootprint value;HLGITryMakeRayFootprint(0,0,value);return value; }
++bool TraceSceneDetailQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool resolveMaterial,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
++    HLGIRayFootprint footprint,float4 materialView,out HLGIHit result)
++{
++    result=HLGIEmptyHit(maxT);
++#if defined(HLGI_INLINE_RT)
++    HLGIHardwareTraceQuery(o,d,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,
++        footprint.valid==1u?footprint.radius:-1,footprint.slope,materialView,result);
++#elif defined(HLGI_SOFTWARE_TRIANGLES)
++    HLGISoftwareTraceQuery(o,d,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,
++        footprint.valid==1u?footprint.radius:-1,footprint.slope,materialView,result);
++#endif
++    uint cursor=0;
++    [loop] while(cursor<(uint)_HLGI_SceneBvhCount)
++    {
++        int i=HLGIBvhNextLeaf(cursor,o,d,result.t);
++        if(i<0) break;
++        if(_HLGI_Proxies[i].identity.w < 0.5 || _HLGI_Proxies[i].identity.w >= 1.5) continue;
++        if(shadowQuery && !HLGIShadowOwnerAllowed((uint)i,cullingMask,shadowRenderingLayers,useRenderingLayers)) continue;
++#if defined(HLGI_INLINE_RT) || defined(HLGI_SOFTWARE_TRIANGLES)
++        if (HLGIHardwareHasMesh(i)) continue;
++#endif
++        HLGIHit candidate=HLGIEmptyHit(result.t);
++        bool found;
++        if(HLGIHasMeshSdf(i)) found=HLGITraceMeshSdfHit(o,d,result.t,i,candidate);
++        else
++        {
++            float distanceHit;float3 normal;
++            found=IntersectProxy(o,d,_HLGI_Proxies[i],result.t,distanceHit,normal);
++            if(found)
++            {
++                candidate.t=distanceHit;candidate.position=o+d*distanceHit;
++                candidate.rawNg=candidate.shadingNormal=normal;
++                candidate.ownerSlot=(uint)i;
++                candidate.stableId=(uint)_HLGI_Proxies[i].identity.x;
++                candidate.ownerRevision=(uint)_HLGI_Proxies[i].identity.y;
++                candidate.representation=HLGI_REPRESENTATION_ANALYTIC;
++                candidate.flags=HLGI_HIT_VALID|HLGI_HIT_GEOMETRIC_NORMAL|HLGI_HIT_ORIENTED_NG|HLGI_HIT_FRONT_FACE_KNOWN;
++                if(dot(normal,d)<0) candidate.flags|=HLGI_HIT_FRONT_FACE;
++            }
++        }
++        if(found)
++        {
++            // Software geometry already matched the current scene owner/revision.
++            // Carry that owner's current surface geometry version if resident;
++            // this version is not a primitive/front-face/material identity.
++            uint4 surfaceRange;
++            if(HLGISurfaceOwnerRange(i,surfaceRange)) candidate.geometryRevision=surfaceRange.w;
++            result=candidate;
++        }
++    }
++    return HLGIHitHas(result.flags,HLGI_HIT_VALID);
++}
++bool TraceSceneQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool resolveMaterial,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
++    HLGIRayFootprint footprint,float4 materialView,out HLGIHit result)
++{
++    float detailLimit=_HLGI_GlobalSdfEnabled!=0?min(maxT,_HLGI_DetailTraceDistance):maxT;
++    float advance=0;
++    HLGIRayFootprint queryFootprint=footprint;
++    // Keep one detailed traversal call site. DXC inlines this entire geometry /
++    // material query; separate fast/near/far call sites multiplied it at every
++    // visibility and radiance caller, exceeding Unity's compiler timeout.
++    [loop] for(int segment=0;segment<2;segment++)
++    {
++        float limit=segment==0?detailLimit:maxT-advance;
++        if(TraceSceneDetailQuery(o+d*advance,d,limit,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,queryFootprint,materialView,result))
++        { result.t+=advance;result.position=o+d*result.t;return true; }
++        if(segment==1 || detailLimit>=maxT) break;
++        // Retain the near/far overlap and conservative empty-space guards.
++        advance=max(0,detailLimit-0.001);
++        [loop] for(int step=0;step<8 && advance<maxT;step++)
++        {
++            float emptyDistance;
++            if(!HLGIGlobalSdfEmptyDistance(o+d*advance,emptyDistance) || emptyDistance<=0) break;
++            if(emptyDistance>=maxT-advance) { result=HLGIEmptyHit(maxT);return false; }
++            float guard=max(0.001,abs(advance)*2e-6);
++            float next=advance+max(0,emptyDistance-guard);
++            if(next<=advance) break;
++            advance=next;
++        }
++        if(advance>=maxT) break;
++        HLGIAdvanceRayFootprint(footprint,advance,queryFootprint);
++    }
++    result=HLGIEmptyHit(maxT);return false;
++}
++// Public legacy query overloads retain their original material purpose.
++bool TraceSceneDetailQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool resolveMaterial,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit result)
++{ return TraceSceneDetailQuery(o,d,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,HLGIPointQueryFootprint(),float4(o,1),result); }
++bool TraceSceneQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool resolveMaterial,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit result)
++{ return TraceSceneQuery(o,d,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,HLGIPointQueryFootprint(),float4(o,1),result); }
++bool TraceSceneDetailQuery(float3 o,float3 d,float maxT,bool shadowQuery,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit result)
++{ return TraceSceneDetailQuery(o,d,maxT,shadowQuery,!shadowQuery,cullingMask,shadowRenderingLayers,useRenderingLayers,result); }
++bool TraceSceneQuery(float3 o,float3 d,float maxT,bool shadowQuery,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out HLGIHit result)
++{ return TraceSceneQuery(o,d,maxT,shadowQuery,!shadowQuery,cullingMask,shadowRenderingLayers,useRenderingLayers,result); }
++bool TraceSceneDetailHit(float3 o,float3 d,float maxT,out HLGIHit result)
++{ return TraceSceneDetailQuery(o,d,maxT,false,true,0xffffffffu,0xffffffffu,false,result); }
++bool TraceSceneHit(float3 o,float3 d,float maxT,out HLGIHit result)
++{ return TraceSceneQuery(o,d,maxT,false,true,0xffffffffu,0xffffffffu,false,result); }
++bool TraceSceneHit(float3 o,float3 d,float maxT,HLGIRayFootprint footprint,float4 materialView,out HLGIHit result)
++{ return TraceSceneQuery(o,d,maxT,false,true,0xffffffffu,0xffffffffu,false,footprint,materialView,result); }
++// Ordinary visibility preserves surface Cull/alpha and ignores shadow-caster policy.
++bool TraceSceneVisibilityHit(float3 o,float3 d,float maxT,out HLGIHit result)
++{ return TraceSceneQuery(o,d,maxT,false,false,0xffffffffu,0xffffffffu,false,result); }
++bool TraceSceneVisibilityHit(float3 o,float3 d,float maxT,HLGIRayFootprint footprint,float4 materialView,out HLGIHit result)
++{ return TraceSceneQuery(o,d,maxT,false,false,0xffffffffu,0xffffffffu,false,footprint,materialView,result); }
++bool TraceShadow(float3 o,float3 d,float maxT,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,
++    HLGIRayFootprint footprint,float4 materialView,out bool known)
++{
++    HLGIHit result;
++    bool blocked=TraceSceneQuery(o,d,maxT,true,false,cullingMask,shadowRenderingLayers,useRenderingLayers,footprint,materialView,result);
++    known=!blocked || HLGIHitMaterialKnown(result);
++    return blocked;
++}
++bool TraceShadow(float3 o,float3 d,float maxT,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers,out bool known)
++{ return TraceShadow(o,d,maxT,cullingMask,shadowRenderingLayers,useRenderingLayers,HLGIPointQueryFootprint(),float4(o,1),known); }
++// Visibility-only compatibility: unknown coverage conservatively blocks. This
++// overload does not prove known radiance; transport must consume the known flag.
++bool TraceShadow(float3 o,float3 d,float maxT,uint cullingMask,uint shadowRenderingLayers,bool useRenderingLayers)
++{ bool known;return TraceShadow(o,d,maxT,cullingMask,shadowRenderingLayers,useRenderingLayers,known); }
++// Visibility-only compatibility entry. Radiance/material consumers use the full
++// record, so this projection of it cannot discard their primitive identity.
++bool TraceScene(float3 o,float3 d,float maxT,out float t,out float3 n,out int index)
++{
++    HLGIHit result;bool found=TraceSceneVisibilityHit(o,d,maxT,result);
++    t=result.t;n=result.rawNg;index=found?(int)result.ownerSlot:-1;
++    return found;
++}
++int FaceIndex(float3 n)
++{
++    float3 a=abs(n);
++    int axis = a.x>=a.y && a.x>=a.z ? 0 : a.y>=a.z ? 1 : 2;
++    return axis*2 + (n[axis]<0 ? 1 : 0);
++}
++float3 FaceNormal(int face) { float3 n=0; n[face/2]=(face&1)==0?1:-1; return n; }
++bool HLGIHitOwnerCurrent(HLGIHit hit)
++{
++    if(!HLGIHitHas(hit.flags,HLGI_HIT_VALID) || hit.ownerSlot>=(uint)_HLGI_ProxyCount) return false;
++    HLGIProxy proxy=_HLGI_Proxies[hit.ownerSlot];
++    return proxy.identity.w>0.5 && proxy.identity.w<1.5 &&
++        hit.stableId==(uint)proxy.identity.x && hit.ownerRevision==(uint)proxy.identity.y;
++}
++bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 shadingNormal,
++    HLGISurfaceSample surface,out HLGICacheEntry result)
++{
++    result=(HLGICacheEntry)0;
++    HLGIProxy p=_HLGI_Proxies[index];
++    float2 uv;
++    if(!HLGISurfaceCardUv(surface.cardIndex,position,uv)) return false;
++    float2 patchPosition=uv*_HLGI_CacheGrid-0.5;
++    int2 baseCell=(int2)floor(patchPosition);
++    float2 fraction=frac(patchPosition); float totalWeight=0;
++    // Geometry selects the card; its capture axis is never inferred from the dominant hit normal.
++    // Each tap includes a full visibility query. Preserve the four taps in a
++    // loop instead of cloning four complete software traversals in the shader.
++    [loop] for(int tap=0;tap<4;tap++)
++    {
++        int x=tap&1,y=tap>>1;
++        int2 cell=baseCell+int2(x,y);
++        if(any(cell<0)||any(cell>=_HLGI_CacheGrid)) continue;
++        uint entry=surface.cardIndex*_HLGI_CacheGrid*_HLGI_CacheGrid+cell.y*_HLGI_CacheGrid+cell.x;
++        HLGICacheEntry e=_HLGI_CacheRead[entry];
++        if(any(e.tag.xyz != float3(p.identity.xy,_HLGI_Epoch)) || !HLGIHasCacheMeasurement(e.irradiance,e.guide)) continue;
++        if(e.tag.w!=(float)surface.generation) continue;
++        float3 delta=position-e.anchor.xyz;
++        float3 anchorGeometricNormal=UnpackNormalOctQuadEncode(float2(e.anchor.w,e.normal.w));
++        // Shading normals compare lighting orientation; geometry normals compare the
++        // actual layer. A normal map must not tilt this plane test into the surface.
++        if(dot(shadingNormal,e.normal.xyz)<0.85 || dot(geometricNormal,anchorGeometricNormal)<0.85 ||
++            abs(dot(delta,anchorGeometricNormal))>max(_HLGI_RayBias*2,0.03)) continue;
++        // Isolated card captures can contain anchors buried in intersecting
++        // geometry. Start visibility at the queried surface, not at the anchor:
++        // an anchor inside another opaque object would otherwise leave through
++        // its culled back face and leak exterior cached light into the room.
++        // Offset BOTH endpoints and test the complete resulting segment. A
++        // RayBias-sized endpoint gap can hide a thin wall next to the anchor.
++        float3 visibilityOrigin=position+HLGIOffsetNormal(geometricNormal,shadingNormal)*_HLGI_RayBias;
++        float3 visibilityTarget=e.anchor.xyz+HLGIOffsetNormal(anchorGeometricNormal,shadingNormal)*_HLGI_RayBias;
++        float3 connection=visibilityTarget-visibilityOrigin;
++        float separation=length(connection);
++        if(separation>0.0002)
++        {
++            HLGIHit blocker;
++            if(TraceSceneVisibilityHit(visibilityOrigin,connection/separation,separation-0.0001,
++                HLGIPointQueryFootprint(),float4(position,1),blocker)) continue;
++        }
++        float weight=(x==0?1-fraction.x:fraction.x)*(y==0?1-fraction.y:fraction.y);
++        totalWeight+=weight;result.irradiance+=e.irradiance*weight;result.guide+=e.guide*weight;
++    }
++    if(totalWeight<=1e-5) return false;
++    result.irradiance/=totalWeight;result.guide/=totalWeight;
++    if(dot(result.guide.xyz,result.guide.xyz)>1e-6) result.guide.xyz=normalize(result.guide.xyz);
++    return true;
++}
++bool HLGICachedSample(HLGIHit hit,float3 shadingNormal,out HLGICacheEntry result)
++{
++    result=(HLGICacheEntry)0;
++    if(!HLGIHitOwnerCurrent(hit) || !HLGIHitMaterialKnown(hit)) return false;
++    HLGISurfaceSample surface;
++    if(!HLGITrySurfaceMaterialHit(hit,surface)) return false;
++    // Unsigned SDF gradients have no stable source orientation. Once material is
++    // approximately resolved, use that sample's recorded Ng for its cache plane.
++    float3 geometricNormal=HLGIHitHas(hit.flags,HLGI_HIT_ORIENTED_NG)?hit.rawNg:surface.geometricNormal;
++    return HLGICachedSurface((int)hit.ownerSlot,hit.position,geometricNormal,shadingNormal,surface,result);
++}
++float3 CachedIrradiance(HLGIHit hit,float3 shadingNormal)
++{
++    HLGICacheEntry entry;
++    return HLGICachedSample(hit,shadingNormal,entry)?max(entry.irradiance.rgb,0):0;
++}
++float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,bool receivesShadows,
++    float3 footprintDirection,HLGIRayFootprint footprint,out bool known)
++{
++    known=all(isfinite(p)) && all(isfinite(n)) && all(isfinite(biasNormal));
++    if(!known) return 0;
++    float3 sum=0;
++    [loop] for(int i=0;i<_HLGI_LightCount;i++)
++    {
++        HLGILight light=_HLGI_Lights[i];
++        bool useRenderingLayers=(light.masks.w&1u)!=0;
++        if(!HLGILightAffectsReceiver(receiverLayers,light.masks.x,light.masks.y,useRenderingLayers)) continue;
++        float3 toLight=light.directionRange.xyz;
++        float maxT=_HLGI_ShadowDistance, attenuation=1;
++        if(light.positionType.w>0.5)
++        {
++            float3 offset=light.positionType.xyz-p;
++            float d2=max(dot(offset,offset),0.0001);
++            maxT=sqrt(d2); toLight=offset/maxT;
++            float factor=d2/max(light.directionRange.w*light.directionRange.w,0.0001);
++            float smooth=saturate(1-factor*factor);
++            attenuation=smooth*smooth/d2;
++            if(light.positionType.w>1.5)
++            {
++                float spot=saturate((dot(-toLight,light.directionRange.xyz)-light.spot.x)*light.spot.y);
++                attenuation*=spot*spot;
++            }
++        }
++        float rawNdl=dot(n,toLight);
++        if(!all(isfinite(toLight)) || !isfinite(rawNdl) || !isfinite(attenuation) || !all(isfinite(light.color.rgb))) { known=false;return 0; }
++        float ndl=saturate(rawNdl);
++        if(ndl*attenuation<=0 || !any(light.color.rgb>0)) continue;
++        float visibility=1;
++        if(receivesShadows)
++        {
++            float strength=saturate(light.spot.z);
++            if(!isfinite(light.spot.z) || !isfinite(maxT)) { known=false;return 0; }
++            if(strength>0)
++            {
++                float3 shadowOrigin=p+HLGIOffsetNormal(biasNormal,toLight)*_HLGI_RayBias;
++                float3 shadowDirection=toLight;
++                float shadowDistance=maxT;
++                if(light.positionType.w>0.5)
++                {
++                    // The biased ray must still focus at the actual point light.
++                    // Lighting N.L/attenuation above remain evaluated at p.
++                    float3 connection=light.positionType.xyz-shadowOrigin;
++                    if(!HLGIFootprintLength(connection,shadowDistance) || !(shadowDistance>0) ||
++                        !HLGIFootprintUnit(connection,shadowDirection)) { known=false;return 0; }
++                }
++                HLGIRayFootprint projected,shadowFootprint=(HLGIRayFootprint)0;
++                if(HLGITryRetargetFootprint(footprint,footprintDirection,biasNormal,shadowDirection,projected))
++                {
++                    if(light.positionType.w>0.5) HLGITryPointShadowFootprint(projected,shadowDistance,shadowFootprint);
++                    else HLGITryDirectionalShadowFootprint(projected,shadowFootprint);
++                }
++                bool shadowKnown;
++                bool blocked=TraceShadow(shadowOrigin,shadowDirection,max(0,shadowDistance-_HLGI_RayBias),
++                    light.masks.x,light.masks.z,useRenderingLayers,shadowFootprint,float4(p,1),shadowKnown);
++                if(!shadowKnown) { known=false;return 0; }
++                if(blocked) visibility=1-strength;
++            }
++        }
++        sum+=light.color.rgb*(ndl*attenuation*visibility);
++    }
++    known=all(isfinite(sum));return known?sum:0;
++}
++float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,bool receivesShadows,out bool known)
++{ return DirectIrradiance(p,n,biasNormal,receiverLayers,receivesShadows,biasNormal,HLGIPointQueryFootprint(),known); }
++// Existing callers retain shadow receiving until their material source proves
++// an explicit _RECEIVE_SHADOWS_OFF policy.
++float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,out bool known)
++{ return DirectIrradiance(p,n,biasNormal,receiverLayers,true,known); }
++// Compatibility value only. A zero return on unknown shadows is not measured
++// black; callers that accumulate radiance must use the explicit known overload.
++float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers)
++{ bool known;return DirectIrradiance(p,n,biasNormal,receiverLayers,known); }
++float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFootprint,float emissionWeight,out float confidence)
++{
++    confidence=0;
++    if(!HLGIHitOwnerCurrent(hit) || !HLGIHitMaterialKnown(hit)) return 0;
++    HLGIProxy proxy=_HLGI_Proxies[hit.ownerSlot];
++    HLGISurfaceSample surface;
++    float3 diffuse=proxy.albedo.rgb,emission=proxy.emission.rgb;
++    float3 shadingNormal=HLGIHitHas(hit.flags,HLGI_HIT_SHADING_NORMAL)?hit.shadingNormal:hit.rawNg;
++    float3 biasNormal=hit.rawNg;float ao=1;bool receivesShadows=true;
++    bool materialResolved=HLGITrySurfaceMaterialHit(hit,surface);
++    if(HLGIHitHas(hit.flags,HLGI_HIT_TRIANGLE))
++    {
++        // A real triangle's committed UV material owns Ns/rho/Le/AO. Card data
++        // may locate an incoming-irradiance patch, but must not replace those
++        // physical material values or act as a fallback for unknown coverage.
++        if(!HLGIHitHas(hit.flags,HLGI_HIT_UV_MATERIAL|HLGI_HIT_SHADING_NORMAL) || hit.materialReceivesShadows>1u) return 0;
++        diffuse=hit.materialDiffuse;emission=hit.materialEmission;ao=hit.materialOcclusion;
++        receivesShadows=hit.materialReceivesShadows!=0u;confidence=1;
++    }
++    else if(materialResolved)
++    {
++        diffuse=surface.diffuse;emission=surface.emission;shadingNormal=surface.normal;
++        biasNormal=surface.geometricNormal;ao=surface.occlusion;
++        confidence=saturate(surface.confidence);
++    }
++    else confidence=0.1; // Uncharted analytic/SDF owner-level approximation.
++    HLGICacheEntry cached=(HLGICacheEntry)0;
++    if(materialResolved)
++    {
++        float3 queryNg=HLGIHitHas(hit.flags,HLGI_HIT_ORIENTED_NG)?hit.rawNg:surface.geometricNormal;
++        HLGICachedSurface((int)hit.ownerSlot,hit.position,queryNg,shadingNormal,surface,cached);
++    }
++    bool directKnown;
++    float3 direct=DirectIrradiance(hit.position,shadingNormal,biasNormal,_HLGI_LightingPolicies[hit.ownerSlot].xy,
++        receivesShadows,incomingDirection,hitFootprint,directKnown);
++    if(!directKnown || !all(isfinite(diffuse)) || !all(isfinite(emission)) || !isfinite(ao)) { confidence=0;return 0; }
++    float3 value=max(emission,0)*emissionWeight+clamp(diffuse,0,0.98)*(direct+ao*_HLGI_BounceFeedback*max(cached.irradiance.rgb,0));
++    if(!HLGIHasRadianceMeasurement(float4(value,confidence))) { confidence=0;return 0; }
++    return value;
++}
++float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFootprint,out float confidence)
++{ return ProxyRadiance(hit,incomingDirection,hitFootprint,1,confidence); }
++float3 ProxyRadiance(HLGIHit hit,out float confidence)
++{ return ProxyRadiance(hit,hit.rawNg,HLGIPointQueryFootprint(),confidence); }
++bool HLGIAreaDirectionEmissionWeight(float3 origin,float3 n,float4 guide,float3 direction,HLGIHit hit,out float weight)
++{
++    weight=1;float lightPdf;
++    uint status=HLGIAreaHitPdf(origin,hit,_HLGI_AreaMaterialGeneration,lightPdf);
++    if(status==HLGI_AREA_NONE)return true;
++    if(status==HLGI_AREA_UNKNOWN)return false;
++    float inverseSum;
++    return HLGIAreaBalance(HLGITransportDirectionPdf(origin,n,guide,direction),lightPdf,weight,inverseSum);
++}
++bool HLGIAreaMatchedDirectionWeight(float3 origin,float3 n,float4 guide,float3 direction,inout float weight)
++{
++    if(_HLGI_AreaEmitterCount<=0)return isfinite(weight) && weight>=0;
++    float cosine=max(0,dot(n,direction));
++    if(cosine==0) { weight=0;return true; }
++    float pdf=HLGITransportDirectionPdf(origin,n,guide,direction);
++    if(!isfinite(pdf) || pdf<=0)return false;
++    // No grazing-angle denominator clamp: both MIS techniques must integrate
++    // the same cosine/PDF, including very small but representable densities.
++    weight=(cosine/pdf)/PI;
++    return isfinite(weight) && weight>=0;
++}
++// Return the nearest world hit as well: screen gathering must apply its same
++// nearest-screen winner to this sample before adding the light contribution.
++bool HLGIAreaLightContribution(float3 origin,float3 n,float4 guide,HLGIAreaSample sample,
++    HLGIRayFootprint footprint,float4 materialView,out float3 value,out bool worldHit,out HLGIHit hit)
++{
++    value=0;worldHit=false;hit=HLGIEmptyHit(_HLGI_MaxDistance);
++    float cosine=max(0,dot(n,sample.direction));
++    if(cosine==0 || sample.distance>=_HLGI_MaxDistance)return true;
++    float scale=max(sample.distance,max(abs(sample.position.x),max(abs(sample.position.y),abs(sample.position.z))));
++    float limit=min(_HLGI_MaxDistance,sample.distance+max(1e-5,16*1.192092896e-7*scale));
++    worldHit=TraceSceneHit(origin,sample.direction,limit,footprint,materialView,hit);
++    if(!worldHit)return true; // Alpha hole/back side has zero contribution; never resample.
++    if(!HLGIHitMaterialKnown(hit))return false;
++    if(!HLGIAreaSampleMatchesHit(sample,hit,_HLGI_AreaMaterialGeneration))return true;
++    if(!HLGIHitHas(hit.flags,HLGI_HIT_UV_MATERIAL) || !all(isfinite(hit.materialEmission)))return false;
++    float directionWeight,inverseSum;
++    if(!HLGIAreaBalance(HLGITransportDirectionPdf(origin,n,guide,sample.direction),sample.pdf,directionWeight,inverseSum))return false;
++    value=max(hit.materialEmission,0)*(cosine/PI)*inverseSum;
++    return all(isfinite(value));
++}
++bool HLGITrySurfacePatchRayFootprint(HLGISurfaceSample surface,uint2 cell,float3 direction,out HLGIRayFootprint footprint)
++{
++    footprint=(HLGIRayFootprint)0;
++    if(!HLGISurfaceCardValid(surface.cardIndex)) return false;
++    HLGISurfaceCard card=_HLGI_SurfaceCards[surface.cardIndex];
++    int2 minimum,count;
++    if(!HLGISurfaceAtlasRect(card.atlasRect,minimum,count)) return false;
++    return HLGITryCardPatchFootprint(card.worldToCard,surface.position,surface.geometricNormal,
++        (uint2)count,cell,(uint)_HLGI_CacheGrid,direction,footprint);
++}
++// Jacobi reads only the old buffer. Every output entry is written, including invalid slots.
++[numthreads(64,1,1)]
++void CSUpdateCache(uint3 id:SV_DispatchThreadID)
++{
++    if(_HLGI_CacheGrid<1 || _HLGI_CacheGrid>4 || _HLGI_SurfaceCardCount<=0) return;
++    uint patches=(uint)(_HLGI_CacheGrid*_HLGI_CacheGrid);
++    uint count=(uint)_HLGI_SurfaceCardCount*patches;
++    if(id.x>=count) return;
++    uint card=id.x/patches,local=id.x%patches;
++    HLGISurfaceSample surface;
++    bool covered=HLGITrySurfacePatch(card,uint2(local%_HLGI_CacheGrid,local/_HLGI_CacheGrid),_HLGI_CacheGrid,surface);
++    if(!covered) { _HLGI_CacheWrite[id.x]=(HLGICacheEntry)0;return; }
++    // Patch validation rejects unused/invalid owners before reading the proxy buffer.
++    HLGIProxy p=_HLGI_Proxies[surface.ownerSlot];
++    HLGICacheEntry e=_HLGI_CacheRead[id.x];
++    float3 tag=float3(p.identity.xy,_HLGI_Epoch);
++    float2 change=HLGIChangeAt(surface.position);
++    if(any(e.tag.xyz!=tag) || e.tag.w!=(float)surface.generation || change.x>0.5 || !HLGIHasCacheMeasurement(e.irradiance,e.guide))
++        e=(HLGICacheEntry)0;
++    // Nearby changes retain an estimate but shorten its history, even if this patch awaits budget.
++    if(change.y>0.5) e.irradiance.a=min(e.irradiance.a,1);
++    e.tag=float4(tag,surface.generation);
++    float2 geometricOct=PackNormalOctQuadEncode(surface.geometricNormal);
++    e.anchor=float4(surface.position,geometricOct.x);e.normal=float4(surface.normal,geometricOct.y);
++    if(_HLGI_CacheUpdateMask[id.x]!=0)
++    {
++        float3 position=surface.position,n=surface.normal;
++        // Separate cache-update and camera-gather domains: an equal physical
++        // patch/pixel index must not reuse the guide-producing random stream.
++        uint rng=HLGIHash((id.x+HLGIHash((uint)_HLGI_FrameIndex+1))^0xA511E9B3u);
++        float3 sum=0,guide=0;float guidePower=0;bool estimateKnown=true;
++        [loop] for(int r=0;r<_HLGI_CacheRays;r++)
++        {
++            float3 origin=position+HLGIOffsetNormal(surface.geometricNormal,n)*_HLGI_RayBias;
++            float weight;float3 direction=HLGISampleTransportDirection(origin,n,e.guide,rng,weight);
++            if(!HLGIAreaMatchedDirectionWeight(origin,n,e.guide,direction,weight)) { estimateKnown=false;break; }
++            if(!all(isfinite(direction))) { estimateKnown=false;break; }
++            HLGIHit hit;
++            float3 incoming=0;float materialConfidence=1;
++            HLGIRayFootprint footprint;
++            HLGITrySurfacePatchRayFootprint(surface,uint2(local%_HLGI_CacheGrid,local/_HLGI_CacheGrid),direction,footprint);
++            if(weight>0 && TraceSceneHit(origin,direction,_HLGI_MaxDistance,footprint,float4(position,1),hit))
++            {
++                HLGIRayFootprint hitFootprint;HLGIAdvanceRayFootprint(footprint,hit.t,hitFootprint);
++                float emissionWeight;
++                if(!HLGIAreaDirectionEmissionWeight(origin,n,e.guide,direction,hit,emissionWeight)) { estimateKnown=false;break; }
++                incoming=ProxyRadiance(hit,direction,hitFootprint,emissionWeight,materialConfidence);
++            }
++            else if(weight>0) incoming=_HLGI_Environment.rgb;
++            if(!HLGIAccumulateRadianceSample(incoming,materialConfidence,weight,sum)) { estimateKnown=false;break; }
++            float power=dot(max(incoming,0),float3(0.2126,0.7152,0.0722))*weight;
++            guide+=direction*power;guidePower+=power;
++            HLGIAreaSample lightSample;
++            uint lightStatus=HLGI_AREA_NONE;
++            if(_HLGI_AreaEmitterCount>0)lightStatus=HLGISampleAreaEmitter(origin,float3(Random(rng),Random(rng),Random(rng)),lightSample);
++            if(lightStatus==HLGI_AREA_UNKNOWN) { estimateKnown=false;break; }
++            if(lightStatus==HLGI_AREA_SAMPLE)
++            {
++                HLGITrySurfacePatchRayFootprint(surface,uint2(local%_HLGI_CacheGrid,local/_HLGI_CacheGrid),lightSample.direction,footprint);
++                float3 lightValue;bool lightWorldHit;HLGIHit lightHit;
++                if(!HLGIAreaLightContribution(origin,n,e.guide,lightSample,footprint,float4(position,1),lightValue,lightWorldHit,lightHit) ||
++                    !HLGIAccumulateRadianceSample(lightValue,1,1,sum)) { estimateKnown=false;break; }
++                float lightPower=dot(lightValue,float3(0.2126,0.7152,0.0722));
++                guide+=lightSample.direction*lightPower;guidePower+=lightPower;
++            }
++        }
++        HLGICommitCacheEstimate(estimateKnown,sum,guide,guidePower,_HLGI_CacheRays,n,e.irradiance,e.guide);
++    }
++    _HLGI_CacheWrite[id.x]=e;
++}
++#endif
+--- integration-15/Editor/HybridLumenGIAssetPageBuilder.cs
++++ runtime-candidate-16/Editor/HybridLumenGIAssetPageBuilder.cs
+@@ -87,6 +87,11 @@
+             if(!BuildPipeline.GetCRCForAssetBundle(fullPath,out uint crc))throw new InvalidOperationException("Cannot read bundle CRC: "+page.id);
+             var dependencies=new List<string>();
+             foreach(string dependency in built.GetDirectDependencies(page.bundle))dependencies.Add(bundleToId[dependency]);
++            // BuildAssetBundles may unload unreferenced imported objects. Managed
++            // references to the temporary copies do not keep their native assets
++            // alive, so reacquire the saved identity after the build.
++            page.copy=AssetDatabase.LoadMainAssetAtPath(page.path);
++            if(page.copy==null)throw new InvalidOperationException("Built page asset is unavailable: "+page.path);
+             long bytes=DeclaredResidentBytes(page.copy);
+             definitions.Add(new HybridLumenGIAssetPageStreaming.Definition {id=page.id,bundlePath=page.bundle,
+                 assetName=page.path.ToLowerInvariant(),kind=page.kind,crc=crc,fileBytes=new FileInfo(fullPath).Length,
+--- integration-15/Editor/HybridLumenGIValidationScene.cs
++++ runtime-candidate-16/Editor/HybridLumenGIValidationScene.cs
+@@ -46,7 +46,12 @@
+                 Material emitter = MaterialAsset(lit, folder, "Emitter", Color.white);
+                 emitter.EnableKeyword("_EMISSION");
+                 emitter.SetColor("_EmissionColor", new Color(5f, 3f, 1.5f));
+-                emitter.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
++                // URP's material validation derives _EMISSION from AnyEmissive.
++                // None silently disables it on import, even after EnableKeyword.
++                // This scene has no baked lighting; retain the realtime emission
++                // flag so the intended emitter actually reaches Lit and GI.
++                emitter.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
++                EditorUtility.SetDirty(emitter);
+ 
+                 Box(root.transform, "Floor", new Vector3(0f, -0.15f, 0f), new Vector3(8f, 0.3f, 8f), white);
+                 Box(root.transform, "Red wall", new Vector3(-4f, 2f, 0f), new Vector3(0.3f, 4f, 8f), red);

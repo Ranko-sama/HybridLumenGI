@@ -1,0 +1,257 @@
+using System;
+using System.Linq;
+using System.Reflection;
+using HybridLumenGI;
+using UnityEngine;
+using Source = HybridLumenGI.HybridLumenGIMaterialSource;
+static class Program
+{
+    static int assertions,scenarios;
+    static void Check(bool value,string message){assertions++;if(!value)throw new Exception(message);}
+    static readonly string[] Floats={"_Metallic","_Smoothness","_BumpScale","_OcclusionStrength","_Cutoff","_WorkflowMode","_SmoothnessTextureChannel","_Surface","_AlphaClip","_DetailAlbedoMapScale","_DetailNormalMapScale","_Parallax","_ClearCoatMask","_ClearCoatSmoothness","_ReceiveShadows","_SpecularHighlights","_EnvironmentReflections"};
+    static readonly string[] Raster={"_Cull","_Blend","_SrcBlend","_DstBlend","_SrcBlendAlpha","_DstBlendAlpha","_ZWrite","_BlendModePreserveSpecular","_AlphaToMask","_AddPrecomputedVelocity","_QueueOffset"};
+    static readonly string[] Colors={"_BaseColor","_SpecColor","_EmissionColor"};
+    static readonly string[] Textures={"_BaseMap","_MetallicGlossMap","_SpecGlossMap","_BumpMap","_OcclusionMap","_EmissionMap","_DetailMask","_DetailAlbedoMap","_DetailNormalMap","_ParallaxMap"};
+    static (Source source,Renderer renderer,Material mat) Fixture()
+    {
+        var m=new Material(new Shader{name="Universal Render Pipeline/Lit"});
+        foreach(var n in Floats.Concat(Raster))m.Set(n,0f);m.Set("_Cull",2f);
+        foreach(var n in Colors)m.Set(n,new Color(.2f,.3f,.4f));foreach(var n in Textures)m.Set(n,new Texture2D());
+        var r=new Renderer();r.Materials.Add(m);return(new Source(),r,m);
+    }
+    static Source.Snapshot Capture(Source s,Renderer r,Material m,int i=0)
+    {Check(s.TryCapture(r,i,m,out var result,out var reason)&&result!=null&&reason==null,"capture: "+reason);return result;}
+    static void IdentityAndImmutability()
+    {
+        scenarios++;var(s,r,m)=Fixture();m.shaderKeywords=new[]{"_EMISSION","_NORMALMAP"};var before=Capture(s,r,m);
+        int writes=m.Data.Writes+r.Block.Writes;Check(s.IsCurrent(r,0,before),"immediate revalidation");Check(m.Data.Writes+r.Block.Writes==writes,"no original object writes");
+        var reordered=new[]{"_NORMALMAP","_EMISSION"};m.shaderKeywords=reordered;var after=Capture(s,r,m);Check(before.Equals(after)&&before.GetHashCode()==after.GetHashCode(),"keyword order is not identity");
+        reordered[0]="_PARALLAXMAP";Check(!s.IsCurrent(r,0,before)&&before.Equals(after),"keyword array copied, old snapshots remain immutable");
+        m.shaderKeywords=new[]{"_NORMALMAP","_EMISSION"};m.Set("_Metallic",.8f);var changed=Capture(s,r,m);Check(before.GetHashCode()==changed.GetHashCode()&&!before.Equals(changed),"deliberately equal hashes cannot alias material state");
+        m.Set("_Metallic",0f);Check(s.IsCurrent(r,0,before),"returning to exact observable source is equal");
+        var other=Fixture().mat;other.FakeInstanceId=m.FakeInstanceId;r.Materials[0]=other;Check(!s.IsCurrent(r,0,before)&&!s.TryCapture(r,0,m,out _,out _),"same instance-id substitute is not same source");r.Materials[0]=m;
+        var oldShader=m.shader;m.shader=new Shader{name=oldShader.name,FakeInstanceId=oldShader.FakeInstanceId};Check(!s.IsCurrent(r,0,before),"same named shader is distinct by reference");m.shader=oldShader;
+        r.Materials.Add(m);Check(!s.IsCurrent(r,0,before),"material binding layout change detected");r.Materials.RemoveAt(1);
+        var otherRenderer=new Renderer();otherRenderer.Materials.Add(m);Check(!before.Equals(Capture(s,otherRenderer,m)),"ordinary renderer identity preserved without proxy");
+        r.enabled=false;Check(s.IsCurrent(r,0,before),"material observation independent of enabled state");
+        Check(typeof(Source.Snapshot).GetProperties(BindingFlags.Public|BindingFlags.Instance).All(p=>!p.CanWrite&&!p.PropertyType.IsArray),"public snapshot has no mutable arrays/setters");
+        var values=new[]{new Source.Value(1,1,new Vector4(1,2,3,4))};var texels=Array.Empty<Source.TextureValue>();var names=new[]{"KEY"};var passes=new[]{"Pass"};var enabled=new[]{true};
+        var internalA=new Source.Snapshot(r,m,0,1,values,texels,true,names,passes,enabled);var internalB=new Source.Snapshot(r,m,0,1,values,texels,true,names,passes,enabled);
+        values[0]=new Source.Value(9,3,new Vector4(4,3,2,1));names[0]="MUTATED";passes[0]="MUTATED";enabled[0]=false;
+        Check(internalA.Equals(internalB),"same-assembly constructor input arrays cannot mutate frozen snapshots");
+    }
+    static void WholeBlockPriority()
+    {
+        scenarios++;var(s,r,m)=Fixture();var baseSnapshot=Capture(s,r,m);r.Block.Set("_Metallic",.75f);var rendererSnapshot=Capture(s,r,m);Check(!rendererSnapshot.Equals(baseSnapshot),"renderer override captured");
+        var own=new MaterialPropertyBlock();own.Set("_Unrelated",1f);r.Slots[0]=own;var suppressed=Capture(s,r,m);Check(suppressed.Equals(baseSnapshot),"unknown-only per-material block suppresses entire renderer block");
+        r.Block.Set("_Metallic",.9f);Check(s.IsCurrent(r,0,suppressed),"suppressed renderer changes are not effective");
+        own.Set("_Smoothness",.6f);var scoped=Capture(s,r,m);own.Clear();Check(!s.IsCurrent(r,0,scoped),"empty per-material restores renderer block");
+        r.Block.Clear();r.Block.Set("_Metallic",1f);var a=Capture(s,r,m);r.Block.Clear();r.Block.Set("_Smoothness",1f);var b=Capture(s,r,m);Check(!a.Equals(b),"old BlockHash deterministic property-name alias rejected");
+        r.Block.Clear();r.Block.Set("_Metallic",0f);Check(!baseSnapshot.Equals(Capture(s,r,m)),"override presence retained even at same scalar value");
+        r.Block.Clear();r.Block.Set("_BaseColor",new Vector4(.2f,.3f,.4f,1));Check(!baseSnapshot.Equals(Capture(s,r,m)),"shader-space color origin not authoring color origin");
+        r.Block.Clear();r.Block.Set("_Cull",float.NaN);Check(Capture(s,r,m).Equals(baseSnapshot),"MPB render state ignored even invalid Cull");
+        r.Block.Set("_Metallic",.2f);Check(!Capture(s,r,m).Equals(baseSnapshot),"valid uniform retained beside ignored raster property");
+        m.Set("_Cull",1f);var cull=Capture(s,r,m);Check(!s.IsCurrent(r,0,baseSnapshot)&&s.IsCurrent(r,0,cull),"source Cull affects exact identity");
+        m.Set("_Cull",1.25f);Check(!s.TryCapture(r,0,m,out _,out _),"invalid source raster Cull rejected");
+    }
+    static void EverySupportedField()
+    {
+        scenarios++;
+        foreach(string name in Floats.Concat(Raster))
+        {
+            var(s,r,m)=Fixture();var old=Capture(s,r,m);m.Set(name,name=="_Cull"?1f:.123f);Check(!s.IsCurrent(r,0,old),"material scalar "+name);
+            if(Floats.Contains(name)){m.Set(name,0f);old=Capture(s,r,m);r.Block.Set(name,.234f);Check(!s.IsCurrent(r,0,old),"MPB scalar "+name);}
+        }
+        foreach(string name in Colors)
+        {
+            var(s,r,m)=Fixture();var old=Capture(s,r,m);m.Set(name,new Color(.2f,.3f,.400001f));Check(!s.IsCurrent(r,0,old),"exact no-epsilon color "+name);
+            old=Capture(s,r,m);r.Block.Set(name,new Vector4(2,3,4,1));Check(!s.IsCurrent(r,0,old),"MPB color "+name);
+        }
+        foreach(string name in new[]{"_BaseMap","_DetailAlbedoMap"})
+        {
+            var(s,r,m)=Fixture();var old=Capture(s,r,m);m.Scales[Shader.PropertyToID(name)]=new Vector2(2,3);Check(!s.IsCurrent(r,0,old),"derived material ST scale "+name);
+            old=Capture(s,r,m);m.Offsets[Shader.PropertyToID(name)]=new Vector2(.2f,.3f);Check(!s.IsCurrent(r,0,old),"derived material ST offset "+name);
+            old=Capture(s,r,m);r.Block.Set(name+"_ST",new Vector4(1,2,3,4));Check(!s.IsCurrent(r,0,old),"MPB ST "+name);
+        }
+        var(f,rr,mm)=Fixture();var snap=Capture(f,rr,mm);mm.Enabled["ForwardLit"]=false;Check(!f.IsCurrent(rr,0,snap),"pass enable state");mm.Enabled.Clear();
+        mm.Passes[0]="Renamed";Check(!f.IsCurrent(rr,0,snap),"pass identity");mm.Passes[0]="ForwardLit";
+        mm.renderQueue=2001;Check(!f.IsCurrent(rr,0,snap),"queue changes");mm.renderQueue=2000;
+        mm.enableInstancing=true;Check(!f.IsCurrent(rr,0,snap),"instancing flag");mm.enableInstancing=false;
+        mm.doubleSidedGI=true;Check(!f.IsCurrent(rr,0,snap),"GI sidedness");mm.doubleSidedGI=false;
+        mm.globalIlluminationFlags=2;Check(!f.IsCurrent(rr,0,snap),"GI flags");mm.globalIlluminationFlags=0;
+        mm.Tag="TransparentCutout";Check(!f.IsCurrent(rr,0,snap),"RenderType override tag");
+    }
+    static void TextureStates()
+    {
+        scenarios++;
+        foreach(string name in Textures)
+        {
+            var(s,r,m)=Fixture();var old=Capture(s,r,m);var t=m.GetTexture(Shader.PropertyToID(name));t.updateCount++;
+            Check(!s.IsCurrent(r,0,old),"source texture content counter "+name);old=Capture(s,r,m);m.Set(name,new Texture2D());Check(!s.IsCurrent(r,0,old),"source texture identity "+name);
+            r.Block.Set(name,t);old=Capture(s,r,m);t.updateCount++;Check(!s.IsCurrent(r,0,old),"override texture counter "+name);
+            old=Capture(s,r,m);r.Block.Set(name,null);Check(!s.IsCurrent(r,0,old),"explicit null texture override "+name);Check(s.IsCurrent(r,0,Capture(s,r,m)),"null override round trip");
+        }
+        var(f,rr,mm)=Fixture();var tex=mm.GetTexture(Shader.PropertyToID("_BaseMap"));
+        Action<Texture>[] changes={t=>t.filterMode++,t=>t.wrapModeU++,t=>t.wrapModeV++,t=>t.wrapModeW++,t=>t.anisoLevel++,t=>t.mipMapBias+=.25f,t=>t.width++,t=>t.height++,t=>t.mipmapCount++,t=>t.graphicsFormat++,t=>t.dimension++};
+        foreach(var change in changes){var old=Capture(f,rr,mm);change(tex);Check(!f.IsCurrent(rr,0,old),"sampler/layout mutation with unchanged updateCount");}
+        mm.Set("_EmissionMap",new RenderTexture());var rt=Capture(f,rr,mm);Check(!rt.CanReuseHistory&&!f.IsCurrent(rr,0,rt),"GPU-written RenderTexture cannot prove reusable content");
+        mm.Set("_EmissionMap",new CustomRenderTexture());Check(!Capture(f,rr,mm).CanReuseHistory,"custom RT remains unknown");
+        mm.Set("_EmissionMap",new Texture2D());var unchanged=Capture(f,rr,mm);Check(f.IsCurrent(rr,0,unchanged),"CPU-observable static content is current; unreported GPU writes are an explicit external contract");
+        tex.Destroyed=true;Check(!f.TryCapture(rr,0,mm,out _,out _),"destroyed texture not mistaken for unassigned texture");
+    }
+    static void RejectionsAndLateMutation()
+    {
+        scenarios++;var(s,r,m)=Fixture();Check(!s.TryCapture(null,0,m,out _,out _)&&!s.TryCapture(r,-1,m,out _,out _)&&!s.TryCapture(r,1,m,out _,out _)&&!s.TryCapture(r,0,null,out _,out _),"missing binding guards");
+        m.renderQueue=2501;Check(!s.TryCapture(r,0,m,out _,out _),"transparent queue");m.renderQueue=-1;m.shader.renderQueue=2500;Check(s.TryCapture(r,0,m,out _,out _),"resolved default opaque boundary");m.shader.renderQueue=2501;Check(!s.TryCapture(r,0,m,out _,out _),"resolved default transparent");m.renderQueue=2000;
+        m.shader.name="Custom";Check(!s.TryCapture(r,0,m,out _,out _),"unsupported shader");m.shader.name="Universal Render Pipeline/Lit";
+        foreach(float bad in new[]{float.NaN,float.PositiveInfinity,float.NegativeInfinity}){m.Set("_Smoothness",bad);Check(!s.TryCapture(r,0,m,out _,out _),"nonfinite material rejected");m.Set("_Smoothness",0f);r.Block.Set("_BaseColor",new Vector4(bad,0,0,1));Check(!s.TryCapture(r,0,m,out _,out _),"nonfinite MPB rejected");r.Block.Clear();}
+        r.Block.Set("_Metallic",new Vector4(1,2,3,4));Check(!s.TryCapture(r,0,m,out _,out _),"wrong MPB type fails closed");r.Block.Clear();
+        r.Block.Set("_Surface",1f);Check(!s.TryCapture(r,0,m,out _,out _),"effective transparent uniform rejected");r.Block.Clear();
+        var old=Capture(s,r,m);for(int i=0;i<1024;i++){r.Block.Set("_Metallic",i/2048f);Check(!s.IsCurrent(r,0,old),"every late mutation re-observed");var current=Capture(s,r,m);Check(s.IsCurrent(r,0,current),"fresh exact state accepted");}
+        m.Destroyed=true;Check(!s.IsCurrent(r,0,old),"destroyed source rejected");
+    }
+    static int Main()
+    {
+        try
+        {
+            IdentityAndImmutability();WholeBlockPriority();EverySupportedField();TextureStates();RejectionsAndLateMutation();FrozenIdentityCoverage();
+            FrozenHitValues();FrozenHitTextureViews();FrozenHitOriginsAndAbsence();FrozenMipStateRevalidation();
+            Console.WriteLine($"Actual-source MaterialSource and HitMaterialData: {assertions} assertions in {scenarios} scenarios passed. CPU observation/equality with explicit Unity API substitutes; not Unity draw, GPU content, hit-UV sampling, or native API validation.");return 0;
+        }
+        catch(Exception exception) { Console.Error.WriteLine(exception);return 1; }
+    }
+    static void FrozenIdentityCoverage()
+    {
+        scenarios++;var(s,r,m)=Fixture();m.shaderKeywords=new[]{"_ALPHATEST_ON"};m.Set("_Cutoff",.4f);
+        m.Set("_BaseColor",new Color(.1f,.2f,.3f,.8f));m.Set("_AlphaClip",0f);
+        var texture=m.GetTexture(Shader.PropertyToID("_BaseMap"));
+        m.Scales[Shader.PropertyToID("_BaseMap")]=new Vector2(2,3);m.Offsets[Shader.PropertyToID("_BaseMap")]=new Vector2(.1f,.2f);
+        var snap=Capture(s,r,m);var c=snap.IdentityCoverage;
+        Check(c.Supported&&c.AlphaTest&&!c.SmoothnessFromAlbedoAlpha&&c.SourceCull==2,"frozen keyword coverage, not AlphaClip scalar");
+        Check(ReferenceEquals(c.BaseMap,texture)&&c.BaseColorAlpha==.8f&&c.Cutoff==.4f&&c.BaseMapST.x==2&&c.BaseMapST.w==.2f,"frozen source fields");
+        m.Set("_BaseMap",new Texture2D());m.Set("_Cutoff",.9f);m.Set("_BaseColor",new Color(1,1,1,.2f));m.shaderKeywords=Array.Empty<string>();
+        Check(ReferenceEquals(c.BaseMap,texture)&&c.BaseColorAlpha==.8f&&c.Cutoff==.4f&&c.AlphaTest,"coverage accessor never rereads mutated live material");
+        r.Block.Set("_BaseColor",new Vector4(1,1,1,.7f));r.Block.Set("_BaseMap_ST",new Vector4(4,5,6,7));r.Block.Set("_Cull",0f);
+        var overridden=Capture(s,r,m).IdentityCoverage;Check(overridden.BaseColorAlpha==.7f&&overridden.BaseMapST.z==6&&overridden.SourceCull==2,"effective uniforms but source-only raster state");
+        var slot=new MaterialPropertyBlock();slot.Set("_Unrelated",1f);r.Slots[0]=slot;
+        var suppressed=Capture(s,r,m).IdentityCoverage;Check(suppressed.BaseColorAlpha==.2f&&suppressed.BaseMapST.x==2,"whole material block suppresses renderer coverage overrides");
+        foreach(int mode in new[]{0,1,2}){m.Set("_Cull",(float)mode);Check(Capture(s,r,m).IdentityCoverage.SourceCull==mode,"fixed-pass Cull mode "+mode);}
+        foreach(string keyword in new[]{"_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A","_GLOSSINESS_FROM_BASE_ALPHA"})
+        {m.shaderKeywords=new[]{"_ALPHATEST_ON",keyword};Check(Capture(s,r,m).IdentityCoverage.SmoothnessFromAlbedoAlpha,"official alpha alias "+keyword);}
+        foreach(string keyword in new[]{"_PARALLAXMAP","LOD_FADE_CROSSFADE","_ADD_PRECOMPUTED_VELOCITY"})
+        {m.shaderKeywords=new[]{keyword};var unsupported=Capture(s,r,m).IdentityCoverage;Check(!unsupported.Supported&&unsupported.UnsupportedReason!=null,"unmodeled coverage "+keyword);}
+        m.shaderKeywords=Array.Empty<string>();m.Set("_AlphaToMask",1f);Check(!Capture(s,r,m).IdentityCoverage.Supported,"A2C unsupported");m.Set("_AlphaToMask",0f);
+        m.Enabled["ForwardLit"]=false;Check(!Capture(s,r,m).IdentityCoverage.Supported,"disabled forward coverage");m.Enabled.Clear();
+        m.shaderKeywords=new[]{"_ALPHATEST_ON"};m.Set("_BaseMap",new RenderTexture());Check(!Capture(s,r,m).IdentityCoverage.Supported,"GPU alpha texture unknown");
+        m.Set("_BaseMap",new Texture2D{dimension=3});Check(!Capture(s,r,m).IdentityCoverage.Supported,"non-2D alpha texture unsupported");
+        m.Set("_BaseMap",null);Check(Capture(s,r,m).IdentityCoverage.Supported&&Capture(s,r,m).IdentityCoverage.BaseMap==null,"unassigned Lit white texture fallback");
+        Check(typeof(Source.IdentityCoverageData).GetProperties(BindingFlags.Public|BindingFlags.Instance).All(p=>!p.CanWrite&&!p.PropertyType.IsArray),"coverage is read-only with no public arrays");
+    }
+    static void FrozenHitValues()
+    {
+        scenarios++;var(s,r,m)=Fixture();
+        var expected=Floats.Concat(Raster).Select((name,i)=>(name,value:name=="_Surface"?0f:name=="_Cull"?2f:(i+1)*.125f)).ToArray();
+        foreach(var value in expected)m.Set(value.name,value.value);
+        m.Set("_BaseColor",new Color(.125f,-2,17.5f,.6f));m.Set("_SpecColor",new Color(.25f,.5f,.75f,.8f));
+        m.Set("_EmissionColor",new Color(12000.25f,-4,.03125f,.3f));
+        m.Set("_BaseMap",new Texture2D());m.Scales[Shader.PropertyToID("_BaseMap")]=new Vector2(-2,.25f);
+        m.Offsets[Shader.PropertyToID("_BaseMap")]=new Vector2(3,-4);
+        m.Scales[Shader.PropertyToID("_DetailAlbedoMap")]=new Vector2(.5f,7);
+        m.shaderKeywords=new[]{"_EMISSION","_NORMALMAP","_SPECULAR_SETUP","_ALPHATEST_ON","UNRECOGNIZED_FUTURE_KEYWORD"};
+        var snapshot=Capture(s,r,m);var input=snapshot.HitMaterial;
+        m.Data.Clear();m.shaderKeywords[0]="MUTATED";m.shaderKeywords=Array.Empty<string>();m.Destroyed=true;
+        Check(ReferenceEquals(input,snapshot.HitMaterial),"hit descriptor is owned by snapshot, not recreated from live objects");
+        foreach(var item in expected)
+        {
+            Check(input.TryGetFloat(item.name,out var scalar,out var origin)&&scalar==item.value&&origin==HybridLumenGIMaterialValueOrigin.Material,"every frozen scalar and source: "+item.name);
+            Check(input.TryGetFloat(Shader.PropertyToID(item.name),out var byId,out var idOrigin)&&byId==scalar&&idOrigin==origin,"property-id access: "+item.name);
+            string property=item.name=="_Cull"?"SourceCull":item.name.Substring(1);
+            var accessor=typeof(HybridLumenGIHitMaterialData).GetProperty(property);
+            if(accessor!=null)Check(Convert.ToSingle(accessor.GetValue(input))==item.value,"typed scalar agrees with frozen value: "+property);
+        }
+        Check(input.BaseColor.Value.x==.125f&&input.BaseColor.Value.y==-2&&input.BaseColor.Value.z==17.5f&&input.BaseColor.Value.w==.6f,"raw authoring base color, no conversion/clamp");
+        Check(input.SpecColor.Value.x==.25f&&input.EmissionColor.Value.x==12000.25f&&input.EmissionColor.Value.y==-4,"raw specular and HDR emission preserved");
+        Check(input.BaseColor.Origin==HybridLumenGIMaterialValueOrigin.Material&&input.EmissionColor.Origin==HybridLumenGIMaterialValueOrigin.Material,"color origin remains authoring source");
+        Check(input.BaseMapST.x==-2&&input.BaseMapST.y==.25f&&input.BaseMapST.z==3&&input.BaseMapST.w==-4&&input.DetailAlbedoMapST.y==7,"frozen main/detail transforms");
+        string[] expectedKeywords={"UNRECOGNIZED_FUTURE_KEYWORD","_ALPHATEST_ON","_EMISSION","_NORMALMAP","_SPECULAR_SETUP"};
+        Check(input.KeywordCount==expectedKeywords.Length,"all keywords preserved including unsupported ones");
+        for(int i=0;i<expectedKeywords.Length;i++)Check(input.GetKeyword(i)==expectedKeywords[i]&&input.IsKeywordEnabled(expectedKeywords[i]),"frozen sorted keyword "+i);
+        Check(!input.IsKeywordEnabled("MUTATED")&&!input.IsKeywordEnabled(null),"late keyword edit not visible");
+        foreach(var type in new[]{typeof(HybridLumenGIHitMaterialData),typeof(HybridLumenGIFrozenTextureView),typeof(HybridLumenGIFrozenColor)})
+            Check(type.GetProperties(BindingFlags.Public|BindingFlags.Instance).All(p=>!p.CanWrite&&!p.PropertyType.IsArray),"no public setters/arrays: "+type.Name);
+    }
+    static void FrozenHitTextureViews()
+    {
+        scenarios++;var(s,r,m)=Fixture();var originals=new Texture2D[Textures.Length];
+        for(int i=0;i<originals.Length;i++)
+        {
+            originals[i]=new Texture2D{width=32+i,height=64+i,dimension=2,graphicsFormat=100+i,mipmapCount=5+i,
+                filterMode=i%3,wrapModeU=i%4,wrapModeV=(i+1)%4,wrapModeW=(i+2)%4,anisoLevel=i+1,mipMapBias=i*.125f,
+                updateCount=(uint)(10+i),isDataSRGB=i%2==0,streamingMipmaps=i%2!=0,activeMipmapLimit=i,
+                loadedMipmapLevel=i+1,loadingMipmapLevel=i+2};
+            m.Set(Textures[i],originals[i]);
+        }
+        var snapshot=Capture(s,r,m);var input=snapshot.HitMaterial;
+        for(int i=0;i<originals.Length;i++)
+        {
+            var texture=originals[i];int reads=texture.Reads;
+            texture.width=999;texture.filterMode=99;texture.activeMipmapLimit=99;texture.loadedMipmapLevel=99;
+            texture.updateCount=99;texture.isDataSRGB=false;texture.ThrowOnRead=true;texture.Destroyed=true;
+            m.Set(Textures[i],new Texture2D());
+            var view=input.GetTexture(Textures[i]);
+            Check(ReferenceEquals(view.Texture,texture)&&view.Origin==HybridLumenGIMaterialValueOrigin.Material,"original reference frozen despite destruction/replacement: "+Textures[i]);
+            Check(view.Width==32+i&&view.Height==64+i&&view.Dimension==2&&view.GraphicsFormat==100+i&&view.MipmapCount==5+i,"original texture layout: "+Textures[i]);
+            Check(view.FilterMode==i%3&&view.WrapModeU==i%4&&view.WrapModeV==(i+1)%4&&view.WrapModeW==(i+2)%4&&view.AnisoLevel==i+1&&view.MipMapBias==i*.125f,"independent sampler: "+Textures[i]);
+            Check(view.UpdateCount==(uint)(10+i)&&view.IsDataSRGB==(i%2==0)&&view.HasTexture2DMipState&&!view.IsRenderTexture&&view.StreamingMipmaps==(i%2!=0),"frozen type/color/update state: "+Textures[i]);
+            Check(view.ActiveMipmapLimit==i&&view.LoadedMipmapLevel==i+1&&view.LoadingMipmapLevel==i+2,"distinct mip observations are not added together: "+Textures[i]);
+            var typed=(HybridLumenGIFrozenTextureView)typeof(HybridLumenGIHitMaterialData).GetProperty(Textures[i].Substring(1)).GetValue(input);
+            Check(typed.Equals(view)&&typed.GetHashCode()==view.GetHashCode()&&texture.Reads==reads,"typed accessor/equality performs no live texture read: "+Textures[i]);
+        }
+    }
+    static void FrozenHitOriginsAndAbsence()
+    {
+        scenarios++;var(s,r,m)=Fixture();var original=m.GetTexture(Shader.PropertyToID("_BaseMap"));
+        r.Block.Set("_BaseColor",new Vector4(5,-6,7,.8f));r.Block.Set("_EmissionColor",new Vector4(9000,8000,7000,1));
+        r.Block.Set("_BaseMap",null);r.Block.Set("_BaseMap_ST",new Vector4(2,3,4,5));r.Block.Set("_Cull",0f);
+        var input=Capture(s,r,m).HitMaterial;
+        Check(input.BaseColor.Origin==HybridLumenGIMaterialValueOrigin.RendererPropertyBlock&&input.BaseColor.Value.y==-6&&input.EmissionColor.Value.x==9000,"MPB shader-space/HDR origin and values retained");
+        Check(input.BaseMap.Texture==null&&input.BaseMap.Origin==HybridLumenGIMaterialValueOrigin.RendererPropertyBlock,"explicit null override distinct from missing property");
+        Check(input.BaseMapST.z==4&&input.SourceCull==2,"MPB transform applies, raster Cull does not");
+        var slot=new MaterialPropertyBlock();slot.Set("_Unrelated",1f);r.Slots[0]=slot;
+        var suppressed=Capture(s,r,m).HitMaterial;
+        Check(suppressed.BaseColor.Origin==HybridLumenGIMaterialValueOrigin.Material&&ReferenceEquals(suppressed.BaseMap.Texture,original)&&suppressed.BaseMapST.x==1,"nonempty per-slot block suppresses complete renderer block");
+        slot.Set("_BaseColor",new Vector4(10,11,12,.2f));slot.Set("_BaseMap",null);
+        var own=Capture(s,r,m).HitMaterial;
+        Check(own.BaseColor.Origin==HybridLumenGIMaterialValueOrigin.MaterialPropertyBlock&&own.BaseColor.Value.x==10&&own.BaseMap.Origin==HybridLumenGIMaterialValueOrigin.MaterialPropertyBlock,"per-slot provenance preserved");
+        Check(!own.IsKeywordEnabled("_EMISSION")&&own.EmissionMap.Texture!=null,"disabled map retained without inventing enabled sampling");
+        var absent=own.GetTexture("_NotObserved");
+        Check(absent.Origin==HybridLumenGIMaterialValueOrigin.Absent&&absent.Texture==null&&!absent.HasTexture2DMipState&&absent.ActiveMipmapLimit==-1&&absent.LoadedMipmapLevel==-1,"absent view has explicit unavailable mip state");
+        Check(!own.TryGetFloat("_NotObserved",out var zero,out var missing)&&zero==0&&missing==HybridLumenGIMaterialValueOrigin.Absent,"missing scalar is not fabricated present zero");
+        r.Slots.Clear();r.Block.Clear();m.Set("_EmissionMap",new RenderTexture());var rt=Capture(s,r,m);
+        Check(!rt.CanReuseHistory&&rt.HitMaterial.EmissionMap.IsRenderTexture&&!rt.HitMaterial.EmissionMap.HasTexture2DMipState&&rt.HitMaterial.EmissionMap.LoadedMipmapLevel==-1,"dynamic texture input retained without reusable-content claim");
+        var values=new[]{new Source.Value(Shader.PropertyToID("_Metallic"),1,new Vector4(.42f,0,0,0))};
+        var keys=new[]{"_NORMALMAP"};var texels=Array.Empty<Source.TextureValue>();
+        var detached=new HybridLumenGIHitMaterialData(values,texels,keys);values[0]=default;keys[0]="MUTATED";
+        Check(detached.Metallic==.42f&&detached.IsKeywordEnabled("_NORMALMAP"),"same-assembly constructor arrays cannot mutate hit data");
+    }
+    static void FrozenMipStateRevalidation()
+    {
+        scenarios++;var(s,r,m)=Fixture();var texture=(Texture2D)m.GetTexture(Shader.PropertyToID("_BaseMap"));
+        Action<Texture2D>[] changes={t=>t.isDataSRGB=!t.isDataSRGB,t=>t.streamingMipmaps=!t.streamingMipmaps,
+            t=>t.activeMipmapLimit++,t=>t.loadedMipmapLevel++,t=>t.loadingMipmapLevel++};
+        foreach(var change in changes)
+        {
+            var old=Capture(s,r,m);var view=old.HitMaterial.BaseMap;uint update=texture.updateCount;change(texture);
+            var fresh=Capture(s,r,m);
+            Check(texture.updateCount==update&&!old.Equals(fresh)&&!s.IsCurrent(r,0,old),"mip/color state changes revoke exact observation without updateCount change");
+            Check(view.Equals(old.HitMaterial.BaseMap)&&!view.Equals(fresh.HitMaterial.BaseMap),"old view immutable, new view differs");
+        }
+        for(int i=0;i<256;i++)
+        {
+            texture.activeMipmapLimit=i%8;texture.loadedMipmapLevel=i%11;texture.loadingMipmapLevel=i%13;
+            var old=Capture(s,r,m);texture.loadedMipmapLevel=1000+i;
+            Check(old.HitMaterial.BaseMap.ActiveMipmapLimit==i%8&&old.HitMaterial.BaseMap.LoadedMipmapLevel==i%11&&old.HitMaterial.BaseMap.LoadingMipmapLevel==i%13,"independent frozen mip tuple");
+            Check(!s.IsCurrent(r,0,old),"changed loaded level cannot reuse old source");
+        }
+    }
+}

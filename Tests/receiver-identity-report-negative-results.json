@@ -1,0 +1,1695 @@
+{
+  "schemaVersion": 1,
+  "kind": "ReceiverIdentityReportVerifierNegativeAudit",
+  "status": "passed",
+  "startedUtc": "2026-10-27T02:43:50.4206315Z",
+  "completedUtc": "2026-10-27T02:43:52.4625885Z",
+  "scope": "Only the two passed receiver artifact reports from the SHA-bound passed 56-stage main report are validated; this audit does not rerun the full suite. No Runtime, Tests, Delivery, source reports, shaders or binaries were modified; no compiler, WARP, Unity or full suite was rerun.",
+  "mainReport": "C:/Users/Administrator/Desktop/test/HybridLumenGI/Tests/offline-validation-results.json",
+  "mainStatus": "passed",
+  "mainSha256Before": "54C24D2BAA65BC30D725B226C86EBC460307173FA0674145D67A088A455AF7C7",
+  "mainSha256After": "54C24D2BAA65BC30D725B226C86EBC460307173FA0674145D67A088A455AF7C7",
+  "verifier": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Verify-ReceiverIdentityReports.ps1",
+  "verifierSha256Before": "24DDA2A69CE85BB2DDDC64B87529E326343E2BAEB7509EA6574F14B0F6E01888",
+  "verifierSha256After": "24DDA2A69CE85BB2DDDC64B87529E326343E2BAEB7509EA6574F14B0F6E01888",
+  "runner": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\Run-IdentityReportNegatives.ps1",
+  "runnerSha256": "1246C35A0F54737C80C3F031CA1FAB2ABF6348DB1D989AD8231705098C42E1E3",
+  "baseline": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\scoped-baseline.json",
+  "baselineSha256": "A6445637A9828FF24178AC7D93B4DFBCC70C740F8B9F5E2745B1B7614CDF3732",
+  "inputAudit": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\input-audit.json",
+  "inputAuditSha256": "49E04C7A97042F03DF50E0C0FCBB414C1DEB3CB1724AA34610863ED54239B83D",
+  "currentSourceCount": 194,
+  "sourceHashesAfter": [
+    {
+      "file": "Runtime/HybridLumenGICacheScheduler.cs",
+      "sha256": "42D3C7BA461EB759911B63AFC0BE321CE8B9AEB363AECEB65E53FF7ECE292776"
+    },
+    {
+      "file": "Runtime/HybridLumenGIChangeRegions.cs",
+      "sha256": "B003B71A0E82FDB89A21917C5429A383D640E0540033167FCCE50C2B93E2EA18"
+    },
+    {
+      "file": "Runtime/HybridLumenGIChunkStreamer.cs",
+      "sha256": "4459BEABCF0C7E6CE9BAF396185206E5FB646452AD0EA2476EF4278B7C7BF51C"
+    },
+    {
+      "file": "Runtime/HybridLumenGIChunkStreaming.cs",
+      "sha256": "FAC232BE82C99C6B90F0260CECAA5648942E4473EA6CF51E1A54CA2BC61D5673"
+    },
+    {
+      "file": "Runtime/HybridLumenGIEmissiveSampling.cs",
+      "sha256": "5BE9F0A4CD2904B4204F7F550E1831019A3EAF4E18B28957A0291BC420AA6820"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGlobalSdf.cs",
+      "sha256": "9DD2F78CABF90D2C9EDFAD464D3042487AAAFF50E8933FD948F0B8B5C1952033"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGpuBudgetController.cs",
+      "sha256": "EEDCD0226A7B2E9BB445D3CE2280FF7962F3EA9EB8F65472A173D628899BFD2C"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGpuFrameTiming.cs",
+      "sha256": "6735E30D7A75CE5A9638ED293F52D1274F2B69DD21235C9B0EF72EE23441AAB8"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGpuTiming.cs",
+      "sha256": "C895D10DAA0995B68672D1989D7FDABEF5C76B6F86ABAD0C4A098214B3C8C7ED"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHardwareBackend.cs",
+      "sha256": "F90B4396BAB0B84258CC64E67127ED3EB1734E95AFA990A4BDC6C26ABB8CBBC3"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHistoryLifecycle.cs",
+      "sha256": "C349E3C00399CD8D4D041F43911F8B24EF1605AF109D7A98396EE3684AD4B288"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHlodReadback.cs",
+      "sha256": "9EDDFB61D8207F2B6A500C75285419182F19CB9D79BFB2E6508E77CBAFB80D51"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHlodReadiness.cs",
+      "sha256": "CACAC592064E13A89A8A484FF89C226F2222788F86670727FD5ACA14FA77D148"
+    },
+    {
+      "file": "Runtime/HybridLumenGILights.cs",
+      "sha256": "713123C9FBA7D9EF082D182976FD91F9AD29AEF9E414F9C954CDDD098F9D1C5B"
+    },
+    {
+      "file": "Runtime/HybridLumenGILitQualification.cs",
+      "sha256": "DBF049F4C649FA2EFFB72AF8C91D8A19CD43DF9877716FDA74F2240CAF2DE670"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMaterialSource.cs",
+      "sha256": "F592EF703F097D7F9440250FC3E845BDFDABB275418A9B9EFB8F5C88942ED6B8"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMeshSdf.cs",
+      "sha256": "00E31015CCC28EDD7D85768F17633859540B75BAB701489D7F33D8FFC0C4FCDF"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMeshSource.cs",
+      "sha256": "AFFDD1711B6FB80755F6927AF61CE73E8D4FDF748FC93027F470CD70968CA7B8"
+    },
+    {
+      "file": "Runtime/HybridLumenGINativeGpuTiming.cs",
+      "sha256": "0AF2965F5901D8E35F40DE798F17F48E33A51157CE740DDA12183232ED67FB60"
+    },
+    {
+      "file": "Runtime/HybridLumenGIProxy.cs",
+      "sha256": "DC2A29D65D5EB2BD6F204A15640637B07089A44C5B8BB133FF6163F7AEC8EF1A"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverDiscovery.cs",
+      "sha256": "7C945DD142CB1590D79CB1A0C58AB11AC96CF25E953EFA875FF038AFAC7848E8"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverHistory.cs",
+      "sha256": "7992332F09E74B513F8DEA44A4468D212806CB4A41AD2A13A9458E65397DB5AB"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverIdentityFrame.cs",
+      "sha256": "8D30BF95213890854B08593714E41F39AE7B7148C21D3C83032912D8B7C6EF9F"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverIdentityPass.cs",
+      "sha256": "CFD2B3566A1ACBE446C483689CC527EE65C41037F2D5FA9FA3C27E53D6FB56F9"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverRegistry.cs",
+      "sha256": "7298EE0BF8787C715235B56454381E1CB7FE1BF9CFFEFA93E39261736B5630D4"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRendererFeature.cs",
+      "sha256": "82DDCB61A1D876B0B8CED194A4360BC9CAB69D7C14A00F08365F4AD0C774EC02"
+    },
+    {
+      "file": "Runtime/HybridLumenGIScene.cs",
+      "sha256": "2B373F5BBD533CE930197F1855CC1022560BEA15E327B60C7DA3032B35757AE5"
+    },
+    {
+      "file": "Runtime/HybridLumenGISceneBvh.cs",
+      "sha256": "0DD488E459BEE8033AC7DE06D7A399151C5310AC5F5CCD18293E42BE079D9EC1"
+    },
+    {
+      "file": "Runtime/HybridLumenGIScreenBudget.cs",
+      "sha256": "DC137DC4645C3AD77EF884A28A7D6488B504247410B6F92CF3F73B82ECB8D5CF"
+    },
+    {
+      "file": "Runtime/HybridLumenGISdfAtlas.cs",
+      "sha256": "DD9D715FA3D7A05BBE5AA49FEBFB874AA9951335E5E4507876497BFFD45E3DAE"
+    },
+    {
+      "file": "Runtime/HybridLumenGIStreamingManifest.cs",
+      "sha256": "B94679FC93CC10DAA801BCA769FDCD2AA946C3C46A56051DAB1AB190BAB80016"
+    },
+    {
+      "file": "Runtime/HybridLumenGISurfaceCache.cs",
+      "sha256": "4C78687EFAB6629A3583BA61FD8A6FACCB45942BC9364D57D652C71B99D48071"
+    },
+    {
+      "file": "Runtime/HybridLumenGISurfaceCharts.cs",
+      "sha256": "04C1A2EC9468A3524DEB845C06F5480346D25E7D97FA0B699422C6EABCDB2E92"
+    },
+    {
+      "file": "Runtime/HybridLumenGIValidationMotion.cs",
+      "sha256": "8A5EEFCBBBBE1931B1851491937F375EC3165F0BF9357B05B3FB044357B67BC8"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/CMakeLists.txt",
+      "sha256": "CA07E71FC9100D00D5E9F91CCA1B8C848035F1C0B4A1ACDF789B8700EEAF991F"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/GpuTimingPlugin.cpp",
+      "sha256": "6820685F00F7E235136319B4BCC315F357B2EC9A55BBA5666052B4E94FBF68FF"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/NativeAbi.h",
+      "sha256": "948C4E8107FF9C3EC2409A51A90E9685AD00D52B7585FA9EDADC900E1967B959"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/QueryPool.h",
+      "sha256": "7A835E481FBFA5E03F195639F86B8BEAD1FD1DCC73718CBD1B09B9DB58B4D4DF"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/tests/NativeTimingSmoke.cpp",
+      "sha256": "C4F2808C0293803C4B07AD0AD6ACEADC62790993E17E6435CFB1BAE6943FAAD7"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/tests/QueryPoolTests.cpp",
+      "sha256": "5688CDA317DA0562036FBDAF38B05B30B1562E7BAA24E8684A8A8C4B13B5B3C3"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGI.compute",
+      "sha256": "B75C71BFA33A46DBFB4430A486C559010D4418B0E5A13441EF731FFD31A65319"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGICardCapture.shader",
+      "sha256": "20ADF46A44A368D09CE9386E5E924CE0D324FFE3D60804D68390921E4FD2106B"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl",
+      "sha256": "36DD5C0EA5F29F4AE0A28A2363667C65A215D5FA5543E93B14112B7D96437720"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIColorContractProbe.shader",
+      "sha256": "D6436CFE2EFF1DF880FCF8BBB7C30BA6FE7DEB0571119DEE013203440470F391"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader",
+      "sha256": "77804FE15C9B4EA28EA60670E351A33AFDF2B9C79A8B25BD55F950506BE72CCA"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveProposals.compute",
+      "sha256": "43EDA35C8872CF8F53AD6DF5BA6E4DB4B0434855F74337C4C884478898CBA0F9"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveRecords.hlsl",
+      "sha256": "B6083A3522D11DA35FB9D73251F3E9C6A339B82D668EE8E7CAA5010AC1996A16"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl",
+      "sha256": "044C1C9D1534DD4C21F2D5CEE590A19B161B8821226807671BF98B620B5DE4FC"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIGlobalSdf.compute",
+      "sha256": "A11F5122B6CB87FF9E431F688C769B4F81B3BEE2CAA25E3522C2D3797A2056C7"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIGlobalSdf.hlsl",
+      "sha256": "3BF31A3B3BCB082CA702CD98C0640E6D5DB081E8DCC5A8D6F685BE06B77042FF"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardware.compute",
+      "sha256": "810088F829DB38B717821B5AA7956EEB1192BE5583233E76929D3A6C687B5AE0"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl",
+      "sha256": "4DBD0ABC71D7183D8E70DE54119AD530C5A71E116D8CEBD27EAC908C4293F048"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl",
+      "sha256": "393D01EC62678905714B210CEE0B12FDEF5E4C879C71B60421E23EDB4F8476F1"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl",
+      "sha256": "37AC6B516A2CB907E0D0AF8B80AEC96C729183C8DEC60B48933674E0C88A4414"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGILightingPolicy.hlsl",
+      "sha256": "581F74482B70C8AE02C5D5BB0CEBBBF49886CFC9E76417F6F6677632961844D7"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGINativeDiffuseCapture.shader",
+      "sha256": "96E53CDE485DA77C7DC98587EC15E8F6561F479FF0669A9B6E82601B07F4B537"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.compute",
+      "sha256": "78F60FEAC6235395A7E986EED84A3BDEDA7B8AEC503954981E8D47229A46775F"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl",
+      "sha256": "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+      "sha256": "2F3C467D36FBE63A6F9581A4517A24CBA77F19D9B14510C6D5F7DC0DFA35480A"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverPolicyCapture.hlsl",
+      "sha256": "5772F5CFC8DD7FB3EAAA59F6E7A5C65BF10CD2D0A16FD6671D0A6B7278440845"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+      "sha256": "9EFEC293CA3475A00BA584765FBED9ADFD60129EAED3099407F5DDB10498478A"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISceneBvh.hlsl",
+      "sha256": "7B39FFAF26F71045A192E614B7B5D9793993C0C4051AF6172B564EFCDD7B0D51"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIScreenGeometry.hlsl",
+      "sha256": "5BA1DD165E0DF7E852E125407B9F26FE1371A545630662838A4174F7FA72B563"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIScreenSampling.hlsl",
+      "sha256": "25607FFEBA963C9C7A2E1474F99337C3E4AC4079DB5CC6AC54E6D1D3505F52CF"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISdfTrace.hlsl",
+      "sha256": "DD94FEB356D7ADD0197029F0921B0C61A885D88560FE25FCCBD13E0E8EA73E89"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISurface.shader",
+      "sha256": "ED86E063802466811141EF1A16276406471953D0EA8CFB868723B59D3B6C82B1"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceAnchors.compute",
+      "sha256": "DC19A4AE6A31C54AEDF46D2C636C78AFB09E76099A798A4E195F16B38BDEF414"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceCache.hlsl",
+      "sha256": "44ED0A0F51905578766824EC58D40F13E4976069FE12FD938924E8E4D87F1AE2"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl",
+      "sha256": "A3603E29A31A5F40D94B625EBF6F610FD094F0606BC9937346AA5ADA95F60048"
+    },
+    {
+      "file": "Editor/HybridLumenGIColorContractValidation.cs",
+      "sha256": "41124A44766A922B218332B646B93F8A397387B3B831992224D0F283B41EB394"
+    },
+    {
+      "file": "Editor/HybridLumenGIDiagnostics.cs",
+      "sha256": "8E82A424E0B0CBBCACCA42AC01602E97F18318CF0C667A5E8EA3237AEB311C8B"
+    },
+    {
+      "file": "Editor/HybridLumenGIMeshSdfBaker.cs",
+      "sha256": "54344CBC0E4F1CB9FC546BF0F641FC25BC10B6F863A5DCD0E0CE976A6FA41A45"
+    },
+    {
+      "file": "Editor/HybridLumenGIMeshSdfValidation.cs",
+      "sha256": "C08C400893B847F6AA17EE8738672A3BAAAEE09AF1D7DA4EB07769115FED17DD"
+    },
+    {
+      "file": "Editor/HybridLumenGISetupWindow.cs",
+      "sha256": "0E1CFDD481E0A1C51662A80CB81C53BEBEF1883D586F86ED78F1F7CECDADD54B"
+    },
+    {
+      "file": "Editor/HybridLumenGISurfaceChartBaker.cs",
+      "sha256": "321BB06E7BEEDA6AD26E4A58307D7B20ED0A30DE6244A85A0B6E75FC6178365F"
+    },
+    {
+      "file": "Editor/HybridLumenGIValidationScene.cs",
+      "sha256": "B65CDC9158790EB10A44625B413DE173C6407E67B280390BA660F2782E0F999C"
+    },
+    {
+      "file": "Tests/Build-NativeGpuTiming.ps1",
+      "sha256": "6097E1B10E9B4AA299FFA22E36F99B3BCE543BA3C01F672EBD2181A6305EEA3F"
+    },
+    {
+      "file": "Tests/Invoke-CSharpHarness.ps1",
+      "sha256": "461C0EDA33EBD408D18A9FDC76E1C944CC7A80BC6D7F3420C59135E6DB064ED7"
+    },
+    {
+      "file": "Tests/Invoke-OfflineCheck.ps1",
+      "sha256": "A7FD1B3AB734151B816D79941D7381517563AA44514C6CA3C04C12029BEED446"
+    },
+    {
+      "file": "Tests/native-diffuse-reference.mjs",
+      "sha256": "A973C2E6AA05E90D2FA0C1B05EB54C10E8DC924996D894591C3E7625EC83A04F"
+    },
+    {
+      "file": "Tests/near-far-reference.mjs",
+      "sha256": "1F04941895F0A57A2266E82853D07DEA38D4054FC704D7F5F4335B9FFB15EDC7"
+    },
+    {
+      "file": "Tests/PackageNativeGpuTiming.ps1",
+      "sha256": "F7E3667F34159E057CF6AD938101D0B9F55578B466994513B29788487F884C5B"
+    },
+    {
+      "file": "Tests/PackageSource.ps1",
+      "sha256": "0FC6AB1742E55BA80CB5DC1C88CC5D1391F56251882BA1E010DCE85DE1B66324"
+    },
+    {
+      "file": "Tests/transport-audit-reference.mjs",
+      "sha256": "3BB9EB54A28EF29C01705CD65FB09513744D2C8785D570405BF73763E882F685"
+    },
+    {
+      "file": "Tests/transport-normal-reference.mjs",
+      "sha256": "A99801F260AE20EB0E4098455F9A30A2EFFBF526D9A4C5EBF9B4E1ACA12D8EB6"
+    },
+    {
+      "file": "Tests/transport-reference.mjs",
+      "sha256": "7D56AF0C12396FF1179919BDF62DBB1834E6D3FD657D19791723888A87FAC3E9"
+    },
+    {
+      "file": "Tests/Validate-CacheScheduler.ps1",
+      "sha256": "0E774F5F70F29D9238FF3419BB9E53AE705DA1EFE0E90A3222D8329C45D66D84"
+    },
+    {
+      "file": "Tests/Validate-ChangeRegions.ps1",
+      "sha256": "3E1EA850D4B9E077013D20EAF0EA4A5F658F6219BD5D4F5F83B1661F4DFBD905"
+    },
+    {
+      "file": "Tests/Validate-ChunkStreaming.ps1",
+      "sha256": "DD528C207018BA14CA295A20C61F219D36914CEC0D0FC3BE30A8F9C20C485276"
+    },
+    {
+      "file": "Tests/Validate-CSharpSyntax.ps1",
+      "sha256": "47916F7862DACFBA046ADE83295DCBDA6DFF1ED93124435D365896249DD8B0C7"
+    },
+    {
+      "file": "Tests/Validate-DirectLighting.mjs",
+      "sha256": "48DCDB9F984F314F96A0B03B41438149F991D1C06BA8952598DBA77AFCF74BB9"
+    },
+    {
+      "file": "Tests/Validate-EmissiveProposals.mjs",
+      "sha256": "1BB24A2AF934228CA2ADB480167EBD133C110BD0406D6A11EF9297876A4435B7"
+    },
+    {
+      "file": "Tests/Validate-EmissiveResources.ps1",
+      "sha256": "A5E6E2DBCF504DD7B131A201FB76EED87910CF264F60C703C39B8BA1649D6121"
+    },
+    {
+      "file": "Tests/Validate-EmissiveSampling.mjs",
+      "sha256": "84D5D8B67653169EFDE13250BB959E69497E2785AC66917668E09199632298E5"
+    },
+    {
+      "file": "Tests/Validate-GlobalSdf.ps1",
+      "sha256": "8B3FEC01417755A834A1E3DD8335336975F15858589ED6CD7BDC04A1EA45301A"
+    },
+    {
+      "file": "Tests/Validate-GlobalSdfBounds.mjs",
+      "sha256": "AC3C86649BB79EE9CF02BDB356BDD2E4D4FECEC90976D937E37D1E1A9052C4C2"
+    },
+    {
+      "file": "Tests/Validate-GpuBudget.ps1",
+      "sha256": "F3C9327B30CBCFD463E57B92A78440AC959346ADF020424B8A134B59F79801FD"
+    },
+    {
+      "file": "Tests/Validate-GpuFrameTiming.ps1",
+      "sha256": "BF63BEF8FD74B20368FAF5871738EB9CA9B2872936BECF26C2A27DC86E8A6A43"
+    },
+    {
+      "file": "Tests/Validate-GpuTiming.ps1",
+      "sha256": "C2B2C660CED3CA98122E82111ED7711572DD7FB8A022ED8EE3341C83D8DA44EE"
+    },
+    {
+      "file": "Tests/Validate-GuidedSampling.mjs",
+      "sha256": "C8868AB5590CD253E1063177F861FA2162D63BB763ECEDB44C24105EF906DBDE"
+    },
+    {
+      "file": "Tests/Validate-HardwareBackend.ps1",
+      "sha256": "E0572D023DCD55901129D2AC38A3A766EACCA0C35275EB55B895D5DD85F81E6C"
+    },
+    {
+      "file": "Tests/Validate-HistoryLifecycle.ps1",
+      "sha256": "833B7A0D9101A3BE20A73C5366C3F3D9FF2A667D0A3962FC32BE265ACE8D74DC"
+    },
+    {
+      "file": "Tests/Validate-HlodReadback.ps1",
+      "sha256": "CF1060E4FC9AF6C60A3F9FD65941925F81B1C964858511657E9A23E86D047995"
+    },
+    {
+      "file": "Tests/Validate-HlodTransactions.ps1",
+      "sha256": "2D63E98512EAC046F4E2328C27CBE7E8F6C5A6CEDCE7C231526BB6E4130DA323"
+    },
+    {
+      "file": "Tests/Validate-Lighting.ps1",
+      "sha256": "0822AB6D007E77720C40F716EF6918AF3F9E9818F6A85C3C6E3005492B003D3A"
+    },
+    {
+      "file": "Tests/Validate-LitQualification.ps1",
+      "sha256": "E4872B5C1A20440D600C991057B667380E5F5042710117EF1C45F479B3A81016"
+    },
+    {
+      "file": "Tests/Validate-MaterialSource.ps1",
+      "sha256": "93A23963B56E401596AD09783EB7337B1FD8AA8F1E98B34D77D87163693DC374"
+    },
+    {
+      "file": "Tests/Validate-MeshSource.ps1",
+      "sha256": "19979450D1F3B156F317B9B41514F3FD9E92EC12E1040D6BAAADB0DB614DF266"
+    },
+    {
+      "file": "Tests/Validate-NativeDiffuseCapture.ps1",
+      "sha256": "3DD8AE557B7683EF35F2F7AD26EB573AC927BB012B9962520A0CB6D6BE64E741"
+    },
+    {
+      "file": "Tests/Validate-NativeGpuTiming.ps1",
+      "sha256": "BE238FB70BDB76457639D692B533D213AD99817609EECAF55D6E89F70BFF4043"
+    },
+    {
+      "file": "Tests/Validate-NativeTimingBridge.ps1",
+      "sha256": "5E18A851B62C88173360AAB2E78AC2324FED37AEF5FDDBB9BCD8E41D1C0830A4"
+    },
+    {
+      "file": "Tests/Validate-Offline.ps1",
+      "sha256": "97062A9475FF9C0AAD81B58244B7838CDC5A84259D744DE759079790A6158796"
+    },
+    {
+      "file": "Tests/Validate-OfflineRunner.ps1",
+      "sha256": "86C439474D301A8233A805F377B959BA6FF81CB203A47D65A44D5461003B359D"
+    },
+    {
+      "file": "Tests/Validate-ProxyUpdates.ps1",
+      "sha256": "0C2BEA2266DCB3C8B2DEBF9A26A77996954C1A43F97CF1A33A9584BF27A72F88"
+    },
+    {
+      "file": "Tests/Validate-ReceiverHistory.ps1",
+      "sha256": "E5BA49CB7FACBC52B8290FBD6708BB43BF2E84ED2847C6A3F471CA7B1C6A11C7"
+    },
+    {
+      "file": "Tests/Validate-ReceiverIdentity.mjs",
+      "sha256": "BB55658571A0DADB178A8F86848D4F6A624ECB42E5A22220E467CEDA72E4FE4B"
+    },
+    {
+      "file": "Tests/Validate-ReceiverIdentityFrame.ps1",
+      "sha256": "C154EF60FF20111F6E25D596041EED8538E9638D382E7EEB700E12C3A263DE5E"
+    },
+    {
+      "file": "Tests/Validate-ReceiverIdentityPass.ps1",
+      "sha256": "25E309BD96AFFF9490877165F84BC564EC9A204F66894A6B44BD75F6EDC8483E"
+    },
+    {
+      "file": "Tests/Validate-ReceiverIdentityShaders.ps1",
+      "sha256": "DE805411B5EF67A2418B9B4D2350C6AC0DCB76868CB95FA0B3CBD7EFBAB76306"
+    },
+    {
+      "file": "Tests/Validate-ReceiverPolicyCapture.mjs",
+      "sha256": "A4ACC2C6B769FCF10358F04225822958BDFABBF9C5DA0D53B04FA863BD46BD6F"
+    },
+    {
+      "file": "Tests/Validate-ReceiverPolicyShaders.ps1",
+      "sha256": "6D3B69297963CA79D2C9A766F6DEA9566C73A16287BAF025F7368131D9CD2E4C"
+    },
+    {
+      "file": "Tests/Validate-ReceiverTemporal.ps1",
+      "sha256": "DDC1F817964F85819B28D335B4E12C58ACC3B03F5EBAB74164EF03525CB4E69F"
+    },
+    {
+      "file": "Tests/Validate-SceneBvh.ps1",
+      "sha256": "94CC98FCBF7E02E5A24E102FF807001A3EFB22AF68B61B428A59384F1D274E3E"
+    },
+    {
+      "file": "Tests/Validate-SceneResidency.ps1",
+      "sha256": "9A224291EEF7C88663A7C121385D52C74E63F3C335C53A8F5603671B98D71624"
+    },
+    {
+      "file": "Tests/Validate-ScreenBudget.ps1",
+      "sha256": "30BCEB7DB174F4422D22AACC0999721C8FB595B10FD9AC208739153C599E7517"
+    },
+    {
+      "file": "Tests/Validate-ScreenGeometryPacking.mjs",
+      "sha256": "CA48E722D32BB1B80D0C81EF156C41A03F48B752B10C7DE6504F7F831800DA90"
+    },
+    {
+      "file": "Tests/Validate-ScreenSampling.mjs",
+      "sha256": "2A5D90F2DCB02D502D7EC873DBBBAEDC1E4AAF92C32F93DF6DE1AC460B71935C"
+    },
+    {
+      "file": "Tests/Validate-SdfAtlasAllocator.ps1",
+      "sha256": "6894810DEA88B7E2C3D9BF633A3117A9102EB6CD9DD1D48ED692BBD7B0550001"
+    },
+    {
+      "file": "Tests/Validate-SdfAtlasRepresentation.ps1",
+      "sha256": "01C98B2B58C8C5331EA7D1D106361B1BC753EA3B5BA1A3E39A4169050EF77B77"
+    },
+    {
+      "file": "Tests/Validate-SdfNumerics.ps1",
+      "sha256": "AA179FF4664F7692A9B6D3F7925A9BD2FB46B2B46466C37A12F4E6B2E6ACC722"
+    },
+    {
+      "file": "Tests/Validate-SurfaceAnchors.mjs",
+      "sha256": "6EBA20986F46F61BA77738DEB1C937E49C1EE9C51A4FC30CF48569C349794AE0"
+    },
+    {
+      "file": "Tests/Validate-SurfaceCache.ps1",
+      "sha256": "2C506A1D9C84DE565E50590C63D01D1E2AFD345A62E6FDFAC273C6C840597B96"
+    },
+    {
+      "file": "Tests/Validate-SurfaceCards.ps1",
+      "sha256": "1A01BE1EC16E146A000776E921424BFEFF20853BA9BE9CDC24E0412E18F0EFD3"
+    },
+    {
+      "file": "Tests/Validate-SurfaceCharts.ps1",
+      "sha256": "2C2D4A8B0009E120F5D6D1B93C2D51B1F206ABF554156832828D5A210118F14C"
+    },
+    {
+      "file": "Tests/Validate-SurfaceGeometryNormals.mjs",
+      "sha256": "459BF36186B45BD81DEACF42A1C01332EAB9FD352CB66C10884DFFD7196528BF"
+    },
+    {
+      "file": "Tests/Validate-SurfaceHitIdentity.mjs",
+      "sha256": "A148F2D192DC5E24FE556E22FCFFC5A8C11F2ABEE573D91FA17C19B90DD04400"
+    },
+    {
+      "file": "Tests/Validate-SurfaceReadiness.ps1",
+      "sha256": "26090B16DEC582EAE0870A10DEAE934CE22653A7133003AD1AFE3DAF78C76843"
+    },
+    {
+      "file": "Tests/Validate-SurfaceSource.ps1",
+      "sha256": "E97EDC3A7DA63565453655223B2E7AB625D94840BD902D154275FB6ECB73C38A"
+    },
+    {
+      "file": "Tests/ValidateShaders.ps1",
+      "sha256": "E58A4F218F08D3F6C042C911A470686F669BBD90C6547D6F8F3F2FFA5D12B6F9"
+    },
+    {
+      "file": "Tests/Verify-OfflineReport.ps1",
+      "sha256": "0EAAE2CCA00AA84F16B0BC6A8222362A9BC468DEB1C60DEF23F91957CA9A7A9B"
+    },
+    {
+      "file": "Tests/Verify-ReceiverIdentityReports.ps1",
+      "sha256": "24DDA2A69CE85BB2DDDC64B87529E326343E2BAEB7509EA6574F14B0F6E01888"
+    },
+    {
+      "file": "Tests/VerifySourcePackage.ps1",
+      "sha256": "E2A10437F2314B7468656B969113703A172671F1C5BD7BB2CCE0C6A6D03075DE"
+    },
+    {
+      "file": "Tests/ShaderAdapters/UnityRayQuery.cginc.txt",
+      "sha256": "0F0204C87C314095ECB16A26143CAEBCC9DBFBBB30A5DAB058D5CFB9C3A42FC7"
+    },
+    {
+      "file": "Tests/StandaloneBvh/HlodProgram.cs.txt",
+      "sha256": "18B520F23AD4C7792EB2F6A7E9D4F6EF0B6F70FDCB0A3A36187BC65CC43F2E77"
+    },
+    {
+      "file": "Tests/StandaloneBvh/Program.cs.txt",
+      "sha256": "26E96BD049623EA391BD92726A8324846F29132CAFE39234AA64A2F2D99E472E"
+    },
+    {
+      "file": "Tests/StandaloneBvh/SceneDependencies.cs.txt",
+      "sha256": "FCF89C9543AD91E1A0541275EDD2BE1DDE2149707245D264EB1984E43B58B944"
+    },
+    {
+      "file": "Tests/StandaloneBvh/SceneProgram.cs.txt",
+      "sha256": "463342348F09F261F7D1E4CECD782AF5F55B38F9E886D52ACF92F8AC7612AC14"
+    },
+    {
+      "file": "Tests/StandaloneBvh/SchedulerProgram.cs.txt",
+      "sha256": "163F1E3F649EBB47BBC6B9A6569211D278A7531F91ABA2859D1A5AABFCACC736"
+    },
+    {
+      "file": "Tests/StandaloneBvh/StreamingProgram.cs.txt",
+      "sha256": "FE429DB093745096EBE61C6A82001617D010DAC836EB3AE72530C7D0588FAF2C"
+    },
+    {
+      "file": "Tests/StandaloneBvh/UnityStubs.cs.txt",
+      "sha256": "BC7FCB6D20791F865AFAEBB75DD596084F1DE11B11B63438A9B2A47BDB14B6DD"
+    },
+    {
+      "file": "Tests/StandaloneChanges/Adapters.cs.txt",
+      "sha256": "FB279FB229309CE6B1342D2F9EE147443E5028F4D4962E274FE9E93931D8272E"
+    },
+    {
+      "file": "Tests/StandaloneChanges/Program.cs.txt",
+      "sha256": "D7CCDCC90B906555909D0F267DC0862E23B9C6C5F5C06198100C84166E046082"
+    },
+    {
+      "file": "Tests/StandaloneEmissiveResources/Program.cs.txt",
+      "sha256": "5919A72A634D9FBB3A37FD89E42F49750A973FC2BDFC9DCA68E2C1BB0F1091F7"
+    },
+    {
+      "file": "Tests/StandaloneEmissiveResources/UnityStubs.cs.txt",
+      "sha256": "6547B4806DBBDE96DB1A45F42F37862C7A70ECBDD87A326A77FE9B67A7C75AA3"
+    },
+    {
+      "file": "Tests/StandaloneGlobalSdf/Program.cs.txt",
+      "sha256": "5D182462EC1ECA51842805FE4ACD346C7AF1E6961304AEFEC49151272E471DF1"
+    },
+    {
+      "file": "Tests/StandaloneGlobalSdf/UnityStubs.cs.txt",
+      "sha256": "7D7CA61D0FC4F703FF68A8F9A88CD0786F895D36126D05A2DBAAA68676BE0ACE"
+    },
+    {
+      "file": "Tests/StandaloneGpuBudget/Program.cs.txt",
+      "sha256": "B50F9982B1E01FE501B58BD7186FA278F3AAEC6A070C0444199995AFA4A09325"
+    },
+    {
+      "file": "Tests/StandaloneGpuFrameTiming/Program.cs.txt",
+      "sha256": "81AB168EAA3E80F89B53C6524B59FABBADA786C595A2A4E66C3A35650DEFD12B"
+    },
+    {
+      "file": "Tests/StandaloneGpuFrameTiming/UnityStubs.cs.txt",
+      "sha256": "4DAA077709A3A01D9A86327423ED5C298DE20A7CE1D25EDD5F68A2A7EFE64863"
+    },
+    {
+      "file": "Tests/StandaloneGpuTiming/Program.cs.txt",
+      "sha256": "5D649798D39A851C8DBB6539855F4DA2603B65368F61C02F9EEBF6D4563B288C"
+    },
+    {
+      "file": "Tests/StandaloneGpuTiming/UnityStubs.cs.txt",
+      "sha256": "1AD124CE3EE279FB7E7984C318AA8E48B5F3C29CA8CD32D2DA724F639CD0DA9E"
+    },
+    {
+      "file": "Tests/StandaloneHardwareBackend/Program.cs.txt",
+      "sha256": "55B92BA4B7D0B201320009673ABB0EF962A6E433B8D2C085D0736F581D5A3A81"
+    },
+    {
+      "file": "Tests/StandaloneHardwareBackend/UnityStubs.cs.txt",
+      "sha256": "5CBC71104486CDC0111A37CE7401E74E91C1218167CEE43E3C202BE369D6AD64"
+    },
+    {
+      "file": "Tests/StandaloneHistoryLifecycle/Program.cs.txt",
+      "sha256": "5D26E4D74BFED36AE01BDC432431B06F8F7AB7D623F5E1FF3BC89282EA2ACFE7"
+    },
+    {
+      "file": "Tests/StandaloneHlodReadback/Program.cs.txt",
+      "sha256": "B086283B7AC1EA563CD1667A437689F01C98EEAE5754EB825B4490E6AD7F725A"
+    },
+    {
+      "file": "Tests/StandaloneHlodReadback/UnityStubs.cs.txt",
+      "sha256": "8713E853AC5F6298A87DA0E63DA0DE90459F3291A09112DAA7F9BFD9C56C47E9"
+    },
+    {
+      "file": "Tests/StandaloneLighting/Program.cs.txt",
+      "sha256": "CD537149E1E0278CE95418ED017E27B00D9D60E0AAFF73D467DD11615C2A5BED"
+    },
+    {
+      "file": "Tests/StandaloneLighting/UnityStubs.cs.txt",
+      "sha256": "826A2E10ACA784CDE1E0369C3C6B7AAB2BDCA80F183122460612E315DFE33F59"
+    },
+    {
+      "file": "Tests/StandaloneMaterialSource/Program.cs.txt",
+      "sha256": "5B5569F4C566DAA29250898643BE34AF3A44F347BC2309A99CA30472A7078B48"
+    },
+    {
+      "file": "Tests/StandaloneMaterialSource/UnityStubs.cs.txt",
+      "sha256": "438D47726643720F786F59555BCCE6F3F14F92BBBF8328CAB426C9D810065BAB"
+    },
+    {
+      "file": "Tests/StandaloneMeshSource/Program.cs.txt",
+      "sha256": "0B6E24752F5A8E6F99F49CC97CF1B782F204783306CE99117C2F1197B71CE7A6"
+    },
+    {
+      "file": "Tests/StandaloneNativeTimingBridge/Program.cs.txt",
+      "sha256": "ED262E8A19F50121472A4C744E14DDBD6B471C877E0FA16DFE63FBBBC27DF3FB"
+    },
+    {
+      "file": "Tests/StandaloneNativeTimingBridge/UnityStubs.cs.txt",
+      "sha256": "26040527D73B7AEDF4C63023A9160124879696CE0BD84C8640DAD7232C1623DF"
+    },
+    {
+      "file": "Tests/StandaloneProxyUpdates/Program.cs.txt",
+      "sha256": "EB70D3C9A9D9B2BA46EA26F9068DD98A1CC28B8B94C15FE5408216A3CF87273E"
+    },
+    {
+      "file": "Tests/StandaloneProxyUpdates/UnityStubs.cs.txt",
+      "sha256": "5EB84F222D54E9E433D4B0D4F52E18211642EB246501ABCC9B98B6C28BC2AA7C"
+    },
+    {
+      "file": "Tests/StandaloneReceiverHistory/Program.cs.txt",
+      "sha256": "E21A7FFD89980179075D1BF90B73B5D6F3D77F4F165D9FAA238ED5554DCE0842"
+    },
+    {
+      "file": "Tests/StandaloneReceiverHistory/UnityStubs.cs.txt",
+      "sha256": "59A9EE0FBDC87C93655D6E1340151240ED2782EE5FEC21A47B0771C1FBA7C22F"
+    },
+    {
+      "file": "Tests/StandaloneReceiverIdentityFrame/Adapters.cs.txt",
+      "sha256": "95B55AD6F034213DE91C56B8DC9364BD09148294F690ABEFF6105DC0F959EA07"
+    },
+    {
+      "file": "Tests/StandaloneReceiverIdentityFrame/Program.cs.txt",
+      "sha256": "76F5FA92A0A50E634D1B7E6A21E43698B44F2759391349C8DD876B7D151B53DB"
+    },
+    {
+      "file": "Tests/StandaloneReceiverIdentityPass/Program.cs.txt",
+      "sha256": "51034CACBBAA3645E460AA4C335D5F46A5B3D510CE02E902E8EE113BD0EEAFEB"
+    },
+    {
+      "file": "Tests/StandaloneReceiverIdentityPass/UnityStubs.cs.txt",
+      "sha256": "701A37229A60DC71A410511472F3FB90C708C0815E9791103876BEE675DA45A6"
+    },
+    {
+      "file": "Tests/StandaloneReceiverTemporal/CMakeLists.txt",
+      "sha256": "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+    },
+    {
+      "file": "Tests/StandaloneReceiverTemporal/ReceiverTemporalHarness.hlsl",
+      "sha256": "7EFE065FD39BD16E5497D2DDC676FB020AF62121F8A77C718A5BE70C6F7013B8"
+    },
+    {
+      "file": "Tests/StandaloneReceiverTemporal/ReceiverTemporalOracle.mjs",
+      "sha256": "17210F263EB460794C31F7EEB7E5B3D99955FB3B1E386A94A0E9D9E54EF3AE9A"
+    },
+    {
+      "file": "Tests/StandaloneReceiverTemporal/ReceiverTemporalWarp.cpp.txt",
+      "sha256": "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+    },
+    {
+      "file": "Tests/StandaloneScreenBudget/Program.cs.txt",
+      "sha256": "9C0EA108E7B36FB14A7C2F8A433DACCEA852FADB1964A017F10096EE82BC5A92"
+    },
+    {
+      "file": "Tests/StandaloneSdf/Program.cs.txt",
+      "sha256": "466AD29E55A56AFD1306F8F56D9044B921027B426AE09A4D41C4772C57CB47E5"
+    },
+    {
+      "file": "Tests/StandaloneSdf/UnityMath.cs.txt",
+      "sha256": "7ECFA7443DCB17AE3D4B7DCFE397E088200F5397FB9A8758B87FBE02C0F65638"
+    },
+    {
+      "file": "Tests/StandaloneSdfAtlas/Program.cs.txt",
+      "sha256": "06C993C983309D1F8BFFC3B8F966D91E38EBA3B84520D22357A4F29DFCD08765"
+    },
+    {
+      "file": "Tests/StandaloneSdfAtlas/UnityStubs.cs.txt",
+      "sha256": "F56F3900C026C8E901729FE9A0BD785E7D416E2193E33C6EF8E743A9C88F9D92"
+    },
+    {
+      "file": "Tests/StandaloneSurfaceCache/Program.cs.txt",
+      "sha256": "289D06E822091F73C4FD827C60A4B6B33EDC0C58C5140247587E0FF79BC7F5E8"
+    },
+    {
+      "file": "Tests/StandaloneSurfaceCache/UnityStubs.cs.txt",
+      "sha256": "6A107BCBBC0F6D9B4AF999E2FFB0C39CB4319A88EC74388FA8CF7573F1F5C88E"
+    },
+    {
+      "file": "Tests/StandaloneSurfaceCharts/Program.cs.txt",
+      "sha256": "EC95044B41B1468001C65B0AEB8052F195D0F971B40E4E23BBFDF1020C93497D"
+    },
+    {
+      "file": "Tests/StandaloneSurfaceCharts/UnityStubs.cs.txt",
+      "sha256": "714D18AA2F7B135604CD82E84A6BEBEB0C1972DDFF723BA6CA79BB49EB0EFD93"
+    }
+  ],
+  "negativeCount": 62,
+  "negativePassed": 62,
+  "positiveControlCount": 2,
+  "positiveControlsPassed": 2,
+  "positiveControls": [
+    {
+      "name": "positive-before",
+      "passed": true,
+      "expected": "accepted",
+      "expectedExceptionPrefix": "",
+      "actualAccepted": true,
+      "actualException": null,
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\positive-before.json",
+      "fixtureSha256": "A6445637A9828FF24178AC7D93B4DFBCC70C740F8B9F5E2745B1B7614CDF3732",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\positive-before.log",
+      "logSha256": "626E65749B1B712F7097DE10927607A169EB6B440039D5F3926C40BC133B85AD"
+    },
+    {
+      "name": "positive-after",
+      "passed": true,
+      "expected": "accepted",
+      "expectedExceptionPrefix": "",
+      "actualAccepted": true,
+      "actualException": null,
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\positive-after.json",
+      "fixtureSha256": "A6445637A9828FF24178AC7D93B4DFBCC70C740F8B9F5E2745B1B7614CDF3732",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\positive-after.log",
+      "logSha256": "626E65749B1B712F7097DE10927607A169EB6B440039D5F3926C40BC133B85AD"
+    }
+  ],
+  "negatives": [
+    {
+      "name": "identity-missing-artifact",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-missing-artifact.json",
+      "fixtureSha256": "53D9115FA1E46BC55F17F2880EFC723BFD13D1232DD9E98C36B38CF39AD2C798",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-missing-artifact.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-failed-status",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-failed-status.json",
+      "fixtureSha256": "DEDF02CDE545A1CE479154AF22ED5F7ABEBBCD100F22742F59BA7922348B2117",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-failed-status.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-wrong-schema",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-schema.json",
+      "fixtureSha256": "1BF882D9E55D78EA369875E87AACDFD32481BADA28A1D66E48D73907A864DC10",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-schema.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-wrong-kind",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-kind.json",
+      "fixtureSha256": "6157F5929A5479B3F35371B0F21D76ADE7890328B07B9417447A65956F1A87B5",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-kind.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-no-completion",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-no-completion.json",
+      "fixtureSha256": "FF679FC414EF3CEF6165E15F1783FF14472C21F562021E304F8A01E3EA6F3447",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-no-completion.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-script-changed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-script-changed.json",
+      "fixtureSha256": "CC648DE9E5477029754561B21BAF6BE92AE33F2259E518EE50FDC476FC03B326",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-script-changed.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-source-change",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-source-change.json",
+      "fixtureSha256": "37C4832CA8324BA3038CFC75E0634A1814234194C3E860F68958680C147ACE35",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-source-change.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-include-change",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-include-change.json",
+      "fixtureSha256": "A99B26D3F9CB97123F19B364DB2C3C4B806B85F4F79C31F21C023335132020AA",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-include-change.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-wrong-script-name",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-script-name.json",
+      "fixtureSha256": "863614EA7160FA55F73F66295AB6DBBEE532E8430B1852D70FECE9B47FB4CF02",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-script-name.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-wrong-script-sha",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-script-sha.json",
+      "fixtureSha256": "47D324D0EF34438FBD935962211D3CA4D3660DE9C467C40388BF8177BCDFEB3C",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-script-sha.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-wrong-unity-revision",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity shader artifact is missing, stale or failed.",
+      "actualAccepted": false,
+      "actualException": "Identity shader artifact is missing, stale or failed.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-unity-revision.json",
+      "fixtureSha256": "E2C3B4273A971E8696016A04C96E58D36E83649FE4DA810BB398D522BA0E703E",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-unity-revision.log",
+      "logSha256": "1FBA3A5905B8B85A485C81372F52147B149A44B72FA5AF42DF1B60085BED4C65"
+    },
+    {
+      "name": "identity-source-bad-hash",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity validation source mismatch:",
+      "actualAccepted": false,
+      "actualException": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-source-bad-hash.json",
+      "fixtureSha256": "A00ADFEC888E382E08143B4E462504E1B6F5334BC479A546B40E6CBD5F05FD3E",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-source-bad-hash.log",
+      "logSha256": "3CBDCD367F736A4B026473BF36714F330DAA6C040C3DD60A1967F2D4537DD20D"
+    },
+    {
+      "name": "identity-source-missing",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity validation source coverage is incomplete.",
+      "actualAccepted": false,
+      "actualException": "Identity validation source coverage is incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-source-missing.json",
+      "fixtureSha256": "58B174A0E2D5618B76E2FF0E9CE0B31A371F350474C31592E1ADCEBE53507BEB",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-source-missing.log",
+      "logSha256": "DC8444B1C4D88B1DC739DF2F1EE2F497CC81EB0CD0A3C107AFF7CC1096A8CEFC"
+    },
+    {
+      "name": "identity-source-duplicate",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity validation source mismatch:",
+      "actualAccepted": false,
+      "actualException": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-source-duplicate.json",
+      "fixtureSha256": "14BA8BCF17C5903F5B1D616CFCC57A20DC1D95F64F6031060CF039A1D029733E",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-source-duplicate.log",
+      "logSha256": "3CBDCD367F736A4B026473BF36714F330DAA6C040C3DD60A1967F2D4537DD20D"
+    },
+    {
+      "name": "identity-source-unknown",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity validation source mismatch:",
+      "actualAccepted": false,
+      "actualException": "Identity validation source mismatch: Runtime/Unknown.cs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-source-unknown.json",
+      "fixtureSha256": "466C9BE1DC3FE35564061397FCE67F7F90A292797F529C431C77C8D54FA4AF08",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-source-unknown.log",
+      "logSha256": "0BA9BCABEB685A8F9C5097208A4EF47A2016B0D7F479C50F7A04A07A131F4825"
+    },
+    {
+      "name": "identity-sources-after-bad-hash",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity validation source mismatch:",
+      "actualAccepted": false,
+      "actualException": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-sources-after-bad-hash.json",
+      "fixtureSha256": "EBA6D59AE51F29F6044C275FED0C42B206C4DE9A08B78DF7F544844B19A923F2",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-sources-after-bad-hash.log",
+      "logSha256": "3CBDCD367F736A4B026473BF36714F330DAA6C040C3DD60A1967F2D4537DD20D"
+    },
+    {
+      "name": "identity-sources-after-missing",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity validation source coverage is incomplete.",
+      "actualAccepted": false,
+      "actualException": "Identity validation source coverage is incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-sources-after-missing.json",
+      "fixtureSha256": "3064D8BA2071A2E6AFB77199D816DD5BA5DAD73A583291AC020117244AA6E881",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-sources-after-missing.log",
+      "logSha256": "DC8444B1C4D88B1DC739DF2F1EE2F497CC81EB0CD0A3C107AFF7CC1096A8CEFC"
+    },
+    {
+      "name": "identity-compiler-failed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-vs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-compiler-failed.json",
+      "fixtureSha256": "4C95070A813CA6948F2FEDCA2C0EE229EA7B55B0C3FD1A2E377B7A9F277C979A",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-compiler-failed.log",
+      "logSha256": "01609E96EC31222A4D3288FD4D2EFE332013D6F2880EBF0B96EC0A9FA30E58D3"
+    },
+    {
+      "name": "identity-check-failed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-vs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-check-failed.json",
+      "fixtureSha256": "426A08CDD3E3998DBFE99795718ADDCC6F638564A97FDBA5B9C171B456401608",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-check-failed.log",
+      "logSha256": "01609E96EC31222A4D3288FD4D2EFE332013D6F2880EBF0B96EC0A9FA30E58D3"
+    },
+    {
+      "name": "identity-compiler-duplicate",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-vs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-compiler-duplicate.json",
+      "fixtureSha256": "8C4856FCFBE32EA19EAA6864A0D4B4AF4EBE27D9A3641EE77D7A1384FD1EE08B",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-compiler-duplicate.log",
+      "logSha256": "01609E96EC31222A4D3288FD4D2EFE332013D6F2880EBF0B96EC0A9FA30E58D3"
+    },
+    {
+      "name": "identity-compiler-missing",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity compiler coverage is incomplete.",
+      "actualAccepted": false,
+      "actualException": "Identity compiler coverage is incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-compiler-missing.json",
+      "fixtureSha256": "5BE2AACDF328B3A5ED726DBC1ADD1B7C96D852B045B73E95671317F0931E697C",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-compiler-missing.log",
+      "logSha256": "C2A35F6772E51558C3B3B9C94A29CBC6E9C10830FF0BCB422B2EF4A246192893"
+    },
+    {
+      "name": "identity-checks-empty",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity compiler coverage is incomplete.",
+      "actualAccepted": false,
+      "actualException": "Identity compiler coverage is incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-checks-empty.json",
+      "fixtureSha256": "C93750002931A02553D2D7F4B5B51D51AF3BB2A1538999B96B534F2710CD840C",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-checks-empty.log",
+      "logSha256": "C2A35F6772E51558C3B3B9C94A29CBC6E9C10830FF0BCB422B2EF4A246192893"
+    },
+    {
+      "name": "identity-wrong-debug-variant-name",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-ps-debug-WRONG",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-debug-variant-name.json",
+      "fixtureSha256": "331E802B251FE7B5A49A5DD6F5CD41A5E61A517E067461EEB3A82806864A4FF3",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-debug-variant-name.log",
+      "logSha256": "FE481CA0BCF8F6E73886AC01498B989FBB51422892AFF384F5024D40B26AEE06"
+    },
+    {
+      "name": "identity-wrong-entry",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-vs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-entry.json",
+      "fixtureSha256": "93EA871A4194489462FC9C68F4AFF2E2E323C9B2B1ABB47789483D1F7C49572C",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-entry.log",
+      "logSha256": "01609E96EC31222A4D3288FD4D2EFE332013D6F2880EBF0B96EC0A9FA30E58D3"
+    },
+    {
+      "name": "identity-wrong-profile",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-vs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-profile.json",
+      "fixtureSha256": "ED0C29F963B458B43816085CD0FC606292A96E3DB10F09CB9CBF8113B4CC60B9",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-wrong-profile.log",
+      "logSha256": "01609E96EC31222A4D3288FD4D2EFE332013D6F2880EBF0B96EC0A9FA30E58D3"
+    },
+    {
+      "name": "identity-signature-false",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-vs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-signature-false.json",
+      "fixtureSha256": "4A87360BAED07AF2BEAEB9ABE94A9BEA37A4966A2122EC621AD53508A8E7E05E",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-signature-false.log",
+      "logSha256": "01609E96EC31222A4D3288FD4D2EFE332013D6F2880EBF0B96EC0A9FA30E58D3"
+    },
+    {
+      "name": "identity-validation-error",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-vs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-validation-error.json",
+      "fixtureSha256": "ED67D079AC46F4E1172A2C0A26F316BD2303C895390B9A5759D07A551B6CCEE4",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-validation-error.log",
+      "logSha256": "01609E96EC31222A4D3288FD4D2EFE332013D6F2880EBF0B96EC0A9FA30E58D3"
+    },
+    {
+      "name": "identity-log-missing",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-vs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-log-missing.json",
+      "fixtureSha256": "B498792A1D215E5A20B2F5D93F0243E06536A7A2DAE519D0995372F998749A5D",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-log-missing.log",
+      "logSha256": "01609E96EC31222A4D3288FD4D2EFE332013D6F2880EBF0B96EC0A9FA30E58D3"
+    },
+    {
+      "name": "identity-listing-hash-malformed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-vs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-listing-hash-malformed.json",
+      "fixtureSha256": "8CDADD9EA77B644D44051008D738D836837527F64C95535A951F62DF5BA5C1E0",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-listing-hash-malformed.log",
+      "logSha256": "01609E96EC31222A4D3288FD4D2EFE332013D6F2880EBF0B96EC0A9FA30E58D3"
+    },
+    {
+      "name": "identity-dxil-hash-missing",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity compiler evidence:",
+      "actualAccepted": false,
+      "actualException": "Invalid identity compiler evidence: identity-cull-Off-vs",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-dxil-hash-missing.json",
+      "fixtureSha256": "7A950EB5548CA06A98ECEA87DE2960FA90F30823FD87CC5492A51C422DDBF138",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-dxil-hash-missing.log",
+      "logSha256": "01609E96EC31222A4D3288FD4D2EFE332013D6F2880EBF0B96EC0A9FA30E58D3"
+    },
+    {
+      "name": "identity-includes-empty",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Missing identity include:",
+      "actualAccepted": false,
+      "actualException": "Missing identity include: Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-includes-empty.json",
+      "fixtureSha256": "C6ED54B64E0F048DF712FE65E2B233CF819CE9D85CB13620E9F2F20AA0EF0AAB",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-includes-empty.log",
+      "logSha256": "2C3312D903AE17121F45BD5C1C83C982F8AB0DC957E073417A1A89F99B6CB175"
+    },
+    {
+      "name": "identity-include-duplicate",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity include evidence.",
+      "actualAccepted": false,
+      "actualException": "Invalid identity include evidence.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-include-duplicate.json",
+      "fixtureSha256": "5AF7E22B21CCC4BAE83309F544FF1EACC73294077BA821CDB4BD5257C7F408A1",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-include-duplicate.log",
+      "logSha256": "2544237B3874B609A57368B428A0B3C5AF74A127218984A8A9716D5275073BF5"
+    },
+    {
+      "name": "identity-include-hash-malformed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid identity include evidence.",
+      "actualAccepted": false,
+      "actualException": "Invalid identity include evidence.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-include-hash-malformed.json",
+      "fixtureSha256": "44D213CEA5FD572A76596333C09AE6CD9286376AFED90D02B86A9745AC28A73A",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\identity-include-hash-malformed.log",
+      "logSha256": "2544237B3874B609A57368B428A0B3C5AF74A127218984A8A9716D5275073BF5"
+    },
+    {
+      "name": "temporal-missing-artifact",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-missing-artifact.json",
+      "fixtureSha256": "6A30426753FC30E6DB2DD7903D9EC3AB14C0648B147D8049502EE2DD90D97EDB",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-missing-artifact.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-failed-status",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-failed-status.json",
+      "fixtureSha256": "946001AD46CCA7CE697C03D92C7886D6A36DCDEF4DB07EA79948DE13A5C4924A",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-failed-status.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-wrong-schema",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-wrong-schema.json",
+      "fixtureSha256": "5C8825A978F89793E7AAA171EFDF02E33A1D2D31936A9ED20192AB50D6660522",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-wrong-schema.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-wrong-kind",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-wrong-kind.json",
+      "fixtureSha256": "26E7E502F9420A1E9C11EDB910D6CBC3C210E3216BAC911407BB3B7E722B527E",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-wrong-kind.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-no-completion",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-no-completion.json",
+      "fixtureSha256": "98A81C8EB17C6F1404D43E54E124A79ABEACBFACC67B7241883DF2E6B84A4283",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-no-completion.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-error",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-error.json",
+      "fixtureSha256": "3F2E7BA62B3E659EB6F11F3D0F60225F9067665AB0A061A983B297DFABB83C12",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-error.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-source-changes",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-source-changes.json",
+      "fixtureSha256": "D970DBDE1A610F63266F5A4258B335F791D52E7EE0E151EF4A4BBD9C2253CF35",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-source-changes.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-warp-not-executed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-warp-not-executed.json",
+      "fixtureSha256": "43594D1DCE1C5E26A5C1B17482383CD230D221384F439AACF596CB1FD7F5BD0C",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-warp-not-executed.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-claims-unity-executed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-claims-unity-executed.json",
+      "fixtureSha256": "83B5E97C2614F92FBFFA86838899F74476D1F1A02AFACAB9E52B798848A979A8",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-claims-unity-executed.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-claims-physical-gpu-executed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-claims-physical-gpu-executed.json",
+      "fixtureSha256": "47AF3C87F7F27F88E6573F41B073455EA4EAE6105B0D00FE6155C7F7F1DC9DD2",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-claims-physical-gpu-executed.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-oracle-failed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-oracle-failed.json",
+      "fixtureSha256": "9C33DD3A35AFBE02857B830849A86C318877F11CCE0B9C53FC106B1A56E763E9",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-oracle-failed.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-oracle-wrong-count",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-oracle-wrong-count.json",
+      "fixtureSha256": "74D12197C8331D38D095340E3E7C5509740BDC03F51B5B918031EA8A3F213E8F",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-oracle-wrong-count.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-oracle-wrong-checks",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual receiver temporal WARP evidence is missing, failed or incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-oracle-wrong-checks.json",
+      "fixtureSha256": "340703AD7684F258089B2331472342BC3016240E59D2FAD18AE6A8A96326C24A",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-oracle-wrong-checks.log",
+      "logSha256": "671A1DCFFA3C50A8AFDA122CABA2C68533E0E0EA3B5D6BD6BD6BAD77A17397C8"
+    },
+    {
+      "name": "temporal-source-bad-hash",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity validation source mismatch:",
+      "actualAccepted": false,
+      "actualException": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-source-bad-hash.json",
+      "fixtureSha256": "832EA1BD21AF1B55026307B2BFEF1A863708849CDCE4812CC1E0597EB55CF66A",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-source-bad-hash.log",
+      "logSha256": "80D0ADF9D028CC67F1E5230CF37DCEBC5F5313D80EC412A7785F7B36B9720A68"
+    },
+    {
+      "name": "temporal-sources-after-bad-hash",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity validation source mismatch:",
+      "actualAccepted": false,
+      "actualException": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-sources-after-bad-hash.json",
+      "fixtureSha256": "61F66B6AD02A280113388BB2E5755A8B11E63D756F4006284FF91F72E96A11F6",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-sources-after-bad-hash.log",
+      "logSha256": "80D0ADF9D028CC67F1E5230CF37DCEBC5F5313D80EC412A7785F7B36B9720A68"
+    },
+    {
+      "name": "temporal-source-missing",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity validation source coverage is incomplete.",
+      "actualAccepted": false,
+      "actualException": "Identity validation source coverage is incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-source-missing.json",
+      "fixtureSha256": "BB28CFDBA37D7CCBD5C5F04B834009D671E8B005454810A9430D91076EF0D964",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-source-missing.log",
+      "logSha256": "DC8444B1C4D88B1DC739DF2F1EE2F497CC81EB0CD0A3C107AFF7CC1096A8CEFC"
+    },
+    {
+      "name": "temporal-source-duplicate",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Identity validation source mismatch:",
+      "actualAccepted": false,
+      "actualException": "Identity validation source mismatch: Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-source-duplicate.json",
+      "fixtureSha256": "91897F70627735CB50EC080E49BEBFA3863417EB488F6F3015D6AB82376CDF6B",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-source-duplicate.log",
+      "logSha256": "80D0ADF9D028CC67F1E5230CF37DCEBC5F5313D80EC412A7785F7B36B9720A68"
+    },
+    {
+      "name": "temporal-stage-failed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid actual temporal stage:",
+      "actualAccepted": false,
+      "actualException": "Invalid actual temporal stage: warp-execute",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-stage-failed.json",
+      "fixtureSha256": "D7F7E21BC376148219BE0E29BC22BF9B5FF67FED70C4E5E600FDAAA857573C53",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-stage-failed.log",
+      "logSha256": "0510C623BB4A7D9450F59428BFB5C2CE42F08E9B00A0F377F56A0988B272E78C"
+    },
+    {
+      "name": "temporal-stage-duplicate",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid actual temporal stage:",
+      "actualAccepted": false,
+      "actualException": "Invalid actual temporal stage: vswhere",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-stage-duplicate.json",
+      "fixtureSha256": "E90A8DC2CB903108F99A3E842C15D9F2B3721DF4CD6CA781D28D235BF081DEEE",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-stage-duplicate.log",
+      "logSha256": "35547570E7D7B0AA30840FFB70800F02F58A76F74BC100EFFFFF2B4C37583FA7"
+    },
+    {
+      "name": "temporal-stage-missing",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual temporal stages are incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual temporal stages are incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-stage-missing.json",
+      "fixtureSha256": "A97D9E2B93CE9A71FC6410A9EFBBB9DA3A1A146EC8619D6B8BAAC8EBEAA9FF0B",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-stage-missing.log",
+      "logSha256": "2A1A3D8B341B7B7487BAE6C907A23A662558B6AEF69B75C012530913813185CF"
+    },
+    {
+      "name": "temporal-checks-empty",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual temporal stages are incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual temporal stages are incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-checks-empty.json",
+      "fixtureSha256": "EFFBADADDBE3B6A57A1DC0ECACB23130A1DAB67EDFBB56C4C4586EBD83187E8E",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-checks-empty.log",
+      "logSha256": "2A1A3D8B341B7B7487BAE6C907A23A662558B6AEF69B75C012530913813185CF"
+    },
+    {
+      "name": "temporal-stage-output-empty",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid actual temporal stage:",
+      "actualAccepted": false,
+      "actualException": "Invalid actual temporal stage: warp-execute",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-stage-output-empty.json",
+      "fixtureSha256": "0FD3938B765926ECAF2A3856373433200E7DEC4CED80935FA85F60A2ACDF3219",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-stage-output-empty.log",
+      "logSha256": "0510C623BB4A7D9450F59428BFB5C2CE42F08E9B00A0F377F56A0988B272E78C"
+    },
+    {
+      "name": "temporal-stage-log-missing",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid actual temporal stage:",
+      "actualAccepted": false,
+      "actualException": "Invalid actual temporal stage: vswhere",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-stage-log-missing.json",
+      "fixtureSha256": "3DE950174D66757786B49C65B777326EA91A18E45FFCBAE171E7034EB19108A9",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-stage-log-missing.log",
+      "logSha256": "35547570E7D7B0AA30840FFB70800F02F58A76F74BC100EFFFFF2B4C37583FA7"
+    },
+    {
+      "name": "temporal-binary-artifact-missing",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual temporal artifact coverage is incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual temporal artifact coverage is incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-binary-artifact-missing.json",
+      "fixtureSha256": "F8B6B79AEAB70B529DF4713167D04DD7BC01C0FA26C250FFF55F4DCE13FEDF3F",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-binary-artifact-missing.log",
+      "logSha256": "48F5C4DF0F68EB33893CA36ED3D8FE61A2EA1A8B010BE8221C720E10F2F9F0A7"
+    },
+    {
+      "name": "temporal-binary-hash-malformed",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid actual temporal artifact:",
+      "actualAccepted": false,
+      "actualException": "Invalid actual temporal artifact: ReceiverTemporalWarp.exe",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-binary-hash-malformed.json",
+      "fixtureSha256": "6D8162436E20E9E45557A14FFA4883D62D777E67150B5383E3FC706752221574",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-binary-hash-malformed.log",
+      "logSha256": "E97B9EBED571D9648E2586E5DD74895E3FAA09C25BE79DE839E6E4CB7ED848AB"
+    },
+    {
+      "name": "temporal-binary-zero-bytes",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid actual temporal artifact:",
+      "actualAccepted": false,
+      "actualException": "Invalid actual temporal artifact: ReceiverTemporalWarp.exe",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-binary-zero-bytes.json",
+      "fixtureSha256": "DCB7436A3B5E5903D52AAB51F0C110E7A7FDF4A1C2E7BBFAA1467133F1CDF41E",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-binary-zero-bytes.log",
+      "logSha256": "E97B9EBED571D9648E2586E5DD74895E3FAA09C25BE79DE839E6E4CB7ED848AB"
+    },
+    {
+      "name": "temporal-artifact-duplicate",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid actual temporal artifact:",
+      "actualAccepted": false,
+      "actualException": "Invalid actual temporal artifact: receiver-temporal.dxil",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-artifact-duplicate.json",
+      "fixtureSha256": "A99C6C9B5E55DA7F6182BDDD636A656C61A32B0F7470B07A950DB150403BD705",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-artifact-duplicate.log",
+      "logSha256": "E0F2507C298D4F0ABA2033943A8F375E987115F78A695C2AB12B35391DF5F668"
+    },
+    {
+      "name": "temporal-artifact-unknown-name",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Invalid actual temporal artifact:",
+      "actualAccepted": false,
+      "actualException": "Invalid actual temporal artifact: NotExpected.dxil",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-artifact-unknown-name.json",
+      "fixtureSha256": "2BA56D300D733A6A67FA75B943BF33C4957A2DE70915F9AA8A7E3233F2AF1FF6",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-artifact-unknown-name.log",
+      "logSha256": "0308BBC89FFE4CAB7082DC0D2D6C8762963EAF68626B768CD0F6B3EDE3074410"
+    },
+    {
+      "name": "temporal-artifacts-empty",
+      "passed": true,
+      "expected": "rejected",
+      "expectedExceptionPrefix": "Actual temporal artifact coverage is incomplete.",
+      "actualAccepted": false,
+      "actualException": "Actual temporal artifact coverage is incomplete.",
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-artifacts-empty.json",
+      "fixtureSha256": "EF621B2D3A38CCE11B103973F9AB993312AD50259C7B2AD586DE69D31024F023",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\temporal-artifacts-empty.log",
+      "logSha256": "48F5C4DF0F68EB33893CA36ED3D8FE61A2EA1A8B010BE8221C720E10F2F9F0A7"
+    }
+  ],
+  "boundaryProbes": [
+    {
+      "name": "boundary-temporal-valid-format-wrong-content-hash",
+      "passed": true,
+      "expected": "accepted",
+      "expectedExceptionPrefix": "",
+      "actualAccepted": true,
+      "actualException": null,
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\boundary-temporal-valid-format-wrong-content-hash.json",
+      "fixtureSha256": "E8263BB9AEB0DBA1D29E91042786986DE213AFCA208C85848FC60DB00344F379",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\boundary-temporal-valid-format-wrong-content-hash.log",
+      "logSha256": "626E65749B1B712F7097DE10927607A169EB6B440039D5F3926C40BC133B85AD"
+    },
+    {
+      "name": "boundary-temporal-unavailable-binary-path",
+      "passed": true,
+      "expected": "accepted",
+      "expectedExceptionPrefix": "",
+      "actualAccepted": true,
+      "actualException": null,
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\boundary-temporal-unavailable-binary-path.json",
+      "fixtureSha256": "39626301B34E582D6FC46D67B57AE8FFC21F01E390F3833C4DB88E67AD21D573",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\boundary-temporal-unavailable-binary-path.log",
+      "logSha256": "626E65749B1B712F7097DE10927607A169EB6B440039D5F3926C40BC133B85AD"
+    },
+    {
+      "name": "boundary-identity-valid-format-wrong-dxil-hash",
+      "passed": true,
+      "expected": "accepted",
+      "expectedExceptionPrefix": "",
+      "actualAccepted": true,
+      "actualException": null,
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\boundary-identity-valid-format-wrong-dxil-hash.json",
+      "fixtureSha256": "3D803206C39D22D0F4922DA85E0D91D5A4687EF9018B442177E53275473CC627",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\boundary-identity-valid-format-wrong-dxil-hash.log",
+      "logSha256": "626E65749B1B712F7097DE10927607A169EB6B440039D5F3926C40BC133B85AD"
+    },
+    {
+      "name": "boundary-identity-debug-label-boolean-not-enforced",
+      "passed": true,
+      "expected": "accepted",
+      "expectedExceptionPrefix": "",
+      "actualAccepted": true,
+      "actualException": null,
+      "invocation": "PowerShell script invocation; native process exit is not applicable; caught terminating exception recorded verbatim.",
+      "fixture": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\boundary-identity-debug-label-boolean-not-enforced.json",
+      "fixtureSha256": "1E9BC1347E8D57A7B2CD042B7A1ABDB732AE01F67C4015F453EDC22E015B04FD",
+      "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-identity-report-negative-candidate13-5143c7c55fb2473793abf747c17fa62b\\boundary-identity-debug-label-boolean-not-enforced.log",
+      "logSha256": "626E65749B1B712F7097DE10927607A169EB6B440039D5F3926C40BC133B85AD"
+    }
+  ],
+  "boundary": "Actual valid-format but false hashes, missing actual file paths, and debugVariant boolean alone are outside this metadata verifier gate. The immutable baseline actual artifacts were separately opened and verified by input-audit.json. Accepted probes are disclosed and do not count as rejected negatives."
+}

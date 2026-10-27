@@ -1,0 +1,105 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Rendering;
+const string sourceRoot=@"__SOURCE_ROOT__";
+int checks=0,failures=0;
+void Require(bool value,string message){checks++;if(!value){failures++;Console.Error.WriteLine("FAIL: "+message);}}
+bool Zero(Array values)
+{
+    if(values==null||values.Length!=33||Marshal.SizeOf(values.GetType().GetElementType())!=32)return false;
+    foreach(object record in values)foreach(var field in record.GetType().GetFields())
+    {
+        Vector4 v=(Vector4)field.GetValue(record);if(v.x!=0||v.y!=0||v.z!=0||v.w!=0)return false;
+    }
+    return true;
+}
+void Throws<T>(Action action,string message) where T:Exception
+{bool thrown=false;try{action();}catch(T){thrown=true;}Require(thrown,message);}
+var scene=new HybridLumenGIScene(47);var surface=new HybridLumenGISurfaceCache();
+var consumer=new ComputeShader("software");var hardware=new ComputeShader("hardware");
+using var resources=new HybridLumenGIEmissiveSampling();
+Require(resources.AllocatedBytes==0&&resources.Buffer==null&&!resources.BuildRecorded,"Constructor eagerly allocated or advertised a build.");
+var beforeBuild=new CommandBuffer();
+Require(resources.Bind(beforeBuild,consumer,11),"Prebuild consumer did not receive a valid zero table.");
+var buffer=resources.Buffer;
+Require(buffer.count==33&&buffer.stride==32&&resources.AllocatedBytes==1056,"GPU record capacity, stride or allocation accounting changed.");
+Require(Zero(buffer.InitialData)&&buffer.ImmediateUploads==1&&!resources.BuildRecorded,"First allocation was not a single explicit zero initialization.");
+var command=new CommandBuffer();surface.RecordCapture(command);
+Require(resources.RecordBuild(command,scene,surface,16)&&resources.BuildRecorded,"Supported builder did not record a build.");
+Require(Resources.LastPath=="HybridLumenGI/HybridLumenGIEmissiveProposals"&&Resources.Builder.RequestedKernel=="CSBuildEmissiveProposals","Resource or kernel contract differs from the shader.");
+Require(ReferenceEquals(buffer,resources.Buffer)&&buffer.ImmediateUploads==1,"Normal build replaced resources or immediately overwrote an in-flight buffer.");
+var dispatch=command.Calls.Single(call=>call.Kind=="dispatch");
+Require(dispatch.X==1&&dispatch.Y==1&&dispatch.Z==1&&dispatch.Kernel==7,"Proposal build must record exactly one ordered 1x1x1 dispatch.");
+Require(command.Calls.Any(call=>call.Property=="_HLGI_Proxies"&&ReferenceEquals(call.Buffer,scene.Buffer))&&command.Calls.Any(call=>call.Property=="_HLGI_ProxyCount"&&call.Value==47),"Scene identity resources were not bound.");
+Require(command.Calls.Any(call=>call.Property=="_HLGI_SurfaceCards"&&ReferenceEquals(call.Buffer,surface.Metadata))&&command.Calls.Any(call=>call.Property=="_HLGI_SurfaceEmitters"&&ReferenceEquals(call.Buffer,surface.Emitters)),"GPU surface metadata or emissive descriptors were omitted.");
+Require(command.Calls.Any(call=>call.Property=="_HLGI_EmissiveProposals"&&ReferenceEquals(call.Buffer,buffer))&&command.Calls.Any(call=>call.Property=="_HLGI_EmitterBudget"&&call.Value==16),"Builder output or budget was not bound.");
+Require(command.Calls.FindIndex(call=>call.Kind=="capture-and-anchors")<command.Calls.FindIndex(call=>call.Kind=="surface-bind")&&command.Calls.FindIndex(call=>call.Kind=="emitters-bind")<command.Calls.FindIndex(call=>call.Kind=="dispatch"),"Capture/descriptor/build recording order changed.");
+Require(resources.Bind(command,consumer,11)&&resources.Bind(command,consumer,12)&&resources.Bind(command,hardware,21),"A software/cache/gather/hardware consumer could not bind.");
+Require(command.Calls.TakeLast(3).All(call=>call.Kind=="buffer"&&call.Property=="_HLGI_EmissiveProposals"&&ReferenceEquals(call.Buffer,buffer)),"Transport consumers did not share the exact per-camera output.");
+foreach(int budget in new[]{-100,0,1,16,32,100})
+{
+    var c=new CommandBuffer();Require(resources.RecordBuild(c,scene,surface,budget),"Budget case did not issue a build/clear.");
+    Require(c.Calls.Single(call=>call.Property=="_HLGI_EmitterBudget").Value==Math.Clamp(budget,0,32)&&c.Calls.Count(call=>call.Kind=="dispatch")==1,"Budget clamp or zero-budget dispatch failed: "+budget);
+}
+Require(buffer.ImmediateUploads==1&&Resources.Builder.Finds==1,"Per-frame build performs immediate SetData or repeatedly searches its kernel.");
+
+// Optional capability loss retains a bound zero table; the feature's platform gate
+// skips all GI when compute itself is unavailable. Nothing is released in flight.
+SystemInfo.supportsComputeShaders=false;var disabled=new CommandBuffer();
+Require(!resources.RecordBuild(disabled,scene,surface,32)&&!resources.BuildRecorded,"Capability-disabled path reported a build.");
+Require(disabled.Calls.Count==1&&disabled.Calls[0].Kind=="upload"&&Zero(disabled.Calls[0].Data)&&ReferenceEquals(disabled.Calls[0].Buffer,buffer),"Disabled path did not record clearing the previous table.");
+Require(!buffer.Released&&buffer.ImmediateUploads==1&&resources.Bind(disabled,consumer,11),"Disabled optional sampling released or left its consumer buffer unbound.");
+SystemInfo.supportsComputeShaders=true;Require(resources.RecordBuild(new CommandBuffer(),scene,surface,16),"Capability restoration could not rebuild.");
+
+Resources.Builder=null;using var missing=new HybridLumenGIEmissiveSampling();var missingCommand=new CommandBuffer();
+Require(!missing.RecordBuild(missingCommand,scene,surface,16)&&missing.AllocatedBytes==1056,"Missing builder did not retain safe zero storage.");
+Require(Zero(missingCommand.Calls.Last().Data)&&missing.Bind(missingCommand,consumer,11),"Missing builder did not clear and bind a valid dummy table.");
+Resources.Builder=new ComputeShader("restored");Require(missing.RecordBuild(new CommandBuffer(),scene,surface,16),"A subsequently available builder could not recover.");
+Resources.Builder=new ComputeShader("missing-kernel"){ThrowKernel=true};using var kernelFailure=new HybridLumenGIEmissiveSampling();var kernelCommand=new CommandBuffer();
+Require(!kernelFailure.RecordBuild(kernelCommand,scene,surface,16)&&Zero(kernelCommand.Calls.Last().Data),"Missing kernel left old proposal data live.");
+Resources.Builder.ThrowKernel=false;Require(kernelFailure.RecordBuild(new CommandBuffer(),scene,surface,16),"Kernel recording could not recover.");
+foreach(string failure in new[]{"surface","dispatch","scene"})
+{
+    var c=new CommandBuffer{ThrowDispatch=failure=="dispatch"};surface.ThrowBind=failure=="surface";
+    var s=failure=="scene"?new HybridLumenGIScene(){Buffer=null}:scene;
+    Require(!resources.RecordBuild(c,s,surface,16)&&!resources.BuildRecorded,"Synchronous failure reported success: "+failure);
+    Require(c.Calls.Last().Kind=="upload"&&Zero(c.Calls.Last().Data)&&resources.Bind(c,consumer,11),"Failure did not restore a bound zero table: "+failure);
+    surface.ThrowBind=false;
+}
+var cannotClear=new CommandBuffer{ThrowDispatch=true,ThrowUpload=true};
+Throws<InvalidOperationException>(()=>resources.RecordBuild(cannotClear,scene,surface,16),"Failure to clear a failed build was silently treated as safe.");
+Require(buffer.ImmediateUploads==1,"A failure path used immediate SetData instead of ordered command upload.");
+
+// Camera ownership: builders may share the immutable shader asset, never output storage.
+Resources.Builder=new ComputeShader("shared-builder");using var cameraA=new HybridLumenGIEmissiveSampling();using var cameraB=new HybridLumenGIEmissiveSampling();
+var sceneA=new HybridLumenGIScene(32);var sceneB=new HybridLumenGIScene(64);var cmdA=new CommandBuffer();var cmdB=new CommandBuffer();
+Require(cameraA.RecordBuild(cmdA,sceneA,surface,1)&&cameraB.RecordBuild(cmdB,sceneB,surface,32),"Independent cameras could not build.");
+Require(!ReferenceEquals(cameraA.Buffer,cameraB.Buffer)&&cameraA.AllocatedBytes==1056&&cameraB.AllocatedBytes==1056,"Cameras share proposal storage or accounting.");
+Require(cmdA.Calls.Any(call=>call.Property=="_HLGI_Proxies"&&ReferenceEquals(call.Buffer,sceneA.Buffer))&&cmdB.Calls.Any(call=>call.Property=="_HLGI_Proxies"&&ReferenceEquals(call.Buffer,sceneB.Buffer)),"Shared compute asset confused scene bindings between cameras.");
+var released=cameraA.Buffer;cameraA.Dispose();cameraA.Dispose();
+Require(released.Released&&released.ReleaseCount==1&&cameraA.Buffer==null&&cameraA.AllocatedBytes==0&&!cameraA.BuildRecorded,"Dispose did not release storage exactly once.");
+Require(!cameraA.Bind(new CommandBuffer(),consumer,11)&&!cameraB.Buffer.Released&&!sceneA.Buffer.Released&&!surface.Emitters.Released,"Disposal rebound dead resources or destroyed another owner's resources.");
+Throws<ObjectDisposedException>(()=>cameraA.RecordBuild(new CommandBuffer(),sceneA,surface,16),"Disposed coordinator allocated again.");
+Throws<ArgumentNullException>(()=>resources.RecordBuild(null,scene,surface,16),"Null command was accepted.");
+Throws<ArgumentNullException>(()=>resources.RecordBuild(new CommandBuffer(),null,surface,16),"Null scene was accepted.");
+Throws<ArgumentNullException>(()=>resources.RecordBuild(new CommandBuffer(),scene,null,16),"Null surface cache was accepted.");
+Throws<ArgumentNullException>(()=>resources.Bind(new CommandBuffer(),null,11),"Null consumer shader was accepted.");
+
+// Source integration assertions supplement the actual coordinator recording tests.
+// They do not compile or execute Unity's RendererFeature/RenderGraph APIs.
+string feature=File.ReadAllText(Path.Combine(sourceRoot,"Runtime","HybridLumenGIRendererFeature.cs"));
+int captureAt=feature.IndexOf("state.surfaceCache.RecordCapture(cmd,d.viewport)",StringComparison.Ordinal);
+int buildAt=feature.IndexOf("state.emissiveSampling.RecordBuild(",StringComparison.Ordinal);
+int cacheAt=feature.IndexOf("cmd.DispatchCompute(c,update",StringComparison.Ordinal);
+Require(captureAt>=0&&buildAt>captureAt&&cacheAt>buildAt,"Feature does not build proposals after capture and before transport.");
+Require(feature.Contains("state.emissiveSampling.Bind(cmd,c,k)")&&feature.Contains("_HLGI_EmissiveWeight")&&feature.Contains("emissiveBuilt?Mathf.Clamp(s.emissiveSamplingWeight,0,0.8f):0"),"Feature lacks consumer binding or disables the wrong weight on failure.");
+Require(feature.Contains("emissiveSampling.Dispose()")&&feature.Contains("proposalBufferBytes=c.emissiveSampling.AllocatedBytes")&&feature.Contains("proposalBudget=EffectiveEmissiveBudget"),"Feature ownership/effective-budget diagnostic accounting is missing.");
+Require(feature.Contains("EffectiveEmissiveBudget => s.emissiveSamplingWeight>0 ? Mathf.Clamp(s.maxEmissiveProposals,0,HybridLumenGIEmissiveSampling.ProposalCapacity) : 0")&&feature.Contains("RecordBuild(cmd,state.scene,state.surfaceCache,EffectiveEmissiveBudget)"),"Zero-weight sampling still scans emitters or skips the ordered zero-budget table clear.");
+string between=feature.Substring(buildAt,feature.IndexOf("// Newly captured",buildAt,StringComparison.Ordinal)-buildAt);
+Require(!between.Contains("epoch")&&!between.Contains("lightingChanged")&&!between.Contains("Invalidate"),"A proposal-only rebuild invalidates transport lighting/history.");
+Console.WriteLine($"Actual-source emissive resource coordinator: {checks-failures}/{checks} assertions passed; {failures} failures. Records commands and resource lifetimes; no shader dispatch, GPU result, Unity API type-check or native hazard validation.");
+if(failures>0)Environment.Exit(1);

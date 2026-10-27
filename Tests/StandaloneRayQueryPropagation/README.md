@@ -1,0 +1,7 @@
+# Ray query propagation execution test
+
+Run Tests/Validate-RayQueryPropagation.ps1 using the existing Windows x64 VS2022, Windows SDK DXC and Node toolchain. The runner snapshots the first production TraceSceneQuery body and actual RayFootprint/Hit headers before compiling. It executes that body on D3D12 WARP with explicitly controlled detail/global-SDF recording adapters. It does not execute real SDF, BVH, DXR traversal, Unity, texture material evaluation or physical GPU rendering.
+
+Fixtures check near-only and near-hit paths, near/far overlap, zero/one/eight empty-space advances, the positive-TMin guard, complete empty-space miss, far miss, total distance/position restoration, stable identity, both observer conventions, independent material/shadow policy, finite/invalid/converging footprints and unknown occluders. The independent oracle records the segment schedule, verifies each original observer and policy unchanged, and bounds the cumulative footprint advance.
+
+The entire Transport source snapshot and extracted-body hashes are retained. Concurrent edits outside the frozen extracted function are recorded separately and do not alter the compiled snapshot. The body and both production headers must still match after execution. A later unified run must bind its complete current source snapshot again. Missing WARP capability is unavailable, never success. All generated files stay in a new TEMP directory.

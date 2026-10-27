@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-28",
+  "timezone": "Asia/Shanghai",
+  "taskId": "c2c_d601",
+  "revision": "local-development-denoise-01",
+  "scope": "Independent review and next development/repair plan only",
+  "reviewer": "ChatGPT GPT-6, Pro reasoning",
+  "modelEvidence": "GPT-6 was checked in the visible model menu and Pro selected; review completed with Pro still selected.",
+  "chatUrl": "https://chatgpt.com/g/g-p-6ae0cd4a81b08191a236b6c97ab6a0e8-hybridlumengi/c/6ae0cddc-9d18-83e8-b288-1b3f96ffa34e",
+  "projectUrl": "https://chatgpt.com/g/g-p-6ae0cd4a81b08191a236b6c97ab6a0e8/project",
+  "connectorName": "Codex with ChatGPT · HybridLumenGI",
+  "workspaceVerified": true,
+  "fileReadVerified": "README.md, declared revision and heading matched",
+  "visibleReviewDuration": "11m 25s",
+  "responseState": "PLAN",
+  "proposedNextPackage": "denoise-02-contracts",
+  "runtimeFilesChanged": [],
+  "newTestsExecuted": false,
+  "newUnityRun": false,
+  "independentCodexChecks": [
+    "Moments format, writes, validity checks, and default disabled radiance clamp",
+    "HistoryAcceptance enum and Composite shader moments.w consumer",
+    "ScreenBudget 96/128 strides, Feature lowPixelBytes default, and test expectations",
+    "GPU regression coverage and saved paired-comparison metrics",
+    "SHA256 of five key current source/evidence files"
+  ],
+  "limitations": [
+    "No independent recomputation of complete HDR statistics or all 420 receipts",
+    "No new GPU reproduction of the identified HDR storage defect",
+    "No proof of visible R1/R2 artifacts in the real scene",
+    "No current Player/DXR, timing or VRAM acceptance"
+  ],
+  "sources": [
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl",
+      "sha256": "6B54CE83BA228DE3045742AD3EB2DB991EA923F2F96889B180855B3ED680852C"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader",
+      "sha256": "FE0D0DC4305FD4DCFF97434382D6D8AB7D407D6A110B0FC91B5BC7260FED7E3E"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRendererFeature.cs",
+      "sha256": "DD2204974423C74D01F47F19F1D3E33D46E9A34B7AA5DC79EF7AE18A939C6138"
+    },
+    {
+      "file": "Tests/local-development-validation-results.json",
+      "sha256": "7BEAEBDB7FB699C136E17C463A8A6F4B743BA4490D91494E3BAA55F0B603E543"
+    },
+    {
+      "file": "LocalComparison/Review/denoise-01/product.patch",
+      "sha256": "FF50DFC5B486C85A365477B8951F2D3E558E7A18AE80EB8FC5C8DBAF4C3B9381"
+    }
+  ]
+}

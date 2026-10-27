@@ -1,0 +1,105 @@
+using System.Runtime.InteropServices;
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Rendering;
+static void Require(bool condition,string message){if(!condition)throw new Exception(message);}
+static Bounds Box(float x)=>new Bounds(new Vector3(x,2,3),new Vector3(1,4,6));
+var scene=new HybridLumenGIScene();
+var a=Box(0);var b=Box(2);var c=Box(4);
+scene.DirtyRegions.Add(new(){PreviousBounds=a,CurrentBounds=b,HasPrevious=true,HasCurrent=true});
+scene.DirtyRegions.Add(new(){PreviousBounds=b,CurrentBounds=c,HasPrevious=true,HasCurrent=true});
+scene.DirtyRegions.Add(new(){PreviousBounds=Box(6),CurrentBounds=Box(8)}); // Both absent flags must be respected.
+using var changes=new HybridLumenGIChangeRegions();
+var command=new CommandBuffer();var shader=new ComputeShader();
+void Bind(){changes.Upload();changes.Bind(command,shader,7);}
+ComputeBuffer Buffer()=>command.buffers["_HLGI_ChangeRegions"];
+(Vector4 minimum,Vector4 maximum) Read(int index)
+{
+    object entry=Buffer().data[index];var type=entry.GetType();
+    Require(Marshal.SizeOf(type)==48,"Runtime Region struct stride is not 48 bytes.");
+    return ((Vector4)type.GetField("minimum").GetValue(entry),(Vector4)type.GetField("maximum").GetValue(entry));
+}
+void Globals(float reactive,float geometry)
+{
+    Require(command.floats["_HLGI_GlobalReactive"]==reactive,"Wrong global reactive binding.");
+    Require(command.floats["_HLGI_GlobalGeometryChange"]==geometry,"Wrong global geometry binding.");
+}
+changes.Begin(scene,7.5f);Bind();
+Require(changes.Count==3&&command.ints["_HLGI_ChangeCount"]==3,"Old/new import or shared-bound deduplication failed.");
+Require(Buffer().count==1088&&Buffer().stride==48&&Buffer().lastUploadCount==3,"GPU capacity/stride/upload range mismatch.");
+Globals(0,0);
+foreach(var pair in new[]{(0,a),(1,b),(2,c)})
+{
+    var region=Read(pair.Item1);var lo=pair.Item2.min;var hi=pair.Item2.max;
+    Require(region.minimum.x==lo.x&&region.minimum.y==lo.y&&region.minimum.z==lo.z,"Imported minimum differs from source bounds.");
+    Require(region.maximum.x==hi.x&&region.maximum.y==hi.y&&region.maximum.z==hi.z,"Imported maximum differs from source bounds.");
+    Require(region.minimum.w==2&&region.maximum.w==7.5f,"Unknown source changes must remain strongly invalidating.");
+}
+// Policy-only changes shorten nearby lighting history, without turning an
+// unchanged occluder into a geometry removal. Combined edits retain hard regions.
+foreach(var kind in new[]{HybridLumenGIScene.ChangeKind.Lighting,
+    HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Representation,
+    HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Transform,
+    HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Manual,
+    HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Topology,
+    HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Material,
+    HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Removed,
+    HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Transform|HybridLumenGIScene.ChangeKind.Representation})
+{
+    var policyScene=new HybridLumenGIScene();policyScene.DirtyRegions.Add(new(){PreviousBounds=a,CurrentBounds=b,HasPrevious=true,HasCurrent=true,Kind=kind});
+    changes.Begin(policyScene,9);Bind();bool hard=kind!=HybridLumenGIScene.ChangeKind.Lighting&&kind!=(HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Representation);
+    float expectedKind=kind==(HybridLumenGIScene.ChangeKind.Lighting|HybridLumenGIScene.ChangeKind.Transform)?1:(hard?2:0);
+    Require(changes.Count==2&&Read(0).minimum.w==expectedKind&&Read(1).minimum.w==expectedKind,"Lighting/pose/strong region misclassified.");
+    Require(Read(0).maximum.w==9&&Read(1).maximum.w==9,"Policy change lost local reactive radius.");Globals(0,0);
+}
+changes.Begin(scene,7.5f);Bind();
+changes.Add(a,false,2);changes.Add(a,true,14.25f);changes.Add(a,false,-10);
+var d=Box(6);changes.Add(d,false,1);changes.Add(d,true,0);changes.Add(d,false,99);Bind();
+Require(changes.Count==4&&Read(0).minimum.w==2&&Read(0).maximum.w==14.25f,"Deduplication dropped hard flag or largest radius.");
+Require(Read(3).minimum.w==2&&Read(3).maximum.w==99,"A later soft update weakened a hard domain.");
+changes.AddTransform(d,120);Bind();Require(Read(3).minimum.w==2&&Read(3).maximum.w==120,"A pose update weakened a strong domain.");
+var pose=Box(100);changes.AddTransform(pose,12);Bind();Require(Read(4).minimum.w==1,"Pose classification missing.");
+changes.Add(pose,false,15);Bind();Require(Read(4).minimum.w==1&&Read(4).maximum.w==15,"Lighting erased pose classification.");
+changes.Add(pose,true,2);Bind();Require(Read(4).minimum.w==2,"Strong invalidation failed to upgrade a pose domain.");
+changes.MarkGlobalLightingChange();Bind();Globals(1,0);
+scene.DirtyRegions.Clear();changes.Begin(scene,0);Bind();
+Require(changes.Count==0&&command.ints["_HLGI_ChangeCount"]==0,"Begin did not reset imported domains.");Globals(0,0);
+changes.Add(a,false,-1);Bind();
+Require(changes.Count==1&&Read(0).minimum.w==0&&Read(0).maximum.w==0,"Begin retained dedup state, or negative radius was not clamped.");
+// Ownership must distinguish another moving occluder even when both receivers
+// have perfectly valid history. Ambiguous merged bounds can never regain an owner.
+float Owner(int index)=>( (Vector4)Buffer().data[index].GetType().GetField("receiver").GetValue(Buffer().data[index]) ).x;
+var receiverA=new Renderer();var receiverB=new Renderer();
+uint Group(Renderer r)=>ReferenceEquals(r,receiverA)?3u:ReferenceEquals(r,receiverB)?11u:0u;
+changes.Begin(scene,0);changes.AddTransform(a,9,receiverA);changes.AddTransform(b,9,receiverB);
+changes.ResolveReceiverGroups(Group);Bind();
+Require(Owner(0)==3&&Owner(1)==11,"Independent occluders lost their per-frame source owner.");
+changes.Add(a,false,12);changes.ResolveReceiverGroups(Group);Bind();Require(Owner(0)==3,"Lighting-only merge erased a proven pose owner.");
+changes.AddTransform(a,9,receiverB);changes.ResolveReceiverGroups(Group);Bind();Require(Owner(0)==0,"Overlapping owners acquired one receiver's exemption.");
+changes.AddTransform(a,9,receiverA);changes.ResolveReceiverGroups(Group);Bind();Require(Owner(0)==0,"Ambiguous ownership incorrectly recovered after another same-owner event.");
+changes.Add(b,true,9);changes.ResolveReceiverGroups(Group);Bind();Require(Owner(1)==0&&Read(1).minimum.w==2,"Strong changes retained an exemption owner.");
+var poseScene=new HybridLumenGIScene();poseScene.DirtyRegions.Add(new(){PreviousBounds=a,CurrentBounds=b,HasPrevious=true,HasCurrent=true,
+    Kind=HybridLumenGIScene.ChangeKind.Transform,Slot=9,StableId=42});
+changes.Begin(poseScene,8,(slot,id)=>slot==9&&id==42?receiverA:null);changes.ResolveReceiverGroups(Group);Bind();
+Require(Owner(0)==3&&Owner(1)==3,"Scene source lookup did not bind both endpoints to the same frozen renderer.");
+changes.ResolveReceiverGroups(_=>16385);Bind();Require(Owner(0)==0,"Unrepresentable/unbounded receiver group was published.");
+changes.ResolveReceiverGroups(_=>throw new Exception("Unknown source"));Bind();Require(Owner(0)==0,"Failed group lookup retained an old exemption.");
+changes.Begin(poseScene,8,(slot,id)=>throw new Exception("Expired scene slot"));changes.ResolveReceiverGroups(Group);Bind();
+Require(Owner(0)==0&&Owner(1)==0,"Failed scene-source lookup inferred an owner.");
+Require(changes.AllocatedBytes==1088*48L,"Change-domain GPU byte accounting does not include owner metadata.");
+changes.Begin(scene,0);
+for(int i=0;i<1088;i++)changes.Add(Box(i*2),false,0);
+Bind();Require(changes.Count==1088&&Buffer().lastUploadCount==1088,"Exact-capacity update failed.");Globals(0,0);
+changes.Add(Box(500*2),true,123);Bind();
+Require(changes.Count==1088&&Read(500).minimum.w==2&&Read(500).maximum.w==123,"Full-table duplicate should merge without consuming capacity.");Globals(0,0);
+changes.Add(Box(1088*2),false,0);Bind();
+Require(changes.Count==1088&&command.ints["_HLGI_ChangeCount"]==1088&&Buffer().lastUploadCount==1088,"Overflow escaped the fixed GPU capacity.");
+Globals(1,1); // Dropped geometry cannot be treated as merely a soft lighting update.
+changes.Begin(scene,0);Bind();Globals(0,0);Require(changes.Count==0,"Overflow state survived Begin.");
+var oldBuffer=Buffer();changes.Dispose();Require(oldBuffer.released,"Dispose did not release GPU storage.");changes.Upload();changes.Bind(command,shader,7);
+Require(!ReferenceEquals(oldBuffer,Buffer())&&!Buffer().released,"Upload after dispose did not recreate storage.");
+string hlsl=File.ReadAllText(Path.Combine(args[0],"Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl"));
+string compact=string.Concat(hlsl.Where(c=>!char.IsWhiteSpace(c)));
+Require(compact.Contains("if(_HLGI_GlobalGeometryChange>0.5)returnfloat2(1,1);"),"Shader overflow flag is not a global hard invalidation.");
+Require(compact.Contains("provenReceiverGroup>0u&&region.receiver.x==(float)provenReceiverGroup"),"Shader pose exemption is not restricted to the matching nonzero owner.");
+Console.WriteLine("PASS: actual ChangeRegions source Begin/reset, old/new import, exact-bound deduplication, preserved hard flags/max radius, 1088-domain capacity, duplicate-at-capacity merge, conservative global hard overflow, buffer bindings/stride, disposal/recreation and live HLSL overflow contract. Recording GPU adapter; no GPU execution.");

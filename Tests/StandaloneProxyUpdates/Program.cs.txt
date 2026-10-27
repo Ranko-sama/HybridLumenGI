@@ -1,0 +1,251 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using HybridLumenGI;
+using UnityEngine;
+using Proxy=HybridLumenGI.HybridLumenGIProxy;
+
+static class Program
+{
+    static int assertions,scenarios;
+    const BindingFlags Instance=BindingFlags.Instance|BindingFlags.NonPublic;
+    const BindingFlags Static=BindingFlags.Static|BindingFlags.NonPublic;
+    static void Check(bool condition,string message){assertions++;if(!condition)throw new Exception(message);}
+    static void Set(Proxy proxy,string name,object value)=>typeof(Proxy).GetField(name,Instance).SetValue(proxy,value);
+    static void SetStatic(string name,object value)=>typeof(Proxy).GetField(name,Static).SetValue(null,value);
+    static void Invoke(Proxy proxy,string name)=>typeof(Proxy).GetMethod(name,Instance).Invoke(proxy,null);
+    static void Disable(Proxy proxy){proxy.isActiveAndEnabled=false;Invoke(proxy,"OnDisable");}
+    static void Enable(Proxy proxy){proxy.isActiveAndEnabled=true;Invoke(proxy,"OnEnable");}
+    static void Scenario(string name,Action action)
+    {
+        ((List<Proxy>)typeof(Proxy).GetField("Active",Static).GetValue(null)).Clear();
+        SetStatic("version",0);SetStatic("nextStableId",0);HybridLumenGIMeshSdf.Notifications.Clear();
+        action();scenarios++;Console.WriteLine("PASS: "+name);
+    }
+    static Proxy Create(Mesh mesh)
+    {
+        var renderer=new MeshRenderer();renderer.Components[typeof(MeshFilter)]=new MeshFilter{sharedMesh=mesh};
+        renderer.sharedMaterial.Colors["_BaseColor"]=Color.white;
+        var proxy=new Proxy();proxy.SetSources(renderer,null);Enable(proxy);return proxy;
+    }
+    static int Next(int value)=>value>=0x00ffffff?1:value+1;
+    static void Bumped(Proxy proxy,int revision,int geometry,string message)
+    {Check(proxy.Revision==Next(revision)&&proxy.GeometryContentRevision==Next(geometry),message);}
+
+    static void Main()
+    {
+        Check(UnityApiGuard.MainThread==Environment.CurrentManagedThreadId,"Initialize guard on main thread");
+        Scenario("lighting policy refresh changes only transport identity",()=>
+        {
+            var shared=new Mesh();var a=Create(shared);var b=Create(shared);var renderer=a.SourceRenderer;
+            int geometry=a.GeometryContentRevision,peer=b.Revision;
+            HybridLumenGIMeshSdf.Notifications.Clear();
+            foreach(var mode in new[]{UnityEngine.Rendering.ShadowCastingMode.Off,UnityEngine.Rendering.ShadowCastingMode.On,UnityEngine.Rendering.ShadowCastingMode.TwoSided,UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly})
+            {
+                int revision=a.Revision;renderer.shadowCastingMode=mode;
+                Check(a.RefreshSignatureForRender()&&a.Revision==Next(revision),"Shadow policy change missed by render boundary");
+                Check(a.GeometryContentRevision==geometry&&b.Revision==peer,"Policy changed mesh content or another shared-mesh proxy");
+                for(int camera=0;camera<3;camera++)Check(!a.RefreshSignatureForRender(),"Same policy refreshed twice across cameras");
+            }
+            foreach(uint mask in new[]{0u,0x80000001u,0xffffffffu,1u})
+            {
+                int revision=a.Revision;renderer.renderingLayerMask=mask;
+                Check(a.RefreshSignatureForRender()&&a.Revision==Next(revision)&&a.GeometryContentRevision==geometry,"Full uint rendering mask must be transport-only");
+                Check(!a.RefreshSignatureForRender(),"Rendering-mask refresh is not idempotent");
+            }
+            renderer.gameObject.layer=31;int prior=a.Revision;
+            Check(a.RefreshSignatureForRender()&&a.Revision==Next(prior)&&a.GeometryContentRevision==geometry,"Layer 31 transport change");
+            a.gameObject.layer=5;Check(!a.RefreshSignatureForRender(),"Renderer-backed policy must not use proxy GameObject layer");
+            renderer.gameObject.layer=3;renderer.localToWorldMatrix=Matrix4x4.Translate(new(1,0,0));prior=a.Revision;
+            Check(a.RefreshSignatureForRender()&&a.Revision==Next(prior)&&a.GeometryContentRevision==geometry,"Combined policy/rigid change performs one transport bump");
+            Check(HybridLumenGIMeshSdf.Notifications.Count==0,"Lighting policy must not invalidate SDF source provenance");
+            Set(a,"revision",0x00ffffff);renderer.renderingLayerMask=0x80000000;Check(a.RefreshSignatureForRender()&&a.Revision==1&&a.GeometryContentRevision==geometry,"Policy transport version wraps without content revision");
+        });
+        Scenario("rendererless policy and disabled refresh wait for main-thread enable",()=>
+        {
+            var a=new Proxy();Enable(a);int geometry=a.GeometryContentRevision,revision=a.Revision;
+            a.gameObject.layer=31;Check(a.RefreshSignatureForRender()&&a.Revision==Next(revision)&&a.GeometryContentRevision==geometry,"Rendererless layer policy refresh");
+            Check(!a.RefreshSignatureForRender(),"Rendererless policy repeated refresh");
+            var b=Create(new Mesh());Disable(b);revision=b.Revision;b.SourceRenderer.renderingLayerMask=uint.MaxValue;b.SourceRenderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+            Check(!b.RefreshSignatureForRender()&&b.Revision==revision,"Disabled policy mutation should not read or consume signature");
+            Enable(b);revision=b.Revision;Check(!b.RefreshSignatureForRender()&&b.Revision==revision,"OnEnable policy snapshot avoids second-camera version bump");
+        });
+        Scenario("late movement and multi-camera refresh are idempotent",()=>
+        {
+            var a=Create(new Mesh());Invoke(a,"LateUpdate");int revision=a.Revision,geometry=a.GeometryContentRevision;
+            HybridLumenGIMeshSdf.Notifications.Clear();
+            a.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new Vector3(3,0,0));
+            a.SourceRenderer.bounds=new Bounds(new Vector3(3,0,0),Vector3.one);
+            Check(a.RefreshSignatureForRender(),"Camera-boundary refresh missed post-LateUpdate movement");
+            Check(a.Revision==Next(revision)&&a.GeometryContentRevision==geometry,"Rigid movement changed geometry-content generation");
+            revision=a.Revision;int registry=Proxy.Version;
+            for(int camera=0;camera<8;camera++)Check(!a.RefreshSignatureForRender(),"Unchanged camera refreshed twice");
+            Invoke(a,"LateUpdate");
+            Check(a.Revision==revision&&Proxy.Version==registry&&HybridLumenGIMeshSdf.Notifications.Count==0,"Unchanged refresh or rigid motion notified mesh content");
+            a.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new Vector3(4,0,0));
+            Check(a.RefreshSignatureForRender()&&a.GeometryContentRevision==geometry,"Second camera must see a later transform in the same engine frame");
+        });
+        Scenario("one same-count edit reaches different SDF assets and chart-only shared owners",()=>
+        {
+            var mesh=new Mesh();var a=Create(mesh);var b=Create(mesh);var chartOnly=Create(mesh);var unrelated=Create(new Mesh());var dormant=Create(mesh);
+            a.SetMeshSdf(new HybridLumenGIMeshSdf{SourceMesh=mesh});b.SetMeshSdf(new HybridLumenGIMeshSdf{SourceMesh=mesh});
+            chartOnly.SetSurfaceCharts(new HybridLumenGISurfaceCharts());Disable(dormant);
+            Proxy[] group={a,b,chartOnly};var before=group.Select(p=>(p.Revision,p.GeometryContentRevision)).ToArray();
+            int unrelatedRevision=unrelated.Revision,unrelatedGeometry=unrelated.GeometryContentRevision,dormantRevision=dormant.Revision;
+            int registry=Proxy.Version;Bounds bounds=mesh.bounds;int count=mesh.vertexCount;
+            HybridLumenGIMeshSdf.Notifications.Clear();mesh.vertices[0]=new Vector3(.2f,.3f,0);a.MarkDirty();
+            Check(mesh.bounds==bounds&&mesh.vertexCount==count,"Test edit must preserve bounds/count");
+            for(int i=0;i<group.Length;i++)Bumped(group[i],before[i].Revision,before[i].GeometryContentRevision,"Shared owner generation not advanced exactly once");
+            Check(HybridLumenGIMeshSdf.Notifications.Count==1&&ReferenceEquals(HybridLumenGIMeshSdf.Notifications[0],mesh),"Mesh source notification must be single and nonrecursive");
+            Check(Proxy.Version==registry+group.Length,"Shared broadcast recursed or missed an owner");
+            Check(unrelated.Revision==unrelatedRevision&&unrelated.GeometryContentRevision==unrelatedGeometry&&dormant.Revision==dormantRevision,"Unrelated/inactive owner must not receive active broadcast");
+            Check(a.MeshSdf!=b.MeshSdf&&chartOnly.MeshSdf==null&&chartOnly.SurfaceCharts!=null,"Coverage must not depend on a shared SDF asset");
+            foreach(var proxy in group)Check(!proxy.RefreshSignatureForRender(),"Broadcast must consume the source signature for another camera");
+        });
+        Scenario("automatic shared count/bounds changes broadcast once across cameras",()=>
+        {
+            var mesh=new Mesh();var a=Create(mesh);var b=Create(mesh);int ar=a.Revision,ag=a.GeometryContentRevision,br=b.Revision,bg=b.GeometryContentRevision;
+            HybridLumenGIMeshSdf.Notifications.Clear();mesh.vertexCount=4;mesh.bounds=new Bounds(new Vector3(1,0,0),new Vector3(3,2,1));
+            Check(a.RefreshSignatureForRender(),"Count/bounds source edit not detected");Bumped(a,ar,ag,"Initiator must bump once");Bumped(b,br,bg,"Peer must bump once");
+            Check(!b.RefreshSignatureForRender()&&!a.RefreshSignatureForRender(),"Second camera broadcast the same edit again");
+            Check(HybridLumenGIMeshSdf.Notifications.Count==1,"Automatic source edit sent repeated notifications");
+        });
+        Scenario("external Mesh notification is consumed locally without notifying peers again",()=>
+        {
+            var mesh=new Mesh();var a=Create(mesh);var b=Create(mesh);var other=Create(new Mesh());
+            int ar=a.Revision,ag=a.GeometryContentRevision,br=b.Revision,bg=b.GeometryContentRevision,unrelated=other.Revision;
+            HybridLumenGIMeshSdf.Notifications.Clear();var old=HybridLumenGIMeshSource.GetVersion(mesh);
+            mesh.vertices[1]=new Vector3(.75f,.25f,0);var notified=HybridLumenGIMeshSource.NotifyGeometryChanged(mesh);
+            Check(!ReferenceEquals(old,notified)&&a.Revision==ar&&b.Revision==br,"Shared service unexpectedly walked active proxies");
+            Check(a.RefreshSignatureForRender(),"Ordinary receiver notification was not consumed");Bumped(a,ar,ag,"First observer did not advance local geometry");
+            Check(b.Revision==br&&other.Revision==unrelated,"Local consumption broadcast to another observer");
+            Check(b.RefreshSignatureForRender(),"Second observer missed external notification");Bumped(b,br,bg,"Second observer did not advance once");
+            for(int camera=0;camera<12;camera++)Check(!a.RefreshSignatureForRender()&&!b.RefreshSignatureForRender(),"Multiple cameras consumed same source twice");
+            Check(ReferenceEquals(notified,HybridLumenGIMeshSource.GetVersion(mesh))&&HybridLumenGIMeshSdf.Notifications.Count==0,"Consumption notified the source recursively");
+        });
+        Scenario("external notification with count bounds and motion changes remains one local update",()=>
+        {
+            var mesh=new Mesh();var a=Create(mesh);var b=Create(mesh);int ar=a.Revision,ag=a.GeometryContentRevision,br=b.Revision,bg=b.GeometryContentRevision;
+            HybridLumenGIMeshSdf.Notifications.Clear();mesh.vertexCount=17;mesh.bounds=new Bounds(new Vector3(2,3,4),new Vector3(5,6,7));
+            a.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new Vector3(8,0,0));
+            var notified=HybridLumenGIMeshSource.NotifyGeometryChanged(mesh);
+            Check(a.RefreshSignatureForRender()&&b.RefreshSignatureForRender(),"Combined metadata/explicit change was missed");
+            Bumped(a,ar,ag,"Combined changes bumped first observer more than once");Bumped(b,br,bg,"Combined changes bumped peer more than once");
+            Check(HybridLumenGIMeshSdf.Notifications.Count==0&&ReferenceEquals(notified,HybridLumenGIMeshSource.GetVersion(mesh)),"Metadata path republished externally notified source");
+        });
+        Scenario("multiple external events coalesce per observer and disabled observers defer consumption",()=>
+        {
+            var mesh=new Mesh();var a=Create(mesh);var b=Create(mesh);Disable(b);
+            int ar=a.Revision,ag=a.GeometryContentRevision,br=b.Revision;HybridLumenGIMeshSdf.Notifications.Clear();
+            for(int edit=0;edit<25;edit++)HybridLumenGIMeshSource.NotifyGeometryChanged(mesh);
+            var notified=HybridLumenGIMeshSource.GetVersion(mesh);
+            Check(a.RefreshSignatureForRender()&&!b.RefreshSignatureForRender(),"Disabled observer consumed external source");Bumped(a,ar,ag,"Batched notifications should invalidate local data once");
+            Check(b.Revision==br&&HybridLumenGIMeshSdf.Notifications.Count==0,"Dormant notification caused a broadcast");
+            Enable(b);Check(b.Revision==Next(br)&&!b.RefreshSignatureForRender(),"Enabled observer reused stale source version");
+            Check(HybridLumenGIMeshSdf.Notifications.Count==1&&!a.RefreshSignatureForRender(),"Existing enable-time broadcast contract regressed");
+            Check(!ReferenceEquals(notified,HybridLumenGIMeshSource.GetVersion(mesh)),"Explicit enable invalidation failed to advance shared source");
+        });
+        Scenario("material-only changes and pure rigid transforms do not invalidate shared geometry",()=>
+        {
+            var mesh=new Mesh();var a=Create(mesh);var b=Create(mesh);int ar=a.Revision,ag=a.GeometryContentRevision,br=b.Revision;
+            var meshVersion=HybridLumenGIMeshSource.GetVersion(mesh);
+            HybridLumenGIMeshSdf.Notifications.Clear();a.SourceRenderer.sharedMaterial.Colors["_BaseColor"]=new Color(.2f,.3f,.4f);
+            Check(a.RefreshSignatureForRender()&&a.Revision==Next(ar),"Material transport signature not refreshed");
+            Check(a.GeometryContentRevision==ag&&b.Revision==br&&HybridLumenGIMeshSdf.Notifications.Count==0,"Material edit broadcast geometry invalidation");
+            ar=a.Revision;a.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new Vector3(4,2,1));
+            Check(a.RefreshSignatureForRender()&&a.Revision==Next(ar)&&a.GeometryContentRevision==ag,"Rigid motion must only change transport revision");
+            Check(b.Revision==br&&!b.RefreshSignatureForRender(),"Rigid motion changed another instance");
+            Check(ReferenceEquals(meshVersion,HybridLumenGIMeshSource.GetVersion(mesh)),"Rigid/material change advanced shared Mesh source");
+        });
+        Scenario("disabled caller notifies active peers and re-enable restores local validity",()=>
+        {
+            var mesh=new Mesh();var a=Create(mesh);var b=Create(mesh);int stable=a.StableId;Disable(a);
+            int ar=a.Revision,ag=a.GeometryContentRevision,br=b.Revision,bg=b.GeometryContentRevision;
+            HybridLumenGIMeshSdf.Notifications.Clear();mesh.vertices[1]=new Vector3(.8f,.1f,0);a.MarkDirty();
+            Bumped(a,ar,ag,"Explicit disabled caller must invalidate itself");Bumped(b,br,bg,"Disabled editor must invalidate its active peer");
+            Check(HybridLumenGIMeshSdf.Notifications.Count==1&&!a.RefreshSignatureForRender(),"Disabled caller source notification or automatic refresh incorrect");
+            ar=a.Revision;ag=a.GeometryContentRevision;Enable(a);
+            Bumped(a,ar,ag,"Re-enabled instance must not reuse pre-disable transport");
+            Check(a.StableId==stable&&Proxy.ActiveProxies.Count==2&&!a.RefreshSignatureForRender(),"Re-enable must retain ID and cache refreshed signature");
+            Disable(a);int inactiveRevision=a.Revision;b.MarkDirty();Check(a.Revision==inactiveRevision,"Inactive peer should be caught on re-enable, not left in Active");
+            Enable(a);Check(a.Revision==Next(inactiveRevision),"Missed disabled-period edit must force local generation on re-enable");
+        });
+        Scenario("mesh replacement and filter replacement follow current source references",()=>
+        {
+            var first=new Mesh();var second=new Mesh();var a=Create(first);var oldPeer=Create(first);var newPeer=Create(second);
+            int oldRevision=oldPeer.Revision,newRevision=newPeer.Revision,newGeometry=newPeer.GeometryContentRevision;
+            a.SourceRenderer.Components[typeof(MeshFilter)]=new MeshFilter{sharedMesh=second};HybridLumenGIMeshSdf.Notifications.Clear();
+            Check(a.RefreshSignatureForRender(),"Replaced MeshFilter must be read at camera boundary");
+            Check(oldPeer.Revision==oldRevision,"Replacement incorrectly invalidated unrelated previous mesh");
+            Bumped(newPeer,newRevision,newGeometry,"Replacement ignored owners of current source mesh");
+            Check(ReferenceEquals(HybridLumenGIMeshSdf.Notifications.Single(),second),"Wrong source notified after component replacement");
+            Check(!newPeer.RefreshSignatureForRender()&&!a.RefreshSignatureForRender(),"Replacement refresh was not consumed");
+        });
+        Scenario("background OnValidate only queues and cameras coalesce its work once",()=>
+        {
+            var mesh=new Mesh();var a=Create(mesh);var b=Create(mesh);
+            int ar=a.Revision,ag=a.GeometryContentRevision,br=b.Revision,bg=b.GeometryContentRevision;
+            int activeCount=Proxy.ActiveProxies.Count,registry=Proxy.Version,calls=UnityApiGuard.Calls;
+            HybridLumenGIMeshSdf.Notifications.Clear();
+            Task.Run(()=>{for(int edit=0;edit<100;edit++)Invoke(a,"OnValidate");}).GetAwaiter().GetResult();
+            Check(UnityApiGuard.Calls==calls&&HybridLumenGIMeshSdf.Notifications.Count==0,"OnValidate touched component/material/source APIs");
+            Check(a.Revision==ar&&b.Revision==br&&Proxy.Version==registry&&Proxy.ActiveProxies.Count==activeCount,"OnValidate traversed or mutated active transport state");
+            Check(a.RefreshSignatureForRender(),"Pending validation was not consumed on the main thread");
+            Bumped(a,ar,ag,"Queued edits were not coalesced for caller");Bumped(b,br,bg,"Queued edit did not notify shared instance once");
+            for(int camera=0;camera<8;camera++)Check(!a.RefreshSignatureForRender()&&!b.RefreshSignatureForRender(),"Another camera consumed the same pending validation");
+            Check(HybridLumenGIMeshSdf.Notifications.Count==1,"Pending batch emitted repeated source notifications");
+        });
+        Scenario("disabled validation remains queued until enable or explicit main-thread edit",()=>
+        {
+            var mesh=new Mesh();var a=Create(mesh);var b=Create(mesh);Disable(a);
+            int ar=a.Revision,ag=a.GeometryContentRevision,br=b.Revision,bg=b.GeometryContentRevision;
+            HybridLumenGIMeshSdf.Notifications.Clear();int calls=UnityApiGuard.Calls;
+            Task.Run(()=>{for(int i=0;i<20;i++)Invoke(a,"OnValidate");}).GetAwaiter().GetResult();
+            Check(UnityApiGuard.Calls==calls&&!a.RefreshSignatureForRender(),"Disabled validation performed or consumed source work");
+            Check((int)typeof(Proxy).GetField("validationPending",Instance).GetValue(a)==1,"Disabled validation receipt lost");
+            Check(a.Revision==ar&&b.Revision==br&&HybridLumenGIMeshSdf.Notifications.Count==0,"Disabled queued edit changed geometry early");
+            Enable(a);Bumped(a,ar,ag,"OnEnable duplicated or lost queued local invalidation");Bumped(b,br,bg,"OnEnable duplicated or lost shared invalidation");
+            Check(HybridLumenGIMeshSdf.Notifications.Count==1&&!a.RefreshSignatureForRender(),"OnEnable must consume pending validation exactly once");
+            Disable(a);Task.Run(()=>Invoke(a,"OnValidate")).GetAwaiter().GetResult();
+            ar=a.Revision;ag=a.GeometryContentRevision;HybridLumenGIMeshSdf.Notifications.Clear();a.MarkDirty();
+            Bumped(a,ar,ag,"Explicit main-thread edit did not consume disabled pending state");
+            Check((int)typeof(Proxy).GetField("validationPending",Instance).GetValue(a)==0&&HybridLumenGIMeshSdf.Notifications.Count==1,"Explicit main-thread edit left queued duplicate work");
+        });
+        Scenario("exact float generations and signed registry version wrap",()=>
+        {
+            var mesh=new Mesh();var a=Create(mesh);var b=Create(mesh);
+            Set(a,"revision",0x00ffffff);Set(a,"geometryContentRevision",0x00ffffff);
+            Set(b,"revision",0x00fffffe);Set(b,"geometryContentRevision",0x00fffffe);
+            SetStatic("version",int.MaxValue);HybridLumenGIMeshSdf.Notifications.Clear();a.MarkDirty();
+            Check(a.Revision==1&&a.GeometryContentRevision==1,"Generation must wrap without zero");
+            Check(b.Revision==0x00ffffff&&b.GeometryContentRevision==0x00ffffff,"Peer generation exact bound wrong");
+            Check((int)(float)a.Revision==a.Revision&&(int)(float)b.GeometryContentRevision==b.GeometryContentRevision,"GPU float generation lost precision");
+            Check(Proxy.Version==int.MinValue+1&&HybridLumenGIMeshSdf.Notifications.Count==1,"Registry wrap or single notification incorrect");
+            b.MarkDirty();Check(b.Revision==1&&a.Revision==2,"Peer-initiated wrap must remain nonrecursive");
+        });
+        Scenario("random shared-mesh edits update exactly the active reference group",()=>
+        {
+            var random=new Random(0x57a6);var meshes=Enumerable.Range(0,5).Select(_=>new Mesh()).ToArray();
+            var proxies=Enumerable.Range(0,37).Select(i=>Create(meshes[i%meshes.Length])).ToArray();
+            for(int i=0;i<proxies.Length;i++)if(i%7==0)Disable(proxies[i]);
+            for(int step=0;step<1500;step++)
+            {
+                int chosen=random.Next(proxies.Length);var caller=proxies[chosen];
+                Mesh changed=caller.SourceRenderer.GetComponent<MeshFilter>().sharedMesh;
+                var revisions=proxies.Select(p=>p.Revision).ToArray();var geometry=proxies.Select(p=>p.GeometryContentRevision).ToArray();
+                HybridLumenGIMeshSdf.Notifications.Clear();caller.MarkDirty();
+                for(int i=0;i<proxies.Length;i++)
+                {
+                    bool affected=i==chosen||(proxies[i].isActiveAndEnabled&&ReferenceEquals(proxies[i].SourceRenderer.GetComponent<MeshFilter>().sharedMesh,changed));
+                    Check(proxies[i].Revision==(affected?Next(revisions[i]):revisions[i]),"Random source-group revision mismatch");
+                    Check(proxies[i].GeometryContentRevision==(affected?Next(geometry[i]):geometry[i]),"Random source-group geometry mismatch");
+                    Check(!proxies[i].RefreshSignatureForRender(),"Unchanged per-camera refresh produced a second notification");
+                }
+                Check(HybridLumenGIMeshSdf.Notifications.Count==1,"Random broadcast recursed");
+            }
+        });
+        Console.WriteLine($"PASS: {scenarios} actual-proxy scenarios, {assertions} assertions; lifecycle/component/asset notification substitutes only. No Unity, SDF/chart execution or GPU validation.");
+    }
+}

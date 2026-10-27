@@ -1,0 +1,374 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.RenderGraphModule;
+using Pass=HybridLumenGI.HybridLumenGIReceiverIdentityPass;
+using Frame=HybridLumenGI.HybridLumenGIReceiverIdentityFrame;
+class Program
+{
+    static int checks,scenarios;
+    static void Check(bool value,string message){checks++;if(!value)throw new Exception(message);}
+    static int Id(string name)=>Shader.PropertyToID("_HLGI_Identity"+name);
+    static HybridLumenGIMaterialSource.IdentityCoverageData Coverage(int cull=2,bool alpha=false,bool smooth=false,Texture tex=null)
+        =>new HybridLumenGIMaterialSource.IdentityCoverageData{Supported=true,SourceCull=cull,BaseColorAlpha=.7f,Cutoff=.3f,AlphaTest=alpha,SmoothnessFromAlbedoAlpha=smooth,BaseMap=tex,BaseMapST=new Vector4(2,3,.2f,.4f)};
+    static Frame Make(int count=1,RectInt[] rects=null)
+    {
+        var rows=new Frame.Row[count];var draws=new Frame.Draw[count];
+        for(int i=0;i<count;i++){rows[i]=new Frame.Row((uint)(100+i));draws[i]=new Frame.Draw(new HybridLumenGIReceiverRegistry.Record{Mesh=new Mesh(),Submesh=i},i,Coverage(i%3,true,false,new Texture2D()));}
+        return new Frame(rows,draws,rects??Array.Empty<RectInt>());
+    }
+    static (RenderGraph graph,Pass.Result result,List<bool> receipts) Record(Pass pass,Frame frame=null,Func<bool> validate=null,int fw=19,int fh=11,int gw=7,int gh=5,
+        Action<CommandBuffer,int,bool> timing=null,Action invalidated=null)
+    {
+        var graph=new RenderGraph();var receipts=new List<bool>();
+        var depth=graph.CreateTexture(new TextureDesc(fw,fh));var capture=graph.CreateTexture(new TextureDesc(fw,fh));var output=graph.CreateTexture(new TextureDesc(gw,gh));
+        var result=pass.Record(graph,frame??Make(),depth,capture,output,fw,fh,gw,gh,Matrix4x4.identity,validate??(()=>true),v=>receipts.Add(v),timing,invalidated);
+        return (graph,result,receipts);
+    }
+    static void CompleteFences(){foreach(var f in CommandBuffer.Fences){f.Throw=false;f.Passed=true;}RenderPipelineManager.EndFrame();}
+    static RecordedCommand Resolve(CommandBuffer cmd)=>cmd.Commands.Last(x=>x.Name=="Dispatch"&&x.Kernel==2);
+    static IEnumerable<DrawInfo> Draws(CommandBuffer cmd)=>cmd.Commands.Where(x=>x.Name=="Draw").Select(x=>(DrawInfo)x.Value);
+    static void Basic()
+    {
+        scenarios++;var pass=new Pass();int validCalls=0;
+        var frame=Make(3,new[]{new RectInt(-5,1,12,9),new RectInt(18,10,7,8),new RectInt(30,0,2,2)});
+        var data=Record(pass,frame,()=>{validCalls++;return true;});
+        Check(data.result.IsValid&&data.result.ObjectCount==3,"valid result count");
+        Check(data.receipts.Count==0&&validCalls==0,"not published or validated at graph construction");
+        Check(data.graph.Buffers.Count==2&&data.graph.Buffers[0].desc.count==209&&data.graph.Buffers[0].desc.stride==12,"uint3 full-size candidates");
+        Check(data.graph.Buffers[1].desc.count==3&&data.graph.Buffers[1].desc.stride==80&&Marshal.SizeOf<Frame.Row>()==80,"80B row ABI");
+        Check(data.graph.Textures.Last().desc.colorFormat==UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm,"single dummy RGBA8");
+        Check(data.graph.Passes.Count==4&&data.graph.Passes.All(x=>!x.Cull),"four uncullable stages");
+        var p=data.graph.Passes;
+        Check(p[0].Dependencies.Count(x=>x.type=="buffer"&&x.flags==AccessFlags.Write)==2,"init writes both buffers");
+        Check(p[0].Dependencies.Any(x=>x.type=="texture"&&x.id==data.graph.Textures[1].handle.Id&&x.flags==AccessFlags.Read),"clear explicitly follows capture depth producer");
+        Check(p[1].Dependencies.Single().flags==AccessFlags.ReadWrite&&p[2].Dependencies.Any(x=>x.type=="buffer"&&x.flags==AccessFlags.ReadWrite),"mask/capture ordered RW");
+        Check(p[2].Dependencies.Count(x=>x.type=="texture"&&x.flags==AccessFlags.Read)==2&&p[2].Global,"both depth dependencies and raster state");
+        Check(p[3].Dependencies.Count(x=>x.type=="buffer"&&x.flags==AccessFlags.Read)==2&&p[3].Dependencies.Count(x=>x.type=="texture"&&x.flags==AccessFlags.Write)==1,"resolve consumes both buffers");
+        Check(p[3].Global,"resolve permits final native timing event global state");
+        var cmd=new CommandBuffer();
+        data.graph.ExecutePass(0,cmd);data.graph.ExecutePass(1,cmd);
+        Check(validCalls==0&&data.receipts.Count==0,"validation immediately before capture only");
+        data.graph.ExecutePass(2,cmd);Check(validCalls==1&&data.receipts.Count==0,"capture is not final receipt");
+        data.graph.ExecutePass(3,cmd);Check(data.receipts.SequenceEqual(new[]{true}),"one successful resolve receipt");
+        var ds=Draws(cmd).ToArray();Check(ds.Length==3,"all frozen draws");
+        Check(ds.Select(x=>x.Block).Distinct().Count()==3&&ds.Select(x=>x.Material).Distinct().Count()==1,"separate blocks immutable common material");
+        for(int i=0;i<3;i++)
+        {
+            Check(ReferenceEquals(ds[i].Mesh,frame.Draws[i].Record.Mesh)&&ds[i].Submesh==i&&ds[i].Pass==i,"source submesh and cull pass");
+            Check(ds[i].Values[Id("OwnerIndexPlusOne")] is int&& (int)ds[i].Values[Id("OwnerIndexPlusOne")]==i+1,"integer owner and 0-based rows");
+            var size=(Vector4)ds[i].Values[Id("FullSize")];Check(size.x==19&&size.y==11,"raster float4 size contract");
+            Check(ReferenceEquals(ds[i].Values[Id("BaseMap")],frame.Draws[i].Coverage.BaseMap),"frozen alpha texture");
+            Check(ds[i].Values.ContainsKey(Id("CameraDepth"))&&ds[i].Values.ContainsKey(Id("CaptureDepth")),"per-draw depth bindings");
+        }
+        var upload=(GraphicsBuffer)cmd.Commands.Single(x=>x.Name=="Upload").Value;
+        Check(upload.Uploaded.Length==3&&((Frame.Row[])upload.Uploaded)[2].keyLow==102,"actual row upload");
+        var masks=cmd.Commands.Where(x=>x.Name=="Dispatch"&&x.Kernel==1).ToArray();
+        Check(masks.Length==2,"empty clamped rectangle skipped");
+        Check(((int[])masks[0].Parameters[Id("UnknownRect")]).SequenceEqual(new[]{0,1,7,10}),"first mask clamped min/max");
+        Check(((int[])masks[1].Parameters[Id("UnknownRect")]).SequenceEqual(new[]{18,10,19,11}),"second mask clamped min/max");
+        Check(((int[])masks[0].Value).SequenceEqual(new[]{1,2,1}),"mask dispatch rectangle extent");
+        var resolve=Resolve(cmd);Check((int)resolve.Parameters[Id("ObjectCount")]==3&&((int[])resolve.Parameters[Id("GiSize")]).SequenceEqual(new[]{7,5}),"resolve int ABI");
+        Check(cmd.Commands.Single(x=>x.Name=="Uav").Index==1,"pixel u1");
+        Check(cmd.Commands.Count(x=>x.Name=="ClearUav")==2,"UAV clear before/after draw");
+        Check(cmd.Commands.Last().Name=="Fence"&&cmd.Commands.Last().Index==7,"fence after resolve includes all stages");
+        Check(pass.PendingFrames==1,"unpassed fence retains lease");
+        Material m=ds[0].Material;pass.Dispose();Check(!m.Destroyed,"dispose must not release before fence");
+        CompleteFences();Check(m.Destroyed,"endFrame collects completed private material");
+    }
+    static void RejectAndFailure()
+    {
+        scenarios++;
+        foreach(int mode in new[]{0,1,2,3})
+        {
+            var pass=new Pass();var data=Record(pass,Make(2),()=>mode==1?throw new Exception("source changed"):mode!=0);
+            var cmd=new CommandBuffer{ThrowDrawAt=mode==2?1:-1,ThrowDispatchKernel=mode==3?0:-1};data.graph.Execute(cmd);
+            Check(data.receipts.SequenceEqual(new[]{false}),"failure rejects receipt");
+            Check((int)Resolve(cmd).Parameters[Id("ObjectCount")]==0,"failure resolves zeros via zero count");
+            Check(cmd.Commands.Any(x=>x.Name=="ClearUav"),"failure still clears UAV");
+            if(mode<2)Check(!Draws(cmd).Any(),"invalid source never draws");
+            if(mode==2)Check(Draws(cmd).Count()==1&&pass.PendingFrames==1,"partial draw stays fenced");
+            pass.Dispose();CompleteFences();
+        }
+    }
+    static void EmptyAndHoles()
+    {
+        scenarios++;var pass=new Pass();var empty=Record(pass,Make(0));var cmd=new CommandBuffer();empty.graph.Execute(cmd);
+        Check(empty.result.ObjectCount==0&&empty.graph.Buffers[1].desc.count==1,"empty rows allocate dummy only");
+        Check(((Frame.Row[])((GraphicsBuffer)cmd.Commands.Single(x=>x.Name=="Upload").Value).Uploaded)[0].keyLow==0,"dummy zero");
+        Check(!Draws(cmd).Any()&&!cmd.Commands.Any(x=>x.Name=="Fence")&&pass.PendingFrames==0,"zero draw no owned GPU lease");
+        Check(empty.receipts.Single(),"empty validated frame can complete with zero identities");
+        var r=new HybridLumenGIReceiverRegistry.Record{Mesh=new Mesh()};
+        var frame=new Frame(new[]{default(Frame.Row),new Frame.Row(42)},new[]{new Frame.Draw(r,1,Coverage())},Array.Empty<RectInt>());
+        var holes=Record(pass,frame);cmd=new CommandBuffer();holes.graph.Execute(cmd);
+        Check((int)Draws(cmd).Single().Values[Id("OwnerIndexPlusOne")]==2,"holes preserve draw-to-row identity");
+        pass.Dispose();CompleteFences();
+    }
+    static void AlphaCoverage()
+    {
+        scenarios++;var pass=new Pass();
+        foreach(bool alpha in new[]{false,true})foreach(bool smooth in new[]{false,true})
+        {
+            Texture source=new Texture2D();var frame=new Frame(new[]{new Frame.Row(1)},new[]{new Frame.Draw(new HybridLumenGIReceiverRegistry.Record{Mesh=new Mesh()},0,Coverage(2,alpha,smooth,source))},Array.Empty<RectInt>());
+            var data=Record(pass,frame);var cmd=new CommandBuffer();data.graph.Execute(cmd);var d=Draws(cmd).Single();bool sample=alpha&&!smooth;
+            Check((float)d.Values[Id("HasBaseMap")]==(sample?1:0),"only coverage-dependent texture sampled");
+            Check(ReferenceEquals(d.Values[Id("BaseMap")],sample?source:Texture2D.whiteTexture),"irrelevant texture bound to white");
+            var a=(Vector4)d.Values[Id("AlphaParams")];Check(a.x==.7f&&a.y==.3f&&a.z==(alpha?1:0)&&a.w==(smooth?1:0),"frozen alpha parameters");
+            CompleteFences();
+        }
+        pass.Dispose();
+    }
+    static void BoundedAndRecovery()
+    {
+        scenarios++;var pass=new Pass();
+        for(int i=0;i<Pass.MaxPendingFrames;i++){var data=Record(pass);data.graph.Execute(new CommandBuffer());Check(data.receipts.Single(),"bounded lease accepted");}
+        Check(pass.PendingFrames==32,"maximum pending count");
+        var overflow=Record(pass);var cmd=new CommandBuffer();overflow.graph.Execute(cmd);
+        Check(overflow.result.IsValid&&!overflow.receipts.Single()&&!Draws(cmd).Any()&&(int)Resolve(cmd).Parameters[Id("ObjectCount")]==0,"saturation clears identity while GI continues");
+        Check(pass.PendingFrames==32&&pass.Status.Contains("capacity"),"saturation explicit and bounded");
+        CompleteFences();Check(pass.PendingFrames==0,"completed fences recover capacity");
+        var recovered=Record(pass);recovered.graph.Execute(new CommandBuffer());Check(recovered.receipts.Single(),"next capture recovers");
+        pass.Dispose();CompleteFences();
+    }
+    static void DisposeQueuedAndBetweenPasses()
+    {
+        scenarios++;var pass=new Pass();var data=Record(pass);Material material=CoreUtils.Created.Last();pass.Dispose();
+        Check(material.Destroyed,"never-submitted private resources may retire");
+        var cmd=new CommandBuffer();data.graph.Execute(cmd);Check(!Draws(cmd).Any()&&!data.receipts.Single(),"queued callback cannot use disposed material");
+        pass=new Pass();data=Record(pass);cmd=new CommandBuffer();
+        data.graph.ExecutePass(0,cmd);data.graph.ExecutePass(1,cmd);data.graph.ExecutePass(2,cmd);
+        material=CoreUtils.Created.Last();pass.Dispose();Check(!material.Destroyed,"capture without resolve is not completed");
+        data.graph.ExecutePass(3,cmd);Check(!data.receipts.Single()&&!material.Destroyed,"late resolve rejects receipt but inserts retirement fence");
+        CompleteFences();Check(material.Destroyed,"late fence safely retires material");
+    }
+    static void MultiCameraAndGuards()
+    {
+        scenarios++;var a=new Pass();var b=new Pass();var x=Record(a);var y=Record(b);
+        var ca=new CommandBuffer();var cb=new CommandBuffer();x.graph.Execute(ca);y.graph.Execute(cb);
+        Check(!ReferenceEquals(Draws(ca).Single().Material,Draws(cb).Single().Material),"per-recorder material ownership");
+        Check(!ReferenceEquals(ca.Commands.Single(z=>z.Name=="Uav").Value,cb.Commands.Single(z=>z.Name=="Uav").Value),"per-frame graph candidate isolation");
+        var bad=Record(a,fw:0);Check(!bad.result.IsValid&&bad.receipts.SequenceEqual(new[]{false})&&bad.graph.Passes.Count==0,"invalid dimensions decline recording");
+        a.Dispose();b.Dispose();CompleteFences();
+        SystemInfo.supportsGraphicsFence=false;var unavailable=new Pass();Check(!unavailable.IsAvailable&&unavailable.Status.Contains("Requires"),"fence capability gate");
+        var no=Record(unavailable);Check(!no.result.IsValid&&no.receipts.SequenceEqual(new[]{false}),"unsupported path fallback");unavailable.Dispose();SystemInfo.supportsGraphicsFence=true;
+        var saved=Resources.Compute;Resources.Compute=null;unavailable=new Pass();Check(!unavailable.IsAvailable,"missing compute");unavailable.Dispose();Resources.Compute=saved;
+        var fake=new Frame(new[]{new Frame.Row(1)},new[]{new Frame.Draw(new HybridLumenGIReceiverRegistry.Record{Mesh=new Mesh()},5,Coverage())},Array.Empty<RectInt>());
+        unavailable=new Pass();var invalid=Record(unavailable,fake);var c=new CommandBuffer();invalid.graph.Execute(c);
+        Check(!invalid.receipts.Single()&&!Draws(c).Any(),"invalid owner index must not partially capture");unavailable.Dispose();CompleteFences();
+    }
+    static void FenceErrorsAndOwnerCap()
+    {
+        scenarios++;var pass=new Pass();var data=Record(pass);var cmd=new CommandBuffer();data.graph.Execute(cmd);
+        var fence=CommandBuffer.Fences.Last();fence.Throw=true;pass.Dispose();Material material=CoreUtils.Created.Last();RenderPipelineManager.EndFrame();Check(!material.Destroyed,"fence read failure cannot release");
+        CompleteFences();Check(material.Destroyed,"proven later completion recovers");
+        // Last scenario deliberately retains unproven resources, emulating a device/fence failure.
+        // This is a recording lifetime test, not device-loss or actual graphics-fence evidence.
+        for(int i=0;i<Pass.MaxMaterialOwners;i++)
+        {
+            var p=new Pass();var timer=new Timer();var frame=Record(p,timing:timer.Boundary,invalidated:timer.Invalidate);var c=new CommandBuffer{ThrowFence=true};frame.graph.Execute(c);p.Dispose();
+            Check(!frame.receipts.Single()&&p.PendingFrames==1&&!CoreUtils.Created.Last().Destroyed,"unproven fence quarantines private resources");
+            Check(timer.Events.SequenceEqual(AllEvents)&&timer.Invalidations==0,"fence failure still closes every actually executed timing body");
+            Check(c.Commands.Last().Name=="TimingEnd"&&c.Commands.Last().Index==3,"resolve timing finally follows fence failure handling");
+        }
+        int materialCount=CoreUtils.Created.Count;pass=new Pass();Check(!pass.IsAvailable&&pass.Status.Contains("pool is full"),"global owner pool hard limit");
+        Check(CoreUtils.Created.Count==materialCount,"retirement exhaustion creates no material");pass.Dispose();
+    }
+    static void AbandonedAndResolveFailure()
+    {
+        scenarios++;var pass=new Pass();var abandoned=Record(pass);Check(pass.PendingFrames==1,"queued graph owns one lease");
+        Time.frameCount++;RenderPipelineManager.EndFrame();Check(pass.PendingFrames==0,"cross-frame abandoned graph releases unused lease");
+        var cmd=new CommandBuffer();abandoned.graph.Execute(cmd);
+        Check(!Draws(cmd).Any()&&abandoned.receipts.SequenceEqual(new[]{false}),"late abandoned callback cannot resurrect lease");
+        var current=Record(pass);cmd=new CommandBuffer{ThrowDispatchKernel=2};current.graph.Execute(cmd);
+        Check(current.receipts.SequenceEqual(new[]{false})&&Draws(cmd).Any()&&cmd.Commands.Last().Name=="Fence","resolve failure rejects receipt but fences actual draws");
+        var material=CoreUtils.Created.Last();pass.Dispose();Check(!material.Destroyed,"resolve failure still retains GPU-owned material");
+        CompleteFences();Check(material.Destroyed,"resolve failure material retires after proof");
+        pass=new Pass();var late=Record(pass);Time.frameCount++;
+        var next=Record(pass);Check(pass.PendingFrames==1,"Record also collects old unexecuted lease");
+        late.graph.Execute(new CommandBuffer());Check(late.receipts.SequenceEqual(new[]{false}),"old callback rejected after new Record");
+        cmd=new CommandBuffer();next.graph.Execute(cmd);Check(next.receipts.SequenceEqual(new[]{true}),"replacement current graph succeeds");
+        int count=cmd.Commands.Count;next.graph.ExecutePass(3,cmd);Check(cmd.Commands.Count==count&&next.receipts.Count==1,"resolve receipt not replayable");
+        pass.Dispose();CompleteFences();
+    }
+    static void GraphConstructionFailure()
+    {
+        scenarios++;var pass=new Pass();
+        foreach(int point in new[]{0,1,2})
+        {
+            var graph=new RenderGraph{ThrowCreateBufferAt=point<2?point:-1,ThrowAddAt=point==2?2:-1};
+            var d=graph.CreateTexture(new TextureDesc(19,11));var o=graph.CreateTexture(new TextureDesc(7,5));var receipts=new List<bool>();
+            var result=pass.Record(graph,Make(),d,d,o,19,11,7,5,Matrix4x4.identity,()=>true,v=>receipts.Add(v));
+            Check(!result.IsValid&&receipts.SequenceEqual(new[]{false})&&pass.PendingFrames==0,"construction failure releases never-used lease and returns fallback");
+            var cmd=new CommandBuffer();graph.Execute(cmd);Check(!Draws(cmd).Any()&&receipts.Count==1,"partial graph cannot resurrect capture");
+        }
+        pass.Dispose();
+    }
+    static readonly string[] AllEvents={"0B","0E","1B","1E","2B","2E","3B","3E"};
+    sealed class Timer
+    {
+        public readonly List<string> Events=new List<string>();
+        public readonly List<CommandBuffer> Buffers=new List<CommandBuffer>();
+        public int Invalidations,ThrowStage=-1;public bool ThrowBegin,ThrowInvalidate;
+        public void Boundary(CommandBuffer cmd,int stage,bool begin)
+        {
+            Events.Add(stage+(begin?"B":"E"));Buffers.Add(cmd);
+            cmd.Commands.Add(new RecordedCommand{Name=begin?"TimingBegin":"TimingEnd",Index=stage});
+            if(stage==ThrowStage&&begin==ThrowBegin)throw new Exception("timing observer failure after marker attempt");
+        }
+        public void Invalidate(){Invalidations++;if(ThrowInvalidate)throw new Exception("timing invalidation observer failure");}
+    }
+    static int Marker(CommandBuffer cmd,int stage,bool begin)=>cmd.Commands.FindIndex(x=>x.Name==(begin?"TimingBegin":"TimingEnd")&&x.Index==stage);
+    static string[] BodyCommands(CommandBuffer cmd)=>cmd.Commands.Where(x=>!x.Name.StartsWith("Timing")).Select(x=>x.Name+":"+x.Kernel+":"+x.Index).ToArray();
+    static void TimingOrderAndDependencies()
+    {
+        scenarios++;var pass=new Pass();var timer=new Timer();var data=Record(pass,Make(2,new[]{new RectInt(1,2,3,4)}),timing:timer.Boundary,invalidated:timer.Invalidate);
+        Check(timer.Events.Count==0&&timer.Invalidations==0,"constructing a complete graph does not emit GPU timing");
+        var graph=data.graph;
+        // Independent dataflow assertions identify the actual resource handles, not pass names.
+        int candidates=graph.Buffers[0].handle.Id,objects=graph.Buffers[1].handle.Id,capture=graph.Textures[1].handle.Id,output=graph.Textures[2].handle.Id;
+        Check(graph.Passes[0].Dependencies.Any(d=>d.type=="texture"&&d.id==capture&&d.flags==AccessFlags.Read),"capture-depth producer is required by first timed callback");
+        for(int i=0;i<4;i++)Check(graph.Passes[i].Dependencies.Any(d=>d.type=="buffer"&&d.id==candidates&&d.flags==(i==0?AccessFlags.Write:i==3?AccessFlags.Read:AccessFlags.ReadWrite)),"candidate dataflow orders all four stages");
+        Check(graph.Passes[0].Dependencies.Any(d=>d.type=="buffer"&&d.id==objects&&d.flags==AccessFlags.Write)&&graph.Passes[3].Dependencies.Any(d=>d.type=="buffer"&&d.id==objects&&d.flags==AccessFlags.Read),"row upload precedes resolve");
+        Check(graph.Passes[3].Dependencies.Any(d=>d.type=="texture"&&d.id==output&&d.flags==AccessFlags.Write)&&graph.Passes[3].Global,"resolve produces declared downstream texture and permits end event");
+        var cmd=new CommandBuffer();graph.Execute(cmd);
+        Check(timer.Events.SequenceEqual(AllEvents)&&timer.Invalidations==0,"exact independent begin/end stage order");
+        Check(cmd.Commands.First().Name=="TimingBegin"&&cmd.Commands.First().Index==0,"begin clear before any command including upload");
+        int upload=cmd.Commands.FindIndex(x=>x.Name=="Upload");int clear=cmd.Commands.FindIndex(x=>x.Name=="Dispatch"&&x.Kernel==0);
+        Check(Marker(cmd,0,true)<upload&&upload<clear&&clear<Marker(cmd,0,false),"upload and clear enclosed in stage zero");
+        int mask=cmd.Commands.FindIndex(x=>x.Name=="Dispatch"&&x.Kernel==1);
+        Check(Marker(cmd,1,true)<mask&&mask<Marker(cmd,1,false),"unknown mask enclosed");
+        int firstUav=cmd.Commands.FindIndex(x=>x.Name=="ClearUav"),lastUav=cmd.Commands.FindLastIndex(x=>x.Name=="ClearUav");
+        Check(Marker(cmd,2,true)<firstUav&&lastUav<Marker(cmd,2,false),"capture includes both UAV cleanup calls");
+        int resolve=cmd.Commands.FindIndex(x=>x.Name=="Dispatch"&&x.Kernel==2),fence=cmd.Commands.FindIndex(x=>x.Name=="Fence");
+        Check(Marker(cmd,3,true)<resolve&&resolve<fence&&fence<Marker(cmd,3,false),"resolve includes dispatch and retirement fence");
+        Check(data.receipts.SequenceEqual(new[]{true}),"timed success preserves identity receipt");pass.Dispose();CompleteFences();
+    }
+    static CommandBuffer FailingCommands(int mode)=>new CommandBuffer{
+        ThrowUpload=mode==2,ThrowDispatchKernel=mode==3?0:mode==4?1:mode==5?2:-1,
+        ThrowDrawAt=mode==6?0:-1,ThrowClearUavAt=mode==7?0:mode==8?1:-1};
+    static void TimingFailuresAndEarlyReturns()
+    {
+        scenarios++;
+        for(int mode=0;mode<11;mode++)
+        {
+            Func<bool> validate=()=>mode==0?false:mode==1?throw new Exception("source validation"):true;
+            Frame frame=Make(mode==9?0:1,mode==10?Array.Empty<RectInt>():new[]{new RectInt(0,0,3,2)});
+            var pass=new Pass();var baseline=Record(pass,frame,validate);var a=FailingCommands(mode);baseline.graph.Execute(a);
+            var timer=new Timer();var timed=Record(pass,frame,validate,timing:timer.Boundary,invalidated:timer.Invalidate);var b=FailingCommands(mode);timed.graph.Execute(b);
+            Check(timer.Events.SequenceEqual(AllEvents)&&timer.Invalidations==0,"all actually executed stages locally paired across body failure/early return "+mode);
+            Check(timed.receipts.SequenceEqual(baseline.receipts),"timing does not change fallback/receipt "+mode);
+            Check(BodyCommands(a).SequenceEqual(BodyCommands(b)),"timing does not change GI commands "+mode);
+            Check(timed.receipts.Single()==(mode>=9),"independent expected identity result "+mode);
+            if(mode<=8)Check(b.Commands.Any(x=>x.Name=="ClearUav")||mode==7,"capture cleanup attempted on failure "+mode);
+            Check(b.Commands.Last().Name=="TimingEnd"&&b.Commands.Last().Index==3,"resolve closes after cleanup "+mode);
+            pass.Dispose();CompleteFences();
+        }
+    }
+    static void TimingObserverIsolation()
+    {
+        scenarios++;
+        for(int stage=0;stage<4;stage++)foreach(bool atBegin in new[]{false,true})foreach(bool invalidationThrows in new[]{false,true})
+        {
+            var pass=new Pass();var timer=new Timer{ThrowStage=stage,ThrowBegin=atBegin,ThrowInvalidate=invalidationThrows};
+            var data=Record(pass,timing:timer.Boundary,invalidated:timer.Invalidate);var cmd=new CommandBuffer();data.graph.Execute(cmd);
+            Check(data.receipts.SequenceEqual(new[]{true})&&Draws(cmd).Count()==1&&(int)Resolve(cmd).Parameters[Id("ObjectCount")]==1,"throwing timing observers cannot invalidate GI");
+            Check(timer.Invalidations==1,"observer failure invalidates measurement once even when invalidator throws");
+            Check(timer.Events.SequenceEqual(AllEvents.Take((stage+1)*2)),"attempted begin always gets local end; rejected measurement emits no later begin");
+            Check(cmd.Commands.Any(x=>x.Name=="Fence"),"observer exceptions preserve actual private-resource fence");
+            Check(pass.PendingFrames==1,"observer failure does not release unproven lease");pass.Dispose();CompleteFences();
+        }
+    }
+    static void TimingGraphFailures()
+    {
+        scenarios++;
+        // Every allocation/builder boundary, including after the final resolve callback exists.
+        for(int fault=0;fault<11;fault++)
+        {
+            var pass=new Pass();var graph=new RenderGraph();var d=graph.CreateTexture(new TextureDesc(19,11));var c=graph.CreateTexture(new TextureDesc(19,11));var o=graph.CreateTexture(new TextureDesc(7,5));
+            graph.ThrowCreateBufferAt=fault<2?fault:-1;graph.ThrowCreateTextureAt=fault==2?3:-1;
+            graph.ThrowAddAt=fault>=3&&fault<7?fault-3:-1;graph.ThrowBuilderDisposeAt=fault>=7?fault-7:-1;
+            var timer=new Timer();var receipts=new List<bool>();
+            var result=pass.Record(graph,Make(),d,c,o,19,11,7,5,Matrix4x4.identity,()=>true,v=>receipts.Add(v),timer.Boundary,timer.Invalidate);
+            Check(!result.IsValid&&receipts.SequenceEqual(new[]{false})&&timer.Invalidations==1,"construction fault rejects timing and identity immediately "+fault);
+            Check(timer.Events.Count==0,"graph construction never starts timing "+fault);
+            var cmd=new CommandBuffer();graph.Execute(cmd);
+            Check(timer.Events.Count==0&&timer.Invalidations==1,"residual partial-graph callbacks remain unarmed "+fault);
+            Check(!Draws(cmd).Any()&&receipts.Count==1&&pass.PendingFrames==0,"partial graph cannot resurrect private draw resources "+fault);
+            pass.Dispose();CompleteFences();
+        }
+    }
+    static void TimingEarlyRecordRejections()
+    {
+        scenarios++;
+        for(int mode=0;mode<8;mode++)
+        {
+            var pass=new Pass();var graph=new RenderGraph();var d=graph.CreateTexture(new TextureDesc(19,11));var o=graph.CreateTexture(new TextureDesc(7,5));var timer=new Timer{ThrowInvalidate=mode%2==1};var receipts=new List<bool>();
+            var matrix=Matrix4x4.identity;if(mode==6)matrix[0]=float.NaN;
+            if(mode==7)SystemInfo.supportsGraphicsFence=false;
+            var result=pass.Record(mode==0?null:graph,mode==1?null:Make(),mode==2?default:d,d,o,mode==3?0:19,11,7,5,matrix,mode==4?null:(()=>true),v=>receipts.Add(v),timer.Boundary,timer.Invalidate);
+            if(mode==5){ // Valid construction control; wrong GI dimensions have their own call below.
+                graph.Execute(new CommandBuffer());Check(result.IsValid&&receipts.Single()&&timer.Invalidations==0,"normal construction control");
+            }
+            else Check(!result.IsValid&&receipts.SequenceEqual(new[]{false})&&timer.Invalidations==1&&timer.Events.Count==0,"early invalid input or resource gate notifies without markers "+mode);
+            SystemInfo.supportsGraphicsFence=true;pass.Dispose();CompleteFences();
+        }
+        var p=new Pass();var t=new Timer();var oversized=Record(p,gw:20,timing:t.Boundary,invalidated:t.Invalidate);
+        Check(!oversized.result.IsValid&&t.Invalidations==1&&t.Events.Count==0,"oversized low dimensions invalidate timing early");p.Dispose();
+    }
+    static void TimingCancellationAndDuplicates()
+    {
+        scenarios++;
+        for(int completed=0;completed<4;completed++)
+        {
+            var pass=new Pass();var timer=new Timer();var data=Record(pass,timing:timer.Boundary,invalidated:timer.Invalidate);var cmd=new CommandBuffer();
+            for(int i=0;i<completed;i++)data.graph.ExecutePass(i,cmd);
+            Time.frameCount++;RenderPipelineManager.EndFrame();
+            for(int i=completed;i<4;i++)data.graph.ExecutePass(i,cmd);
+            Check(timer.Events.SequenceEqual(AllEvents.Take(completed*2))&&timer.Invalidations==1,"late callbacks never start new local markers after "+completed);
+            Check(data.receipts.SequenceEqual(new[]{completed==3}),"timing observer preserves existing late body result; caller separately validates history receipt");pass.Dispose();CompleteFences();
+        }
+        for(int completed=0;completed<4;completed++)
+        {
+            var pass=new Pass();var timer=new Timer();var data=Record(pass,timing:timer.Boundary,invalidated:timer.Invalidate);var cmd=new CommandBuffer();
+            for(int i=0;i<completed;i++)data.graph.ExecutePass(i,cmd);pass.Dispose();
+            for(int i=completed;i<4;i++)data.graph.ExecutePass(i,cmd);
+            Check(timer.Events.SequenceEqual(AllEvents.Take(completed*2))&&timer.Invalidations==1,"disposed recorder never starts markers after "+completed);
+            Check(!data.receipts.Single(),"disposed identity still rejected");CompleteFences();
+        }
+        for(int repeated=0;repeated<4;repeated++)
+        {
+            var pass=new Pass();var timer=new Timer();var data=Record(pass,timing:timer.Boundary,invalidated:timer.Invalidate);var cmd=new CommandBuffer();
+            for(int i=0;i<=repeated;i++)data.graph.ExecutePass(i,cmd);
+            data.graph.ExecutePass(repeated,cmd);
+            for(int i=repeated+1;i<4;i++)data.graph.ExecutePass(i,cmd);
+            Check(timer.Events.SequenceEqual(AllEvents.Take((repeated+1)*2))&&timer.Invalidations==1,"duplicate callback cannot make second valid measurement "+repeated);
+            Check(data.receipts.Count==1,"duplicate callback cannot publish a second identity receipt");pass.Dispose();CompleteFences();
+        }
+        var owner=new Pass();var observer=new Timer();var unordered=Record(owner,timing:observer.Boundary,invalidated:observer.Invalidate);var commands=new CommandBuffer();
+        foreach(int i in new[]{1,0,2,3})unordered.graph.ExecutePass(i,commands);
+        Check(observer.Events.Count==0&&observer.Invalidations==1,"out-of-order callbacks reject entire measurement without inventing omitted stages");owner.Dispose();CompleteFences();
+    }
+    static void TimingSeparateCommandBuffers()
+    {
+        scenarios++;var pass=new Pass();var timer=new Timer();var data=Record(pass,timing:timer.Boundary,invalidated:timer.Invalidate);
+        var buffers=Enumerable.Range(0,4).Select(_=>new CommandBuffer()).ToArray();
+        for(int stage=0;stage<4;stage++)
+        {
+            data.graph.ExecutePass(stage,buffers[stage]);
+            Check(ReferenceEquals(timer.Buffers[2*stage],buffers[stage])&&ReferenceEquals(timer.Buffers[2*stage+1],buffers[stage]),"each pair gets the same callback-owned command buffer");
+            Check(buffers[stage].Commands.First().Name=="TimingBegin"&&buffers[stage].Commands.Last().Name=="TimingEnd","scope begins and ends within each individual callback");
+        }
+        Check(timer.Events.SequenceEqual(AllEvents)&&data.receipts.Single()&&timer.Invalidations==0,"separate command-buffer recording preserves exact stage ordering");pass.Dispose();CompleteFences();
+    }
+    static void Main()
+    {
+        Basic();RejectAndFailure();EmptyAndHoles();AlphaCoverage();BoundedAndRecovery();DisposeQueuedAndBetweenPasses();MultiCameraAndGuards();AbandonedAndResolveFailure();GraphConstructionFailure();
+        TimingOrderAndDependencies();TimingFailuresAndEarlyReturns();TimingObserverIsolation();TimingGraphFailures();TimingEarlyRecordRejections();TimingCancellationAndDuplicates();TimingSeparateCommandBuffers();FenceErrorsAndOwnerCap();
+        Console.WriteLine($"ReceiverIdentityPass PASS: {scenarios} scenarios, {checks} checks. Actual recorder source with explicit Unity/RenderGraph/IdentityFrame substitutes.");
+        Console.WriteLine("Evidence: recorded API arguments, declared dependencies, four local timing pairs and failure isolation, callback order, frozen MPBs, fallback, and bounded private-resource retirement only. No shader, Unity engine, real fence, driver, GPU execution, native event or Recorder timing behavior.");
+    }
+}

@@ -1,0 +1,501 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Rendering;
+using Pool=HybridLumenGI.HybridLumenGIRayTexturePool;
+class Program
+{
+    static int checks, scenarios;
+    static void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
+    static HybridLumenGIFrozenTextureView View(Texture texture=null,int w=4,int h=4,int mips=3,int filter=2,int dim=2)
+      => new HybridLumenGIFrozenTextureView(texture??new Texture2D(),HybridLumenGIMaterialValueOrigin.Material,
+          w,h,dim,42,mips,filter,0,1,0,4,.25f,5,true,true,false,false,0,0,0);
+    static Pool.Lease Prepare(Pool pool,params HybridLumenGIFrozenTextureView[] views)
+    { Check(pool.TryPrepare(views,1L<<30,out var lease,out var reason),"prepare "+reason);return lease; }
+    static void Record(Pool pool,Pool.Lease lease,CommandBuffer cmd=null)
+    { Check(pool.RecordUploads(cmd??new CommandBuffer(),lease,(c,u,m,t)=>c.Events.Add("copy:"+u.MetadataIndex),out var r),"record "+r); }
+    static GraphicsFence Fence(bool complete=false)=>new GraphicsFence{Signal=new FenceSignal{Complete=complete}};
+    static void Finish(Pool pool,Pool.Lease lease)
+    {
+        if(lease.State==Pool.LeaseState.Prepared)Check(pool.ReleaseUnrecorded(lease),"release pristine");
+        else if(lease.State!=Pool.LeaseState.Released){Check(pool.MarkSubmitted(lease,Fence(true),out _),"proven final fence");Pool.PollRetired();}
+        Check(lease.State==Pool.LeaseState.Released,"released only safe");
+    }
+    static void Clean(){Pool.PollRetired();Check(Pool.TotalAllocatedBytes==0&&Pool.ResidentBatchCount==0&&GraphicsBuffer.Live==0,"no test resource left");}
+    static void LayoutAndFreeze()
+    {
+        scenarios++;using var pool=new Pool();var a=View();var b=View(w:3,h:5,mips:3);var requests=new[]{a,b,a,default};
+        var lease=Prepare(pool,requests); requests[0]=b;
+        Check(pool.GetResources(lease,out var borrowedMetadata,out var borrowedTexels)&&borrowedMetadata.Stride==64&&borrowedTexels.Stride==16,"graph declarations borrow prepared resources");
+        Check(lease.UploadCount==2&&lease.RequestCount==4,"dedup only identical snapshots, null skipped");
+        Check(lease.GetHandle(0).Index==lease.GetHandle(2).Index&&!lease.GetHandle(3).IsValid,"duplicate and absent handles");
+        Check(lease.GetUpload(0).View.Equals(a),"request copy immutable");
+        long texels=4*4+2*2+1+3*5+1*2+1;
+        Check(lease.TexelCapacity==texels&&lease.ByteCount==texels*16+2*64,"full chains+metadata accounted");
+        var cmd=new CommandBuffer();Check(!pool.IsHandleCurrent(lease,lease.GetHandle(0)),"unrecorded not usable");
+        Check(pool.RecordUploads(cmd,lease,(c,u,m,t)=>{
+            Check(m.Stride==64&&t.Stride==16,"correct buffer roles");
+            Check(u.Layout.FirstMip==0&&u.TexelOffset==(u.MetadataIndex==0?0:21),"logical mip offsets");
+            c.Events.Add("gpu-begin/mips/finalize:"+u.MetadataIndex);
+        },out _),"record ordered uploads");
+        Check(cmd.Events.SequenceEqual(new[]{"metadata-initialize","gpu-begin/mips/finalize:0","gpu-begin/mips/finalize:1"}),"no CPU ready write after importer");
+        var initial=(HybridLumenGIRayTextureMetadata[])cmd.Copies.Single();
+        Check(initial.All(x=>x.flags==0&&x.generation==lease.Generation),"metadata only unready");
+        Check(Marshal.SizeOf<HybridLumenGIRayTextureMetadata>()==64,"metadata ABI");
+        Check(pool.IsHandleCurrent(lease,lease.GetHandle(0)),"recorded handle identity");
+        Check(pool.Bind(cmd,new ComputeShader(),0,lease,out _),"bind after record");
+        Check(cmd.Events.TakeLast(2).SequenceEqual(new[]{"bind:"+Shader.PropertyToID("_HLGI_RayTextureMetadata"),"bind:"+Shader.PropertyToID("_HLGI_RayTextureTexels")}),"shader buffer names");
+        Finish(pool,lease);Check(!pool.IsHandleCurrent(lease,lease.GetHandle(0)),"stale handle");Clean();
+        Check(!pool.GetResources(lease,out _,out _),"expired borrow refused");
+    }
+    static void GlobalBudgetAndFences()
+    {
+        scenarios++;using var a=new Pool();using var b=new Pool();var v=View();var one=Prepare(a,v);Record(a,one);long size=one.ByteCount;
+        Check(!b.TryPrepare(new[]{v},size*2-1,out _,out _),"global including other pool");
+        Check(b.TryPrepare(new[]{v},size*2,out var two,out _),"exact global cap");Record(b,two);
+        var fence=Fence();Check(a.MarkSubmitted(one,fence,out _),"seal first");
+        for(int i=0;i<1000;i++)Pool.PollRetired();
+        Check(Pool.TotalAllocatedBytes==size*2&&!b.TryPrepare(new[]{v},size*2,out _,out _),"age never releases pending");
+        Check(!a.Bind(new CommandBuffer(),new ComputeShader(),0,one,out _)&&!a.RecordUploads(new CommandBuffer(),one,(c,u,m,t)=>{},out _),"no late consumers/reupload after seal");
+        fence.Signal.Complete=true;Pool.PollRetired();Check(Pool.TotalAllocatedBytes==size&&one.State==Pool.LeaseState.Released,"consumer fence releases");
+        var old=two.GetHandle(0);Finish(b,two);var next=Prepare(a,v);Record(a,next);
+        Check(next.Generation!=old.Generation&&!a.IsHandleCurrent(next,old),"global generation rejects stale same-slot");
+        Check(!b.IsHandleCurrent(next,next.GetHandle(0)),"cross-owner reject");Finish(a,next);Clean();
+    }
+    static void FailuresAndQuarantine()
+    {
+        scenarios++;using var pool=new Pool();var v=View();
+        for(int phase=0;phase<4;phase++)
+        {
+            var lease=Prepare(pool,v,View());var cmd=new CommandBuffer{ThrowAt=phase==0?1:-1};int copies=0;
+            bool recorded=pool.RecordUploads(cmd,lease,(c,u,m,t)=>{if(phase==1&&++copies==2)throw new Exception("importer partial");},out _);
+            if(phase>=2){Check(recorded,"initial record");if(phase==2)Check(!pool.Bind(new CommandBuffer{ThrowAt=2},new ComputeShader(),0,lease,out _),"partial bind failure");else Check(!pool.MarkSubmitted(lease,default,out _),"default fence fails");}
+            else Check(!recorded,"record failure");
+            Check(lease.State==Pool.LeaseState.Quarantined&&!pool.ReleaseUnrecorded(lease),"unproven commands never pristine");
+            long bytes=Pool.TotalAllocatedBytes;for(int i=0;i<200;i++)Pool.PollRetired();Check(Pool.TotalAllocatedBytes==bytes,"quarantine retained");
+            Check(!pool.Bind(new CommandBuffer(),new ComputeShader(),0,lease,out _),"quarantined not usable");Finish(pool,lease);
+        }
+        var query=Prepare(pool,v);Record(pool,query);var f=Fence();Check(pool.MarkSubmitted(query,f,out _),"pending fence");f.Signal.Throw=true;Pool.PollRetired();
+        Check(query.State==Pool.LeaseState.Quarantined,"fence exception revokes evidence");f.Signal.Throw=false;f.Signal.Complete=true;Pool.PollRetired();
+        Check(query.State==Pool.LeaseState.Quarantined,"cannot silently reinstate failed evidence");Finish(pool,query);Clean();
+        var lost=Prepare(pool,v);Record(pool,lost);var lostFence=Fence();Check(pool.MarkSubmitted(lost,lostFence,out _),"valid pending before device support loss");
+        SystemInfo.supportsGraphicsFence=false;lostFence.Signal.Complete=true;Pool.PollRetired();SystemInfo.supportsGraphicsFence=true;
+        Check(lost.State==Pool.LeaseState.Quarantined,"support lost while pending invalidates completion evidence");Finish(pool,lost);Clean();
+    }
+    static void DisposalAndAllocation()
+    {
+        scenarios++;var pool=new Pool();var pristine=Prepare(pool,View());var recorded=Prepare(pool,View());Record(pool,recorded);
+        var pending=Prepare(pool,View());Record(pool,pending);var fence=Fence();Check(pool.MarkSubmitted(pending,fence,out _),"pending submission");
+        pool.Dispose();pool.Dispose();Check(pristine.State==Pool.LeaseState.Released&&recorded.State==Pool.LeaseState.Quarantined&&pending.State==Pool.LeaseState.Submitted,"dispose preserves outstanding references");
+        Check(!pool.TryPrepare(new[]{View()},long.MaxValue,out _,out _)&&!pool.Bind(new CommandBuffer(),new ComputeShader(),0,recorded,out _),"disposed owner cannot reenter");
+        fence.Signal.Complete=true;Pool.PollRetired();Finish(pool,recorded);Clean();
+        using var other=new Pool();GraphicsBuffer.FailAllocationAt=GraphicsBuffer.Allocations+2;
+        Check(!other.TryPrepare(new[]{View()},1L<<30,out var missing,out _)&&missing==null,"partial allocation fail");GraphicsBuffer.FailAllocationAt=-1;Clean();
+        var cleanup=Prepare(other,View());Record(other,cleanup);GraphicsBuffer buffer=null;
+        // Use a callback of another lease to test a disposal failure without public writable resources.
+        var failing=Prepare(other,View());Check(other.RecordUploads(new CommandBuffer(),failing,(c,u,m,t)=>{buffer=t;},out _),"borrow importer buffer");
+        buffer.ThrowDispose=true;Check(other.MarkSubmitted(failing,Fence(true),out _),"completed but disposal fails");Pool.PollRetired();
+        Check(failing.State==Pool.LeaseState.ReleasePending&&Pool.TotalAllocatedBytes==cleanup.ByteCount+failing.ByteCount,"failed native cleanup remains budgeted");
+        buffer.ThrowDispose=false;Pool.PollRetired();Finish(other,cleanup);Clean();
+    }
+    static void BoundsAndCancellation()
+    {
+        scenarios++;using var pool=new Pool();
+        Check(!pool.TryPrepare(null,10,out _,out _)&&!pool.TryPrepare(Array.Empty<HybridLumenGIFrozenTextureView>(),10,out _,out _),"empty invalid");
+        Check(!pool.TryPrepare(new[]{default(HybridLumenGIFrozenTextureView)},79,out _,out _),"constant-only descriptor still consumes its complete dummy budget");
+        foreach(var v in new[]{View(w:0),View(mips:9),View(filter:3),View(dim:3)})Check(!pool.TryPrepare(new[]{v},long.MaxValue,out _,out _),"bad frozen metadata");
+        Check(!pool.TryPrepare(new HybridLumenGIFrozenTextureView[Pool.MaxRequests+1],long.MaxValue,out _,out _),"request cap");
+        SystemInfo.supportsGraphicsFence=false;Check(!pool.TryPrepare(new[]{View()},long.MaxValue,out _,out _),"no fence support cannot allocate");SystemInfo.supportsGraphicsFence=true;
+        var unsupported=Prepare(pool,View());Record(pool,unsupported);SystemInfo.supportsGraphicsFence=false;
+        Check(!pool.MarkSubmitted(unsupported,Fence(true),out _)&&unsupported.State==Pool.LeaseState.Quarantined,"no fence support cannot retire");SystemInfo.supportsGraphicsFence=true;Finish(pool,unsupported);
+        var leases=new List<Pool.Lease>();for(int i=0;i<Pool.MaxBatchesPerPool;i++)leases.Add(Prepare(pool,View()));
+        Check(!pool.TryPrepare(new[]{View()},long.MaxValue,out _,out _),"lease cap includes pristine");foreach(var l in leases)Finish(pool,l);Clean();
+        var reentrant=Prepare(pool,View());Check(!pool.RecordUploads(new CommandBuffer(),reentrant,(c,u,m,t)=>pool.Dispose(),out _),"dispose during callback fails closed");
+        Check(reentrant.State==Pool.LeaseState.Quarantined,"reentrant canceled resource retained");Finish(pool,reentrant);Clean();
+    }
+    static void IndependentLayoutAndGeneration()
+    {
+        scenarios++;using var pool=new Pool();var random=new Random(8173);var handles=new HashSet<uint>();
+        for(int test=0;test<600;test++)
+        {
+            int w=random.Next(1,101),h=random.Next(1,101),count=0;int x=w,y=h;long texels=0;
+            do{texels+=(long)x*y;count++;if(x==1&&y==1)break;x=Math.Max(1,x/2);y=Math.Max(1,y/2);}while(true);
+            var lease=Prepare(pool,View(w:w,h:h,mips:count));Check(lease.ByteCount==texels*16+64,"iterative mip sum independent oracle");
+            Check(handles.Add(lease.Generation),"unique generation trajectory");Record(pool,lease);var f=Fence();Check(pool.MarkSubmitted(lease,f,out _),"trajectory submitted");
+            Pool.PollRetired();Check(lease.State==Pool.LeaseState.Submitted,"incomplete oracle");f.Signal.Complete=true;Pool.PollRetired();Check(lease.State==Pool.LeaseState.Released,"completed oracle");
+        }
+        var field=typeof(Pool).GetField("lastGeneration",BindingFlags.NonPublic|BindingFlags.Static);uint before=(uint)field.GetValue(null);field.SetValue(null,uint.MaxValue);
+        Check(!pool.TryPrepare(new[]{View()},long.MaxValue,out _,out _),"generation exhaustion never wraps");field.SetValue(null,before);Clean();
+    }
+    static void GlobalCapacityAndFrozenInputs()
+    {
+        scenarios++;var owners=new List<Pool>();var leases=new List<(Pool pool,Pool.Lease lease)>();
+        for(int i=0;i<Pool.MaxResidentBatches;i++)
+        {
+            if(i%Pool.MaxBatchesPerPool==0)owners.Add(new Pool());
+            var owner=owners.Last();var lease=Prepare(owner,View(w:1,h:1,mips:1));leases.Add((owner,lease));
+        }
+        using var extra=new Pool();Check(!extra.TryPrepare(new[]{View()},long.MaxValue,out _,out _),"global outstanding batch cap across owners");
+        foreach(var pair in leases)Finish(pair.pool,pair.lease);foreach(var owner in owners)owner.Dispose();Clean();
+        var live=new Texture2D{ThrowOnRead=true};var view=View(live);var immutable=Prepare(extra,view);
+        Check(immutable.GetUpload(0).View.Equals(view),"pool never consults live texture properties");Finish(extra,immutable);
+        var rt=new RenderTexture{ThrowOnRead=true};var rtView=new HybridLumenGIFrozenTextureView(rt,HybridLumenGIMaterialValueOrigin.Material,
+            8,8,2,42,4,1,1,1,1,0,0,7,false,false,true,false,-1,-1,-1);
+        var rtLease=Prepare(extra,rtView);Check(rtLease.GetUpload(0).View.IsRenderTexture,"2D RT current capture retained; caller owns producer ordering");Finish(extra,rtLease);Clean();
+    }
+    static Texture2D Source(int w=13,int h=9,int mips=4)=>new Texture2D{
+        width=w,height=h,mipmapCount=mips,graphicsFormat=42,filterMode=2,wrapModeU=0,wrapModeV=2,
+        wrapModeW=1,anisoLevel=4,mipMapBias=-.125f,updateCount=71,isDataSRGB=true};
+    static HybridLumenGIFrozenTextureView Observe(Texture texture)
+    {
+        int id=Shader.PropertyToID("_BaseMap");
+        var captured=new HybridLumenGIMaterialSource.TextureValue(id,1,texture);
+        Check(captured.TryRead(id,out HybridLumenGIFrozenTextureView view),"actual texture capture");return view;
+    }
+    static void ImporterDispatchOracle()
+    {
+        scenarios++;using var pool=new Pool();var shader=new ComputeShader();var importer=new HybridLumenGIRayTextureImporter(shader);
+        int expectedDispatches=0,expectedTextures=0;
+        var sizes=new[]{(1,1,1),(13,9,4),(257,3,9),(17,41,3),(16384,1,15),(1,16384,15),(7,9,1),(64,64,7)};
+        foreach(var size in sizes)
+        {
+            var source=Source(size.Item1,size.Item2,size.Item3);var view=Observe(source);var lease=Prepare(pool,view);
+            var command=new CommandBuffer();Check(pool.RecordUploads(command,lease,importer.Record,out var error),"actual importer "+error);
+            Check(importer.LastRejection==null&&command.Dispatches.Count==size.Item3+2,"Begin+every logical mip+Finish");
+            Check(command.Dispatches[0].Kernel==0&&command.Dispatches[0].X==1&&command.Dispatches[0].Y==1&&command.Dispatches.Last().Kernel==2,"dispatch stage order");
+            int width=size.Item1,height=size.Item2;
+            for(int mip=0;mip<size.Item3;mip++)
+            {
+                var dispatch=command.Dispatches[mip+1];int x=0,y=0;
+                for(int pixel=0;pixel<width;pixel+=8)x++;
+                for(int pixel=0;pixel<height;pixel+=8)y++;
+                Check(dispatch.Kernel==1&&dispatch.X==x&&dispatch.Y==y&&dispatch.Z==1,"independent tiles cover mip exactly once");
+                Check(dispatch.Parameters[Shader.PropertyToID("_HLGI_CopyTextureMip")]==mip,"absolute logical mip parameter");
+                Check((x-1)*8<width&&x*8>=width&&(y-1)*8<height&&y*8>=height,"NPOT/tail dispatch envelope");
+                width=Math.Max(1,width/2);height=Math.Max(1,height/2);
+            }
+            foreach(var dispatch in command.Dispatches)
+            {
+                Check(unchecked((uint)dispatch.Parameters[Shader.PropertyToID("_HLGI_CopyTextureGeneration")])==lease.Generation,"generation preserved");
+                Check(dispatch.Parameters[Shader.PropertyToID("_HLGI_CopyTextureCapacity")]==lease.TexelCapacity,"full-chain reserved capacity");
+            }
+            Check(command.Copies.Count==1&&((HybridLumenGIRayTextureMetadata[])command.Copies[0]).All(x=>x.flags==0),"CPU never publishes ready even on importer success");
+            expectedDispatches+=size.Item3+2;expectedTextures++;
+            Check(importer.RecordedDispatches==expectedDispatches&&importer.RecordedTextures==expectedTextures,"recorded counters reflect successful API calls only");
+            Finish(pool,lease);
+        }
+        Check(shader.Lookups==3,"all kernel identities cached only after complete lookup");
+        var generationField=typeof(Pool).GetField("lastGeneration",BindingFlags.NonPublic|BindingFlags.Static);
+        uint previous=(uint)generationField.GetValue(null);generationField.SetValue(null,0x80000000u);
+        var high=Prepare(pool,Observe(Source()));var highCommand=new CommandBuffer();Check(pool.RecordUploads(highCommand,high,importer.Record,out _),"high-bit generation record");
+        Check(highCommand.Integers[Shader.PropertyToID("_HLGI_CopyTextureGeneration")]<0&&unchecked((uint)highCommand.Integers[Shader.PropertyToID("_HLGI_CopyTextureGeneration")])==high.Generation,"uint generation uses integer bits, never float conversion");
+        Finish(pool,high);generationField.SetValue(null,previous);Clean();
+    }
+    static void ImporterSourceAndSupport()
+    {
+        scenarios++;using var pool=new Pool();var importer=new HybridLumenGIRayTextureImporter(new ComputeShader());
+        Action<Texture2D>[] mutations={t=>t.width++,t=>t.height++,t=>t.mipmapCount--,t=>t.graphicsFormat++,
+            t=>t.dimension=3,t=>t.filterMode=0,t=>t.wrapModeU=3,t=>t.wrapModeV=3,t=>t.wrapModeW=3,
+            t=>t.anisoLevel++,t=>t.mipMapBias=.25f,t=>t.updateCount++,t=>t.isDataSRGB=false,
+            t=>t.streamingMipmaps=true,t=>t.activeMipmapLimit++,t=>t.loadedMipmapLevel++,
+            t=>t.loadingMipmapLevel++,t=>t.vtOnly=true,t=>t.Destroyed=true};
+        foreach(var mutate in mutations)
+        {
+            var texture=Source();var view=Observe(texture);Check(HybridLumenGIRayTextureImporter.SourceStillMatches(view),"unchanged source matches");
+            var lease=Prepare(pool,view);mutate(texture);Check(!HybridLumenGIRayTextureImporter.SourceStillMatches(view),"changed live source rejected");
+            var command=new CommandBuffer();Check(pool.RecordUploads(command,lease,importer.Record,out _),"safe rejection leaves recorded unready initialization");
+            Check(importer.LastRejection!=null&&command.Dispatches.Count==0&&command.Copies.Count==1,"stale texture not copied");
+            Check(((HybridLumenGIRayTextureMetadata[])command.Copies[0])[0].flags==0,"stale map remains unknown not transparent");Finish(pool,lease);
+        }
+        for(int kind=0;kind<5;kind++)
+        {
+            var rt=new RenderTexture{width=5,height=3,mipmapCount=3,graphicsFormat=42};var view=Observe(rt);var lease=Prepare(pool,view);
+            if(kind==1)rt.Created=false;if(kind==2)rt.antiAliasing=4;if(kind==3)rt.volumeDepth=2;if(kind==4)rt.memorylessMode=RenderTextureMemoryless.Color;
+            var cmd=new CommandBuffer();Check(pool.RecordUploads(cmd,lease,importer.Record,out _),"RT branch records or safely rejects");
+            Check((kind==0)==(cmd.Dispatches.Count==5)&&((kind==0)==(importer.LastRejection==null)),"RT creation/samples/depth/memoryless eligibility");Finish(pool,lease);
+        }
+        for(int kind=0;kind<4;kind++)
+        {
+            var lease=Prepare(pool,Observe(Source()));var cmd=new CommandBuffer();var loader=new HybridLumenGIRayTextureImporter();
+            if(kind==0)SystemInfo.supportsComputeShaders=false;
+            if(kind==1)SystemInfo.graphicsDeviceType=GraphicsDeviceType.Vulkan;
+            if(kind==2)SystemInfo.FormatSupported=false;
+            if(kind==3)Resources.Loaded=null;
+            Check(pool.RecordUploads(cmd,lease,loader.Record,out _)&&cmd.Dispatches.Count==0&&loader.LastRejection!=null,"unsupported capability/load remains unready");
+            SystemInfo.supportsComputeShaders=true;SystemInfo.graphicsDeviceType=GraphicsDeviceType.Direct3D12;SystemInfo.FormatSupported=true;Finish(pool,lease);
+        }
+        foreach(var format in new[]{UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8_UNorm,UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8_SRGB})
+        {
+            var texture=Source();texture.graphicsFormat=(int)format;SystemInfo.UnsupportedFormat=(int)format;
+            var lease=Prepare(pool,Observe(texture));var cmd=new CommandBuffer();
+            Check(pool.RecordUploads(cmd,lease,importer.Record,out _)&&cmd.Dispatches.Count>0&&importer.LastRejection==null,"logical RGB24 uses supported RGBA backing without publishing CPU-ready");
+            Check(((HybridLumenGIRayTextureMetadata[])cmd.Copies[0])[0].flags==0,"RGB expansion retains GPU completion requirement");
+            Finish(pool,lease);SystemInfo.UnsupportedFormat=-1;
+        }
+        Resources.Loaded=new ComputeShader();var loaded=Prepare(pool,Observe(Source()));var loadedCmd=new CommandBuffer();var loadedImporter=new HybridLumenGIRayTextureImporter();
+        Check(pool.RecordUploads(loadedCmd,loaded,loadedImporter.Record,out _)&&loadedCmd.Dispatches.Count==6,"resource-loaded compute actual branch");Finish(pool,loaded);Resources.Loaded=null;Clean();
+    }
+    static void ImporterFailureIsolation()
+    {
+        scenarios++;using var pool=new Pool();var view=Observe(Source());var shader=new ComputeShader();
+        shader.Kernels.Remove("CSFinishRayTextureCopy");var importer=new HybridLumenGIRayTextureImporter(shader);var missing=Prepare(pool,view);
+        var missingCmd=new CommandBuffer();Check(!pool.RecordUploads(missingCmd,missing,importer.Record,out _)&&missing.State==Pool.LeaseState.Quarantined&&missingCmd.Dispatches.Count==0,"partial kernel lookup quarantined after metadata init");Finish(pool,missing);
+        shader.Kernels["CSBeginRayTextureCopy"]=3;shader.Kernels["CSCopyRayTextureMip"]=4;shader.Kernels["CSFinishRayTextureCopy"]=5;
+        var repaired=Prepare(pool,view);var reference=new CommandBuffer();Check(pool.RecordUploads(reference,repaired,importer.Record,out _),"lookup retry resolves all identities");
+        Check(reference.Dispatches.First().Kernel==3&&reference.Dispatches.Last().Kernel==5&&shader.Lookups==6,"no partial kernel cache reused");Finish(pool,repaired);
+        for(int failure=1;failure<=reference.Calls;failure++)
+        {
+            var lease=Prepare(pool,view);var command=new CommandBuffer{ThrowAt=failure};
+            Check(!pool.RecordUploads(command,lease,importer.Record,out _)&&lease.State==Pool.LeaseState.Quarantined,"every command failure quarantines possibly referenced buffers");
+            Check(!pool.ReleaseUnrecorded(lease)&&!pool.Bind(new CommandBuffer(),new ComputeShader(),0,lease,out _),"no stale use or age release after partial importer");
+            long reserved=Pool.TotalAllocatedBytes;Pool.PollRetired();Check(Pool.TotalAllocatedBytes==reserved,"partial recording keeps budget");Finish(pool,lease);
+        }
+        var live=Source();var unreadable=Prepare(pool,Observe(live));live.ThrowOnRead=true;
+        Check(!pool.RecordUploads(new CommandBuffer(),unreadable,importer.Record,out _)&&unreadable.State==Pool.LeaseState.Quarantined,"source getter exception follows same isolation");Finish(pool,unreadable);
+        var mismatch=Prepare(pool,view);
+        using(var wrong=new GraphicsBuffer(GraphicsBuffer.Target.Structured,1,32))
+            Check(!pool.RecordUploads(new CommandBuffer(),mismatch,(c,u,m,t)=>importer.Record(c,u,wrong,t),out _)&&mismatch.State==Pool.LeaseState.Quarantined,"allocation ABI mismatch rejected");
+        Finish(pool,mismatch);Clean();
+    }
+    static void ConstantOnlyBatch()
+    {
+        scenarios++;using var pool=new Pool();
+        Check(pool.TryPrepare(new HybridLumenGIFrozenTextureView[10],80,out var lease,out _),"constant-only material exact dummy budget");
+        Check(lease.UploadCount==0&&lease.RequestCount==10&&lease.TexelCapacity==1&&lease.ByteCount==80,"constant-only storage dimensions");
+        for(int i=0;i<10;i++)Check(!lease.GetHandle(i).IsValid,"absence never gets a known-white handle");
+        var command=new CommandBuffer();int uploads=0;
+        Check(pool.RecordUploads(command,lease,(c,u,m,t)=>uploads++,out _),"constant-only record initialized");
+        Check(uploads==0&&command.Copies.Count==1&&command.Dispatches.Count==0,"constant-only records no bogus texture copy");
+        var metadata=(HybridLumenGIRayTextureMetadata[])command.Copies.Single();
+        Check(metadata.Length==1&&metadata[0].flags==0&&metadata[0].generation==0&&metadata[0].texelCount==0,"dummy is explicitly invalid");
+        Check(pool.Bind(command,new ComputeShader(),0,lease,out _),"constant-only shader bindings exist");
+        var pending=Fence();Check(pool.MarkSubmitted(lease,pending,out _),"constant-only seals consumer fence");Pool.PollRetired();
+        Check(Pool.TotalAllocatedBytes==80&&lease.State==Pool.LeaseState.Submitted,"constant-only dummy cannot be released while consumed");
+        pending.Signal.Complete=true;Pool.PollRetired();Check(lease.State==Pool.LeaseState.Released,"constant-only fence retires");Clean();
+    }
+    static HybridLumenGIRayTextureMetadata[] Published(CommandBuffer command)
+    {
+        var data=(HybridLumenGIRayTextureMetadata[])command.Copies[0].Clone();
+        for(int i=0;i<data.Length;i++)data[i].flags=1;
+        return data; // Deliberate GPU readback substitute; not real copy execution.
+    }
+    static void SharedResidencyAndReaderFences()
+    {
+        scenarios++;SystemInfo.supportsAsyncGPUReadback=true;
+        using var first=new Pool();using var second=new Pool();
+        var a=Observe(Source());var b=Observe(Source(7,5,3));var original=Prepare(first,a,b,a);
+        var command=new CommandBuffer();Record(first,original,command);long bytes=original.ByteCount;
+        Check(!second.TryPrepare(new[]{b,a},bytes*4,out _,out var pending)&&pending.Contains("pending"),"pending identical set never duplicates upload memory");
+        var uploadFence=Fence();Check(first.MarkSubmitted(original,uploadFence,out _),"initial consumer fence");
+        Pool.PollRetired();Check(AsyncGPUReadback.Pending.Count==0,"readback waits for actual consumer completion");
+        uploadFence.Signal.Complete=true;Pool.PollRetired();
+        Check(original.State==Pool.LeaseState.Released&&AsyncGPUReadback.Pending.Count==1&&Pool.TotalAllocatedBytes==bytes,"readback retains allocation after consumer lease retirement");
+        Check(!second.TryPrepare(new[]{a,b},bytes*4,out _,out _),"readback pending is not resident ready");
+        AsyncGPUReadback.CompleteNext(Published(command));Pool.PollRetired();
+        Check(second.TryPrepare(new[]{b,a,a},bytes,out var reuse,out _),"exact global budget reuses completed source set despite request order");
+        Check(reuse.IsReused&&reuse.UploadCount==0&&reuse.UploadByteCount==0&&reuse.Generation==original.Generation,"reuse carries allocation identity without uploads");
+        Check(reuse.GetHandle(0).Index==1&&reuse.GetHandle(1).Index==0&&reuse.GetHandle(2).Index==0,"remapped duplicate handles retain exact texture identity");
+        var again=Prepare(first,a,b);var reuseCommand=new CommandBuffer();Record(second,reuse,reuseCommand);Record(first,again);
+        Check(reuseCommand.Calls==0&&second.IsHandleCurrent(reuse,reuse.GetHandle(0)),"shared record does not overwrite metadata or texels");
+        second.GetResources(reuse,out var meta,out var texels);first.GetResources(again,out var meta2,out var texels2);
+        Check(ReferenceEquals(meta,meta2)&&ReferenceEquals(texels,texels2)&&Pool.TotalAllocatedBytes==bytes,"two active readers share one physical allocation");
+        var f1=Fence();var f2=Fence();Check(second.MarkSubmitted(reuse,f1,out _)&&first.MarkSubmitted(again,f2,out _),"independent final consumer fences");
+        Pool.InvalidateSource(a.Texture);f2.Signal.Complete=true;Pool.PollRetired();
+        Check(again.State==Pool.LeaseState.Released&&reuse.State==Pool.LeaseState.Submitted&&Pool.IsSourceReferenced(a.Texture),"newer reader completion cannot free older reader");
+        Check(!texels.Released&&Pool.TotalAllocatedBytes==bytes,"invalidating never overwrites or frees an old reader");
+        f1.Signal.Complete=true;Pool.PollRetired();
+        Check(!Pool.IsSourceReferenced(a.Texture)&&!texels.Released&&Pool.IsSourceReferenced(b.Texture),"unload gate opens only after final reader while unaffected page remains resident");
+        Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
+    }
+    static void ResidencyInvalidationAndReadbackFailures()
+    {
+        scenarios++;SystemInfo.supportsAsyncGPUReadback=true;using var pool=new Pool();
+        for(int failure=0;failure<6;failure++)
+        {
+            var texture=Source();var view=Observe(texture);var lease=Prepare(pool,view);var command=new CommandBuffer();Record(pool,lease,command);
+            Check(pool.MarkSubmitted(lease,Fence(true),out _),"readback failure fixture fence");Pool.PollRetired();
+            var data=Published(command);
+            if(failure==0)data[0].flags=0;if(failure==1)data[0].generation++;if(failure==2)data[0].texelCount++;
+            if(failure==3)data[0].reserved0=1;if(failure==4)texture.updateCount++;
+            AsyncGPUReadback.CompleteNext(data,failure==5);Pool.PollRetired();
+            Check(Pool.TotalAllocatedBytes==0&&!Pool.IsSourceReferenced(texture),"unready/stale/malformed/error readback never publishes residency");
+        }
+        var live=Source();var captured=Observe(live);var original=Prepare(pool,captured);var cmd=new CommandBuffer();Record(pool,original,cmd);
+        Check(pool.MarkSubmitted(original,Fence(true),out _),"ready source fence");Pool.PollRetired();AsyncGPUReadback.CompleteNext(Published(cmd));Pool.PollRetired();
+        var canceled=Prepare(pool,captured);Check(canceled.IsReused,"ready reused lease");Pool.InvalidateSource(live);
+        Check(!pool.RecordUploads(new CommandBuffer(),canceled,(c,u,m,t)=>{},out _)&&canceled.State==Pool.LeaseState.Prepared,"pre-record source epoch invalidation cannot publish a stale consumer");
+        Finish(pool,canceled);Check(!Pool.IsSourceReferenced(live),"canceling unrecorded reader allows retirement");
+        var invalid=Prepare(pool,Observe(Source()));Record(pool,invalid);AsyncGPUReadback.ThrowDuringRequest=true;
+        Check(pool.MarkSubmitted(invalid,Fence(true),out _),"unknown readback API fence");Pool.PollRetired();AsyncGPUReadback.ThrowDuringRequest=false;
+        long held=Pool.TotalAllocatedBytes;for(int i=0;i<200;i++)Pool.PollRetired();
+        Check(held>0&&Pool.TotalAllocatedBytes==held,"readback command exception cannot age-release referenced storage");
+        AsyncGPUReadback.CompleteNext(null,true);Pool.PollRetired();
+        SystemInfo.supportsAsyncGPUReadback=false;Clean();
+    }
+    static void ResidencyBudgetAndDynamicSources()
+    {
+        scenarios++;SystemInfo.supportsAsyncGPUReadback=true;using var pool=new Pool();
+        var texture=Source();var view=Observe(texture);var original=Prepare(pool,view);var cmd=new CommandBuffer();Record(pool,original,cmd);
+        Check(pool.MarkSubmitted(original,Fence(true),out _),"budget resident fence");Pool.PollRetired();AsyncGPUReadback.CompleteNext(Published(cmd));Pool.PollRetired();
+        long bytes=original.ByteCount;var idle=Prepare(pool,view);Finish(pool,idle); // Releasing reader preserves reusable allocation.
+        Check(Pool.TotalAllocatedBytes==bytes,"idle allocation remains globally budgeted");
+        texture.updateCount++;var current=Observe(texture);
+        Check(pool.TryPrepare(new[]{current},bytes,out var changed,out _),"pressure evicts completion-proven idle old version instead of exceeding budget");
+        Check(changed.GetHandle(0).Generation!=original.GetHandle(0).Generation&&changed.UploadCount==1,"changed content receives new page generation");Finish(pool,changed);
+        var rt=new RenderTexture{width=4,height=4,mipmapCount=3,graphicsFormat=42};var rtView=Observe(rt);
+        var rt1=Prepare(pool,rtView);var rt2=Prepare(pool,rtView);
+        Check(!rt1.IsReused&&!rt2.IsReused&&rt1.Generation!=rt2.Generation,"unversioned RT never reuses or deduplicates dynamic content across batches");
+        Finish(pool,rt1);Finish(pool,rt2);Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
+    }
+    static void PackedHalfLayoutsAndBudget()
+    {
+        scenarios++;
+        foreach(int width in new[]{1,2,3,7,17,2048})foreach(int height in new[]{1,3,9,2048})
+        {
+            int mips=1;for(int extent=Math.Max(width,height);extent>1;extent/=2)mips++;
+            Check(HybridLumenGIRayTextureLayout.TryCreate(width,height,mips,0,out var layout,true),"half layout valid");
+            int logical=0,physical=0;
+            for(int mip=0;mip<mips;mip++)
+            {
+                int w=Math.Max(1,width>>mip),h=Math.Max(1,height>>mip);
+                Check(layout.TryGetMip(mip,out int offset,out int gotW,out int gotH)&&offset==physical&&gotW==w&&gotH==h,"row padded mip begins after previous physical elements");
+                logical+=w*h;physical+=((w+1)/2)*h;
+            }
+            Check(layout.TexelCount==logical&&layout.StorageElementCount==physical&&layout.ByteCount==16L*physical,"logical count distinct from physical element budget");
+            Check(layout.Fits(3,physical+3)&&!layout.Fits(3,physical+2),"half physical capacity bound");
+            Check(layout.TryMakeMetadata(0,physical,1,2,0,1,0,1,out var metadata)&&metadata.texelCount==logical&&(metadata.sampler&HybridLumenGIRayTextureLayout.HalfPairsBit)!=0,"half metadata retains logical count and integer storage flag");
+        }
+        int ldr=(int)UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm;
+        Check(HybridLumenGIRayTextureLayout.CanPackHalf(ldr)&&!HybridLumenGIRayTextureLayout.CanPackHalf(42),"only bounded explicit formats packed");
+        using var pool=new Pool();var textures=Enumerable.Range(0,3).Select(_=>Source(2048,2048,12)).ToArray();
+        foreach(var texture in textures)texture.graphicsFormat=ldr;
+        Check(pool.TryPrepare(textures.Select(Observe).ToArray(),256L<<20,out var lease,out _),"three 2K full LDR mip chains fit default 256MiB");
+        Check(lease.ByteCount==134217936&&lease.GetUpload(0).Layout.PackedHalf,"exact three-chain half bytes incl three metadata records");
+        var cmd=new CommandBuffer();Record(pool,lease,cmd);var initial=Published(cmd);
+        Check(initial.All(v=>v.texelCount==5592405&&(v.sampler&HybridLumenGIRayTextureLayout.HalfPairsBit)!=0),"readback fixture retains each logical chain");
+        Finish(pool,lease);Clean();
+        foreach(var texture in textures)texture.graphicsFormat=42;
+        Check(!pool.TryPrepare(textures.Select(Observe).ToArray(),256L<<20,out _,out _),"unproven HDR float32 is not clamped to fit budget");Clean();
+    }
+    static void PageReplacementAndCanceledGraphs()
+    {
+        scenarios++;SystemInfo.supportsAsyncGPUReadback=true;using var pool=new Pool();
+        var a=Source(17,9,5);var b=Source(7,5,3);var av=Observe(a);var bv=Observe(b);
+        var initial=Prepare(pool,av,bv);var firstCommand=new CommandBuffer();Record(pool,initial,firstCommand);
+        long arenaBytes=initial.ByteCount;var firstData=Published(firstCommand);
+        Check(pool.MarkSubmitted(initial,Fence(true),out _),"first arena consumer complete");Pool.PollRetired();AsyncGPUReadback.CompleteNext(firstData);Pool.PollRetired();
+        var oldReader=Prepare(pool,av,bv);Record(pool,oldReader);var oldFence=Fence();Check(pool.MarkSubmitted(oldReader,oldFence,out _),"old immutable reader held");
+        a.updateCount++;var changed=Observe(a);Pool.InvalidateSource(a);
+        Check(pool.TryPrepare(new[]{changed,bv},arenaBytes,out var replacement,out _),"one changed page fits shared arena headroom at unchanged total budget");
+        Check(replacement.IsReused&&replacement.UploadCount==1&&replacement.GetUpload(0).View.Equals(changed),"only changed page copied");
+        Check(replacement.GetHandle(1).Index==oldReader.GetHandle(1).Index&&replacement.GetHandle(1).Generation==oldReader.GetHandle(1).Generation,"unaffected page handle exactly preserved");
+        Check(replacement.GetHandle(0).Index!=oldReader.GetHandle(0).Index&&replacement.GetHandle(0).Generation!=oldReader.GetHandle(0).Generation,"old reader metadata slot not overwritten");
+        var command=new CommandBuffer();Record(pool,replacement,command);
+        Check(command.Copies.Count==1&&command.CopyRanges.Single().Destination==replacement.GetHandle(0).Index&&command.CopyRanges.Single().Count==1,"only one new metadata row initialized; no whole arena clear");
+        Check(replacement.UploadByteCount==replacement.GetUpload(0).Layout.ByteCount+64&&Pool.TotalAllocatedBytes==arenaBytes,"page upload bytes separate from global reserved arena bytes");
+        var ready=(HybridLumenGIRayTextureMetadata[])firstData.Clone();var row=((HybridLumenGIRayTextureMetadata[])command.Copies[0])[0];row.flags=1;ready[replacement.GetHandle(0).Index]=row;
+        Check(pool.MarkSubmitted(replacement,Fence(true),out _),"new reader completed first");Pool.PollRetired();AsyncGPUReadback.CompleteNext(ready);Pool.PollRetired();
+        var noCopy=Prepare(pool,bv,changed);Check(noCopy.UploadCount==0,"changed set now shares each completed page");Record(pool,noCopy);
+        var currentFence=Fence();Check(pool.MarkSubmitted(noCopy,currentFence,out _),"second version retains its independent reader");
+        a.updateCount++;var next=Observe(a);
+        Check(!pool.TryPrepare(new[]{next,bv},arenaBytes,out _,out _),"full arena cannot overwrite still-reading old version to fit new version");
+        oldFence.Signal.Complete=true;Pool.PollRetired();
+        Check(pool.TryPrepare(new[]{next,bv},arenaBytes,out var nextLease,out _),"completed old reader frees independent page range");
+        Check(nextLease.UploadCount==1&&nextLease.GetHandle(0).Generation!=oldReader.GetHandle(0).Generation,"recycled slot always gets fresh page generation");
+        var kept=nextLease.GetHandle(1);Finish(pool,nextLease);
+        var onlyB=Prepare(pool,bv);Check(onlyB.UploadCount==0&&onlyB.GetHandle(0).Index==kept.Index&&onlyB.GetHandle(0).Generation==kept.Generation,"canceling unexecuted replacement graph leaves resident other page unchanged");Finish(pool,onlyB);
+        currentFence.Signal.Complete=true;Pool.PollRetired();Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
+    }
+    static void PageScopedInvalidationAndPartialCommands()
+    {
+        scenarios++;SystemInfo.supportsAsyncGPUReadback=true;using var pool=new Pool();
+        var a=Source();var b=Source();var av=Observe(a);var bv=Observe(b);var initial=Prepare(pool,av,bv);var cmd=new CommandBuffer();Record(pool,initial,cmd);
+        Check(pool.MarkSubmitted(initial,Fence(true),out _),"page scope initial fence");Pool.PollRetired();AsyncGPUReadback.CompleteNext(Published(cmd));Pool.PollRetired();
+        a.updateCount++;var newer=Observe(a);var page=Prepare(pool,newer,bv);
+        Check(!pool.TryPrepare(new[]{newer,bv},1L<<30,out _,out var pending)&&pending.Contains("pending"),"pending one-page upload request coalesces");
+        var other=Prepare(pool,bv);Check(other.UploadCount==0,"pending different page never blocks resident subset");Finish(pool,other);
+        Check(!pool.RecordUploads(new CommandBuffer{ThrowAt=1},page,(c,u,m,t)=>{},out _),"partial metadata row command quarantines new page");
+        for(int i=0;i<100;i++)Pool.PollRetired();Check(Pool.IsSourceReferenced(a),"unknown recording never age releases source");
+        Finish(pool,page);Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
+        var untouched=Source();var pristine=Prepare(pool,Observe(untouched));Pool.InvalidateSource(untouched);
+        var noCommands=new CommandBuffer();Check(!pool.RecordUploads(noCommands,pristine,(c,u,m,t)=>{},out _)&&noCommands.Calls==0,"explicit source epoch change rejects even a new page before first command");Finish(pool,pristine);Clean();
+        SystemInfo.supportsAsyncGPUReadback=true;
+        var cached=Observe(Source());var resident=Prepare(pool,cached);pool.GetResources(resident,out var metadata,out var texels);
+        var readyCommand=new CommandBuffer();Record(pool,resident,readyCommand);Check(pool.MarkSubmitted(resident,Fence(true),out _),"cleanup fixture fence");Pool.PollRetired();AsyncGPUReadback.CompleteNext(Published(readyCommand));Pool.PollRetired();
+        metadata.ThrowDispose=true;
+        Check(!pool.TryPrepare(new[]{Observe(Source(17,9,5))},resident.ByteCount,out _,out _)&&texels.Released,"partial arena eviction failure remains charged");
+        var afterFailure=Prepare(pool,cached);pool.GetResources(afterFailure,out _,out var freshTexels);
+        Check(!afterFailure.IsReused&&freshTexels!=null&&!ReferenceEquals(texels,freshTexels),"partially disposed arena cannot reenter residency");Finish(pool,afterFailure);
+        metadata.ThrowDispose=false;Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
+    }
+    static void PagePrecisionIdentity()
+    {
+        scenarios++;SystemInfo.supportsAsyncGPUReadback=true;using var pool=new Pool();
+        var texture=Source();texture.graphicsFormat=(int)UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm;var view=Observe(texture);
+        Check(pool.TryPrepareRequests(new[]{new Pool.Request(view),new Pool.Request(view,true)},1L<<30,out var wide,out _),"duplicate precision requests promote to strongest storage");
+        Check(wide.UploadCount==1&&!wide.GetUpload(0).Layout.PackedHalf&&wide.GetHandle(0).Index==wide.GetHandle(1).Index,"one full precision page satisfies both roles");
+        var cmd=new CommandBuffer();Record(pool,wide,cmd);Check(pool.MarkSubmitted(wide,Fence(true),out _),"wide fence");Pool.PollRetired();AsyncGPUReadback.CompleteNext(Published(cmd));Pool.PollRetired();
+        var narrow=Prepare(pool,view);Check(narrow.UploadCount==0&&narrow.GetHandle(0).Generation==wide.GetHandle(0).Generation,"wide residency can satisfy lower precision request");Finish(pool,narrow);Pool.ClearReusable();
+        var half=Prepare(pool,view);var halfCommand=new CommandBuffer();Record(pool,half,halfCommand);Check(pool.MarkSubmitted(half,Fence(true),out _),"half fence");Pool.PollRetired();AsyncGPUReadback.CompleteNext(Published(halfCommand));Pool.PollRetired();
+        Check(pool.TryPrepareRequests(new[]{new Pool.Request(view,true)},1L<<30,out var upgrade,out _)&&upgrade.UploadCount==1&&!upgrade.GetUpload(0).Layout.PackedHalf,"half resident never satisfies required wide coverage input");
+        Finish(pool,upgrade);Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
+        // Independent cutoff counterexample motivating the wide requirement: 128/255 rounds
+        // down in binary16, so a cutoff strictly between those values would flip acceptance.
+        double original=128.0/255.0,halfRounded=0.501953125,cutoff=(original+halfRounded)/2;
+        Check(original>=cutoff&&halfRounded<cutoff,"new lossy alpha encoding can flip a supported cutoff and is excluded by role");
+    }
+    static void SharedFrameQuotaAndProgress()
+    {
+        scenarios++;SystemInfo.supportsAsyncGPUReadback=true;using var aPool=new Pool();using var bPool=new Pool();
+        var sources=new[]{Observe(Source(13,9,4)),Observe(Source(7,5,3))};var pools=new[]{aPool,bPool};
+        var expected=new int[2];var starts=new int[2];var finishes=new int[2];var done=new bool[2];
+        var tables=new Dictionary<GraphicsBuffer,HybridLumenGIRayTextureMetadata[]>();var importer=new HybridLumenGIRayTextureImporter(new ComputeShader());
+        for(int frame=0;frame<32&&!done.All(x=>x);frame++)
+        {
+            Pool.BeginFrame(1000+frame,320);Check(Pool.UploadBytesUsed==0,"new frame resets shared byte allowance");
+            for(int camera=0;camera<2;camera++)
+            {
+                var lease=Prepare(pools[camera],sources[camera]);pools[camera].GetResources(lease,out var metadata,out _);
+                if(!tables.ContainsKey(metadata))tables[metadata]=new HybridLumenGIRayTextureMetadata[metadata.count];
+                if(frame==1&&camera==0)
+                {Finish(pools[camera],lease);Check(Pool.UploadBytesUsed==0,"canceled continuation graph consumes no quota");lease=Prepare(pools[camera],sources[camera]);}
+                var cmd=new CommandBuffer();Check(pools[camera].RecordUploads(cmd,lease,importer.Record,out _),"actual importer progressive recording");
+                int rangeId=Shader.PropertyToID("_HLGI_CopyRangeStart"),countId=Shader.PropertyToID("_HLGI_CopyRangeCount");long recorded=cmd.CopyRanges.Count*64;
+                foreach(var dispatch in cmd.Dispatches)
+                {
+                    if(dispatch.Kernel==0)starts[camera]++;
+                    if(dispatch.Kernel==2){finishes[camera]++;done[camera]=true;}
+                    if(dispatch.Kernel!=3)continue;
+                    Check(dispatch.Parameters[rangeId]==expected[camera],"ranges continue exactly at prior frame cursor");
+                    int count=dispatch.Parameters[countId];expected[camera]+=count;recorded+=(long)count*16;
+                    Check(dispatch.X==(count+63)/64&&dispatch.Y==1&&dispatch.Z==1,"actual range dispatch covers declared physical elements");
+                }
+                for(int i=0;i<cmd.CopyRanges.Count;i++)tables[metadata][cmd.CopyRanges[i].Destination]=((HybridLumenGIRayTextureMetadata[])cmd.Copies[i])[0];
+                if(frame==0&&camera==1)Check(!pools[camera].IsHandleCurrent(lease,lease.GetHandle(0))&&cmd.Calls==0,"exhausted frame never exposes uninitialized descriptor or records copy");
+                Check(recorded<=320&&Pool.UploadBytesUsed<=320,"all cameras share one actual recorded byte cap");
+                long used=Pool.UploadBytesUsed;Pool.BeginFrame(1000+frame,3200);Check(Pool.UploadBytesUsed==used&&Pool.UploadBudgetBytes==320,"same-frame camera cannot replenish or enlarge quota");
+                Check(pools[camera].MarkSubmitted(lease,Fence(true),out _),"progress final consumer fence");Pool.PollRetired();
+                while(AsyncGPUReadback.Pending.Count>0)
+                {
+                    var target=AsyncGPUReadback.Pending.Peek().Buffer;var table=(HybridLumenGIRayTextureMetadata[])tables[target].Clone();
+                    for(int i=0;i<table.Length;i++)if(table[i].generation!=0)table[i].flags=1;
+                    AsyncGPUReadback.CompleteNext(table);Pool.PollRetired();
+                }
+                if(!done[camera])Check(finishes[camera]==0,"partial chain never records Finish or ready proof");
+            }
+        }
+        Check(done.All(x=>x)&&starts.All(x=>x==1)&&finishes.All(x=>x==1),"both large pages make bounded cross-frame progress with one Begin and Finish each");
+        for(int i=0;i<2;i++){Check(expected[i]==(i==0?148:42),"every physical element copied exactly once");var cached=Prepare(pools[i],sources[i]);Check(cached.UploadCount==0,"completed range job becomes reusable only after readback");Finish(pools[i],cached);}
+        Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
+    }
+    static int Main()
+    {
+        try{LayoutAndFreeze();GlobalBudgetAndFences();FailuresAndQuarantine();DisposalAndAllocation();BoundsAndCancellation();IndependentLayoutAndGeneration();GlobalCapacityAndFrozenInputs();ImporterDispatchOracle();ImporterSourceAndSupport();ImporterFailureIsolation();ConstantOnlyBatch();SharedResidencyAndReaderFences();ResidencyInvalidationAndReadbackFailures();ResidencyBudgetAndDynamicSources();PackedHalfLayoutsAndBudget();PageReplacementAndCanceledGraphs();PageScopedInvalidationAndPartialCommands();PagePrecisionIdentity();SharedFrameQuotaAndProgress();
+            Console.WriteLine($"Ray texture pool: {checks} assertions, {scenarios} scenarios. Actual runtime lifecycle; Unity command/fence API substitutes, no GPU synchronization proof.");return 0;}
+        catch(Exception e){Console.Error.WriteLine(e);return 1;}
+    }
+}

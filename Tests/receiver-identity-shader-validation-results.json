@@ -1,0 +1,881 @@
+{
+    "schemaVersion":  1,
+    "kind":  "ReceiverIdentityShaderValidation",
+    "startedUtc":  "2026-10-27T10:05:04.3775401Z",
+    "completedUtc":  "2026-10-27T10:05:05.7920960Z",
+    "status":  "passed",
+    "scope":  "12 actual HLSL entry points and selected DXIL ABI/atomic signatures, including three DEBUG_DISPLAY discard-only PS variants. Development evidence only: no Unity import, raster visibility, UAV barriers, per-draw bindings or physical GPU verification.",
+    "compiler":  "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+    "compilerVersion":  "dxcompiler.dll: 1.8 - 1.8.2502.11 (239921522); dxil.dll: 1.8(1.8.2502.11)",
+    "compilerVersionLog":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\compiler-version.log",
+    "expectedUnityGraphicsRevision":  "feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53",
+    "includeRoot":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+    "includes":  [
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/DecodeSH.hlsl",
+                         "sha256":  "F3076129B5C7589C7DFD2F6E970CB031EA6094D1FE5353AE6F5ADC07373A3815"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolume.hlsl",
+                         "sha256":  "84CDAB966920E76EC490EEFD11E34552DE41D94F7D4B20637BC54AF8D3A97CC6"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ShaderVariablesProbeVolumes.cs.hlsl",
+                         "sha256":  "C8354ABA69D89EF3BE341FD146E2EB3E0948BDE74D1F0575B8DCE9EF2968D2B6"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/Runtime/ShaderLibrary/Sampling/Hammersley.cs.hlsl",
+                         "sha256":  "04F63398FBA53A8E6E3377D15CE57440A4F30966BCED9025CBE201D84CDB7D85"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/ACES.hlsl",
+                         "sha256":  "7E7978F40993E90C34C29BA3CBDA505A64ED5D2E7920907B247E5FF335522C94"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/AmbientProbe.hlsl",
+                         "sha256":  "C34711410EDDAD9DE1F189CED4E711D02C0245CFB8DD3BB93D06944AD8D5AA54"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/API/D3D11.hlsl",
+                         "sha256":  "DC9362FC3F1F495735681247BBCA47D304D08B2A7252772D71037BAD9A8B70DC"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/API/Validate.hlsl",
+                         "sha256":  "3134DB504D40F1A1FBF300AF43FBF8C7BA62937DAB96E873C998B20546BE9B0D"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/BSDF.hlsl",
+                         "sha256":  "C19E8362B94A9E9ECDB2B422706B825B2F9599220D29C97F29D7801B1E53EB83"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl",
+                         "sha256":  "21EC6EBFA1AE02CCE8B4966E669DDD0D437DD4C89422712E6B48D1EE3CF18C3E"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl",
+                         "sha256":  "9EE9A26C9D8245AA7B2A8C44F2D92CCDC055F86BE9E366BDBD9D217D831E3ACD"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonDeprecated.hlsl",
+                         "sha256":  "44745D7CEBAA271E6AEF262D55DB3DEBCBE26117A1929A21459CAC5F62DD2CDD"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonLighting.hlsl",
+                         "sha256":  "88A3DA8D877F2D5F4406AE621B2EB3A3761BDD3A687906EF77DD7D48D583F028"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl",
+                         "sha256":  "1025EFB7D34F4F73864944624490684CA11E5D35DFA5435895D7BD6D2D640B74"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Debug.hlsl",
+                         "sha256":  "B98556D3EE6D2BE7DAFACA88EBE7E5764C4DE4C146D08568568A862090527046"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreaming.hlsl",
+                         "sha256":  "47DC63086BA665147EF4633D21F6A900367B97576AAB203F1EA0A483A83AC455"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreamingMacros.hlsl",
+                         "sha256":  "E5062897F2E34F61DA4260804BD2FDA337BB0E0A22C9BA020089521886C7BAB1"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl",
+                         "sha256":  "7A13EA784C5F57C5483BA55FB16958AA9C6AC933D6398CD503718EE1B50E8AA0"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl",
+                         "sha256":  "188D904BFD6357F0E6BF5ECEFB6839030A552CE8B72C427AD11E9B6720F31ED1"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/GlobalSamplers.hlsl",
+                         "sha256":  "F8DB3219070A49DE17E423BBFA2839BECBECBD614C02F4888B39396F8E5D90DB"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/ImageBasedLighting.hlsl",
+                         "sha256":  "0FB6C5F7D1AD7102700211AEE6A060EAC7C8B1D181D19F637A64AC10B229E007"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Macros.hlsl",
+                         "sha256":  "BC2FCDDD337B4F18FF6B1F89B5C487F9B974D18E9D4EAC4F1DA63CA1E2914816"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl",
+                         "sha256":  "DF21B00C1457CE5C8C1AE6069FB4E6E4B4E15B3334ECE98A28B7D2E8F302082E"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/ParallaxMapping.hlsl",
+                         "sha256":  "B9887BEA0370A49FF421289C48AE440BD39DF9F7F29E4763EA59BC7FCF522969"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Random.hlsl",
+                         "sha256":  "4D788EDDA5D92CB119AE7FE19E47965338979997E64D8DF701AE6DF1175D0BE7"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Sampling/Fibonacci.hlsl",
+                         "sha256":  "142F2411B6854A4D68077FDA893C3AC90EC13F9A94FE429B2BAC8AB7D9CD0048"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Sampling/Hammersley.hlsl",
+                         "sha256":  "69EC8E738AFD4641C24976FBE8F07DA1CDEA6EF012FF21DAEF4F573AD56F7F88"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Sampling/Sampling.hlsl",
+                         "sha256":  "D7E890AEE6984117561F87A05A6D6EC89C5DC9989FAC00F547B04BCAB6523DF5"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Shadow/ShadowSamplingTent.hlsl",
+                         "sha256":  "77E2D61FDCFA891D5164653D6E0B3FD0666987189AA9D67A826209C457144A9B"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl",
+                         "sha256":  "BD0C174C2300EEC9BAF99BDDC5B003E34082766950D86E8D3746DF7E8693ACFA"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/SphericalHarmonics.hlsl",
+                         "sha256":  "A55AFB8FFFCBC918B1AB607BE74CCE0B5BE995B9A743E76C93677D76B999DD97"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityDOTSInstancing.hlsl",
+                         "sha256":  "7E09CCF4267412C30EE60271F1149C045A783938E7681E8B33A1D13E46B96B65"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl",
+                         "sha256":  "2EDB4ED8A69277A5A7F94F00DD323B5D594F9737B2761AF99E943809A4C54862"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.core/ShaderLibrary/Version.hlsl",
+                         "sha256":  "7712221F6A5D67235080A7E5A11B83B2A51C641F1B6CEE4B73A702AF33ADDE59"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/AmbientOcclusion.hlsl",
+                         "sha256":  "CA4EB8189F5DB08F839E768A1FA1E4C3A198ADDF6D06E60A9D5EBBC8DD08ED36"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/BRDF.hlsl",
+                         "sha256":  "1E8427056B0AB3046ADF753D72FC3AFEE3D54C335E38A4D1069E6EEDB0F78075"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Clustering.hlsl",
+                         "sha256":  "9E7887889903A63C1CC9CED314AABFF82712664DBDFA14FAA60EDCB439B61BDF"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl",
+                         "sha256":  "D2A0D8FC95539837EC612E768F80284DF0A50ACA39A50E1D5E91A827DAD4F0C0"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl",
+                         "sha256":  "8B0FA67DEB613F74F9BAAEC694A154CCF51BF5C1AAC3DF69A7431922797D6A83"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/Debugging3D.hlsl",
+                         "sha256":  "59A9D66505BEA7985DF2B6F3B39D8860339AFF48B138B48901A6D394F1256678"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl",
+                         "sha256":  "98B99E2CB1490186C1041EAB8CA20CA88160746937C3C58B03FB52D202726030"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebugViewEnums.cs.hlsl",
+                         "sha256":  "184B6B5970CBD3F6C52A20BA8181584F62137A141AF73C2609443D0E3649D5E7"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DecalInput.hlsl",
+                         "sha256":  "7D05A2431D8B2C2AA633C617AC149FDBE6F74D3E773E34944DCFB93146D39036"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Deprecated.hlsl",
+                         "sha256":  "5B6C0B3A2E9AD8F6285F30AED67952DE8E4431524F14C326C574DBC7502A2D21"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/GlobalIllumination.hlsl",
+                         "sha256":  "BA9E188BD326BFF5DE8C9D9DA0E17B78857A6DA6A286C3637C4344AA81411FA4"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl",
+                         "sha256":  "2D6ACC42177E51DECB6933AF61E6F4B56565A3E1697060120F4C7D52B4F82BDD"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LightCookie/LightCookie.hlsl",
+                         "sha256":  "2660A79E9653764B9567923994FBC83D52B3EE16A574471E7C729293870BF772"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LightCookie/LightCookieInput.hlsl",
+                         "sha256":  "E548590C9F8BC05D04853A56830688FB4327EA4166673D76CFB3F2DEE20CC962"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LightCookie/LightCookieTypes.hlsl",
+                         "sha256":  "E72F8359E539E3A69DCD3B772FE27587830E883A5E9C73B1A183C95D5F3562FB"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl",
+                         "sha256":  "E537487AF94A66D46B1456FD0431C7EDAAB226DF66DD1E3637BD84434B181951"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl",
+                         "sha256":  "95FEA0C28560E3F0355CDC35C98558296FA870C154C916A3939945779EBD874E"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RealtimeLights.hlsl",
+                         "sha256":  "DE581AD5BEA94C57E723CFFA2C3B6D18BB79AC7B15889D7F325A32442B34D246"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderTypes.cs.hlsl",
+                         "sha256":  "F48EB2E6338DA6E9AEF933F1B42533B459308F728CDE48DAC8FA5CFA21F53BAD"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.deprecated.hlsl",
+                         "sha256":  "87423AAB757B97E99F1B8905D7980C527AAC8134EFE2F9CA66CBECBDDF5E0C24"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl",
+                         "sha256":  "B76AFF0ED3773C02C824C35527156C630097747BC5784731473CBF2D8F8CE25F"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.deprecated.hlsl",
+                         "sha256":  "3294BF6448A0724A251634502EBE135E1E2B8B4E2E31E423CC2C3CD5979D82B8"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl",
+                         "sha256":  "B459EC72515E7EDD4C0AD49F6A266FD3F479149BF0FC501F0AD9F3A72C7D7E98"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceData.hlsl",
+                         "sha256":  "789C20CDFAA4F9578770E999D75ADEC5DBD337D93D5718056013636ED19AF039"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl",
+                         "sha256":  "245362E43921BBD9BB8A346F88636C8D93E1F3E0E2322082247543EDD38C12EF"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl",
+                         "sha256":  "2C6BE8A06278495F3C1732779712F815C6A1F7DD1803CFEBA684662C6295F8A7"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityInput.hlsl",
+                         "sha256":  "891980D4A828E843A053C16277040C24145E613EF0A6D626FC61017DB19A2EF2"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityTypes.hlsl",
+                         "sha256":  "C63BE00E04BF36EB4455DF64F722F0423979005FF0C3B78F2599CA92CA0A9140"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UniversalDOTSInstancing.hlsl",
+                         "sha256":  "71AA2633C1B9314CAC16FA3D1E2FC49797B9A47796CE706C27A7FD933F22691C"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl",
+                         "sha256":  "8B6541BEB61A81B516B09C7CC88A489299B70C32066904B29EF7B7CACA28DD09"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/Shaders/LitGBufferPass.hlsl",
+                         "sha256":  "3E214855B0EBF1A472271EB45B5A492AFBF610B11225DEA6CF9C00E1F1DACA51"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl",
+                         "sha256":  "4790ECD2F2C8093113B702FDC106486A63308754802C58995F2F0A8121B5B516"
+                     },
+                     {
+                         "file":  "Packages/com.unity.render-pipelines.universal-config/Runtime/ShaderConfig.cs.hlsl",
+                         "sha256":  "386F4B4362AC4B158B3B87C94D571E12DDB22D078A6016CD2EEBD64DF098C9A4"
+                     },
+                     {
+                         "file":  "Packages/com.unity.visualeffectgraph/Shaders/VFXMatricesOverride.hlsl",
+                         "sha256":  "2752A0E99C390080F4BD07D1E8945A479B07878D6E1ED145872AFC5CD3E36C1B"
+                     }
+                 ],
+    "includeChanges":  [
+
+                       ],
+    "artifactDirectory":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391",
+    "script":  "Tests/Validate-ReceiverIdentityShaders.ps1",
+    "scriptSha256":  "DE805411B5EF67A2418B9B4D2350C6AC0DCB76868CB95FA0B3CBD7EFBAB76306",
+    "scriptChanged":  false,
+    "sources":  [
+                    {
+                        "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+                        "sha256":  "2F3C467D36FBE63A6F9581A4517A24CBA77F19D9B14510C6D5F7DC0DFA35480A"
+                    },
+                    {
+                        "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.compute",
+                        "sha256":  "78F60FEAC6235395A7E986EED84A3BDEDA7B8AEC503954981E8D47229A46775F"
+                    },
+                    {
+                        "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl",
+                        "sha256":  "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+                    },
+                    {
+                        "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIScreenSampling.hlsl",
+                        "sha256":  "25607FFEBA963C9C7A2E1474F99337C3E4AC4079DB5CC6AC54E6D1D3505F52CF"
+                    }
+                ],
+    "sourcesAfter":  [
+                         {
+                             "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+                             "sha256":  "2F3C467D36FBE63A6F9581A4517A24CBA77F19D9B14510C6D5F7DC0DFA35480A"
+                         },
+                         {
+                             "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.compute",
+                             "sha256":  "78F60FEAC6235395A7E986EED84A3BDEDA7B8AEC503954981E8D47229A46775F"
+                         },
+                         {
+                             "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl",
+                             "sha256":  "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+                         },
+                         {
+                             "file":  "Runtime/Resources/HybridLumenGI/HybridLumenGIScreenSampling.hlsl",
+                             "sha256":  "25607FFEBA963C9C7A2E1474F99337C3E4AC4079DB5CC6AC54E6D1D3505F52CF"
+                         }
+                     ],
+    "sourceChanges":  [
+
+                      ],
+    "checks":  [
+                   {
+                       "name":  "identity-cull-Off-vs",
+                       "entry":  "HLGIIdentityVertex",
+                       "profile":  "vs_6_0",
+                       "debugVariant":  false,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  "; SV_Position              0   xyzw        0      POS   float   xyzw",
+                       "validationError":  null,
+                       "diagnostics":  "",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "vs_6_0",
+                                         "-E",
+                                         "HLGIIdentityVertex",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_VERTEX=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-vs.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-vs.ll",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass0.hlsl"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-vs.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-vs.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-vs.dxil",
+                       "listingSha256":  "A3E13225ED1681F6351DDFB4E93144D447BCF038A89C8C5E9DE79ADEB5EAC803",
+                       "dxilSha256":  "C3E0CDD51255F50BF1564DFDAD1D82BE0B08560A2943376914EF07C0F41E3646"
+                   },
+                   {
+                       "name":  "identity-cull-Off-ps",
+                       "entry":  "HLGIIdentityFragment",
+                       "profile":  "ps_6_0",
+                       "debugVariant":  false,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  "; SV_PrimitiveID           0   x           2   PRIMID    uint   x",
+                       "validationError":  null,
+                       "diagnostics":  "",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "ps_6_0",
+                                         "-E",
+                                         "HLGIIdentityFragment",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_FRAGMENT=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-ps.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-ps.ll",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass0.hlsl"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-ps.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-ps.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-ps.dxil",
+                       "listingSha256":  "5DC1BC5579C03CABEE648FEA6A0163133254307376AC87D364EC388D23ED955E",
+                       "dxilSha256":  "69759C0AB26E78A1BDBB757F4E939997099D56DC83F747DC4F6A5AA5C358BD63"
+                   },
+                   {
+                       "name":  "identity-cull-Off-ps-debug",
+                       "entry":  "HLGIIdentityFragment",
+                       "profile":  "ps_6_0",
+                       "debugVariant":  true,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  null,
+                       "validationError":  null,
+                       "diagnostics":  "dxc.exe : In file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass0.hlsl:2:\r\nAt C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Invoke-OfflineCheck.ps1:18 char:20\r\n+         $output = (\u0026 $command.Source @Arguments 2\u003e\u00261 | Out-String -Wi ...\r\n+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (In file include...1\\pass0.hlsl:2::String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl:221:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl:5:\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:33:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoMinLuminance = 0.01;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:34:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoMaxLuminance = 0.90;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:35:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoSaturationTolerance = 0.214;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:36:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoHueTolerance = 0.104;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:37:7: warning: Initializer of external global will be ignored\r\nhalf3 _DebugValidateAlbedoCompareColor = half3(0.5, 0.5, 0.5);\r\n      ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:39:6: warning: Initializer of external global will be ignored\r\nuint _DebugRenderingLayerMask = 0;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:45:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateMetallicMinValue = 0;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:46:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateMetallicMaxValue = 0.9;\r\n     ^",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "ps_6_0",
+                                         "-E",
+                                         "HLGIIdentityFragment",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_FRAGMENT=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-ps-debug.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-ps-debug.ll",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass0.hlsl",
+                                         "-D",
+                                         "DEBUG_DISPLAY=1"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-ps-debug.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-ps-debug.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Off-ps-debug.dxil",
+                       "listingSha256":  "F675A602E25D18B445D32CFA02FB99C737F153752133937DCB0C23BD9AAC3233",
+                       "dxilSha256":  "D19D7C7729305DEACBE4D5D14EB0553832E4D7743A2F017E3EADFCCECD27E684"
+                   },
+                   {
+                       "name":  "identity-cull-Front-vs",
+                       "entry":  "HLGIIdentityVertex",
+                       "profile":  "vs_6_0",
+                       "debugVariant":  false,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  "; SV_Position              0   xyzw        0      POS   float   xyzw",
+                       "validationError":  null,
+                       "diagnostics":  "",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "vs_6_0",
+                                         "-E",
+                                         "HLGIIdentityVertex",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_VERTEX=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-vs.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-vs.ll",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass1.hlsl"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-vs.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-vs.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-vs.dxil",
+                       "listingSha256":  "A3E13225ED1681F6351DDFB4E93144D447BCF038A89C8C5E9DE79ADEB5EAC803",
+                       "dxilSha256":  "C3E0CDD51255F50BF1564DFDAD1D82BE0B08560A2943376914EF07C0F41E3646"
+                   },
+                   {
+                       "name":  "identity-cull-Front-ps",
+                       "entry":  "HLGIIdentityFragment",
+                       "profile":  "ps_6_0",
+                       "debugVariant":  false,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  "; SV_PrimitiveID           0   x           2   PRIMID    uint   x",
+                       "validationError":  null,
+                       "diagnostics":  "",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "ps_6_0",
+                                         "-E",
+                                         "HLGIIdentityFragment",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_FRAGMENT=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-ps.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-ps.ll",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass1.hlsl"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-ps.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-ps.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-ps.dxil",
+                       "listingSha256":  "5DC1BC5579C03CABEE648FEA6A0163133254307376AC87D364EC388D23ED955E",
+                       "dxilSha256":  "69759C0AB26E78A1BDBB757F4E939997099D56DC83F747DC4F6A5AA5C358BD63"
+                   },
+                   {
+                       "name":  "identity-cull-Front-ps-debug",
+                       "entry":  "HLGIIdentityFragment",
+                       "profile":  "ps_6_0",
+                       "debugVariant":  true,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  null,
+                       "validationError":  null,
+                       "diagnostics":  "dxc.exe : In file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass1.hlsl:2:\r\nAt C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Invoke-OfflineCheck.ps1:18 char:20\r\n+         $output = (\u0026 $command.Source @Arguments 2\u003e\u00261 | Out-String -Wi ...\r\n+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (In file include...1\\pass1.hlsl:2::String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl:221:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl:5:\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:33:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoMinLuminance = 0.01;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:34:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoMaxLuminance = 0.90;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:35:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoSaturationTolerance = 0.214;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:36:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoHueTolerance = 0.104;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:37:7: warning: Initializer of external global will be ignored\r\nhalf3 _DebugValidateAlbedoCompareColor = half3(0.5, 0.5, 0.5);\r\n      ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:39:6: warning: Initializer of external global will be ignored\r\nuint _DebugRenderingLayerMask = 0;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:45:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateMetallicMinValue = 0;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:46:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateMetallicMaxValue = 0.9;\r\n     ^",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "ps_6_0",
+                                         "-E",
+                                         "HLGIIdentityFragment",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_FRAGMENT=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-ps-debug.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-ps-debug.ll",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass1.hlsl",
+                                         "-D",
+                                         "DEBUG_DISPLAY=1"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-ps-debug.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-ps-debug.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Front-ps-debug.dxil",
+                       "listingSha256":  "F675A602E25D18B445D32CFA02FB99C737F153752133937DCB0C23BD9AAC3233",
+                       "dxilSha256":  "D19D7C7729305DEACBE4D5D14EB0553832E4D7743A2F017E3EADFCCECD27E684"
+                   },
+                   {
+                       "name":  "identity-cull-Back-vs",
+                       "entry":  "HLGIIdentityVertex",
+                       "profile":  "vs_6_0",
+                       "debugVariant":  false,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  "; SV_Position              0   xyzw        0      POS   float   xyzw",
+                       "validationError":  null,
+                       "diagnostics":  "",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "vs_6_0",
+                                         "-E",
+                                         "HLGIIdentityVertex",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_VERTEX=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-vs.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-vs.ll",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass2.hlsl"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-vs.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-vs.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-vs.dxil",
+                       "listingSha256":  "A3E13225ED1681F6351DDFB4E93144D447BCF038A89C8C5E9DE79ADEB5EAC803",
+                       "dxilSha256":  "C3E0CDD51255F50BF1564DFDAD1D82BE0B08560A2943376914EF07C0F41E3646"
+                   },
+                   {
+                       "name":  "identity-cull-Back-ps",
+                       "entry":  "HLGIIdentityFragment",
+                       "profile":  "ps_6_0",
+                       "debugVariant":  false,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  "; SV_PrimitiveID           0   x           2   PRIMID    uint   x",
+                       "validationError":  null,
+                       "diagnostics":  "",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "ps_6_0",
+                                         "-E",
+                                         "HLGIIdentityFragment",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_FRAGMENT=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-ps.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-ps.ll",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass2.hlsl"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-ps.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-ps.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-ps.dxil",
+                       "listingSha256":  "5DC1BC5579C03CABEE648FEA6A0163133254307376AC87D364EC388D23ED955E",
+                       "dxilSha256":  "69759C0AB26E78A1BDBB757F4E939997099D56DC83F747DC4F6A5AA5C358BD63"
+                   },
+                   {
+                       "name":  "identity-cull-Back-ps-debug",
+                       "entry":  "HLGIIdentityFragment",
+                       "profile":  "ps_6_0",
+                       "debugVariant":  true,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  null,
+                       "validationError":  null,
+                       "diagnostics":  "dxc.exe : In file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass2.hlsl:2:\r\nAt C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Invoke-OfflineCheck.ps1:18 char:20\r\n+         $output = (\u0026 $command.Source @Arguments 2\u003e\u00261 | Out-String -Wi ...\r\n+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (In file include...1\\pass2.hlsl:2::String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl:221:\r\nIn file included from C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl:5:\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:33:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoMinLuminance = 0.01;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:34:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoMaxLuminance = 0.90;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:35:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoSaturationTolerance = 0.214;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:36:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateAlbedoHueTolerance = 0.104;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:37:7: warning: Initializer of external global will be ignored\r\nhalf3 _DebugValidateAlbedoCompareColor = half3(0.5, 0.5, 0.5);\r\n      ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:39:6: warning: Initializer of external global will be ignored\r\nuint _DebugRenderingLayerMask = 0;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:45:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateMetallicMinValue = 0;\r\n     ^\r\nC:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl:46:6: warning: Initializer of external global will be ignored\r\nhalf _DebugValidateMetallicMaxValue = 0.9;\r\n     ^",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "ps_6_0",
+                                         "-E",
+                                         "HLGIIdentityFragment",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_FRAGMENT=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-ps-debug.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-ps-debug.ll",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\pass2.hlsl",
+                                         "-D",
+                                         "DEBUG_DISPLAY=1"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-ps-debug.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-ps-debug.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\identity-cull-Back-ps-debug.dxil",
+                       "listingSha256":  "F675A602E25D18B445D32CFA02FB99C737F153752133937DCB0C23BD9AAC3233",
+                       "dxilSha256":  "D19D7C7729305DEACBE4D5D14EB0553832E4D7743A2F017E3EADFCCECD27E684"
+                   },
+                   {
+                       "name":  "CSClearIdentity",
+                       "entry":  "CSClearIdentity",
+                       "profile":  "cs_6_0",
+                       "debugVariant":  false,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  null,
+                       "validationError":  null,
+                       "diagnostics":  "",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "cs_6_0",
+                                         "-E",
+                                         "CSClearIdentity",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_COMPUTE=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSClearIdentity.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSClearIdentity.ll",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverIdentity.compute"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSClearIdentity.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSClearIdentity.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSClearIdentity.dxil",
+                       "listingSha256":  "55AD4D90A2A836D41B906BF0CDDC923C79443CD71E12CA59F588FF8429F2DB49",
+                       "dxilSha256":  "3244C1DB584080A9AF45DE2FE3283E60B315C00123D6B32DF85C53768F6127AA"
+                   },
+                   {
+                       "name":  "CSMaskUnknownIdentity",
+                       "entry":  "CSMaskUnknownIdentity",
+                       "profile":  "cs_6_0",
+                       "debugVariant":  false,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  null,
+                       "validationError":  null,
+                       "diagnostics":  "",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "cs_6_0",
+                                         "-E",
+                                         "CSMaskUnknownIdentity",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_COMPUTE=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSMaskUnknownIdentity.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSMaskUnknownIdentity.ll",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverIdentity.compute"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSMaskUnknownIdentity.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSMaskUnknownIdentity.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSMaskUnknownIdentity.dxil",
+                       "listingSha256":  "49C8D17252C4AFD0136BDB7E4369E8393D984678B595020BF127C6ACA8A9C5E2",
+                       "dxilSha256":  "EE7E3A3A02753B7331814E09F65BCDA34BF731C762B692E931C9A4529C603CDA"
+                   },
+                   {
+                       "name":  "CSResolveIdentity",
+                       "entry":  "CSResolveIdentity",
+                       "profile":  "cs_6_0",
+                       "debugVariant":  false,
+                       "exitCode":  0,
+                       "compilerExitCode":  0,
+                       "signatureVerified":  true,
+                       "signatureLine":  null,
+                       "validationError":  null,
+                       "diagnostics":  "",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-flegacy-macro-expansion",
+                                         "-T",
+                                         "cs_6_0",
+                                         "-E",
+                                         "CSResolveIdentity",
+                                         "-D",
+                                         "SHADER_API_D3D11=1",
+                                         "-D",
+                                         "SHADER_STAGE_COMPUTE=1",
+                                         "-D",
+                                         "UNITY_COMPILER_DXC=1",
+                                         "-D",
+                                         "UNITY_VERSION=600000",
+                                         "-D",
+                                         "SHADER_TARGET=50",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSResolveIdentity.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSResolveIdentity.ll",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverIdentity.compute"
+                                     ],
+                       "log":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSResolveIdentity.log",
+                       "listing":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSResolveIdentity.ll",
+                       "dxil":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-identity-dxc-d2f1f3de10494e3aa7d664604b3e8391\\CSResolveIdentity.dxil",
+                       "listingSha256":  "446189042F7B0E65D0B2551541D0DC150E09DD6D078600A1A8EF2B48C179EECB",
+                       "dxilSha256":  "F1F67FA997A952EE9383D2C52A4E45D78D821DFDB07150F52778717250128F51"
+                   }
+               ]
+}

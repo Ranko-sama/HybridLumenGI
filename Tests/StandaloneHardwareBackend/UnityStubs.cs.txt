@@ -1,0 +1,276 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using N=System.Numerics;
+namespace UnityEngine
+{
+    public struct Color
+    {
+        public float r,g,b,a;public Color(float r,float g,float b,float a=1){this.r=r;this.g=g;this.b=b;this.a=a;}
+        static float Linear(float value)=>(float)(value<=.04045?value/12.92:Math.Pow((value+.055)/1.055,2.4));
+        public Color linear=>new(Linear(r),Linear(g),Linear(b),a);
+    }
+    public sealed class GameObject { public bool activeInHierarchy=true; }
+    public struct Vector2 {public float x,y;public Vector2(float x,float y){this.x=x;this.y=y;}}
+    public struct Vector3
+    {
+        public float x,y,z;public Vector3(float x,float y,float z){this.x=x;this.y=y;this.z=z;}
+        public static Vector3 zero=>new(0,0,0);public static Vector3 one=>new(1,1,1);public static Vector3 up=>new(0,1,0);
+        public float sqrMagnitude=>x*x+y*y+z*z;
+        public static Vector3 operator -(Vector3 a,Vector3 b)=>new(a.x-b.x,a.y-b.y,a.z-b.z);
+        public static Vector3 Cross(Vector3 a,Vector3 b)=>new(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x);
+        public void Normalize(){float n=MathF.Sqrt(sqrMagnitude);if(n>1e-5){x/=n;y/=n;z/=n;}else{x=y=z=0;}}
+    }
+    public struct Vector4
+    {
+        public float x,y,z,w;public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}
+        public static Vector4 zero=>new(0,0,0,0);
+    }
+    // Numerics row-major storage of the transposed Unity matrix matches Unity's column-major field layout.
+    public struct Matrix4x4
+    {
+        public N.Matrix4x4 value;
+        public static Matrix4x4 identity=>new(){value=N.Matrix4x4.Identity};
+        public static Matrix4x4 Translate(Vector3 p)=>new(){value=N.Matrix4x4.CreateTranslation(p.x,p.y,p.z)};
+        public static Matrix4x4 Scale(Vector3 p)=>new(){value=N.Matrix4x4.CreateScale(p.x,p.y,p.z)};
+        public static Matrix4x4 RotateZ(float radians)=>new(){value=N.Matrix4x4.CreateRotationZ(radians)};
+        public static Matrix4x4 operator *(Matrix4x4 a,Matrix4x4 b)=>new(){value=b.value*a.value};
+        public float determinant=>value.GetDeterminant();
+        public Matrix4x4 inverse{get{N.Matrix4x4.Invert(value,out var m);return new(){value=m};}}
+        public Matrix4x4 transpose=>new(){value=N.Matrix4x4.Transpose(value)};
+        public Vector3 MultiplyVector(Vector3 p){var v=N.Vector3.TransformNormal(new N.Vector3(p.x,p.y,p.z),value);return new(v.X,v.Y,v.Z);}
+        public Vector3 MultiplyPoint3x4(Vector3 p){var v=N.Vector3.Transform(new N.Vector3(p.x,p.y,p.z),value);return new(v.X,v.Y,v.Z);}
+        public override bool Equals(object other)=>other is Matrix4x4 m&&value.Equals(m.value);
+        public override int GetHashCode()=>value.GetHashCode();
+    }
+    public static class Mathf
+    {
+        public static int Clamp(int x,int a,int b)=>Math.Clamp(x,a,b);public static int Max(int a,int b)=>Math.Max(a,b);public static float Abs(float a)=>MathF.Abs(a);
+        public static float Max(float a,float b)=>MathF.Max(a,b);public static float Sqrt(float x)=>MathF.Sqrt(x);
+    }
+    public enum MeshTopology { Triangles, Lines }
+    public sealed class Mesh
+    {
+        public bool isReadable=true;
+        public readonly List<Vector3> Vertices=new(),Normals=new();public readonly List<Vector2> UVs=new();public readonly List<Vector4> Tangents=new();
+        public readonly List<int[]> Submeshes=new();public readonly List<MeshTopology> Topologies=new();
+        public int VertexReads,NormalReads,UVReads,TriangleReads,TangentReads;
+        public int vertexCount=>Vertices.Count;public int subMeshCount=>Submeshes.Count;
+        public void GetVertices(List<Vector3> output){output.Clear();output.AddRange(Vertices);VertexReads++;}
+        public void GetNormals(List<Vector3> output){output.Clear();output.AddRange(Normals);NormalReads++;}
+        public void GetTangents(List<Vector4> output){output.Clear();output.AddRange(Tangents);TangentReads++;}
+        public void GetUVs(int channel,List<Vector2> output){if(channel!=0)throw new Exception();output.Clear();output.AddRange(UVs);UVReads++;}
+        public void GetTriangles(List<int> output,int submesh,bool applyBaseVertex){output.Clear();output.AddRange(Submeshes[submesh]);TriangleReads++;}
+        public ulong GetIndexCount(int submesh)=>(ulong)Submeshes[submesh].Length;
+        public MeshTopology GetTopology(int submesh)=>Topologies[submesh];
+    }
+    public sealed class MeshFilter {public Mesh sharedMesh;}
+    public class Renderer
+    {
+        public bool enabled=true;public MeshFilter Filter;public Matrix4x4 localToWorldMatrix=Matrix4x4.identity;
+        public GameObject gameObject=new();public float RendererMpbValue;
+        public readonly Dictionary<int,float> SlotMpbValues=new();
+        public readonly List<Material> Materials=new();
+        public T GetComponent<T>() where T:class=>Filter as T;
+        public void GetSharedMaterials(List<Material> output){output.Clear();output.AddRange(Materials);}
+    }
+    public sealed class MeshRenderer:Renderer{}
+    public sealed class SkinnedMeshRenderer:Renderer{}
+    public sealed class Material
+    {
+        public bool UsesRenderTexture;public float SourceValue;
+        public int renderQueue=2000;public readonly Dictionary<string,float> Floats=new();public readonly HashSet<string> Keywords=new();
+        public bool HasProperty(string name)=>Floats.ContainsKey(name);public float GetFloat(string name)=>Floats[name];public bool IsKeywordEnabled(string name)=>Keywords.Contains(name);
+    }
+    public enum ComputeBufferType { Structured }
+    public sealed class ComputeBuffer
+    {
+        public static int AllocationCount;
+        public readonly int count,stride;public readonly object[] data;public bool Released;public int UploadCalls;
+        public ComputeBuffer(int count,int stride,ComputeBufferType type){AllocationCount++;this.count=count;this.stride=stride;data=new object[count];}
+        public void SetData<T>(List<T> values) where T:struct=>Upload(values);
+        public void SetData<T>(T[] values) where T:struct=>Upload(values);
+        private void Upload(IList values){if(Released||values.Count>count)throw new Exception("Invalid buffer upload");for(int i=0;i<values.Count;i++)data[i]=values[i];UploadCalls++;}
+        public void Release(){Released=true;}
+    }
+    public sealed class ComputeShader
+    {
+        public readonly Dictionary<int,ComputeBuffer> Buffers=new();public UnityEngine.Rendering.RayTracingAccelerationStructure Acceleration;
+        public void SetBuffer(int kernel,int id,ComputeBuffer buffer)=>Buffers[id]=buffer;
+        public void SetRayTracingAccelerationStructure(int kernel,int id,UnityEngine.Rendering.RayTracingAccelerationStructure acceleration)=>Acceleration=acceleration;
+    }
+    public static class Resources
+    {
+        public static bool Available=true;
+        public static T Load<T>(string path) where T:class=>Available?new ComputeShader() as T:null;
+    }
+    public static class Shader
+    {
+        private static readonly Dictionary<string,int> Names=new();
+        public static int PropertyToID(string name){if(!Names.TryGetValue(name,out int id)){id=Names.Count+1;Names.Add(name,id);}return id;}
+    }
+    public static class SystemInfo
+    {
+        public static bool supportsComputeShaders=true,supportsInlineRayTracing=true;
+        public static UnityEngine.Rendering.GraphicsDeviceType graphicsDeviceType=UnityEngine.Rendering.GraphicsDeviceType.Direct3D12;
+    }
+    public static class Debug{public static readonly List<string> Warnings=new();public static void LogWarning(string text)=>Warnings.Add(text);}
+}
+namespace UnityEngine.Rendering
+{
+    public enum GraphicsDeviceType { Direct3D12,Direct3D11,Vulkan }
+    [Flags] public enum RayTracingSubMeshFlags { Enabled=1,ClosestHitOnly=2 }
+    public struct RayTracingMeshInstanceConfig
+    {
+        public UnityEngine.Mesh mesh;public uint subMeshIndex;public UnityEngine.Material material;
+        public bool enableTriangleCulling,dynamicGeometry;public uint mask;public RayTracingSubMeshFlags subMeshFlags;
+        public RayTracingMeshInstanceConfig(UnityEngine.Mesh mesh,uint submesh,UnityEngine.Material material){this=default;this.mesh=mesh;subMeshIndex=submesh;this.material=material;}
+    }
+    public sealed class RayTracingAccelerationStructure:IDisposable
+    {
+        public record Addition(int Handle,RayTracingMeshInstanceConfig Config,UnityEngine.Matrix4x4 Matrix,uint Id);
+        public static RayTracingAccelerationStructure Last;public static bool RejectNextAdd,ThrowNextAdd;
+        private static int nextHandle=20;
+        public int ClearCount,BuildCount;public bool Disposed;public ulong Size=123456;public bool ThrowOnDispose;
+        public readonly List<Addition> AddHistory=new();public readonly Dictionary<int,Addition> Active=new();
+        public readonly List<(int handle,UnityEngine.Matrix4x4 matrix)> Updates=new();
+        public RayTracingAccelerationStructure(){Last=this;}
+        public void ClearInstances(){ClearCount++;Active.Clear();}
+        public int AddInstance(RayTracingMeshInstanceConfig config,UnityEngine.Matrix4x4 matrix,UnityEngine.Matrix4x4? previous,uint id)
+        {
+            if(ThrowNextAdd){ThrowNextAdd=false;throw new InvalidOperationException("simulated native AddInstance failure");}
+            if(RejectNextAdd){RejectNextAdd=false;return 0;}
+            int handle=++nextHandle;var record=new Addition(handle,config,matrix,id);Active.Add(handle,record);AddHistory.Add(record);return handle;
+        }
+        public void UpdateInstanceTransform(int handle,UnityEngine.Matrix4x4 matrix){if(!Active.ContainsKey(handle))throw new Exception("Stale native handle");Updates.Add((handle,matrix));}
+        public ulong GetSize()=>Size;
+        public void Dispose(){if(ThrowOnDispose)throw new Exception("native destruction failed");Disposed=true;Active.Clear();}
+    }
+    public sealed class CommandBuffer
+    {
+        public bool ThrowOnBuild;public int BuildCalls;public RayTracingAccelerationStructure Acceleration;
+        public readonly Dictionary<int,UnityEngine.ComputeBuffer> Buffers=new();
+        public void BuildRayTracingAccelerationStructure(RayTracingAccelerationStructure acceleration){BuildCalls++;if(ThrowOnBuild)throw new InvalidOperationException("simulated build failure");acceleration.BuildCount++;}
+        public void SetGlobalRayTracingAccelerationStructure(int id,RayTracingAccelerationStructure acceleration)=>Acceleration=acceleration;
+        public void SetComputeBufferParam(UnityEngine.ComputeShader shader,int kernel,int id,UnityEngine.ComputeBuffer buffer)=>Buffers[id]=buffer;
+    }
+}
+namespace HybridLumenGI
+{
+    // Explicit completion adapter: immediate mode preserves older no-GPU tests;
+    // budget/lifetime fixtures switch it off and invoke the callbacks manually.
+    public static class HybridLumenGIResourceRetirement
+    {
+        public static bool Immediate=true;
+        public static readonly List<Action> Pending=new();
+        public static void Retire(Action callback){if(Immediate)callback();else Pending.Add(callback);}
+        public static void Complete(){for(int i=Pending.Count-1;i>=0;i--){Pending[i]();Pending.RemoveAt(i);}}
+    }
+    public static class HybridLumenGIDeformedMesh
+    {
+        public static UnityEngine.Mesh GetSourceMesh(UnityEngine.Renderer renderer)=>renderer?.Filter?.sharedMesh;
+        public static bool HasSnapshot(UnityEngine.Renderer renderer)=>false;
+    }
+    // Prepared triangle interface adapter. The real area distribution is compiled
+    // separately by Validate-AreaEmissionBuilder; this test exercises backend data.
+    public static class HybridLumenGIAreaEmission
+    {
+        public struct Triangle
+        {
+            public UnityEngine.Vector3 P0,P1,P2,RawNg;
+            public uint OwnerSlot,StableId,OwnerRevision,GeometryRevision,Instance,Submesh,Primitive,Cull;
+        }
+        public interface ITriangleProvider
+        {
+            int GetTriangleCount(int instance);
+            bool TryGetTriangle(int instance,int primitive,out Triangle triangle);
+        }
+    }
+    // These adapters observe the actual backend's selected renderer/material slot.
+    // MaterialSource and Batch.Source runtime implementations have separate source-compiled suites.
+    public sealed class HybridLumenGIMaterialSource
+    {
+        public sealed class Snapshot
+        {
+            public UnityEngine.Renderer SourceRenderer {get;}
+            public UnityEngine.Material SourceMaterial {get;}
+            public int MaterialIndex {get;}
+            public bool CanReuseHistory {get;}
+            public float FrozenValue {get;}
+            public Snapshot(UnityEngine.Renderer r,UnityEngine.Material m,int index)
+            {SourceRenderer=r;SourceMaterial=m;MaterialIndex=index;CanReuseHistory=!m.UsesRenderTexture;
+             FrozenValue=r.SlotMpbValues.TryGetValue(index,out float slot)?slot:r.RendererMpbValue!=0?r.RendererMpbValue:m.SourceValue;}
+        }
+        public static readonly List<(UnityEngine.Renderer renderer,int index,UnityEngine.Material source)> Calls=new();
+        public static int RejectIndex=-1;public static bool ThrowCapture,WrongSnapshot;public static Action<int> OnCapture;
+        public bool TryCapture(UnityEngine.Renderer renderer,int index,UnityEngine.Material source,out Snapshot snapshot,out string reason)
+        {
+            Calls.Add((renderer,index,source));snapshot=null;reason=null;
+            if(ThrowCapture)throw new Exception("source reader failure");
+            if(index==RejectIndex||index<0||index>=renderer.Materials.Count||!ReferenceEquals(source,renderer.Materials[index]))
+            {reason="rejected original source";return false;}
+            snapshot=new(renderer,source,WrongSnapshot?index+1:index);OnCapture?.Invoke(index);return true;
+        }
+        public bool IsCurrent(UnityEngine.Renderer r,int index,Snapshot snapshot)=>throw new Exception("History API must not gate current RT capture");
+    }
+    public sealed class HybridLumenGIHitMaterialBatch
+    {
+        public readonly struct Source
+        {
+            public readonly HybridLumenGIMaterialSource.Snapshot Snapshot;
+            public readonly uint StableId,OwnerRevision,GeometryRevision,Submesh;
+            public readonly UnityEngine.Vector4 LinearProxyTint,LinearProxyEmission;
+            public Source(HybridLumenGIMaterialSource.Snapshot snapshot,uint stableId,uint ownerRevision,uint geometryRevision,uint submesh,
+                UnityEngine.Vector4 tint,UnityEngine.Vector4 emission)
+            {Snapshot=snapshot;StableId=stableId;OwnerRevision=ownerRevision;GeometryRevision=geometryRevision;Submesh=submesh;LinearProxyTint=tint;LinearProxyEmission=emission;}
+        }
+    }
+    public sealed class HybridLumenGIProxy
+    {
+        public UnityEngine.Renderer SourceRenderer;public bool isActiveAndEnabled=true;
+        public int StableId,Revision=1,GeometryContentRevision=1;
+        public UnityEngine.Color AlbedoTint=new(1,1,1),EmissionOverride=new(0,0,0);
+        public float EmissionIntensity=1;
+    }
+    // SurfaceCache is a recording boundary here; the actual cache/asset classes
+    // have their own source-compiled suites. No triangle allocator is duplicated.
+    public sealed class HybridLumenGISurfaceCache
+    {
+        public struct TriangleChartBinding { public uint cardIndex,chartId,layoutGeneration,geometryRevision; }
+        public struct HardwareMaterial { public uint cullMode; public UnityEngine.Vector4 diffuse,emission; }
+        public readonly HybridLumenGIScene Scene;
+        public readonly Dictionary<int,uint> Geometry=new(),Layouts=new();
+        public readonly Dictionary<(int,int,int),TriangleChartBinding> Bindings=new();
+        public readonly Dictionary<(int,int),HardwareMaterial> Materials=new();
+        public readonly HashSet<int> UnknownMaterial=new(),NoBinding=new();
+        public int BindingQueries,MaterialQueries;
+        public HybridLumenGISurfaceCache(HybridLumenGIScene scene){Scene=scene;}
+        public uint GetGeometryRevision(int slot)=>Scene.Renderers[slot]!=null?Geometry.GetValueOrDefault(slot,1u):0;
+        public uint GetLayoutGeneration(int slot)=>NoBinding.Contains(slot)?0:Layouts.GetValueOrDefault(slot,1u);
+        public bool TryGetTriangleBinding(int slot,UnityEngine.Mesh mesh,int submesh,int primitive,out TriangleChartBinding binding)
+        {
+            BindingQueries++;binding=new(){cardIndex=uint.MaxValue};
+            if(NoBinding.Contains(slot)||Scene.Renderers[slot]?.Filter?.sharedMesh!=mesh)return false;
+            if(Bindings.TryGetValue((slot,submesh,primitive),out binding))return true;
+            binding=new(){cardIndex=(uint)(slot*32+submesh+3),chartId=(uint)(submesh+11),layoutGeneration=GetLayoutGeneration(slot),geometryRevision=GetGeometryRevision(slot)};return true;
+        }
+        public bool TryGetHardwareMaterial(int slot,UnityEngine.Mesh mesh,int submesh,out HardwareMaterial material)
+        {
+            MaterialQueries++;material=default;
+            if(UnknownMaterial.Contains(slot)||Scene.Renderers[slot]?.Filter?.sharedMesh!=mesh)return false;
+            if(Materials.TryGetValue((slot,submesh),out material))return true;
+            material=new(){cullMode=2,diffuse=new(.1f*(submesh+1),.2f,.3f,1),emission=new(submesh,2*submesh,3*submesh,0)};return true;
+        }
+    }
+    public sealed class HybridLumenGIScene
+    {
+        [Flags] public enum ChangeKind{Added=1,Removed=2,Transform=4,Material=8,Topology=16,Manual=32,Representation=64,Lighting=128}
+        public struct LightingPolicyData{public uint objectLayerBit,renderingLayerMask,shadowCastingMode,reserved;}
+        public struct DirtyRegion{public int Slot;public ChangeKind Kind;}
+        public struct ProxyGpuData{public UnityEngine.Vector4 identity;}
+        public readonly List<DirtyRegion> DirtyRegions=new();public ProxyGpuData[] Data;public UnityEngine.Renderer[] Renderers;public LightingPolicyData[] LightingPolicies;
+        public HybridLumenGIProxy[] Proxies;public HybridLumenGIProxy GetProxy(int slot)=>Proxies[slot];
+        public int Capacity=>Data.Length;public UnityEngine.Renderer GetRenderer(int slot)=>Renderers[slot];
+        public HybridLumenGIScene(int count){Data=new ProxyGpuData[count];Renderers=new UnityEngine.Renderer[count];LightingPolicies=new LightingPolicyData[count];Proxies=new HybridLumenGIProxy[count];}
+    }
+}

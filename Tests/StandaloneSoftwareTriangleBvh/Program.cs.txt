@@ -1,0 +1,44 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using HybridLumenGI;
+using UnityEngine;
+using A=HybridLumenGI.HybridLumenGIAreaEmission;
+using B=HybridLumenGI.HybridLumenGISoftwareTriangleBvh;
+static class Program {
+    static int checks;static void Check(bool p,string s){checks++;if(!p)throw new Exception(s);}
+    sealed class Provider:A.ITriangleProvider {
+        public A.Triangle[] triangles;public bool missing;
+        public int GetTriangleCount(int i)=>i==0?triangles.Length:0;
+        public bool TryGetTriangle(int i,int p,out A.Triangle t){t=triangles[p];return !missing;}
+    }
+    static float At(Vector3 v,int a)=>a==0?v.x:a==1?v.y:v.z;
+    static void Write(BinaryWriter w,Vector3 v){w.Write(v.x);w.Write(v.y);w.Write(v.z);}
+    static void Write(BinaryWriter w,Vector4 v){w.Write(v.x);w.Write(v.y);w.Write(v.z);w.Write(v.w);}
+    static void Main(){
+        Check(Marshal.SizeOf<B.Node>()==32&&Marshal.SizeOf<B.Leaf>()==64,"ABI");
+        var r=new Random(177);var p=new Provider{triangles=new A.Triangle[258]};
+        for(int i=0;i<p.triangles.Length;i++){
+            float x=(float)(r.NextDouble()*16-8),y=(float)(r.NextDouble()*16-8),z=(float)(r.NextDouble()*7+1),size=(float)(r.NextDouble()*.8+.1);
+            p.triangles[i]=new A.Triangle{Instance=0,Primitive=(uint)i,P0=new(x,y,z),P1=new(x+size,y+.1f,z+.2f),P2=new(x,y+size,z),RawNg=new(0,0,1)};
+        }
+        // Two adjacent triangles with a shared diagonal at z=1 are edge probes.
+        p.triangles[0]=new(){Instance=0,Primitive=0,P0=new(-1,-1,1),P1=new(1,-1,1),P2=new(-1,1,1)};
+        p.triangles[1]=new(){Instance=0,Primitive=1,P0=new(1,1,1),P1=new(-1,1,1),P2=new(1,-1,1)};
+        Check(!B.TryBuild(p,1,257,out _,out _),"Capacity cannot publish a partial owner");
+        p.missing=true;Check(!B.TryBuild(p,1,258,out _,out _),"Missing prepared primitive cannot publish a partial owner");p.missing=false;
+        Check(B.TryBuild(p,1,258,out var layout,out var reason),reason);Check(layout.LeafCount==258&&layout.NodeCount==515,"Full binary tree count");
+        Check(layout.ByteCount==515*32L+258*64L,"Actual budget");var seen=new bool[258];
+        for(int i=0;i<layout.NodeCount;i++){
+            var n=layout.Nodes[i];Check(n.skipIndex>i&&n.skipIndex<=layout.NodeCount,"Finite advancing escape links");
+            if(n.leaf>=0){Check(!seen[n.leaf],"Unique leaf");seen[n.leaf]=true;Check(n.skipIndex==i+1,"Leaf successor");}
+            for(int j=i+1;j<n.skipIndex;j++)for(int a=0;a<3;a++)Check(At(n.minimum,a)<=At(layout.Nodes[j].minimum,a)&&At(n.maximum,a)>=At(layout.Nodes[j].maximum,a),"Parent contains all descendants without Bounds round trip");
+        }
+        Check(seen.All(x=>x),"Every prepared primitive reachable");var copy=layout.CopyLeaves();copy[0]=default;Check(layout.Leaves[0].p0.w==1,"Immutable leaf snapshot");
+        string output=Environment.GetEnvironmentVariable("HLGI_SOFTWARE_BVH_OUTPUT");if(string.IsNullOrEmpty(output))throw new Exception("Missing artifact path");
+        using(var w=new BinaryWriter(File.Create(Path.Combine(output,"nodes.bin")))){w.Write(layout.NodeCount);foreach(var n in layout.Nodes){Write(w,n.minimum);w.Write(n.skipIndex);Write(w,n.maximum);w.Write(n.leaf);}}
+        using(var w=new BinaryWriter(File.Create(Path.Combine(output,"leaves.bin")))){w.Write(layout.LeafCount);foreach(var v in layout.Leaves){Write(w,v.p0);Write(w,v.p1);Write(w,v.p2);w.Write(v.identity.x);w.Write(v.identity.y);w.Write(v.identity.z);w.Write(v.identity.w);}}
+        Console.WriteLine("SoftwareTriangleBvh actual C# builder "+checks+" checks PASS; exported real class output; provider/Unity data are explicit adapters.");
+    }
+}

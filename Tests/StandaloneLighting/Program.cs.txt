@@ -1,0 +1,92 @@
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using HybridLumenGI;
+using L=HybridLumenGI.HybridLumenGILights;
+using UO=UnityEngine.Object;
+static class Program
+{
+    static int checks;
+    static void Check(bool b,string message){checks++;if(!b)throw new Exception(message);}
+    static L.Data Pack(Light light,bool layers=true){Check(L.TryPack(light,layers,out var d),"pack accepted");return d;}
+    static void Main()
+    {
+        Check(Marshal.SizeOf<L.Data>()==80 && L.Stride==80,"80B ABI");
+        Check(Marshal.OffsetOf<L.Data>("cullingMask").ToInt32()==64,"integer masks begin at byte64");
+        var light=new Light(); var extra=new UniversalAdditionalLightData(); light.additional=extra;
+        foreach(float strength in new[]{0f,.25f,1f,-1f,2f,float.NaN,float.PositiveInfinity})
+        {
+            light.shadowStrength=strength;
+            foreach(var mode in new[]{LightShadows.None,LightShadows.Hard,LightShadows.Soft})
+            {
+                light.shadows=mode;var d=Pack(light);
+                float expected=mode==LightShadows.None || !float.IsFinite(strength)?0:Math.Clamp(strength,0,1);
+                Check(d.spot.z==expected,"shadow strength/off");
+            }
+        }
+        light.shadowStrength=1;light.shadows=LightShadows.Hard;
+        for(int bit=0;bit<32;bit++)
+        {
+            uint mask=1u<<bit;light.cullingMask=unchecked((int)mask);extra.renderingLayers=mask;
+            extra.customShadowLayers=true;extra.shadowRenderingLayers=~mask;light.renderingLayerMask=~mask;
+            var d=Pack(light);Check(d.cullingMask==mask&&d.renderingLayers==mask&&d.shadowRenderingLayers==~mask&&d.flags==1,"independent uint masks");
+            var disabled=Pack(light,false);Check(disabled.flags==0&&disabled.cullingMask==mask,"layer gate preserves GameObject culling");
+            extra.customShadowLayers=false;light.renderingLayerMask=mask;
+            Check(Pack(light).shadowRenderingLayers==mask,"native shadow mask after noncustom setter synchronization");
+        }
+        RenderingLayerMask.DefinedMask=5;extra.renderingLayers=uint.MaxValue;extra.customShadowLayers=false;light.renderingLayerMask=uint.MaxValue;
+        Check(Pack(light).renderingLayers==5 && Pack(light).shadowRenderingLayers==uint.MaxValue,"URP illumination defined mask only");
+        GraphicsSettings.GlobalSettings=null;Check(Pack(light).renderingLayers==uint.MaxValue,"absent global settings");
+        GraphicsSettings.GlobalSettings=new();RenderingLayerMask.DefinedMask=uint.MaxValue;
+        light.additional=null;light.renderingLayerMask=1;Check(Pack(light).renderingLayers==1&&Pack(light).shadowRenderingLayers==1,"absent component default");
+        light.additional=extra;light.cullingMask=-1;extra.renderingLayers=1;
+        var collector=new L();var data=new L.Data[32];var changes=new List<L.Data>();int count=0,hash;
+        UO.Found=new[]{light};UO.Scans=0;
+        count=collector.Update(10,true,data,32,count,changes,out hash);Check(count==1&&changes.Count==1&&UO.Scans==1,"new source");
+        int stableHash=hash;var old=data[0];
+        count=collector.Update(10,true,data,32,count,changes,out hash);Check(changes.Count==0&&UO.Scans==1&&hash==stableHash,"same-frame repeat");
+        light.shadowStrength=.25f;
+        count=collector.Update(10,true,data,32,count,changes,out hash);
+        Check(changes.Count==2&&changes[0].Equals(old)&&changes[1].spot.z==.25f,"same-frame shadow change old/new");
+        light.transform.position=new(20,30,40);light.range=5;
+        count=collector.Update(11,true,data,32,count,changes,out hash);
+        Check(changes.Count==2&&changes[0].positionType.x==0&&changes[1].positionType.x==20,"old/new light influence bounds");
+        light.type=LightType.Directional;
+        count=collector.Update(12,true,data,32,count,changes,out hash);
+        Check(changes.Count==2&&changes[0].positionType.w==1&&changes[1].positionType.w==0,"local/global transition");
+        light.isActiveAndEnabled=false;
+        count=collector.Update(12,true,data,32,count,changes,out hash);Check(count==0&&changes.Count==1&&data[0].Equals(default),"disable retires");
+        light.isActiveAndEnabled=true;
+        count=collector.Update(12,true,data,32,count,changes,out hash);Check(count==1,"inactive-snapshot activation same frame");
+        var second=new Light();UO.Found=new[]{light,second};
+        count=collector.Update(12,true,data,32,count,changes,out hash);Check(count==1,"same frame snapshot frozen membership");
+        count=collector.Update(13,true,data,32,count,changes,out hash);Check(count==2&&changes.Count==1,"new light next rendered frame");
+        extra.renderingLayers=0x80000000u;
+        count=collector.Update(13,true,data,32,count,changes,out hash);Check(changes.Count==2&&changes[1].renderingLayers==0x80000000u,"layer change invalidates");
+        light.renderingLayerMask=2;
+        count=collector.Update(13,true,data,32,count,changes,out hash);
+        Check(changes.Count==2&&changes[0].shadowRenderingLayers==1&&changes[1].shadowRenderingLayers==2&&
+            changes[1].renderingLayers==0x80000000u,"explicit native shadow mask override invalidates without changing illumination");
+        count=collector.Update(14,false,data,32,count,changes,out hash);Check(changes.Count==4&&data[0].flags==0,"pipeline layer gate invalidates");
+        count=collector.Update(15,false,data,1,count,changes,out hash);Check(count==1&&changes.Count==1,"capacity removal");
+        UO.Found=Array.Empty<Light>();count=collector.Update(16,false,data,32,count,changes,out hash);Check(count==0&&changes.Count==1,"destroy/remove");
+        collector.Snapshot(0);Check(UO.Scans==8,"frame rollback refreshes");
+        foreach(var type in new[]{LightType.Directional,LightType.Point,LightType.Spot})
+        {
+            light.type=type;light.intensity=1;light.range=10;light.isActiveAndEnabled=true;light.color=new(.5f,.25f,.75f);
+            var d=Pack(light);Check(MathF.Abs(d.color.x-.21404114f)<1e-6,"linear light color");
+            GraphicsSettings.lightsUseColorTemperature=true;light.useColorTemperature=true;
+            Check(MathF.Abs(Pack(light).color.x-d.color.x*.9f)<1e-6,"temperature path");
+            GraphicsSettings.lightsUseColorTemperature=false;light.useColorTemperature=false;
+        }
+        foreach(float invalid in new[]{0f,-1f,float.NaN,float.PositiveInfinity}){light.intensity=invalid;Check(!L.TryPack(light,true,out _),"invalid intensity");}
+        light.intensity=1;light.type=LightType.Area;Check(!L.TryPack(light,true,out _),"unsupported light");
+        light.type=LightType.Point;light.lightmapBakeType=LightmapBakeType.Baked;Check(!L.TryPack(light,true,out _),"baked excluded");
+        light.lightmapBakeType=LightmapBakeType.Mixed;Check(L.TryPack(light,true,out _),"mixed current realtime approximation");
+        light.range=float.NaN;Check(!L.TryPack(light,true,out _),"invalid range");
+        Console.WriteLine($"PASS {checks} actual light-collector checks; native Unity discovery/API/rendering remain unexecuted.");
+    }
+}

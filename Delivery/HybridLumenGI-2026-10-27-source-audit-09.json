@@ -1,0 +1,310 @@
+{
+  "status": "passed",
+  "scope": "Independent archive integrity/source binding/evidence audit; no Unity or physical GPU execution",
+  "auditRoot": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf",
+  "startedUtc": "2026-10-26T22:37:16.3806307Z",
+  "archive": {
+    "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Delivery\\HybridLumenGI-2026-10-27-integration-09.zip",
+    "bytes": 751144,
+    "sha256": "2121594619620E9D4BD8C9A60880BAFC85D5AE2EF72DFE98DC1609E030255EFA",
+    "entries": 404,
+    "payload": 403,
+    "exactCurrentBytesMatched": 403,
+    "metas": 215,
+    "uniqueGuids": 215,
+    "folders": 27,
+    "unexpectedBuildFiles": 0
+  },
+  "mainReport": {
+    "sha256": "CFFD1406DF230DEDD2238E128BD8203E4B9AAE6F23AC06560FDCE3FAA3BFCA4B",
+    "stages": 45,
+    "selectedDxcChecks": 111,
+    "boundSources": 152,
+    "originalLogsChecked": 45
+  },
+  "negative": {
+    "sha256": "E44809D11D2F6362CE9C295C42CBAE21ACFD4EBF4448855492AE54593E81C594",
+    "originalInputsAndLogs": 42,
+    "native": 18,
+    "general": 24,
+    "originalControls": 2,
+    "freshRejectedCases": 42,
+    "freshPositiveControls": 2,
+    "rechecks": [
+      {
+        "name": "main-before",
+        "accepted": true,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\main-before.recheck.log"
+      },
+      {
+        "name": "missing-native-gpu-stage",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-native-gpu-stage.recheck.log"
+      },
+      {
+        "name": "missing-native-bridge-stage",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-native-bridge-stage.recheck.log"
+      },
+      {
+        "name": "duplicate-native-gpu-stage",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\duplicate-native-gpu-stage.recheck.log"
+      },
+      {
+        "name": "missing-native-evidence",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-native-evidence.recheck.log"
+      },
+      {
+        "name": "warp-failed",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\warp-failed.recheck.log"
+      },
+      {
+        "name": "warp-missing",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\warp-missing.recheck.log"
+      },
+      {
+        "name": "warp-not-executed",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\warp-not-executed.recheck.log"
+      },
+      {
+        "name": "native-cpp-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\native-cpp-hash.recheck.log"
+      },
+      {
+        "name": "native-after-build-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\native-after-build-hash.recheck.log"
+      },
+      {
+        "name": "unity-header-pin",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\unity-header-pin.recheck.log"
+      },
+      {
+        "name": "unity-header-commit",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\unity-header-commit.recheck.log"
+      },
+      {
+        "name": "cpu-test-exe-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\cpu-test-exe-hash.recheck.log"
+      },
+      {
+        "name": "warp-test-exe-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\warp-test-exe-hash.recheck.log"
+      },
+      {
+        "name": "warp-dll-argument",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\warp-dll-argument.recheck.log"
+      },
+      {
+        "name": "false-unity-validation",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\false-unity-validation.recheck.log"
+      },
+      {
+        "name": "false-physical-gpu-validation",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\false-physical-gpu-validation.recheck.log"
+      },
+      {
+        "name": "failed-native-build-stage",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\failed-native-build-stage.recheck.log"
+      },
+      {
+        "name": "native-script-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\native-script-hash.recheck.log"
+      },
+      {
+        "name": "missing-HistoryLifecycle",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-HistoryLifecycle.recheck.log"
+      },
+      {
+        "name": "missing-ProxyUpdates",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-ProxyUpdates.recheck.log"
+      },
+      {
+        "name": "missing-Validate-SurfaceGeometryNormals",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-Validate-SurfaceGeometryNormals.recheck.log"
+      },
+      {
+        "name": "missing-transport-normal-reference",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-transport-normal-reference.recheck.log"
+      },
+      {
+        "name": "missing-Validate-ScreenGeometryPacking",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-Validate-ScreenGeometryPacking.recheck.log"
+      },
+      {
+        "name": "current-source-hash-1",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\current-source-hash-1.recheck.log"
+      },
+      {
+        "name": "current-source-hash-2",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\current-source-hash-2.recheck.log"
+      },
+      {
+        "name": "current-source-hash-3",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\current-source-hash-3.recheck.log"
+      },
+      {
+        "name": "missing-Validate-SurfaceHitIdentity",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-Validate-SurfaceHitIdentity.recheck.log"
+      },
+      {
+        "name": "current-source-hash-4",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\current-source-hash-4.recheck.log"
+      },
+      {
+        "name": "current-source-hash-5",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\current-source-hash-5.recheck.log"
+      },
+      {
+        "name": "current-source-hash-6",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\current-source-hash-6.recheck.log"
+      },
+      {
+        "name": "missing-Lighting",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-Lighting.recheck.log"
+      },
+      {
+        "name": "missing-Validate-DirectLighting",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-Validate-DirectLighting.recheck.log"
+      },
+      {
+        "name": "missing-Validate-ReceiverPolicyCapture",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-Validate-ReceiverPolicyCapture.recheck.log"
+      },
+      {
+        "name": "missing-ReceiverPolicyShaders",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-ReceiverPolicyShaders.recheck.log"
+      },
+      {
+        "name": "current-lights-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\current-lights-source-hash.recheck.log"
+      },
+      {
+        "name": "current-lighting-policy-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\current-lighting-policy-source-hash.recheck.log"
+      },
+      {
+        "name": "missing-receiver-policy-evidence",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\missing-receiver-policy-evidence.recheck.log"
+      },
+      {
+        "name": "receiver-integer-signature-false",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\receiver-integer-signature-false.recheck.log"
+      },
+      {
+        "name": "receiver-instanced-array-false",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\receiver-instanced-array-false.recheck.log"
+      },
+      {
+        "name": "receiver-include-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\receiver-include-hash.recheck.log"
+      },
+      {
+        "name": "duplicate-receiver-compiler-entry",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\duplicate-receiver-compiler-entry.recheck.log"
+      },
+      {
+        "name": "receiver-helper-source-hash",
+        "accepted": false,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\receiver-helper-source-hash.recheck.log"
+      },
+      {
+        "name": "main-after",
+        "accepted": true,
+        "expectedReasonMatched": true,
+        "log": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-source09-independent-audit-0aee03dec4f64af7b1e9ec3003ae13bf\\main-after.recheck.log"
+      }
+    ]
+  },
+  "receiver": {
+    "sha256": "84F4957924F95855DF31FDFD1090715CFDCE25933C154587862B49A3F3DAC942",
+    "embeddedReportMatched": true,
+    "actualListingAndDxilPairs": 22,
+    "actualIncludeFiles": 68
+  },
+  "previousArchiveSha256": "8BE2F4B08CE3D004A56794CA0C8B876D8E5E24812584548D8E20483CA50DFCE6",
+  "unityExecuted": false,
+  "physicalGpuExecuted": false,
+  "completedUtc": "2026-10-26T22:37:19.4885855Z"
+}

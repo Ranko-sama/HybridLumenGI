@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+namespace UnityEngine
+{
+    public struct Vector4 { public float x,y,z,w; }
+    public static class Mathf { public static int Clamp(int value,int minimum,int maximum)=>Math.Clamp(value,minimum,maximum); }
+    public static class SystemInfo { public static bool supportsComputeShaders=true; }
+    public enum ComputeBufferType { Structured }
+    public sealed class ComputeBuffer
+    {
+        public readonly int count,stride;public string name;public bool Released;public int ReleaseCount,ImmediateUploads;
+        public Array InitialData;
+        public ComputeBuffer(int count,int stride,ComputeBufferType type){this.count=count;this.stride=stride;}
+        public void SetData(Array values){ImmediateUploads++;InitialData=(Array)values.Clone();}
+        public void Release(){Released=true;ReleaseCount++;}
+    }
+    public sealed class ComputeShader
+    {
+        public readonly string Name;public bool ThrowKernel;public int Finds;public string RequestedKernel;
+        public ComputeShader(string name){Name=name;}
+        public int FindKernel(string kernel){Finds++;RequestedKernel=kernel;if(ThrowKernel)throw new InvalidOperationException("Missing test kernel");return 7;}
+    }
+    public static class Shader
+    {
+        private static readonly Dictionary<string,int> names=new();
+        public static int PropertyToID(string name){if(!names.TryGetValue(name,out int id)){id=names.Count+1;names.Add(name,id);}return id;}
+        public static string Name(int id){foreach(var pair in names)if(pair.Value==id)return pair.Key;throw new ArgumentException();}
+    }
+    public static class Resources
+    {
+        public static ComputeShader Builder=new("builder");public static string LastPath;public static int Loads;
+        public static T Load<T>(string path) where T:class{LastPath=path;Loads++;return Builder as T;}
+    }
+}
+namespace UnityEngine.Rendering
+{
+    public sealed class Recorded
+    {
+        public string Kind,Property;public UnityEngine.ComputeShader Shader;public UnityEngine.ComputeBuffer Buffer;
+        public int Kernel,Value,X,Y,Z;public Array Data;
+    }
+    public sealed class CommandBuffer
+    {
+        public readonly List<Recorded> Calls=new();public bool ThrowDispatch,ThrowUpload;
+        public void Marker(string name)=>Calls.Add(new Recorded{Kind=name});
+        public void SetComputeBufferParam(UnityEngine.ComputeShader shader,int kernel,int property,UnityEngine.ComputeBuffer buffer)
+            =>Calls.Add(new Recorded{Kind="buffer",Shader=shader,Kernel=kernel,Property=UnityEngine.Shader.Name(property),Buffer=buffer});
+        public void SetComputeIntParam(UnityEngine.ComputeShader shader,int property,int value)
+            =>Calls.Add(new Recorded{Kind="int",Shader=shader,Property=UnityEngine.Shader.Name(property),Value=value});
+        public void SetBufferData(UnityEngine.ComputeBuffer buffer,Array data)
+        {
+            if(ThrowUpload)throw new InvalidOperationException("Failed test upload");
+            Calls.Add(new Recorded{Kind="upload",Buffer=buffer,Data=(Array)data.Clone()});
+        }
+        public void DispatchCompute(UnityEngine.ComputeShader shader,int kernel,int x,int y,int z)
+        {
+            if(ThrowDispatch)throw new InvalidOperationException("Failed test dispatch recording");
+            Calls.Add(new Recorded{Kind="dispatch",Shader=shader,Kernel=kernel,X=x,Y=y,Z=z});
+        }
+    }
+}
+namespace HybridLumenGI
+{
+    using UnityEngine;
+    using UnityEngine.Rendering;
+    public sealed class HybridLumenGIScene
+    {
+        public int Capacity;public ComputeBuffer Buffer;
+        public HybridLumenGIScene(int capacity=32){Capacity=capacity;Buffer=new ComputeBuffer(capacity,80,ComputeBufferType.Structured);}
+    }
+    public sealed class HybridLumenGISurfaceCache
+    {
+        public bool ThrowBind;
+        public readonly ComputeBuffer Metadata=new(13,128,ComputeBufferType.Structured),Emitters=new(13,32,ComputeBufferType.Structured);
+        public void RecordCapture(CommandBuffer command)=>command.Marker("capture-and-anchors");
+        public void BindCompute(CommandBuffer command,ComputeShader shader,int kernel)
+        {
+            command.Marker("surface-bind");
+            if(ThrowBind)throw new InvalidOperationException("Failed surface preparation");
+            command.SetComputeBufferParam(shader,kernel,Shader.PropertyToID("_HLGI_SurfaceCards"),Metadata);
+        }
+        public void BindEmitters(CommandBuffer command,ComputeShader shader,int kernel)
+        {
+            command.Marker("emitters-bind");
+            command.SetComputeBufferParam(shader,kernel,Shader.PropertyToID("_HLGI_SurfaceEmitters"),Emitters);
+        }
+    }
+}

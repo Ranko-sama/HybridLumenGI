@@ -1,0 +1,111 @@
+using HybridLumenGI;
+using UnityEngine;
+static void Require(bool condition,string message){if(!condition)throw new Exception(message);}
+HybridLumenGIProxy.ActiveProxies.Clear();
+for(int i=0;i<8;i++)HybridLumenGIProxy.ActiveProxies.Add(new HybridLumenGIProxy{StableId=i+1,bounds=new Bounds(new Vector3(i*20,0,0),Vector3.one)});
+using var scene=new HybridLumenGIScene();
+void PrepareScene()=>scene.Prepare(Vector3.zero,32,50,1000,16,32);
+PrepareScene();
+using var scheduler=new HybridLumenGICacheScheduler();
+var surface=new HybridLumenGISurfaceCache(Enumerable.Range(0,32*6).Select(card=>card/6).ToArray(),32);
+int frame=0;
+void Schedule(int budget=8,bool lights=false,int grid=2)=>scheduler.Prepare(scene,surface,grid,frame++,budget,lights,0,false);
+Schedule();Require(scheduler.SelectedCount==8&&scheduler.FairnessSelectedCount>=2,"Hard budget/fairness quota mismatch.");
+Require(scheduler.EntryCount==32*24&&scheduler.ValidEntryCount==8*24,"Patch capacity mismatch.");
+for(int tick=1;tick<24;tick++){PrepareScene();Schedule();}
+Require(scheduler.ScheduledCoverage==1&&scheduler.UnscheduledEntryCount==0,"Stable coverage did not converge within ceil(valid/budget).");
+Schedule(budget:0);Require(scheduler.SelectedCount==0&&scheduler.Mask.All(x=>x==0),"Zero budget dispatched work.");
+Schedule(lights:true);Require(scheduler.ScheduledCoverage<.1f&&scheduler.SelectedCount==8,"Lighting change did not mark all patches stale.");
+for(int tick=0;tick<24;tick++){PrepareScene();Schedule();}
+Require(scheduler.ScheduledCoverage==1,"Persistent lighting dirtiness was not serviced.");
+// Repeated revision changes on one object must not monopolize the oldest-service quota.
+var seen=new HashSet<int>();var moving=HybridLumenGIProxy.ActiveProxies[0];
+for(int tick=0;tick<96;tick++)
+{
+    moving.bounds.center+=new Vector3(.01f,0,0);moving.Revision++;PrepareScene();Schedule();
+    Require(scheduler.SelectedCount<=8&&scheduler.FairnessSelectedCount>=2,"Dynamic budget exceeded or fairness quota dropped.");
+    for(int entry=0;entry<scheduler.Mask.Length;entry++)if(scheduler.Mask[entry]!=0)seen.Add(entry);
+}
+Require(seen.Count==192,"Repeated dirty revisions starved valid patches.");
+// Disable one resident; none of its patches may remain selected.
+var removed=HybridLumenGIProxy.ActiveProxies[2];int slot=Array.FindIndex(scene.Data,x=>(int)x.identity.x==removed.StableId);
+removed.isActiveAndEnabled=false;PrepareScene();Schedule();
+for(int i=slot*24;i<(slot+1)*24;i++)Require(scheduler.Mask[i]==0,"Invalid proxy patch selected.");
+// Reuse that exact slot with a new ID: stale coverage and last frame must not survive.
+var replacement=new HybridLumenGIProxy{StableId=100,bounds=removed.bounds};HybridLumenGIProxy.ActiveProxies.Add(replacement);PrepareScene();Schedule(budget:0);
+int replacementSlot=Array.FindIndex(scene.Data,x=>(int)x.identity.x==100);
+Require(replacementSlot==slot,"Test did not exercise stable-slot reuse.");
+for(int i=slot*24;i<(slot+1)*24;i++)Require(scheduler.LastScheduledFrame(i)==-1,"Slot reuse inherited last schedule from another object.");
+Require(scheduler.UnscheduledEntryCount>=24,"Slot reuse inherited coverage.");
+Schedule(budget:10000,grid:4);Require(scheduler.EntryCount==32*96&&scheduler.ValidEntryCount==8*96&&scheduler.SelectedCount==8*96,"Grid resize/count/budget clamp failed.");
+Require(scheduler.Mask.Skip(8*96).All(x=>x==0),"Unused slots selected after resize.");
+var readyCards=new bool[32*6];
+surface.ReadyMask=readyCards;
+scheduler.Prepare(scene,surface,4,frame++,100,false,0,false);
+Require(scheduler.SelectedCount==0&&scheduler.ValidEntryCount==0&&scheduler.MaxFramesSinceUpdate==0,"Missing cards consumed budget or age statistics.");
+readyCards[0]=true;
+scheduler.Prepare(scene,surface,4,frame++,100,false,0,false);
+Require(scheduler.SelectedCount==16&&scheduler.ValidEntryCount==16&&scheduler.Mask.Take(16).All(x=>x==1)&&scheduler.Mask.Skip(16).All(x=>x==0),"Partial page readiness dispatched an unavailable card.");
+readyCards[1]=true;
+scheduler.Prepare(scene,surface,4,frame++,0,false,0,false);
+Require(scheduler.UnscheduledEntryCount>=16,"Pending dirtiness was lost while a card was unavailable.");
+surface.ReadyMask=Array.Empty<bool>();
+scheduler.Prepare(scene,surface,4,frame++,100,false,0,false);
+Require(scheduler.SelectedCount==0,"Short page readiness arrays must behave as missing pages.");
+
+// Irregular and noncontiguous physical cards deliberately disagree with card/6.
+int[] poolOwners={7,0,3,-1,7,1,0,3,2,7,0,99,4,6,5,0,7};
+surface=new HybridLumenGISurfaceCache(poolOwners,scene.Capacity);
+PrepareScene(); // Consume prior replacement's dirty domains before testing card-only changes.
+Schedule(budget:10000,grid:2);
+int liveCards=poolOwners.Count(owner=>owner>=0&&owner<scene.Capacity&&scene.Data[owner].identity.w>.5f);
+Require(scheduler.EntryCount==poolOwners.Length*4&&scheduler.PatchesPerCard==4&&scheduler.SelectedCount==liveCards*4,"Variable chart capacity or explicit ownership was ignored.");
+for(int card=0;card<poolOwners.Length;card++)
+{
+    bool valid=poolOwners[card]>=0&&poolOwners[card]<scene.Capacity&&scene.Data[poolOwners[card]].identity.w>.5f;
+    Require(scheduler.Mask.Skip(card*4).Take(4).All(value=>value==(valid?1u:0u)),"Noncontiguous card ownership selected the wrong patch range.");
+}
+surface.CardOwners[0]=1;Schedule(budget:0);
+Require(scheduler.LastScheduledFrame(0)==-1&&scheduler.UnscheduledEntryCount==4,"Card reassignment inherited previous owner coverage or schedule.");
+Schedule(budget:10000);surface.Generations[1]++;Schedule(budget:0);
+Require(scheduler.LastScheduledFrame(4)==-1&&scheduler.UnscheduledEntryCount==4,"Same-owner card generation reuse inherited coverage.");
+Schedule(budget:10000);surface.Layouts[0]++;Schedule(budget:0);
+int ownerZeroCards=surface.CardOwners.Count(owner=>owner==0);
+Require(scheduler.UnscheduledEntryCount==ownerZeroCards*4,"Layout change failed to invalidate all affected owner's chart patches.");
+surface.Generations[4]=0;surface.Layouts[6]=0;Schedule(budget:10000);
+Require(scheduler.Mask.Skip(16).Take(4).All(x=>x==0)&&scheduler.Mask.Skip(52).Take(4).All(x=>x==0),"Absent card generation/layout was admitted.");
+surface.Generations[4]=1;surface.Layouts[6]=1;
+surface.ReadyMask[6]=false;Schedule(budget:10000);
+Require(scheduler.Mask.Skip(24).Take(4).All(x=>x==0),"Unready variable card consumed budget.");
+surface.ReadyMask[6]=true;Schedule(budget:0);
+Require(scheduler.UnscheduledEntryCount>=4,"Variable card pending dirtiness was lost across a page miss.");
+// Every generation changes every frame: the separate fairness clock must survive recapture.
+seen.Clear();
+for(int tick=0;tick<128;tick++)
+{
+    for(int card=0;card<surface.Generations.Length;card++)surface.Generations[card]++;
+    Schedule(budget:4);
+    Require(scheduler.SelectedCount==4&&scheduler.FairnessSelectedCount>=1,"Generation churn violated hard budget/fairness quota.");
+    for(int entry=0;entry<scheduler.Mask.Length;entry++)if(scheduler.Mask[entry]!=0)seen.Add(entry);
+}
+Require(seen.Count==liveCards*4,"Repeated card recapture starved valid chart patches.");
+Schedule(budget:10000);surface.AtlasGeneration++;Schedule(budget:0);
+Require(scheduler.UnscheduledEntryCount==liveCards*4,"Reallocated atlas inherited completed scheduling coverage.");
+surface=new HybridLumenGISurfaceCache(Array.Empty<int>(),scene.Capacity);
+scheduler.Prepare(scene,surface,2,frame++,0,false,0,true);
+Require(scheduler.EntryCount==0&&scheduler.ValidEntryCount==0&&scheduler.SelectedCount==0&&scheduler.UpdateMask!=null,"Empty card pool failed safe zero-work upload.");
+Console.WriteLine("PASS: actual cache scheduler source hard/zero budgets, >=25% oldest quota, static/lighting coverage, dynamic revision and card-generation fairness, variable/noncontiguous cards, invalid owners, ID/owner/card/layout reuse, pool/grid resize, and absent/partial/missing page readiness. Unity resource/surface adapters; scheduling coverage is not rendered-light convergence.");
+
+namespace HybridLumenGI
+{
+    // Surface mapping adapter; the real scheduler and scene residency source execute unchanged.
+    public sealed class HybridLumenGISurfaceCache
+    {
+        public int[] CardOwners;public bool[] ReadyMask;public readonly uint[] Generations,Layouts;public uint AtlasGeneration=1;
+        public int CardCount=>CardOwners.Length;
+        public HybridLumenGISurfaceCache(int[] owners,int slots)
+        {CardOwners=owners;ReadyMask=Enumerable.Repeat(true,owners.Length).ToArray();Generations=Enumerable.Repeat(1u,owners.Length).ToArray();Layouts=Enumerable.Repeat(1u,slots).ToArray();}
+        public uint GetGeneration(int card)=>Generations[card];
+        public uint GetLayoutGeneration(int slot)=>Layouts[slot];
+    }
+}

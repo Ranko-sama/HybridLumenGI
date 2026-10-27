@@ -1,0 +1,281 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.RenderGraphModule;
+using Pass=HybridLumenGI.HybridLumenGIHitMaterialPass;
+using Batch=HybridLumenGI.HybridLumenGIHitMaterialBatch;
+using Pool=HybridLumenGI.HybridLumenGIRayTexturePool;
+using Record=HybridLumenGI.HybridLumenGIHitMaterialRecord;
+using Binding=HybridLumenGI.HybridLumenGIHitMaterialBinding;
+class Program
+{
+    static int checks,scenarios;
+    static readonly Vector4 Tint=new(.25f,.5f,2,1),Emission=new(2,3,4,5);
+    static readonly string[] MapNames={"_BaseMap","_MetallicGlossMap","_SpecGlossMap","_BumpMap","_OcclusionMap",
+        "_EmissionMap","_DetailMask","_DetailAlbedoMap","_DetailNormalMap","_ParallaxMap"};
+    static void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
+    sealed class Fixture
+    {
+        public readonly HybridLumenGIMaterialSource Validator=new();
+        public readonly Renderer Renderer=new();public readonly Material Material;
+        public readonly int Submesh;
+        public Fixture(Texture texture=null,int submesh=0)
+        {
+            Submesh=submesh;Material=new(new Shader{name="Universal Render Pipeline/Lit"});
+            Material.Set("_Cull",2f);Material.Set("_Surface",0f);Material.Set("_BaseColor",new Color(.5f,.25f,.75f,.8f));
+            if(texture!=null)Material.Set("_BaseMap",texture);
+            for(int i=0;i<=submesh;i++)Renderer.Materials.Add(Material);
+        }
+        public Batch.Source Freeze(uint stable=5,uint owner=7,uint geometry=11)
+        {Check(Validator.TryCapture(Renderer,Submesh,Material,out var snap,out var reason),"capture "+reason);
+         return new(snap,stable,owner,geometry,(uint)Submesh,Tint,Emission);}
+    }
+    static Texture2D Texture(int w=4,int h=4,int mips=3)=>new(){width=w,height=h,mipmapCount=mips,graphicsFormat=42,filterMode=2};
+    static Pass Prepare(RenderGraph graph,params Batch.Source[] sources)
+    {Check(Pass.TryCreate(graph,sources,1L<<30,out var pass,out var reason),"prepare "+reason);return pass;}
+    static Batch OwnedBatch(Pass p)=>(Batch)typeof(Pass).GetField("batch",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(p);
+    static int ResidentPasses=>((ICollection)typeof(Pass).GetField("Resident",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null)).Count;
+    static void Clean()
+    {
+        Pass.PollRetired();
+        Check(Batch.TotalAllocatedBytes==0&&Batch.TotalMaterialBytes==0&&Batch.ResidentBatchCount==0&&
+            Pool.ResidentBatchCount==0&&GraphicsBuffer.Live==0&&RTHandle.Live==0&&ResidentPasses==0,"all test resources released");
+        Check(RTHandles.OwnedAllocations==0,"RenderTexture ownership overload never selected");
+    }
+    static void Complete(Pass p,CommandBuffer cmd)
+    {
+        if(p.State==Batch.BatchState.Prepared){p.Dispose();Clean();return;}
+        cmd.ThrowAt=cmd.ThrowBeforeAt=-1;cmd.OnCall=null;
+        if(p.State!=Batch.BatchState.SealedAwaitingFence&&p.State!=Batch.BatchState.Released)
+            Check(p.Finish(cmd,out var why),"Finish "+why);
+        cmd.NextFence.Complete=true;Pass.PollRetired();p.Dispose();Clean();
+    }
+    static void RecoverForTestOnly(Pass p,CommandBuffer cmd)
+    {
+        // Pass intentionally has a one-shot Finish. This reflection is ONLY to clean up
+        // injected permanent quarantine between test cases, not a production recovery API.
+        cmd.ThrowAt=cmd.ThrowBeforeAt=-1;cmd.OnCall=null;cmd.NextFence=new FenceSignal();
+        Check(OwnedBatch(p).SealAfterConsumers(cmd,out var reason),"test-only same-command final fence "+reason);
+        cmd.NextFence.Complete=true;Pass.PollRetired();p.Dispose();Clean();
+    }
+    static void Record(Pass p,CommandBuffer cmd)
+    {Check(p.RecordAndBind(cmd,new ComputeShader(),11,13,out var reason),"record/both binds "+reason);}
+    static void ImportsAndFrozenBindings()
+    {
+        scenarios++;var graph=new RenderGraph();var f=new Fixture(submesh:3);var original=f.Freeze();var input=new[]{original};
+        var pass=Prepare(graph,input);input[0]=default;
+        Check(pass.Buffers.Count==4&&graph.ImportedBuffers.Count==4&&pass.SourceTextures.Count==0,"four constant resources, no source images");
+        Check(graph.ImportedBuffers.Select(x=>x.Buffer.Stride).SequenceEqual(new[]{240,32,64,16}),"material/binding/metadata/texel import order and strides");
+        for(int i=0;i<4;i++)Check(!graph.ImportedBuffers[i].ForceRelease&&ReferenceEquals(pass.Buffers[i].Buffer,graph.ImportedBuffers[i].Buffer),"graph borrows exact buffer "+i);
+        Check(pass.ByteCount==352&&pass.State==Batch.BatchState.Prepared&&pass.MatchesSources(new[]{f.Freeze()}),"prepared owns copied sources, not caller array");
+        var cmd=new CommandBuffer();Record(pass,cmd);
+        Check(cmd.Copies.Count==3&&cmd.Dispatches.Count==0,"constant dummy initialized, tables uploaded without texture dispatch");
+        Check(cmd.Copies.OfType<Record[]>().Single()[0].identity.x>0&&cmd.Copies.OfType<Binding[]>().Single()[0].source.w==3,"actual record and submesh bind upload");
+        Check(cmd.Bound.Count==8&&cmd.Bound.Take(4).All(b=>b.Kernel==11)&&cmd.Bound.Skip(4).All(b=>b.Kernel==13),"both kernels receive every resource before success");
+        foreach(int kernel in new[]{11,13})
+            Check(cmd.Bound.Where(b=>b.Kernel==kernel).Select(b=>b.Buffer.Stride).OrderBy(x=>x).SequenceEqual(new[]{16,32,64,240}),"four bindings per consumer");
+        Check(cmd.Events.All(x=>!x.StartsWith("fence:")),"no early retirement fence");
+        cmd.Events.Add("consumer-cache");cmd.Events.Add("consumer-trace");
+        Check(pass.Finish(cmd,out _),"finish after both actual caller dispatch sites");
+        Check(cmd.Events.Last().StartsWith("fence:")&&cmd.Events.IndexOf("consumer-trace")==cmd.Events.Count-2,"final fence follows consumers");
+        Check(!pass.RecordAndBind(cmd,new(),11,13,out _)&&!pass.MatchesSources(new[]{original})&&!pass.Finish(cmd,out _),"finished cannot be consumed again");
+        for(int i=0;i<100;i++)Pass.PollRetired();Check(GraphicsBuffer.Live==4&&Batch.TotalAllocatedBytes==352,"pending fence does not imply submission/completion");
+        cmd.NextFence.Complete=true;Pass.PollRetired();Clean();
+    }
+    static void UsedMapsAndReferences()
+    {
+        scenarios++;
+        var variants=new[]{
+            (Array.Empty<string>(),new[]{0}),
+            (new[]{"_NORMALMAP","_EMISSION"},new[]{0,3,5}),
+            (new[]{"_METALLICSPECGLOSSMAP"},new[]{0,1}),
+            (new[]{"_METALLICSPECGLOSSMAP","_SPECULAR_SETUP"},new[]{0,2}),
+            (new[]{"_OCCLUSIONMAP","_DETAIL_MULX2","_PARALLAXMAP"},new[]{0,4,6,7,8,9}),
+            (new[]{"_NORMALMAP","_EMISSION","_OCCLUSIONMAP","_DETAIL_SCALED","_PARALLAXMAP","_METALLICSPECGLOSSMAP"},new[]{0,1,3,4,5,6,7,8,9})};
+        foreach(var variant in variants)
+        {
+            var f=new Fixture();var textures=MapNames.Select(_=>Texture()).ToArray();
+            for(int i=0;i<10;i++)f.Material.Set(MapNames[i],textures[i]);
+            f.Material.shaderKeywords=variant.Item1;var graph=new RenderGraph();var p=Prepare(graph,f.Freeze());
+            Check(p.SourceTextures.Count==variant.Item2.Length,"keyword-selective source texture count");
+            Check(graph.ImportedTextures.Select(x=>Array.IndexOf(textures,x.ExternalTexture)).SequenceEqual(variant.Item2),"only actual keyword-used source maps imported");
+            Check(textures.All(x=>!x.Destroyed)&&f.Renderer.Block.Writes==0,"source material objects unchanged");p.Dispose();Clean();
+        }
+        var shared=Texture();var a=new Fixture(shared);a.Material.Set("_BumpMap",shared);a.Material.Set("_EmissionMap",shared);a.Material.shaderKeywords=new[]{"_NORMALMAP","_EMISSION"};
+        var g=new RenderGraph();var both=Prepare(g,a.Freeze(),a.Freeze(19));Check(g.ImportedTextures.Count==1,"same source reference imported once across map/instance use");both.Dispose();Clean();
+        var distinct=Texture();var collisions=new RenderGraph();var pair=Prepare(collisions,new Fixture(shared).Freeze(),new Fixture(distinct).Freeze());
+        Check(shared.GetHashCode()==distinct.GetHashCode()&&shared.FakeInstanceId==distinct.FakeInstanceId&&collisions.ImportedTextures.Count==2,"equal Unity hash/ID cannot merge distinct references");pair.Dispose();Clean();
+        var versioned=new Fixture(shared);var first=versioned.Freeze();shared.updateCount++;var second=versioned.Freeze(29);
+        var gv=new RenderGraph();var vp=Prepare(gv,first,second);Check(gv.ImportedTextures.Count==1,"graph reference dedup independent of pool snapshot-version dedup");
+        var cv=new CommandBuffer();Record(vp,cv);Check(vp.UnknownRecords==1,"stale material observation remains unknown despite shared graph import");Complete(vp,cv);
+    }
+    static void BorrowedRenderTextureLifetime()
+    {
+        scenarios++;var rt=new RenderTexture{width=4,height=4,mipmapCount=1,graphicsFormat=42};var f=new Fixture(rt);
+        var source=f.Freeze();Check(!source.Snapshot.CanReuseHistory,"RT remains current-frame only");
+        var graph=new RenderGraph();var p=Prepare(graph,source);var handle=graph.ImportedTextures.Single();
+        Check(ReferenceEquals(handle.ExternalTexture,rt)&&handle.OwnedTexture==null,"explicit Texture overload creates external wrapper");
+        var cmd=new CommandBuffer();Record(p,cmd);Check(p.UnknownRecords==0,"current RT snapshot can upload without history reusability");
+        cmd.Events.Add("real-consumer-placeholder");Check(p.Finish(cmd,out _),"seal RT after last consumer");
+        for(int i=0;i<100;i++)Pass.PollRetired();Check(!handle.Released&&rt.Created&&!rt.Destroyed,"pending fence holds wrapper and borrowed source");
+        handle.ThrowRelease=true;cmd.NextFence.Complete=true;Pass.PollRetired();
+        Check(GraphicsBuffer.Live==0&&!handle.Released&&RTHandle.Live==1&&ResidentPasses==1&&!rt.Destroyed,"wrapper cleanup failure retained independently after safe GPU buffers release");
+        handle.ThrowRelease=false;Pass.PollRetired();Check(handle.Released&&rt.Created&&!rt.Destroyed,"wrapper retry never destroys user's RenderTexture");Clean();
+    }
+    static void ImportAndAllocationFailureCleanup()
+    {
+        scenarios++;var f=new Fixture(Texture());f.Material.Set("_BumpMap",Texture(3,5,3));f.Material.shaderKeywords=new[]{"_NORMALMAP"};var source=f.Freeze();
+        foreach(bool before in new[]{false,true})for(int index=1;index<=6;index++)
+        {
+            var g=new RenderGraph();if(before)g.ThrowBeforeAt=index;else g.ThrowAfterAt=index;
+            Check(!Pass.TryCreate(g,new[]{source},1L<<30,out var p,out var reason)&&p==null&&reason.StartsWith("Material graph import failed"),"import failure isolated "+index+" before="+before);
+            Check(g.ImportedBuffers.All(b=>b.Buffer.Released)&&g.ImportedTextures.All(h=>h.Released),"all partially imported pristine resources returned");
+            Check(!f.Material.GetTexture(Shader.PropertyToID("_BaseMap")).Destroyed,"source untouched after import failure");Clean();
+        }
+        foreach(bool returnNull in new[]{false,true})for(int index=1;index<=2;index++)
+        {
+            int at=RTHandles.BorrowedAllocations+index;if(returnNull)RTHandles.NullAt=at;else RTHandles.FailAt=at;
+            Check(!Pass.TryCreate(new(),new[]{source},1L<<30,out _,out _),"wrapper create null/exception cleanup");
+            RTHandles.NullAt=RTHandles.FailAt=-1;Clean();
+        }
+        for(int i=1;i<=4;i++)
+        {GraphicsBuffer.FailAllocationAt=GraphicsBuffer.Allocations+i;Check(!Pass.TryCreate(new(),new[]{source},1L<<30,out _,out _),"native buffer allocation failure");GraphicsBuffer.FailAllocationAt=-1;Clean();}
+        Check(!Pass.TryCreate(null,new[]{source},1L<<30,out _,out _)&&!Pass.TryCreate(new(),null,1L<<30,out _,out _),"missing graph/sources rejects");Clean();
+    }
+    static Batch.Source Change(Batch.Source a,uint? stable=null,uint? owner=null,uint? geometry=null,uint? submesh=null,Vector4? tint=null,Vector4? emission=null,
+        HybridLumenGIMaterialSource.Snapshot snapshot=null)=>new(snapshot??a.Snapshot,stable??a.StableId,owner??a.OwnerRevision,geometry??a.GeometryRevision,submesh??a.Submesh,tint??a.LinearProxyTint,emission??a.LinearProxyEmission);
+    static void SourceIdentityAndMutations()
+    {
+        scenarios++;var f=new Fixture(Texture(),2);var src=f.Freeze();var p=Prepare(new(),src);
+        Check(p.MatchesSources(new[]{f.Freeze()}),"equivalent frozen observations accepted; no Snapshot reference equality");
+        foreach(var changed in new[]{Change(src,stable:6),Change(src,owner:8),Change(src,geometry:12),Change(src,submesh:1),
+            Change(src,tint:new Vector4(1,1,1,1)),Change(src,emission:new Vector4(2,3,4,6)),default})
+            Check(!p.MatchesSources(new[]{changed}),"owner/geometry/submesh/proxy tuple mismatch rejects");
+        Check(!p.MatchesSources(null)&&!p.MatchesSources(Array.Empty<Batch.Source>())&&!p.MatchesSources(new[]{src,src}),"different source population rejects");
+        var other=new Fixture(f.Material.GetTexture(Shader.PropertyToID("_BaseMap")),2);
+        Check(!p.MatchesSources(new[]{Change(src,snapshot:other.Freeze().Snapshot)}),"same Unity instance/hash values do not substitute renderer/material");
+        var sharedMaterialRenderer=new Renderer();for(int i=0;i<3;i++)sharedMaterialRenderer.Materials.Add(f.Material);
+        Check(f.Validator.TryCapture(sharedMaterialRenderer,2,f.Material,out var otherRenderer,out _),"capture another renderer same material");
+        Check(!p.MatchesSources(new[]{Change(src,snapshot:otherRenderer)}),"renderer identity independently checked");
+        var replacement=new Material(f.Material.shader);foreach(var kv in f.Material.Data.Values)replacement.Data.Values[kv.Key]=kv.Value;
+        f.Renderer.Materials[2]=replacement;Check(f.Validator.TryCapture(f.Renderer,2,replacement,out var otherMat,out _),"replacement material same values capture");
+        Check(!p.MatchesSources(new[]{Change(src,snapshot:otherMat)}),"material reference independently checked");f.Renderer.Materials[2]=f.Material;
+        f.Renderer.Block.Set("_BaseColor",new Vector4(.1f,.2f,.3f,.4f));Check(!p.MatchesSources(new[]{f.Freeze()}),"MPB material delta rejects");f.Renderer.Block.Clear();
+        f.Material.Set("_Metallic",.8f);Check(!p.MatchesSources(new[]{f.Freeze()}),"material scalar delta rejects");f.Material.Data.Values.Remove(Shader.PropertyToID("_Metallic"));
+        var tex=f.Material.GetTexture(Shader.PropertyToID("_BaseMap"));tex.updateCount++;Check(!p.MatchesSources(new[]{f.Freeze()}),"texture observation delta rejects");tex.updateCount--;
+        Check(p.MatchesSources(new[]{f.Freeze()}),"exact observations restored");p.Dispose();Check(!p.MatchesSources(new[]{src}),"disposed sources unusable");Clean();
+    }
+    static void EveryRecordingFailure()
+    {
+        scenarios++;var source=new Fixture(Texture()).Freeze();var baseline=Prepare(new(),source);var bc=new CommandBuffer();Record(baseline,bc);
+        int allCalls=bc.Calls,firstBind=bc.Events.FindIndex(e=>e.StartsWith("bind:11:"))+1,secondBind=bc.Events.FindIndex(e=>e.StartsWith("bind:13:"))+1;
+        Check(firstBind>0&&secondBind==firstBind+4&&allCalls==secondBind+3,"measured independent two-kernel boundary");Complete(baseline,bc);
+        foreach(bool before in new[]{false,true})for(int call=1;call<=allCalls;call++)
+        {
+            var p=Prepare(new(),source);var c=new CommandBuffer();if(before)c.ThrowBeforeAt=call;else c.ThrowAt=call;
+            bool allowConsumers=p.RecordAndBind(c,new(),11,13,out _);if(allowConsumers)c.Events.Add("unsafe-consumer");
+            Check(!allowConsumers&&!c.Events.Contains("unsafe-consumer")&&p.State==Batch.BatchState.Quarantined,"any record/bind failure forbids both consumers "+call+" before="+before);
+            Check(c.Bound.Count(b=>b.Kernel==13)<4,"second consumer cannot have fully successful resources after a failed append");
+            long bytes=Batch.TotalAllocatedBytes;p.Dispose();Pass.PollRetired();Check(bytes>0&&Batch.TotalAllocatedBytes==bytes,"unknown append cannot be treated as cancellation");
+            c.ThrowAt=c.ThrowBeforeAt=-1;Check(p.Finish(c,out _),"finally can fence failed/partially recorded pass");
+            Check(c.Events.Last().StartsWith("fence:"),"failure still finalizes after partial append");c.NextFence.Complete=true;Pass.PollRetired();Clean();
+        }
+        foreach(int kernel in new[]{-1,int.MinValue})
+        {var p=Prepare(new(),source);var c=new CommandBuffer();Check(!p.RecordAndBind(c,new(),kernel,13,out _)&&!p.RecordAndBind(c,new(),11,kernel,out _)&&c.Calls==0,"invalid kernel no record");p.Dispose();Clean();}
+        var noShader=Prepare(new(),source);var cn=new CommandBuffer();Check(!noShader.RecordAndBind(cn,null,11,13,out _)&&cn.Calls==0,"null compute no append");noShader.Dispose();Clean();
+        var duplicate=Prepare(new(),source);var cd=new CommandBuffer();Record(duplicate,cd);int calls=cd.Calls;
+        Check(!duplicate.RecordAndBind(cd,new(),11,13,out _)&&cd.Calls==calls,"second record rejected without appending");Complete(duplicate,cd);
+    }
+    static void FinishFailuresAndAbandonment()
+    {
+        scenarios++;var source=new Fixture(Texture()).Freeze();
+        var never=Prepare(new(),source);long bytes=Batch.TotalAllocatedBytes;for(int i=0;i<1000;i++)Pass.PollRetired();
+        Check(never.State==Batch.BatchState.Prepared&&Batch.TotalAllocatedBytes==bytes,"abandoned graph is retained until owning feature cancels, no age release");
+        never.Dispose();var late=new CommandBuffer();Check(!never.RecordAndBind(late,new(),11,13,out _)&&late.Calls==0,"late graph after owner Dispose cannot append");Clean();
+        var pristine=Prepare(new(),source);var cp=new CommandBuffer();Check(pristine.Finish(cp,out _)&&cp.Calls==0,"pristine finally uses no unnecessary fence");Clean();
+        foreach(bool before in new[]{false,true})
+        {
+            var p=Prepare(new(),source);var c=new CommandBuffer();Record(p,c);
+            if(before)c.ThrowBeforeAt=c.Calls+1;else c.ThrowAt=c.Calls+1;
+            Check(!p.Finish(c,out _)&&p.State==Batch.BatchState.Quarantined,"fence recording exception quarantines");
+            long held=Batch.TotalAllocatedBytes;Check(held>0&&RTHandle.Live==1&&!p.Finish(c,out _),"one-shot Finish cannot invent retry evidence");
+            c.NextFence.Complete=true;for(int i=0;i<3;i++)Pass.PollRetired();Check(Batch.TotalAllocatedBytes==held,"failed append doesn't establish valid fence even when adapter signal completes");
+            RecoverForTestOnly(p,c);
+        }
+        var invalid=Prepare(new(),source);var ci=new CommandBuffer();Record(invalid,ci);ci.NextFence=null;
+        Check(!invalid.Finish(ci,out _)&&Batch.TotalAllocatedBytes>0&&RTHandle.Live==1,"default fence cannot free borrowed graph resources");RecoverForTestOnly(invalid,ci);
+        var foreign=Prepare(new(),source);var cf=new CommandBuffer();Record(foreign,cf);
+        Check(!foreign.Finish(new(),out _)&&Batch.TotalAllocatedBytes>0,"another command buffer fence not retirement evidence");RecoverForTestOnly(foreign,cf);
+        var readFailure=Prepare(new(),source);var cr=new CommandBuffer();Record(readFailure,cr);Check(readFailure.Finish(cr,out _),"valid pending seal");
+        cr.NextFence.Throw=true;Pass.PollRetired();Check(readFailure.State==Batch.BatchState.Quarantined&&RTHandle.Live==1,"fence passed getter failure retains resources");
+        cr.NextFence.Throw=false;cr.NextFence.Complete=true;Pass.PollRetired();Check(RTHandle.Live==1,"later boolean alone doesn't restore invalidated evidence");RecoverForTestOnly(readFailure,cr);
+        var canceled=Prepare(new(),source);var cc=new CommandBuffer();Record(canceled,cc);canceled.Dispose();Check(Batch.TotalAllocatedBytes>0,"Dispose between record and finally cannot free");
+        Check(canceled.Finish(cc,out _),"Finish after canceled recording is retirement only");Check(!canceled.RecordAndBind(cc,new(),11,13,out _),"retirement doesn't reenable consume");
+        cc.NextFence.Complete=true;Pass.PollRetired();Clean();
+    }
+    static void SourceFailureAndBudget()
+    {
+        scenarios++;var f=new Fixture();var unchanged=new Fixture();var p=Prepare(new(),f.Freeze(),unchanged.Freeze(19));
+        f.Material.Set("_Smoothness",.7f);var c=new CommandBuffer();Record(p,c);
+        Check(p.UnknownRecords==1&&c.Copies.OfType<Binding[]>().Single()[0].table.y==0&&c.Copies.OfType<Binding[]>().Single()[1].source.x==19,"Record revalidates even if caller forgot MatchesSources; changed row unknown");Complete(p,c);
+        var bad=new Fixture();var pb=Prepare(new(),bad.Freeze());bad.Renderer.OnRead=()=>throw new Exception("renderer read");var cb=new CommandBuffer();Record(pb,cb);
+        Check(pb.UnknownRecords==1,"source exception encoded unknown without GPU consumer exception");bad.Renderer.OnRead=null;Complete(pb,cb);
+        var one=new Fixture().Freeze();var graph=new RenderGraph();Check(!Pass.TryCreate(graph,new[]{one},351,out _,out _)&&graph.Calls==0,"byte-short rejects before graph imports");
+        Check(Pass.TryCreate(graph,new[]{one},352,out var exact,out _),"exact constant budget admits");
+        Check(!Pass.TryCreate(new(),new[]{one},703,out _,out _),"cross-camera global record budget enforced");
+        Check(Pass.TryCreate(new(),new[]{one},704,out var next,out _),"cross-camera exact two budgets");next.Dispose();exact.Dispose();Clean();
+    }
+    static void ReentrantCancellation()
+    {
+        scenarios++;var f=new Fixture();var p=Prepare(new(),f.Freeze());f.Renderer.OnRead=()=>p.Dispose();var c=new CommandBuffer();
+        Check(!p.RecordAndBind(c,new(),11,13,out _)&&c.Calls==0,"Dispose during initial source recapture cannot resurrect released resources");f.Renderer.OnRead=null;Clean();
+        foreach(int target in new[]{11,13})
+        {
+            var a=Prepare(new(),new Fixture().Freeze());var ac=new CommandBuffer();bool fired=false;
+            ac.OnCall=(cmd,name)=>{if(!fired&&name.StartsWith("bind:"+target+":")){fired=true;a.Dispose();}};
+            Check(!a.RecordAndBind(ac,new(),11,13,out _)&&fired,"Dispose during either binding rejects authorization");
+            ac.OnCall=null;Check(a.Finish(ac,out _),"canceled bind can still fence");ac.NextFence.Complete=true;Pass.PollRetired();Clean();
+        }
+    }
+    static void PersistentPagesAcrossActualPasses()
+    {
+        scenarios++;SystemInfo.supportsAsyncGPUReadback=true;
+        var a=Texture(17,9,5);var b=Texture(7,5,3);var fa=new Fixture(a);var fb=new Fixture(b);
+        var initial=Prepare(new(),fa.Freeze(),fb.Freeze(19));var first=new CommandBuffer();Record(initial,first);
+        var data=first.Copies.OfType<HybridLumenGIRayTextureMetadata[]>().Single();
+        for(int i=0;i<data.Length;i++)if(data[i].generation!=0)data[i].flags=1;
+        Check(initial.SourceTextures.Count==2&&!initial.ReusesTextureResidency&&initial.TextureUploadByteCount>0,"first pass imports both real upload sources");
+        Check(initial.Finish(first,out _),"first actual pass final fence");first.NextFence.Complete=true;Pass.PollRetired();
+        Check(RTHandle.Live==0&&AsyncGPUReadback.Pending.Count==1&&Pool.TotalAllocatedBytes>0,"borrowed source wrappers retire while metadata proof holds resident storage");
+        AsyncGPUReadback.CompleteNext(data);Pass.PollRetired();
+        var graph=new RenderGraph();var reused=Prepare(graph,fa.Freeze(),fb.Freeze(19));var reusedCmd=new CommandBuffer();Record(reused,reusedCmd);
+        Check(reused.Generation>initial.Generation&&reused.ReusesTextureResidency&&reused.SourceTextures.Count==0&&reused.TextureUploadByteCount==0,"new material generation reuses completed texture pages without source imports");
+        Check(reusedCmd.Dispatches.Count==0&&reusedCmd.Copies.Count==2&&reusedCmd.Copies.All(x=>x is Record[]||x is Binding[]),"actual reused pass uploads only immutable material/binding tables");
+        Check(ReferenceEquals(initial.Buffers[2].Buffer,reused.Buffers[2].Buffer)&&ReferenceEquals(initial.Buffers[3].Buffer,reused.Buffers[3].Buffer),"actual RenderGraph borrow uses shared metadata and texels");
+        Check(reused.Finish(reusedCmd,out _),"old resident consumer retained pending");
+        a.updateCount++;var changed=Prepare(new(),fa.Freeze(),fb.Freeze(19));var cmd=new CommandBuffer();Record(changed,cmd);
+        Check(changed.ReusesTextureResidency&&changed.SourceTextures.Count==1&&OwnedBatch(changed).TextureUploadCount==1&&ReferenceEquals(OwnedBatch(changed).GetUploadSource(0),a),"one changed source imports and uploads one page only");
+        Check(cmd.CopyRanges.Count==1&&cmd.Copies.OfType<HybridLumenGIRayTextureMetadata[]>().Single().Length==1,"existing page descriptors are never reinitialized by another pass");
+        var row=cmd.Copies.OfType<HybridLumenGIRayTextureMetadata[]>().Single()[0];row.flags=1;data[cmd.CopyRanges[0].Destination]=row;
+        Check(changed.Finish(cmd,out _),"changed page final fence");cmd.NextFence.Complete=true;Pass.PollRetired();AsyncGPUReadback.CompleteNext(data);Pass.PollRetired();
+        Check(reused.State==Batch.BatchState.SealedAwaitingFence&&Pool.TotalAllocatedBytes>0,"newer pass completion cannot retire older consumer");
+        var canceled=Prepare(new(),fa.Freeze(),fb.Freeze(19));Check(canceled.SourceTextures.Count==0,"unexecuted reuse graph no source wrapper");canceled.Dispose();
+        reusedCmd.NextFence.Complete=true;Pass.PollRetired();Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
+        Check(!a.Destroyed&&!b.Destroyed,"source Texture2D ownership remains external");
+    }
+    static int Main()
+    {
+        try
+        {
+            Resources.Loaded=new ComputeShader();ImportsAndFrozenBindings();UsedMapsAndReferences();BorrowedRenderTextureLifetime();
+            ImportAndAllocationFailureCleanup();SourceIdentityAndMutations();EveryRecordingFailure();FinishFailuresAndAbandonment();SourceFailureAndBudget();ReentrantCancellation();PersistentPagesAcrossActualPasses();
+            Console.WriteLine("PASS hit-material-pass "+checks+" assertions / "+scenarios+" scenarios; actual eight C# classes; recording/RenderGraph/fence adapters only, no Unity/GPU execution.");return 0;
+        }
+        catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}
+    }
+}
