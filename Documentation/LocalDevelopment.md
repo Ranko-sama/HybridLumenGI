@@ -2,6 +2,18 @@
 
 2026-10-27，用户明确取消当前朋友交付任务，直接在本机继续开发。冻结的 `runtime-candidate-16` 及其交付 ZIP 保留为历史基线；不再以等待朋友反馈作为开发停点。
 
+## local-development-resource-shutdown-01b（2026-10-28）
+
+GPT-6 Pro已批准保留并本地提交（代码提交bd5a7d2）。实际缺陷是Feature和形变快照在最后可用context之后才转交退休。修复提前关闭会话准入并撤销owner，保留旧pass/state直到真实fence完成；材质批次、纹理池与形变任务仍使用各自完成条件。未知提交、清理失败和未完成任务保留所有权与计账。
+
+定向源码测试及有限Unity运行支持：默认域重载下两次自然Play退出、一次重新进入，以及独立直接Editor退出均成功。36+21张旧域票据逐项实际提交、fence passed后恰好一次销毁；纹理arena、形变快照及通用buffer分别归零，无此前归属的泄漏/观察器错误。实机后另修普通取消任务清理异常时丢失Job所有权，仅有定向actual-source回归证据；执行版本与当前版本哈希明确分列。详见[本包审查](ReviewBrief-ResourceShutdown01b.md)和[Pro原文与下一计划](../LocalComparison/Review/resource-shutdown-01b/gpt6-pro-review-and-next-plan.txt)。
+
+Player、禁用域重载、退出时在途worker/readback、Recorded/Quarantined批次、设备故障、长时增长和总显存/性能继续开放。原始失败工件保留。下一包thin-wall-transport-01先做有限阶段归因与独立线段/薄板可见性控制，只有明确反例才改算法。
+
+## local-development-denoise-03（2026-10-28）
+
+已在4610cc2提交短历史滤波连续过渡，Pro批准范围仅为3→4突变改善。固定门事件的3→4 RMS改善约19%，整个恢复窗口最大相邻RMS仅改善约0.31%，不能混称整体闪烁改善19%；合成噪声在历史2/3有代价，持续reactive或maxHistory=2/3时可能持续。详见[审查与量化边界](ReviewBrief-Denoise03.md)。
+
 ## local-development-denoise-02-contracts（2026-10-28）
 
 已修复 HDR 时间矩存储与调试语义，GPT-6 Pro 已批准此局部合同修复本地提交。两张 moments 改为 RGBA32F，预算每 GI 像素增加16字节；SpatialVariance 保留枚举值3，以 `v/(1+v)` 显示。滤波公式和空间方差上限不变。
