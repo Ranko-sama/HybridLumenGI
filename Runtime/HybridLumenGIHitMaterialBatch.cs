@@ -93,6 +93,7 @@ namespace HybridLumenGI
             HybridLumenGIMaterialSource validator=null,HybridLumenGIRayTextureImporter importer=null)
         {
             batch=null;reason=null;PollRetired();
+            if(HybridLumenGIResourceRetirement.AdmissionClosed){reason="GI session admission is closed.";return false;}
             int count;
             try { count=input==null?0:input.Count; }
             catch(Exception ex){reason="Source collection count failed: "+ex.GetType().Name;return false;}

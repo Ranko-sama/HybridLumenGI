@@ -292,12 +292,21 @@ class Program
         Check(dynamicCommand.Dispatches.Count==0&&Pool.UploadBytesUsed==0&&dynamicBatch.UnknownRecords==1,"unversioned RT larger than frame allowance never publishes a multi-frame stitched image");
         Finish(dynamicBatch,dynamicCommand);Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
     }
+    static void ClosingAdmission()
+    {
+        scenarios++;var fixture=new Fixture(Texture());var batch=Prepare(fixture.Freeze());var cmd=new CommandBuffer();RecordBatch(batch,cmd);
+        HybridLumenGIResourceRetirement.AdmissionClosed=true;
+        Check(!Batch.TryCreate(new[]{fixture.Freeze()},1L<<30,out var denied,out _)&&denied==null,"closing denies new batches");
+        // A recorded old graph must still bind/seal and complete after admission closes.
+        Check(batch.Bind(cmd,new ComputeShader(),0,out _),"existing consumer may finish while closing");
+        Finish(batch,cmd);Pool.ClearReusable();Clean();HybridLumenGIResourceRetirement.AdmissionClosed=false;
+    }
     static int Main()
     {
         try
         {
             Resources.Loaded=new ComputeShader();AbiAndConstantOrder();MapDedupAndFrozenViews();SourceRevalidation();GlobalBudgetsAndCaps();
-            AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();QuotaDefersUnknownMaterials();
+            AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();QuotaDefersUnknownMaterials();ClosingAdmission();
             Console.WriteLine("PASS hit-material-batch "+checks+" assertions / "+scenarios+" scenarios; actual seven C# classes, recording adapters only; no Unity/GPU execution.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}

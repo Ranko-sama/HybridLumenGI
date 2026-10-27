@@ -1,0 +1,106 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 4
+REVIEW_DECISION: RETAIN — APPROVE_LOCAL_COMMIT
+PACKAGE_STATUS: 有限Editor退出缺陷可结项；整体计划继续
+NEXT_PACKAGE: thin-wall-transport-01
+
+一、提交决定
+
+保留当前修复，允许本地提交。 在已审查的Runtime差异、定向测试和实际生命周期证据范围内，未发现新的提交阻断。上一轮“最终context之后owner才撤销，留下未提交票据”的问题，在本轮覆盖的自然Play退出、一次重入及直接Editor退出路径中，已经得到有效修复。
+
+访问确认：HybridLumenGI，根 workspace:/，审查基线 main@4610cc2，当前修改尚未提交。 我检查了Runtime diff及新增pump，先列出再读取iteration 4执行输出，并核对了分析脚本、旧域原始票据、原始日志和实机后的唯一源码差异。本层没有修改、执行测试或提交。
+
+本次批准的是有明确适用范围的本地修复，不是Player退出、所有在途资源状态或生产无泄漏认证。
+
+二、为什么这次可以保留
+1. 修改了撤销顺序，没有降低完成证明要求
+
+当前关闭入口先关闭新任务准入，再批量调用owner撤销，最后推进退休。Feature把旧pass和composite转交给父退休项；旧pass自身还保留永久的 admissionStopped，不会因下一会话重新开放全局准入而恢复接收工作。已记录的graph执行、绑定和最终seal路径没有被提前截断。〔Runtime/HybridLumenGIResourceRetirement.cs:93–110；Runtime/HybridLumenGIRendererFeature.cs:165–210、456–460、540–543〕
+
+父项完成之后才调用旧pass的Dispose；由此产生的BVH/属性buffer子退休项仍取得自己的提交和完成证据。原有 requiresContext、提交不确定性、prerequisite与重入保护没有被“清零式修复”绕过。新增pump负责无目标渲染时的推进，不是单独凭执行顺序就证明GPU完成。〔HybridLumenGIResourceRetirement.cs:112–148、160–166；HybridLumenGIResourceRetirementPump.cs:7–18〕
+
+2. 旧域票据和日志支持实际释放，不只是退出码为0
+核验项目	本轮证据支持的结论
+自然Play退出与重入	两次自然退出，每次之前Feature和已发布形变快照仍活跃；中间恰有一次重入。夹具没有提前禁用Feature、手动Dispose或代替产品推进队列。
+通用退休票据	生命周期运行36张、直接退出运行21张票据，分析按域与ticket分组检查了一次入队、一次提交、一次开始销毁和一次销毁返回；销毁时fence已通过。
+旧会话计账	每次Play退出前后使用同一生命周期域标识，资源在重入前归零；同时保留了独立trace中的旧域逐票据完成记录。
+原生与观察器告警	本轮两份日志未出现此前归属的Persistent/native-buffer泄漏签名、未解决owner警告或MissingReference观察器异常；仍保留Unity其他诊断及通用 MemoryLeaks 汇总。
+
+依据：LocalComparison/Review/resource-shutdown-01b/lifecycle/lifecycle.jsonl:1–5；同目录保存的 ResourceLifecycleProbe.cs.executed.txt:14–28、73–87；LocalComparison/Harness/analyze-resource-shutdown-01b.py:17–35；lifecycle.log:787–811、direct.log:593–609。
+
+原始trace也能看到实际顺序。例如生命周期旧域 6248fb… 中，关闭准入后先撤销快照和Feature，父项通过fence后产生子buffer退休项，子项另行提交；直接退出最后一组记录显示销毁完成、drain返回，再进入晚到的Feature.Dispose，没有重新加入资源。〔lifecycle/retirement-timeline.jsonl，sequence 106–161；direct/retirement-timeline.jsonl:160–168〕
+
+因此，本次结论不依赖“新域初始化后的计数为零”，也不只是相信运行器打印的完成消息。
+
+3. 材质与纹理池没有被通用队列的零计数掩盖
+
+关闭时原本还有 77,344字节可复用纹理arena 和 53,760字节已发布形变快照；两类资源均在旧会话中完成收尾。产品调用了既有 HitMaterialPass.PollRetired() 和纹理池的驻留撤销机制，没有修改batch/lease原来的完成状态机。〔analysis.json 各运行的 close / finalState；HybridLumenGIResourceRetirement.cs:103–107、143–157〕
+
+但应保持准确表述：这些关闭边界上没有未完成的材质batch或形变worker。 因而本次原生运行证明了对应arena、已发布快照和通用buffer的退出，不证明任意Recorded/Quarantined、待readback或待worker状态都能在退出前排空。
+
+三、实机后唯一源码差异：接受，但单独记账
+
+我对照了保存的执行版本与当前 HybridLumenGIDeformedMesh.cs。
+
+执行版本在普通 BeginContext() 的取消/失败任务分支中，先移除Job，再销毁snapshot；当前版本改为先成功销毁及清理，再移除Job，异常时保留 cleanupFailed、Job所有权及计账。它与关闭专用轮询的失败保留方式一致，防止释放异常后丢失唯一owner。〔executed-product/HybridLumenGIDeformedMesh.cs.txt:168–180；Runtime/HybridLumenGIDeformedMesh.cs:126–135、166–185〕
+
+针对性实际源码测试明确检查了：销毁抛错后Job和reservation仍在，后续idle、普通context及新会话初始化均不重新销毁或清除它。执行输出21退出码0与测试断言相符。〔Tests/StandaloneDeformedMesh/Program.cs.txt:204–214〕
+
+我接受这个增量随本包提交，不要求仅为它重复成功的退出运行。 原因是改动局限于已定位的异常清理分支，真实退出时对应Jobs计数为0；但证据必须继续分列：
+
+原生运行对应执行版本哈希 1f29f27b…。
+当前版本为 e25a0aa6…，该异常分支有定向单元证据，没有新增原生执行证据。
+
+完整哈希保留在 analysis.json 的 currentSourceDeltaFromExecuted 和 current-source-check.json，不能把部署一致性写成“当前全部字节已经跑过本轮原生测试”。
+
+四、结项范围与提交要求
+
+可关闭的条目是：
+
+在已记录的Unity 6000.0.85f1 / URP 17.0.4 / DX12环境、默认域重载和本场景资源状态下，修复正常Play退出、重入及直接Editor退出中的晚撤销资源问题。
+
+以下继续开放：Player退出；禁用域重载等其他模式；关闭时仍有CPU任务或readback的情况；Recorded/Quarantined材质批次；故障设备和提交不确定性恢复；长期资源增长、总VRAM及性能验收。通用 MemoryLeaks 汇总没有产品owner归属，既不能据它否定已核验的释放，也不能宣称整个进程完全无泄漏。
+
+提交时更新README、本机记录和十工作流推进表，保存当前diff、执行版本、唯一后置增量、原始日志及旧域票据。前一包失败工件保持原样；旧trace helper未能还原的执行正文，继续明确缺失，不用重构文件替代历史原件。不需要再跑未改变的退出、降噪或全场景矩阵。
+
+五、下一最小包：thin-wall-transport-01
+
+现在应转回完整原计划中的光传输、几何/表面缓存与可重复参考验证，而不是继续扩大已通过退出路径的测试数量。
+
+目标
+
+把既有薄壁亮度差定位到具体层：几何/可见性、直接光注入、缓存反馈、屏幕重建或合成。先建立一个有已知答案的局部检查；只有出现确定反例才改产品代码。
+
+既有验证场景的薄壁为3厘米，配有墙后点光源；它并非完全封闭黑室，所以“暗侧所有像素必须为零”不是合法的整图判据。〔Editor/HybridLumenGIValidationScene.cs:68–70、90–91〕
+
+有限执行范围
+
+先提交本包并固定新commit。 使用当前精确软件路径、原有薄壁资产与相机姿态，建立独立静态probe；不得把它标成720帧序列复验。预先固定观察点、ROI、实际GI分辨率、材质/Cull、灯层、阴影、环境和缓存设置。
+
+最多三类配置，每类至多120逻辑帧；这一上限是实验边界，不是收敛判据：
+
+配置	要回答的问题
+A：当前正常薄壁配置	同一次运行保存raw gather、未滤波history/moments、滤波后GI和最终HDR，确认差异最早出现在哪一层。记录实际后端、表面/缓存就绪情况和选定命中的身份。
+B：只关闭缓存反馈的诊断配置	检查疑似亮度是否依赖高阶缓存反馈。单独启动并记录状态；不能把A−B直接当成精确的多次反弹分量，除非实际采样、命中与提议状态也证明匹配。最终正常配置仍恢复原值。
+C：单光源、已知遮挡关系的薄板控制	复用同一薄板，选择远离边缘的固定接收点—光源连接，设置“确定被挡”和“确定无遮挡”控制。用独立的线段/平面几何答案核对实际查询，避免把另一个近似渲染结果当真值。
+
+优先扩展既有探针和采集脚本，不新建渲染器或通用测试框架。需要临时插桩时，继续保存执行源码、还原哈希和原始数据；不把插桩版本冒充未修改产品源码。
+
+文件级排查与允许修复
+
+先沿现有调用链检查，而不是调暗画面：
+
+HybridLumenGITransport.hlsl 的 TraceSceneQuery / TraceShadow、DirectIrradiance：核对实际射线起终点、偏移、最大距离、Cull/层策略及已知/未知结果。
+同文件缓存连接段 :280–290：核对查询点与anchor的表面身份、两端偏移及完整连接是否被正确遮挡。
+HybridLumenGIKernels.hlsl 的 CSTrace / CSTemporal / CSFilter 与Composite：用于定位首次异常阶段，本包不继续调sigma、平面权重或历史窗口。
+
+如果控制明确指出一个错误，只修对应局部合同，并复跑该反例及相关已知正确控制。不得通过降低GI强度、开启有偏亮度夹取、永久关闭反弹或回退近似后端来“修复”薄壁结果。
+
+成功与停止标准
+
+本包至少交付一个可复核的归因结论：确定错误发生在哪个阶段，或者现有差异在局部参考下没有构成缺陷。确定被遮挡/无遮挡的连接应匹配独立几何答案；未知测量不得当作已测黑色；数值容差按实际格式与运算预先规定，不临时发明整图质量阈值。
+
+如果原始输入或来源不匹配、后端意外回退、就绪状态不足、输出非有限、采集失败，停止该实验并保存最小复现。120帧内未达到所需缓存状态就记录“未覆盖/未收敛”，不自动扩大运行，也不靠改参数获得通过。若没有确定产品缺陷，允许只提交探针、证据和归因，不为完成工作包强行修改算法。
+
+本轮资源修复可以本地落盘，下一轮推进薄壁传输归因。四项目标、十条工作流及G0–G5未满足的关卡继续有效；有限Editor成功不升级为Player或生产验收。

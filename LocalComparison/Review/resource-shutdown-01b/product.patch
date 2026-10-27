@@ -1,0 +1,442 @@
+diff --git a/Runtime/HybridLumenGIDeformedMesh.cs b/Runtime/HybridLumenGIDeformedMesh.cs
+index 7937b9d..6a43e99 100644
+--- a/Runtime/HybridLumenGIDeformedMesh.cs
++++ b/Runtime/HybridLumenGIDeformedMesh.cs
+@@ -29,6 +29,9 @@ namespace HybridLumenGI
+         public static int VertexBudgetPerFrame=65536,MaximumWorkers=2;
+         public static long MemoryBudgetBytes=128L*1024*1024,UploadBudgetBytesPerFrame=8L*1024*1024;
+         public static long ReservedBytes { get; private set; }
++        public static int PendingWorkerCount=>Jobs.Count;
++        public static int PublishedSnapshotCount=>Published.Count;
++        public static int FailedCleanupCount {get{int n=0;foreach(var job in Jobs)if(job.cleanupFailed)n++;return n;}}
+         private static readonly List<HybridLumenGIDeformedMesh> Active=new List<HybridLumenGIDeformedMesh>();
+         private static readonly List<Job> Jobs=new List<Job>();
+         private static readonly Dictionary<Renderer,Snapshot> Published=new Dictionary<Renderer,Snapshot>();
+@@ -72,6 +75,7 @@ namespace HybridLumenGI
+             internal Snapshot snapshot;
+             internal CancellationTokenSource cancellation=new CancellationTokenSource();
+             internal Task<Result> work;
++            internal bool cleanupFailed;
+         }
+ 
+         public static bool HasSnapshot(Renderer renderer) => renderer!=null && Published.ContainsKey(renderer);
+@@ -99,16 +103,37 @@ namespace HybridLumenGI
+         {
+             proxy=GetComponent<HybridLumenGIProxy>();source=proxy.SourceRenderer;
+             if(source==null)source=GetComponent<Renderer>();
++            HybridLumenGIResourceRetirement.RegisterShutdownOwner(WithdrawForShutdown);
++            if(HybridLumenGIResourceRetirement.AdmissionClosed){WithdrawForShutdown();return;}
+             if(!Active.Contains(this))Active.Add(this);
+             requested=true;
+             if(!subscribed) { RenderPipelineManager.beginContextRendering+=BeginContext;subscribed=true; }
+         }
+         private void OnDisable()
+         {
++            HybridLumenGIResourceRetirement.UnregisterShutdownOwner(WithdrawForShutdown);
+             Active.Remove(this);generation++;
+             foreach(var job in Jobs)if(ReferenceEquals(job.owner,this))job.cancellation.Cancel();
+             Withdraw();
+         }
++        private void WithdrawForShutdown()
++        {
++            Active.Remove(this);generation++;requested=false;
++            foreach(var job in Jobs)if(ReferenceEquals(job.owner,this))job.cancellation.Cancel();
++            Withdraw();
++        }
++        internal static void PollShutdownWork()
++        {
++            for(int i=Jobs.Count-1;i>=0;i--)
++            {
++                var job=Jobs[i];if(job.cleanupFailed || !job.cancellation.IsCancellationRequested || !job.work.IsCompleted)continue;
++                // Workers only read copied CPU arrays. An unpublished snapshot has no GPU
++                // readers, but it cannot be destroyed while its worker is still running.
++                try{job.work.GetAwaiter().GetResult();}catch(Exception){ }
++                try{job.snapshot.Destroy();job.cancellation.Dispose();Jobs.RemoveAt(i);}
++                catch(Exception error){job.cleanupFailed=true;Debug.LogException(error);}
++            }
++        }
+         private void Withdraw()
+         {
+             if(!ReferenceEquals(source,null) && Published.TryGetValue(source,out var old) && ReferenceEquals(old.owner,this))
+@@ -126,6 +151,7 @@ namespace HybridLumenGI
+         }
+         private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
+         {
++            if(HybridLumenGIResourceRetirement.AdmissionClosed){PollShutdownWork();return;}
+             if(lastFrame==Time.frameCount)return;
+             lastFrame=Time.frameCount;
+             foreach(var owner in Active)
+@@ -140,7 +166,7 @@ namespace HybridLumenGI
+             long uploadLeft=Math.Max(0,UploadBudgetBytesPerFrame);
+             for(int i=Jobs.Count-1;i>=0;i--)
+             {
+-                Job job=Jobs[i];if(!job.work.IsCompleted)continue;
++                Job job=Jobs[i];if(job.cleanupFailed || !job.work.IsCompleted)continue;
+                 bool current=job.owner!=null && job.owner.isActiveAndEnabled && job.owner.generation==job.generation &&
+                     job.source!=null && ReferenceEquals(job.owner.source,job.source) && !job.cancellation.IsCancellationRequested;
+                 Result result=null;
+@@ -148,8 +174,15 @@ namespace HybridLumenGI
+                 catch(Exception ex) { if(current)job.owner.Status="Geometry bake failed: "+ex.GetType().Name; }
+                 long upload=job.snapshot.uploadBytes;
+                 if(current && result!=null && upload>uploadLeft) { job.owner.Status="Snapshot ready; upload budget pending";continue; }
++                if(!current || result==null)
++                {
++                    // A cancelled old-session worker can finish between IdleUpdate and
++                    // this callback. Preserve ownership if native cleanup fails here too.
++                    try{job.snapshot.Destroy();job.cancellation.Dispose();Jobs.RemoveAt(i);}
++                    catch(Exception error){job.cleanupFailed=true;Debug.LogException(error);}
++                    continue;
++                }
+                 Jobs.RemoveAt(i);job.cancellation.Dispose();
+-                if(!current || result==null) { job.snapshot.Destroy();continue; }
+                 Snapshot old=null;
+                 try
+                 {
+diff --git a/Runtime/HybridLumenGIHitMaterialBatch.cs b/Runtime/HybridLumenGIHitMaterialBatch.cs
+index 0cf39d7..8793b59 100644
+--- a/Runtime/HybridLumenGIHitMaterialBatch.cs
++++ b/Runtime/HybridLumenGIHitMaterialBatch.cs
+@@ -93,6 +93,7 @@ namespace HybridLumenGI
+             HybridLumenGIMaterialSource validator=null,HybridLumenGIRayTextureImporter importer=null)
+         {
+             batch=null;reason=null;PollRetired();
++            if(HybridLumenGIResourceRetirement.AdmissionClosed){reason="GI session admission is closed.";return false;}
+             int count;
+             try { count=input==null?0:input.Count; }
+             catch(Exception ex){reason="Source collection count failed: "+ex.GetType().Name;return false;}
+diff --git a/Runtime/HybridLumenGIRayTexturePool.cs b/Runtime/HybridLumenGIRayTexturePool.cs
+index 7bb4985..a58d016 100644
+--- a/Runtime/HybridLumenGIRayTexturePool.cs
++++ b/Runtime/HybridLumenGIRayTexturePool.cs
+@@ -207,6 +207,7 @@ namespace HybridLumenGI
+         public bool TryPrepareRequests(IReadOnlyList<Request> requests,long budgetBytes,out Lease lease,out string reason)
+         {
+             lease=null;reason=null;PollRetired();
++            if(HybridLumenGIResourceRetirement.AdmissionClosed){reason="GI session admission is closed.";return false;}
+             if(disposed||!SystemInfo.supportsGraphicsFence||requests==null||requests.Count<1||requests.Count>MaxRequests||budgetBytes<0)
+             {reason="Disposed pool or invalid request count/budget.";return false;}
+             if(leases.Count>=MaxBatchesPerPool||Resident.Count>=MaxResidentBatches)
+diff --git a/Runtime/HybridLumenGIRendererFeature.cs b/Runtime/HybridLumenGIRendererFeature.cs
+index 41e6429..e38753e 100644
+--- a/Runtime/HybridLumenGIRendererFeature.cs
++++ b/Runtime/HybridLumenGIRendererFeature.cs
+@@ -165,6 +165,8 @@ namespace HybridLumenGI
+         private bool warnedPlatform;
+         public override void Create()
+         {
++            HybridLumenGIResourceRetirement.RegisterShutdownOwner(WithdrawForShutdown);
++            if(HybridLumenGIResourceRetirement.AdmissionClosed){WithdrawForShutdown();return;}
+             pass?.Dispose(); CoreUtils.Destroy(composite);
+             traceCompute=traceCompute!=null?traceCompute:Resources.Load<ComputeShader>("HybridLumenGI/HybridLumenGI");
+             compositeShader=compositeShader!=null?compositeShader:Resources.Load<Shader>("HybridLumenGI/HybridLumenGIComposite");
+@@ -175,6 +177,7 @@ namespace HybridLumenGI
+         }
+         public override void AddRenderPasses(ScriptableRenderer renderer,ref RenderingData renderingData)
+         {
++            if(HybridLumenGIResourceRetirement.AdmissionClosed)return;
+             var camera=renderingData.cameraData;
+             if(SystemInfo.graphicsDeviceType!=GraphicsDeviceType.Direct3D12 || QualitySettings.activeColorSpace!=ColorSpace.Linear)
+             {
+@@ -187,7 +190,21 @@ namespace HybridLumenGI
+             if(camera.cameraTargetDescriptor.dimension!=TextureDimension.Tex2D) return;
+             renderer.EnqueuePass(pass);
+         }
+-        protected override void Dispose(bool disposing) { pass?.Dispose(); pass=null; CoreUtils.Destroy(composite); }
++        private void WithdrawForShutdown()
++        {
++            var oldPass=pass;var oldComposite=composite;pass=null;composite=null;
++            oldPass?.StopAdmission();
++            if(oldPass==null && oldComposite==null)return;
++            // Already recorded graph callbacks retain the entire pass/state. Direct texture
++            // and cache destruction inside Dispose is deferred until those readers finish.
++            HybridLumenGIResourceRetirement.Retire(()=>{oldPass?.Dispose();CoreUtils.Destroy(oldComposite);});
++        }
++        protected override void Dispose(bool disposing)
++        {
++            HybridLumenGIResourceRetirement.UnregisterShutdownOwner(WithdrawForShutdown);
++            if(HybridLumenGIResourceRetirement.AdmissionClosed){WithdrawForShutdown();return;}
++            pass?.Dispose();pass=null;CoreUtils.Destroy(composite);composite=null;
++        }
+ 
+         [StructLayout(LayoutKind.Sequential)] private struct CacheData
+         { public Vector4 irradiance,tag,anchor,normal,guide; }
+@@ -439,7 +456,8 @@ namespace HybridLumenGI
+             private readonly HashSet<HybridLumenGIHitMaterialPass> materialPasses=new HashSet<HybridLumenGIHitMaterialPass>();
+             private readonly List<ShaderTagId> tags=new List<ShaderTagId>{new ShaderTagId("UniversalForward"),new ShaderTagId("UniversalForwardOnly"),new ShaderTagId("UniversalGBuffer")};
+             private readonly HybridLumenGILights worldLights=new HybridLumenGILights();
+-            private bool warnedBudget,warnedComposition;
++            private bool warnedBudget,warnedComposition,admissionStopped;
++            internal void StopAdmission()=>admissionStopped=true;
+             internal TransportPass(ComputeShader shader,Material composite,Shader surface,Shader nativeDiffuse,Settings settings,Func<bool> featureActive)
+             {
+                 software=shader; this.composite=composite; this.surface=surface;this.nativeDiffuse=nativeDiffuse;s=settings;
+@@ -522,6 +540,7 @@ namespace HybridLumenGI
+             }
+             public override void RecordRenderGraph(RenderGraph graph,ContextContainer frameData)
+             {
++                if(admissionStopped || HybridLumenGIResourceRetirement.AdmissionClosed)return;
+                 HybridLumenGIHitMaterialPass.PollRetired();
+                 var resources=frameData.Get<UniversalResourceData>();
+                 var cameraData=frameData.Get<UniversalCameraData>();
+@@ -1229,6 +1248,7 @@ namespace HybridLumenGI
+             public void Dispose()
+             {
+                 HybridLumenGIResourceRetirement.Unregister(RequiresRepresentation);
++                admissionStopped=true;
+                 foreach(var materialPass in materialPasses)materialPass.Dispose();materialPasses.Clear();
+                 HybridLumenGIHitMaterialPass.PollRetired();
+                 foreach(var state in cameras.Values)state.Dispose();cameras.Clear();receiverIdentityPass.Dispose();
+diff --git a/Runtime/HybridLumenGIResourceRetirement.cs b/Runtime/HybridLumenGIResourceRetirement.cs
+index 6da648a..fd4c8c8 100644
+--- a/Runtime/HybridLumenGIResourceRetirement.cs
++++ b/Runtime/HybridLumenGIResourceRetirement.cs
+@@ -2,27 +2,32 @@ using System;
+ using System.Collections.Generic;
+ using UnityEngine;
+ using UnityEngine.Rendering;
++using Stopwatch = System.Diagnostics.Stopwatch;
+ 
+ namespace HybridLumenGI
+ {
+     /// <summary>
+     /// All-camera retirement gate. Mesh/material resources may be read by ordinary URP rendering
+-    /// after GI, so the completion fence is submitted at endContextRendering after detachment.
+-    /// An unsupported/failed fence remains pending; elapsed frames never prove completion.
++    /// after GI. Detachment is followed by a final-context fence, or by an immediate queue
++    /// fence at a proven idle boundary. Unknown submission is retained; time is never proof.
+     /// </summary>
+     public static class HybridLumenGIResourceRetirement
+     {
+         private static readonly HashSet<Func<HybridLumenGIProxy,bool>> consumers=new HashSet<Func<HybridLumenGIProxy,bool>>();
+         private static readonly List<Ticket> pending=new List<Ticket>();
+         private static readonly List<Owned> owned=new List<Owned>();
+-        private static bool registered;
++        private static readonly HashSet<Action> shutdownOwners=new HashSet<Action>();
++        private static bool registered, outsideRenderLoop, contextEnded=true, shuttingDown, withdrawing, draining, polling, submissionUncertain;
++        private static long shutdownDeadline;
++        private static int failedWithdrawals;
++        private const int ShutdownMilliseconds=5000;
+         private sealed class Ticket : HybridLumenGIAssetPageStreaming.ICompletion
+         {
+             internal GraphicsFence fence;
+-            internal bool submitted;
++            internal bool submitted, requiresContext, submissionUnknown;
+             public bool IsComplete
+             {
+-                get{if(!submitted)return false;try{return fence.passed;}catch(Exception){return false;}}
++                get{if(!submitted || submissionUnknown)return false;try{return fence.passed;}catch(Exception){return false;}}
+             }
+         }
+         private sealed class Owned
+@@ -31,16 +36,135 @@ namespace HybridLumenGI
+         {if(requiresRepresentation==null)throw new ArgumentNullException(nameof(requiresRepresentation));consumers.Add(requiresRepresentation);EnsureRegistered();}
+         public static void Unregister(Func<HybridLumenGIProxy,bool> requiresRepresentation)
+         {if(requiresRepresentation!=null)consumers.Remove(requiresRepresentation);}
++        public static int PendingCount=>pending.Count;
++        public static int OwnedCount=>owned.Count;
++        public static bool AdmissionClosed=>shuttingDown;
++        public static int FailedWithdrawalCount=>failedWithdrawals;
++        internal static void RegisterShutdownOwner(Action withdraw)
++        {if(withdraw==null)throw new ArgumentNullException(nameof(withdraw));shutdownOwners.Add(withdraw);EnsureRegistered();}
++        internal static void UnregisterShutdownOwner(Action withdraw){if(withdraw!=null)shutdownOwners.Remove(withdraw);}
++        public static int FailedCount {get{int n=0;foreach(var item in owned)if(item.failed)n++;return n;}}
++        public static bool SubmissionUncertain=>submissionUncertain;
++        public static int UnknownSubmissionCount {get{int n=0;foreach(var ticket in pending)if(ticket.submissionUnknown)n++;return n;}}
++        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
++        private static void InitializeRuntime()
++        {
++            // No list/accounting reset: disabled domain reload may retain genuine owners.
++            shuttingDown=false;shutdownDeadline=0;EnsureRegistered();
++            HybridLumenGIResourceRetirementPump.EnsureExists();
++        }
++#if UNITY_EDITOR
++        [UnityEditor.InitializeOnLoadMethod]
++        private static void InitializeEditor()=>EnsureRegistered();
++        private static void PlayModeChanged(UnityEditor.PlayModeStateChange state)
++        {
++            if(state==UnityEditor.PlayModeStateChange.ExitingPlayMode)BeginShutdown();
++            // EnteredEditMode is still old-session teardown. Only new Play initialization
++            // reopens admission; it does not discard old ownership or submission uncertainty.
++        }
++#endif
+         public static void EnsureRegistered()
+-        {if(registered)return;RenderPipelineManager.endContextRendering+=EndContext;registered=true;}
++        {
++            if(registered)return;registered=true;
++            // Installed before the first context, not lazily at the first retirement.
++            RenderPipelineManager.beginContextRendering+=BeginContext;
++            RenderPipelineManager.endContextRendering+=EndContext;
++            Application.quitting+=BeginShutdown;
++#if UNITY_EDITOR
++            UnityEditor.EditorApplication.update+=IdleUpdate;
++            UnityEditor.EditorApplication.quitting+=BeginShutdown;
++            UnityEditor.EditorApplication.playModeStateChanged+=PlayModeChanged;
++            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload+=BeginShutdown;
++#endif
++        }
++        private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
++        {outsideRenderLoop=false;contextEnded=false;}
++        /// <summary>Only the early MonoBehaviour/Editor update boundary may call this.</summary>
++        internal static void IdleUpdate()
++        {
++            EnsureRegistered();
++            // EndContext alone is not an outside certificate: other listeners may still run.
++            if(contextEnded && !submissionUncertain)outsideRenderLoop=true;
++            PollOwned();
++            if(outsideRenderLoop)SubmitImmediate();
++            PollOwned();
++            PollOtherOwners();
++        }
++        private static void BeginShutdown()
++        {
++            if(!shuttingDown)
++            {
++                shuttingDown=true;shutdownDeadline=Stopwatch.GetTimestamp()+Stopwatch.Frequency*ShutdownMilliseconds/1000;
++                // Close admission before withdrawing any owner. Each callback detaches and
++                // hands off storage; actual destruction still requires its own completion.
++                withdrawing=true;
++                try
++                {
++                    foreach(var withdraw in new List<Action>(shutdownOwners))
++                    {try{withdraw();}catch(Exception error){failedWithdrawals++;Debug.LogException(error);}}
++                    HybridLumenGIRayTexturePool.ClearReusable();
++                }
++                finally{withdrawing=false;}
++            }
++            DrainShutdown();
++        }
++        private static void DrainShutdown()
++        {
++            if(draining || polling || withdrawing)return;draining=true;
++            try
++            {
++                do
++                {
++                    PollOwned();if(outsideRenderLoop)SubmitImmediate();PollOwned();PollOtherOwners();
++                    if(owned.Count==0 && pending.Count==0){ReportOtherOwners();return;}
++                    if(!outsideRenderLoop || UnknownSubmissionCount!=0 || FailedCount!=0 || !CanProgressWithoutMainLoop() ||
++                        !SystemInfo.supportsGraphicsFence || Stopwatch.GetTimestamp()>=shutdownDeadline)break;
++                    System.Threading.Thread.Sleep(1); // Time limits waiting; it never proves completion.
++                }while(true);
++                Debug.LogWarning("HybridLumenGI retained unresolved retirement resources: owned="+owned.Count+
++                    ", pending="+pending.Count+", unknownSubmission="+UnknownSubmissionCount+", failed="+FailedCount+
++                    ", failedWithdrawals="+failedWithdrawals+", outsideRenderLoop="+outsideRenderLoop+". No completion was assumed.");
++                ReportOtherOwners();
++            }
++            finally{draining=false;}
++        }
++        private static bool CanProgressWithoutMainLoop()
++        {
++            // No busy wait for an unsubmitted context or a prerequisite that requires a
++            // later main-thread callback. Those remain owned and are reported immediately.
++            foreach(var item in owned)
++                if(!item.failed && item.ticket.submitted && !item.ticket.IsComplete)return true;
++            // A completed parent can enqueue children during PollOwned. They still need
++            // their own fence, and an eligible idle submission can make real progress.
++            foreach(var ticket in pending)
++                if(!ticket.requiresContext && !ticket.submissionUnknown)return true;
++            return false;
++        }
++        private static void PollOtherOwners()
++        {
++            HybridLumenGIHitMaterialPass.PollRetired();
++            // Cancelled jobs from an older session remain owned across a new Play session.
++            HybridLumenGIDeformedMesh.PollShutdownWork();
++        }
++        private static void ReportOtherOwners()
++        {
++            if(HybridLumenGIHitMaterialBatch.TotalAllocatedBytes==0 && HybridLumenGIDeformedMesh.ReservedBytes==0 && failedWithdrawals==0)return;
++            Debug.LogWarning("HybridLumenGI separate owners remain after generic drain: materialAndArenaBytes="+
++                HybridLumenGIHitMaterialBatch.TotalAllocatedBytes+", arenaBytes="+HybridLumenGIRayTexturePool.TotalAllocatedBytes+
++                ", deformationBytes="+HybridLumenGIDeformedMesh.ReservedBytes+", deformationJobs="+HybridLumenGIDeformedMesh.PendingWorkerCount+
++                ", deformationCleanupFailed="+HybridLumenGIDeformedMesh.FailedCleanupCount+", failedWithdrawals="+failedWithdrawals+". Callback-dependent work was not waited on synchronously.");
++        }
+         /// <summary>Call after atomically replacing/detaching the owned object from all new readers.</summary>
+         public static void Retire(Action destroyOwned,HybridLumenGIAssetPageStreaming.ICompletion prerequisite=null)
+         {
+             if(destroyOwned==null)throw new ArgumentNullException(nameof(destroyOwned));
+-            EnsureRegistered();var ticket=new Ticket();pending.Add(ticket);owned.Add(new Owned{destroy=destroyOwned,ticket=ticket,prerequisite=prerequisite});
++            EnsureRegistered();var ticket=new Ticket{requiresContext=!outsideRenderLoop,submissionUnknown=submissionUncertain};
++            pending.Add(ticket);owned.Add(new Owned{destroy=destroyOwned,ticket=ticket,prerequisite=prerequisite});
++            if(shuttingDown)DrainShutdown();
+         }
+         private static void EndContext(ScriptableRenderContext context,List<Camera> cameras)
+         {
++            contextEnded=true; // Only a subsequent IdleUpdate may certify outside this event.
+             PollOwned();
+             var representations=HybridLumenGIStreamedRepresentation.Active;
+             for(int i=0;i<representations.Count;i++)
+@@ -58,33 +182,60 @@ namespace HybridLumenGI
+                     }
+                 }
+                 if(required)continue;
+-                var ticket=new Ticket();
++                var ticket=new Ticket{requiresContext=true};
+                 if(representation.ReportUnloadSafe(representation.Generation,ticket))pending.Add(ticket);
+             }
+-            if(pending.Count==0 || !SystemInfo.supportsGraphicsFence)return;
++            if(pending.Count==0 || !SystemInfo.supportsGraphicsFence || submissionUncertain)return;
++            var batch=new List<Ticket>();foreach(var ticket in pending)if(!ticket.submissionUnknown)batch.Add(ticket);
++            if(batch.Count==0)return;
+             var command=CommandBufferPool.Get("HybridLumenGI final-context resource retirement");
+             try
+             {
+                 GraphicsFence fence=command.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation,SynchronisationStageFlags.AllGPUOperations);
+                 context.ExecuteCommandBuffer(command);context.Submit();
+-                // Assign only after successful submission. If submit failed after enqueuing work,
+-                // next context records a fresh fence covering it; nothing is prematurely freed.
+-                foreach(var ticket in pending){ticket.fence=fence;ticket.submitted=true;}
+-                pending.Clear();
++                // Another context's later fence cannot repair an unknown earlier submission.
++                foreach(var ticket in batch){ticket.fence=fence;ticket.submitted=true;pending.Remove(ticket);}
+             }
+-            catch(Exception){ /* Keep every ticket pending and retry on the next rendered context. */ }
++            catch(Exception){MarkSubmissionUnknown();}
+             finally{CommandBufferPool.Release(command);}
+         }
++        private static void SubmitImmediate()
++        {
++            if(!outsideRenderLoop || pending.Count==0 || !SystemInfo.supportsGraphicsFence || submissionUncertain)return;
++            var batch=new List<Ticket>();foreach(var ticket in pending)if(!ticket.requiresContext)batch.Add(ticket);
++            if(batch.Count==0)return;
++            var command=CommandBufferPool.Get("HybridLumenGI idle resource retirement");
++            try
++            {
++                var fence=command.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation,SynchronisationStageFlags.AllGPUOperations);
++                Graphics.ExecuteCommandBuffer(command);
++                foreach(var ticket in batch){ticket.fence=fence;ticket.submitted=true;pending.Remove(ticket);}
++            }
++            catch(Exception){MarkSubmissionUnknown();}
++            finally{CommandBufferPool.Release(command);}
++        }
++        private static void MarkSubmissionUnknown()
++        {
++            // The failed context may also have read still-live resources retired later.
++            // Without per-reader provenance, neither a new context nor an idle fence repairs it.
++            submissionUncertain=true;outsideRenderLoop=false;
++            foreach(var ticket in pending)ticket.submissionUnknown=true;
++        }
+         private static void PollOwned()
+         {
+-            for(int i=owned.Count-1;i>=0;i--)
++            if(polling)return;polling=true;
++            try
+             {
+-                var item=owned[i];if(item.failed || !item.ticket.IsComplete)continue;
+-                bool ready=false;try{ready=item.prerequisite==null || item.prerequisite.IsComplete;}catch(Exception){ }
+-                if(!ready)continue;
+-                try{item.destroy();owned.RemoveAt(i);}
+-                catch(Exception error){item.failed=true;Debug.LogException(error);}
++                for(int i=owned.Count-1;i>=0;i--)
++                {
++                    var item=owned[i];if(item.failed || !item.ticket.IsComplete)continue;
++                    bool ready=false;try{ready=item.prerequisite==null || item.prerequisite.IsComplete;}catch(Exception){ }
++                    if(!ready)continue;
++                    try{item.destroy();owned.RemoveAt(i);}
++                    catch(Exception error){item.failed=true;Debug.LogException(error);}
++                }
+             }
++            finally{polling=false;}
+         }
+     }
+ }

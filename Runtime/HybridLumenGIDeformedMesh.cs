@@ -29,6 +29,9 @@ namespace HybridLumenGI
         public static int VertexBudgetPerFrame=65536,MaximumWorkers=2;
         public static long MemoryBudgetBytes=128L*1024*1024,UploadBudgetBytesPerFrame=8L*1024*1024;
         public static long ReservedBytes { get; private set; }
+        public static int PendingWorkerCount=>Jobs.Count;
+        public static int PublishedSnapshotCount=>Published.Count;
+        public static int FailedCleanupCount {get{int n=0;foreach(var job in Jobs)if(job.cleanupFailed)n++;return n;}}
         private static readonly List<HybridLumenGIDeformedMesh> Active=new List<HybridLumenGIDeformedMesh>();
         private static readonly List<Job> Jobs=new List<Job>();
         private static readonly Dictionary<Renderer,Snapshot> Published=new Dictionary<Renderer,Snapshot>();
@@ -72,6 +75,7 @@ namespace HybridLumenGI
             internal Snapshot snapshot;
             internal CancellationTokenSource cancellation=new CancellationTokenSource();
             internal Task<Result> work;
+            internal bool cleanupFailed;
         }
 
         public static bool HasSnapshot(Renderer renderer) => renderer!=null && Published.ContainsKey(renderer);
@@ -99,15 +103,36 @@ namespace HybridLumenGI
         {
             proxy=GetComponent<HybridLumenGIProxy>();source=proxy.SourceRenderer;
             if(source==null)source=GetComponent<Renderer>();
+            HybridLumenGIResourceRetirement.RegisterShutdownOwner(WithdrawForShutdown);
+            if(HybridLumenGIResourceRetirement.AdmissionClosed){WithdrawForShutdown();return;}
             if(!Active.Contains(this))Active.Add(this);
             requested=true;
             if(!subscribed) { RenderPipelineManager.beginContextRendering+=BeginContext;subscribed=true; }
         }
         private void OnDisable()
         {
+            HybridLumenGIResourceRetirement.UnregisterShutdownOwner(WithdrawForShutdown);
             Active.Remove(this);generation++;
             foreach(var job in Jobs)if(ReferenceEquals(job.owner,this))job.cancellation.Cancel();
             Withdraw();
+        }
+        private void WithdrawForShutdown()
+        {
+            Active.Remove(this);generation++;requested=false;
+            foreach(var job in Jobs)if(ReferenceEquals(job.owner,this))job.cancellation.Cancel();
+            Withdraw();
+        }
+        internal static void PollShutdownWork()
+        {
+            for(int i=Jobs.Count-1;i>=0;i--)
+            {
+                var job=Jobs[i];if(job.cleanupFailed || !job.cancellation.IsCancellationRequested || !job.work.IsCompleted)continue;
+                // Workers only read copied CPU arrays. An unpublished snapshot has no GPU
+                // readers, but it cannot be destroyed while its worker is still running.
+                try{job.work.GetAwaiter().GetResult();}catch(Exception){ }
+                try{job.snapshot.Destroy();job.cancellation.Dispose();Jobs.RemoveAt(i);}
+                catch(Exception error){job.cleanupFailed=true;Debug.LogException(error);}
+            }
         }
         private void Withdraw()
         {
@@ -126,6 +151,7 @@ namespace HybridLumenGI
         }
         private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
         {
+            if(HybridLumenGIResourceRetirement.AdmissionClosed){PollShutdownWork();return;}
             if(lastFrame==Time.frameCount)return;
             lastFrame=Time.frameCount;
             foreach(var owner in Active)
@@ -140,7 +166,7 @@ namespace HybridLumenGI
             long uploadLeft=Math.Max(0,UploadBudgetBytesPerFrame);
             for(int i=Jobs.Count-1;i>=0;i--)
             {
-                Job job=Jobs[i];if(!job.work.IsCompleted)continue;
+                Job job=Jobs[i];if(job.cleanupFailed || !job.work.IsCompleted)continue;
                 bool current=job.owner!=null && job.owner.isActiveAndEnabled && job.owner.generation==job.generation &&
                     job.source!=null && ReferenceEquals(job.owner.source,job.source) && !job.cancellation.IsCancellationRequested;
                 Result result=null;
@@ -148,8 +174,15 @@ namespace HybridLumenGI
                 catch(Exception ex) { if(current)job.owner.Status="Geometry bake failed: "+ex.GetType().Name; }
                 long upload=job.snapshot.uploadBytes;
                 if(current && result!=null && upload>uploadLeft) { job.owner.Status="Snapshot ready; upload budget pending";continue; }
+                if(!current || result==null)
+                {
+                    // A cancelled old-session worker can finish between IdleUpdate and
+                    // this callback. Preserve ownership if native cleanup fails here too.
+                    try{job.snapshot.Destroy();job.cancellation.Dispose();Jobs.RemoveAt(i);}
+                    catch(Exception error){job.cleanupFailed=true;Debug.LogException(error);}
+                    continue;
+                }
                 Jobs.RemoveAt(i);job.cancellation.Dispose();
-                if(!current || result==null) { job.snapshot.Destroy();continue; }
                 Snapshot old=null;
                 try
                 {

@@ -1,0 +1,948 @@
+{
+  "baseline": "4610cc2",
+  "scope": "Unity 6000.0.85f1, URP 17.0.4, DX12 RTX2080Ti, default domain reload; 12-frame finite probes, not performance/long-duration acceptance",
+  "runs": {
+    "lifecycle": {
+      "executionReceipt": {
+        "exitCode": 0,
+        "unityPid": 36736,
+        "execSession": 40624,
+        "source": "Actual Start-Unity.ps1 process execution; terminal write_stdin completion returned exit_code 0, chunk 11ad8a. Not inferred from a log or new-domain counters."
+      },
+      "domains": [
+        {
+          "domain": "79f6b06eb1284e63af38620ec846dd4e",
+          "ticketCount": 0,
+          "tickets": [],
+          "close": {
+            "sequence": 4,
+            "admissionClosed": true,
+            "outsideRenderLoop": false,
+            "pendingCount": 0,
+            "ownedCount": 0,
+            "materialBytes": 0,
+            "materialBatches": 0,
+            "arenaBytes": 0,
+            "arenas": 0,
+            "deformationBytes": 0,
+            "deformationJobs": 0,
+            "publishedSnapshots": 0,
+            "failedWithdrawals": 0,
+            "failedCleanup": 0
+          },
+          "lateDisposeSequences": [],
+          "finalStage": "shutdown-drain-returned",
+          "finalState": {
+            "pendingCount": 0,
+            "ownedCount": 0,
+            "materialBytes": 0,
+            "materialBatches": 0,
+            "arenaBytes": 0,
+            "arenas": 0,
+            "deformationBytes": 0,
+            "deformationJobs": 0,
+            "publishedSnapshots": 0,
+            "failedWithdrawals": 0,
+            "failedCleanup": 0
+          }
+        },
+        {
+          "domain": "6248fb18b923469eaaf498a540552274",
+          "ticketCount": 21,
+          "tickets": [
+            {
+              "ticket": 13714436,
+              "owner": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0#1461034858",
+              "callback": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0.<RetireSoftwareBuffers>b__0",
+              "logicalDirectBufferBytes": 24544,
+              "enqueue": 8,
+              "submitted": 23,
+              "destroyBegin": 67,
+              "destroyReturned": 68,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 51631106,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#216445806",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 128,
+              "enqueue": 9,
+              "submitted": 24,
+              "destroyBegin": 64,
+              "destroyReturned": 65,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 555487558,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1524092696",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 2176,
+              "enqueue": 10,
+              "submitted": 25,
+              "destroyBegin": 61,
+              "destroyReturned": 62,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -318731832,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#1224145262",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 15360,
+              "enqueue": 11,
+              "submitted": 26,
+              "destroyBegin": 58,
+              "destroyReturned": 59,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -1312933144,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#980885964",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 18432,
+              "enqueue": 12,
+              "submitted": 27,
+              "destroyBegin": 55,
+              "destroyReturned": 56,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 2107814762,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1916385218",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 3072,
+              "enqueue": 13,
+              "submitted": 28,
+              "destroyBegin": 52,
+              "destroyReturned": 53,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 975426186,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#1915599384",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 1088,
+              "enqueue": 14,
+              "submitted": 29,
+              "destroyBegin": 49,
+              "destroyReturned": 50,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -124162062,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#1022521648",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 2176,
+              "enqueue": 37,
+              "submitted": 69,
+              "destroyBegin": 95,
+              "destroyReturned": 96,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 1822628148,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#1857651978",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 1088,
+              "enqueue": 38,
+              "submitted": 70,
+              "destroyBegin": 92,
+              "destroyReturned": 93,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 1849307668,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#526819596",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 15360,
+              "enqueue": 39,
+              "submitted": 71,
+              "destroyBegin": 89,
+              "destroyReturned": 90,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 1862762898,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1275743512",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 18432,
+              "enqueue": 40,
+              "submitted": 72,
+              "destroyBegin": 86,
+              "destroyReturned": 87,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 1889442418,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#544998482",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 3072,
+              "enqueue": 41,
+              "submitted": 73,
+              "destroyBegin": 83,
+              "destroyReturned": 84,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -1069533064,
+              "owner": "HybridLumenGI.HybridLumenGIDeformedMesh+Snapshot#1130017936",
+              "callback": "HybridLumenGI.HybridLumenGIDeformedMesh+Snapshot.Destroy",
+              "logicalDirectBufferBytes": 0,
+              "enqueue": 107,
+              "submitted": 112,
+              "destroyBegin": 125,
+              "destroyReturned": 126,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -1564717226,
+              "owner": "HybridLumenGI.HybridLumenGIRendererFeature+<>c__DisplayClass17_0#-1824863976",
+              "callback": "HybridLumenGI.HybridLumenGIRendererFeature+<>c__DisplayClass17_0.<WithdrawForShutdown>b__0",
+              "logicalDirectBufferBytes": 0,
+              "enqueue": 109,
+              "submitted": 113,
+              "destroyBegin": 115,
+              "destroyReturned": 123,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 1317951190,
+              "owner": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0#-2124456424",
+              "callback": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0.<RetireSoftwareBuffers>b__0",
+              "logicalDirectBufferBytes": 33760,
+              "enqueue": 116,
+              "submitted": 134,
+              "destroyBegin": 160,
+              "destroyReturned": 161,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 1161782976,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-273208470",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 128,
+              "enqueue": 117,
+              "submitted": 135,
+              "destroyBegin": 157,
+              "destroyReturned": 158,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -66592838,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1490352714",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 2944,
+              "enqueue": 118,
+              "submitted": 136,
+              "destroyBegin": 154,
+              "destroyReturned": 155,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 312442390,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#270660538",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 21120,
+              "enqueue": 119,
+              "submitted": 137,
+              "destroyBegin": 151,
+              "destroyReturned": 152,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 691477618,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1843473710",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 25344,
+              "enqueue": 120,
+              "submitted": 138,
+              "destroyBegin": 148,
+              "destroyReturned": 149,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -865940,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#2098372590",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 4224,
+              "enqueue": 121,
+              "submitted": 139,
+              "destroyBegin": 145,
+              "destroyReturned": 146,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 378169288,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#1549064100",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 1472,
+              "enqueue": 122,
+              "submitted": 140,
+              "destroyBegin": 142,
+              "destroyReturned": 143,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            }
+          ],
+          "close": {
+            "sequence": 106,
+            "admissionClosed": true,
+            "outsideRenderLoop": true,
+            "pendingCount": 0,
+            "ownedCount": 0,
+            "materialBytes": 0,
+            "materialBatches": 0,
+            "arenaBytes": 77344,
+            "arenas": 1,
+            "deformationBytes": 53760,
+            "deformationJobs": 0,
+            "publishedSnapshots": 1,
+            "failedWithdrawals": 0,
+            "failedCleanup": 0
+          },
+          "lateDisposeSequences": [
+            163
+          ],
+          "finalStage": "shutdown-drain-returned",
+          "finalState": {
+            "pendingCount": 0,
+            "ownedCount": 0,
+            "materialBytes": 0,
+            "materialBatches": 0,
+            "arenaBytes": 0,
+            "arenas": 0,
+            "deformationBytes": 0,
+            "deformationJobs": 0,
+            "publishedSnapshots": 0,
+            "failedWithdrawals": 0,
+            "failedCleanup": 0
+          }
+        },
+        {
+          "domain": "9b2c791026f64898b26caa9c902a44da",
+          "ticketCount": 15,
+          "tickets": [
+            {
+              "ticket": -245583662,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-597655606",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 2176,
+              "enqueue": 7,
+              "submitted": 18,
+              "destroyBegin": 44,
+              "destroyReturned": 45,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 901200274,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1194035900",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 1088,
+              "enqueue": 8,
+              "submitted": 19,
+              "destroyBegin": 41,
+              "destroyReturned": 42,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 927879794,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#461024560",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 15360,
+              "enqueue": 9,
+              "submitted": 20,
+              "destroyBegin": 38,
+              "destroyReturned": 39,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -1695121424,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#1104559124",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 18432,
+              "enqueue": 10,
+              "submitted": 21,
+              "destroyBegin": 35,
+              "destroyReturned": 36,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -623207058,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-2061120300",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 3072,
+              "enqueue": 11,
+              "submitted": 22,
+              "destroyBegin": 32,
+              "destroyReturned": 33,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -2041013664,
+              "owner": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0#-1200643090",
+              "callback": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0.<RetireSoftwareBuffers>b__0",
+              "logicalDirectBufferBytes": 24544,
+              "enqueue": 28,
+              "submitted": 46,
+              "destroyBegin": 53,
+              "destroyReturned": 54,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 497620312,
+              "owner": "HybridLumenGI.HybridLumenGIDeformedMesh+Snapshot#1363813376",
+              "callback": "HybridLumenGI.HybridLumenGIDeformedMesh+Snapshot.Destroy",
+              "logicalDirectBufferBytes": 0,
+              "enqueue": 64,
+              "submitted": 69,
+              "destroyBegin": 82,
+              "destroyReturned": 83,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -1690252076,
+              "owner": "HybridLumenGI.HybridLumenGIRendererFeature+<>c__DisplayClass17_0#-1289188428",
+              "callback": "HybridLumenGI.HybridLumenGIRendererFeature+<>c__DisplayClass17_0.<WithdrawForShutdown>b__0",
+              "logicalDirectBufferBytes": 0,
+              "enqueue": 66,
+              "submitted": 70,
+              "destroyBegin": 72,
+              "destroyReturned": 80,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 1249802678,
+              "owner": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0#-196308194",
+              "callback": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0.<RetireSoftwareBuffers>b__0",
+              "logicalDirectBufferBytes": 33760,
+              "enqueue": 73,
+              "submitted": 91,
+              "destroyBegin": 117,
+              "destroyReturned": 118,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -1637067790,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#885142586",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 128,
+              "enqueue": 74,
+              "submitted": 92,
+              "destroyBegin": 114,
+              "destroyReturned": 115,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -4777944,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1892070756",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 2944,
+              "enqueue": 75,
+              "submitted": 93,
+              "destroyBegin": 111,
+              "destroyReturned": 112,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -767410398,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#993473708",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 21120,
+              "enqueue": 76,
+              "submitted": 94,
+              "destroyBegin": 108,
+              "destroyReturned": 109,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -388375170,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#77704462",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 25344,
+              "enqueue": 77,
+              "submitted": 95,
+              "destroyBegin": 105,
+              "destroyReturned": 106,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 1607868536,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#639587424",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 4224,
+              "enqueue": 78,
+              "submitted": 96,
+              "destroyBegin": 102,
+              "destroyReturned": 103,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 1986903764,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#160203818",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 1472,
+              "enqueue": 79,
+              "submitted": 97,
+              "destroyBegin": 99,
+              "destroyReturned": 100,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            }
+          ],
+          "close": {
+            "sequence": 63,
+            "admissionClosed": true,
+            "outsideRenderLoop": true,
+            "pendingCount": 0,
+            "ownedCount": 0,
+            "materialBytes": 0,
+            "materialBatches": 0,
+            "arenaBytes": 77344,
+            "arenas": 1,
+            "deformationBytes": 53760,
+            "deformationJobs": 0,
+            "publishedSnapshots": 1,
+            "failedWithdrawals": 0,
+            "failedCleanup": 0
+          },
+          "lateDisposeSequences": [
+            120
+          ],
+          "finalStage": "shutdown-drain-returned",
+          "finalState": {
+            "pendingCount": 0,
+            "ownedCount": 0,
+            "materialBytes": 0,
+            "materialBatches": 0,
+            "arenaBytes": 0,
+            "arenas": 0,
+            "deformationBytes": 0,
+            "deformationJobs": 0,
+            "publishedSnapshots": 0,
+            "failedWithdrawals": 0,
+            "failedCleanup": 0
+          }
+        }
+      ],
+      "captureRuns": [
+        {
+          "path": "LocalComparison\\Review\\resource-shutdown-01b\\lifecycle\\20261027-192038-c62cb705667b4dbc8ce9b033b6a34b35\\run.json",
+          "renderedFrames": 12,
+          "status": "incomplete-probe"
+        },
+        {
+          "path": "LocalComparison\\Review\\resource-shutdown-01b\\lifecycle\\20261027-192042-044ecfca21dd42f9b2cba27041efb798\\run.json",
+          "renderedFrames": 12,
+          "status": "incomplete-probe"
+        }
+      ],
+      "failureMarkers": {
+        "observerFailure": 0,
+        "nativeAllocationLeak": 0,
+        "unresolvedOwners": 0,
+        "missingReference": 0,
+        "compileError": 0,
+        "deviceLost": 0
+      },
+      "remainingLogCaveats": [
+        "Unity licensing access-token diagnostic; DX12 info-queue-interface query unavailable; normal engine shutdown MemoryLeaks aggregate is not interpreted as product ownership",
+        "Lifecycle compile includes existing obsolete-API/camera-hiding warnings"
+      ]
+    },
+    "direct": {
+      "executionReceipt": {
+        "exitCode": 0,
+        "unityPid": 2948,
+        "source": "Actual Start-Unity.ps1 exec_command completion returned exit_code 0, chunk 87a7e5. Not inferred from a log or new-domain counters."
+      },
+      "domains": [
+        {
+          "domain": "20bd46fde78b4f7db6263611b71f1c4c",
+          "ticketCount": 0,
+          "tickets": [],
+          "close": {
+            "sequence": 4,
+            "admissionClosed": true,
+            "outsideRenderLoop": false,
+            "pendingCount": 0,
+            "ownedCount": 0,
+            "materialBytes": 0,
+            "materialBatches": 0,
+            "arenaBytes": 0,
+            "arenas": 0,
+            "deformationBytes": 0,
+            "deformationJobs": 0,
+            "publishedSnapshots": 0,
+            "failedWithdrawals": 0,
+            "failedCleanup": 0
+          },
+          "lateDisposeSequences": [],
+          "finalStage": "shutdown-drain-returned",
+          "finalState": {
+            "pendingCount": 0,
+            "ownedCount": 0,
+            "materialBytes": 0,
+            "materialBatches": 0,
+            "arenaBytes": 0,
+            "arenas": 0,
+            "deformationBytes": 0,
+            "deformationJobs": 0,
+            "publishedSnapshots": 0,
+            "failedWithdrawals": 0,
+            "failedCleanup": 0
+          }
+        },
+        {
+          "domain": "47a306b1fa3d477cbee82e7826260cc8",
+          "ticketCount": 21,
+          "tickets": [
+            {
+              "ticket": -912401326,
+              "owner": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0#-1281405836",
+              "callback": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0.<RetireSoftwareBuffers>b__0",
+              "logicalDirectBufferBytes": 24544,
+              "enqueue": 8,
+              "submitted": 23,
+              "destroyBegin": 67,
+              "destroyReturned": 68,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 2006957648,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1518295432",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 128,
+              "enqueue": 9,
+              "submitted": 24,
+              "destroyBegin": 64,
+              "destroyReturned": 65,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -1621292140,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1277249532",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 2176,
+              "enqueue": 10,
+              "submitted": 25,
+              "destroyBegin": 61,
+              "destroyReturned": 62,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 1799455766,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#1281335566",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 15360,
+              "enqueue": 11,
+              "submitted": 26,
+              "destroyBegin": 58,
+              "destroyReturned": 59,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 925236376,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#122389488",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 18432,
+              "enqueue": 12,
+              "submitted": 27,
+              "destroyBegin": 55,
+              "destroyReturned": 56,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 788342200,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1082945572",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 3072,
+              "enqueue": 13,
+              "submitted": 28,
+              "destroyBegin": 52,
+              "destroyReturned": 53,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -85877190,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1243787980",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 1088,
+              "enqueue": 14,
+              "submitted": 29,
+              "destroyBegin": 49,
+              "destroyReturned": 50,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -516261470,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-598866562",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 2176,
+              "enqueue": 37,
+              "submitted": 69,
+              "destroyBegin": 95,
+              "destroyReturned": 96,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -1114937628,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1988579932",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 1088,
+              "enqueue": 38,
+              "submitted": 70,
+              "destroyBegin": 92,
+              "destroyReturned": 93,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": -1239669662,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1376234150",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 15360,
+              "enqueue": 39,
+              "submitted": 71,
+              "destroyBegin": 89,
+              "destroyReturned": 90,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 505790432,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#2057853516",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 18432,
+              "enqueue": 40,
+              "submitted": 72,
+              "destroyBegin": 86,
+              "destroyReturned": 87,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 532469952,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1704971490",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 3072,
+              "enqueue": 41,
+              "submitted": 73,
+              "destroyBegin": 83,
+              "destroyReturned": 84,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": true
+            },
+            {
+              "ticket": 321205896,
+              "owner": "HybridLumenGI.HybridLumenGIDeformedMesh+Snapshot#-145642878",
+              "callback": "HybridLumenGI.HybridLumenGIDeformedMesh+Snapshot.Destroy",
+              "logicalDirectBufferBytes": 0,
+              "enqueue": 106,
+              "submitted": 111,
+              "destroyBegin": 124,
+              "destroyReturned": 125,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 242569258,
+              "owner": "HybridLumenGI.HybridLumenGIRendererFeature+<>c__DisplayClass17_0#1733056520",
+              "callback": "HybridLumenGI.HybridLumenGIRendererFeature+<>c__DisplayClass17_0.<WithdrawForShutdown>b__0",
+              "logicalDirectBufferBytes": 0,
+              "enqueue": 108,
+              "submitted": 112,
+              "destroyBegin": 114,
+              "destroyReturned": 122,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -1310038260,
+              "owner": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0#58888520",
+              "callback": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0.<RetireSoftwareBuffers>b__0",
+              "logicalDirectBufferBytes": 33760,
+              "enqueue": 115,
+              "submitted": 133,
+              "destroyBegin": 159,
+              "destroyReturned": 160,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -2142447212,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1922613416",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 128,
+              "enqueue": 116,
+              "submitted": 134,
+              "destroyBegin": 156,
+              "destroyReturned": 157,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -1763411984,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1703655308",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 2944,
+              "enqueue": 117,
+              "submitted": 135,
+              "destroyBegin": 153,
+              "destroyReturned": 154,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": -1384376756,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-583798290",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 21120,
+              "enqueue": 118,
+              "submitted": 136,
+              "destroyBegin": 150,
+              "destroyReturned": 151,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 774569798,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#1350631842",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 25344,
+              "enqueue": 119,
+              "submitted": 137,
+              "destroyBegin": 147,
+              "destroyReturned": 148,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 1153605026,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#-1399136692",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 4224,
+              "enqueue": 120,
+              "submitted": 138,
+              "destroyBegin": 144,
+              "destroyReturned": 145,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            },
+            {
+              "ticket": 898358428,
+              "owner": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0#1372637168",
+              "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+              "logicalDirectBufferBytes": 1472,
+              "enqueue": 121,
+              "submitted": 139,
+              "destroyBegin": 141,
+              "destroyReturned": 142,
+              "completionAtDestroy": "passed",
+              "requiresContextAtEnqueue": false
+            }
+          ],
+          "close": {
+            "sequence": 105,
+            "admissionClosed": true,
+            "outsideRenderLoop": true,
+            "pendingCount": 0,
+            "ownedCount": 0,
+            "materialBytes": 0,
+            "materialBatches": 0,
+            "arenaBytes": 77344,
+            "arenas": 1,
+            "deformationBytes": 53760,
+            "deformationJobs": 0,
+            "publishedSnapshots": 1,
+            "failedWithdrawals": 0,
+            "failedCleanup": 0
+          },
+          "lateDisposeSequences": [
+            162
+          ],
+          "finalStage": "feature-withdraw-detached",
+          "finalState": {
+            "pendingCount": 0,
+            "ownedCount": 0,
+            "materialBytes": 0,
+            "materialBatches": 0,
+            "arenaBytes": 0,
+            "arenas": 0,
+            "deformationBytes": 0,
+            "deformationJobs": 0,
+            "publishedSnapshots": 0,
+            "failedWithdrawals": 0,
+            "failedCleanup": 0
+          }
+        }
+      ],
+      "captureRuns": [
+        {
+          "path": "LocalComparison\\Review\\resource-shutdown-01b\\direct\\20261027-192118-c3a74b86fc5d4853bcaff3911c4797cb\\run.json",
+          "renderedFrames": 12,
+          "status": "incomplete-probe"
+        }
+      ],
+      "failureMarkers": {
+        "observerFailure": 0,
+        "nativeAllocationLeak": 0,
+        "unresolvedOwners": 0,
+        "missingReference": 0,
+        "compileError": 0,
+        "deviceLost": 0
+      },
+      "remainingLogCaveats": [
+        "Unity licensing access-token diagnostic; DX12 info-queue-interface query unavailable; normal engine shutdown MemoryLeaks aggregate is not interpreted as product ownership",
+        "Lifecycle compile includes existing obsolete-API/camera-hiding warnings"
+      ]
+    }
+  },
+  "currentSourceDeltaFromExecuted": {
+    "HybridLumenGIDeformedMesh.cs": {
+      "executed": "1f29f27bd923beed4a1a6404c7bc7f5ae02fecddf37ba8ff510b89ea7ffa0eed",
+      "current": "e25a0aa61937663edef53e39009820f826e1e0ff28f4a4a136cfceb57cb3b7d3",
+      "reason": "Astra-directed failure-retention fix in normal cancelled-worker cleanup after GPU runs; actual-source controlled destruction-failure test passed, no new native run claimed"
+    }
+  }
+}

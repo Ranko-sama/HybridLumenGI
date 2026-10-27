@@ -1,0 +1,6 @@
+PASS: close-before-withdraw; no new deformation admission; old recorded reader completion; parent/child EndContext fences; cancelled workers retain storage through new session and cannot publish; late disable idempotence.
+PASS: cancelled worker native cleanup failure through normal BeginContext retains job/reservation and is never retried, including after new-session initialization.
+PASS: actual retirement source: idle completion, prerequisite/query failure, two-reader fence, ambiguous event tail, late/reentrant shutdown, shared deadline, failed destroy, and unknown context submission retained.
+PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.
+Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.
+PASS: source-only contracts confirm Proxy, SurfaceCache, SdfAtlas and HardwareBackend route geometry through the shared deformed snapshot accessor; this does not execute those consumers in Unity.

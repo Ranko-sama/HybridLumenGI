@@ -492,9 +492,16 @@ class Program
         for(int i=0;i<2;i++){Check(expected[i]==(i==0?148:42),"every physical element copied exactly once");var cached=Prepare(pools[i],sources[i]);Check(cached.UploadCount==0,"completed range job becomes reusable only after readback");Finish(pools[i],cached);}
         Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
     }
+    static void ClosingAdmission()
+    {
+        scenarios++;using var pool=new Pool();var view=View();var old=Prepare(pool,view);Record(pool,old);
+        HybridLumenGIResourceRetirement.AdmissionClosed=true;
+        Check(!pool.TryPrepare(new[]{view},1L<<30,out var denied,out _)&&denied==null,"closing rejects a new lease");
+        Finish(pool,old);Pool.ClearReusable();Clean();HybridLumenGIResourceRetirement.AdmissionClosed=false;
+    }
     static int Main()
     {
-        try{LayoutAndFreeze();GlobalBudgetAndFences();FailuresAndQuarantine();DisposalAndAllocation();BoundsAndCancellation();IndependentLayoutAndGeneration();GlobalCapacityAndFrozenInputs();ImporterDispatchOracle();ImporterSourceAndSupport();ImporterFailureIsolation();ConstantOnlyBatch();SharedResidencyAndReaderFences();ResidencyInvalidationAndReadbackFailures();ResidencyBudgetAndDynamicSources();PackedHalfLayoutsAndBudget();PageReplacementAndCanceledGraphs();PageScopedInvalidationAndPartialCommands();PagePrecisionIdentity();SharedFrameQuotaAndProgress();
+        try{LayoutAndFreeze();GlobalBudgetAndFences();FailuresAndQuarantine();DisposalAndAllocation();BoundsAndCancellation();IndependentLayoutAndGeneration();GlobalCapacityAndFrozenInputs();ImporterDispatchOracle();ImporterSourceAndSupport();ImporterFailureIsolation();ConstantOnlyBatch();SharedResidencyAndReaderFences();ResidencyInvalidationAndReadbackFailures();ResidencyBudgetAndDynamicSources();PackedHalfLayoutsAndBudget();PageReplacementAndCanceledGraphs();PageScopedInvalidationAndPartialCommands();PagePrecisionIdentity();SharedFrameQuotaAndProgress();ClosingAdmission();
             Console.WriteLine($"Ray texture pool: {checks} assertions, {scenarios} scenarios. Actual runtime lifecycle; Unity command/fence API substitutes, no GPU synchronization proof.");return 0;}
         catch(Exception e){Console.Error.WriteLine(e);return 1;}
     }

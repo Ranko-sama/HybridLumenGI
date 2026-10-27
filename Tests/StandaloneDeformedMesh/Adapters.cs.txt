@@ -10,6 +10,18 @@ namespace UnityEngine
     [AttributeUsage(AttributeTargets.Class)] public sealed class RequireComponent:Attribute { public RequireComponent(Type type){ } }
     [AttributeUsage(AttributeTargets.Field)] public sealed class RangeAttribute:Attribute { public RangeAttribute(float a,float b){ } }
     [AttributeUsage(AttributeTargets.Field)] public sealed class MinAttribute:Attribute { public MinAttribute(float value){ } }
+    public enum RuntimeInitializeLoadType {BeforeSceneLoad}
+    [AttributeUsage(AttributeTargets.Method)] public sealed class RuntimeInitializeOnLoadMethodAttribute:Attribute {public RuntimeInitializeOnLoadMethodAttribute(RuntimeInitializeLoadType type){}}
+    public static class Application {public static event Action quitting;public static void Quit()=>quitting?.Invoke();}
+    public static class Graphics
+    {
+        public static void ExecuteCommandBuffer(Rendering.CommandBuffer command)
+        {
+            if(Rendering.RecordedGpu.FailImmediate)throw new InvalidOperationException("Immediate submission failed");
+            command.fence.Submitted=true;command.fence.Immediate=true;
+            if(Rendering.RecordedGpu.AutoCompleteImmediate)command.fence.Completed=true;
+        }
+    }
     public enum HideFlags {HideAndDontSave}
     public class Object {public string name;public HideFlags hideFlags;public bool Destroyed;}
     public class GameObject:Object
@@ -34,7 +46,12 @@ namespace UnityEngine
     public static class Mathf {public static float Abs(float value)=>Math.Abs(value);public static int Clamp(int x,int a,int b)=>Math.Min(Math.Max(x,a),b);}
     public static class Time {public static int frameCount;}
     public static class SystemInfo {public static bool supportsGraphicsFence=true;}
-    public static class Debug {public static void LogException(Exception ex)=>throw new Exception("Unexpected destroy callback failure",ex);}
+    public static class Debug
+    {
+        public static readonly List<Exception> Exceptions=new List<Exception>();public static readonly List<string> Warnings=new List<string>();
+        public static void LogException(Exception ex)=>Exceptions.Add(ex);
+        public static void LogWarning(object value)=>Warnings.Add(value.ToString());
+    }
     public enum MeshTopology {Triangles,Lines}
     public class Mesh:Object
     {
@@ -90,17 +107,19 @@ namespace UnityEngine.Rendering
     public enum IndexFormat {UInt16,UInt32}
     public enum GraphicsFenceType {AsyncQueueSynchronisation}
     public enum SynchronisationStageFlags {AllGPUOperations}
-    public sealed class FenceRecord {public bool Enqueued,Submitted,Completed;}
+    public sealed class FenceRecord {public bool Enqueued,Submitted,Completed,Immediate,FailQuery;public int Context;public Action[] Readers=Array.Empty<Action>();}
     public struct GraphicsFence
     {
         internal FenceRecord record;
-        public bool passed=>record!=null && record.Submitted && record.Completed;
+        public bool passed {get{if(record?.FailQuery==true)throw new InvalidOperationException("Fence query failed");return record!=null && record.Submitted && record.Completed;}}
     }
     public static class RecordedGpu
     {
         public static readonly List<FenceRecord> Fences=new List<FenceRecord>();
         public static int Submits;
-        public static void CompleteSubmitted(){foreach(var fence in Fences)if(fence.Submitted)fence.Completed=true;}
+        public static bool FailSubmit,FailImmediate,AutoCompleteImmediate;
+        internal static readonly Dictionary<int,List<Action>> Readers=new Dictionary<int,List<Action>>();
+        public static void CompleteSubmitted(){foreach(var fence in Fences)if(fence.Submitted&&!fence.Completed){foreach(var reader in fence.Readers)reader();fence.Completed=true;}}
     }
     public sealed class CommandBuffer
     {
@@ -111,26 +130,34 @@ namespace UnityEngine.Rendering
     public static class CommandBufferPool {public static CommandBuffer Get(string name)=>new CommandBuffer();public static void Release(CommandBuffer command){ }}
     public struct ScriptableRenderContext
     {
-        public void ExecuteCommandBuffer(CommandBuffer command){if(command.fence!=null)command.fence.Enqueued=true;}
-        public void Submit(){RecordedGpu.Submits++;foreach(var fence in RecordedGpu.Fences)if(fence.Enqueued)fence.Submitted=true;}
+        internal int Id;
+        public void ExecuteCommandBuffer(CommandBuffer command){if(command.fence!=null){command.fence.Enqueued=true;command.fence.Context=Id;if(RecordedGpu.Readers.TryGetValue(Id,out var readers)){command.fence.Readers=readers.ToArray();readers.Clear();}}}
+        public void Submit(){if(RecordedGpu.FailSubmit)throw new InvalidOperationException("Context submission failed");RecordedGpu.Submits++;foreach(var fence in RecordedGpu.Fences)if(fence.Enqueued&&fence.Context==Id)fence.Submitted=true;}
     }
     public static class RenderPipelineManager
     {
         public static event Action<ScriptableRenderContext,List<UnityEngine.Camera>> beginContextRendering,endContextRendering;
-        public static void Begin()=>beginContextRendering?.Invoke(new ScriptableRenderContext(),new List<UnityEngine.Camera>());
-        public static void End()=>endContextRendering?.Invoke(new ScriptableRenderContext(),new List<UnityEngine.Camera>());
+        static int context;
+        public static void Begin()=>beginContextRendering?.Invoke(new ScriptableRenderContext{Id=++context},new List<UnityEngine.Camera>());
+        public static void End()=>endContextRendering?.Invoke(new ScriptableRenderContext{Id=context},new List<UnityEngine.Camera>());
+        public static void Reader(Action read){if(!RecordedGpu.Readers.TryGetValue(context,out var readers))RecordedGpu.Readers.Add(context,readers=new List<Action>());readers.Add(read);}
     }
     public static class CoreUtils
     {
         public static readonly List<UnityEngine.Object> Destroyed=new List<UnityEngine.Object>();
+        public static UnityEngine.Object FailDestroy;public static int FailedDestroyAttempts;
         public static void Destroy(UnityEngine.Object value)
-        {if(value==null)return;if(value.Destroyed)throw new InvalidOperationException("Owned object destroyed twice");value.Destroyed=true;Destroyed.Add(value);}
+        {if(value==null)return;if(ReferenceEquals(value,FailDestroy)){FailedDestroyAttempts++;throw new InvalidOperationException("Controlled native destruction failure");}if(value.Destroyed)throw new InvalidOperationException("Owned object destroyed twice");value.Destroyed=true;Destroyed.Add(value);}
     }
 }
 
 namespace HybridLumenGI
 {
     using UnityEngine;
+    public static class HybridLumenGIHitMaterialPass {public static void PollRetired(){}}
+    public static class HybridLumenGIHitMaterialBatch {public static long TotalAllocatedBytes=>0;}
+    public static class HybridLumenGIRayTexturePool {public static long TotalAllocatedBytes=>0;public static void ClearReusable(){}}
+    internal static class HybridLumenGIResourceRetirementPump {internal static void EnsureExists(){}}
     public sealed class HybridLumenGIProxy:MonoBehaviour
     {
         public Renderer SourceRenderer;

@@ -1,0 +1,563 @@
+{
+  "status": "failed",
+  "exitCode": 1,
+  "reason": "Ordinary Play exit produced a final render context then late owner disposal before a reliable idle boundary; eight requiresContext tickets remain unsubmitted. Do not claim lifecycle fix acceptance.",
+  "lifecycleRows": [
+    {
+      "utc": "2026-10-27T18:53:26.1295343Z",
+      "stage": "cycle-0-established",
+      "engineFrame": 13,
+      "targetRenders": 12,
+      "observerRenders": 0,
+      "pending": 0,
+      "owned": 0,
+      "failed": 0,
+      "unknown": 0,
+      "submissionUncertain": false
+    },
+    {
+      "utc": "2026-10-27T18:53:26.1345744Z",
+      "stage": "cycle-0-disposed",
+      "engineFrame": 13,
+      "targetRenders": 12,
+      "observerRenders": 0,
+      "pending": 7,
+      "owned": 7,
+      "failed": 0,
+      "unknown": 0,
+      "submissionUncertain": false
+    },
+    {
+      "utc": "2026-10-27T18:53:26.1536770Z",
+      "stage": "cycle-0-drained",
+      "engineFrame": 14,
+      "targetRenders": 12,
+      "observerRenders": 1,
+      "pending": 0,
+      "owned": 0,
+      "failed": 0,
+      "unknown": 0,
+      "submissionUncertain": false
+    },
+    {
+      "utc": "2026-10-27T18:53:26.2536888Z",
+      "stage": "cycle-1-established",
+      "engineFrame": 18,
+      "targetRenders": 16,
+      "observerRenders": 1,
+      "pending": 0,
+      "owned": 0,
+      "failed": 0,
+      "unknown": 0,
+      "submissionUncertain": false
+    },
+    {
+      "utc": "2026-10-27T18:53:26.2587117Z",
+      "stage": "cycle-1-disposed",
+      "engineFrame": 18,
+      "targetRenders": 16,
+      "observerRenders": 1,
+      "pending": 7,
+      "owned": 7,
+      "failed": 0,
+      "unknown": 0,
+      "submissionUncertain": false
+    },
+    {
+      "utc": "2026-10-27T18:53:26.3441927Z",
+      "stage": "cycle-1-drained",
+      "engineFrame": 26,
+      "targetRenders": 16,
+      "observerRenders": 1,
+      "pending": 0,
+      "owned": 0,
+      "failed": 0,
+      "unknown": 0,
+      "submissionUncertain": false
+    },
+    {
+      "utc": "2026-10-27T18:53:26.4323776Z",
+      "stage": "cycle-2-established",
+      "engineFrame": 30,
+      "targetRenders": 20,
+      "observerRenders": 1,
+      "pending": 0,
+      "owned": 6,
+      "failed": 0,
+      "unknown": 0,
+      "submissionUncertain": false
+    },
+    {
+      "utc": "2026-10-27T18:53:26.4338870Z",
+      "stage": "cycle-2-before-normal-play-exit",
+      "engineFrame": 30,
+      "targetRenders": 20,
+      "observerRenders": 1,
+      "pending": 0,
+      "owned": 6,
+      "failed": 0,
+      "unknown": 0,
+      "submissionUncertain": false
+    },
+    {
+      "utc": "2026-10-27T18:53:26.6579610Z",
+      "stage": "normal-play-exit-returned",
+      "engineFrame": 1,
+      "targetRenders": 0,
+      "observerRenders": 0,
+      "pending": 8,
+      "owned": 8,
+      "failed": 0,
+      "unknown": 0,
+      "submissionUncertain": false
+    },
+    {
+      "utc": "2026-10-27T18:53:26.6594631Z",
+      "stage": "FAILED: Retirement remains after ordinary Play exit",
+      "engineFrame": 1,
+      "targetRenders": 0,
+      "observerRenders": 0,
+      "pending": 8,
+      "owned": 8,
+      "failed": 0,
+      "unknown": 0,
+      "submissionUncertain": false
+    }
+  ],
+  "finalExitEvents": [
+    {
+      "sequence": 702,
+      "engineFrame": 30,
+      "stage": "lifecycle-before-normal-play-exit",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 6,
+      "ticket": 0,
+      "requiresContext": false,
+      "completion": "not-submitted",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 703,
+      "engineFrame": 30,
+      "stage": "playmode-ExitingPlayMode",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 6,
+      "ticket": 0,
+      "requiresContext": false,
+      "completion": "not-submitted",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 705,
+      "engineFrame": 30,
+      "stage": "destroy-begin",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 6,
+      "ticket": 1992489150,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0.<RetireSoftwareBuffers>b__0",
+      "logicalBytes": 24544
+    },
+    {
+      "sequence": 706,
+      "engineFrame": 30,
+      "stage": "destroy-returned",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 5,
+      "ticket": 1992489150,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 708,
+      "engineFrame": 30,
+      "stage": "destroy-begin",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 5,
+      "ticket": 2072824570,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 3072
+    },
+    {
+      "sequence": 709,
+      "engineFrame": 30,
+      "stage": "destroy-returned",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 4,
+      "ticket": 2072824570,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 711,
+      "engineFrame": 30,
+      "stage": "destroy-begin",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 4,
+      "ticket": -1649041026,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 18432
+    },
+    {
+      "sequence": 712,
+      "engineFrame": 30,
+      "stage": "destroy-returned",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 3,
+      "ticket": -1649041026,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 714,
+      "engineFrame": 30,
+      "stage": "destroy-begin",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 3,
+      "ticket": 225191936,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 15360
+    },
+    {
+      "sequence": 715,
+      "engineFrame": 30,
+      "stage": "destroy-returned",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 2,
+      "ticket": 225191936,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 717,
+      "engineFrame": 30,
+      "stage": "destroy-begin",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 2,
+      "ticket": 480943240,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 1088
+    },
+    {
+      "sequence": 718,
+      "engineFrame": 30,
+      "stage": "destroy-returned",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 1,
+      "ticket": 480943240,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 720,
+      "engineFrame": 30,
+      "stage": "destroy-begin",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 1,
+      "ticket": -502372560,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 2176
+    },
+    {
+      "sequence": 721,
+      "engineFrame": 30,
+      "stage": "destroy-returned",
+      "outsideRenderLoop": true,
+      "pendingCount": 0,
+      "ownedCount": 0,
+      "ticket": -502372560,
+      "requiresContext": true,
+      "completion": "passed",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 722,
+      "engineFrame": 30,
+      "stage": "end-context-before-poll",
+      "outsideRenderLoop": false,
+      "pendingCount": 0,
+      "ownedCount": 0,
+      "ticket": 0,
+      "requiresContext": false,
+      "completion": "not-submitted",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 723,
+      "engineFrame": 30,
+      "stage": "feature-dispose-before",
+      "outsideRenderLoop": false,
+      "pendingCount": 0,
+      "ownedCount": 0,
+      "ticket": 0,
+      "requiresContext": false,
+      "completion": "not-submitted",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 724,
+      "engineFrame": 30,
+      "stage": "enqueue",
+      "outsideRenderLoop": false,
+      "pendingCount": 1,
+      "ownedCount": 1,
+      "ticket": 256132176,
+      "requiresContext": true,
+      "completion": "not-submitted",
+      "callback": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0.<RetireSoftwareBuffers>b__0",
+      "logicalBytes": 33760
+    },
+    {
+      "sequence": 727,
+      "engineFrame": 30,
+      "stage": "enqueue",
+      "outsideRenderLoop": false,
+      "pendingCount": 2,
+      "ownedCount": 2,
+      "ticket": -528039306,
+      "requiresContext": true,
+      "completion": "not-submitted",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 128
+    },
+    {
+      "sequence": 732,
+      "engineFrame": 30,
+      "stage": "enqueue",
+      "outsideRenderLoop": false,
+      "pendingCount": 3,
+      "ownedCount": 3,
+      "ticket": -2073874526,
+      "requiresContext": true,
+      "completion": "not-submitted",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 2944
+    },
+    {
+      "sequence": 739,
+      "engineFrame": 30,
+      "stage": "enqueue",
+      "outsideRenderLoop": false,
+      "pendingCount": 4,
+      "ownedCount": 4,
+      "ticket": -928735668,
+      "requiresContext": true,
+      "completion": "not-submitted",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 21120
+    },
+    {
+      "sequence": 748,
+      "engineFrame": 30,
+      "stage": "enqueue",
+      "outsideRenderLoop": false,
+      "pendingCount": 5,
+      "ownedCount": 5,
+      "ticket": 1502940276,
+      "requiresContext": true,
+      "completion": "not-submitted",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 25344
+    },
+    {
+      "sequence": 759,
+      "engineFrame": 30,
+      "stage": "enqueue",
+      "outsideRenderLoop": false,
+      "pendingCount": 6,
+      "ownedCount": 6,
+      "ticket": -428224132,
+      "requiresContext": true,
+      "completion": "not-submitted",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 4224
+    },
+    {
+      "sequence": 772,
+      "engineFrame": 30,
+      "stage": "enqueue",
+      "outsideRenderLoop": false,
+      "pendingCount": 7,
+      "ownedCount": 7,
+      "ticket": 1385755650,
+      "requiresContext": true,
+      "completion": "not-submitted",
+      "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+      "logicalBytes": 1472
+    },
+    {
+      "sequence": 787,
+      "engineFrame": 30,
+      "stage": "feature-dispose-after",
+      "outsideRenderLoop": false,
+      "pendingCount": 7,
+      "ownedCount": 7,
+      "ticket": 0,
+      "requiresContext": false,
+      "completion": "not-submitted",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 788,
+      "engineFrame": 30,
+      "stage": "application-quitting",
+      "outsideRenderLoop": false,
+      "pendingCount": 7,
+      "ownedCount": 7,
+      "ticket": 0,
+      "requiresContext": false,
+      "completion": "not-submitted",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 803,
+      "engineFrame": 0,
+      "stage": "enqueue",
+      "outsideRenderLoop": false,
+      "pendingCount": 8,
+      "ownedCount": 8,
+      "ticket": 815720982,
+      "requiresContext": true,
+      "completion": "not-submitted",
+      "callback": "HybridLumenGI.HybridLumenGIDeformedMesh+Snapshot.Destroy",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 820,
+      "engineFrame": 1,
+      "stage": "playmode-EnteredEditMode",
+      "outsideRenderLoop": false,
+      "pendingCount": 8,
+      "ownedCount": 8,
+      "ticket": 0,
+      "requiresContext": false,
+      "completion": "not-submitted",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 837,
+      "engineFrame": 1,
+      "stage": "lifecycle-normal-play-exit-returned",
+      "outsideRenderLoop": true,
+      "pendingCount": 8,
+      "ownedCount": 8,
+      "ticket": 0,
+      "requiresContext": false,
+      "completion": "not-submitted",
+      "callback": "",
+      "logicalBytes": 0
+    },
+    {
+      "sequence": 838,
+      "engineFrame": 1,
+      "stage": "editor-quitting",
+      "outsideRenderLoop": true,
+      "pendingCount": 8,
+      "ownedCount": 8,
+      "ticket": 0,
+      "requiresContext": false,
+      "completion": "not-submitted",
+      "callback": "",
+      "logicalBytes": 0
+    }
+  ],
+  "nativeLeakGroups": [
+    {
+      "count": 1,
+      "firstProductFrame": "0x0000016f55523edb (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/CameraState:PrepareSoftwareGeometry (UnityEngine.Rendering.RenderGraphModule.RenderGraph,int,long,HybridLumenGI.HybridLumenGISoftwareTriangleBvh/Layout&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:377)"
+    },
+    {
+      "count": 1,
+      "firstProductFrame": "0x0000016f554fb0bb (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)"
+    },
+    {
+      "count": 1,
+      "firstProductFrame": "0x0000016f554fb0bb (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)"
+    },
+    {
+      "count": 1,
+      "firstProductFrame": "0x0000016f554fb0bb (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)"
+    },
+    {
+      "count": 3,
+      "firstProductFrame": "0x0000016f5551530b (Mono JIT Code) HybridLumenGI.HybridLumenGIHitMaterialBatch:TryCreate (System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIHitMaterialBatch/Source>,long,HybridLumenGI.HybridLumenGIHitMaterialBatch&,string&,HybridLumenGI.HybridLumenGIMaterialSource,HybridLumenGI.HybridLumenGIRayTextureImporter) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialBatch.cs:178)"
+    },
+    {
+      "count": 1,
+      "firstProductFrame": "0x0000016f554fb0bb (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)"
+    },
+    {
+      "count": 1,
+      "firstProductFrame": "0x0000016f554fb0bb (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)"
+    },
+    {
+      "count": 3,
+      "firstProductFrame": "0x0000016f5551526b (Mono JIT Code) HybridLumenGI.HybridLumenGIHitMaterialBatch:TryCreate (System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIHitMaterialBatch/Source>,long,HybridLumenGI.HybridLumenGIHitMaterialBatch&,string&,HybridLumenGI.HybridLumenGIMaterialSource,HybridLumenGI.HybridLumenGIRayTextureImporter) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialBatch.cs:177)"
+    },
+    {
+      "count": 1,
+      "firstProductFrame": "0x0000016f5551c9a3 (Mono JIT Code) HybridLumenGI.HybridLumenGIRayTexturePool:TryPrepareRequests (System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIRayTexturePool/Request>,long,HybridLumenGI.HybridLumenGIRayTexturePool/Lease&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRayTexturePool.cs:281)"
+    },
+    {
+      "count": 1,
+      "firstProductFrame": "0x0000016f55523e83 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/CameraState:PrepareSoftwareGeometry (UnityEngine.Rendering.RenderGraphModule.RenderGraph,int,long,HybridLumenGI.HybridLumenGISoftwareTriangleBvh/Layout&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:376)"
+    },
+    {
+      "count": 1,
+      "firstProductFrame": "0x0000016f554fb0bb (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)"
+    },
+    {
+      "count": 1,
+      "firstProductFrame": "0x0000016f5551c913 (Mono JIT Code) HybridLumenGI.HybridLumenGIRayTexturePool:TryPrepareRequests (System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIRayTexturePool/Request>,long,HybridLumenGI.HybridLumenGIRayTexturePool/Lease&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRayTexturePool.cs:280)"
+    }
+  ],
+  "nativeLeakCount": 16,
+  "d3d12UnreleasedCount": 16,
+  "traceWriteWarnings": 1279,
+  "postRunChanges": [
+    "PollOwned and DrainShutdown reentrancy protection plus targeted unit regression passed; not exercised in another Unity run.",
+    "Trace helper now checks destroyed Unity object references; original failing output remains untouched."
+  ]
+}

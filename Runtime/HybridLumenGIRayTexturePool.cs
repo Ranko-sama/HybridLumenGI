@@ -207,6 +207,7 @@ namespace HybridLumenGI
         public bool TryPrepareRequests(IReadOnlyList<Request> requests,long budgetBytes,out Lease lease,out string reason)
         {
             lease=null;reason=null;PollRetired();
+            if(HybridLumenGIResourceRetirement.AdmissionClosed){reason="GI session admission is closed.";return false;}
             if(disposed||!SystemInfo.supportsGraphicsFence||requests==null||requests.Count<1||requests.Count>MaxRequests||budgetBytes<0)
             {reason="Disposed pool or invalid request count/budget.";return false;}
             if(leases.Count>=MaxBatchesPerPool||Resident.Count>=MaxResidentBatches)

@@ -1,0 +1,134 @@
+#if UNITY_EDITOR
+using System;
+using System.IO;
+using System.Reflection;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.Rendering;
+using HybridLumenGI;
+
+// Three finite owner lifecycles. Final lifecycle crosses genuine Play -> Edit.
+public sealed class ResourceLifecycleProbe : MonoBehaviour
+{
+    ComparisonCapture capture;HybridLumenGIRendererFeature feature;Camera observer;RenderTexture target;
+    int cycle,stage,targetRenders,observerRenders,stageRenders,lastObserver;
+    double started,phaseStarted;bool leaving;
+    static object Field(object o,string n)=>o.GetType().GetField(n,BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public)?.GetValue(o);
+    void Start()
+    {
+        capture=GetComponent<ComparisonCapture>();feature=(HybridLumenGIRendererFeature)capture.feature;
+        started=phaseStarted=Time.realtimeSinceStartupAsDouble;
+        RenderPipelineManager.endCameraRendering+=Rendered;
+    }
+    void Rendered(ScriptableRenderContext context,Camera camera)
+    {if(camera==capture.camera)targetRenders++;if(camera==observer)observerRenders++;}
+    void Update()
+    {
+        if(leaving)return;
+        try
+        {
+            if(Time.realtimeSinceStartupAsDouble-started>950)throw new Exception("Lifecycle total timeout");
+            if(stage==0)
+            {
+                if(!(bool)Field(capture,"closing"))return;
+                target=new RenderTexture(640,360,24,RenderTextureFormat.ARGBFloat){name="Lifecycle observation target"};
+                if(!target.Create())throw new Exception("Lifecycle target creation failed");capture.camera.targetTexture=target;
+                var go=new GameObject("Lifecycle other camera");observer=go.AddComponent<Camera>();observer.CopyFrom(capture.camera);observer.enabled=false;
+                Ready();RetireCurrent();return;
+            }
+            if(stage==1)
+            {
+                if(Time.realtimeSinceStartupAsDouble-phaseStarted>10)throw new Exception("Retirement did not drain within observation window");
+                if(HybridLumenGIResourceRetirement.OwnedCount!=0||HybridLumenGIResourceRetirement.PendingCount!=0)return;
+                if(cycle==0&&observerRenders==lastObserver)return;
+                if(cycle==1&&targetRenders!=stageRenders)throw new Exception("Target rendered during no-target-render interval");
+                ResourceLifecycleEditor.Append("cycle-"+cycle+"-drained",targetRenders,observerRenders);
+                observer.enabled=false;cycle++;feature.Create();feature.SetActive(true);capture.camera.enabled=true;
+                stageRenders=targetRenders;stage=2;phaseStarted=Time.realtimeSinceStartupAsDouble;return;
+            }
+            if(stage==2)
+            {
+                if(Time.realtimeSinceStartupAsDouble-phaseStarted>120)throw new Exception("Next owner did not establish resources");
+                if(targetRenders-stageRenders<4)return;
+                Ready();
+                if(cycle<2){RetireCurrent();return;}
+                ResourceLifecycleEditor.Append("cycle-2-before-normal-play-exit",targetRenders,observerRenders);
+                ResourceShutdownTrace.Mark("lifecycle-before-normal-play-exit");
+                SessionState.SetString(ResourceLifecycleEditor.StateKey,"await-edit");leaving=true;
+                EditorApplication.ExitPlaymode();
+            }
+        }
+        catch(Exception e){leaving=true;ResourceLifecycleEditor.Fail(e.ToString());}
+    }
+    void Ready()
+    {
+        bool found=false;foreach(var d in feature.GetDiagnostics())if(d.camera==capture.camera.name&&d.exactSoftwareGeometry&&d.softwareGeometryBytes>0)found=true;
+        if(!found)throw new Exception("Actual exact software resource coverage missing");
+        if(HybridLumenGIResourceRetirement.SubmissionUncertain||HybridLumenGIResourceRetirement.FailedCount!=0)throw new Exception("Retirement fault is not a successful lifecycle");
+        ResourceLifecycleEditor.Append("cycle-"+cycle+"-established",targetRenders,observerRenders);
+        ResourceShutdownTrace.Mark("lifecycle-owner-established");
+    }
+    void RetireCurrent()
+    {
+        // Withdrawal precedes disposal; the next scene renderer cannot enqueue a GI reader.
+        feature.SetActive(false);capture.camera.enabled=false;
+        lastObserver=observerRenders;observer.enabled=cycle==0;
+        feature.Dispose();ResourceShutdownTrace.Mark("lifecycle-owner-disposed");
+        ResourceLifecycleEditor.Append("cycle-"+cycle+"-disposed",targetRenders,observerRenders);
+        phaseStarted=Time.realtimeSinceStartupAsDouble;stageRenders=targetRenders;stage=1;
+    }
+    void OnDestroy()
+    {
+        RenderPipelineManager.endCameraRendering-=Rendered;
+        if(capture&&capture.camera&&capture.camera.targetTexture==target)capture.camera.targetTexture=null;
+        if(observer)Destroy(observer.gameObject);
+        if(target){target.Release();Destroy(target);}
+    }
+}
+
+[InitializeOnLoad]
+public static class ResourceLifecycleEditor
+{
+    public const string StateKey="HLGI.ResourceShutdown01.Phase";
+    static bool finishing;
+    [Serializable] class Row {public string utc,stage;public int engineFrame,targetRenders,observerRenders,pending,owned,failed,unknown;public bool submissionUncertain;}
+    static string Arg(string key){var a=Environment.GetCommandLineArgs();int i=Array.IndexOf(a,key);return i>=0&&i+1<a.Length?a[i+1]:null;}
+    static ResourceLifecycleEditor()
+    {
+        EditorApplication.playModeStateChanged+=state=>
+        {
+            if(state==PlayModeStateChange.EnteredEditMode&&SessionState.GetString(StateKey,"")=="await-edit")EditorApplication.delayCall+=Finish;
+        };
+    }
+    public static void StartPlay()
+    {
+        var capture=UnityEngine.Object.FindFirstObjectByType<ComparisonCapture>();
+        capture.quitWhenComplete=false;capture.gameObject.AddComponent<ResourceLifecycleProbe>();
+        EditorUtility.SetDirty(capture);UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(capture.gameObject.scene);
+        UnityEditor.SceneManagement.EditorSceneManager.SaveScene(capture.gameObject.scene);
+        SessionState.SetString(StateKey,"running");EditorApplication.EnterPlaymode();
+    }
+    public static void Append(string stage,int targetRenders=0,int observerRenders=0)
+    {
+        string root=Arg("-comparisonOutput");Directory.CreateDirectory(root);
+        var row=new Row{utc=DateTime.UtcNow.ToString("o"),stage=stage,engineFrame=Time.frameCount,targetRenders=targetRenders,observerRenders=observerRenders,
+            pending=HybridLumenGIResourceRetirement.PendingCount,owned=HybridLumenGIResourceRetirement.OwnedCount,
+            failed=HybridLumenGIResourceRetirement.FailedCount,unknown=HybridLumenGIResourceRetirement.UnknownSubmissionCount,submissionUncertain=HybridLumenGIResourceRetirement.SubmissionUncertain};
+        File.AppendAllText(Path.Combine(root,"lifecycle.jsonl"),JsonUtility.ToJson(row)+"\n");
+    }
+    static void Finish()
+    {
+        if(finishing)return;finishing=true;
+        Append("normal-play-exit-returned");ResourceShutdownTrace.Mark("lifecycle-normal-play-exit-returned");
+        bool ok=HybridLumenGIResourceRetirement.OwnedCount==0&&HybridLumenGIResourceRetirement.PendingCount==0&&!HybridLumenGIResourceRetirement.SubmissionUncertain;
+        SessionState.SetString(StateKey,ok?"complete":"failed");
+        if(!ok){Fail("Retirement remains after ordinary Play exit");return;}
+        Debug.Log("RESOURCE_LIFECYCLE_COMPLETE three owners; final owner withdrawn through normal Play exit. Native old-domain traces still require separate review.");
+        EditorApplication.Exit(0);
+    }
+    public static void Fail(string error)
+    {
+        Append("FAILED: "+error);SessionState.SetString(StateKey,"failed");Debug.LogError(error);EditorApplication.Exit(1);
+    }
+}
+#endif

@@ -1,0 +1,281 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.Rendering;
+
+namespace HybridLumenGI
+{
+    /// <summary>
+    /// Budgeted immutable GI snapshots of skinning or explicitly dirtied readable meshes.
+    /// Mesh/SDF/charts publish together; the visible renderer continues to use its original mesh.
+    /// Workers only access copied arrays. GPU/custom deformation producers must first supply a
+    /// readable mesh snapshot and call RequestCapture; GPU vertex-buffer writes are not inferred.
+    /// </summary>
+    [DisallowMultipleComponent,RequireComponent(typeof(HybridLumenGIProxy))]
+    public sealed class HybridLumenGIDeformedMesh : MonoBehaviour
+    {
+        [Range(16,64)] public int sdfResolution=32;
+        [Min(1)] public int updateIntervalFrames=4;
+        [Min(3)] public int maximumVertices=65536;
+        [Min(1)] public int maximumTriangles=100000;
+        public HybridLumenGISurfaceCharts.BakeSettings chartSettings=new HybridLumenGISurfaceCharts.BakeSettings();
+        public string Status { get; private set; }="Waiting for a GI geometry snapshot";
+        public int PublishedFrame { get; private set; }=-1;
+        public int PendingFrame { get; private set; }=-1;
+        // Shared across instances/cameras. Reserved bytes include old snapshots awaiting fences
+        // and cancelled workers until they actually finish; these are logical byte estimates.
+        public static int VertexBudgetPerFrame=65536,MaximumWorkers=2;
+        public static long MemoryBudgetBytes=128L*1024*1024,UploadBudgetBytesPerFrame=8L*1024*1024;
+        public static long ReservedBytes { get; private set; }
+        public static int PendingWorkerCount=>Jobs.Count;
+        public static int PublishedSnapshotCount=>Published.Count;
+        public static int FailedCleanupCount {get{int n=0;foreach(var job in Jobs)if(job.cleanupFailed)n++;return n;}}
+        private static readonly List<HybridLumenGIDeformedMesh> Active=new List<HybridLumenGIDeformedMesh>();
+        private static readonly List<Job> Jobs=new List<Job>();
+        private static readonly Dictionary<Renderer,Snapshot> Published=new Dictionary<Renderer,Snapshot>();
+        private static int cursor,lastFrame=-1;
+        private static bool subscribed;
+        private HybridLumenGIProxy proxy;
+        private Renderer source;
+        private Mesh explicitSource;
+        private uint generation=1;
+        private bool requested=true;
+        private int lastCapture=-1000000;
+
+        private sealed class Snapshot
+        {
+            internal HybridLumenGIDeformedMesh owner;
+            internal Mesh mesh,capture;
+            internal Texture3D texture;
+            internal HybridLumenGIMeshSdf sdf;
+            internal HybridLumenGISurfaceCharts charts;
+            internal long reservation,uploadBytes;
+            internal void Destroy()
+            {
+                CoreUtils.Destroy(charts);CoreUtils.Destroy(sdf);CoreUtils.Destroy(texture);
+                CoreUtils.Destroy(capture);CoreUtils.Destroy(mesh);
+                ReservedBytes-=reservation;reservation=0;
+            }
+        }
+        private sealed class Result
+        {
+            internal float[] distances;
+            internal Bounds bounds;
+            internal bool closed;
+            internal HybridLumenGISurfaceCharts.Chart[] charts;
+        }
+        private sealed class Job
+        {
+            internal HybridLumenGIDeformedMesh owner;
+            internal Renderer source;
+            internal uint generation;
+            internal int frame,size;
+            internal Snapshot snapshot;
+            internal CancellationTokenSource cancellation=new CancellationTokenSource();
+            internal Task<Result> work;
+            internal bool cleanupFailed;
+        }
+
+        public static bool HasSnapshot(Renderer renderer) => renderer!=null && Published.ContainsKey(renderer);
+        public static Mesh GetSourceMesh(Renderer renderer)
+        {
+            if(renderer==null)return null;
+            if(Published.TryGetValue(renderer,out var snapshot))return snapshot.mesh;
+            if(renderer is SkinnedMeshRenderer skin)return skin.sharedMesh;
+            return renderer.GetComponent<MeshFilter>()?.sharedMesh;
+        }
+        internal static HybridLumenGIMeshSdf GetSdf(Renderer renderer,HybridLumenGIMeshSdf authored)
+            => renderer!=null && Published.TryGetValue(renderer,out var snapshot)?snapshot.sdf:authored;
+        internal static HybridLumenGISurfaceCharts GetCharts(Renderer renderer,HybridLumenGISurfaceCharts authored)
+            => renderer!=null && Published.TryGetValue(renderer,out var snapshot)?snapshot.charts:authored;
+        internal static Bounds BoundsOf(Renderer renderer)
+        {
+            Mesh mesh=GetSourceMesh(renderer);
+            if(mesh==null)return renderer.bounds;
+            var b=mesh.bounds;var m=renderer.localToWorldMatrix;
+            Vector3 x=m.MultiplyVector(new Vector3(b.extents.x,0,0)),y=m.MultiplyVector(new Vector3(0,b.extents.y,0)),z=m.MultiplyVector(new Vector3(0,0,b.extents.z));
+            return new Bounds(m.MultiplyPoint3x4(b.center),new Vector3(Mathf.Abs(x.x)+Mathf.Abs(y.x)+Mathf.Abs(z.x),
+                Mathf.Abs(x.y)+Mathf.Abs(y.y)+Mathf.Abs(z.y),Mathf.Abs(x.z)+Mathf.Abs(y.z)+Mathf.Abs(z.z))*2);
+        }
+        private void OnEnable()
+        {
+            proxy=GetComponent<HybridLumenGIProxy>();source=proxy.SourceRenderer;
+            if(source==null)source=GetComponent<Renderer>();
+            HybridLumenGIResourceRetirement.RegisterShutdownOwner(WithdrawForShutdown);
+            if(HybridLumenGIResourceRetirement.AdmissionClosed){WithdrawForShutdown();return;}
+            if(!Active.Contains(this))Active.Add(this);
+            requested=true;
+            if(!subscribed) { RenderPipelineManager.beginContextRendering+=BeginContext;subscribed=true; }
+        }
+        private void OnDisable()
+        {
+            HybridLumenGIResourceRetirement.UnregisterShutdownOwner(WithdrawForShutdown);
+            Active.Remove(this);generation++;
+            foreach(var job in Jobs)if(ReferenceEquals(job.owner,this))job.cancellation.Cancel();
+            Withdraw();
+        }
+        private void WithdrawForShutdown()
+        {
+            Active.Remove(this);generation++;requested=false;
+            foreach(var job in Jobs)if(ReferenceEquals(job.owner,this))job.cancellation.Cancel();
+            Withdraw();
+        }
+        internal static void PollShutdownWork()
+        {
+            for(int i=Jobs.Count-1;i>=0;i--)
+            {
+                var job=Jobs[i];if(job.cleanupFailed || !job.cancellation.IsCancellationRequested || !job.work.IsCompleted)continue;
+                // Workers only read copied CPU arrays. An unpublished snapshot has no GPU
+                // readers, but it cannot be destroyed while its worker is still running.
+                try{job.work.GetAwaiter().GetResult();}catch(Exception){ }
+                try{job.snapshot.Destroy();job.cancellation.Dispose();Jobs.RemoveAt(i);}
+                catch(Exception error){job.cleanupFailed=true;Debug.LogException(error);}
+            }
+        }
+        private void Withdraw()
+        {
+            if(!ReferenceEquals(source,null) && Published.TryGetValue(source,out var old) && ReferenceEquals(old.owner,this))
+            {
+                Published.Remove(source);
+                if(proxy!=null)proxy.MarkDirty();
+                HybridLumenGIResourceRetirement.Retire(old.Destroy);
+            }
+        }
+        /// <summary>Main thread: optionally supplies a producer-owned readable snapshot, copied at capture.</summary>
+        public void RequestCapture(Mesh readableSnapshot=null)
+        {
+            explicitSource=readableSnapshot;requested=true;generation++;
+            foreach(var job in Jobs)if(ReferenceEquals(job.owner,this))job.cancellation.Cancel();
+        }
+        private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
+        {
+            if(HybridLumenGIResourceRetirement.AdmissionClosed){PollShutdownWork();return;}
+            if(lastFrame==Time.frameCount)return;
+            lastFrame=Time.frameCount;
+            foreach(var owner in Active)
+            {
+                if(owner==null || owner.proxy==null)continue;
+                Renderer current=owner.proxy.SourceRenderer;
+                if(current==null)current=owner.GetComponent<Renderer>();
+                if(ReferenceEquals(current,owner.source))continue;
+                owner.Withdraw();owner.source=current;owner.generation++;owner.requested=true;
+                foreach(var job in Jobs)if(ReferenceEquals(job.owner,owner))job.cancellation.Cancel();
+            }
+            long uploadLeft=Math.Max(0,UploadBudgetBytesPerFrame);
+            for(int i=Jobs.Count-1;i>=0;i--)
+            {
+                Job job=Jobs[i];if(job.cleanupFailed || !job.work.IsCompleted)continue;
+                bool current=job.owner!=null && job.owner.isActiveAndEnabled && job.owner.generation==job.generation &&
+                    job.source!=null && ReferenceEquals(job.owner.source,job.source) && !job.cancellation.IsCancellationRequested;
+                Result result=null;
+                try { result=job.work.GetAwaiter().GetResult(); }
+                catch(Exception ex) { if(current)job.owner.Status="Geometry bake failed: "+ex.GetType().Name; }
+                long upload=job.snapshot.uploadBytes;
+                if(current && result!=null && upload>uploadLeft) { job.owner.Status="Snapshot ready; upload budget pending";continue; }
+                Jobs.RemoveAt(i);job.cancellation.Dispose();
+                if(!current || result==null) { job.snapshot.Destroy();continue; }
+                Snapshot old=null;
+                try
+                {
+                    uploadLeft-=upload;
+                    Snapshot next=job.snapshot;
+                    next.texture=new Texture3D(job.size,job.size,job.size,TextureFormat.RFloat,false)
+                        {name="HLGI deformed SDF",hideFlags=HideFlags.HideAndDontSave,wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Bilinear};
+                    next.texture.SetPixelData(result.distances,0);next.texture.Apply(false,false);
+                    next.sdf=ScriptableObject.CreateInstance<HybridLumenGIMeshSdf>();next.sdf.hideFlags=HideFlags.HideAndDontSave;
+                    next.sdf.SetBakedData(next.mesh,next.texture,result.bounds,job.size,result.closed);
+                    next.capture=HybridLumenGISurfaceCharts.CreateCaptureMesh(next.mesh,result.charts);next.capture.hideFlags=HideFlags.HideAndDontSave;
+                    next.charts=ScriptableObject.CreateInstance<HybridLumenGISurfaceCharts>();next.charts.hideFlags=HideFlags.HideAndDontSave;
+                    next.charts.SetBakedData(next.mesh,next.capture,result.charts);
+                    if(Published.TryGetValue(job.source,out old) && !ReferenceEquals(old.owner,job.owner))
+                        throw new InvalidOperationException("A second component owns this renderer's geometry snapshot.");
+                    Published[job.source]=next;
+                    job.owner.proxy.MarkDirty();job.owner.PublishedFrame=job.frame;job.owner.PendingFrame=-1;
+                    job.owner.Status="Mesh, SDF and charts published together; GPU residency pending";
+                    if(old!=null)HybridLumenGIResourceRetirement.Retire(old.Destroy);
+                }
+                catch(Exception ex)
+                {
+                    // Never leave a published reference to an object being destroyed.
+                    if(Published.TryGetValue(job.source,out var live) && ReferenceEquals(live,job.snapshot))
+                    { if(old!=null)Published[job.source]=old;else Published.Remove(job.source); }
+                    job.owner.Status="Snapshot publication failed: "+ex.GetType().Name;job.snapshot.Destroy();
+                }
+            }
+            int verticesLeft=Math.Max(0,VertexBudgetPerFrame),visits=Active.Count;
+            while(visits-->0 && Active.Count>0 && Jobs.Count<Math.Max(0,MaximumWorkers))
+            {
+                cursor%=Active.Count;var owner=Active[cursor++];
+                if(owner==null || !owner.isActiveAndEnabled || owner.source==null || owner.proxy==null)continue;
+                bool pending=false;foreach(var job in Jobs)pending|=ReferenceEquals(job.owner,owner);
+                if(pending || Time.frameCount-owner.lastCapture<Math.Max(1,owner.updateIntervalFrames))continue;
+                if(!(owner.source is SkinnedMeshRenderer) && !owner.requested)continue;
+                Mesh original=owner.explicitSource!=null?owner.explicitSource:
+                    owner.source is SkinnedMeshRenderer skin?skin.sharedMesh:owner.source.GetComponent<MeshFilter>()?.sharedMesh;
+                if(original==null || original.vertexCount<3 || original.vertexCount>Math.Max(3,owner.maximumVertices))
+                { owner.Status="No source mesh within the vertex limit";continue; }
+                int vertices=original.vertexCount;long indices=0;
+                for(int sub=0;sub<original.subMeshCount;sub++)indices+=(long)original.GetIndexCount(sub);
+                if(indices/3>Math.Max(1,owner.maximumTriangles)) { owner.Status="Source exceeds triangle limit";continue; }
+                if(vertices>verticesLeft) { owner.Status="Capture vertex budget pending";continue; }
+                int size=Mathf.Clamp(owner.sdfResolution,16,64);
+                // Includes copied streams, two owned meshes, output volume and conservative
+                // triangle/chart working storage. Driver/Unity allocator overhead is not measured.
+                long vertexBytes=0;
+                for(int stream=0;stream<original.vertexBufferCount;stream++)vertexBytes+=vertices*(long)original.GetVertexBufferStride(stream);
+                long reservation=checked(vertexBytes*4+vertices*192L+indices*192L+size*(long)size*size*8+4096);
+                long uploadBytes=checked(Math.Max(vertexBytes*2,vertices*96L)+indices*8L+size*(long)size*size*4);
+                if(uploadBytes>Math.Max(0,UploadBudgetBytesPerFrame)) { owner.Status="Snapshot exceeds per-frame publication byte budget";continue; }
+                if(reservation>Math.Max(0,MemoryBudgetBytes)-ReservedBytes) { owner.Status="Geometry memory budget pending";continue; }
+                var next=new Snapshot{owner=owner,reservation=reservation,uploadBytes=uploadBytes};ReservedBytes+=reservation;
+                // Failed capture attempts consume the same frame quota and retry interval.
+                verticesLeft-=vertices;owner.lastCapture=Time.frameCount;
+                try
+                {
+                    if(owner.explicitSource==null && owner.source is SkinnedMeshRenderer skinned)
+                    {
+                        next.mesh=new Mesh{name="HLGI baked deformation",hideFlags=HideFlags.HideAndDontSave};
+                        skinned.BakeMesh(next.mesh,false); // Local positions; renderer transform is applied once.
+                    }
+                    else
+                    {
+                        if(!original.isReadable)throw new InvalidOperationException("The supplied mesh must be readable.");
+                        // The GI snapshot needs these streams only. Do not clone arbitrary
+                        // blend-shape/bone/custom streams that its byte quota did not reserve.
+                        next.mesh=new Mesh{name="HLGI readable deformation",hideFlags=HideFlags.HideAndDontSave,
+                            indexFormat=IndexFormat.UInt32,vertices=original.vertices,normals=original.normals,tangents=original.tangents,uv=original.uv};
+                        next.mesh.subMeshCount=original.subMeshCount;
+                        for(int sub=0;sub<original.subMeshCount;sub++)next.mesh.SetIndices(original.GetIndices(sub,true),original.GetTopology(sub),sub,false);
+                        next.mesh.bounds=original.bounds;
+                    }
+                    Vector3[] positions=next.mesh.vertices;var submeshes=new int[next.mesh.subMeshCount][];
+                    var flat=new List<int>((int)Math.Min(indices,int.MaxValue));
+                    for(int sub=0;sub<submeshes.Length;sub++)
+                    {
+                        if(next.mesh.GetTopology(sub)!=MeshTopology.Triangles)throw new InvalidOperationException("Triangle submeshes required.");
+                        submeshes[sub]=next.mesh.GetIndices(sub,true);flat.AddRange(submeshes[sub]);
+                    }
+                    var settings=owner.chartSettings??new HybridLumenGISurfaceCharts.BakeSettings();
+                    var frozenSettings=new HybridLumenGISurfaceCharts.BakeSettings{maxNormalAngleDegrees=settings.maxNormalAngleDegrees,
+                        paddingFraction=settings.paddingFraction,minimumPadding=settings.minimumPadding,maxTrianglesPerChart=settings.maxTrianglesPerChart,chartBudget=settings.chartBudget};
+                    var job=new Job{owner=owner,source=owner.source,generation=owner.generation,frame=Time.frameCount,size=size,snapshot=next};
+                    int[] triangles=flat.ToArray();var cancellation=job.cancellation.Token;
+                    job.work=Task.Run(()=>
+                    {
+                        bool Continue(int _,int __)=>!cancellation.IsCancellationRequested;
+                        var result=new Result();
+                        result.distances=HybridLumenGIMeshSdfBake.Bake(positions,triangles,size,Continue,out result.bounds,out result.closed);
+                        if(result.distances==null || cancellation.IsCancellationRequested)return null;
+                        result.charts=HybridLumenGISurfaceCharts.BakeTriangles(positions,submeshes,frozenSettings,out _,Continue);
+                        return cancellation.IsCancellationRequested?null:result;
+                    });
+                    Jobs.Add(job);owner.PendingFrame=Time.frameCount;
+                    owner.requested=false;owner.Status="Captured; SDF/chart worker pending";
+                }
+                catch(Exception ex) { next.Destroy();owner.Status="Geometry capture failed: "+ex.GetType().Name; }
+            }
+        }
+    }
+}

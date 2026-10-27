@@ -1,0 +1,15 @@
+GPT-6 Astra Max independent review: partial/failed, not accepted as a shutdown fix.
+
+Attribution control supports six backend attribute buffers, two software BVH buffers and two RayTexturePool arena buffers. The generic queue has two separate defects to distinguish: late-unsubmitted tickets and submitted tickets that receive no later poll. Equal warning counts alone are not attribution.
+
+The conservative outside certificate is appropriate: BeginContext revokes it, EndContext does not restore it, and a genuine Update boundary restores it. Quitting only starts a shared deadline. Ambiguous tickets must remain requiresContext; an unrelated old fence is not sufficient proof. Submission uncertainty must cover later-retired resources that could have been live in the failed context, so the global conservative lock is justified without a new per-resource reader framework.
+
+Found and fixed after runtime started: DrainShutdown's guard alone did not protect ordinary IdleUpdate/EndContext PollOwned. A parent destroy callback could Retire a child and reenter destruction of the still-listed parent. Current source now guards PollOwned with finally reset and rejects Drain while polling. The new ordinary-idle parent-to-child case passes. No corrected runtime result is claimed.
+
+Real cycles 0 and 1 drain only the generic queue. Cycle2 normal Play exit fails with eight pending/owned. Timeline702-724 is reliable idle, ExitingPlayMode, final context, then owner Dispose. This is the current conservative limitation on a normal path, not a passing test.
+
+The actual-source standalone tests replace the pump with an adapter and do not compile the UNITY_EDITOR branch. They do not supersede the failed real lifecycle gate. Runtime allocation stacks now include sixteen allocations: six attributes, two BVH, two arena, and six HitMaterialBatch buffers at TryCreate lines177/178. Generic zero accounting is not evidence that every native owner has no accumulation.
+
+Diagnostic MissingReference warnings are a separate instrumentation defect. The valid lifecycle sequence and unsubmitted counts already establish failure; no rerun is needed merely to reconfirm it.
+
+Next minimal direction for Pro: evaluate early withdrawal of the proven Feature/deformation owners while the shutdown request still has reliable idle qualification, and prevent new readers during shutdown; preserve idempotent subsequent Dispose. Do not relax requiresContext, reuse unproven old fences, clear queues or add a generic resource framework. Keep arena and HitMaterialBatch as separately attributed follow-up owners.

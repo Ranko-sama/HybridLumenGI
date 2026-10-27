@@ -1,0 +1,17 @@
+{
+  "checks": [
+    {
+      "file": "Runtime/HybridLumenGIResourceRetirement.cs",
+      "sha256": "679fed701eab879d1d064e06726e602a092f5db7de96fff65a8dafc6ffb902b3"
+    },
+    {
+      "file": "Runtime/HybridLumenGIResourceRetirementPump.cs",
+      "sha256": "ca3de585b8b825641ec4be8dfcee993281e7687ae7516ca562febf036768e34d"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRendererFeature.cs",
+      "sha256": "fbd4cf74d7337ddd3d892ba021c19da0d3e5596061c673006bee7cd27fde32d4"
+    }
+  ],
+  "note": "Current uninstrumented candidate differs from failed runtime snapshot by the subsequent unit-tested PollOwned reentrancy guard; the executed snapshot is retained under instrumentation-candidate."
+}

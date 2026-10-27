@@ -1,0 +1,349 @@
+{
+  "baselineCommit": "4610cc2",
+  "scope": "Twelve-frame Functional scene control, existing direct EditorApplication.Exit path, attribution-only instrumentation. Not normal Play exit or resource fix validation.",
+  "runs": {
+    "on-before": {
+      "run": {
+        "status": "incomplete-probe",
+        "label": "functional-final-composition0",
+        "startedUtc": "2026-10-27T18:35:53.2629246Z",
+        "completedUtc": "2026-10-27T18:35:55.0149394Z",
+        "error": "",
+        "unity": "6000.0.85f1",
+        "urpAssembly": "0.0.0.0",
+        "api": "Direct3D12",
+        "gpu": "NVIDIA GeForce RTX 2080 Ti",
+        "driver": "Direct3D 12 [level 12.1]",
+        "featureType": "HybridLumenGI.HybridLumenGIRendererFeature",
+        "actualMode": "Final",
+        "scene": "Assets/RuntimeAudit/Functional.unity",
+        "requestedFrames": 12,
+        "renderedFrames": 12,
+        "captures": 2,
+        "errors": 0,
+        "width": 640,
+        "height": 360,
+        "startupEngineFrame": 1,
+        "firstRenderEngineFrame": 1,
+        "startupFrameLimit": 120,
+        "firstRenderWaitSeconds": 0.7016365000000011,
+        "startupSecondsLimit": 900.0,
+        "fullSequenceCompleted": false,
+        "featureOff": false,
+        "indirectOnly": false,
+        "graphicsUVStartsAtTop": true,
+        "format": "R32G32B32A32_SFloat Linear; raw little-endian RGBA32F, unflipped GPU rows",
+        "png": "Preview only: max(0,RGB)/(1+max(0,RGB)), then LinearToGammaSpace; no row flip",
+        "timing": "FrameTimingManager whole-frame samples, potentially delayed/repeated, capture/IO contaminated; zero or nonfinite is missing, not GI timing",
+        "scope": "Collection only; not image quality, successful GI passes, DXR execution, or performance acceptance",
+        "ambientIntensity": 0.0,
+        "reflectionIntensity": 0.0,
+        "ambientLight": {
+          "r": 0.0,
+          "g": 0.0,
+          "b": 0.0,
+          "a": 1.0
+        },
+        "fog": false,
+        "skybox": false
+      },
+      "allocationStackGroups": [
+        {
+          "count": 1,
+          "firstProductFrame": "0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)",
+          "stack": "1 leak(s) from callstack:\n0x000002320c9b4efb (Mono JIT Code) UnityEngine.ComputeBuffer:.ctor (int,int,UnityEngine.ComputeBufferType)\n0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)\n0x0000023216841a6b (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Upload<HybridLumenGI.HybridLumenGIHardwareBackend/TriangleNormals> (UnityEngine.ComputeBuffer&,int,int,System.Collections.Generic.List`1<HybridLumenGI.HybridLumenGIHardwareBackend/TriangleNormals>) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:592)\n0x00000232168368fb (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Prepare (HybridLumenGI.HybridLumenGIScene,int,int,HybridLumenGI.HybridLumenGISurfaceCache,long) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:325)\n0x000002320c975c73 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ContextContainer) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:667)\n0x000002320c94e11e (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPassesInEventRange (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1258)\n0x000002320c94dbcb (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1281)\n0x000002320c94db4b (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1286)\n0x000002320c9637db (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnMainRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:1380)\n0x000002320c93c523 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:830)\n0x000002320c938925 (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1215)"
+        },
+        {
+          "count": 1,
+          "firstProductFrame": "0x000002321cee1b83 (Mono JIT Code) HybridLumenGI.HybridLumenGIRayTexturePool:TryPrepareRequests (System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIRayTexturePool/Request>,long,HybridLumenGI.HybridLumenGIRayTexturePool/Lease&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRayTexturePool.cs:280)",
+          "stack": "1 leak(s) from callstack:\n0x0000023205e4b2b3 (Mono JIT Code) UnityEngine.GraphicsBuffer:.ctor (UnityEngine.GraphicsBuffer/Target,int,int)\n0x000002321cee1b83 (Mono JIT Code) HybridLumenGI.HybridLumenGIRayTexturePool:TryPrepareRequests (System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIRayTexturePool/Request>,long,HybridLumenGI.HybridLumenGIRayTexturePool/Lease&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRayTexturePool.cs:280)\n0x00000232178a9aab (Mono JIT Code) HybridLumenGI.HybridLumenGIHitMaterialBatch:TryCreate (System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIHitMaterialBatch/Source>,long,HybridLumenGI.HybridLumenGIHitMaterialBatch&,string&,HybridLumenGI.HybridLumenGIMaterialSource,HybridLumenGI.HybridLumenGIRayTextureImporter) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialBatch.cs:154)\n0x00000232178a77bb (Mono JIT Code) HybridLumenGI.HybridLumenGIHitMaterialPass:TryCreate (UnityEngine.Rendering.RenderGraphModule.RenderGraph,System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIHitMaterialBatch/Source>,long,HybridLumenGI.HybridLumenGIHitMaterialPass&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialPass.cs:46)\n0x00000232178a4e53 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:PrepareHardwareMaterials (UnityEngine.Rendering.RenderGraphModule.RenderGraph,HybridLumenGI.HybridLumenGIRendererFeature/TransportPass/Work) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:972)\n0x000002320c97a3d3 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ContextContainer) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:824)\n0x000002320c94e11e (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPassesInEventRange (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1258)\n0x000002320c94dbcb (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1281)\n0x000002320c94db4b (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1286)\n0x000002320c9637db (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnMainRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:1380)\n0x000002320c93c523 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:830)"
+        },
+        {
+          "count": 1,
+          "firstProductFrame": "0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)",
+          "stack": "1 leak(s) from callstack:\n0x000002320c9b4efb (Mono JIT Code) UnityEngine.ComputeBuffer:.ctor (int,int,UnityEngine.ComputeBufferType)\n0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)\n0x0000023216841d8b (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Upload<HybridLumenGI.HybridLumenGIHardwareBackend/TriangleSurface> (UnityEngine.ComputeBuffer&,int,int,System.Collections.Generic.List`1<HybridLumenGI.HybridLumenGIHardwareBackend/TriangleSurface>) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:592)\n0x0000023216836953 (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Prepare (HybridLumenGI.HybridLumenGIScene,int,int,HybridLumenGI.HybridLumenGISurfaceCache,long) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:326)\n0x000002320c975c73 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ContextContainer) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:667)\n0x000002320c94e11e (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPassesInEventRange (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1258)\n0x000002320c94dbcb (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1281)\n0x000002320c94db4b (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1286)\n0x000002320c9637db (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnMainRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:1380)\n0x000002320c93c523 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:830)\n0x000002320c938925 (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1215)"
+        },
+        {
+          "count": 1,
+          "firstProductFrame": "0x000002321cee1c13 (Mono JIT Code) HybridLumenGI.HybridLumenGIRayTexturePool:TryPrepareRequests (System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIRayTexturePool/Request>,long,HybridLumenGI.HybridLumenGIRayTexturePool/Lease&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRayTexturePool.cs:281)",
+          "stack": "1 leak(s) from callstack:\n0x0000023205e4b2b3 (Mono JIT Code) UnityEngine.GraphicsBuffer:.ctor (UnityEngine.GraphicsBuffer/Target,int,int)\n0x000002321cee1c13 (Mono JIT Code) HybridLumenGI.HybridLumenGIRayTexturePool:TryPrepareRequests (System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIRayTexturePool/Request>,long,HybridLumenGI.HybridLumenGIRayTexturePool/Lease&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRayTexturePool.cs:281)\n0x00000232178a9aab (Mono JIT Code) HybridLumenGI.HybridLumenGIHitMaterialBatch:TryCreate (System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIHitMaterialBatch/Source>,long,HybridLumenGI.HybridLumenGIHitMaterialBatch&,string&,HybridLumenGI.HybridLumenGIMaterialSource,HybridLumenGI.HybridLumenGIRayTextureImporter) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialBatch.cs:154)\n0x00000232178a77bb (Mono JIT Code) HybridLumenGI.HybridLumenGIHitMaterialPass:TryCreate (UnityEngine.Rendering.RenderGraphModule.RenderGraph,System.Collections.Generic.IReadOnlyList`1<HybridLumenGI.HybridLumenGIHitMaterialBatch/Source>,long,HybridLumenGI.HybridLumenGIHitMaterialPass&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialPass.cs:46)\n0x00000232178a4e53 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:PrepareHardwareMaterials (UnityEngine.Rendering.RenderGraphModule.RenderGraph,HybridLumenGI.HybridLumenGIRendererFeature/TransportPass/Work) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:972)\n0x000002320c97a3d3 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ContextContainer) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:824)\n0x000002320c94e11e (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPassesInEventRange (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1258)\n0x000002320c94dbcb (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1281)\n0x000002320c94db4b (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1286)\n0x000002320c9637db (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnMainRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:1380)\n0x000002320c93c523 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:830)"
+        },
+        {
+          "count": 1,
+          "firstProductFrame": "0x000002321cee7edb (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/CameraState:PrepareSoftwareGeometry (UnityEngine.Rendering.RenderGraphModule.RenderGraph,int,long,HybridLumenGI.HybridLumenGISoftwareTriangleBvh/Layout&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:377)",
+          "stack": "1 leak(s) from callstack:\n0x0000023205e4b2b3 (Mono JIT Code) UnityEngine.GraphicsBuffer:.ctor (UnityEngine.GraphicsBuffer/Target,int,int)\n0x000002321cee7edb (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/CameraState:PrepareSoftwareGeometry (UnityEngine.Rendering.RenderGraphModule.RenderGraph,int,long,HybridLumenGI.HybridLumenGISoftwareTriangleBvh/Layout&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:377)\n0x00000232178a4f5b (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:PrepareHardwareMaterials (UnityEngine.Rendering.RenderGraphModule.RenderGraph,HybridLumenGI.HybridLumenGIRendererFeature/TransportPass/Work) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:980)\n0x000002320c97a3d3 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ContextContainer) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:824)\n0x000002320c94e11e (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPassesInEventRange (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1258)\n0x000002320c94dbcb (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1281)\n0x000002320c94db4b (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1286)\n0x000002320c9637db (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnMainRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:1380)\n0x000002320c93c523 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:830)\n0x000002320c938925 (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1215)\n0x000002320c9386b3 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderPipeline:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Rendering.Universal.ScriptableRenderer) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRenderPipelineRenderGraph.cs:11)"
+        },
+        {
+          "count": 1,
+          "firstProductFrame": "0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)",
+          "stack": "1 leak(s) from callstack:\n0x000002320c9b4efb (Mono JIT Code) UnityEngine.ComputeBuffer:.ctor (int,int,UnityEngine.ComputeBufferType)\n0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)\n0x00000232168420ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Upload<HybridLumenGI.HybridLumenGISurfaceCache/TriangleChartBinding> (UnityEngine.ComputeBuffer&,int,int,System.Collections.Generic.List`1<HybridLumenGI.HybridLumenGISurfaceCache/TriangleChartBinding>) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:592)\n0x00000232168369ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Prepare (HybridLumenGI.HybridLumenGIScene,int,int,HybridLumenGI.HybridLumenGISurfaceCache,long) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:327)\n0x000002320c975c73 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ContextContainer) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:667)\n0x000002320c94e11e (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPassesInEventRange (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1258)\n0x000002320c94dbcb (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1281)\n0x000002320c94db4b (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1286)\n0x000002320c9637db (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnMainRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:1380)\n0x000002320c93c523 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:830)\n0x000002320c938925 (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1215)"
+        },
+        {
+          "count": 1,
+          "firstProductFrame": "0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)",
+          "stack": "1 leak(s) from callstack:\n0x000002320c9b4efb (Mono JIT Code) UnityEngine.ComputeBuffer:.ctor (int,int,UnityEngine.ComputeBufferType)\n0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)\n0x000002321684174b (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Upload<UnityEngine.Matrix4x4> (UnityEngine.ComputeBuffer&,int,int,System.Collections.Generic.List`1<UnityEngine.Matrix4x4>) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:592)\n0x00000232168368a3 (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Prepare (HybridLumenGI.HybridLumenGIScene,int,int,HybridLumenGI.HybridLumenGISurfaceCache,long) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:324)\n0x000002320c975c73 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ContextContainer) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:667)\n0x000002320c94e11e (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPassesInEventRange (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1258)\n0x000002320c94dbcb (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1281)\n0x000002320c94db4b (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1286)\n0x000002320c9637db (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnMainRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:1380)\n0x000002320c93c523 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:830)\n0x000002320c938925 (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1215)"
+        },
+        {
+          "count": 1,
+          "firstProductFrame": "0x000002321cee7e83 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/CameraState:PrepareSoftwareGeometry (UnityEngine.Rendering.RenderGraphModule.RenderGraph,int,long,HybridLumenGI.HybridLumenGISoftwareTriangleBvh/Layout&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:376)",
+          "stack": "1 leak(s) from callstack:\n0x0000023205e4b2b3 (Mono JIT Code) UnityEngine.GraphicsBuffer:.ctor (UnityEngine.GraphicsBuffer/Target,int,int)\n0x000002321cee7e83 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/CameraState:PrepareSoftwareGeometry (UnityEngine.Rendering.RenderGraphModule.RenderGraph,int,long,HybridLumenGI.HybridLumenGISoftwareTriangleBvh/Layout&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,UnityEngine.Rendering.RenderGraphModule.BufferHandle&,string&) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:376)\n0x00000232178a4f5b (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:PrepareHardwareMaterials (UnityEngine.Rendering.RenderGraphModule.RenderGraph,HybridLumenGI.HybridLumenGIRendererFeature/TransportPass/Work) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:980)\n0x000002320c97a3d3 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ContextContainer) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:824)\n0x000002320c94e11e (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPassesInEventRange (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1258)\n0x000002320c94dbcb (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1281)\n0x000002320c94db4b (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1286)\n0x000002320c9637db (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnMainRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:1380)\n0x000002320c93c523 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:830)\n0x000002320c938925 (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1215)\n0x000002320c9386b3 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderPipeline:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Rendering.Universal.ScriptableRenderer) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRenderPipelineRenderGraph.cs:11)"
+        },
+        {
+          "count": 1,
+          "firstProductFrame": "0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)",
+          "stack": "1 leak(s) from callstack:\n0x000002320c9b4efb (Mono JIT Code) UnityEngine.ComputeBuffer:.ctor (int,int,UnityEngine.ComputeBufferType)\n0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)\n0x000002321684142b (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Upload<HybridLumenGI.HybridLumenGIHardwareBackend/InstanceData> (UnityEngine.ComputeBuffer&,int,int,System.Collections.Generic.List`1<HybridLumenGI.HybridLumenGIHardwareBackend/InstanceData>) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:592)\n0x000002321683684b (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Prepare (HybridLumenGI.HybridLumenGIScene,int,int,HybridLumenGI.HybridLumenGISurfaceCache,long) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:323)\n0x000002320c975c73 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ContextContainer) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:667)\n0x000002320c94e11e (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPassesInEventRange (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1258)\n0x000002320c94dbcb (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1281)\n0x000002320c94db4b (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1286)\n0x000002320c9637db (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnMainRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:1380)\n0x000002320c93c523 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:830)\n0x000002320c938925 (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1215)"
+        },
+        {
+          "count": 1,
+          "firstProductFrame": "0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)",
+          "stack": "1 leak(s) from callstack:\n0x000002320c9b4efb (Mono JIT Code) UnityEngine.ComputeBuffer:.ctor (int,int,UnityEngine.ComputeBufferType)\n0x00000232168413ab (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:EnsureBuffer (UnityEngine.ComputeBuffer&,int,int) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:606)\n0x000002321684127b (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Upload<uint> (UnityEngine.ComputeBuffer&,int,int,uint[]) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:598)\n0x00000232168367f3 (Mono JIT Code) HybridLumenGI.HybridLumenGIHardwareBackend:Prepare (HybridLumenGI.HybridLumenGIScene,int,int,HybridLumenGI.HybridLumenGISurfaceCache,long) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs:322)\n0x000002320c975c73 (Mono JIT Code) HybridLumenGI.HybridLumenGIRendererFeature/TransportPass:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ContextContainer) (at I:/Unity test/Project/Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs:667)\n0x000002320c94e11e (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPassesInEventRange (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1258)\n0x000002320c94dbcb (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1281)\n0x000002320c94db4b (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordCustomRenderGraphPasses (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.Universal.RenderPassEvent) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1286)\n0x000002320c9637db (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnMainRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:1380)\n0x000002320c93c523 (Mono JIT Code) UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:830)\n0x000002320c938925 (Mono JIT Code) UnityEngine.Rendering.Universal.ScriptableRenderer:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1215)"
+        }
+      ],
+      "nativeAllocationCount": 10,
+      "d3d12UnreleasedCount": 10,
+      "finishPending": 0,
+      "finishOwned": 0,
+      "finishDiagnostics": [
+        {
+          "camera": "Validation Camera",
+          "sceneLightingPolicyBytes": 512,
+          "frame": 11,
+          "publishedInstances": 22,
+          "warmingInstances": 0,
+          "pendingCapacity": 0,
+          "bvhNodes": 43,
+          "readyCards": 132,
+          "pendingCards": 0,
+          "warmupBudgetBlockedCards": 0,
+          "cachePatchesScheduled": 256,
+          "chartedOwners": 22,
+          "approximateOwners": 0,
+          "requiredSurfaceCards": 132,
+          "rejectedSdfSources": 0,
+          "receiverTrackedSubmeshes": 19,
+          "receiverUntrackedRenderers": 0,
+          "receiverFingerprintMeshes": 3,
+          "receiverFingerprintBytes": 7816,
+          "receiverSourcesPublished": true,
+          "receiverIdentityEnabled": true,
+          "receiverIdentityStatus": "Identity resolve recorded; GPU completion not implied",
+          "receiverIdentityDraws": 18,
+          "receiverUnknownRectangles": 1,
+          "receiverIdentityBufferBytes": 2766320,
+          "changeRegionBytes": 52224,
+          "proposalCapacity": 32,
+          "proposalBudget": 16,
+          "globalReadyBricks": 168,
+          "globalPendingBricks": 1880,
+          "globalUpdatedBricks": 16,
+          "completedHlodReadbacks": 0,
+          "failedHlodReadbacks": 0,
+          "acceptedInitializationTickets": 0,
+          "hlodReadbackPending": false,
+          "hardwareBackend": false,
+          "hardwareMeshes": 0,
+          "hardwareFallbacks": 0,
+          "hardwareSceneRebuilds": 0,
+          "hardwareTransformUpdates": 0,
+          "hardwareTriangleUploads": 0,
+          "hardwareBindingUploads": 0,
+          "hardwareMaterialStatus": "Uploads and both consumers bound; GPU completion unproven",
+          "hardwareMaterialUnknownRecords": 0,
+          "hardwareMaterialFrameBytes": 83600,
+          "hardwareMaterialGlobalAllocatedBytes": 127392,
+          "exactSoftwareGeometry": true,
+          "softwareGeometryBytes": 88992,
+          "areaEmitterBytes": 1152,
+          "rtasGlobalAccountedBytes": 0,
+          "rtasGlobalEstimatedBytes": 0,
+          "rtasGlobalMeasuredHighWaterBytes": 0,
+          "rtasGlobalRetiredBytes": 0,
+          "rtasPendingDemands": 0,
+          "rtasBuildsThisFrame": 0,
+          "rtasTriangleWorkThisFrame": 0,
+          "rtasInstanceWorkThisFrame": 0,
+          "rtasBudgetStatus": "Not prepared",
+          "materialUploadEngineFrame": 12,
+          "materialUploadBudgetBytes": 16777216,
+          "materialUploadBytesUsed": 0,
+          "screenTextureEstimateBytes": 14745600,
+          "worldMaterialBytes": 16496640,
+          "objectSdfBytes": 8392704,
+          "globalSdfBytes": 664704,
+          "worldCacheBytes": 983040,
+          "hardwareAttributeBytes": 0,
+          "proposalBufferBytes": 1056,
+          "surfaceTriangleMappingCpuBytes": 1240,
+          "gpuTimingStatus": "Disabled",
+          "gpuTimingProvider": "Recorder",
+          "nativeGpuTimingStatus": "Disabled",
+          "gpuTimingRequiresIdentity": true,
+          "nativeGpuPendingSubmissions": 0,
+          "nativeGpuMeasuredSourceFrame": -1,
+          "gpuObservationValid": false,
+          "gpuFeedbackActive": false,
+          "gpuMinimumWorkOverBudget": false,
+          "gpuStableCompletedFrames": 0,
+          "gpuLastObservationConsumedFrame": -1,
+          "effectiveCachePatchBudget": 256,
+          "effectiveSurfaceCaptureBudget": 24,
+          "effectiveGlobalBrickBudget": 16,
+          "gpuAcceptedObservations": 0,
+          "gpuRejectedObservations": 0,
+          "gpuLastObservedMilliseconds": 0.0,
+          "gpuSmoothedMilliseconds": 0.0,
+          "gpuWorkScale": 1.0
+        }
+      ],
+      "lateEnqueues": [
+        {
+          "ticket": 207746222,
+          "stage": "feature-dispose-before",
+          "callback": "HybridLumenGI.HybridLumenGIRendererFeature+CameraState+<>c__DisplayClass107_0.<RetireSoftwareBuffers>b__0",
+          "resources": "nodes:GraphicsBuffer count=527 stride=32 bytes=16864;leaves:GraphicsBuffer count=264 stride=64 bytes=16896;camera:Camera Validation Camera id=31466;historyTarget:RenderTexture Comparison Linear HDR id=-1514;bytes=33760",
+          "logicalBytes": 33760,
+          "submitted": false
+        },
+        {
+          "ticket": -1736880052,
+          "stage": "feature-dispose-before",
+          "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+          "resources": "buffer:ComputeBuffer count=32 stride=4 bytes=128;budgetOwner=System.Object;bytes=128",
+          "logicalBytes": 128,
+          "submitted": false
+        },
+        {
+          "ticket": 327380256,
+          "stage": "feature-dispose-before",
+          "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+          "resources": "buffer:ComputeBuffer count=23 stride=128 bytes=2944;budgetOwner=System.Object;bytes=2944",
+          "logicalBytes": 2944,
+          "submitted": false
+        },
+        {
+          "ticket": 1959670102,
+          "stage": "feature-dispose-before",
+          "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+          "resources": "buffer:ComputeBuffer count=264 stride=80 bytes=21120;budgetOwner=System.Object;bytes=21120",
+          "logicalBytes": 21120,
+          "submitted": false
+        },
+        {
+          "ticket": 929968682,
+          "stage": "feature-dispose-before",
+          "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+          "resources": "buffer:ComputeBuffer count=264 stride=96 bytes=25344;budgetOwner=System.Object;bytes=25344",
+          "logicalBytes": 25344,
+          "submitted": false
+        },
+        {
+          "ticket": -1732708768,
+          "stage": "feature-dispose-before",
+          "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+          "resources": "buffer:ComputeBuffer count=264 stride=16 bytes=4224;budgetOwner=System.Object;bytes=4224",
+          "logicalBytes": 4224,
+          "submitted": false
+        },
+        {
+          "ticket": -1310342348,
+          "stage": "feature-dispose-before",
+          "callback": "HybridLumenGI.HybridLumenGIHardwareBackend+<>c__DisplayClass129_0.<RetireAttributeBuffer>b__0",
+          "resources": "buffer:ComputeBuffer count=23 stride=64 bytes=1472;budgetOwner=System.Object;bytes=1472",
+          "logicalBytes": 1472,
+          "submitted": false
+        },
+        {
+          "ticket": -398122414,
+          "stage": "feature-dispose-after",
+          "callback": "HybridLumenGI.HybridLumenGIDeformedMesh+Snapshot.Destroy",
+          "resources": "owner:HybridLumenGIDeformedMesh Audit deforming occluder id=-1388;mesh:Mesh HLGI readable deformation id=-1634;capture:Mesh HLGI readable deformation_SurfaceChartCapture id=-1910;texture:Texture3D HLGI deformed SDF id=-1906;sdf:HybridLumenGIMeshSdf  id=-1908;charts:HybridLumenGISurfaceCharts  id=-1912",
+          "logicalBytes": 0,
+          "submitted": false
+        }
+      ],
+      "postFinishSubmissionCount": 0,
+      "postFinishDestroyCount": 0,
+      "lateOwnedBufferBytes": 88992
+    },
+    "off-before": {
+      "run": {
+        "status": "incomplete-probe",
+        "label": "functional-off-composition0",
+        "startedUtc": "2026-10-27T18:36:41.7367471Z",
+        "completedUtc": "2026-10-27T18:36:42.4283822Z",
+        "error": "",
+        "unity": "6000.0.85f1",
+        "urpAssembly": "0.0.0.0",
+        "api": "Direct3D12",
+        "gpu": "NVIDIA GeForce RTX 2080 Ti",
+        "driver": "Direct3D 12 [level 12.1]",
+        "featureType": "HybridLumenGI.HybridLumenGIRendererFeature",
+        "actualMode": "Final",
+        "scene": "Assets/RuntimeAudit/Functional.unity",
+        "requestedFrames": 12,
+        "renderedFrames": 12,
+        "captures": 2,
+        "errors": 0,
+        "width": 640,
+        "height": 360,
+        "startupEngineFrame": 1,
+        "firstRenderEngineFrame": 1,
+        "startupFrameLimit": 120,
+        "firstRenderWaitSeconds": 0.2769074000000007,
+        "startupSecondsLimit": 900.0,
+        "fullSequenceCompleted": false,
+        "featureOff": true,
+        "indirectOnly": false,
+        "graphicsUVStartsAtTop": true,
+        "format": "R32G32B32A32_SFloat Linear; raw little-endian RGBA32F, unflipped GPU rows",
+        "png": "Preview only: max(0,RGB)/(1+max(0,RGB)), then LinearToGammaSpace; no row flip",
+        "timing": "FrameTimingManager whole-frame samples, potentially delayed/repeated, capture/IO contaminated; zero or nonfinite is missing, not GI timing",
+        "scope": "Collection only; not image quality, successful GI passes, DXR execution, or performance acceptance",
+        "ambientIntensity": 0.0,
+        "reflectionIntensity": 0.0,
+        "ambientLight": {
+          "r": 0.0,
+          "g": 0.0,
+          "b": 0.0,
+          "a": 1.0
+        },
+        "fog": false,
+        "skybox": false
+      },
+      "allocationStackGroups": [],
+      "nativeAllocationCount": 0,
+      "d3d12UnreleasedCount": 0,
+      "finishPending": 0,
+      "finishOwned": 0,
+      "finishDiagnostics": [],
+      "lateEnqueues": [
+        {
+          "ticket": 1805514204,
+          "stage": "feature-dispose-after",
+          "callback": "HybridLumenGI.HybridLumenGIDeformedMesh+Snapshot.Destroy",
+          "resources": "owner:HybridLumenGIDeformedMesh Audit deforming occluder id=-1388;mesh:Mesh HLGI readable deformation id=-1634;capture:Mesh HLGI readable deformation_SurfaceChartCapture id=-1820;texture:Texture3D HLGI deformed SDF id=-1816;sdf:HybridLumenGIMeshSdf  id=-1818;charts:HybridLumenGISurfaceCharts  id=-1822",
+          "logicalBytes": 0,
+          "submitted": false
+        }
+      ],
+      "postFinishSubmissionCount": 0,
+      "postFinishDestroyCount": 0,
+      "lateOwnedBufferBytes": 0
+    }
+  },
+  "restored": [
+    {
+      "file": "I:\\Unity test\\Project\\Assets\\HybridLumenGI\\Runtime\\HybridLumenGIResourceRetirement.cs",
+      "sha256": "07b3a227fe43579374378228876ccc624f93bd7c070d351aa05fc6d44e6cce70"
+    },
+    {
+      "file": "I:\\Unity test\\Project\\Assets\\HybridLumenGI\\Runtime\\HybridLumenGIRendererFeature.cs",
+      "sha256": "fbd4cf74d7337ddd3d892ba021c19da0d3e5596061c673006bee7cd27fde32d4"
+    },
+    {
+      "file": "I:\\Unity test\\Project\\Assets\\ComparisonHarness\\ComparisonCapture.cs",
+      "sha256": "a82bb5597298120517183baddc7dafdf23643e5fc7fad821ed7acb9312fb1298"
+    }
+  ],
+  "interpretation": "Allocation stacks attribute six backend attribute buffers and two software BVH buffers to late generic retirement; the two RayTexturePool arena allocations are a separate cache owner. No one-to-one attribution is inferred merely from equal allocation counts. The disabled feature still leaves a deformation snapshot late in the generic queue, despite no corresponding ten native buffer warnings."
+}

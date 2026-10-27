@@ -165,6 +165,8 @@ namespace HybridLumenGI
         private bool warnedPlatform;
         public override void Create()
         {
+            HybridLumenGIResourceRetirement.RegisterShutdownOwner(WithdrawForShutdown);
+            if(HybridLumenGIResourceRetirement.AdmissionClosed){WithdrawForShutdown();return;}
             pass?.Dispose(); CoreUtils.Destroy(composite);
             traceCompute=traceCompute!=null?traceCompute:Resources.Load<ComputeShader>("HybridLumenGI/HybridLumenGI");
             compositeShader=compositeShader!=null?compositeShader:Resources.Load<Shader>("HybridLumenGI/HybridLumenGIComposite");
@@ -175,6 +177,7 @@ namespace HybridLumenGI
         }
         public override void AddRenderPasses(ScriptableRenderer renderer,ref RenderingData renderingData)
         {
+            if(HybridLumenGIResourceRetirement.AdmissionClosed)return;
             var camera=renderingData.cameraData;
             if(SystemInfo.graphicsDeviceType!=GraphicsDeviceType.Direct3D12 || QualitySettings.activeColorSpace!=ColorSpace.Linear)
             {
@@ -187,7 +190,21 @@ namespace HybridLumenGI
             if(camera.cameraTargetDescriptor.dimension!=TextureDimension.Tex2D) return;
             renderer.EnqueuePass(pass);
         }
-        protected override void Dispose(bool disposing) { pass?.Dispose(); pass=null; CoreUtils.Destroy(composite); }
+        private void WithdrawForShutdown()
+        {
+            var oldPass=pass;var oldComposite=composite;pass=null;composite=null;
+            oldPass?.StopAdmission();
+            if(oldPass==null && oldComposite==null)return;
+            // Already recorded graph callbacks retain the entire pass/state. Direct texture
+            // and cache destruction inside Dispose is deferred until those readers finish.
+            HybridLumenGIResourceRetirement.Retire(()=>{oldPass?.Dispose();CoreUtils.Destroy(oldComposite);});
+        }
+        protected override void Dispose(bool disposing)
+        {
+            HybridLumenGIResourceRetirement.UnregisterShutdownOwner(WithdrawForShutdown);
+            if(HybridLumenGIResourceRetirement.AdmissionClosed){WithdrawForShutdown();return;}
+            pass?.Dispose();pass=null;CoreUtils.Destroy(composite);composite=null;
+        }
 
         [StructLayout(LayoutKind.Sequential)] private struct CacheData
         { public Vector4 irradiance,tag,anchor,normal,guide; }
@@ -439,7 +456,8 @@ namespace HybridLumenGI
             private readonly HashSet<HybridLumenGIHitMaterialPass> materialPasses=new HashSet<HybridLumenGIHitMaterialPass>();
             private readonly List<ShaderTagId> tags=new List<ShaderTagId>{new ShaderTagId("UniversalForward"),new ShaderTagId("UniversalForwardOnly"),new ShaderTagId("UniversalGBuffer")};
             private readonly HybridLumenGILights worldLights=new HybridLumenGILights();
-            private bool warnedBudget,warnedComposition;
+            private bool warnedBudget,warnedComposition,admissionStopped;
+            internal void StopAdmission()=>admissionStopped=true;
             internal TransportPass(ComputeShader shader,Material composite,Shader surface,Shader nativeDiffuse,Settings settings,Func<bool> featureActive)
             {
                 software=shader; this.composite=composite; this.surface=surface;this.nativeDiffuse=nativeDiffuse;s=settings;
@@ -522,6 +540,7 @@ namespace HybridLumenGI
             }
             public override void RecordRenderGraph(RenderGraph graph,ContextContainer frameData)
             {
+                if(admissionStopped || HybridLumenGIResourceRetirement.AdmissionClosed)return;
                 HybridLumenGIHitMaterialPass.PollRetired();
                 var resources=frameData.Get<UniversalResourceData>();
                 var cameraData=frameData.Get<UniversalCameraData>();
@@ -1229,6 +1248,7 @@ namespace HybridLumenGI
             public void Dispose()
             {
                 HybridLumenGIResourceRetirement.Unregister(RequiresRepresentation);
+                admissionStopped=true;
                 foreach(var materialPass in materialPasses)materialPass.Dispose();materialPasses.Clear();
                 HybridLumenGIHitMaterialPass.PollRetired();
                 foreach(var state in cameras.Values)state.Dispose();cameras.Clear();receiverIdentityPass.Dispose();

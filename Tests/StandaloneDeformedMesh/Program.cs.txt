@@ -124,8 +124,104 @@ static class Program
     }
     public static void Main()
     {
+        HybridLumenGIResourceRetirement.EnsureRegistered();
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();
+        ShutdownWithdrawalAndNewSession();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
         Console.WriteLine("Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.");
+    }
+    static void OpenNewSession()=>typeof(HybridLumenGIResourceRetirement).GetMethod("InitializeRuntime",PrivateStatic).Invoke(null,null);
+    static void ShutdownWithdrawalAndNewSession()
+    {
+        Defaults();var owner=Add(310);Frame();Started(310);Finish(owner,310);Frame();
+        Mesh published=HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer);
+        owner.component.RequestCapture(Mesh(320));Frame();Started(320);Mesh pending=PendingMesh(owner);
+        int withdrawals=0,parent=0,child=0;bool read=false;
+        Action withdraw=()=>{Require(HybridLumenGIResourceRetirement.AdmissionClosed,"Owner withdrew before admission closed");withdrawals++;HybridLumenGIResourceRetirement.Retire(()=>{Require(read,"Old reader lost its parent storage");parent++;HybridLumenGIResourceRetirement.Retire(()=>child++);});Require(parent==0,"Bulk withdrawal reentered drain");};
+        HybridLumenGIResourceRetirement.RegisterShutdownOwner(withdraw);
+        RenderPipelineManager.Reader(()=>{Require(!published.Destroyed&&parent==0,"Recorded graph lost withdrawn resources");read=true;});
+        Application.Quit();Application.Quit();
+        Require(withdrawals==1&&!HybridLumenGIDeformedMesh.HasSnapshot(owner.renderer)&&!published.Destroyed&&!pending.Destroyed,"Shutdown was not idempotent atomic withdrawal");
+        owner.component.RequestCapture(Mesh(330));var late=Add(340);
+        Require(Job(late)==null&&HybridLumenGIDeformedMesh.PendingWorkerCount==1,"Closed session admitted new deformation work");
+        // Complete the original context, then parent destruction during a later EndContext
+        // enqueues children. Their own context submission remains required.
+        RenderPipelineManager.End();RecordedGpu.CompleteSubmitted();RenderPipelineManager.End();
+        Require(parent==1&&child==0&&published.Destroyed&&!pending.Destroyed,"Parent/child fencing or worker retention failed");
+        RecordedGpu.CompleteSubmitted();HybridLumenGIResourceRetirement.IdleUpdate();Require(child==1,"EndContext nested retirement lost its completion");
+        long held=HybridLumenGIDeformedMesh.ReservedBytes;Require(held>0,"Cancelled running worker lost reservation");
+        OpenNewSession();Require(!HybridLumenGIResourceRetirement.AdmissionClosed&&HybridLumenGIDeformedMesh.ReservedBytes==held,"New session cleared old ownership");
+        Finish(owner,320);HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(pending.Destroyed&&HybridLumenGIDeformedMesh.ReservedBytes==0&&!HybridLumenGIDeformedMesh.HasSnapshot(owner.renderer),"Old cancelled result published or survived new-session cleanup");
+        Disable(owner);Disable(late);HybridLumenGIResourceRetirement.UnregisterShutdownOwner(withdraw);
+        Require(HybridLumenGIResourceRetirement.OwnedCount==0,"Late owner disable enqueued duplicate retirement");
+        Console.WriteLine("PASS: close-before-withdraw; no new deformation admission; old recorded reader completion; parent/child EndContext fences; cancelled workers retain storage through new session and cannot publish; late disable idempotence.");
+    }
+    sealed class Completion:HybridLumenGIAssetPageStreaming.ICompletion {public bool Ready;public bool IsComplete=>Ready;}
+    static void IdleAndShutdownRetirement()
+    {
+        RenderPipelineManager.End();HybridLumenGIResourceRetirement.IdleUpdate();
+        int destroyed=0;var prerequisite=new Completion();
+        HybridLumenGIResourceRetirement.Retire(()=>destroyed++,prerequisite);
+        HybridLumenGIResourceRetirement.IdleUpdate();Require(destroyed==0,"Immediate submission was mistaken for completion.");
+        var fence=RecordedGpu.Fences[^1];Require(fence.Immediate,"Idle did not submit only its own immediate fence.");
+        fence.Completed=true;HybridLumenGIResourceRetirement.IdleUpdate();Require(destroyed==0,"Unfinished prerequisite was discarded.");
+        prerequisite.Ready=true;fence.FailQuery=true;HybridLumenGIResourceRetirement.IdleUpdate();Require(destroyed==0,"Failed completion query authorized destruction.");
+        fence.FailQuery=false;HybridLumenGIResourceRetirement.IdleUpdate();HybridLumenGIResourceRetirement.IdleUpdate();Require(destroyed==1,"Idle completion failed exact-once retirement without a render context.");
+
+        // Two recorded readers share one context. Retirement occurs only after both are withdrawn.
+        RenderPipelineManager.Begin();bool readerA=false,readerB=false;
+        RenderPipelineManager.Reader(()=>{Require(destroyed==1,"First camera read destroyed storage.");readerA=true;});
+        HybridLumenGIResourceRetirement.Retire(()=>{Require(readerA&&readerB,"Released before both readers completed.");destroyed++;});
+        RenderPipelineManager.Reader(()=>{Require(destroyed==1,"Second existing camera reader lost its storage.");readerB=true;});
+        RenderPipelineManager.End();HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(destroyed==1&&!readerA&&!readerB,"Submission completed a reader or freed its storage.");
+        RecordedGpu.CompleteSubmitted();HybridLumenGIResourceRetirement.IdleUpdate();Require(destroyed==2,"Submitted context ticket required another render context to poll.");
+
+        // A later end-event listener is still ambiguous even though our own callback returned.
+        RenderPipelineManager.Begin();RenderPipelineManager.End();int before=RecordedGpu.Fences.Count;
+        HybridLumenGIResourceRetirement.Retire(()=>destroyed++);HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(RecordedGpu.Fences.Count==before&&destroyed==2,"End-event tail was incorrectly authorized for immediate submission.");
+        RenderPipelineManager.Begin();RenderPipelineManager.End();RecordedGpu.CompleteSubmitted();HybridLumenGIResourceRetirement.IdleUpdate();Require(destroyed==3,"A genuine subsequent context failed to cover the ambiguous tail.");
+
+        // Shutdown shares one deadline, and late Retire reuses it without re-entering the drain.
+        RecordedGpu.AutoCompleteImmediate=true;Application.Quit();
+        long deadline=(long)typeof(HybridLumenGIResourceRetirement).GetField("shutdownDeadline",PrivateStatic).GetValue(null);
+        HybridLumenGIResourceRetirement.Retire(()=>{destroyed++;HybridLumenGIResourceRetirement.Retire(()=>destroyed++);});
+        Application.Quit();Require(destroyed==5&&HybridLumenGIResourceRetirement.OwnedCount==0,"Late shutdown or reentrant retirement was lost/destroyed twice.");
+        Require(deadline==(long)typeof(HybridLumenGIResourceRetirement).GetField("shutdownDeadline",PrivateStatic).GetValue(null),"Repeated shutdown restarted its time budget.");
+        // Enter shutdown while a context is active, then finish the parent in ordinary idle.
+        // Its nested Retire must not recursively destroy the still-listed parent or spin.
+        RenderPipelineManager.Begin();int parent=0,child=0;
+        HybridLumenGIResourceRetirement.Retire(()=>{parent++;HybridLumenGIResourceRetirement.Retire(()=>child++);});
+        RenderPipelineManager.End();RecordedGpu.CompleteSubmitted();
+        var elapsed=System.Diagnostics.Stopwatch.StartNew();HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(parent==1&&child==1&&elapsed.ElapsedMilliseconds<1000,"Ordinary PollOwned reentered destruction or spun inside shutdown drain.");
+        int attempts=0;HybridLumenGIResourceRetirement.Retire(()=>{attempts++;throw new Exception("Controlled destruction failure");});
+        HybridLumenGIResourceRetirement.IdleUpdate();Application.Quit();Require(attempts==1&&HybridLumenGIResourceRetirement.FailedCount==1&&Debug.Exceptions.Count==1,"Failed native destruction was retried or hidden.");
+        RecordedGpu.AutoCompleteImmediate=false;
+    }
+    static void CancelledCleanupFailure()
+    {
+        OpenNewSession();Defaults();var owner=Add(350);Frame();Started(350);var pending=PendingMesh(owner);
+        Disable(owner);Finish(owner,350);long held=HybridLumenGIDeformedMesh.ReservedBytes;CoreUtils.FailDestroy=pending;
+        // Completion arrives after idle, before the normal context callback: this must
+        // retain failed ownership just like the shutdown-specific polling path.
+        Frame();Require(Job(owner)!=null&&HybridLumenGIDeformedMesh.FailedCleanupCount==1&&HybridLumenGIDeformedMesh.ReservedBytes==held,"Cancelled cleanup failure lost worker ownership/accounting");
+        HybridLumenGIResourceRetirement.IdleUpdate();Frame();OpenNewSession();Frame();
+        Require(CoreUtils.FailedDestroyAttempts==1&&!pending.Destroyed&&Job(owner)!=null,"Failed cleanup was retried or cleared in a new session");
+        CoreUtils.FailDestroy=null;Console.WriteLine("PASS: cancelled worker native cleanup failure through normal BeginContext retains job/reservation and is never retried, including after new-session initialization.");
+    }
+    static void UnknownSubmissionIsNotRepaired()
+    {
+        // Fail after recording into a context. Immediate submission has a separate queue.
+        RenderPipelineManager.Begin();int freed=0;HybridLumenGIResourceRetirement.Retire(()=>freed++);
+        RecordedGpu.FailSubmit=true;RenderPipelineManager.End();RecordedGpu.FailSubmit=false;
+        HybridLumenGIResourceRetirement.IdleUpdate();RecordedGpu.CompleteSubmitted();HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(freed==0&&HybridLumenGIResourceRetirement.SubmissionUncertain,"Failed context was washed into a successful idle fence.");
+        HybridLumenGIResourceRetirement.Retire(()=>freed++);RenderPipelineManager.Begin();RenderPipelineManager.End();RecordedGpu.CompleteSubmitted();HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(freed==0&&HybridLumenGIResourceRetirement.UnknownSubmissionCount==2,"Later retirement/new context erased an old unknown reader.");
+        Require(RecordedGpu.Fences.Exists(f=>f.Enqueued&&!f.Submitted),"Adapter accidentally submitted every context through the immediate queue.");
+        Console.WriteLine("PASS: actual retirement source: idle completion, prerequisite/query failure, two-reader fence, ambiguous event tail, late/reentrant shutdown, shared deadline, failed destroy, and unknown context submission retained.");
     }
 }

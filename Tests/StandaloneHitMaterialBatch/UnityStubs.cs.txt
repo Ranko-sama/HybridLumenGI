@@ -110,3 +110,4 @@ namespace UnityEngine.Rendering
         {var next=Pending.Dequeue();if(next.Buffer.Released)throw new System.Exception("pending readback buffer released");next.Callback(new AsyncGPUReadbackRequest(data,error));}
     }
 }
+namespace HybridLumenGI { public static class HybridLumenGIResourceRetirement { public static bool AdmissionClosed; } }

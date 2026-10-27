@@ -1,0 +1,133 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 3
+REVIEW_DECISION: REVISE — 不批准提交或宣告退出修复完成
+NEXT_PACKAGE: resource-shutdown-01b-owner-withdrawal
+
+一、判断：保留安全机制，修正owner撤销顺序
+
+不整体回退当前工作树，但当前资源候选继续保持未提交。 保留异步轮询、真实fence/prerequisite检查、提交不确定性保护，以及新增的重入保护；下一步改的是关闭资源生产者和撤销owner的时机，不是放宽完成条件。
+
+连接器确认当前基线为 main@4610cc2。我已核对实际diff、新增pump、归属记录、失败时间线、相关owner源码，并按要求先列出再读取执行输出。单元执行记录退出码0，真实生命周期记录退出码1；本层没有执行修改或测试。
+
+本次失败已提供足够的定位信息，无需再次运行未修改的候选来重现失败。
+
+二、独立诊断
+1. P1：关闭流程先排空旧队列，却没有先撤销仍然活跃的owner
+
+当前 BeginShutdown() 只设置标记、期限并调用 DrainShutdown()，没有阻止Feature继续创建或提交工作，也没有撤销已发布的形变快照。新pump只是早期 Update → IdleUpdate，不能替代owner关闭。〔Runtime/HybridLumenGIResourceRetirement.cs:82–105；Runtime/HybridLumenGIResourceRetirementPump.cs:7–18〕
+
+原始时间线确认：
+
+顺序	实际发生的事情
+702–703	处于已记录的outside状态，开始正常退出Play。
+705–721	六张此前已提交的票据在完成后正确释放，通用队列归零。
+722	又出现一个context；outside状态已经失效。
+723–724及后续	Feature才Dispose，七张票据承接八个buffer，随后又加入形变快照。
+返回Edit后	outside重新变为true，但八张票据仍要求context，未提交。
+
+这不是单纯GPU慢，也不是增加等待时间能解决的问题。Retire() 根据入队时的状态固定 requiresContext，SubmitImmediate()明确排除这些票据；后来的idle不会自动改变它们。这个保守规则不应为了清空计数而删除。〔LocalComparison/Review/resource-shutdown-01/lifecycle-failed/retirement-timeline.jsonl:702–724；lifecycle-failure-analysis.json:400–493；HybridLumenGIResourceRetirement.cs:107–113、155–168〕
+
+必须修复的是：在最后一次可能的 teardown render之前，先关闭本产品的新读者并转交已有资源所有权。 不能继续等Unity最终调用 Feature.Dispose() 才第一次开始这件事。
+
+2. P1范围缺口：通用队列不是全部资源owner
+
+归属控制支持六个后端属性buffer、两个软件BVH buffer和两个纹理池arena buffer；最后失败运行还出现三批 HitMaterialBatch 的六个buffer。10与16来自不同生命周期，不能据此称为同场景泄漏回归。〔attribution.json 的 allocationStackGroups / lateEnqueues；lifecycle-failure-analysis.json:494–556〕
+
+这三类收尾条件不同：
+
+通用退休队列：对应提交的fence与prerequisite。
+HitMaterialPass/Batch：已有最终消费者fence、batch状态，以及借用纹理wrapper的释放。
+RayTexturePool：lease读者、GPU读回与可复用页的驻留状态。
+
+HitMaterialBatch.PollRetired()有自己的完成检查；纹理池即便没有当前lease，也可能保留可复用页。仅调用通用 PollOwned()无法关闭它们。〔Runtime/HybridLumenGIHitMaterialBatch.cs:283–365；Runtime/HybridLumenGIHitMaterialPass.cs:110–136；Runtime/HybridLumenGIRayTexturePool.cs:141–142、441–499〕
+
+因此，前两轮的结果只能记作通用队列在两种手动撤销路径下可推进，不能记作“全部原生owner释放通过”。
+
+3. 单元通过不能覆盖当前实际退出路径
+
+现有测试加载实际Retirement和DeformedMesh源码，但pump由adapter替代；不能据此认定真实pump、Editor事件顺序或最后context已经通过。实际夹具前两轮先禁用Feature再Dispose，第三轮则保持GI活跃，让Unity自然退出，正好暴露了产品缺少提前撤销的问题。〔Tests/Validate-DeformedMesh.ps1:5–11；Tests/StandaloneDeformedMesh/Adapters.cs.txt；LocalComparison/Harness/ResourceLifecycleProbe.cs:48–75〕
+
+PollOwned()自己的重入保护方向正确，但它是失败运行之后加入的。当前源码只能继承对应单元证据，不能继承不存在的修正后实机成功。 诊断helper的1279条MissingReference告警也属于独立观察器问题；保留失败记录，下一次使用修正helper即可，不必单独重跑旧失败版本。
+
+三、下一最小修复：提前关闭已归属owner
+
+本包主目标是解决正常Play退出的八张晚到通用票据；同时接入材质batch/纹理池已有收尾接口并分别计量。若后两者需要改变自己的状态机或完成合同，拆成下一包，不在这里建立通用资源框架。
+
+A. 在已有早期退出通知中先关闭准入，再开始drain
+
+首选利用本次时间线中已出现的 ExitingPlayMode 边界，增加产品自己的有序关闭入口。退出通知本身不是outside证明；仍须检查当前状态，不能无条件宣告已经离开渲染循环。
+
+关闭入口先锁定本次会话的关闭状态，再处理已登记的实际Feature实例和已有形变owner。这个状态必须阻止：
+
+Create()重新建立pass，以及 AddRenderPasses / RecordRenderGraph创建新的GI工作；
+新材质batch/lease请求；
+新形变捕获和快照发布。
+
+不要只改Inspector中的 isActive，也不要依赖夹具预先调用Dispose。应使用运行时关闭状态，避免把用户资产设置永久改成关闭。Feature的当前 Create()仍会无条件重建pass，形变 BeginContext()仍会处理发布和新工作，都是需要接线的位置。〔Runtime/HybridLumenGIRendererFeature.cs:165–190、522–527；Runtime/HybridLumenGIDeformedMesh.cs:127–185〕
+
+关闭请求之后仍可能出现普通URP context，这本身不是失败；该context不能重新产生已经撤销的GI资源读者。
+
+B. 分开“撤销/转交所有权”和“最终销毁”
+
+不要把现有 Feature.Dispose()简单提前调用就算完成。CameraState.Dispose()还包含直接释放纹理和其他资源的动作；提前执行时必须重新证明它们不再被已记录的graph使用。
+
+建议最小拆分：
+
+文件	必要修改方向
+HybridLumenGIRendererFeature.cs	为实际存活实例接入幂等关闭；停止新工作，冻结并转交旧state/pass拥有的资源；后续Unity再次Dispose不得重新入队同一资源。
+HybridLumenGIDeformedMesh.cs	复用 Withdraw()逻辑，提前移除Published快照，取消对应代次工作；完成的取消任务仍须回收，不能仅以关闭标记跳过整个清理循环。
+HybridLumenGIResourceRetirement.cs	关闭时先批量完成owner撤销，再统一推进提交/完成；避免在每个owner转交过程中递归启动阻塞drain。保留真实票据与重入保护。
+新pump	继续承担无目标渲染时的推进，不把执行顺序编号当作owner已经撤销的证明。
+
+已记录的工作必须保留所需资源，直到其最终消费者完成；或者有明确“从未记录/提交”的证据才能按未使用路径回收。不能跳过已有graph的清理或seal步骤，再靠关闭标记把资源判成安全。
+
+后续自然 Dispose/OnDisable应成为幂等收尾，而不是再次生成一批等待未来context的新票据。若最终销毁回调还会递归产生子退休项，必须明确它们的所有权及完成依据，不能把“父项已完成”当成所有任意子项的通用豁免。
+
+C. 保留完成证明，不把旧尾部票据重新分类
+
+在已经证明安全的idle边界撤销的资源，可以走现有合法的立即队列fence路径；在活动context内撤销的资源，仍须由覆盖实际最后消费者的context提交证明完成。
+
+本轮不要通过以下方式补洞：
+
+requiresContext=true → false、借用无关旧fence、把 EnteredEditMode当作GPU完成、清空列表或计账、重新开始五秒期限。
+
+共享期限和失败保留策略继续有效。若没有任何可推进的提交路径，立即报告阻塞原因；不要占用主线程等待一个必须靠后续主线程回调才能发生的进展。submissionUncertain不能在新会话开始时被静默洗掉。
+
+关闭状态的复位也要明确：不能在仍处于旧会话收尾时解除准入，让Editor重建资源；重新进入Play时，可以恢复新会话，但旧未决owner和完成记录必须继续独立保留。
+
+D. 两类材质owner只接现有安全接口
+
+关闭新请求后，推进 HybridLumenGIHitMaterialPass.PollRetired()，以覆盖batch和借用wrapper，而不是只调用通用队列。
+
+对于纹理arena，在全局会话关闭且相关新请求已经停止时调用已有 ClearReusable()撤销驻留意图，再按原读者、fence和readback条件释放。不能在单个相机退出时把其他相机仍可使用的共享缓存一概当作退出资源处理。
+
+Prepared、Sealed、Recorded、Quarantined状态分别记录；没有最终消费者证明的Recorded/Quarantined批次不强制升级为可释放。 这一组若仍阻塞，应作为已归属的下一问题返回，不修改它们的证明规则来获得“零告警”。
+
+四、必要验证：只覆盖新增关闭顺序
+
+先更新既有定向测试，再执行真实失败路径的有限重试。
+
+单元新增重点不是再证明旧fence逻辑，而是重放这次顺序：
+
+已有资源与已记录读者 → 关闭请求 → 尝试发生最后context/重建 → 晚到Dispose。断言新GI准入已关闭、旧读者仍能完成、同一资源恰好转交和释放一次。
+活动context内收到关闭请求、完成未到、prerequisite未到、提交不确定时均不提前释放。
+普通idle与EndContext两条入口触发“父销毁→子Retire”，覆盖本次新增重入保护；形变任务在关闭后完成不得重新发布。
+
+复用现有fence失败和双读者测试，不重跑无关数学、降噪或图像矩阵。
+
+**实机只做有明确问题的运行：**先重试自然Play退出，保持Feature与形变仍活跃，由产品处理关闭，夹具只观察；成功后在同一有限流程中重新进入一次Play，确认准入能够正确恢复。另用现有短入口核对直接Editor退出路径，因为它与Play退出的owner调用顺序不同。已有on/off归属控制无需重复。
+
+结果必须保存旧会话在卸载前的完成记录，不能仅因域重载后静态计数为零就判成功。观察器只记录必要状态变化，不再逐次遍历已销毁Unity对象。
+
+五、完成与停止条件
+
+下一次必须能展示以下顺序，而不只是一个“队列归零”截图：
+
+关闭新准入 → owner撤销/转交 → 覆盖最后读者的真实提交 → fence及prerequisite完成 → 恰好一次销毁 → 晚到Dispose不新增未覆盖资源。
+
+通用票据、材质batch、纹理arena、形变快照/任务分别报告数量、逻辑字节和剩余状态。通用八项解决而材质owner仍未解决，可以记为对应子问题关闭，不能宣布整个资源退出包完成。
+
+出现提前释放、重复销毁、旧状态被清空掩盖、无法证明提交覆盖、主线程等待无法推进、设备错误或新的观察器异常时，停止当前实验并保存最小复现。若必须依赖私有Unity反射、伪造完成或跨多个系统大改才能继续，则保存本轮补丁与证据，回到已批准的 4610cc2，重新拆分问题；不以安全性换取退出告警消失。
+
+目前不批准资源候选提交，但也不要求撤销已经有效的归属工作和安全轮询机制。 下一次提交审查的是修正后的owner关闭顺序及其真实生命周期证据。四项目标、十条工作流继续有效；本包失败不结束整体开发，也不引入朋友交付依赖。
