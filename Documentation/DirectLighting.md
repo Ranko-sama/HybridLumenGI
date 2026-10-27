@@ -52,11 +52,11 @@ Proxy 在主线程渲染边界观察这三项策略变化，只提升传输版�
 对象历史关闭时，基础屏幕理论分配为每相机：
 
 ```text
-Additive = 24 * fullWidth * fullHeight + 96 * giWidth * giHeight
-Replace  = 36 * fullWidth * fullHeight + 96 * giWidth * giHeight
+Additive = 24 * fullWidth * fullHeight + 112 * giWidth * giHeight
+Replace  = 36 * fullWidth * fullHeight + 112 * giWidth * giHeight
 ```
 
-1920×1080、960×540 GI 时分别为 99,532,800B（94.921875 MiB）和 124,416,000B（118.65234375 MiB），约 94.9／118.7 MiB。owner 策略另加 `16 * sceneSlotCapacity`，默认 128 槽为 2 KiB。这些是逻辑分配估算，不含灯／BVH／SDF／卡片／世界缓存、RTAS、驱动或资源分配粒度。每渲染引擎帧全灯扫描、同帧多相机打包及最多 32 个 RendererList 的 CPU 与 GPU 成本需要实测。
+1920×1080、960×540 GI 时分别为 107,827,200B（102.83203125 MiB）和 132,710,400B（126.5625 MiB）。两张 RGBA32F moments 已计入，相对旧 RGBA16F 增加16B/GI像素。owner 策略另加 `16 * sceneSlotCapacity`，默认 128 槽为 2 KiB。这些是逻辑分配估算，不含灯／BVH／SDF／卡片／世界缓存、RTAS、驱动或资源分配粒度。每渲染引擎帧全灯扫描、同帧多相机打包及最多 32 个 RendererList 的 CPU 与 GPU 成本需要实测。
 
 可选对象历史另加16B/full pixel、32B/GI pixel和80B×max(1,预留row容量)；世界变化域buffer为1,088×48B，单独计入世界资源。身份预算不足先关闭对象history、重算基础当前GI，只有基础GI也无法容纳才跳过相机。只读Mesh指纹预算不等于CPU时间或峰值内存：发现扫描、读取/哈希、材质快照、显式draw和未知mask须另行profiling。GPU反馈已纳入身份四pass：原生ABI1的ReceiverCapture从材质捕获延伸到身份resolve后，另有transport/composite；Recorder按实际identity开关汇总3/7个局部成对范围。计时API或诊断marker失败只影响反馈，真实渲染失败仍撤销历史。CPU准备、范围外上传、query resolve和额外驱动成本不在该和式内；这些接线不是全部GI硬预算或Unity实测证明。
 

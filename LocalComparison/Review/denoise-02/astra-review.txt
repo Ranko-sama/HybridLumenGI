@@ -1,0 +1,11 @@
+GPT-6 Astra Max independent read-only review, 2026-10-28
+
+Runtime diff: no blocking issue found in F1/F2. RGBA32F,112/144 byte accounting,unchanged spatial cap and debug3 mapping retain minimal scope.
+
+Correct F1 mechanism: measured DX12 baseline saturates 1000 squared to65504; no Inf or history rejection observed. This is second-moment corruption.
+
+277 passed rows include200 R1/R2 diagnostic stages (finiteness/confidence), not277 image-quality certifications. Existing5 cases are separate. Both-kernel unknown-center temporal readbacks are zero in RGBA and moments; filter chain retains invalid center. Workspace/deployed key sources and harness match.
+
+No further full GPU run needed. Submit to Pro. R2 next: synthetic fixed noise center filter4 changes0.44580078 ->0.24987793 at history3->4; not yet real-scene flicker. Set continuity criterion before changing. R1 dark-window change includes same-plane denoising; matched geometry/noise control with right+3 removed is necessary for causal cross-plane attribution. Do not change algorithm based on present R1 statistic.
+
+Future format reporting should query actual graphicsFormat; CPU-derived sigma must be labeled. These reporting corrections need no rerun of the whole suite. Only F1/F2 local contracts can close; actual dynamic/thin-wall/resource/Player/DXR/performance/VRAM acceptance remains open.

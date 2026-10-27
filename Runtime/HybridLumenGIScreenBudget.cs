@@ -50,7 +50,9 @@ namespace HybridLumenGI
         {
             long fullPixels = (long)fullWidth * fullHeight;
             int fullBytes = (replaceNative ? 36 : 24) + (identity ? 4 : 0);
-            int lowBytes = identity ? 128 : 96;
+            // Base: three half-float working targets (24), two half histories (16),
+            // two float geometries (32), two UNorm materials (8), two float moments (32).
+            int lowBytes = identity ? 144 : 112;
             int rows = identity ? Math.Max(1, Math.Min(16384, receiverCapacity)) : 0;
             long identityBuffers = identity ? fullPixels * 12 + rows * 80L : 0;
             long fixedBytes = fullPixels * fullBytes + identityBuffers;

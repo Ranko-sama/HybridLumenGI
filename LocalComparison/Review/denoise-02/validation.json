@@ -1,0 +1,2529 @@
+{
+  "revision": "local-development-denoise-02-contracts",
+  "baselineCommit": "7d33d02",
+  "contractRows": 277,
+  "legacyCases": 5,
+  "baselineActualReadbacks": [
+    {
+      "frame": 1,
+      "allFinite": true,
+      "radianceMin": 1000.0,
+      "radianceMax": 1000.0,
+      "secondMomentMin": 65504.0,
+      "secondMomentMax": 65504.0,
+      "historyMin": 1.0,
+      "historyMax": 1.0,
+      "expectedSecondMoment": 1000000
+    },
+    {
+      "frame": 2,
+      "allFinite": true,
+      "radianceMin": 1000.0,
+      "radianceMax": 1000.0,
+      "secondMomentMin": 65504.0,
+      "secondMomentMax": 65504.0,
+      "historyMin": 2.0,
+      "historyMax": 2.0,
+      "expectedSecondMoment": 1000000
+    },
+    {
+      "frame": 3,
+      "allFinite": true,
+      "radianceMin": 1000.0,
+      "radianceMax": 1000.0,
+      "secondMomentMin": 65504.0,
+      "secondMomentMax": 65504.0,
+      "historyMin": 3.0,
+      "historyMax": 3.0,
+      "expectedSecondMoment": 1000000
+    },
+    {
+      "frame": 4,
+      "allFinite": true,
+      "radianceMin": 1000.0,
+      "radianceMax": 1000.0,
+      "secondMomentMin": 65504.0,
+      "secondMomentMax": 65504.0,
+      "historyMin": 4.0,
+      "historyMax": 4.0,
+      "expectedSecondMoment": 1000000
+    },
+    {
+      "frame": 5,
+      "allFinite": true,
+      "radianceMin": 1000.0,
+      "radianceMax": 1000.0,
+      "secondMomentMin": 65504.0,
+      "secondMomentMax": 65504.0,
+      "historyMin": 5.0,
+      "historyMax": 5.0,
+      "expectedSecondMoment": 1000000
+    }
+  ],
+  "harnessSource": {
+    "file": "LocalComparison/Harness/DenoiseRegressionEditor.cs",
+    "sha256": "aa05c208b5a6ad74559d9f4c291c3d2c269ceb59b0ceeb8932c9476e9227300d",
+    "note": "Final source compiled by VerifyFormats. After277-stage run only explicit zero assertion (also checked against saved data) and allocation-only format probe were added."
+  },
+  "sigmaMeaning": "CPU-derived from actual stored center moments, not separately read from GPU",
+  "allPassed": true,
+  "actualRuntime": {
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12"
+  },
+  "baselineObservation": "DX12 half UAV stores L=1000 but saturates E[L^2]=1000000 to65504. No nonfinite output or history rejection observed in this five-frame baseline.",
+  "budget": "ScreenBudget PASS: 11381 plans,95211 assertions. +16 bytes/GI pixel;640x360 full/320x180 GI at128MiB unchanged; +921600 bytes.",
+  "runtimeProductSources": [
+    {
+      "file": "Runtime/HybridLumenGIAreaEmission.cs",
+      "sha256": "90a14aaea059cf6743e622b22dff80e0e57c782fdf087d3ce3c83ee504a63764"
+    },
+    {
+      "file": "Runtime/HybridLumenGIAssetPageManifest.cs",
+      "sha256": "59010848c42d60e3fd67c1d5db1ac467ce480f458b5d11e1347ccc7ba44bcc35"
+    },
+    {
+      "file": "Runtime/HybridLumenGIAssetPageRetirementPump.cs",
+      "sha256": "f67cc8feabbcbe2c92e8a2913cf3f548b2e59dcfd71295be4ff9a8a2deb6890c"
+    },
+    {
+      "file": "Runtime/HybridLumenGIAssetPageStreamer.cs",
+      "sha256": "c42e20ebed49e2f8ae641e86f20aa190472d10da8e8b85cc33bab2c364428973"
+    },
+    {
+      "file": "Runtime/HybridLumenGIAssetPageStreaming.cs",
+      "sha256": "41a73c4ca77953bdcf706a6d5a589a3a714fda1ccf5cd2733059ad7fd4da762a"
+    },
+    {
+      "file": "Runtime/HybridLumenGICacheScheduler.cs",
+      "sha256": "42d3c7ba461eb759911b63afc0be321ce8b9aeb363aeceb65e53ff7ece292776"
+    },
+    {
+      "file": "Runtime/HybridLumenGIChangeRegions.cs",
+      "sha256": "b003b71a0e82fdb89a21917c5429a383d640e0540033167fcce50c2b93e2ea18"
+    },
+    {
+      "file": "Runtime/HybridLumenGIChunkStreamer.cs",
+      "sha256": "4459beabcf0c7e6ce9baf396185206e5fb646452ad0ea2476ef4278b7c7bf51c"
+    },
+    {
+      "file": "Runtime/HybridLumenGIChunkStreaming.cs",
+      "sha256": "fac232be82c99c6b90f0260cecaa5648942e4473ea6cf51e1a54ca2bc61d5673"
+    },
+    {
+      "file": "Runtime/HybridLumenGIDeformedMesh.cs",
+      "sha256": "3eaacb57198365e82b86d0716e274a399c182f2ba6be8c9edce4315a71cb3ebc"
+    },
+    {
+      "file": "Runtime/HybridLumenGIEmissiveSampling.cs",
+      "sha256": "5be9f0a4cd2904b4204f7f550e1831019a3eaf4e18b28957a0291bc420aa6820"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGlobalSdf.cs",
+      "sha256": "9dd2f78cabf90d2c9edfad464d3042487aaaff50e8933fd948f0b8b5c1952033"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGpuBudgetController.cs",
+      "sha256": "eedcd0226a7b2e9bb445d3ce2280ff7962f3ea9eb8f65472a173d628899bfd2c"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGpuFrameTiming.cs",
+      "sha256": "6735e30d7a75ce5a9638ed293f52d1274f2b69dd21235c9b0ef72ee23441aab8"
+    },
+    {
+      "file": "Runtime/HybridLumenGIGpuTiming.cs",
+      "sha256": "c895d10daa0995b68672d1989d7fdabef5c76b6f86abad0c4a098214b3c8c7ed"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHardwareBackend.cs",
+      "sha256": "e36aeea78a54f4df3e08f703a9affc0d6da55bb59b7d7576ecbd21ff625013fe"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHistoryLifecycle.cs",
+      "sha256": "c349e3c00399cd8d4d041f43911f8b24ef1605af109d7a98396ee3684ad4b288"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHitMaterialBatch.cs",
+      "sha256": "9c50b6939be54d16a2fe62a0e7d7d4dd1bbf7f42f9b91dad1f1136452ff0de1f"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHitMaterialData.cs",
+      "sha256": "5eb8cff0ce5a8418d3dc81ca3fffe49c0b588cd863c4e844a4c5195736f33689"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHitMaterialLayout.cs",
+      "sha256": "17786c8ca01fb97f539757ab1bf9855c68d5a02e6e2075012f9006fc66a23075"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHitMaterialPass.cs",
+      "sha256": "4041c2135ce7a7e95b3c4ab79ab00bf55128ff96c49c83c5b6d970be7b8467dc"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHlodReadback.cs",
+      "sha256": "9eddfb61d8207f2b6a500c75285419182f19cb9d79bfb2e6508e77cbafb80d51"
+    },
+    {
+      "file": "Runtime/HybridLumenGIHlodReadiness.cs",
+      "sha256": "cacac592064e13a89a8a484ff89c226f2222788f86670727fd5aca14fa77d148"
+    },
+    {
+      "file": "Runtime/HybridLumenGILights.cs",
+      "sha256": "bee6f17aaec8b00ab2299c561cab624feed062131b77056d40c14f2134d0ed1e"
+    },
+    {
+      "file": "Runtime/HybridLumenGILitQualification.cs",
+      "sha256": "dbf049f4c649fa2effb72af8c91d8a19cd43df9877716fda74f2240caf2de670"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMaterialSource.cs",
+      "sha256": "26b45b372a6fcab865e24ffbaabe56ceb1dd1fafe12dc33bffd990c02f9f58d3"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMeshSdf.cs",
+      "sha256": "00e31015ccc28edd7d85768f17633859540b75bab701489d7f33d8ffc0c4fcdf"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMeshSdfBake.cs",
+      "sha256": "13cb9bb95bbfa7475d863955f5378ec6de2916eb6fe1e2a77c46639a6e35c9ac"
+    },
+    {
+      "file": "Runtime/HybridLumenGIMeshSource.cs",
+      "sha256": "affdd1711b6fb80755f6927af61ce73e8d4fdf748fc93027f470cd70968ca7b8"
+    },
+    {
+      "file": "Runtime/HybridLumenGINativeGpuTiming.cs",
+      "sha256": "0af2965f5901d8e35f40de798f17f48e33a51157ce740dda12183232ed67fb60"
+    },
+    {
+      "file": "Runtime/HybridLumenGIProxy.cs",
+      "sha256": "81d6bedc2a371cf1ae763d21592742cc80e435d1f9e94d9f7c7c347b60980b04"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRayTextureImporter.cs",
+      "sha256": "6d01ece181fb0a9413b58f807bb07963da375b770197d9bcc3df5ebbc15146a6"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRayTextureLayout.cs",
+      "sha256": "920db1699c7b4d2454310b54ce5d517508955c873e8a6ad05d422327ce83d083"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRayTexturePool.cs",
+      "sha256": "88628c6a0827147afe728417ec813c2bd2a057d2c1c12897837e83c39311c4e9"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverDiscovery.cs",
+      "sha256": "7c945dd142cb1590d79cb1a0c58ab11ac96cf25e953efa875ff038afac7848e8"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverHistory.cs",
+      "sha256": "7992332f09e74b513f8dea44a4468d212806cb4a41ad2a13a9458e65397db5ab"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverIdentityFrame.cs",
+      "sha256": "8d30bf95213890854b08593714e41f39ae7b7148c21d3c83032912d8b7c6ef9f"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverIdentityPass.cs",
+      "sha256": "cfd2b3566a1acbe446c483689cc527ee65c41037f2d5fa9fa3c27e53d6fb56f9"
+    },
+    {
+      "file": "Runtime/HybridLumenGIReceiverRegistry.cs",
+      "sha256": "7298ee0bf8787c715235b56454381e1cb7fe1bf9cffefa93e39261736b5630d4"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRendererFeature.cs",
+      "sha256": "fbd4cf74d7337ddd3d892ba021c19da0d3e5596061c673006bee7cd27fde32d4"
+    },
+    {
+      "file": "Runtime/HybridLumenGIResourceRetirement.cs",
+      "sha256": "07b3a227fe43579374378228876ccc624f93bd7c070d351aa05fc6d44e6cce70"
+    },
+    {
+      "file": "Runtime/HybridLumenGIRtasBudget.cs",
+      "sha256": "7e8b58beeb1413939b3a2411e0e1037b93e216c3b3432bf2bf36bdac5c3e50b5"
+    },
+    {
+      "file": "Runtime/HybridLumenGIScene.cs",
+      "sha256": "85215e8a6d6cfd0fe97d17a4616625142925760422324a7613e670714c84530e"
+    },
+    {
+      "file": "Runtime/HybridLumenGISceneBvh.cs",
+      "sha256": "0dd488e459bee8033ac7de06d7a399151c5310ac5f5ccd18293e42be079d9ec1"
+    },
+    {
+      "file": "Runtime/HybridLumenGIScreenBudget.cs",
+      "sha256": "83f4686a169f0463e562c0a3aa441ea79afeb1e5343a38ed1a4ed128299bc3a3"
+    },
+    {
+      "file": "Runtime/HybridLumenGISdfAtlas.cs",
+      "sha256": "734524c6a97b0ac2d327119acd62eea338c130f8f67eb5535d224d6f1c107eb5"
+    },
+    {
+      "file": "Runtime/HybridLumenGISoftwareTriangleBvh.cs",
+      "sha256": "34ab4c246a39862b30627994f8f6680baf3ac7f9628d4dab7e91ec24c9e2b08e"
+    },
+    {
+      "file": "Runtime/HybridLumenGIStreamedRepresentation.cs",
+      "sha256": "0673d367e310e0a21e2c6c417fb040a98a3f5d6ea633a5e82b22afc0f1fe8193"
+    },
+    {
+      "file": "Runtime/HybridLumenGIStreamingManifest.cs",
+      "sha256": "b94679fc93cc10daa801bca769fdcd2aa946c3c46a56051dab1ab190bab80016"
+    },
+    {
+      "file": "Runtime/HybridLumenGISurfaceCache.cs",
+      "sha256": "3069a6ffe01a9042696a67c907fa1f05a74bcbcb54bf67e6b50ec3e2a19fab9f"
+    },
+    {
+      "file": "Runtime/HybridLumenGISurfaceCharts.cs",
+      "sha256": "04c1a2ec9468a3524deb845c06f5480346d25e7d97fa0b699422c6eabcdb2e92"
+    },
+    {
+      "file": "Runtime/HybridLumenGIValidationMotion.cs",
+      "sha256": "65253d52cf3312d8e75788353cedacde34ec1d67c7054912b67fed4842e48c2f"
+    },
+    {
+      "file": "Runtime/HybridLumenGIValidationSequence.cs",
+      "sha256": "db6a3bba4a0d9564723aa9d2146ad72fe14de2ec152eb6b080c15fe7b4bac204"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/CMakeLists.txt",
+      "sha256": "ca07e71fc9100d00d5e9f91cca1b8c848035f1c0b4a1acdf789b8700eeaf991f"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/GpuTimingPlugin.cpp",
+      "sha256": "6820685f00f7e235136319b4bcc315f357b2ec9a55bba5666052b4e94fbf68ff"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/NativeAbi.h",
+      "sha256": "948c4e8107ff9c3ec2409a51a90e9685ad00d52b7585fa9edadc900e1967b959"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/QueryPool.h",
+      "sha256": "7a835e481fbfa5e03f195639f86b8bead1fd1dcc73718cbd1b09b9db58b4d4df"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/tests/NativeTimingSmoke.cpp",
+      "sha256": "c4f2808c0293803c4b07ad0ad6aceadc62790993e17e6435cfb1bae6943faad7"
+    },
+    {
+      "file": "Runtime/Native~/GpuTiming/tests/QueryPoolTests.cpp",
+      "sha256": "5688cda317da0562036fbdaf38b05b30b1562e7baa24e8684a8a8c4b13b5b3c3"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGI.compute",
+      "sha256": "b75c71bfa33a46dbfb4430a486c559010d4418b0e5a13441ef731ffd31a65319"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIAreaEmission.hlsl",
+      "sha256": "1afa21078910f749d24393020b7f8204afdd3285233e82683071c5297f5dec0e"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGICardCapture.shader",
+      "sha256": "20adf46a44a368d09ce9386e5e924ce0d324ffe3d60804d68390921e4fd2106b"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl",
+      "sha256": "36dd5c0ea5f29f4ae0a28a2363667c65a215d5fa5543e93b14112b7d96437720"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIColorContractProbe.shader",
+      "sha256": "d6436cfe2eff1df880fcf8bbb7c30ba6fe7deb0571119dee013203440470f391"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader",
+      "sha256": "0c1ba08daf94289c3936c17e6b141017742ea0bda407290e151e9ade6874fcfc"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveProposals.compute",
+      "sha256": "43eda35c8872cf8f53ad6df5ba6e4db4b0434855f74337c4c884478898cba0f9"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveRecords.hlsl",
+      "sha256": "b6083a3522d11da35fb9d73251f3e9c6a339b82d668ee8e7caa5010ac1996a16"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl",
+      "sha256": "5a06573326a31fb757bd504f4f938c97d8c9d48e1de801e07936d680e2a09724"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIExactMesh.hlsl",
+      "sha256": "80f873b8a83002e78adf8bc4215dc58e43ffd6c6472df67594e1fc537b8de678"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIExactSoftware.compute",
+      "sha256": "f94ca5b81aa5afa5df35cc66e5d45185461d0a573f5990232d0dc1390a6a9f1f"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIGlobalSdf.compute",
+      "sha256": "a11f5122b6cb87ff9e431f688c769b4f81b3bee2caa25e3522c2d3797a2056c7"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIGlobalSdf.hlsl",
+      "sha256": "3bf31a3b3bcb082ca702cd98c0640e6d5db081e8dcc5a8d6f685be06b77042ff"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardware.compute",
+      "sha256": "810088f829db38b717821b5aa7956eeb1192be5583233e76929d3a6c687b5ae0"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareMaterials.hlsl",
+      "sha256": "b8d132cafaec85d2a00aba500e4dfb0046de3a766c3fe63084c28f18d042bf75"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareNormals.hlsl",
+      "sha256": "419bff04b6f9b44cffda3343ae0ddddb4b0f3ee185b8de309404d7475cd22a4b"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareSurface.hlsl",
+      "sha256": "a87c4778d7e14d5d236d5b0e351aa2766c33767440084de0a3aa18a032f19164"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl",
+      "sha256": "eb42d3eda7a7ddfe22581c5e35bd8bad6f64c4cec19053046df8b7841e629ae8"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl",
+      "sha256": "c9bc5a9089102de5d70814e077c7e3394013b8542bd14cade7f9c1dffe37b284"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIHitMaterials.hlsl",
+      "sha256": "77ca138dbcc6dd6e9543dbfda38963780cca9658f0498142647863c5a174e0a4"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl",
+      "sha256": "53b175ba55157702556081d16c7db163200265fe3eda066273fdb65da380811a"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGILightingPolicy.hlsl",
+      "sha256": "581f74482b70c8ae02c5d5bb0cebbbf49886cfc9e76417f6f6677632961844d7"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGINativeDiffuseCapture.shader",
+      "sha256": "96e53cde485da77c7dc98587ec15e8f6561f479ff0669a9b6e82601b07f4b537"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl",
+      "sha256": "c86a90bb01da33d26d06d2f34686ac24ed5d0086f7202e79846abb25ca17637e"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIRayFootprint.hlsl",
+      "sha256": "6ea7286e57abde318f1e318e17cec6ed1e1c0e8451dd7e3546fb62977741b1ac"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextureCopy.compute",
+      "sha256": "c9e91af98bb614d09f493c28344a25c5a3bc1a311084a686b2c62d09611bc6f2"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextureCopy.hlsl",
+      "sha256": "3af3352daa3a053c31ce4d3f5a7669993a3fd9dc5170050165f9a82e7c6c43f6"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextures.hlsl",
+      "sha256": "f09e5fa8ec91938707b246b1a67b7024fbf34aef4c3d5e6240fbe9df715bd4fb"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.compute",
+      "sha256": "78f60feac6235395a7e986eed84a3bdeda7b8aec503954981e8d47229a46775f"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl",
+      "sha256": "9ada21bd73db96fb3b0d71031d19522e2b0e344a58df74aeaf956fd9152818fb"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+      "sha256": "2f3c467d36fbe63a6f9581a4517a24cba77f19d9b14510c6d5f7dc0dfa35480a"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverPolicyCapture.hlsl",
+      "sha256": "5772f5cfc8dd7fb3eaaa59f6e7a5c65bf10cd2d0a16fd6671d0a6b7278440845"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+      "sha256": "9efec293ca3475a00ba584765fbed9adfd60129eaed3099407f5ddb10498478a"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISceneBvh.hlsl",
+      "sha256": "7b39ffaf26f71045a192e614b7b5d9793993c0c4051af6172b564efcdd7b0d51"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIScreenGeometry.hlsl",
+      "sha256": "5ba1dd165e0df7e852e125407b9f26fe1371a545630662838a4174f7fa72b563"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGIScreenSampling.hlsl",
+      "sha256": "25607ffeba963c9c7a2e1474f99337c3e4ac4079db5cc6ac54e6d1d3505f52cf"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISdfTrace.hlsl",
+      "sha256": "dd94feb356d7add0197029f0921b0c61a885d88560fe25fccbd13e0e8ea73e89"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISoftwareTriangleBvh.hlsl",
+      "sha256": "595c56c351d66c393244ff7b934fe3fe3eb5e05d6a21f6d2e400d9495eaed3f7"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISurface.shader",
+      "sha256": "ed86e063802466811141ef1a16276406471953d0ea8cfb868723b59d3b6c82b1"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceAnchors.compute",
+      "sha256": "dc19a4ae6a31c54aedf46d2c636c78afb09e76099a798a4e195f16b38bdef414"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceCache.hlsl",
+      "sha256": "44ed0a0f51905578766824ec58d40f13e4976069fe12fd938924e8e4d87f1ae2"
+    },
+    {
+      "file": "Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl",
+      "sha256": "02487f569fc24b2c62e10399846c8d015a5f64a044278a1d5ce579e2b7d69b7b"
+    },
+    {
+      "file": "Editor/HybridLumenGIAssetPageBuilder.cs",
+      "sha256": "58378e20c81bed75e75e255805ed09cfffd2522f7d733364a7f63502368f62ca"
+    },
+    {
+      "file": "Editor/HybridLumenGIColorContractValidation.cs",
+      "sha256": "41124a44766a922b218332b646b93f8a397387b3b831992224d0f283b41eb394"
+    },
+    {
+      "file": "Editor/HybridLumenGIDiagnostics.cs",
+      "sha256": "8e82a424e0b0cbbcacca42ac01602e97f18318cf0c667a5e8ea3237aeb311c8b"
+    },
+    {
+      "file": "Editor/HybridLumenGIMeshSdfBaker.cs",
+      "sha256": "b94829f00b76cd9befc9ab8fdbbc1d26e9d37e2f1788c11abcc10054338967ed"
+    },
+    {
+      "file": "Editor/HybridLumenGIMeshSdfValidation.cs",
+      "sha256": "c08c400893b847f6aa17ee8738672a3baaaee09af1d7da4eb07769115fed17dd"
+    },
+    {
+      "file": "Editor/HybridLumenGISetupWindow.cs",
+      "sha256": "0e1cfdd481e0a1c51662a80cb81c53bebef1883d586f86ed78f1f7cecdadd54b"
+    },
+    {
+      "file": "Editor/HybridLumenGISurfaceChartBaker.cs",
+      "sha256": "321bb06e7beeda6ad26e4a58307d7b20ed0a30de6244a85a0b6e75fc6178365f"
+    },
+    {
+      "file": "Editor/HybridLumenGIValidationScene.cs",
+      "sha256": "b7bbea7f61e8f9374f6dd14589d65cd404d2d9577622491bea39361ad55575fd"
+    }
+  ],
+  "productPatchSha256": "215ad2dab459d0607c33d123015515ea6946c455857037ba9b7ceb9f5e132870",
+  "diagnostics": {
+    "CSTemporal": {
+      "noise": {
+        "frames1to5": [
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.9876158237457275
+            },
+            "filter-1": {
+              "center": 0.468505859375,
+              "darkWindowMean": 0.4998779296875,
+              "darkWindowResidualRms": 0.0313720703125,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.9876158237457275
+            },
+            "filter-2": {
+              "center": 0.468505859375,
+              "darkWindowMean": 0.4996337890625,
+              "darkWindowResidualRms": 0.0311279296875,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.9876158237457275
+            },
+            "filter-4": {
+              "center": 0.468505859375,
+              "darkWindowMean": 0.4993896484375,
+              "darkWindowResidualRms": 0.0308837890625,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.9876158237457275
+            },
+            "darkWindowFilterIncrement": -0.0006103515625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.4054566621780396
+            },
+            "filter-1": {
+              "center": 0.455810546875,
+              "darkWindowMean": 0.4998779296875,
+              "darkWindowResidualRms": 0.0440673828125,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.4054566621780396
+            },
+            "filter-2": {
+              "center": 0.45556640625,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.044189453125,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.4054566621780396
+            },
+            "filter-4": {
+              "center": 0.455322265625,
+              "darkWindowMean": 0.4996337890625,
+              "darkWindowResidualRms": 0.0443115234375,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.4054566621780396
+            },
+            "darkWindowFilterIncrement": -0.0003662109375
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.1475505828857422
+            },
+            "filter-1": {
+              "center": 0.446044921875,
+              "darkWindowMean": 0.4998779296875,
+              "darkWindowResidualRms": 0.0538330078125,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.1475505828857422
+            },
+            "filter-2": {
+              "center": 0.44580078125,
+              "darkWindowMean": 0.49951171875,
+              "darkWindowResidualRms": 0.0537109375,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.1475505828857422
+            },
+            "filter-4": {
+              "center": 0.44580078125,
+              "darkWindowMean": 0.49951171875,
+              "darkWindowResidualRms": 0.0537109375,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.1475505828857422
+            },
+            "darkWindowFilterIncrement": -0.00048828125
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          }
+        ],
+        "centerFilterChange3to4": -0.1959228515625
+      },
+      "coplanar-edge": {
+        "frames1to5": [
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 11.173160552978516
+            },
+            "filter-1": {
+              "center": 1.1025390625,
+              "darkWindowMean": 0.808349609375,
+              "darkWindowResidualRms": 0.3198533527800633,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 11.173160552978516
+            },
+            "filter-2": {
+              "center": 1.4521484375,
+              "darkWindowMean": 1.0965983072916667,
+              "darkWindowResidualRms": 0.3910008381425092,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 11.173160552978516
+            },
+            "filter-4": {
+              "center": 1.6591796875,
+              "darkWindowMean": 1.28173828125,
+              "darkWindowResidualRms": 0.41748989161515043,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 11.173160552978516
+            },
+            "darkWindowFilterIncrement": 0.78173828125
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 7.9006171226501465
+            },
+            "filter-1": {
+              "center": 1.0478515625,
+              "darkWindowMean": 0.7831217447916666,
+              "darkWindowResidualRms": 0.2998378430208142,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 7.9006171226501465
+            },
+            "filter-2": {
+              "center": 1.3818359375,
+              "darkWindowMean": 1.0243326822916667,
+              "darkWindowResidualRms": 0.4054836397044348,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 7.9006171226501465
+            },
+            "filter-4": {
+              "center": 1.591796875,
+              "darkWindowMean": 1.1761067708333333,
+              "darkWindowResidualRms": 0.4707775488020518,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 7.9006171226501465
+            },
+            "darkWindowFilterIncrement": 0.6761067708333333
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 6.450827121734619
+            },
+            "filter-1": {
+              "center": 1.0087890625,
+              "darkWindowMean": 0.764892578125,
+              "darkWindowResidualRms": 0.28589377980999414,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 6.450827121734619
+            },
+            "filter-2": {
+              "center": 1.328125,
+              "darkWindowMean": 0.9785970052083334,
+              "darkWindowResidualRms": 0.4074599433068993,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 6.450827121734619
+            },
+            "filter-4": {
+              "center": 1.537109375,
+              "darkWindowMean": 1.1136881510416667,
+              "darkWindowResidualRms": 0.49029495385076977,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 6.450827121734619
+            },
+            "darkWindowFilterIncrement": 0.6136881510416667
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          }
+        ],
+        "centerFilterChange3to4": -1.2872314453125
+      },
+      "parallel-plane": {
+        "frames1to5": [
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-1": {
+              "center": 0.49853515625,
+              "darkWindowMean": 0.5172526041666666,
+              "darkWindowResidualRms": 0.04187792627032689,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-2": {
+              "center": 0.5185546875,
+              "darkWindowMean": 0.5413411458333334,
+              "darkWindowResidualRms": 0.038083502971513424,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-4": {
+              "center": 0.5322265625,
+              "darkWindowMean": 0.5576985677083334,
+              "darkWindowResidualRms": 0.03574073848786582,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "darkWindowFilterIncrement": 0.05769856770833337
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-1": {
+              "center": 0.47216796875,
+              "darkWindowMean": 0.5099283854166666,
+              "darkWindowResidualRms": 0.0495145570776202,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-2": {
+              "center": 0.48291015625,
+              "darkWindowMean": 0.5225423177083334,
+              "darkWindowResidualRms": 0.04753614344429353,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-4": {
+              "center": 0.490234375,
+              "darkWindowMean": 0.53125,
+              "darkWindowResidualRms": 0.04643552120300289,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "darkWindowFilterIncrement": 0.03125
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-1": {
+              "center": 0.45654296875,
+              "darkWindowMean": 0.50634765625,
+              "darkWindowResidualRms": 0.05710647012025824,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-2": {
+              "center": 0.463134765625,
+              "darkWindowMean": 0.5141194661458334,
+              "darkWindowResidualRms": 0.056015496578214176,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-4": {
+              "center": 0.467529296875,
+              "darkWindowMean": 0.5192464192708334,
+              "darkWindowResidualRms": 0.05520861463655025,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "darkWindowFilterIncrement": 0.01924641927083337
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          }
+        ],
+        "centerFilterChange3to4": -0.2176513671875
+      },
+      "material-edge": {
+        "frames1to5": [
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-1": {
+              "center": 0.469482421875,
+              "darkWindowMean": 0.5003662109375,
+              "darkWindowResidualRms": 0.03153819076521452,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-2": {
+              "center": 0.469970703125,
+              "darkWindowMean": 0.5009358723958334,
+              "darkWindowResidualRms": 0.03145608237089006,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-4": {
+              "center": 0.47021484375,
+              "darkWindowMean": 0.501220703125,
+              "darkWindowResidualRms": 0.0313322257055832,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "darkWindowFilterIncrement": 0.001220703125
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-1": {
+              "center": 0.45654296875,
+              "darkWindowMean": 0.5001627604166666,
+              "darkWindowResidualRms": 0.044109048867777605,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-2": {
+              "center": 0.45654296875,
+              "darkWindowMean": 0.500244140625,
+              "darkWindowResidualRms": 0.04402729440631662,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-4": {
+              "center": 0.45654296875,
+              "darkWindowMean": 0.5003255208333334,
+              "darkWindowResidualRms": 0.04394568925860872,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "darkWindowFilterIncrement": 0.00032552083333337034
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-1": {
+              "center": 0.44677734375,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.05371149236219081,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-2": {
+              "center": 0.44677734375,
+              "darkWindowMean": 0.5000813802083334,
+              "darkWindowResidualRms": 0.053629804272003374,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-4": {
+              "center": 0.446533203125,
+              "darkWindowMean": 0.5000406901041666,
+              "darkWindowResidualRms": 0.053670309094212075,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "darkWindowFilterIncrement": 4.069010416662966e-05
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          }
+        ],
+        "centerFilterChange3to4": -0.1966552734375
+      },
+      "normal-edge": {
+        "frames1to5": [
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-1": {
+              "center": 0.46875,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.031169150989544404,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-2": {
+              "center": 0.468505859375,
+              "darkWindowMean": 0.4997151692708333,
+              "darkWindowResidualRms": 0.031209734300813807,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-4": {
+              "center": 0.468505859375,
+              "darkWindowMean": 0.4996337890625,
+              "darkWindowResidualRms": 0.0311279296875,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "darkWindowFilterIncrement": -0.0003662109375
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-1": {
+              "center": 0.4560546875,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.043864309749264946,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-2": {
+              "center": 0.455810546875,
+              "darkWindowMean": 0.4997151692708333,
+              "darkWindowResidualRms": 0.04390492408231614,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-4": {
+              "center": 0.45556640625,
+              "darkWindowMean": 0.4995930989583333,
+              "darkWindowResidualRms": 0.044026993558352864,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "darkWindowFilterIncrement": -0.00040690104166668517
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-1": {
+              "center": 0.446533203125,
+              "darkWindowMean": 0.4997965494791667,
+              "darkWindowResidualRms": 0.05358936152209672,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-2": {
+              "center": 0.4462890625,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.053629866016909826,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-4": {
+              "center": 0.446044921875,
+              "darkWindowMean": 0.4995524088541667,
+              "darkWindowResidualRms": 0.053670309094212075,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "darkWindowFilterIncrement": -0.00044759114583331483
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          }
+        ],
+        "centerFilterChange3to4": -0.1961669921875
+      }
+    },
+    "CSTemporalIdentity": {
+      "noise": {
+        "frames1to5": [
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.9876158237457275
+            },
+            "filter-1": {
+              "center": 0.468505859375,
+              "darkWindowMean": 0.4998779296875,
+              "darkWindowResidualRms": 0.0313720703125,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.9876158237457275
+            },
+            "filter-2": {
+              "center": 0.468505859375,
+              "darkWindowMean": 0.4996337890625,
+              "darkWindowResidualRms": 0.0311279296875,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.9876158237457275
+            },
+            "filter-4": {
+              "center": 0.468505859375,
+              "darkWindowMean": 0.4993896484375,
+              "darkWindowResidualRms": 0.0308837890625,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.9876158237457275
+            },
+            "darkWindowFilterIncrement": -0.0006103515625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.4054566621780396
+            },
+            "filter-1": {
+              "center": 0.455810546875,
+              "darkWindowMean": 0.4998779296875,
+              "darkWindowResidualRms": 0.0440673828125,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.4054566621780396
+            },
+            "filter-2": {
+              "center": 0.45556640625,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.044189453125,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.4054566621780396
+            },
+            "filter-4": {
+              "center": 0.455322265625,
+              "darkWindowMean": 0.4996337890625,
+              "darkWindowResidualRms": 0.0443115234375,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.4054566621780396
+            },
+            "darkWindowFilterIncrement": -0.0003662109375
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.1475505828857422
+            },
+            "filter-1": {
+              "center": 0.446044921875,
+              "darkWindowMean": 0.4998779296875,
+              "darkWindowResidualRms": 0.0538330078125,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.1475505828857422
+            },
+            "filter-2": {
+              "center": 0.44580078125,
+              "darkWindowMean": 0.49951171875,
+              "darkWindowResidualRms": 0.0537109375,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.1475505828857422
+            },
+            "filter-4": {
+              "center": 0.44580078125,
+              "darkWindowMean": 0.49951171875,
+              "darkWindowResidualRms": 0.0537109375,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 1.1475505828857422
+            },
+            "darkWindowFilterIncrement": -0.00048828125
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.06172838807106018,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          }
+        ],
+        "centerFilterChange3to4": -0.1959228515625
+      },
+      "coplanar-edge": {
+        "frames1to5": [
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 11.173160552978516
+            },
+            "filter-1": {
+              "center": 1.1025390625,
+              "darkWindowMean": 0.808349609375,
+              "darkWindowResidualRms": 0.3198533527800633,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 11.173160552978516
+            },
+            "filter-2": {
+              "center": 1.4521484375,
+              "darkWindowMean": 1.0965983072916667,
+              "darkWindowResidualRms": 0.3910008381425092,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 11.173160552978516
+            },
+            "filter-4": {
+              "center": 1.6591796875,
+              "darkWindowMean": 1.28173828125,
+              "darkWindowResidualRms": 0.41748989161515043,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 11.173160552978516
+            },
+            "darkWindowFilterIncrement": 0.78173828125
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 7.9006171226501465
+            },
+            "filter-1": {
+              "center": 1.0478515625,
+              "darkWindowMean": 0.7831217447916666,
+              "darkWindowResidualRms": 0.2998378430208142,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 7.9006171226501465
+            },
+            "filter-2": {
+              "center": 1.3818359375,
+              "darkWindowMean": 1.0243326822916667,
+              "darkWindowResidualRms": 0.4054836397044348,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 7.9006171226501465
+            },
+            "filter-4": {
+              "center": 1.591796875,
+              "darkWindowMean": 1.1761067708333333,
+              "darkWindowResidualRms": 0.4707775488020518,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 7.9006171226501465
+            },
+            "darkWindowFilterIncrement": 0.6761067708333333
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 6.450827121734619
+            },
+            "filter-1": {
+              "center": 1.0087890625,
+              "darkWindowMean": 0.764892578125,
+              "darkWindowResidualRms": 0.28589377980999414,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 6.450827121734619
+            },
+            "filter-2": {
+              "center": 1.328125,
+              "darkWindowMean": 0.9785970052083334,
+              "darkWindowResidualRms": 0.4074599433068993,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 6.450827121734619
+            },
+            "filter-4": {
+              "center": 1.537109375,
+              "darkWindowMean": 1.1136881510416667,
+              "darkWindowResidualRms": 0.49029495385076977,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 6.450827121734619
+            },
+            "darkWindowFilterIncrement": 0.6136881510416667
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 1.9506173133850098,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          }
+        ],
+        "centerFilterChange3to4": -1.2872314453125
+      },
+      "parallel-plane": {
+        "frames1to5": [
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-1": {
+              "center": 0.49853515625,
+              "darkWindowMean": 0.5172526041666666,
+              "darkWindowResidualRms": 0.04187792627032689,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-2": {
+              "center": 0.5185546875,
+              "darkWindowMean": 0.5413411458333334,
+              "darkWindowResidualRms": 0.038083502971513424,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-4": {
+              "center": 0.5322265625,
+              "darkWindowMean": 0.5576985677083334,
+              "darkWindowResidualRms": 0.03574073848786582,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "darkWindowFilterIncrement": 0.05769856770833337
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-1": {
+              "center": 0.47216796875,
+              "darkWindowMean": 0.5099283854166666,
+              "darkWindowResidualRms": 0.0495145570776202,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-2": {
+              "center": 0.48291015625,
+              "darkWindowMean": 0.5225423177083334,
+              "darkWindowResidualRms": 0.04753614344429353,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-4": {
+              "center": 0.490234375,
+              "darkWindowMean": 0.53125,
+              "darkWindowResidualRms": 0.04643552120300289,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "darkWindowFilterIncrement": 0.03125
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-1": {
+              "center": 0.45654296875,
+              "darkWindowMean": 0.50634765625,
+              "darkWindowResidualRms": 0.05710647012025824,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-2": {
+              "center": 0.463134765625,
+              "darkWindowMean": 0.5141194661458334,
+              "darkWindowResidualRms": 0.056015496578214176,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-4": {
+              "center": 0.467529296875,
+              "darkWindowMean": 0.5192464192708334,
+              "darkWindowResidualRms": 0.05520861463655025,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "darkWindowFilterIncrement": 0.01924641927083337
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          }
+        ],
+        "centerFilterChange3to4": -0.2176513671875
+      },
+      "material-edge": {
+        "frames1to5": [
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-1": {
+              "center": 0.469482421875,
+              "darkWindowMean": 0.5003662109375,
+              "darkWindowResidualRms": 0.03153819076521452,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-2": {
+              "center": 0.469970703125,
+              "darkWindowMean": 0.5009358723958334,
+              "darkWindowResidualRms": 0.03145608237089006,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-4": {
+              "center": 0.47021484375,
+              "darkWindowMean": 0.501220703125,
+              "darkWindowResidualRms": 0.0313322257055832,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "darkWindowFilterIncrement": 0.001220703125
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-1": {
+              "center": 0.45654296875,
+              "darkWindowMean": 0.5001627604166666,
+              "darkWindowResidualRms": 0.044109048867777605,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-2": {
+              "center": 0.45654296875,
+              "darkWindowMean": 0.500244140625,
+              "darkWindowResidualRms": 0.04402729440631662,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-4": {
+              "center": 0.45654296875,
+              "darkWindowMean": 0.5003255208333334,
+              "darkWindowResidualRms": 0.04394568925860872,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "darkWindowFilterIncrement": 0.00032552083333337034
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-1": {
+              "center": 0.44677734375,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.05371149236219081,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-2": {
+              "center": 0.44677734375,
+              "darkWindowMean": 0.5000813802083334,
+              "darkWindowResidualRms": 0.053629804272003374,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-4": {
+              "center": 0.446533203125,
+              "darkWindowMean": 0.5000406901041666,
+              "darkWindowResidualRms": 0.053670309094212075,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "darkWindowFilterIncrement": 4.069010416662966e-05
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          }
+        ],
+        "centerFilterChange3to4": -0.1966552734375
+      },
+      "normal-edge": {
+        "frames1to5": [
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-1": {
+              "center": 0.46875,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.031169150989544404,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-2": {
+              "center": 0.468505859375,
+              "darkWindowMean": 0.4997151692708333,
+              "darkWindowResidualRms": 0.031209734300813807,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "filter-4": {
+              "center": 0.468505859375,
+              "darkWindowMean": 0.4996337890625,
+              "darkWindowResidualRms": 0.0311279296875,
+              "history": 1.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 2.0
+            },
+            "darkWindowFilterIncrement": -0.0003662109375
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-1": {
+              "center": 0.4560546875,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.043864309749264946,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-2": {
+              "center": 0.455810546875,
+              "darkWindowMean": 0.4997151692708333,
+              "darkWindowResidualRms": 0.04390492408231614,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "filter-4": {
+              "center": 0.45556640625,
+              "darkWindowMean": 0.4995930989583333,
+              "darkWindowResidualRms": 0.044026993558352864,
+              "history": 2.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.4142136573791504
+            },
+            "darkWindowFilterIncrement": -0.00040690104166668517
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-1": {
+              "center": 0.446533203125,
+              "darkWindowMean": 0.4997965494791667,
+              "darkWindowResidualRms": 0.05358936152209672,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-2": {
+              "center": 0.4462890625,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.053629866016909826,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "filter-4": {
+              "center": 0.446044921875,
+              "darkWindowMean": 0.4995524088541667,
+              "darkWindowResidualRms": 0.053670309094212075,
+              "history": 3.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 1.1547006368637085
+            },
+            "darkWindowFilterIncrement": -0.00044759114583331483
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 4.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          },
+          {
+            "temporal": {
+              "center": 0.25,
+              "darkWindowMean": 0.5,
+              "darkWindowResidualRms": 0.25,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-1": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-2": {
+              "center": 0.25,
+              "darkWindowMean": 0.499755859375,
+              "darkWindowResidualRms": 0.249755859375,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "filter-4": {
+              "center": 0.2498779296875,
+              "darkWindowMean": 0.49945068359375,
+              "darkWindowResidualRms": 0.24957275390625,
+              "history": 5.0,
+              "temporalVariance": 0.0,
+              "spatialVariance": 0.0625000074505806,
+              "sigma": 0.05000000074505806
+            },
+            "darkWindowFilterIncrement": -0.00054931640625
+          }
+        ],
+        "centerFilterChange3to4": -0.1961669921875
+      }
+    }
+  },
+  "sceneRerun": false,
+  "limits": [
+    "Synthetic filter discontinuities are not real-scene flicker or physical-reference acceptance.",
+    "No full Player/DXR/long-run/GPU-time/VRAM certification. The previous runs remain historical.",
+    "The first baseline fixture failed because ordinary Texture2D UInt Sample usage is unsupported; fixed with UInt RenderTexture and input-only compute upload. Failure log retained.",
+    "A second bounded run added missing legacy full-texture finite checks, both-kernel black/unknown filter checks, Final composite readback and raw readback retention."
+  ]
+}

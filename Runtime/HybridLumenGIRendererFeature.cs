@@ -12,7 +12,7 @@ namespace HybridLumenGI
     /// <summary>Bounded experimental diffuse transport. See Documentation/ProductionPlan.md for release gates.</summary>
     public sealed class HybridLumenGIRendererFeature : ScriptableRendererFeature
     {
-        public enum DebugView { Final, IndirectOnly, Confidence, HistoryAcceptance, DiffuseReflectance }
+        public enum DebugView { Final, IndirectOnly, Confidence, SpatialVariance, DiffuseReflectance }
         public enum CompositionMode { Additive, ReplaceNativeDiffuseGI }
         [Serializable] public sealed class CameraDiagnostics
         {
@@ -216,7 +216,7 @@ namespace HybridLumenGI
             internal long receiverFingerprintBytes;
             internal bool receiverIdentityEnabled;
             internal string receiverIdentityStatus;
-            internal int receiverIdentityDraws,receiverUnknownRectangles,lowPixelBytes=96;
+            internal int receiverIdentityDraws,receiverUnknownRectangles,lowPixelBytes=112;
             internal long receiverIdentityBufferBytes;
             internal string hardwareMaterialStatus="Hardware materials inactive";
             internal int hardwareMaterialUnknownRecords;
@@ -325,7 +325,8 @@ namespace HybridLumenGI
                         history[i]=Allocate(w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI history "+i);
                         geometry[i]=Allocate(w,h,GraphicsFormat.R32G32B32A32_SFloat,"HLGI geometry "+i);
                         material[i]=Allocate(w,h,GraphicsFormat.R8G8B8A8_UNorm,"HLGI material "+i);
-                        moments[i]=Allocate(w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI moments "+i);
+                        // A finite half-float radiance can have a second moment above 65504.
+                        moments[i]=Allocate(w,h,GraphicsFormat.R32G32B32A32_SFloat,"HLGI moments "+i);
                         if(identityEnabled) receiverIdentity[i]=Allocate(w,h,GraphicsFormat.R32G32B32A32_UInt,"HLGI receiver identity "+i);
                     }
                 }

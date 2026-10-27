@@ -108,7 +108,13 @@ Shader "Hidden/HybridLumenGI/Composite"
                 outgoing=(outgoing-nativeDiffuseFog.rgb)*nativeDiffuseFog.a;
             }
             if(_HLGI_Debug==2) return float4(gi.aaa,1);
-            if(_HLGI_Debug==3) return float4(_HLGI_Moments.Load(int3(HLGIClosestGiPixel(uv,(uint2)_HLGI_Size.xy,fullSize),0)).www,1);
+            if(_HLGI_Debug==3)
+            {
+                float variance=_HLGI_Moments.Load(int3(HLGIClosestGiPixel(uv,(uint2)_HLGI_Size.xy,fullSize),0)).w;
+                // SpatialVariance: bounded grayscale v/(1+v), not history acceptance.
+                float display=isfinite(variance) && variance>0?variance/(1+variance):0;
+                return float4(display.xxx,1);
+            }
             if(_HLGI_Debug==4) return float4(material.rgb,1);
             return float4(outgoing,_HLGI_Debug==0?0:1);
         }

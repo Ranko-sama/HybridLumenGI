@@ -2,7 +2,15 @@
 
 2026-10-27，用户明确取消当前朋友交付任务，直接在本机继续开发。冻结的 `runtime-candidate-16` 及其交付 ZIP 保留为历史基线；不再以等待朋友反馈作为开发停点。
 
-## local-development-denoise-01
+## local-development-denoise-02-contracts（2026-10-28）
+
+已修复 HDR 时间矩存储与调试语义，GPT-6 Pro 已批准此局部合同修复本地提交。两张 moments 改为 RGBA32F，预算每 GI 像素增加16字节；SpatialVariance 保留枚举值3，以 `v/(1+v)` 显示。滤波公式和空间方差上限不变。
+
+本机旧 half UAV 将 `1000²` 饱和为65504，没有复现先前推测的 Inf／历史拒绝；问题应表述为 HDR 二阶矩失真。修复版两条 temporal 入口实际连续读写通过，5条旧例和277条GPU阶段记录通过相应合同，其中200条只是R1/R2诊断有限性检查，不能称为画质通过。预算测试通过，109个产品文件与Unity工程一致。详见 [本包审查入口](ReviewBrief-Denoise02.md) 与 [证据](../LocalComparison/Review/denoise-02/validation.json)。
+
+固定合成输入已复现历史3→4时滤波输出跳变，下一包需据此决定连续过渡方案；跨平面因果贡献仍需匹配控制。真实动态、薄壁、资源退出与生产验收继续开放。本包未重跑420帧场景或Player。
+
+## local-development-denoise-01（历史记录）
 
 修复对象是移动接收面、切镜和显露后的短历史 GI 降噪。不是增加新的光传输功能，也没有调整间接光强度、每像素射线数或多次反弹。
 

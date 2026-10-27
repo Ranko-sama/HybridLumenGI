@@ -1,6 +1,6 @@
 # HybridLumenGI
 
-**当前源码：local-development-denoise-01，本机开发中。** 用户已取消当前朋友交付任务，继续在本机修复和验证。当前改动为短历史GI的空间方差补偿，见 [本机开发记录](Documentation/LocalDevelopment.md) 与 [本轮定向验证](Tests/local-development-validation-results.json)。不把冻结候选的Player结果当作当前源码重新构建的结果。
+**当前源码：local-development-denoise-02-contracts，已通过 Pro 局部合同复核，继续本机开发。** HDR 时间矩改用全精度存储并更新预算，纠正空间方差调试语义。见 [本机开发记录](Documentation/LocalDevelopment.md) 与 [本轮合同验证](LocalComparison/Review/denoise-02/validation.json)。完整原计划继续执行；不把冻结候选的Player结果当作当前源码重新构建的结果。
 
 **上一冻结基线：runtime-candidate-16。** 该基线已在 Unity 6000.0.85f1 / URP 17.0.4 / Windows DX12 / RTX 2080 Ti 构建并运行，功能与流式 Player 各完成720帧、32张HDR、零采集错误。基于 integration-15，修复了编译展开、黑室缓存漏光、Unity API接线、发光keyword/HDR颜色、RGB24贴图拒绝、Player灯光API、资源页导出引用失效，以及HLOD返回近场的覆盖空洞。见 [基线运行范围](Documentation/LocalRuntimeFunctionalAudit.md) 和 [基线源码对应的运行摘要](Tests/runtime-validation-results.json)。历史交付包和记录保持不变。
 

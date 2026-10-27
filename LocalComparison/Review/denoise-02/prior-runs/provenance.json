@@ -1,0 +1,758 @@
+{
+  "before01": {
+    "source": "I:\\Unity test\\Comparison\\Results\\20261027-152612-574958fa6ca74fe58416590f2e4c56ed",
+    "copied": [
+      {
+        "file": "feature.json",
+        "bytes": 2933,
+        "sha256": "ed1a7f4fd143248b487a2d8a40b989c56c6f9e0362c3756b46c848efe4524d92"
+      },
+      {
+        "file": "run.json",
+        "bytes": 1593,
+        "sha256": "49a6c93ec6699300fcae0ff7eeb147f4ba73c9e8919e70b713ace5877892276e"
+      },
+      {
+        "file": "frames.jsonl",
+        "bytes": 876939,
+        "sha256": "26db5acb524ea5c39fdf7bb9959a664c0308a271719e4167873c053465bd5348"
+      },
+      {
+        "file": "unity-log.jsonl",
+        "bytes": 1104,
+        "sha256": "ddf48511cc5a5b61c170c9d369477c7338b68b16630e6b2b25dcb687c7e61ec3"
+      },
+      {
+        "file": "denoise-size.txt",
+        "bytes": 7,
+        "sha256": "c6ae63299ea60f7f3988da99582ff9894fe0b49774768abc2a18e2367b3e8632"
+      },
+      {
+        "file": "frame-0119.json",
+        "bytes": 7194,
+        "sha256": "1ccbde8fd21e5a85d60dd9d3800db1bf3a9c593c0146531a0347d794d3309f82"
+      },
+      {
+        "file": "frame-0119.rgba32f",
+        "bytes": 3686400,
+        "sha256": "025b35736ec615f74574ab735af5c5b623d2871276abaecba1e0fa7b31e2cee0"
+      },
+      {
+        "file": "denoise-0119-history.rgba32f",
+        "bytes": 921600,
+        "sha256": "457a2a1e9150fcc71f260412fea055c42848656fc9768111d0537a21940dd70a"
+      },
+      {
+        "file": "denoise-0119-moments.rgba32f",
+        "bytes": 921600,
+        "sha256": "9b904b4fa956d5ea543e92cac944cb58020f34367fda7b86f0dccbc3f01e090f"
+      },
+      {
+        "file": "frame-0179.json",
+        "bytes": 7192,
+        "sha256": "1d10279d7d9cc37e6e47bd221d76b9aced52db3987964300ff24fa6012d39dad"
+      },
+      {
+        "file": "frame-0179.rgba32f",
+        "bytes": 3686400,
+        "sha256": "0cd55a27b88fddbb0b391670343207f669b8d40e3c5f8d647b2bddd21d8b541f"
+      },
+      {
+        "file": "denoise-0179-history.rgba32f",
+        "bytes": 921600,
+        "sha256": "198a25374da89ef22de606f4d5bab928324a82a1808b90cb1c75dc0401f6452e"
+      },
+      {
+        "file": "denoise-0179-moments.rgba32f",
+        "bytes": 921600,
+        "sha256": "88c2c47d8f4c185478e21b4247044d4982cf5319453e262a6ac4abace9bfe22d"
+      }
+    ],
+    "receipts": 180,
+    "exactFrames": 179,
+    "samples": {
+      "119": {
+        "diagnostics": {
+          "camera": "Validation Camera",
+          "sceneLightingPolicyBytes": 512,
+          "frame": 119,
+          "publishedInstances": 22,
+          "warmingInstances": 0,
+          "pendingCapacity": 0,
+          "bvhNodes": 43,
+          "readyCards": 132,
+          "pendingCards": 0,
+          "warmupBudgetBlockedCards": 0,
+          "cachePatchesScheduled": 256,
+          "chartedOwners": 22,
+          "approximateOwners": 0,
+          "requiredSurfaceCards": 132,
+          "rejectedSdfSources": 0,
+          "receiverTrackedSubmeshes": 19,
+          "receiverUntrackedRenderers": 0,
+          "receiverFingerprintMeshes": 3,
+          "receiverFingerprintBytes": 7816,
+          "receiverSourcesPublished": true,
+          "receiverIdentityEnabled": true,
+          "receiverIdentityStatus": "Identity resolve recorded; GPU completion not implied",
+          "receiverIdentityDraws": 18,
+          "receiverUnknownRectangles": 1,
+          "receiverIdentityBufferBytes": 2766320,
+          "changeRegionBytes": 52224,
+          "proposalCapacity": 32,
+          "proposalBudget": 16,
+          "globalReadyBricks": 1744,
+          "globalPendingBricks": 304,
+          "globalUpdatedBricks": 16,
+          "completedHlodReadbacks": 0,
+          "failedHlodReadbacks": 0,
+          "acceptedInitializationTickets": 0,
+          "hlodReadbackPending": false,
+          "hardwareBackend": false,
+          "hardwareMeshes": 0,
+          "hardwareFallbacks": 0,
+          "hardwareSceneRebuilds": 0,
+          "hardwareTransformUpdates": 0,
+          "hardwareTriangleUploads": 0,
+          "hardwareBindingUploads": 0,
+          "hardwareMaterialStatus": "Uploads and both consumers bound; GPU completion unproven",
+          "hardwareMaterialUnknownRecords": 0,
+          "hardwareMaterialFrameBytes": 83600,
+          "hardwareMaterialGlobalAllocatedBytes": 127392,
+          "exactSoftwareGeometry": true,
+          "softwareGeometryBytes": 88992,
+          "areaEmitterBytes": 1152,
+          "rtasGlobalAccountedBytes": 0,
+          "rtasGlobalEstimatedBytes": 0,
+          "rtasGlobalMeasuredHighWaterBytes": 0,
+          "rtasGlobalRetiredBytes": 0,
+          "rtasPendingDemands": 0,
+          "rtasBuildsThisFrame": 0,
+          "rtasTriangleWorkThisFrame": 0,
+          "rtasInstanceWorkThisFrame": 0,
+          "rtasBudgetStatus": "Not prepared",
+          "materialUploadEngineFrame": 120,
+          "materialUploadBudgetBytes": 16777216,
+          "materialUploadBytesUsed": 0,
+          "screenTextureEstimateBytes": 13824000,
+          "worldMaterialBytes": 16496640,
+          "objectSdfBytes": 8392704,
+          "globalSdfBytes": 664704,
+          "worldCacheBytes": 983040,
+          "hardwareAttributeBytes": 0,
+          "proposalBufferBytes": 1056,
+          "surfaceTriangleMappingCpuBytes": 1240,
+          "gpuTimingStatus": "Disabled",
+          "gpuTimingProvider": "Recorder",
+          "nativeGpuTimingStatus": "Disabled",
+          "gpuTimingRequiresIdentity": true,
+          "nativeGpuPendingSubmissions": 0,
+          "nativeGpuMeasuredSourceFrame": -1,
+          "gpuObservationValid": false,
+          "gpuFeedbackActive": false,
+          "gpuMinimumWorkOverBudget": false,
+          "gpuStableCompletedFrames": 0,
+          "gpuLastObservationConsumedFrame": -1,
+          "effectiveCachePatchBudget": 256,
+          "effectiveSurfaceCaptureBudget": 24,
+          "effectiveGlobalBrickBudget": 16,
+          "gpuAcceptedObservations": 0,
+          "gpuRejectedObservations": 0,
+          "gpuLastObservedMilliseconds": 0.0,
+          "gpuSmoothedMilliseconds": 0.0,
+          "gpuWorkScale": 1.0
+        },
+        "historyFinite": true,
+        "momentsFinite": true,
+        "GIWidth": 320,
+        "GIHeight": 180,
+        "pixels": [
+          {
+            "xy": [
+              175,
+              80
+            ],
+            "history": [
+              0.1787109375,
+              0.11102294921875,
+              0.0899658203125,
+              0.6484375
+            ],
+            "moments": [
+              0.1328125,
+              0.0816650390625,
+              29.0,
+              1.0
+            ]
+          },
+          {
+            "xy": [
+              190,
+              110
+            ],
+            "history": [
+              0.11578369140625,
+              0.11004638671875,
+              0.10736083984375,
+              0.67041015625
+            ],
+            "moments": [
+              0.113525390625,
+              0.041168212890625,
+              32.0,
+              1.0
+            ]
+          },
+          {
+            "xy": [
+              160,
+              90
+            ],
+            "history": [
+              0.3212890625,
+              0.11285400390625,
+              0.062042236328125,
+              0.63037109375
+            ],
+            "moments": [
+              0.1534423828125,
+              0.052978515625,
+              32.0,
+              1.0
+            ]
+          }
+        ]
+      },
+      "179": {
+        "diagnostics": {
+          "camera": "Validation Camera",
+          "sceneLightingPolicyBytes": 512,
+          "frame": 179,
+          "publishedInstances": 22,
+          "warmingInstances": 0,
+          "pendingCapacity": 0,
+          "bvhNodes": 43,
+          "readyCards": 134,
+          "pendingCards": 0,
+          "warmupBudgetBlockedCards": 0,
+          "cachePatchesScheduled": 256,
+          "chartedOwners": 22,
+          "approximateOwners": 0,
+          "requiredSurfaceCards": 134,
+          "rejectedSdfSources": 0,
+          "receiverTrackedSubmeshes": 19,
+          "receiverUntrackedRenderers": 0,
+          "receiverFingerprintMeshes": 3,
+          "receiverFingerprintBytes": 7816,
+          "receiverSourcesPublished": true,
+          "receiverIdentityEnabled": true,
+          "receiverIdentityStatus": "Identity resolve recorded; GPU completion not implied",
+          "receiverIdentityDraws": 18,
+          "receiverUnknownRectangles": 1,
+          "receiverIdentityBufferBytes": 2766320,
+          "changeRegionBytes": 52224,
+          "proposalCapacity": 32,
+          "proposalBudget": 16,
+          "globalReadyBricks": 1176,
+          "globalPendingBricks": 872,
+          "globalUpdatedBricks": 16,
+          "completedHlodReadbacks": 0,
+          "failedHlodReadbacks": 0,
+          "acceptedInitializationTickets": 0,
+          "hlodReadbackPending": false,
+          "hardwareBackend": false,
+          "hardwareMeshes": 0,
+          "hardwareFallbacks": 0,
+          "hardwareSceneRebuilds": 0,
+          "hardwareTransformUpdates": 0,
+          "hardwareTriangleUploads": 0,
+          "hardwareBindingUploads": 0,
+          "hardwareMaterialStatus": "Uploads and both consumers bound; GPU completion unproven",
+          "hardwareMaterialUnknownRecords": 0,
+          "hardwareMaterialFrameBytes": 83600,
+          "hardwareMaterialGlobalAllocatedBytes": 127392,
+          "exactSoftwareGeometry": true,
+          "softwareGeometryBytes": 88992,
+          "areaEmitterBytes": 1152,
+          "rtasGlobalAccountedBytes": 0,
+          "rtasGlobalEstimatedBytes": 0,
+          "rtasGlobalMeasuredHighWaterBytes": 0,
+          "rtasGlobalRetiredBytes": 0,
+          "rtasPendingDemands": 0,
+          "rtasBuildsThisFrame": 0,
+          "rtasTriangleWorkThisFrame": 0,
+          "rtasInstanceWorkThisFrame": 0,
+          "rtasBudgetStatus": "Not prepared",
+          "materialUploadEngineFrame": 180,
+          "materialUploadBudgetBytes": 16777216,
+          "materialUploadBytesUsed": 0,
+          "screenTextureEstimateBytes": 13824000,
+          "worldMaterialBytes": 16496640,
+          "objectSdfBytes": 8392704,
+          "globalSdfBytes": 664704,
+          "worldCacheBytes": 983040,
+          "hardwareAttributeBytes": 0,
+          "proposalBufferBytes": 1056,
+          "surfaceTriangleMappingCpuBytes": 1240,
+          "gpuTimingStatus": "Disabled",
+          "gpuTimingProvider": "Recorder",
+          "nativeGpuTimingStatus": "Disabled",
+          "gpuTimingRequiresIdentity": true,
+          "nativeGpuPendingSubmissions": 0,
+          "nativeGpuMeasuredSourceFrame": -1,
+          "gpuObservationValid": false,
+          "gpuFeedbackActive": false,
+          "gpuMinimumWorkOverBudget": false,
+          "gpuStableCompletedFrames": 0,
+          "gpuLastObservationConsumedFrame": -1,
+          "effectiveCachePatchBudget": 256,
+          "effectiveSurfaceCaptureBudget": 24,
+          "effectiveGlobalBrickBudget": 16,
+          "gpuAcceptedObservations": 0,
+          "gpuRejectedObservations": 0,
+          "gpuLastObservedMilliseconds": 0.0,
+          "gpuSmoothedMilliseconds": 0.0,
+          "gpuWorkScale": 1.0
+        },
+        "historyFinite": true,
+        "momentsFinite": true,
+        "GIWidth": 320,
+        "GIHeight": 180,
+        "pixels": [
+          {
+            "xy": [
+              175,
+              80
+            ],
+            "history": [
+              0.3779296875,
+              0.0019931793212890625,
+              0.0013904571533203125,
+              0.82470703125
+            ],
+            "moments": [
+              0.08184814453125,
+              0.006702423095703125,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "xy": [
+              190,
+              110
+            ],
+            "history": [
+              0.0,
+              0.0,
+              0.0,
+              0.25
+            ],
+            "moments": [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "xy": [
+              160,
+              90
+            ],
+            "history": [
+              0.10546875,
+              0.04486083984375,
+              0.018157958984375,
+              0.5498046875
+            ],
+            "moments": [
+              0.0557861328125,
+              0.004863739013671875,
+              2.0,
+              1.0
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "denoise01": {
+    "source": "I:\\Unity test\\Comparison\\Results\\20261027-153457-43786b6cdf404df0bb43c9a24eafbb03",
+    "copied": [
+      {
+        "file": "feature.json",
+        "bytes": 2933,
+        "sha256": "238b17f9ad98397d065cab1bb0a130ff3b60fd88743ec22a8a1f26c5c2959ea1"
+      },
+      {
+        "file": "run.json",
+        "bytes": 1587,
+        "sha256": "ee3cd26732450be0f902252794be20f9ba13b148711c16fb114e3044dc5be220"
+      },
+      {
+        "file": "frames.jsonl",
+        "bytes": 2046992,
+        "sha256": "a99fc52450b9e1eafa43037fccc10958320646388f6763830e476c6e14263463"
+      },
+      {
+        "file": "unity-log.jsonl",
+        "bytes": 1104,
+        "sha256": "8dbf5558881925aae8bceb4cb0453cd1903ae3ce0719401183ffcf52d59ff59c"
+      },
+      {
+        "file": "denoise-size.txt",
+        "bytes": 7,
+        "sha256": "c6ae63299ea60f7f3988da99582ff9894fe0b49774768abc2a18e2367b3e8632"
+      },
+      {
+        "file": "frame-0119.json",
+        "bytes": 7194,
+        "sha256": "c94d2f6690161cbfdace7d9d3867ea9a92f5f2c2eda17a2a9f18810f47c30e9d"
+      },
+      {
+        "file": "frame-0119.rgba32f",
+        "bytes": 3686400,
+        "sha256": "e8fe5196281dd698677355480a91b0776768551c03e15187897c574c06ad6610"
+      },
+      {
+        "file": "denoise-0119-history.rgba32f",
+        "bytes": 921600,
+        "sha256": "457a2a1e9150fcc71f260412fea055c42848656fc9768111d0537a21940dd70a"
+      },
+      {
+        "file": "denoise-0119-moments.rgba32f",
+        "bytes": 921600,
+        "sha256": "24d8f830f4cfc32d6e2082659a0c96102871c7de07732ad9391211f0ead6373e"
+      },
+      {
+        "file": "frame-0179.json",
+        "bytes": 7192,
+        "sha256": "a4586c7c3b88a285ef6b30681b0140c5d75a7bbbdcd6bbd32401d06d93ea801b"
+      },
+      {
+        "file": "frame-0179.rgba32f",
+        "bytes": 3686400,
+        "sha256": "66e61dd6f3673d7448a5dee14b917dce6ed1d9607a933faf473822a9ce0bfe5c"
+      },
+      {
+        "file": "denoise-0179-history.rgba32f",
+        "bytes": 921600,
+        "sha256": "198a25374da89ef22de606f4d5bab928324a82a1808b90cb1c75dc0401f6452e"
+      },
+      {
+        "file": "denoise-0179-moments.rgba32f",
+        "bytes": 921600,
+        "sha256": "5250651ac98826336bea6a90d090c10cc17ee689c754373243fab2a3be557368"
+      }
+    ],
+    "receipts": 420,
+    "exactFrames": 419,
+    "samples": {
+      "119": {
+        "diagnostics": {
+          "camera": "Validation Camera",
+          "sceneLightingPolicyBytes": 512,
+          "frame": 119,
+          "publishedInstances": 22,
+          "warmingInstances": 0,
+          "pendingCapacity": 0,
+          "bvhNodes": 43,
+          "readyCards": 132,
+          "pendingCards": 0,
+          "warmupBudgetBlockedCards": 0,
+          "cachePatchesScheduled": 256,
+          "chartedOwners": 22,
+          "approximateOwners": 0,
+          "requiredSurfaceCards": 132,
+          "rejectedSdfSources": 0,
+          "receiverTrackedSubmeshes": 19,
+          "receiverUntrackedRenderers": 0,
+          "receiverFingerprintMeshes": 3,
+          "receiverFingerprintBytes": 7816,
+          "receiverSourcesPublished": true,
+          "receiverIdentityEnabled": true,
+          "receiverIdentityStatus": "Identity resolve recorded; GPU completion not implied",
+          "receiverIdentityDraws": 18,
+          "receiverUnknownRectangles": 1,
+          "receiverIdentityBufferBytes": 2766320,
+          "changeRegionBytes": 52224,
+          "proposalCapacity": 32,
+          "proposalBudget": 16,
+          "globalReadyBricks": 1744,
+          "globalPendingBricks": 304,
+          "globalUpdatedBricks": 16,
+          "completedHlodReadbacks": 0,
+          "failedHlodReadbacks": 0,
+          "acceptedInitializationTickets": 0,
+          "hlodReadbackPending": false,
+          "hardwareBackend": false,
+          "hardwareMeshes": 0,
+          "hardwareFallbacks": 0,
+          "hardwareSceneRebuilds": 0,
+          "hardwareTransformUpdates": 0,
+          "hardwareTriangleUploads": 0,
+          "hardwareBindingUploads": 0,
+          "hardwareMaterialStatus": "Uploads and both consumers bound; GPU completion unproven",
+          "hardwareMaterialUnknownRecords": 0,
+          "hardwareMaterialFrameBytes": 83600,
+          "hardwareMaterialGlobalAllocatedBytes": 127392,
+          "exactSoftwareGeometry": true,
+          "softwareGeometryBytes": 88992,
+          "areaEmitterBytes": 1152,
+          "rtasGlobalAccountedBytes": 0,
+          "rtasGlobalEstimatedBytes": 0,
+          "rtasGlobalMeasuredHighWaterBytes": 0,
+          "rtasGlobalRetiredBytes": 0,
+          "rtasPendingDemands": 0,
+          "rtasBuildsThisFrame": 0,
+          "rtasTriangleWorkThisFrame": 0,
+          "rtasInstanceWorkThisFrame": 0,
+          "rtasBudgetStatus": "Not prepared",
+          "materialUploadEngineFrame": 120,
+          "materialUploadBudgetBytes": 16777216,
+          "materialUploadBytesUsed": 0,
+          "screenTextureEstimateBytes": 13824000,
+          "worldMaterialBytes": 16496640,
+          "objectSdfBytes": 8392704,
+          "globalSdfBytes": 664704,
+          "worldCacheBytes": 983040,
+          "hardwareAttributeBytes": 0,
+          "proposalBufferBytes": 1056,
+          "surfaceTriangleMappingCpuBytes": 1240,
+          "gpuTimingStatus": "Disabled",
+          "gpuTimingProvider": "Recorder",
+          "nativeGpuTimingStatus": "Disabled",
+          "gpuTimingRequiresIdentity": true,
+          "nativeGpuPendingSubmissions": 0,
+          "nativeGpuMeasuredSourceFrame": -1,
+          "gpuObservationValid": false,
+          "gpuFeedbackActive": false,
+          "gpuMinimumWorkOverBudget": false,
+          "gpuStableCompletedFrames": 0,
+          "gpuLastObservationConsumedFrame": -1,
+          "effectiveCachePatchBudget": 256,
+          "effectiveSurfaceCaptureBudget": 24,
+          "effectiveGlobalBrickBudget": 16,
+          "gpuAcceptedObservations": 0,
+          "gpuRejectedObservations": 0,
+          "gpuLastObservedMilliseconds": 0.0,
+          "gpuSmoothedMilliseconds": 0.0,
+          "gpuWorkScale": 1.0
+        },
+        "historyFinite": true,
+        "momentsFinite": true,
+        "GIWidth": 320,
+        "GIHeight": 180,
+        "pixels": [
+          {
+            "xy": [
+              175,
+              80
+            ],
+            "history": [
+              0.1787109375,
+              0.11102294921875,
+              0.0899658203125,
+              0.6484375
+            ],
+            "moments": [
+              0.1328125,
+              0.0816650390625,
+              29.0,
+              0.00548553466796875
+            ]
+          },
+          {
+            "xy": [
+              190,
+              110
+            ],
+            "history": [
+              0.11578369140625,
+              0.11004638671875,
+              0.10736083984375,
+              0.67041015625
+            ],
+            "moments": [
+              0.113525390625,
+              0.041168212890625,
+              32.0,
+              0.0301971435546875
+            ]
+          },
+          {
+            "xy": [
+              160,
+              90
+            ],
+            "history": [
+              0.3212890625,
+              0.11285400390625,
+              0.062042236328125,
+              0.63037109375
+            ],
+            "moments": [
+              0.1534423828125,
+              0.052978515625,
+              32.0,
+              0.009979248046875
+            ]
+          }
+        ]
+      },
+      "179": {
+        "diagnostics": {
+          "camera": "Validation Camera",
+          "sceneLightingPolicyBytes": 512,
+          "frame": 179,
+          "publishedInstances": 22,
+          "warmingInstances": 0,
+          "pendingCapacity": 0,
+          "bvhNodes": 43,
+          "readyCards": 134,
+          "pendingCards": 0,
+          "warmupBudgetBlockedCards": 0,
+          "cachePatchesScheduled": 256,
+          "chartedOwners": 22,
+          "approximateOwners": 0,
+          "requiredSurfaceCards": 134,
+          "rejectedSdfSources": 0,
+          "receiverTrackedSubmeshes": 19,
+          "receiverUntrackedRenderers": 0,
+          "receiverFingerprintMeshes": 3,
+          "receiverFingerprintBytes": 7816,
+          "receiverSourcesPublished": true,
+          "receiverIdentityEnabled": true,
+          "receiverIdentityStatus": "Identity resolve recorded; GPU completion not implied",
+          "receiverIdentityDraws": 18,
+          "receiverUnknownRectangles": 1,
+          "receiverIdentityBufferBytes": 2766320,
+          "changeRegionBytes": 52224,
+          "proposalCapacity": 32,
+          "proposalBudget": 16,
+          "globalReadyBricks": 1176,
+          "globalPendingBricks": 872,
+          "globalUpdatedBricks": 16,
+          "completedHlodReadbacks": 0,
+          "failedHlodReadbacks": 0,
+          "acceptedInitializationTickets": 0,
+          "hlodReadbackPending": false,
+          "hardwareBackend": false,
+          "hardwareMeshes": 0,
+          "hardwareFallbacks": 0,
+          "hardwareSceneRebuilds": 0,
+          "hardwareTransformUpdates": 0,
+          "hardwareTriangleUploads": 0,
+          "hardwareBindingUploads": 0,
+          "hardwareMaterialStatus": "Uploads and both consumers bound; GPU completion unproven",
+          "hardwareMaterialUnknownRecords": 0,
+          "hardwareMaterialFrameBytes": 83600,
+          "hardwareMaterialGlobalAllocatedBytes": 127392,
+          "exactSoftwareGeometry": true,
+          "softwareGeometryBytes": 88992,
+          "areaEmitterBytes": 1152,
+          "rtasGlobalAccountedBytes": 0,
+          "rtasGlobalEstimatedBytes": 0,
+          "rtasGlobalMeasuredHighWaterBytes": 0,
+          "rtasGlobalRetiredBytes": 0,
+          "rtasPendingDemands": 0,
+          "rtasBuildsThisFrame": 0,
+          "rtasTriangleWorkThisFrame": 0,
+          "rtasInstanceWorkThisFrame": 0,
+          "rtasBudgetStatus": "Not prepared",
+          "materialUploadEngineFrame": 180,
+          "materialUploadBudgetBytes": 16777216,
+          "materialUploadBytesUsed": 0,
+          "screenTextureEstimateBytes": 13824000,
+          "worldMaterialBytes": 16496640,
+          "objectSdfBytes": 8392704,
+          "globalSdfBytes": 664704,
+          "worldCacheBytes": 983040,
+          "hardwareAttributeBytes": 0,
+          "proposalBufferBytes": 1056,
+          "surfaceTriangleMappingCpuBytes": 1240,
+          "gpuTimingStatus": "Disabled",
+          "gpuTimingProvider": "Recorder",
+          "nativeGpuTimingStatus": "Disabled",
+          "gpuTimingRequiresIdentity": true,
+          "nativeGpuPendingSubmissions": 0,
+          "nativeGpuMeasuredSourceFrame": -1,
+          "gpuObservationValid": false,
+          "gpuFeedbackActive": false,
+          "gpuMinimumWorkOverBudget": false,
+          "gpuStableCompletedFrames": 0,
+          "gpuLastObservationConsumedFrame": -1,
+          "effectiveCachePatchBudget": 256,
+          "effectiveSurfaceCaptureBudget": 24,
+          "effectiveGlobalBrickBudget": 16,
+          "gpuAcceptedObservations": 0,
+          "gpuRejectedObservations": 0,
+          "gpuLastObservedMilliseconds": 0.0,
+          "gpuSmoothedMilliseconds": 0.0,
+          "gpuWorkScale": 1.0
+        },
+        "historyFinite": true,
+        "momentsFinite": true,
+        "GIWidth": 320,
+        "GIHeight": 180,
+        "pixels": [
+          {
+            "xy": [
+              175,
+              80
+            ],
+            "history": [
+              0.3779296875,
+              0.0019931793212890625,
+              0.0013904571533203125,
+              0.82470703125
+            ],
+            "moments": [
+              0.08184814453125,
+              0.006702423095703125,
+              1.0,
+              0.1002197265625
+            ]
+          },
+          {
+            "xy": [
+              190,
+              110
+            ],
+            "history": [
+              0.0,
+              0.0,
+              0.0,
+              0.25
+            ],
+            "moments": [
+              0.0,
+              0.0,
+              1.0,
+              0.0008711814880371094
+            ]
+          },
+          {
+            "xy": [
+              160,
+              90
+            ],
+            "history": [
+              0.10546875,
+              0.04486083984375,
+              0.018157958984375,
+              0.5498046875
+            ],
+            "moments": [
+              0.0557861328125,
+              0.004863739013671875,
+              2.0,
+              0.015289306640625
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

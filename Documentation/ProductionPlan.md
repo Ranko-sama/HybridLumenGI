@@ -1,6 +1,6 @@
 # 实时光传输架构与生产交付计划
 
-状态：**已恢复本机开发，当前 local-development-denoise-01；runtime-candidate-16 为历史冻结基线，生产验收尚未完成**。更新：2026-10-27。用户当前不需要朋友交付，也不以等待朋友反馈作为开发停点。当前增量见 [本机开发记录](LocalDevelopment.md)。
+状态：**持续本机开发，当前 local-development-denoise-02-contracts 已通过局部复核；runtime-candidate-16 为历史冻结基线，生产验收尚未完成**。更新：2026-10-28。用户当前不需要朋友交付，也不以等待朋友反馈作为开发停点。当前增量见 [本机开发记录](LocalDevelopment.md)，完整原计划状态见 [推进表](DevelopmentProgress.md)。
 
 上一阶段已修复实际阻断、完成有限 Unity/Player 检查并交付来源一致的朋友测试包。用户后来已安装 Unity，本机已运行精确软件、SDF、DXR 与材质/历史/资源页场景。基线证据见 [Unity 功能接线检查](LocalRuntimeFunctionalAudit.md)，原计划对应关系见 [九项交接表](PreFriendReadiness.md)。后续在本机处理光照正确性、动态画质、性能与资源稳定性；朋友工程集成暂不作为当前任务。
 
@@ -97,7 +97,7 @@ flowchart TD
 
 原生不可用时回退 Recorder；Recorder 仍不提供 query 身份或跨范围原子快照，32 个生命周期通道不复用。原生 ring 暂满不触发提供器切换。缺测不会视为零成本；短缺测保持配额，持续缺测恢复静态上限。提供器或原生设备代次变化会重置反馈，真实 source frame 还用于拒绝旧配额的迟到观测。范围外准备上传、末尾 resolve 和整个应用的 GPU 成本不在三个范围之和内。原生 C++/WARP 软件适配器证据不等于 Unity/实体 GPU 验收，不能关闭 G4/G5。
 
-屏幕纹理估算已计入新增8B/pixel整数接收面策略：Additive为 `24 × fullWidth × fullHeight + 96 × giWidth × giHeight` 字节/相机，原生替换为 `36 × fullWidth × fullHeight + 96 × giWidth × giHeight`。1920×1080、960×540 GI分别为99,532,800B（94.921875 MiB）和124,416,000B（118.65234375 MiB），约94.9／118.7 MiB。这是分配估算而非GPU测量。owner策略另计16B/scene slot，默认128槽为2KiB；灯记录80B，固定32项buffer为每相机2,560B。
+屏幕纹理估算计入8B/pixel整数接收面策略与两张RGBA32F moments：Additive为 `24 × fullWidth × fullHeight + 112 × giWidth × giHeight` 字节/相机，原生替换为 `36 × fullWidth × fullHeight + 112 × giWidth × giHeight`。1920×1080、960×540 GI分别为107,827,200B（102.83203125 MiB）和132,710,400B（126.5625 MiB）。这是分配估算而非GPU测量。owner策略另计16B/scene slot，默认128槽为2KiB；灯记录80B，固定32项buffer为每相机2,560B。
 
 世界表面资源独立于屏幕预算。当前每卡 metadata 为 128 字节，owner 范围为每 scene slot 16 字节，卡间接索引每池项 4 字节，anchor 每 patch 8 字节，发光描述符每卡 32 字节：
 

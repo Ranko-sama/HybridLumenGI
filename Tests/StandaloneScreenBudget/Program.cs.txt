@@ -10,7 +10,7 @@ class Program
     {
         // Itemized allocation oracle: no use of helper constants/result cost and no floating bytes.
         BigInteger full=(BigInteger)fw*fh,low=(BigInteger)w*h;
-        BigInteger capture=full*(native?36:24),gi=low*96;
+        BigInteger capture=full*(native?36:24),gi=low*(3*8+2*8+2*16+2*4+2*16);
         BigInteger extra=identity?full*4+full*12+low*16*2+(BigInteger)Math.Max(1,Math.Min(16384,capacity))*80:0;
         return capture+gi+extra;
     }
@@ -56,7 +56,7 @@ class Program
         Check(r.Fits==expected.fits,"oracle fit");
         Check(r.IdentityEnabled==identity,"identity fallback selection");
         Check(r.IdentityBudgetFallback==(request&&!identity),"fallback status");
-        Check(r.FullPixelBytes==(native?36:24)+(identity?4:0)&&r.LowPixelBytes==(identity?128:96),"resource byte strides");
+        Check(r.FullPixelBytes==(native?36:24)+(identity?4:0)&&r.LowPixelBytes==(identity?144:112),"resource byte strides");
         if(r.Fits)
         {
             Check(r.Width==expected.w&&r.Height==expected.h,"largest affordable integer rectangle");
@@ -72,6 +72,13 @@ class Program
     }
     static void Main()
     {
+        foreach(bool identity in new[]{false,true})
+        {
+            var local=Budget.Plan(640,360,.5f,128L*1024*1024,false,identity,1024);
+            Check(local.Fits&&local.IdentityEnabled==identity&&local.Width==320&&local.Height==180,"local validation resolution preserved");
+            long oldCost=640L*360*(identity?28:24)+320L*180*(identity?128:96)+(identity?640L*360*12+1024L*80:0);
+            Check(local.EstimatedBytes-oldCost==921600,"two float moments add exactly 16 bytes per GI pixel");
+        }
         var regression=Budget.Plan(1920,1080,.5f,64L*1024*1024,false,true,1024);
         Check(regression.Fits&&!regression.IdentityEnabled&&regression.IdentityBudgetFallback,"1080p 64MiB preserves current GI");
         var baseline=Budget.Plan(1920,1080,.5f,64L*1024*1024,false,false,1024);

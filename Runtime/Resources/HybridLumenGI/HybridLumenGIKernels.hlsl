@@ -447,8 +447,8 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
         float4 neighbor=_HLGI_Input.Load(int3(q,0));
         if(!HLGIHasRadianceMeasurement(neighbor) || !all(isfinite(neighbor.rgb*neighbor.rgb))) continue;
         float3 c=neighbor.rgb; mean+=c; second+=c*c; count++;
-        // Match the filter's absolute plane gate; reprojection's distance-scaled
-        // tolerance alone could mix variance across nearby parallel surfaces.
+        // Use an absolute plane gate for the spatial variance estimate;
+        // the filter itself uses a soft plane weight, not this hard gate.
         if(max(abs(dot(qp-p,geometricNormal)),abs(dot(qp-p,neighborGeometricNormal)))<=max(_HLGI_DepthThreshold,0.001))
         {
             float neighborLum=LuminanceGI(c);
@@ -469,8 +469,8 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
     alpha=max(alpha,valid?0.25*abs(current.a-history.a):1);
     float2 newMoments=lerp(moments.xy,float2(lum,lum*lum),alpha);
     spatialMoments/=spatialCount;
-    // Moments are stored in RGBA16F. A bright neighbor must not overflow w and
-    // invalidate an otherwise finite center/history on the following frame.
+    // Retain the existing spatial filter scale limit. Temporal moments use
+    // RGBA32F and must preserve HDR second moments without this spatial cap.
     float spatialVariance=min(max(spatialMoments.y-spatialMoments.x*spatialMoments.x,0),65504);
     // xy = temporal luminance moments, z = history length, w = spatial variance.
     // Spatial variance never grants history validity or replaces current GI.

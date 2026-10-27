@@ -1,0 +1,141 @@
+diff --git a/Documentation/ValidationSequence.md b/Documentation/ValidationSequence.md
+index 6c3153e..93d9d5f 100644
+--- a/Documentation/ValidationSequence.md
++++ b/Documentation/ValidationSequence.md
+@@ -7,7 +7,7 @@
+ 1. 使用 **Tools > Hybrid Lumen GI > Create Validation Scene Assets**。生成器在 `Assets/HybridLumenGIValidation/Run*` 保存独立场景与材质，不替换当前场景。之后单独打开生成的 `Validation.unity`，不要与其它游戏场景一起运行。
+ 2. 给该相机实际使用的 URP Renderer 添加 `HybridLumenGIRendererFeature`。在根对象的 **Validation Sequence** 上明确指定这个 Feature 资产；生成器只有找到唯一已加载 Feature 时才预填。保持一个非 XR Base 相机、无相机堆栈，使用 Linear / Direct3D 12。组件不会修改 Feature 私有设置，也不反射读取它们。
+ 3. 生成的盒体只有源 MeshRenderer / Collider / Proxy，**并未预烘焙 SDF 或 Surface Charts**。要验证这些路径，选择可读 MeshFilter，分别使用 **Tools > Hybrid Lumen GI > Bake Mesh Distance Field** 的 **Bake selected mesh and assign proxy**，以及 **Tools > Hybrid Lumen GI > Bake Surface Charts** 的 **Bake selected source and assign proxy**，保存资产并核对每个 Proxy 的引用。共享同一源网格可复用相应资产；更改网格内容后需要重烘焙。无资产的解析几何 / 六面近似不能当作这些路径通过的证据。薄壁的分辨率、缩放与偏移尤其需要实测。
+-4. 在 Feature Inspector 选择真实输出模式，如 `IndirectOnly`、`Final`、`Confidence` 或 `HistoryAcceptance`，并固定光照、缓存、采样和降噪设置。`Expected Backend` 选择 Software、Hardware 或 FeatureDisabled；软件 / 硬件请求还应分别设置 `preferHardwareTracing`。禁用对照需要在 Renderer 资产中关闭 Feature；组件仍需持有该资产以记录配置。`Run Label` 只是人工标签，不能代替实际模式 / 后端证据。
++4. 在 Feature Inspector 选择真实输出模式，如 `IndirectOnly`、`Final`、`Confidence` 或 `SpatialVariance`，并固定光照、缓存、采样和降噪设置。`SpatialVariance` 保留枚举值 3，显示空间亮度方差 `v/(1+v)` 的灰度（零方差为黑、方差 1 为 0.5），不表示历史接受率；旧 `HistoryAcceptance` 名称已纠正。`Expected Backend` 选择 Software、Hardware 或 FeatureDisabled；软件 / 硬件请求还应分别设置 `preferHardwareTracing`。禁用对照需要在 Renderer 资产中关闭 Feature；组件仍需持有该资产以记录配置。`Run Label` 只是人工标签，不能代替实际模式 / 后端证据。
+ 5. 检查烘焙 GI、Light Probe、Reflection Probe、其它 Renderer Feature、Volume、动态曝光等额外贡献。生成场景设置 ambient 为黑、intensity / reflection intensity 为 0、无 skybox / fog，盒体关闭探针使用，灯为 Realtime。Feature 自己的 `environmentRadiance` 等仍由 Inspector 决定，保存在快照；要做零环境漏光实验应显式设为 0。采集临时禁用该相机后处理、MSAA 与动态分辨率。
+ 6. 每种对照都从**新 Player 进程或重新进入 Play**开始。不要在一次运行中切换 Feature 设置。若关闭 Editor Domain Reload，需手动确认 Feature 实例和缓存确实重建；否则使用新 Player。组件不重置 GI 内部 frame / RNG / 缓存，不承诺逐样本确定性重放。Player 需包含生成场景和所需 shaders / 资产；设置在构建前配置好。
+ 
+diff --git a/Runtime/HybridLumenGIRendererFeature.cs b/Runtime/HybridLumenGIRendererFeature.cs
+index 98edae7..41e6429 100644
+--- a/Runtime/HybridLumenGIRendererFeature.cs
++++ b/Runtime/HybridLumenGIRendererFeature.cs
+@@ -12,7 +12,7 @@ namespace HybridLumenGI
+     /// <summary>Bounded experimental diffuse transport. See Documentation/ProductionPlan.md for release gates.</summary>
+     public sealed class HybridLumenGIRendererFeature : ScriptableRendererFeature
+     {
+-        public enum DebugView { Final, IndirectOnly, Confidence, HistoryAcceptance, DiffuseReflectance }
++        public enum DebugView { Final, IndirectOnly, Confidence, SpatialVariance, DiffuseReflectance }
+         public enum CompositionMode { Additive, ReplaceNativeDiffuseGI }
+         [Serializable] public sealed class CameraDiagnostics
+         {
+@@ -216,7 +216,7 @@ namespace HybridLumenGI
+             internal long receiverFingerprintBytes;
+             internal bool receiverIdentityEnabled;
+             internal string receiverIdentityStatus;
+-            internal int receiverIdentityDraws,receiverUnknownRectangles,lowPixelBytes=96;
++            internal int receiverIdentityDraws,receiverUnknownRectangles,lowPixelBytes=112;
+             internal long receiverIdentityBufferBytes;
+             internal string hardwareMaterialStatus="Hardware materials inactive";
+             internal int hardwareMaterialUnknownRecords;
+@@ -325,7 +325,8 @@ namespace HybridLumenGI
+                         history[i]=Allocate(w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI history "+i);
+                         geometry[i]=Allocate(w,h,GraphicsFormat.R32G32B32A32_SFloat,"HLGI geometry "+i);
+                         material[i]=Allocate(w,h,GraphicsFormat.R8G8B8A8_UNorm,"HLGI material "+i);
+-                        moments[i]=Allocate(w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI moments "+i);
++                        // A finite half-float radiance can have a second moment above 65504.
++                        moments[i]=Allocate(w,h,GraphicsFormat.R32G32B32A32_SFloat,"HLGI moments "+i);
+                         if(identityEnabled) receiverIdentity[i]=Allocate(w,h,GraphicsFormat.R32G32B32A32_UInt,"HLGI receiver identity "+i);
+                     }
+                 }
+diff --git a/Runtime/HybridLumenGIScreenBudget.cs b/Runtime/HybridLumenGIScreenBudget.cs
+index 2f34709..7a3380a 100644
+--- a/Runtime/HybridLumenGIScreenBudget.cs
++++ b/Runtime/HybridLumenGIScreenBudget.cs
+@@ -50,7 +50,9 @@ namespace HybridLumenGI
+         {
+             long fullPixels = (long)fullWidth * fullHeight;
+             int fullBytes = (replaceNative ? 36 : 24) + (identity ? 4 : 0);
+-            int lowBytes = identity ? 128 : 96;
++            // Base: three half-float working targets (24), two half histories (16),
++            // two float geometries (32), two UNorm materials (8), two float moments (32).
++            int lowBytes = identity ? 144 : 112;
+             int rows = identity ? Math.Max(1, Math.Min(16384, receiverCapacity)) : 0;
+             long identityBuffers = identity ? fullPixels * 12 + rows * 80L : 0;
+             long fixedBytes = fullPixels * fullBytes + identityBuffers;
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader b/Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader
+index 966b39a..a21dede 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader
+@@ -108,7 +108,13 @@ Shader "Hidden/HybridLumenGI/Composite"
+                 outgoing=(outgoing-nativeDiffuseFog.rgb)*nativeDiffuseFog.a;
+             }
+             if(_HLGI_Debug==2) return float4(gi.aaa,1);
+-            if(_HLGI_Debug==3) return float4(_HLGI_Moments.Load(int3(HLGIClosestGiPixel(uv,(uint2)_HLGI_Size.xy,fullSize),0)).www,1);
++            if(_HLGI_Debug==3)
++            {
++                float variance=_HLGI_Moments.Load(int3(HLGIClosestGiPixel(uv,(uint2)_HLGI_Size.xy,fullSize),0)).w;
++                // SpatialVariance: bounded grayscale v/(1+v), not history acceptance.
++                float display=isfinite(variance) && variance>0?variance/(1+variance):0;
++                return float4(display.xxx,1);
++            }
+             if(_HLGI_Debug==4) return float4(material.rgb,1);
+             return float4(outgoing,_HLGI_Debug==0?0:1);
+         }
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
+index 9290402..29fdb14 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
+@@ -447,8 +447,8 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
+         float4 neighbor=_HLGI_Input.Load(int3(q,0));
+         if(!HLGIHasRadianceMeasurement(neighbor) || !all(isfinite(neighbor.rgb*neighbor.rgb))) continue;
+         float3 c=neighbor.rgb; mean+=c; second+=c*c; count++;
+-        // Match the filter's absolute plane gate; reprojection's distance-scaled
+-        // tolerance alone could mix variance across nearby parallel surfaces.
++        // Use an absolute plane gate for the spatial variance estimate;
++        // the filter itself uses a soft plane weight, not this hard gate.
+         if(max(abs(dot(qp-p,geometricNormal)),abs(dot(qp-p,neighborGeometricNormal)))<=max(_HLGI_DepthThreshold,0.001))
+         {
+             float neighborLum=LuminanceGI(c);
+@@ -469,8 +469,8 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
+     alpha=max(alpha,valid?0.25*abs(current.a-history.a):1);
+     float2 newMoments=lerp(moments.xy,float2(lum,lum*lum),alpha);
+     spatialMoments/=spatialCount;
+-    // Moments are stored in RGBA16F. A bright neighbor must not overflow w and
+-    // invalidate an otherwise finite center/history on the following frame.
++    // Retain the existing spatial filter scale limit. Temporal moments use
++    // RGBA32F and must preserve HDR second moments without this spatial cap.
+     float spatialVariance=min(max(spatialMoments.y-spatialMoments.x*spatialMoments.x,0),65504);
+     // xy = temporal luminance moments, z = history length, w = spatial variance.
+     // Spatial variance never grants history validity or replaces current GI.
+diff --git a/Tests/StandaloneScreenBudget/Program.cs.txt b/Tests/StandaloneScreenBudget/Program.cs.txt
+index 382701a..fca754c 100644
+--- a/Tests/StandaloneScreenBudget/Program.cs.txt
++++ b/Tests/StandaloneScreenBudget/Program.cs.txt
+@@ -10,7 +10,7 @@ class Program
+     {
+         // Itemized allocation oracle: no use of helper constants/result cost and no floating bytes.
+         BigInteger full=(BigInteger)fw*fh,low=(BigInteger)w*h;
+-        BigInteger capture=full*(native?36:24),gi=low*96;
++        BigInteger capture=full*(native?36:24),gi=low*(3*8+2*8+2*16+2*4+2*16);
+         BigInteger extra=identity?full*4+full*12+low*16*2+(BigInteger)Math.Max(1,Math.Min(16384,capacity))*80:0;
+         return capture+gi+extra;
+     }
+@@ -56,7 +56,7 @@ class Program
+         Check(r.Fits==expected.fits,"oracle fit");
+         Check(r.IdentityEnabled==identity,"identity fallback selection");
+         Check(r.IdentityBudgetFallback==(request&&!identity),"fallback status");
+-        Check(r.FullPixelBytes==(native?36:24)+(identity?4:0)&&r.LowPixelBytes==(identity?128:96),"resource byte strides");
++        Check(r.FullPixelBytes==(native?36:24)+(identity?4:0)&&r.LowPixelBytes==(identity?144:112),"resource byte strides");
+         if(r.Fits)
+         {
+             Check(r.Width==expected.w&&r.Height==expected.h,"largest affordable integer rectangle");
+@@ -72,6 +72,13 @@ class Program
+     }
+     static void Main()
+     {
++        foreach(bool identity in new[]{false,true})
++        {
++            var local=Budget.Plan(640,360,.5f,128L*1024*1024,false,identity,1024);
++            Check(local.Fits&&local.IdentityEnabled==identity&&local.Width==320&&local.Height==180,"local validation resolution preserved");
++            long oldCost=640L*360*(identity?28:24)+320L*180*(identity?128:96)+(identity?640L*360*12+1024L*80:0);
++            Check(local.EstimatedBytes-oldCost==921600,"two float moments add exactly 16 bytes per GI pixel");
++        }
+         var regression=Budget.Plan(1920,1080,.5f,64L*1024*1024,false,true,1024);
+         Check(regression.Fits&&!regression.IdentityEnabled&&regression.IdentityBudgetFallback,"1080p 64MiB preserves current GI");
+         var baseline=Budget.Plan(1920,1080,.5f,64L*1024*1024,false,false,1024);
