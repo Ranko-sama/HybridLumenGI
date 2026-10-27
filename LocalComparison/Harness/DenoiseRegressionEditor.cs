@@ -200,6 +200,7 @@ public static class DenoiseRegressionEditor
     }
     static bool Finite(float[] a){foreach(float x in a)if(float.IsNaN(x)||float.IsInfinity(x))return false;return true;}
     static string rawDirectory;
+    static bool transitionCandidate;
     static float[] Pixel(float[] a){return new[]{a[Fixture.Center],a[Fixture.Center+1],a[Fixture.Center+2],a[Fixture.Center+3]};}
     static ContractRow Observe(List<ContractRow> rows,Fixture f,string name,int frame,string stage,float[] values=null)
     {
@@ -207,6 +208,7 @@ public static class DenoiseRegressionEditor
         r.temporalVariance=Mathf.Max(r.centerMoments[1]-r.centerMoments[0]*r.centerMoments[0],0);r.spatialVariance=r.centerMoments[3];
         float effective=r.centerMoments[2]<4?Mathf.Max(r.temporalVariance,r.spatialVariance*(4/Mathf.Max(r.centerMoments[2],1))):r.temporalVariance;
         r.effectiveSigma=Mathf.Max(Mathf.Sqrt(effective)*4,.05f);
+        if(transitionCandidate&&r.centerMoments[2]<4){float temporalSigma=Mathf.Max(Mathf.Sqrt(r.temporalVariance)*4,.05f);r.effectiveSigma=Mathf.Lerp(temporalSigma,r.effectiveSigma,Mathf.Clamp01((4-r.centerMoments[2])/3));}
         r.rawOutput=r.kernel+"-"+name+"-"+frame+"-"+stage;
         foreach(var pair in new[]{("output",a),("moments",f.lastMoments)})using(var writer=new BinaryWriter(File.Create(Path.Combine(rawDirectory,r.rawOutput+"-"+pair.Item1+".rgba32f"))))foreach(float v in pair.Item2)writer.Write(v);
         for(int i=0;i<Fixture.Count;i++){r.meanLuminance+=a[i*4]/Fixture.Count;r.minimumHistory=Mathf.Min(r.minimumHistory,f.lastMoments[i*4+2]);r.maximumHistory=Mathf.Max(r.maximumHistory,f.lastMoments[i*4+2]);}
@@ -333,5 +335,89 @@ public static class DenoiseRegressionEditor
             }
             string path="I:/Unity test/Comparison/Evidence/local-denoise-02/actual-formats.csv";File.WriteAllLines(path,rows);Debug.Log("DENOISE_FORMATS_VERIFIED");
         }
+    }
+    static void FilterGuard(List<ContractRow> rows,Fixture f,string name,int frame,float value,float confidence=1,bool centerOnly=false)
+    {
+        Observe(rows,f,name,frame,"temporal");
+        for(int index=0;index<3;index++)
+        {
+            var a=f.Filter(1<<index,index);var row=Observe(rows,f,name,frame,"filter-"+(1<<index),a);
+            for(int i=0;i<Fixture.Count;i++)
+            {
+                Require(row,a[i*4+3]==f.last[i*4+3],"filter changed confidence");
+                if(centerOnly&&i!=Fixture.Center/4)continue;
+                for(int c=0;c<3;c++)Require(row,Mathf.Abs(a[i*4+c]-value)<=Mathf.Max(.001f,Mathf.Abs(value)*.001f),"constant guard changed radiance");
+                Require(row,Mathf.Abs(a[i*4+3]-confidence)<.001f,"guard confidence mismatch");
+            }
+        }
+    }
+    static void Transition(List<ContractRow> rows,bool identity)
+    {
+        using(var f=new Fixture(identity))
+        {
+            foreach(string signal in new[]{"fixed-checker","changing-noise","signal-edge","parallel-bright","parallel-control"})
+            {
+                f.Reset();f.shader.SetInt("_HLGI_MaxHistory",64);
+                var geometry=Fixture.Fill(new Color(0,0,8390657,.5f));
+                if(signal.StartsWith("parallel"))for(int y=0;y<Fixture.Size;y++)for(int x=9;x<Fixture.Size;x++)geometry[y*Fixture.Size+x].a=.53f;
+                Fixture.Set(f.geometry,geometry);
+                for(int frame=1;frame<=64;frame++)
+                {
+                    var pixels=new Color[Fixture.Count];
+                    for(int y=0;y<Fixture.Size;y++)for(int x=0;x<Fixture.Size;x++)
+                    {
+                        int i=y*Fixture.Size+x;float v=(x+y)%2==0?.25f:.75f;
+                        if(signal=="changing-noise")
+                        {
+                            uint bits=unchecked((uint)(0x48b1+frame*289+i)*747796405u+2891336453u);
+                            bits=((bits>>((int)(bits>>28)+4))^bits)*277803737u;bits=(bits>>22)^bits;
+                            v=(bits&1)==0?.25f:.75f;
+                        }
+                        if(signal=="signal-edge")v=x<9?.5f:3.5f;
+                        if(signal=="parallel-bright"&&x>=9)v+=3;
+                        pixels[i]=Fixture.Gray(v);
+                    }
+                    Fixture.Set(f.input,pixels);f.Step(frame>1);
+                    if(frame<=8||frame==32||frame==64)
+                    {
+                        var row=Observe(rows,f,signal,frame,"temporal");Require(row,row.minimumHistory==frame&&row.maximumHistory==frame,"unexpected history progression");
+                        for(int index=0;index<3;index++)
+                        {
+                            var a=f.Filter(1<<index,index);var filteredRow=Observe(rows,f,signal,frame,"filter-"+(1<<index),a);
+                            for(int i=0;i<Fixture.Count;i++)Require(filteredRow,a[i*4+3]==f.last[i*4+3],"filter changed confidence");
+                        }
+                    }
+                    else if(!Finite(f.last)||!Finite(f.lastMoments))throw new Exception("Nonfinite intervening temporal frame");
+                }
+            }
+            foreach(float value in new[]{0f,1000f,65504f})
+            {
+                f.Reset();Fixture.Set(f.input,Fixture.Fill(Fixture.Gray(value)));f.Step(false);FilterGuard(rows,f,"constant-"+value,1,value);
+            }
+            foreach(string name in new[]{"unknown-center","unknown-retains","reset","identity-reject","max-history-one","reactive"})
+            {
+                if(name=="identity-reject"&&!identity)continue;
+                f.Reset();for(int i=1;i<=4;i++)f.Step(i>1);
+                if(name=="unknown-center"){var p=Fixture.Fill(Fixture.Gray(1));p[Fixture.Center/4]=Fixture.Gray(0,-1);Fixture.Set(f.input,p);}
+                if(name=="unknown-retains"||name=="identity-reject")Fixture.Set(f.input,Fixture.Fill(Fixture.Gray(0,-1)));
+                if(name=="identity-reject")f.SetIdentity(f.identityOld,4);
+                if(name=="max-history-one")f.shader.SetInt("_HLGI_MaxHistory",1);
+                if(name=="reactive")f.shader.SetFloat("_HLGI_GlobalReactive",1);
+                f.Step(name!="reset"&&name!="unknown-center");
+                bool invalid=name=="unknown-center"||name=="identity-reject";
+                FilterGuard(rows,f,name,5,invalid?0:1,invalid?0:1,name=="unknown-center");
+            }
+        }
+    }
+    public static void RunTransition()
+    {
+        string label=Arg("-transitionLabel","baseline");transitionCandidate=label=="candidate";
+        string path="I:/Unity test/Comparison/Evidence/local-denoise-03/"+label+"/gpu-transition.json";
+        rawDirectory=Path.Combine(Path.GetDirectoryName(path),"raw");Directory.CreateDirectory(rawDirectory);
+        var rows=new List<ContractRow>();var report=new ContractReport{unity=Application.unityVersion,gpu=SystemInfo.graphicsDeviceName,api=SystemInfo.graphicsDeviceType.ToString(),radianceFormat="expected R16G16B16A16_SFloat",momentsFormat="expected R32G32B32A32_SFloat",scope="One short-history candidate; CPU-derived sigma; fixed-signal and stochastic-noise interpretations scored separately."};
+        try{Transition(rows,false);Transition(rows,true);report.passed=true;}
+        catch(Exception e){report.error=e.ToString();throw;}
+        finally{report.cases=rows.ToArray();File.WriteAllText(path,JsonUtility.ToJson(report,true));}
+        Debug.Log("DENOISE_TRANSITION_CAPTURED label="+label+" rows="+rows.Count);
     }
 }

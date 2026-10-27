@@ -1,0 +1,175 @@
+{
+    "logicalFrame": 184,
+    "engineFrame": 185,
+    "stage": "moving-door",
+    "diagnosticsStatus": "reported-not-execution-proof",
+    "diagnosticsJson": "{\"camera\":\"Validation Camera\",\"sceneLightingPolicyBytes\":512,\"frame\":184,\"publishedInstances\":22,\"warmingInstances\":0,\"pendingCapacity\":0,\"bvhNodes\":43,\"readyCards\":134,\"pendingCards\":0,\"warmupBudgetBlockedCards\":0,\"cachePatchesScheduled\":256,\"chartedOwners\":22,\"approximateOwners\":0,\"requiredSurfaceCards\":134,\"rejectedSdfSources\":0,\"receiverTrackedSubmeshes\":19,\"receiverUntrackedRenderers\":0,\"receiverFingerprintMeshes\":3,\"receiverFingerprintBytes\":7816,\"receiverSourcesPublished\":true,\"receiverIdentityEnabled\":true,\"receiverIdentityStatus\":\"Identity resolve recorded; GPU completion not implied\",\"receiverIdentityDraws\":18,\"receiverUnknownRectangles\":1,\"receiverIdentityBufferBytes\":2766320,\"changeRegionBytes\":52224,\"proposalCapacity\":32,\"proposalBudget\":16,\"globalReadyBricks\":1256,\"globalPendingBricks\":792,\"globalUpdatedBricks\":16,\"completedHlodReadbacks\":0,\"failedHlodReadbacks\":0,\"acceptedInitializationTickets\":0,\"hlodReadbackPending\":false,\"hardwareBackend\":false,\"hardwareMeshes\":0,\"hardwareFallbacks\":0,\"hardwareSceneRebuilds\":0,\"hardwareTransformUpdates\":0,\"hardwareTriangleUploads\":0,\"hardwareBindingUploads\":0,\"hardwareMaterialStatus\":\"Uploads and both consumers bound; GPU completion unproven\",\"hardwareMaterialUnknownRecords\":0,\"hardwareMaterialFrameBytes\":83600,\"hardwareMaterialGlobalAllocatedBytes\":83600,\"exactSoftwareGeometry\":true,\"softwareGeometryBytes\":88992,\"areaEmitterBytes\":1152,\"rtasGlobalAccountedBytes\":0,\"rtasGlobalEstimatedBytes\":0,\"rtasGlobalMeasuredHighWaterBytes\":0,\"rtasGlobalRetiredBytes\":0,\"rtasPendingDemands\":0,\"rtasBuildsThisFrame\":0,\"rtasTriangleWorkThisFrame\":0,\"rtasInstanceWorkThisFrame\":0,\"rtasBudgetStatus\":\"Not prepared\",\"materialUploadEngineFrame\":185,\"materialUploadBudgetBytes\":16777216,\"materialUploadBytesUsed\":0,\"screenTextureEstimateBytes\":14745600,\"worldMaterialBytes\":16496640,\"objectSdfBytes\":8392704,\"globalSdfBytes\":664704,\"worldCacheBytes\":983040,\"hardwareAttributeBytes\":0,\"proposalBufferBytes\":1056,\"surfaceTriangleMappingCpuBytes\":1240,\"gpuTimingStatus\":\"Disabled\",\"gpuTimingProvider\":\"Recorder\",\"nativeGpuTimingStatus\":\"Disabled\",\"gpuTimingRequiresIdentity\":true,\"nativeGpuPendingSubmissions\":0,\"nativeGpuMeasuredSourceFrame\":-1,\"gpuObservationValid\":false,\"gpuFeedbackActive\":false,\"gpuMinimumWorkOverBudget\":false,\"gpuStableCompletedFrames\":0,\"gpuLastObservationConsumedFrame\":-1,\"effectiveCachePatchBudget\":256,\"effectiveSurfaceCaptureBudget\":24,\"effectiveGlobalBrickBudget\":16,\"gpuAcceptedObservations\":0,\"gpuRejectedObservations\":0,\"gpuLastObservedMilliseconds\":0.0,\"gpuSmoothedMilliseconds\":0.0,\"gpuWorkScale\":1.0}",
+    "timingTimestamp": "3138974418529",
+    "raw": "frame-0184.rgba32f",
+    "exr": "frame-0184.exr",
+    "png": "frame-0184.png",
+    "cameraPosition": {
+        "x": 0.0,
+        "y": 2.5,
+        "z": -7.5
+    },
+    "doorLocalPosition": {
+        "x": 1.100000023841858,
+        "y": 1.399999976158142,
+        "z": -0.800000011920929
+    },
+    "cameraRotation": {
+        "x": 0.05151798576116562,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.9986720681190491
+    },
+    "projection": {
+        "e00": 0.9742785692214966,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": 1.7320507764816285,
+        "e12": 0.0,
+        "e13": 0.0,
+        "e20": 0.0,
+        "e21": 0.0,
+        "e22": -1.0020020008087159,
+        "e23": -0.20020020008087159,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": -1.0,
+        "e33": 0.0
+    },
+    "lights": [
+        {
+            "name": "Directional",
+            "type": "Directional",
+            "enabled": true,
+            "intensity": 1.2000000476837159,
+            "range": 10.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "position": {
+                "x": 0.0,
+                "y": 5.0,
+                "z": -2.0
+            },
+            "rotation": {
+                "x": 0.4126005470752716,
+                "y": -0.1961609274148941,
+                "z": 0.0914713442325592,
+                "w": 0.8848246932029724
+            }
+        },
+        {
+            "name": "Point (toggle for invalidation)",
+            "type": "Point",
+            "enabled": true,
+            "intensity": 7.0,
+            "range": 8.0,
+            "color": {
+                "r": 1.0,
+                "g": 0.75,
+                "b": 0.5,
+                "a": 1.0
+            },
+            "position": {
+                "x": -2.4000000953674318,
+                "y": 2.799999952316284,
+                "z": 2.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "name": "Spot (toggle for invalidation)",
+            "type": "Spot",
+            "enabled": true,
+            "intensity": 12.0,
+            "range": 9.0,
+            "color": {
+                "r": 0.5,
+                "g": 0.699999988079071,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "position": {
+                "x": 2.299999952316284,
+                "y": 3.5,
+                "z": 0.5
+            },
+            "rotation": {
+                "x": 0.6427876353263855,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 0.7660444974899292
+            }
+        },
+        {
+            "name": "Behind thin wall",
+            "type": "Point",
+            "enabled": true,
+            "intensity": 12.0,
+            "range": 5.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "position": {
+                "x": 8.0,
+                "y": 2.0,
+                "z": 2.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "name": "Outside sealed room only",
+            "type": "Point",
+            "enabled": true,
+            "intensity": 20.0,
+            "range": 10.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "position": {
+                "x": 10.699999809265137,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        }
+    ],
+    "cpuFrameMs": 122.8082,
+    "gpuFrameMs": 0.0,
+    "meanLuminance": 0.21147669759828825,
+    "maxRgb": 9.75146198272705,
+    "cpuTimingValid": true,
+    "gpuTimingValid": false,
+    "timingFresh": true,
+    "captured": true
+}

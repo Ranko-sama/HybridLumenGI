@@ -6,9 +6,9 @@ Git baseline: main, 7d33d02 (local-development-denoise-01). Preserve existing ev
 
 ## Current work package
 
-denoise-02-contracts, following GPT6ProReview-Denoise01.md: correct HDR temporal moments storage and memory accounting (F1), and debug slot 3 semantics (F2). Retain the existing spatial variance cap as a filter scale limit to isolate this change. Reuse the existing GPU harness for actual half-radiance/float-moments ping-pong, both temporal kernels and genuine identity resources, unknown/invalid history and reset contracts. Diagnose R1/R2 using a 17x17 temporal/filter 1/2/4 chain without speculative algorithm changes. At most one 420-frame before/after pair if it answers a remaining concrete question; do not rerun old matrices without cause.
+Completed bounded reviews: denoise-02 contracts (5eb1058) and denoise-03 short-history transition. Pro retained the latter with explicit early-noise cost; see Documentation/ReviewBrief-Denoise03.md and its full review. Sustained reactive/maxHistory2/3 quality remains open, as do the other original-plan gates.
 
-Astra independently endorsed this scope. Its explicit warning: old 3x3 tests and center-only checks cannot prove full filter-chain or HDR storage correctness. Check all pixels/channels; use format-based tolerances.
+Current package: resource-shutdown-01. First attribute the exit warnings with allocation stacks, minimal resource retirement timelines and one short feature-on/off control. Then repair only a proven lifecycle gap, extending actual-source StandaloneDeformedMesh tests and finite in-process lifecycle checks. Handle both submitted-but-unpolled and after-final-context-unsubmitted tickets. Never replace GPU completion proof with elapsed frames, GC, cleared lists or zeroed accounting. Astra reviews the design and results at critical nodes. Full Pro plan is in LocalComparison/Review/denoise-03/gpt6-pro-review-and-next-plan.txt.
 
 ## Progress and stopping rule
 

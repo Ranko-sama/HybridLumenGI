@@ -1,0 +1,62 @@
+{
+  "necessaryContinuityPassed": true,
+  "kernel": "CSTemporal",
+  "stageCounts": {
+    "baseline": 468,
+    "candidate": 468
+  },
+  "fixedChecker": {
+    "baseline": {
+      "maxChange3to4": 0.1959228515625,
+      "maxRecoveryAdjacentChange": 0.1959228515625,
+      "maxAt": {
+        "fromFrame": 3,
+        "toFrame": 4,
+        "x": 1,
+        "y": 1,
+        "channel": 0
+      },
+      "windowRmse": 0.12660893523845415,
+      "centerSeries": [
+        0.468505859375,
+        0.455322265625,
+        0.44580078125,
+        0.2498779296875,
+        0.2498779296875,
+        0.2498779296875,
+        0.2498779296875,
+        0.2498779296875
+      ]
+    },
+    "candidate": {
+      "maxChange3to4": 0.115478515625,
+      "maxRecoveryAdjacentChange": 0.115478515625,
+      "maxAt": {
+        "fromFrame": 3,
+        "toFrame": 4,
+        "x": 3,
+        "y": 3,
+        "channel": 0
+      },
+      "windowRmse": 0.10918830071579054,
+      "centerSeries": [
+        0.468505859375,
+        0.435791015625,
+        0.365234375,
+        0.2498779296875,
+        0.2498779296875,
+        0.2498779296875,
+        0.2498779296875,
+        0.2498779296875
+      ]
+    }
+  },
+  "changingNoiseWindowRmse": {
+    "baseline": 0.05209881745958685,
+    "candidate": 0.052462209020991586
+  },
+  "signalEdgeWindowRmse": {
+    "baseline": 0.23759262379127172,
+    "candidate": 0.20169068008342625
+  }
+}

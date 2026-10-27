@@ -496,11 +496,14 @@ void CSFilter(uint3 id:SV_DispatchThreadID)
     float3 rho=_HLGI_Material.Load(int3(pixel,0)).rgb;
     float4 moments=_HLGI_Moments.Load(int3(pixel,0));
     float variance=max(moments.y-moments.x*moments.x,0);
-    // Until four accepted observations exist, a temporal estimate alone cannot
-    // distinguish zero variance from missing history. Boost the same-surface
-    // spatial estimate for disocclusion, cuts and moving receivers (SVGF).
-    if(moments.z<4) variance=max(variance,moments.w*(4/max(moments.z,1)));
     float sigma=max(sqrt(variance)*4,0.05);
+    // Preserve first-frame spatial support and mature temporal filtering, while
+    // tapering their sigma difference across the existing four-frame window.
+    if(moments.z<4)
+    {
+        float spatialSigma=max(sqrt(max(variance,moments.w*(4/max(moments.z,1))))*4,0.05);
+        sigma=lerp(sigma,spatialSigma,saturate((4-moments.z)/3));
+    }
     float3 sum=center.rgb*4; float weight=4;
     [unroll] for(int y=-1;y<=1;y++) [unroll] for(int x=-1;x<=1;x++)
     {

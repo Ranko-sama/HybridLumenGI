@@ -1,0 +1,16 @@
+{
+  "PNG181PairMax8BitDifference": 4,
+  "rawPreviewChecks": [
+    {
+      "label": "baseline",
+      "rawToPngSameRowsMax": 235,
+      "rawToPngFlippedRowsMax": 1
+    },
+    {
+      "label": "candidate",
+      "rawToPngSameRowsMax": 235,
+      "rawToPngFlippedRowsMax": 1
+    }
+  ],
+  "interpretation": "Unity EncodeArrayToPNG flips image rows relative to the raw array despite the previous run manifest saying no row flip. Numeric ROI metrics use raw array coordinates, independent of PNG orientation. No image editing or GPU rerun performed."
+}

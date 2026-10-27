@@ -1,0 +1,9 @@
+Independent GPT-6 Astra Max review, 2026-10-28.
+
+One sigma candidate is within scope. Formula continuity is not output continuity; compare all-pixel maximum delta3to4 AND maximum consecutive-frame delta across1..8, with frame/coordinate. Fixed checker is threshold diagnosis or noiseless detail with itself as truth; changing noise alone uses0.5 truth. Avoid parameter search. Mature64 requires maxHistory64 (the new harness explicitly sets64 and checks actual history length).
+
+Paired synthetic result has no hard blocker for one real event pair. It is NOT acceptance of the candidate. Window noise RMSE+0.70% conceals concentration: frame2 .0351689 -> .0362689 (~+3.1%), frame3 .0253387 -> .0294524 (~+16.2%). First and frame4 onward match. Report this tradeoff explicitly.
+
+198 frames per side with continuous176..196 window is reasonable. Select all qualifying pixels from history growth/validity, not from outcome improvement. Verify raw/history/moments, settings, size and frame identity before interpreting final differences. Missing1->4 coverage means unverified.
+
+Test-only raw tap must record the readback copy in the same CommandBuffer immediately after gather, capture immutable frame/camera/dimensions for callbacks, check completion/errors/size/finiteness and drain requests at shutdown. Identical test-only patches on both sides, source hashes archived; restore product code afterward. Instrumented sources are not claimed identical to uninstrumented product sources. No additional synthetic seeds/candidates/matrices.
