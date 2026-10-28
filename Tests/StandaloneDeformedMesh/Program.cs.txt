@@ -125,17 +125,101 @@ static class Program
     public static void Main()
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
+        if(Environment.GetEnvironmentVariable("HLGI_SKINNED_UNCHANGED_LEGACY_CONTROL")=="1")
+        {LegacyUnchangedSkinnedControl();return;}
         if(Environment.GetEnvironmentVariable("HLGI_COALESCED_LEGACY_CONTROL")=="1")
         {LegacyContinuousControl();return;}
         // The failed snapshot is intentionally retained: isolate this case from success-suite accounting.
         if(Environment.GetEnvironmentVariable("HLGI_PUBLICATION_CLEANUP_CASE")=="1")
         {PublicationCleanupFailure();return;}
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
+        UnchangedSkinnedCaptureReuse();
         ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
+        UnchangedCaptureCleanupFailure();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
         Console.WriteLine("Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.");
     }
     static void OpenNewSession()=>typeof(HybridLumenGIResourceRetirement).GetMethod("InitializeRuntime",PrivateStatic).Invoke(null,null);
+    static void ResetBake(int marker){ControlledBake.For(marker).Started.Reset();ControlledBake.For(marker).Release.Reset();}
+    static void PublishCompleted(Owner owner,int marker)
+    {
+        Finish(owner,marker);int limit=HybridLumenGIDeformedMesh.MaximumWorkers;
+        HybridLumenGIDeformedMesh.MaximumWorkers=0;Frame();HybridLumenGIDeformedMesh.MaximumWorkers=limit;
+    }
+    static void DrainCompletedRetirements(){RenderPipelineManager.End();RecordedGpu.CompleteSubmitted();RenderPipelineManager.End();}
+    static void LegacyUnchangedSkinnedControl()
+    {
+        Defaults();var owner=Add(800,true);int dirty=0;owner.proxy.OnDirty=()=>dirty++;
+        Frame();Started(800);Mesh a=PendingMesh(owner);PublishCompleted(owner,800);int first=owner.component.PublishedFrame;
+        string content=HybridLumenGISurfaceCharts.ComputeContentFingerprint(a);
+        ResetBake(800);Frame();Started(800);Mesh b=PendingMesh(owner);
+        Require(!ReferenceEquals(a,b)&&HybridLumenGISurfaceCharts.ComputeContentFingerprint(b)==content,"Baseline captures were not distinct identical-content meshes");
+        PublishCompleted(owner,800);
+        Require(dirty==2&&owner.component.PublishedFrame>first&&ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),b)&&!a.Destroyed,
+            "Legacy automatic same-content control did not rebuild and republish");
+        Disable(owner);DrainCompletedRetirements();Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Legacy control did not clean up");
+        Console.WriteLine("BASELINE: two identical automatic Skinned captures created two actual tasks and two publications/dirty notifications; complete SHA256 contents equal, PublishedFrame advanced, old snapshot waited for completion.");
+    }
+    static void UnchangedSkinnedCaptureReuse()
+    {
+        Defaults();var owner=Add(800,true);var skin=(SkinnedMeshRenderer)owner.renderer;int dirty=0;owner.proxy.OnDirty=()=>dirty++;
+        Frame();Started(800);Mesh a=PendingMesh(owner);PublishCompleted(owner,800);
+        int published=owner.component.PublishedFrame;long held=HybridLumenGIDeformedMesh.ReservedBytes;
+        string hash=HybridLumenGISurfaceCharts.ComputeContentFingerprint(a);
+        ResetBake(800);Frame();
+        Require(skin.BakeCount==2&&skin.LastCaptured.Destroyed&&Job(owner)==null&&!ControlledBake.For(800).Started.IsSet&&dirty==1&&
+            owner.component.PublishedFrame==published&&ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),a)&&
+            HybridLumenGIDeformedMesh.ReservedBytes==held,"Identical automatic capture rebuilt/republished or lost private ownership");
+        HybridLumenGIDeformedMesh.VertexBudgetPerFrame=0;Frame();Require(skin.BakeCount==2,"Equality path bypassed original vertex admission");Defaults();
+        owner.component.updateIntervalFrames=4;Frame();Require(skin.BakeCount==2,"Equality path failed to charge original capture interval");owner.component.updateIntervalFrames=1;
+
+        // Same vertex/index counts and bounds; the actual UV bytes alone change.
+        var changedUv=owner.original.uv;changedUv[0]=new Vector2(.25f,.5f);owner.original.uv=changedUv;
+        Require(a.uv[0].x==0,"Adapted input edit mutated previously captured immutable attributes");
+        ResetBake(800);Frame();Started(800);Mesh rejected=PendingMesh(owner);
+        Require(HybridLumenGISurfaceCharts.ComputeContentFingerprint(rejected)!=hash,"Actual complete fingerprint missed same-count attribute change");
+        owner.proxy.OnDirty=()=>throw new InvalidOperationException("Controlled dirty publication rollback");PublishCompleted(owner,800);
+        Require(rejected.Destroyed&&ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),a)&&owner.component.PublishedFrame==published,
+            "Failed changed candidate replaced successful publication");
+        owner.proxy.OnDirty=()=>dirty++;ResetBake(800);Frame();Started(800);Mesh b=PendingMesh(owner);PublishCompleted(owner,800);
+        Require(ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),b)&&b.uv[0].x==.25f&&dirty==2,
+            "Failed candidate was incorrectly used as same-content reuse authority");
+
+        owner.component.sdfResolution=17;ResetBake(800);Frame();Started(800);PublishCompleted(owner,800);
+        Require(HybridLumenGIDeformedMesh.GetSdf(owner.renderer,null).Texture.Data.Length==17*17*17&&dirty==3,"SDF settings change was swallowed");
+        owner.component.chartSettings.paddingFraction=.125f;ResetBake(800);Frame();Started(800);
+        // The completed result belongs to frozen .125, not a later live-settings edit.
+        owner.component.chartSettings.paddingFraction=.25f;PublishCompleted(owner,800);
+        ResetBake(800);Frame();Started(800);PublishCompleted(owner,800);Require(dirty==5,"Chart comparison did not retain captured settings");
+
+        owner.component.RequestCapture();ResetBake(800);Frame();Started(800);PublishCompleted(owner,800);
+        Coalesced(owner,null);ResetBake(800);Frame();Started(800);PublishCompleted(owner,800);
+        Require(dirty==7,"Same-content explicit strong/coalesced requests were skipped");
+        Mesh final=HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer);
+        Require(ReferenceEquals(HybridLumenGIDeformedMesh.GetSdf(owner.renderer,null).SourceMesh,final)&&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetCharts(owner.renderer,null).SourceMesh,final),"Changed results did not publish unified mesh/SDF/charts");
+        int lastFrame=owner.component.PublishedFrame;ResetBake(800);Frame();
+        Require(Job(owner)==null&&dirty==7&&skin.LastCaptured.Destroyed&&owner.component.PublishedFrame==lastFrame,"Final unchanged automatic capture was not reused");
+        Disable(owner);DrainCompletedRetirements();Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Success-path snapshots/reservations leaked");
+        Console.WriteLine("PASS: actual full fingerprint and component skip unchanged automatic captures; same-count UV edit, failed-publication retry, SDF and captured chart settings, explicit strong/coalesced requests still rebuild; old Published/version retained and temporary mesh/quota handled.");
+    }
+    static void UnchangedCaptureCleanupFailure()
+    {
+        // Run last: existing intentional failed/unknown owners must remain retained too.
+        OpenNewSession();Defaults();CoreUtils.FailDestroy=null;var owner=Add(900,true);var skin=(SkinnedMeshRenderer)owner.renderer;
+        Frame();Started(900);PublishCompleted(owner,900);Mesh published=HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer);
+        int failed=HybridLumenGIDeformedMesh.FailedCleanupCount,attempts=CoreUtils.FailedDestroyAttempts;
+        long before=HybridLumenGIDeformedMesh.ReservedBytes;int publishedFrame=owner.component.PublishedFrame;
+        skin.Captured=mesh=>CoreUtils.FailDestroy=mesh;ResetBake(900);Frame();object retained=Job(owner);long held=HybridLumenGIDeformedMesh.ReservedBytes;
+        Require(retained!=null&&HybridLumenGIDeformedMesh.FailedCleanupCount==failed+1&&CoreUtils.FailedDestroyAttempts==attempts+1&&held>before&&
+            !skin.LastCaptured.Destroyed&&!ControlledBake.For(900).Started.IsSet&&owner.component.PublishedFrame==publishedFrame&&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),published),"Unsubmitted reuse-cleanup failure lost ownership or affected Published");
+        Require(((Task)retained.GetType().GetField("work",PrivateInstance).GetValue(retained)).IsCompleted,"Failed private capture was reported as running work");
+        HybridLumenGIResourceRetirement.IdleUpdate();Frame();Disable(owner);OpenNewSession();Frame();
+        Require(ReferenceEquals(Job(owner),retained)&&HybridLumenGIDeformedMesh.ReservedBytes==held&&CoreUtils.FailedDestroyAttempts==attempts+1,
+            "Failed private cleanup was retried or released through disable/new session");
+        CoreUtils.FailDestroy=null;Console.WriteLine("PASS: equal-capture private destruction failure retained once using existing failed-job ownership/reservation; no worker, no repeated destroy, no false publication, including disable/new session.");
+    }
     static void LegacyContinuousControl()
     {
         Defaults();HybridLumenGIDeformedMesh.MaximumWorkers=1;var owner=Add(600);Frame();Started(600);

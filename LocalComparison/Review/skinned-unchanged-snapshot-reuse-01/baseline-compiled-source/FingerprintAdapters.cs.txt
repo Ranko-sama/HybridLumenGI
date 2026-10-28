@@ -1,0 +1,69 @@
+// Raw-mesh API adapters for the extracted, unmodified production SHA256 method.
+// Represented streams are positions/normals/tangents/UV0 plus real index/submesh bytes.
+// Bone/blend-shape channels are empty; this does not execute Unity native BakeMesh.
+using System;
+using System.IO;
+using System.Collections.Generic;
+namespace Unity.Collections
+{
+    public readonly struct NativeArray<T> where T:struct
+    {readonly T[] data;public NativeArray(T[] value){data=value;}public int Length=>data?.Length??0;public T this[int i]=>data[i];}
+}
+namespace UnityEngine.Rendering
+{
+    public struct VertexAttributeDescriptor {public int attribute,format,dimension,stream;}
+    public struct SubMeshDescriptor {public int indexStart,indexCount,baseVertex,firstVertex,vertexCount;public UnityEngine.MeshTopology topology;public UnityEngine.Bounds bounds;}
+}
+namespace UnityEngine
+{
+    public struct BoneWeight1 {public int boneIndex;public float weight;}
+    public partial class Mesh
+    {
+        public Matrix4x4[] bindposes=Array.Empty<Matrix4x4>();
+        public Unity.Collections.NativeArray<byte> GetBonesPerVertex()=>new Unity.Collections.NativeArray<byte>(Array.Empty<byte>());
+        public Unity.Collections.NativeArray<BoneWeight1> GetAllBoneWeights()=>new Unity.Collections.NativeArray<BoneWeight1>(Array.Empty<BoneWeight1>());
+        public int blendShapeCount=>0;public string GetBlendShapeName(int i)=>throw new NotSupportedException();
+        public int GetBlendShapeFrameCount(int i)=>throw new NotSupportedException();public float GetBlendShapeFrameWeight(int i,int f)=>throw new NotSupportedException();
+        public void GetBlendShapeFrameVertices(int i,int f,Vector3[] p,Vector3[] n,Vector3[] t)=>throw new NotSupportedException();
+        public Rendering.VertexAttributeDescriptor[] GetVertexAttributes()
+        {
+            var a=new List<Rendering.VertexAttributeDescriptor>{new Rendering.VertexAttributeDescriptor{attribute=0,dimension=3}};
+            if(normals.Length>0)a.Add(new Rendering.VertexAttributeDescriptor{attribute=1,dimension=3});
+            if(tangents.Length>0)a.Add(new Rendering.VertexAttributeDescriptor{attribute=2,dimension=4});
+            if(uv.Length>0)a.Add(new Rendering.VertexAttributeDescriptor{attribute=4,dimension=2});return a.ToArray();
+        }
+        public static MeshDataArray AcquireReadOnlyMeshData(Mesh mesh)=>new MeshDataArray(mesh);
+        public readonly struct MeshDataArray:IDisposable
+        {readonly Mesh mesh;public MeshDataArray(Mesh m){mesh=m;}public MeshData this[int i]=>new MeshData(mesh);public void Dispose(){}}
+        public readonly struct MeshData
+        {
+            readonly Mesh mesh;public MeshData(Mesh m){mesh=m;}public int vertexBufferCount=>1;public int subMeshCount=>mesh.subMeshCount;
+            static void V(BinaryWriter w,Vector3 p){w.Write(p.x);w.Write(p.y);w.Write(p.z);}
+            public Unity.Collections.NativeArray<T> GetVertexData<T>(int stream) where T:struct
+            {
+                if(stream!=0||typeof(T)!=typeof(byte))throw new NotSupportedException();
+                using(var memory=new MemoryStream())
+                {
+                    using(var w=new BinaryWriter(memory,System.Text.Encoding.UTF8,true))for(int i=0;i<mesh.vertexCount;i++)
+                    {V(w,mesh.positions[i]);if(mesh.normals.Length>0)V(w,mesh.normals[i]);if(mesh.tangents.Length>0){var t=mesh.tangents[i];w.Write(t.x);w.Write(t.y);w.Write(t.z);w.Write(t.w);}if(mesh.uv.Length>0){w.Write(mesh.uv[i].x);w.Write(mesh.uv[i].y);}}
+                    return new Unity.Collections.NativeArray<T>((T[])(object)memory.ToArray());
+                }
+            }
+            public Unity.Collections.NativeArray<T> GetIndexData<T>() where T:struct
+            {
+                if(typeof(T)!=typeof(byte))throw new NotSupportedException();
+                using(var memory=new MemoryStream())
+                {
+                    using(var w=new BinaryWriter(memory,System.Text.Encoding.UTF8,true))foreach(var sub in mesh.indices)foreach(int index in sub)
+                    {if(mesh.indexFormat==Rendering.IndexFormat.UInt16)w.Write((ushort)index);else w.Write(index);}
+                    return new Unity.Collections.NativeArray<T>((T[])(object)memory.ToArray());
+                }
+            }
+            public Rendering.SubMeshDescriptor GetSubMesh(int sub)
+            {
+                int start=0;for(int i=0;i<sub;i++)start+=mesh.indices[i].Length;
+                return new Rendering.SubMeshDescriptor{indexStart=start,indexCount=mesh.indices[sub].Length,vertexCount=mesh.vertexCount,topology=mesh.topology[sub],bounds=mesh.bounds};
+            }
+        }
+    }
+}

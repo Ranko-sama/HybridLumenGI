@@ -47,7 +47,7 @@ namespace UnityEngine
     }
     public struct Vector4 {public float x,y,z,w;public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}}
     public struct Bounds {public Vector3 center,size;public Vector3 extents=>size*.5f;public Bounds(Vector3 center,Vector3 size){this.center=center;this.size=size;}}
-    public struct Matrix4x4 {public Vector3 MultiplyVector(Vector3 v)=>v;public Vector3 MultiplyPoint3x4(Vector3 v)=>v;}
+    public struct Matrix4x4 {public float this[int i]=>0;public Vector3 MultiplyVector(Vector3 v)=>v;public Vector3 MultiplyPoint3x4(Vector3 v)=>v;}
     public static class Mathf {public static float Abs(float value)=>Math.Abs(value);public static int Clamp(int x,int a,int b)=>Math.Min(Math.Max(x,a),b);}
     public static class Time {public static int frameCount;}
     public static class SystemInfo {public static bool supportsGraphicsFence=true;}
@@ -59,7 +59,7 @@ namespace UnityEngine
         public static void Log(object value){}
     }
     public enum MeshTopology {Triangles,Lines}
-    public class Mesh:Object
+    public partial class Mesh:Object
     {
         private Vector3[] positions=Array.Empty<Vector3>();
         private readonly List<int[]> indices=new List<int[]>();
@@ -68,7 +68,10 @@ namespace UnityEngine
         public Rendering.IndexFormat indexFormat;
         public Bounds bounds;
         public Vector3[] vertices {get=>(Vector3[])positions.Clone();set=>positions=(Vector3[])value.Clone();}
-        public Vector3[] normals=Array.Empty<Vector3>();public Vector4[] tangents=Array.Empty<Vector4>();public Vector2[] uv=Array.Empty<Vector2>();
+        Vector3[] normalData=Array.Empty<Vector3>();Vector4[] tangentData=Array.Empty<Vector4>();Vector2[] uvData=Array.Empty<Vector2>();
+        public Vector3[] normals {get=>(Vector3[])normalData.Clone();set=>normalData=(Vector3[])value.Clone();}
+        public Vector4[] tangents {get=>(Vector4[])tangentData.Clone();set=>tangentData=(Vector4[])value.Clone();}
+        public Vector2[] uv {get=>(Vector2[])uvData.Clone();set=>uvData=(Vector2[])value.Clone();}
         public int vertexCount=>positions.Length;public int vertexBufferCount=>1;public int GetVertexBufferStride(int stream)=>48;
         public int subMeshCount
         {
@@ -86,7 +89,7 @@ namespace UnityEngine
     public class MeshRenderer:Renderer { }
     public class SkinnedMeshRenderer:Renderer
     {
-        public Mesh sharedMesh;public bool FailBake;public int BakeCount;
+        public Mesh sharedMesh,LastCaptured;public bool FailBake;public int BakeCount;public Action<Mesh> Captured;
         public void BakeMesh(Mesh destination,bool useScale)
         {
             BakeCount++;if(FailBake)throw new InvalidOperationException("Controlled capture failure");
@@ -94,6 +97,7 @@ namespace UnityEngine
             destination.subMeshCount=sharedMesh.subMeshCount;
             for(int i=0;i<sharedMesh.subMeshCount;i++)destination.SetIndices(sharedMesh.GetIndices(i,true),sharedMesh.GetTopology(i),i,false);
             destination.bounds=sharedMesh.bounds;
+            LastCaptured=destination;Captured?.Invoke(destination);
         }
     }
     public enum TextureFormat {RFloat}
@@ -208,7 +212,7 @@ namespace HybridLumenGI
             bounds=new Bounds(new Vector3(0,0,0),new Vector3(1,1,1));closed=true;return new float[size*size*size];
         }
     }
-    public sealed class HybridLumenGISurfaceCharts:ScriptableObject
+    public sealed partial class HybridLumenGISurfaceCharts:ScriptableObject
     {
         public sealed class Chart { }
         public sealed class BakeSettings {public float maxNormalAngleDegrees,paddingFraction,minimumPadding;public int maxTrianglesPerChart,chartBudget;}

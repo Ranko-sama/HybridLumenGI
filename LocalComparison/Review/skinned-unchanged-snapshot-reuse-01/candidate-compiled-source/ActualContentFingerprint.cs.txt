@@ -1,0 +1,67 @@
+using System; using System.IO; using System.Security.Cryptography; using UnityEngine; using Unity.Collections; namespace HybridLumenGI { public sealed partial class HybridLumenGISurfaceCharts { private const int FingerprintVersion = 1;
+        public static string ComputeContentFingerprint(Mesh mesh)
+        {
+            if (mesh == null || !mesh.isReadable) throw new ArgumentException("A readable source mesh is required.");
+            using (var hash = SHA256.Create())
+            {
+                using (var sink = new CryptoStream(Stream.Null, hash, CryptoStreamMode.Write))
+                using (var writer = new BinaryWriter(sink))
+                {
+                    writer.Write(FingerprintVersion); writer.Write(mesh.vertexCount); Write(writer, mesh.bounds);
+                    var attributes = mesh.GetVertexAttributes(); writer.Write(attributes.Length);
+                    foreach (var attribute in attributes)
+                    { writer.Write((int)attribute.attribute); writer.Write((int)attribute.format); writer.Write(attribute.dimension); writer.Write(attribute.stream); }
+                    byte[] buffer = new byte[65536];
+                    using (var snapshot = Mesh.AcquireReadOnlyMeshData(mesh))
+                    {
+                        var data = snapshot[0]; writer.Write(data.vertexBufferCount);
+                        for (int stream = 0; stream < data.vertexBufferCount; stream++) Write(writer, data.GetVertexData<byte>(stream), buffer);
+                        writer.Write((int)mesh.indexFormat); Write(writer, data.GetIndexData<byte>(), buffer);
+                        writer.Write(data.subMeshCount);
+                        for (int submesh = 0; submesh < data.subMeshCount; submesh++)
+                        {
+                            var descriptor = data.GetSubMesh(submesh);
+                            writer.Write(descriptor.indexStart); writer.Write(descriptor.indexCount); writer.Write(descriptor.baseVertex);
+                            writer.Write(descriptor.firstVertex); writer.Write(descriptor.vertexCount); writer.Write((int)descriptor.topology);
+                            Write(writer, descriptor.bounds);
+                        }
+                    }
+                    Matrix4x4[] bindposes = mesh.bindposes; writer.Write(bindposes.Length);
+                    foreach (Matrix4x4 matrix in bindposes) for (int i = 0; i < 16; i++) writer.Write(matrix[i]);
+                    var boneCounts = mesh.GetBonesPerVertex(); Write(writer, boneCounts, buffer);
+                    var weights = mesh.GetAllBoneWeights(); writer.Write(weights.Length);
+                    for (int i = 0; i < weights.Length; i++) { writer.Write(weights[i].boneIndex); writer.Write(weights[i].weight); }
+                    writer.Write(mesh.blendShapeCount);
+                    if (mesh.blendShapeCount > 0)
+                    {
+                        var positions = new Vector3[mesh.vertexCount]; var normals = new Vector3[mesh.vertexCount]; var tangents = new Vector3[mesh.vertexCount];
+                        for (int shape = 0; shape < mesh.blendShapeCount; shape++)
+                        {
+                            writer.Write(mesh.GetBlendShapeName(shape)); int frames = mesh.GetBlendShapeFrameCount(shape); writer.Write(frames);
+                            for (int frame = 0; frame < frames; frame++)
+                            {
+                                writer.Write(mesh.GetBlendShapeFrameWeight(shape, frame));
+                                mesh.GetBlendShapeFrameVertices(shape, frame, positions, normals, tangents);
+                                for (int i = 0; i < positions.Length; i++) { Write(writer, positions[i]); Write(writer, normals[i]); Write(writer, tangents[i]); }
+                            }
+                        }
+                    }
+                }
+                return BitConverter.ToString(hash.Hash).Replace("-", "");
+            }
+        }
+
+        private static void Write(BinaryWriter writer, Vector3 value) { writer.Write(value.x); writer.Write(value.y); writer.Write(value.z); }
+        private static void Write(BinaryWriter writer, Bounds value) { Write(writer, value.center); Write(writer, value.size); }
+        private static void Write(BinaryWriter writer, NativeArray<byte> data, byte[] buffer)
+        {
+            writer.Write(data.Length);
+            for (int offset = 0; offset < data.Length;)
+            {
+                int count = Math.Min(buffer.Length, data.Length - offset);
+                for (int i = 0; i < count; i++) buffer[i] = data[offset + i];
+                writer.Write(buffer, 0, count); offset += count;
+            }
+        }
+
+ } }

@@ -8,6 +8,8 @@ Mesh、SDF、捕获网格和 charts 全部生成成功后，以同一不可变�
 
 组件设置控制分辨率、更新间隔、单对象顶点/三角上限。共享的 `VertexBudgetPerFrame`、`MaximumWorkers`、`MemoryBudgetBytes`、`UploadBudgetBytesPerFrame` 约束捕获、后台任务、逻辑内存预留和发布。失败捕获也消耗本帧顶点额度，并遵守重试间隔；worker 设为零暂停新任务，仍清理已取消任务。队列按实例轮转，不能让列表开头的对象无限占用机会。
 
+自动 Skinned 轮询仍先按上述准入实际执行 BakeMesh；没有显式待处理请求、没有显式可读网格覆盖来源时，使用既有完整内容指纹比较新捕获与当前同 owner 的成功发布快照。只有网格内容/布局、有效 SDF 分辨率及捕获时冻结的 chart 设置都一致，才清理本次私有捕获并复用原快照，省去重复 SDF/charts 重建和发布失效。它不省略必要捕获，也不更新 PublishedFrame 或声称零 CPU 成本。失败或在途候选不作复用依据；显式强替换与合并请求仍正常处理。私有捕获清理失败沿用失败 Job 的所有权/预留保留政策，使用已完成的空结果任务占位，不是活跃 worker；不会自动重试销毁或归还未清理资源的预留。
+
 新请求递增代次并取消旧任务；任务实际完成前保留其预留，完成结果只有代次和来源仍一致才可发布。旧快照先从未来读者移除，再交由 `HybridLumenGIResourceRetirement`，等待所有相机结束后的 GPU fence 完成才销毁及归还预留。没有可靠 fence 时保留资源，不能用经过若干帧代替完成证据。
 
 上述强替换语义属于原 `RequestCapture()`，继续保留。持续显式生产者可选择 `RequestCoalescedCapture(readableSnapshot)`：让已捕获的有效快照继续完成，同时只保留一个最新待捕获来源引用。中间请求可以被合并；当前快照经过原上传与完整发布流程后，再按原间隔、worker、顶点和内存预算捕获最新来源。旧强替换接口、disable、shutdown及Renderer来源替换仍可撤销在途资格。现有调用者不会自动切换到新模式。

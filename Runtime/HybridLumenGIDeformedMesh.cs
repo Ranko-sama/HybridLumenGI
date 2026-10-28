@@ -52,6 +52,9 @@ namespace HybridLumenGI
             internal HybridLumenGIMeshSdf sdf;
             internal HybridLumenGISurfaceCharts charts;
             internal long reservation,uploadBytes;
+            internal string contentFingerprint;
+            internal int sdfSize;
+            internal HybridLumenGISurfaceCharts.BakeSettings capturedSettings;
             internal void Destroy()
             {
                 CoreUtils.Destroy(charts);CoreUtils.Destroy(sdf);CoreUtils.Destroy(texture);
@@ -76,6 +79,15 @@ namespace HybridLumenGI
             internal CancellationTokenSource cancellation=new CancellationTokenSource();
             internal Task<Result> work;
             internal bool cleanupFailed;
+        }
+
+        private static bool SameCapturedContent(Snapshot next,Snapshot published)
+        {
+            var a=next.capturedSettings;var b=published.capturedSettings;
+            return ReferenceEquals(next.owner,published.owner) && !string.IsNullOrEmpty(next.contentFingerprint) &&
+                string.Equals(next.contentFingerprint,published.contentFingerprint,StringComparison.Ordinal) && next.sdfSize==published.sdfSize &&
+                a!=null && b!=null && a.maxNormalAngleDegrees==b.maxNormalAngleDegrees && a.paddingFraction==b.paddingFraction &&
+                a.minimumPadding==b.minimumPadding && a.maxTrianglesPerChart==b.maxTrianglesPerChart && a.chartBudget==b.chartBudget;
         }
 
         public static bool HasSnapshot(Renderer renderer) => renderer!=null && Published.ContainsKey(renderer);
@@ -257,10 +269,12 @@ namespace HybridLumenGI
                 verticesLeft-=vertices;owner.lastCapture=Time.frameCount;
                 try
                 {
-                    if(owner.explicitSource==null && owner.source is SkinnedMeshRenderer skinned)
+                    bool skinCapture=owner.explicitSource==null && owner.source is SkinnedMeshRenderer;
+                    bool automaticSkinCapture=skinCapture && !owner.requested;
+                    if(skinCapture)
                     {
                         next.mesh=new Mesh{name="HLGI baked deformation",hideFlags=HideFlags.HideAndDontSave};
-                        skinned.BakeMesh(next.mesh,false); // Local positions; renderer transform is applied once.
+                        ((SkinnedMeshRenderer)owner.source).BakeMesh(next.mesh,false); // Local positions; renderer transform is applied once.
                     }
                     else
                     {
@@ -283,6 +297,24 @@ namespace HybridLumenGI
                     var settings=owner.chartSettings??new HybridLumenGISurfaceCharts.BakeSettings();
                     var frozenSettings=new HybridLumenGISurfaceCharts.BakeSettings{maxNormalAngleDegrees=settings.maxNormalAngleDegrees,
                         paddingFraction=settings.paddingFraction,minimumPadding=settings.minimumPadding,maxTrianglesPerChart=settings.maxTrianglesPerChart,chartBudget=settings.chartBudget};
+                    next.sdfSize=size;next.capturedSettings=frozenSettings;
+                    // Compare actual captured streams/layout, never bone matrices or source counts.
+                    // Metadata on a private/in-flight candidate is not reuse authority: only Published is.
+                    if(skinCapture)next.contentFingerprint=HybridLumenGISurfaceCharts.ComputeContentFingerprint(next.mesh);
+                    if(automaticSkinCapture && Published.TryGetValue(owner.source,out var published) && SameCapturedContent(next,published))
+                    {
+                        owner.Status="Unchanged automatic capture; published snapshot retained";
+                        try{next.Destroy();}
+                        catch(Exception cleanupError)
+                        {
+                            // This private mesh had no worker or GPU readers. Retain failed ownership
+                            // through the existing failure policy; do not fall into the outer Destroy.
+                            Jobs.Add(new Job{owner=owner,source=owner.source,generation=owner.generation,frame=Time.frameCount,size=size,
+                                snapshot=next,work=Task.FromResult<Result>(null),cleanupFailed=true});
+                            owner.Status="Unchanged capture cleanup failed; private snapshot retained";Debug.LogException(cleanupError);
+                        }
+                        continue;
+                    }
                     var job=new Job{owner=owner,source=owner.source,generation=owner.generation,frame=Time.frameCount,size=size,snapshot=next};
                     int[] triangles=flat.ToArray();var cancellation=job.cancellation.Token;
                     job.work=Task.Run(()=>
