@@ -1,0 +1,100 @@
+using System;
+using System.Collections.Generic;
+namespace UnityEngine
+{
+    public partial struct Vector3
+    {
+        public static bool operator ==(Vector3 a,Vector3 b)=>a.x==b.x&&a.y==b.y&&a.z==b.z;
+        public static bool operator !=(Vector3 a,Vector3 b)=>!(a==b);
+        public override bool Equals(object o)=>o is Vector3 b&&this==b;
+        public override int GetHashCode()=>HashCode.Combine(x,y,z);
+    }
+    public readonly record struct Vector3Int(int x,int y,int z);
+    public struct Vector4
+    {
+        public float x,y,z,w;
+        public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}
+    }
+    public struct Color
+    {
+        public float r,g,b,a;
+        public Color(float r,float g,float b,float a=1){this.r=r;this.g=g;this.b=b;this.a=a;}
+    }
+    public partial struct Bounds
+    {
+        public void Expand(float amount) { size+=Vector3.one*amount; }
+        public float SqrDistance(Vector3 p)
+        {
+            Vector3 a=min,b=max;
+            float x=MathF.Max(MathF.Max(a.x-p.x,p.x-b.x),0),y=MathF.Max(MathF.Max(a.y-p.y,p.y-b.y),0),z=MathF.Max(MathF.Max(a.z-p.z,p.z-b.z),0);
+            return x*x+y*y+z*z;
+        }
+    }
+    public struct Matrix4x4
+    {
+        public Vector3 translation;
+        public Vector3 MultiplyPoint3x4(Vector3 p)=>p+translation;
+        public static bool operator ==(Matrix4x4 a,Matrix4x4 b)=>a.translation==b.translation;
+        public static bool operator !=(Matrix4x4 a,Matrix4x4 b)=>!(a==b);
+        public override bool Equals(object o)=>o is Matrix4x4 b&&this==b;
+        public override int GetHashCode()=>translation.GetHashCode();
+    }
+    public static partial class Mathf
+    {
+        public static float Max(float a,float b,float c)=>Max(Max(a,b),c);
+        public static int Min(int a,int b)=>Math.Min(a,b);
+        public static int Clamp(int v,int min,int max)=>Math.Clamp(v,min,max);
+        public static float Sqrt(float v)=>MathF.Sqrt(v);
+        public static int FloorToInt(float v)=>(int)MathF.Floor(v);
+    }
+    public class Mesh
+    {
+        static int next; readonly int id=++next;
+        public int vertexCount=8;
+        public int GetInstanceID()=>id;
+    }
+    public class MeshFilter { public Mesh sharedMesh=new Mesh(); }
+    public class GameObject { public int layer; }
+    public class Renderer
+    {
+        public GameObject gameObject=new();
+        public uint renderingLayerMask=1u;
+        public UnityEngine.Rendering.ShadowCastingMode shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.On;
+        public MeshFilter filter=new MeshFilter();
+        public T GetComponent<T>() where T:class=>filter as T;
+    }
+    public class Texture3D { public int GetInstanceID()=>100; }
+}
+namespace HybridLumenGI
+{
+    using UnityEngine;
+    public class HybridLumenGIMeshSdf
+    {
+        public Bounds LocalBounds;
+        public bool IsValid=>true;
+        public Texture3D DistanceTexture=new Texture3D();
+        public int GetInstanceID()=>101;
+    }
+    // Dependency adapter: the actual scene residency/BVH source is compiled unchanged.
+    public class HybridLumenGIProxy
+    {
+        public enum Shape { Box, Sphere }
+        public static readonly List<HybridLumenGIProxy> ActiveProxies=new();
+        public bool isActiveAndEnabled=true,FarFieldOnly;
+        public HybridLumenGIProxy HLODParent;
+        public HybridLumenGIMeshSdf MeshSdf;
+        public Renderer SourceRenderer=new Renderer();
+        public Mesh SourceMesh=>SourceRenderer?.GetComponent<MeshFilter>()?.sharedMesh;
+        public GameObject gameObject=new();
+        public Shape ProxyShape;
+        public int StableId,Revision=1,GeometryContentRevision=1;
+        public float Roughness=.8f;
+        public Bounds bounds;
+        public Color diffuse=new(.7f,.7f,.7f),emission=new(0,0,0);
+        public Matrix4x4 SdfLocalToWorld=>new Matrix4x4{translation=bounds.center};
+        public Bounds GetWorldBounds()=>bounds;
+        public Color GetDiffuseReflectanceLinear()=>diffuse;
+        public Color GetEmissionLinear()=>emission;
+        public void RefreshSignatureForRender() { } // Real Proxy lifecycle has its own actual-source harness.
+    }
+}

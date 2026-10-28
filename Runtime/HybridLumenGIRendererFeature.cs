@@ -262,6 +262,7 @@ namespace HybridLumenGI
             internal ComputeBuffer lights;
             internal readonly HybridLumenGILights.Data[] lightData=new HybridLumenGILights.Data[32];
             internal readonly List<HybridLumenGILights.Data> lightChanges=new List<HybridLumenGILights.Data>(64);
+            internal readonly List<Bounds> localLightChangeBounds=new List<Bounds>(64);
             internal HybridLumenGILights.SelectionDiagnostics lightSelection;
             internal HybridLumenGILightRelevance.Domain lightDomain;
             internal string lightDomainReason;
@@ -1049,7 +1050,8 @@ namespace HybridLumenGI
                 // Newly captured moving cards must be eligible in this same frame. Scheduling before
                 // RecordCapture would starve continuously moving objects whose pages invalidate every frame.
                 state.scheduler.Prepare(state.scene,state.surfaceCache,state.patchGrid,d.frame,Mathf.Clamp(d.cachePatchBudget,1,state.cacheEntryCount),
-                    state.lightingChanged,Mathf.Max(s.shadowDistance,s.traceDistance)+Mathf.Max(1,s.traceDistance));
+                    state.lightingChanged,Mathf.Max(s.shadowDistance,s.traceDistance)+Mathf.Max(1,s.traceDistance),
+                    localLightChanges:state.localLightChangeBounds);
                 if(d.geometry!=null)
                 {
                     string reason=null;
@@ -1170,6 +1172,7 @@ namespace HybridLumenGI
             {
                 state.lightDomain=default;state.lightDomainReason="Disabled";
                 if(s.spatialLightSelection) TryLightDomain(state,cameraData,view,invVP,out state.lightDomain,out state.lightDomainReason);
+                state.localLightChangeBounds.Clear();
                 int count=worldLights.Update(Time.frameCount,useRenderingLayers,state.lightData,Mathf.Clamp(s.maxLights,1,32),
                     state.previousLightCount,state.lightChanges,out int hash,s.spatialLightSelection,state.lightDomain,out state.lightSelection);
                 state.lightingChanged=state.lightChanges.Count>0;
@@ -1226,7 +1229,16 @@ namespace HybridLumenGI
             private void AddLightChange(CameraState state,HybridLumenGILights.Data light)
             {
                 if(light.positionType.w<0.5f) state.changes.MarkGlobalLightingChange();
-                else state.changes.Add(new Bounds((Vector3)light.positionType,Vector3.one*Mathf.Max(0,light.directionRange.w)*2),false,Mathf.Max(1,s.traceDistance));
+                else
+                {
+                    var bounds=new Bounds((Vector3)light.positionType,Vector3.one*Mathf.Max(0,light.directionRange.w)*2);
+                    float influence=Mathf.Max(1,s.traceDistance);
+                    state.changes.Add(bounds,false,influence);
+                    // Old and new records share the existing change domain. This
+                    // conservative expansion affects priority, never eligibility.
+                    bounds.Expand(influence*2);
+                    state.localLightChangeBounds.Add(bounds);
+                }
             }
             private CameraState GetCameraState(Camera camera)
             {

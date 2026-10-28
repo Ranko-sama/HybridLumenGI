@@ -1,0 +1,72 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 48
+DECISION: ACCEPT_AND_INTEGRATE
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: current-release-integration-01
+
+一、接受局部灯光调度改动，结束源码包
+
+允许提交当前两文件产品修改及证据，未发现提交阻断。不追加scheduler病例或局部灯光场景矩阵。
+
+已确认 HybridLumenGI / workspace:/ / main@f4c06fa。我已先列出再读取iteration48输出233、234，检查实际产品diff、冻结程序、灯事件、提取的Feature方法及判定实现；没有修改、重跑或重新计算文件哈希。
+
+价值与最小范围成立
+
+本次交付的是有限预算下，受局部灯变化影响的区域能更早获得更新名额。固定输入的实际选择从[0,1]变为[0,3]，公平名额仍为1；不是通过增加预算、移除远处候选或改变光照值获得改善。〔执行输出233–234；本包两侧result.json〕
+
+两处修改保持了这个范围：Feature按相机保存并清空局部范围，原GPU变化域调用发生在扩展副本之前；scheduler仅以max提高相交owner的待服务优先级。原全局750、内容变化优先级、候选资格和最老服务配额均保留。这个包围盒是排序提示，不是光传输影响的硬边界。〔两文件Runtime diff；HybridLumenGICacheScheduler.cs:108–136、175–184〕
+
+关键正确性不是由“PASS”文字替代
+
+实际Lights只生成一次旧／新／关闭／方向光记录，候选复用保存字节。范围构造执行的是提取的原AddLightChange，没有由测试重写一份算法。原GPU接收器仍收到size2、influence2；仅调度副本扩为size6。〔baseline/LocalLightEvents.cs.txt.executed.txt:5–19；candidate/scheduler-project/ActualFeatureRange.cs:2–14〕
+
+事件持久性也确实被检查：零预算或目标页未就绪后，程序清空局部事件列表，再恢复预算／页，候选仍选择[0,3]。重复事件留下的是1000而非累计分数。四帧控制中全部patch得到服务，但不能把这个有限序列称为一般收敛速率证明。〔candidate/LocalLightScheduling.cs.txt.executed.txt:42–83〕
+
+**证据边界保留：**实际Scene、scheduler和提取的范围方法执行了；完整Feature／UpdateLights／RenderGraph未执行，GPU变化域只是调用记录器。列表清空、按相机存储及命名参数接线目前由产品源码支持，不能升级成原生集成验收。也没有GPU时间、图像或物理收敛收益证据。
+
+累计一次基线批次、一次候选批次，基线exit0表示成功建立预期对照，不是一项被隐藏的失败。本包到此关闭。
+
+二、下一价值判断：把已接受修改交付到当前可运行版本
+
+重新对照完整原计划，并比较Astra的独立阶段判断后，选择工作流10的一次当前版本整合，而不是再增加局部证明。
+
+现在可运行的Release44仍对应5120a8c；45的快照复用、47的雾合成、48的Feature／scheduler接线尚未共同进入已验证的普通Release。尤其本轮只编译执行了提取的Feature方法，不能替代完整Unity工程中的C#、shader资源和启动接线。
+
+下一包要决定的是：
+
+这些已接受源码能否组成一个来源明确、正常启用GI并退出的当前本地Release，供后续实际使用？
+
+它交付当前产物，不重新认证Release40的启动设计或Release44的300秒稳定性；也不把静态冒烟当成三项功能分别完成原生验证。
+
+三、最小执行范围
+
+默认零产品修改，复用现有构建与普通启动入口。
+
+提交48后冻结新HEAD，归档当前部署来源，再部署当前已提交产品。相对Release44，应明确核对四处预期产品变化：DeformedMesh、Composite、RendererFeature和CacheScheduler；出现其他差异必须解释，不能静默带入。旧Release40／44目录及其证据保持不动。
+
+复用CurrentPlayerBuild的Release分支：Windows x64、Mono、DX12、Linear、BuildOptions.None。该入口已经保存实际BuildReport选项并检查构建前后输入，不需要另造构建器。〔CurrentPlayerBuild.cs:27–36、59–68〕
+
+只对现有安装／运行／分析包装设置新的输出目录、运行标识和清单路径；LocalReleaseBootstrap及120帧判据保持现有字节和语义。普通默认入口仍常驻，由用户关闭；实测仅使用同一EXE的-localReleaseVerify120分支。
+
+授权一次构建、一次可见DX12 Player、120个实际目标相机帧。沿用Functional初始视图和640×360配置，保持旧自动事件、采集探针及计时／反馈关闭。不切雾、不移动灯或门、不触发形变，不增加截图、读回或诊断字段；不运行300秒模式。〔LocalReleaseBootstrap.cs:28–65、88–116〕
+
+临时构建／启动覆盖恢复到这次明确的新产品基线，场景与设置恢复；不要把恢复临时接线和回退产品版本混为一件事。
+
+四、验证必须改变采用决定
+当前不确定性	复用的最小验证	决策
+完整工程能否接受这组源码？	当前完整来源匹配，实际Release选项为None，正常构建，无阻断性的编译／资源／shader错误，保存完整产物清单。	成立才采用新产物；失败保留具体首个阻断，不关闭裁剪或改Development绕过。
+普通启动中GI是否真正启用？	复用1／60／120帧公开收据；实际GI帧推进、硬件后端及原准备／绑定条件成立。	仅相机回调或请求开关为true不足以接受；持续回退／未就绪则停止。
+新产物能否正常结束且来源未漂移？	自动退出0、无watchdog，检查完整原生日志，核对产物与恢复记录。	成立后保留当前可运行目录；失败不自动第二次构建／运行。
+
+现有分析器已经检查上述120帧条件，可仅重定向新目录复用，不能为通过而放宽断言。〔analyze-local-release.py:13–34〕
+
+这次不判定雾variant实际开启、局部调度的GPU响应、原生快照复用、逐owner清零或总VRAM。 公开“绑定完成”状态也不能改写为逐射线消费证明。生产分辨率、FPS、GI毫秒和显存目标仍待答，不从这次短运行推导合格线。
+
+退出条件
+
+当前来源构建、实际GI启用与正常退出三项成立，就采用新本地Release并结束；任一失败，保留首次证据和Release44可用基线，返回一个具体阻断，不扩大为功能矩阵或自动重试。
+
+本次继续计入Release40／44以来的普通Release交付投入，不因新目录增加“完成项”。
+
+现在提交第48轮有限调度能力，随后执行 current-release-integration-01。 四项目标、十条工作流全部保留；已关闭的源码、形变、场景和稳态检查不扩展，暗区、MC、曝光及计时调查继续关闭。

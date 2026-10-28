@@ -1,0 +1,149 @@
+{
+  "passed": true,
+  "candidate": false,
+  "rows": [
+    {
+      "name": "initial",
+      "globals": 0,
+      "rawCenters": [
+        100
+      ],
+      "schedulingCenters": []
+    },
+    {
+      "name": "move",
+      "globals": 0,
+      "rawCenters": [
+        100,
+        300
+      ],
+      "schedulingCenters": []
+    },
+    {
+      "name": "off",
+      "globals": 0,
+      "rawCenters": [
+        300
+      ],
+      "schedulingCenters": []
+    },
+    {
+      "name": "directional",
+      "globals": 1,
+      "rawCenters": [],
+      "schedulingCenters": []
+    },
+    {
+      "name": "primary",
+      "selected": [
+        0,
+        1
+      ],
+      "fairness": 1
+    },
+    {
+      "name": "duplicate-zero-budget",
+      "priority": [
+        750,
+        750,
+        750,
+        750
+      ],
+      "selected": [
+        0,
+        1
+      ],
+      "eventListAfterClear": 0
+    },
+    {
+      "name": "page-ready-next-frame",
+      "selected": [
+        0,
+        1
+      ],
+      "eventListAfterClear": 0
+    },
+    {
+      "name": "no-local",
+      "selected": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "directional",
+      "selected": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "fixed-four-frame-fairness",
+      "sequence": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "served": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "inputSha256": "5af2e6fcb0162c64945f3ccce9a8b3fa26f973cb20cb5a84d2187275a2fe3743",
+  "compiledSchedulerSha256": "42d3c7ba461eb759911b63afc0be321ce8b9aeb363aeceb65e53ff7ece292776",
+  "actualRangeMethodSha256": "f4d4fbeb3af86984e1174e67400b4885ef672a4437a53a7e43e5b1751c0f9c4e",
+  "commands": [
+    {
+      "name": "actual-light-events",
+      "arguments": [
+        "dotnet",
+        "run",
+        "--project",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\local-light-scheduling-priority-01\\baseline\\event-project\\Events.csproj",
+        "--configuration",
+        "Release",
+        "--verbosity",
+        "quiet",
+        "--",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\local-light-scheduling-priority-01\\baseline\\events.json"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "actual-scheduler",
+      "arguments": [
+        "dotnet",
+        "run",
+        "--project",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\local-light-scheduling-priority-01\\baseline\\scheduler-project\\Scheduling.csproj",
+        "--configuration",
+        "Release",
+        "--verbosity",
+        "quiet",
+        "--",
+        "baseline",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\local-light-scheduling-priority-01\\baseline\\events.json",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\local-light-scheduling-priority-01\\baseline\\result.json"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "unityExecuted": false,
+  "scope": "Actual unchanged light collector once; actual Scene/Scheduler and extracted AddLightChange. Explicit existing Unity/surface adapters and GPU change-domain call recorder; not Unity/RenderGraph/GPU runtime."
+}

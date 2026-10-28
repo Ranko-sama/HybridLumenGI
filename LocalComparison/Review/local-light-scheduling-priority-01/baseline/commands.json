@@ -1,0 +1,36 @@
+[
+  {
+    "name": "actual-light-events",
+    "arguments": [
+      "dotnet",
+      "run",
+      "--project",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\local-light-scheduling-priority-01\\baseline\\event-project\\Events.csproj",
+      "--configuration",
+      "Release",
+      "--verbosity",
+      "quiet",
+      "--",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\local-light-scheduling-priority-01\\baseline\\events.json"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "actual-scheduler",
+    "arguments": [
+      "dotnet",
+      "run",
+      "--project",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\local-light-scheduling-priority-01\\baseline\\scheduler-project\\Scheduling.csproj",
+      "--configuration",
+      "Release",
+      "--verbosity",
+      "quiet",
+      "--",
+      "baseline",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\local-light-scheduling-priority-01\\baseline\\events.json",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\local-light-scheduling-priority-01\\baseline\\result.json"
+    ],
+    "exitCode": 0
+  }
+]

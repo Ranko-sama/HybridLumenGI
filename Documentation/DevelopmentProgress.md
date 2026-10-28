@@ -130,3 +130,7 @@ iteration45已提交65e2a11。iteration46一次真实Unity Editor批次/PID21608
 iteration47：目标4/工作流7修复默认Additive最终雾衰减缺口，产品仅Composite增加8行。实际Frag旧反例在T=.5/0仍加完整G；候选正确为T*G，实际Reconstruct与当前URP雾函数执行，无雾及Replace有符号差值/Debug/unknown等控制逐字节保持。当前URP3依赖与固定cache一致，首轮基线/候选通过、受影响pass编译通过，无失败/重试/Unity/部署；不是此前截图归因或运行时变体选择验收。形变累计检查结束，本项按有限源码结果交独立Astra和实际Pro47，不扩雾类型矩阵。
 
 实际Pro47读取231/232批准Additive雾衰减的有限源码修复和本地提交，不扩雾/材质/原生矩阵。同意Astra独立下一方向：local-light-scheduling-priority-01，只在原全局照明脏标记和全部候选基础上，对局部灯光旧/新范围增加调度优先权，保留公平配额及预算；不把范围用作光传输硬截止，不宣称性能/画质收益。
+
+iteration48：目标2/3、工作流5/8增加局部灯变化的更新优先权，保留原全局750脏标记、全部候选与公平份额。实际Lights生成旧/新/关闭/方向光事件；实际Scene/Scheduler及AddLightChange方法首轮基线/候选通过，同预算2选择[0,1]变[0,3]且fairness1。重复事件不累加，清空事件后缺页/零预算恢复仍保留优先；四帧远近均获服务。产品仅Feature/Scheduler，未执行完整Feature/Unity/GPU或部署，不宣称耗时/画质收益。47/48两个产品节点后按完整计划阶段复评，独立Astra先选下一方向，待实际Pro48复核。
+
+实际Pro48读取233/234批准有限局部灯调度能力及本地提交。Astra先独立阶段判断应回到当前整体使用，Pro同意current-release-integration-01：冻结新HEAD，部署相对Release44的四处产品变化，复用原Release构建/普通启动/120帧判据，一次构建一次可见运行；不扩专项事件或300秒观察，不用静态整合认证三项功能各自原生全链。

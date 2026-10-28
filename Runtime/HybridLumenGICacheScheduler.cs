@@ -51,7 +51,7 @@ namespace HybridLumenGI
         public int LastScheduledFrame(int entry) => entry >= 0 && entry < lastScheduledFrame.Length ? lastScheduledFrame[entry] : -1;
 
         public void Prepare(HybridLumenGIScene scene, HybridLumenGISurfaceCache surface, int grid, int frame, int budget, bool lightingChanged,
-            float influenceRadius = 50f, bool upload = true)
+            float influenceRadius = 50f, bool upload = true, IReadOnlyList<Bounds> localLightChanges = null)
         {
             if (scene == null) throw new ArgumentNullException(nameof(scene));
             if (surface == null) throw new ArgumentNullException(nameof(surface));
@@ -68,7 +68,7 @@ namespace HybridLumenGI
             for (int slot = 0; slot < scene.Capacity; slot++)
             {
                 int id = scene.Data[slot].identity.w > 0.5f ? (int)scene.Data[slot].identity.x : 0;
-                ownerPriorities[slot] = id == 0 ? 0f : DirtyPriority(scene, slot, id, influenceRadius);
+                ownerPriorities[slot] = id == 0 ? 0f : DirtyPriority(scene, slot, id, influenceRadius, localLightChanges);
             }
             int candidateCount = 0;
             int[] cardOwners = surface.CardOwners;
@@ -155,7 +155,7 @@ namespace HybridLumenGI
             Mask[entry] = 1; SelectedCount++; lastService[entry] = tick;
             lastScheduledFrame[entry] = frame; pendingPriority[entry] = 0f; coveredRevision[entry] = true;
         }
-        private static float DirtyPriority(HybridLumenGIScene scene, int slot, int id, float radius)
+        private static float DirtyPriority(HybridLumenGIScene scene, int slot, int id, float radius, IReadOnlyList<Bounds> localLightChanges)
         {
             HybridLumenGIScene.ProxyGpuData data = scene.Data[slot];
             var center = new Vector3(data.centerShape.x, data.centerShape.y, data.centerShape.z);
@@ -173,6 +173,12 @@ namespace HybridLumenGI
                 float weight = radius > 0f ? 1f - Mathf.Sqrt(distanceSquared) / radius : 1f;
                 value = Mathf.Max(value, 250f + 250f * weight);
             }
+            // Local lights only compete for the priority quota. Retain global
+            // lighting dirtiness and the separate oldest-service fairness clock.
+            if (localLightChanges != null)
+                for (int i = 0; i < localLightChanges.Count; i++)
+                    if (BoundsDistanceSquared(bounds, localLightChanges[i]) <= 0f)
+                        value = Mathf.Max(value, 1000f);
             return value;
         }
         private static float BoundsDistanceSquared(Bounds a, Bounds b)
