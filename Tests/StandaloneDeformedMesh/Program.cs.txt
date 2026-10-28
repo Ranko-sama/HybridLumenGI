@@ -125,15 +125,74 @@ static class Program
     public static void Main()
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
+        if(Environment.GetEnvironmentVariable("HLGI_COALESCED_LEGACY_CONTROL")=="1")
+        {LegacyContinuousControl();return;}
         // The failed snapshot is intentionally retained: isolate this case from success-suite accounting.
         if(Environment.GetEnvironmentVariable("HLGI_PUBLICATION_CLEANUP_CASE")=="1")
         {PublicationCleanupFailure();return;}
-        AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();
+        AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
         ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
         Console.WriteLine("Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.");
     }
     static void OpenNewSession()=>typeof(HybridLumenGIResourceRetirement).GetMethod("InitializeRuntime",PrivateStatic).Invoke(null,null);
+    static void LegacyContinuousControl()
+    {
+        Defaults();HybridLumenGIDeformedMesh.MaximumWorkers=1;var owner=Add(600);Frame();Started(600);
+        Mesh a=PendingMesh(owner);owner.component.RequestCapture(Mesh(601));owner.component.RequestCapture(Mesh(602));
+        Finish(owner,600);Frame();Started(602);
+        Require(a.Destroyed&&!HybridLumenGIDeformedMesh.HasSnapshot(owner.renderer),"Legacy strong replacement published superseded A");
+        Mesh c=PendingMesh(owner);owner.component.RequestCapture(Mesh(603));owner.component.RequestCapture(Mesh(604));
+        Finish(owner,602);Frame();Started(604);
+        Require(c.Destroyed&&!HybridLumenGIDeformedMesh.HasSnapshot(owner.renderer)&&HybridLumenGIDeformedMesh.PendingWorkerCount==1,"Repeated strong replacement changed its cancellation contract");
+        Disable(owner);Finish(owner,604);Frame();
+        Require(HybridLumenGIDeformedMesh.PendingWorkerCount==0&&HybridLumenGIDeformedMesh.ReservedBytes==0,"Legacy control leaked unpublished work");
+        Console.WriteLine("CONFIRMED LEGACY LIMIT: two finite continuous strong-request cycles cancel captured work before publication; zero published snapshots. Intended strong-replacement semantics, not a failure.");
+    }
+    static void Coalesced(Owner owner,Mesh input)
+    {
+        var method=typeof(HybridLumenGIDeformedMesh).GetMethod("RequestCoalescedCapture");
+        Require(method!=null,"Optional coalesced request capability missing");method.Invoke(owner.component,new object[]{input});
+    }
+    static void PublishedTogether(Owner owner,Mesh expected,int marker)
+    {
+        Require(ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),expected)&&expected.vertices[0].x==marker&&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetSdf(owner.renderer,null).SourceMesh,expected)&&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetCharts(owner.renderer,null).SourceMesh,expected),"Coalesced publication lost captured content or mesh/SDF/chart identity");
+    }
+    static void CoalescedCaptureProgress()
+    {
+        Defaults();HybridLumenGIDeformedMesh.MaximumWorkers=1;var owner=Add(700);Frame();Started(700);
+        var jobA=Job(owner);Mesh a=PendingMesh(owner);long one=HybridLumenGIDeformedMesh.ReservedBytes;
+        Mesh bInput=Mesh(701),cInput=Mesh(702);Coalesced(owner,bInput);Coalesced(owner,cInput);Frame();
+        Require(ReferenceEquals(Job(owner),jobA)&&a.vertices[0].x==700&&HybridLumenGIDeformedMesh.PendingWorkerCount==1&&HybridLumenGIDeformedMesh.ReservedBytes==one&&
+            !ControlledBake.For(701).Started.IsSet&&!ControlledBake.For(702).Started.IsSet,"Coalescing changed in-flight bytes or admitted intermediate work");
+        Finish(owner,700);HybridLumenGIDeformedMesh.UploadBudgetBytesPerFrame=0;Frame();
+        Require(!HybridLumenGIDeformedMesh.HasSnapshot(owner.renderer)&&ReferenceEquals(Job(owner),jobA)&&HybridLumenGIDeformedMesh.ReservedBytes==one,"Coalesced publication bypassed original upload admission");
+        HybridLumenGIDeformedMesh.UploadBudgetBytesPerFrame=8L<<20;Frame();Started(702);Mesh c=PendingMesh(owner);PublishedTogether(owner,a,700);
+        Require(!ControlledBake.For(701).Started.IsSet&&c.vertices[0].x==702&&HybridLumenGIDeformedMesh.PendingWorkerCount==1&&HybridLumenGIDeformedMesh.ReservedBytes==2*one,"A failed to publish while only latest C was captured");
+        Mesh dInput=Mesh(703),eInput=Mesh(704);Coalesced(owner,dInput);Coalesced(owner,eInput);Frame();
+        Require(c.vertices[0].x==702&&!ControlledBake.For(703).Started.IsSet&&!ControlledBake.For(704).Started.IsSet,"Second cycle mutated captured C or queued intermediate D");
+        Finish(owner,702);Frame();Started(704);Mesh e=PendingMesh(owner);PublishedTogether(owner,c,702);
+        Require(!a.Destroyed&&HybridLumenGIDeformedMesh.ReservedBytes==3*one,"Coalesced replacement released previous reader storage early");
+        RenderPipelineManager.End();Require(!a.Destroyed,"Fence submission was mistaken for completion");
+        RecordedGpu.CompleteSubmitted();RenderPipelineManager.End();
+        Require(a.Destroyed&&HybridLumenGIDeformedMesh.ReservedBytes==2*one,"Completed old snapshot did not release its reservation");
+        Finish(owner,704);Frame();PublishedTogether(owner,e,704);
+        Require(Job(owner)==null&&HybridLumenGIDeformedMesh.PendingWorkerCount==0&&!ControlledBake.For(703).Started.IsSet&&
+            !c.Destroyed&&HybridLumenGIDeformedMesh.ReservedBytes==2*one,"Stopped producer failed final catch-up or created extra work");
+        RenderPipelineManager.End();RecordedGpu.CompleteSubmitted();RenderPipelineManager.End();
+        Require(c.Destroyed&&HybridLumenGIDeformedMesh.ReservedBytes==one&&!bInput.Destroyed&&!cInput.Destroyed&&!dInput.Destroyed&&!eInput.Destroyed,"Coalescing took producer ownership or lost retirement accounting");
+        Coalesced(owner,Mesh(705));Frame();Started(705);Mesh cancelled=PendingMesh(owner);
+        Coalesced(owner,Mesh(706));owner.component.RequestCapture(Mesh(707));Finish(owner,705);Frame();Started(707);PublishedTogether(owner,e,704);
+        Require(cancelled.Destroyed&&!ControlledBake.For(706).Started.IsSet,"Coalesced pending demand weakened strong replacement");
+        Mesh withdrawn=PendingMesh(owner);Coalesced(owner,Mesh(708));Disable(owner);Finish(owner,707);Frame();
+        Require(withdrawn.Destroyed&&Job(owner)==null&&!HybridLumenGIDeformedMesh.HasSnapshot(owner.renderer)&&
+            !ControlledBake.For(708).Started.IsSet&&!e.Destroyed&&HybridLumenGIDeformedMesh.ReservedBytes==one,"Withdrawal revived coalesced demand or released published storage early");
+        RenderPipelineManager.End();RecordedGpu.CompleteSubmitted();RenderPipelineManager.End();
+        Require(e.Destroyed&&HybridLumenGIDeformedMesh.ReservedBytes==0,"Coalesced owner did not finish ordinary safe retirement");
+        Console.WriteLine("PASS coalesced demand: actual A then C publication, latest-only second cycle/final catch-up, borrowed inputs, one pending worker, unchanged upload/strong-cancel/withdrawal/fence ownership.");
+    }
     static void PublicationCleanupFailure()
     {
         Defaults();var healthy=Add(410);Frame();Started(410);Finish(healthy,410);Frame();

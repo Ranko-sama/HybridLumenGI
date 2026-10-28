@@ -1,4 +1,4 @@
-param([string]$SourceRoot=(Split-Path -Parent $PSScriptRoot))
+param([string]$SourceRoot=(Split-Path -Parent $PSScriptRoot),[string]$DeformationSource='',[switch]$LegacyContinuousControl)
 $ErrorActionPreference='Stop'
 $SourceRoot=(Resolve-Path -LiteralPath $SourceRoot).Path
 $sources=@{}
@@ -8,7 +8,13 @@ foreach($name in @('HybridLumenGIDeformedMesh','HybridLumenGIResourceRetirement'
 foreach($name in @('Adapters','Program')) {
     $sources[($name+'.cs')]=[IO.File]::ReadAllText((Join-Path $PSScriptRoot ('StandaloneDeformedMesh/'+$name+'.cs.txt')))
 }
-& (Join-Path $PSScriptRoot 'Invoke-CSharpHarness.ps1') -Name 'deformed-mesh' -Sources $sources -TimeoutSeconds 30
+if($DeformationSource){$sources['HybridLumenGIDeformedMesh.cs']=[IO.File]::ReadAllText((Resolve-Path -LiteralPath $DeformationSource).Path)}
+$previousControl=[Environment]::GetEnvironmentVariable('HLGI_COALESCED_LEGACY_CONTROL','Process')
+try {
+    [Environment]::SetEnvironmentVariable('HLGI_COALESCED_LEGACY_CONTROL',$(if($LegacyContinuousControl){'1'}else{$null}),'Process')
+    & (Join-Path $PSScriptRoot 'Invoke-CSharpHarness.ps1') -Name 'deformed-mesh' -Sources $sources -TimeoutSeconds 30
+} finally { [Environment]::SetEnvironmentVariable('HLGI_COALESCED_LEGACY_CONTROL',$previousControl,'Process') }
+if($LegacyContinuousControl){return}
 
 # These are deliberately source wiring contracts, not an assertion that Unity ran the consumers.
 $contracts=@{

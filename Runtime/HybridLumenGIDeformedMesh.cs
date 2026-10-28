@@ -149,6 +149,13 @@ namespace HybridLumenGI
             explicitSource=readableSnapshot;requested=true;generation++;
             foreach(var job in Jobs)if(ReferenceEquals(job.owner,this))job.cancellation.Cancel();
         }
+        /// <summary>Main thread: keeps only the latest next-capture demand without cancelling
+        /// an already captured snapshot. Input is borrowed and copied at actual capture, not
+        /// at this call; intermediate requests may merge. Existing budgets and revocation apply.</summary>
+        public void RequestCoalescedCapture(Mesh readableSnapshot=null)
+        {
+            explicitSource=readableSnapshot;requested=true;
+        }
         private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
         {
             if(HybridLumenGIResourceRetirement.AdmissionClosed){PollShutdownWork();return;}
