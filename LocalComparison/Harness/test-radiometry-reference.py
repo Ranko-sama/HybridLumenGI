@@ -1,0 +1,45 @@
+"""Small analytic fixture: source normalization, geometric sides and true occlusion."""
+import importlib.util
+from pathlib import Path
+import numpy as np
+
+spec=importlib.util.spec_from_file_location('reference',Path(__file__).with_name('radiometry-reference.py'))
+r=importlib.util.module_from_spec(spec);spec.loader.exec_module(r)
+def v(x,y,z):return dict(x=x,y=y,z=z)
+color=lambda x:dict(r=x,g=x,b=x,a=1)
+material=dict(key='white',surface=0,alphaClip=0,emissionEnabled=False,textures=[],cull=2,keywords=[],baseColor={'srgb':color(.5)},specularColor={'srgb':color(.2)},specularSetup=False,metallic=0,receiveShadows=True)
+def mesh(name,y,normal):
+    indices=[0,2,1,3,2,0] if normal>0 else [0,1,2,0,2,3]
+    return dict(key=name,name=name,localToWorld={f'e{i}{j}':float(i==j) for i in range(4) for j in range(4)},
+        vertices=[v(-10,y,-10),v(10,y,-10),v(10,y,10),v(-10,y,10)],normals=[v(0,normal,0)]*4,
+        submeshes=[dict(index=0,material='white',topology='Triangles',indices=indices)],
+        layer=0,renderingLayers=1,shadowCastingMode=2,receiveShadows=True)
+source=dict(linear=True,skybox=False,fog=False,lightLayers=False,materials=[material],meshes=[mesh('floor',0,1),mesh('ceiling',3,-1)],
+    lights=[dict(enabled=True,type='Point',cookie='none',bakeType='Realtime',useTemperature=False,position=v(0,2,0),color={'srgb':color(1)},intensity=8,range=10,cullingMask=-1,renderingLayers=1,shadowLayers=1,shadows=2,shadowStrength=1)])
+scene=r.Scene(source)
+assert np.allclose(scene.rhos[0],.20547949486294326,rtol=0,atol=2e-15),scene.rhos[0]
+origins=np.array([[0,1,0],[0,1,0],[0,-1,0]],float);directions=np.array([[0,-1,0],[0,1,0],[0,1,0]],float)
+distance,hit=scene.intersect(origins,directions)
+assert np.allclose(distance[:2],[1,2]) and (hit[:2]>=0).all() and hit[2]>=0 and abs(distance[2]-4)<1e-12
+# Back face of the floor is ignored; the next front face is the ceiling at distance4.
+d=scene.direct(np.array([[0.,0,0]]),np.array([[0.,1,0]]),np.array([0]),np.array([scene.offset]))
+expected=8/4*(1-(4/100)**2)**2
+assert np.allclose(d,expected,rtol=0,atol=1e-13),(d,expected)
+source['meshes'].append(mesh('blocker',1,-1));blocked=r.Scene(source)
+assert np.array_equal(blocked.direct(np.array([[0.,0,0]]),np.array([[0.,1,0]]),np.array([0]),np.array([blocked.offset])),np.zeros((1,3)))
+t=scene.correspondence(dict(id='gi-0',kind='gi',position=v(0,0,0),normal=v(0,1,0),geometricNormal=v(0,1,0)))
+assert len(t['candidates'])==2 and not t['snapped']
+quantized=r.encoded_cache_normal(np.array([0.,1,0]))
+assert np.allclose(quantized,[0.,.9994449069791543,-.03331483023263848],atol=2e-15,rtol=0)
+scene.tri_meta[0]['name']=scene.tri_meta[1]['name']='Thin-wall floor'
+encoded_target=scene.correspondence(dict(id='cache-0',kind='cache',position=v(0,0,0),normal=v(0,1,0),geometricNormal=v(*quantized)))
+assert encoded_target['candidates'][0]['geometricNormalRawDistance']>.03 and encoded_target['candidates'][0]['geometricNormalRepresentationDistance']<1e-12
+try:scene.correspondence(dict(id='bad',kind='gi',position=v(0,.01,0),normal=v(0,1,0),geometricNormal=v(0,1,0)))
+except AssertionError:pass
+else:raise AssertionError('Off-surface target incorrectly accepted')
+assert abs(scene.dmin-1)<1e-12
+source['meshes'][0]['submeshes'][0]['indices']=[0,1,2,0,2,3]
+try:r.Scene(source)
+except AssertionError:pass
+else:raise AssertionError('Inconsistent winding silently repaired')
+print('PASS: sRGB/rho value; analytic hit distances/front sides; point attenuation; blocker; equivalent triangles; 5-bit oct correspondence; off-surface and inconsistent-winding rejection; positive source-distance bound')

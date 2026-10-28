@@ -1,0 +1,53 @@
+"""Run the actual exporter Resolve method with a counted PackageInfo stub; no Unity process."""
+from pathlib import Path
+import hashlib, json, subprocess, sys
+sys.stdout.reconfigure(encoding='utf-8')
+
+root=Path(__file__).resolve().parents[2]
+source=(root/'LocalComparison/Harness/SceneRadiometryExport.cs').read_text(encoding='utf-8')
+start=source.index('    static string Resolve(string path)')
+method=source[start:source.index('    static MaterialInput Material(',start)]
+out=root/'LocalComparison/Review/scene-radiometry-matched-baseline-01/path-repair'
+out.mkdir(parents=True,exist_ok=True)
+program='''using System;
+using System.IO;
+namespace UnityEditor.PackageManager {
+    public class PackageInfo {
+        public string name="com.unity.render-pipelines.universal",resolvedPath="I:/Unity test/Project/Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac";
+        public static int calls;
+        public static PackageInfo FindForAssetPath(string path){calls++;return path=="Packages/com.unity.render-pipelines.universal"||path.StartsWith("Packages/com.unity.render-pipelines.universal/")?new PackageInfo():null;}
+    }
+}
+class Program {
+METHOD
+    static void Check(bool condition,string message){if(!condition)throw new Exception(message);}
+    static void Main(){
+        Directory.SetCurrentDirectory("I:/Unity test/Project");
+        foreach(string name in new[]{"Packages/manifest.json","Packages/packages-lock.json"})
+            Check(Resolve(name)==Path.GetFullPath(name)&&File.Exists(Resolve(name)),"Project-owned manifest path");
+        Check(UnityEditor.PackageManager.PackageInfo.calls==0,"Project manifests invoked package lookup");
+        var package=new UnityEditor.PackageManager.PackageInfo();
+        Check(Resolve("Packages/"+package.name)==package.resolvedPath,"Package root path");
+        Check(Resolve("Packages/"+package.name+"/ShaderLibrary/BRDF.hlsl")==Path.Combine(package.resolvedPath,"ShaderLibrary/BRDF.hlsl"),"Package asset path");
+        Check(UnityEditor.PackageManager.PackageInfo.calls==2,"Known package resolution count");
+        bool failed=false;try{Resolve("Packages/not-installed/file.hlsl");}catch(Exception e){failed=e.Message=="Unresolved package input: Packages/not-installed/file.hlsl";}
+        Check(failed&&UnityEditor.PackageManager.PackageInfo.calls==3,"Unknown package must remain failure");
+        Console.WriteLine("PASS actual Resolve: two existing project manifests bypass PackageInfo; package root and inner asset resolve; unknown package fails. No Unity process.");
+    }
+}
+'''.replace('METHOD',method)
+cs=out/'ResolveProbe.cs';cs.write_text(program,encoding='utf-8');exe=out/'ResolveProbe.exe'
+mono=Path('I:/Unity test/Editor/6000.0.85f1/Editor/Data/MonoBleedingEdge/bin/mono.exe')
+compiler=Path('I:/Unity test/Editor/6000.0.85f1/Editor/Data/MonoBleedingEdge/lib/mono/msbuild/Current/bin/Roslyn/csc.exe')
+commands=[[str(mono),str(compiler),'/nologo','/out:'+str(exe),str(cs)],[str(mono),str(exe)]]
+log=[]
+for command in commands:
+    result=subprocess.run(command,capture_output=True,text=True,encoding='utf-8',errors='replace')
+    log.append(result.stdout+result.stderr)
+    (out/'output.log').write_text('\n'.join(log),encoding='utf-8')
+    print(log[-1],end='')
+    if result.returncode:
+        (out/'output.log').write_text('\n'.join(log),encoding='utf-8');raise SystemExit(result.returncode)
+(out/'output.log').write_text('\n'.join(log),encoding='utf-8')
+(out/'receipt.json').write_text(json.dumps({'exporterSha256':hashlib.sha256(source.encode()).hexdigest(),'testedMethodSha256':hashlib.sha256(method.encode()).hexdigest(),
+    'passed':True,'UnityStarted':False,'compileAndRunExitCodes':[0,0]},indent=2),encoding='utf-8')

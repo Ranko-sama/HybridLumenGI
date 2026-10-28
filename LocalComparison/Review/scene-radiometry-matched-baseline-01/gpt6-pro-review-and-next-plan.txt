@@ -1,0 +1,129 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 16
+REVIEW_DECISION: RETAIN — 批准失败检查点及最小导出器修复保留；不认定原生验证完成
+NEXT_PACKAGE: scene-radiometry-matched-baseline-02
+
+一、审查结论
+
+允许将本轮失败证据和当前辅助代码作为本地检查点提交。Resolve的最小修复可以进入下一次有界原生运行；无需回退产品代码，也无需再建立一轮等价路径夹具。
+
+连接器确认 HybridLumenGI / workspace:/ / main@31afcd5。Runtime diff为空；当前新增辅助代码和证据仍是未跟踪文件，不是已暂存或已提交增量。我已先列出再读取iteration 16执行输出71–84，并核对合同、两份Astra评审、执行版与修正版源码、原始日志、恢复回执，以及采集／积分／比较接线。本层未执行修改、测试或提交。
+
+本轮失败的性质已经明确
+
+原始日志给出的调用链是：
+
+纯文本
+SceneRadiometryExport.Resolve
+→ Dependencies
+→ Play
+Exception: Unresolved package input: Packages/manifest.json
+
+异常发生在 reference-scene.json 写出之后、source-freeze.json 和 EnterPlaymode()之前。因此，部分导出文件只能作为诊断，没有形成完整的新来源基线，更没有配对的产品结果。〔本包 unity.log:372–380；SceneRadiometryExport.cs:164–178〕
+
+其他失败也应各归其位：首次C#预检是类型／过时API错误；首次数学检查是期望值小数写法问题；路径探针第一次因GBK输出BOM失败，尚未执行探针。它们与唯一Unity进程的导出错误不是同一次故障，更不是GI缺陷。成功与失败执行记录均已保存。〔执行输出71–74、81–83〕
+
+42项部署恢复回执均为true；执行输出84还报告96份Runtime源码哈希与安装前一致。这支持恢复完成，不提供任何渲染、原生资源退休或辐射参考通过证据。
+
+二、最小修复可以接受，另补一个验收接线缺口
+1. Resolve修复范围正确
+
+执行版本对所有 Packages/ 前缀都调用 PackageInfo.FindForAssetPath；修正版只将：
+
+纯文本
+Packages/manifest.json
+Packages/packages-lock.json
+
+作为项目配置路径直接解析，真实包根／包内文件仍走PackageInfo，未知包仍抛错。没有把失败改成“忽略这个依赖”或将所有包路径降级成项目相对路径。〔执行版 instrumentation/prepared/Assets/ComparisonHarness/SceneRadiometryExport.cs:70–79；当前 SceneRadiometryExport.cs:70–82〕
+
+探针机械提取实际 Resolve 方法，计数PackageInfo调用，并覆盖两份现存项目清单、已知包根、包内文件和未知包失败。它足以支持这个分类修复，但不是Unity真实PackageInfo行为或完整依赖冻结的验证。〔test-radiometry-paths.py:7–37；path-repair/receipt.json；执行输出83〕
+
+保存的prepared exporter仍是原失败版本，这一点正确。不要用修正版覆盖它。
+
+2. P2辅助工具缺口：比较器缩减了原生日志接受条件
+
+compare-radiometry.py重新维护了一小段字符串列表，遗漏已有共享扫描器中的部分独立owner、设备丢失、无效kernel及读回签名。触发这些告警时，仅凭exit 0和当前缩减列表，可能错误设置 nativeExitAccepted=true。本次没有执行到比较器，所以这不是本轮已经发生的误判。〔compare-radiometry.py:75–86；native_log_check.py:4–13〕
+
+下一包直接调用既有 native_log_check.scan，保留本包必要的观察器／scratch补充检查，输出类别、行号和原文。不要再复制一套较弱规则，也不需要为此重复历史原生运行。
+
+除此之外，本次审查未发现需要在重试前扩大Runtime修改范围的依据。
+
+三、下一包：一次实际采集，随后直接积分
+
+本轮旧额度已消耗。下一包明确授权一个新的Unity进程、最多120个目标相机逻辑帧，沿用静态开灯配置；成功后在同包内完成固定六点CPU积分与比较。 不另开导出进程，不增加360帧序列，不以“来源清单已生成”作为最终交付。
+
+A. 先归档，再建立新尝试目录
+
+提交iteration 16检查点，保留原 native-attempt.json、exit 1、部分来源、所有失败日志及执行版本。新输出使用 scene-radiometry-matched-baseline-02，独立run ID和manifest；不得删除旧attempt标记后在原目录重跑。
+
+产品源码仍采用当前已批准版本；冻结场景结构与iteration 15明确采用的材质依赖不变。新尝试不再运行场景生成器，不“修复”Emitter keyword，不修改灯光、预算、bias、feedback或降噪设置。
+
+准备脚本与启动器统一指向新目录，确认实际安装的是修正版exporter。改动的C#可做一次必要的编译接线检查；已验证的路径探针、数学病例及哈希相同的HLSL证据直接复用，不再各跑一轮。
+
+B. 保持原120帧合同，不移动验收条件
+阶段	必须执行的工作
+导入后、Play前	在同一进程中导出实际场景及完整依赖，解析两份项目清单和真实包资产，写出新的来源冻结记录。来源缺失必须报错，不能跳过。
+0–103帧	正常产品预热与轻量收据；103门槛等待已提交读回，检查来源、实际后端、两个唯一patch及四个接收面覆盖。不是亮度门槛。
+104–119帧	固定窗口的cache、实际gather及raw/history/filtered；最终HDR／PNG仅104和119两组。
+119后、Finish前	再核对来源及全部窗口收据，生成六个本次实际目标；随后正常关闭、保存完整日志并恢复部署。
+
+现有安装器已把103／119门槛放在采集器正常Update、推进或Finish之前，这是应保留的接线。〔prepare-radiometry.py:43–59、85–97〕
+
+不从旧运行继承entry、revision、目标位置或照明数值。 使用原世界规则和GI像素选择方式，但建立本次身份／别名映射。新的六点仍必须来自本次119帧；原部分 reference-scene.json不能与新目标混用。
+
+若仍在Play前失败，也消耗这一次尝试；保存首个错误，不自动再启动。
+
+C. 原生成功后，先验证来源，再启动积分
+
+把下列检查放在求解器调用之前，而不是仅等到最后的比较器：
+
+来源冻结文件存在且依赖哈希一致；103／119检查通过；120帧及窗口收据完整；六点目标属于本次run；正常退出与共享日志扫描通过；部署恢复完成。
+
+这些是流程门槛，不需要新增测试框架。 当前来源核对主要集中在比较器中，而求解器入口只接收scene和targets；下一包应确保调用顺序不会让未闭合来源先进入积分。〔compare-radiometry.py:15–33；radiometry-reference.py:234–247〕
+
+随后执行独立三角形／submesh／材质／面向对应。保留已声明的位置、法线表示容差和“不吸附目标”规则；缺失或歧义就停止积分，不能为了得到六点答案换目标。
+
+D. 直接运行既定六点求解器
+
+来源与对应通过后，无需再申请一轮同类资格评审，直接完成既定积分：
+
+六个实际目标；
+每目标8个独立批次，每批4096条路径；
+最多64个漫反射顶点；
+原固定种子与支持范围，不增加采样、反弹数或配置。
+
+求解器只读新来源与位置／身份，不读产品cache、incoming或guide；比较器在参考结果形成后才读取本次产品数据。当前代码已作了这层职责分离，应保持。〔radiometry-reference.py:1–6、234–255〕
+
+有一个必须预先接受的结果边界：目前全局反射率／光源距离构造的Hoeffding区间和尾项界可能很宽。 若超出原定参考精度目标，就保留 referenceEstimateQualified=false；不能以较窄的近似t区间替换它，也不能把“第64反弹很小”改称严格尾项证明。〔radiometry-reference.py:221–230〕
+
+精度不足不等于本次积分没有完成。应保存有限64顶点结果、全部批次与反弹贡献、严格界及描述性区间，并允许比较器输出非结论性的差异报告。不要因此又把整个包退回“输入检查完成、积分以后再做”，也不要扩大采样直到变绿。
+
+四、怎样从参考进入实质性改善
+
+本包首先要得到同输入的实际产品值与独立参考值，而不是立即调参。
+
+两个cache量与四个raw入射量是主要比较对象；history、filtered和最终HDR分层展示。120帧没有自动稳态资格，16帧窗口也不是16个独立GPU样本。参考置信区间不能直接作为GPU质量阈值。
+
+若得到确定的单位／颜色转换、表面身份、遮挡或消费反例，保存对应原始输入与路径，提出一项局部Runtime修复和事先定义的验证目标，再返回独立审查。只有数值距离、有限更新、低采样或近似模型差别时，不通过调暗、缩短历史或降低反馈让结果看起来接近。
+
+下一包交付应分别回答：
+
+纯文本
+prospectiveSourceClosure
+targetSurfaceCorrespondenceVerified
+productObservationValid
+integrationExecuted
+referenceEstimateQualified
+comparisonConclusive
+nativeExitAccepted
+
+原iteration 16的失败状态和 historicalSourceClosure=false 永久保留；一次新的成功不能回填旧失败。
+
+五、停止与完整计划
+
+新的来源变化、观察器／读回错误、后端回退、有效数据非有限、设备或资源错误，都停止该次实验并保存证据。来源／对应不成立时不积分；积分精度不足时保留有限结果，不扩大计算或原生次数。
+
+现在批准失败检查点与最小路径修复保留；下一包的实质任务仍是“新配对采集＋独立CPU六点积分＋分层比较”。 不再增加等价启动／路径／数学夹具包。既往异常退出的1 MiB scratch仍未归属，本次零目标帧也不能提供新的GI退出验收。
+
+四项目标、十条工作流及自主开发循环继续有效。局部工具修复不替代真实光传输、整图与动态质量、当前Player/DXR、GPU时间、显存和长时验收。
