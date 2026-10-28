@@ -1,0 +1,138 @@
+[
+  {
+    "name": "metal-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSSurfaceWorkflow",
+      "-D",
+      "_EMISSION=1",
+      "-D",
+      "_OCCLUSIONMAP=1",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\metal.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\actual-surface.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "metal-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\metal.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\metal-inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\metal.bin"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "spec-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSSurfaceWorkflow",
+      "-D",
+      "_EMISSION=1",
+      "-D",
+      "_OCCLUSIONMAP=1",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\spec.dxil",
+      "-D",
+      "_SPECULAR_SETUP=1",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\actual-surface.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "spec-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\spec.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\spec-inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\spec.bin"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "metal-map-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSSurfaceWorkflow",
+      "-D",
+      "_EMISSION=1",
+      "-D",
+      "_OCCLUSIONMAP=1",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\metal-map.dxil",
+      "-D",
+      "_METALLICSPECGLOSSMAP=1",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\actual-surface.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "metal-map-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\metal-map.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\metal-map-inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\metal-map.bin"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "spec-map-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSSurfaceWorkflow",
+      "-D",
+      "_EMISSION=1",
+      "-D",
+      "_OCCLUSIONMAP=1",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\spec-map.dxil",
+      "-D",
+      "_SPECULAR_SETUP=1",
+      "-D",
+      "_METALLICSPECGLOSSMAP=1",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\actual-surface.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "spec-map-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\spec-map.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\spec-map-inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\baseline\\spec-map.bin"
+    ],
+    "exitCode": 0
+  }
+]

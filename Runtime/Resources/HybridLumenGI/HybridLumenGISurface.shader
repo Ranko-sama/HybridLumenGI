@@ -39,6 +39,7 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             // Override shaders do not have their own material assets. Keep these
             // variants in players; shader_feature could strip required variants.
             #pragma multi_compile_fragment _ _METALLICSPECGLOSSMAP
+            #pragma multi_compile_local_fragment _ _SPECULAR_SETUP
             #pragma multi_compile_fragment _ _EMISSION
             #pragma multi_compile_fragment _ _OCCLUSIONMAP
             #pragma multi_compile_local_fragment _ _ALPHATEST_ON
@@ -136,9 +137,11 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                 #endif
                 // Matches standard URP Lit's diffuse BRDF split. This buffer is
                 // reflectance, not irradiance or already-lit camera color.
-                half diffuseFraction = _WorkflowMode < 0.5h
-                    ? 1.0h - max(specular.r, max(specular.g, specular.b))
-                    : 0.96h * (1.0h - metallic);
+                #if defined(_SPECULAR_SETUP)
+                    half diffuseFraction = 1.0h - max(specular.r, max(specular.g, specular.b));
+                #else
+                    half diffuseFraction = 0.96h * (1.0h - metallic);
+                #endif
                 half occlusion = 1.0h;
                 #if defined(_OCCLUSIONMAP)
                     half ao = SAMPLE_TEXTURE2D(_OcclusionMap, sampler_OcclusionMap, input.uv).g;

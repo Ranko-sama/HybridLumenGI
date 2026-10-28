@@ -23,6 +23,8 @@
 
 51的当前增量修复普通Surface按数值属性而非keyword决定alpha覆盖的问题，见[有限结果](ReviewBrief-SurfaceAlphaKeywordParity01.md)：实际Frag旧反例成立，候选覆盖与当前URP合同一致，一致控制保持，完整片元编译通过。尚未在Unity验证keyword传递或原生光栅覆盖，不改变Release49来源或整体材质验收状态。
 
+52继续同一Surface一致性修复：漫反射比例改由_SPECULAR_SETUP选择，避免与数值_WorkflowMode不同步时出现错误金属/镜面反射率。实际Frag的标量/贴图反例与一致控制已通过首轮限定验证，见[有限结果](ReviewBrief-SurfaceWorkflowKeywordParity01.md)。这与51及早期Surface专项累计计入同一功能投入，不重开alpha矩阵，也不升级为Unity原生材质或画质验收。
+
 resource-shutdown-01b已由Pro批准：先关准入/撤销owner，再按真实fence清理；自然Play退出两次、重入一次和直接Editor退出通过，36+21张旧域票据有逐项完成证据。实机后的取消任务异常保留修正另有actual-source回归，未冒充当前全部字节重新原生执行。Player、禁用域重载、在途worker/readback、Recorded/Quarantined和设备故障仍开放。见ReviewBrief-ResourceShutdown01b.md。
 
 下一包thin-wall-transport-01：精确软件路径、静态薄壁probe；最多正常配置/关闭反馈诊断/单灯已知可见性三类，各至多120帧。固定观察点与阶段输入，只在明确反例上局部修复；不压暗、不改sigma、不把开放边界暗侧全零当物理真值。

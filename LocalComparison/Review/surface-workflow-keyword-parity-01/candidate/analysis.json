@@ -1,0 +1,515 @@
+{
+  "passed": true,
+  "stage": "candidate",
+  "oldCounterexamplesEstablished": false,
+  "failures": [],
+  "rows": [
+    {
+      "case": "metal-opposite-property",
+      "variant": "metal",
+      "diffuse": [
+        0.0,
+        0.0,
+        0.0,
+        0.5
+      ],
+      "expected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "predicates": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "checks": {
+        "reference": true,
+        "oldSourceSanity": true,
+        "payload": true,
+        "unrelatedUnchanged": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "metal-control",
+      "variant": "metal",
+      "diffuse": [
+        0.0,
+        0.0,
+        0.0,
+        0.5
+      ],
+      "expected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "predicates": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "checks": {
+        "reference": true,
+        "oldSourceSanity": true,
+        "payload": true,
+        "unrelatedUnchanged": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "spec-opposite-property",
+      "variant": "spec",
+      "diffuse": [
+        0.125,
+        0.25,
+        0.375,
+        0.5
+      ],
+      "expected": [
+        0.125,
+        0.25,
+        0.375
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "predicates": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "checks": {
+        "reference": true,
+        "oldSourceSanity": true,
+        "payload": true,
+        "unrelatedUnchanged": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "spec-control",
+      "variant": "spec",
+      "diffuse": [
+        0.125,
+        0.25,
+        0.375,
+        0.5
+      ],
+      "expected": [
+        0.125,
+        0.25,
+        0.375
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "predicates": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "checks": {
+        "reference": true,
+        "oldSourceSanity": true,
+        "payload": true,
+        "unrelatedUnchanged": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "metal-map-opposite-property",
+      "variant": "metal-map",
+      "diffuse": [
+        0.17999999225139618,
+        0.35999998450279236,
+        0.5399999618530273,
+        0.5
+      ],
+      "expected": [
+        0.18,
+        0.36,
+        0.54
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "predicates": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "checks": {
+        "reference": true,
+        "oldSourceSanity": true,
+        "payload": true,
+        "unrelatedUnchanged": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "spec-map-opposite-property",
+      "variant": "spec-map",
+      "diffuse": [
+        0.0625,
+        0.125,
+        0.1875,
+        0.5
+      ],
+      "expected": [
+        0.0625,
+        0.125,
+        0.1875
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "predicates": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "checks": {
+        "reference": true,
+        "oldSourceSanity": true,
+        "payload": true,
+        "unrelatedUnchanged": true,
+        "consistentControlUnchanged": true
+      }
+    }
+  ],
+  "commands": [
+    {
+      "name": "metal-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceWorkflow",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\metal.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\actual-surface.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "metal-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\metal.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\metal-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\metal.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "spec-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceWorkflow",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\spec.dxil",
+        "-D",
+        "_SPECULAR_SETUP=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\actual-surface.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "spec-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\spec.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\spec-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\spec.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "metal-map-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceWorkflow",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\metal-map.dxil",
+        "-D",
+        "_METALLICSPECGLOSSMAP=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\actual-surface.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "metal-map-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\metal-map.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\metal-map-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\metal-map.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "spec-map-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceWorkflow",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\spec-map.dxil",
+        "-D",
+        "_SPECULAR_SETUP=1",
+        "-D",
+        "_METALLICSPECGLOSSMAP=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\actual-surface.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "spec-map-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\spec-map.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\spec-map-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\spec-map.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-metal-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\full-metal.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-spec-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\full-spec.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "_SPECULAR_SETUP=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-metal-map-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\full-metal-map.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "_METALLICSPECGLOSSMAP=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-spec-map-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\full-spec-map.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "_SPECULAR_SETUP=1",
+        "-D",
+        "_METALLICSPECGLOSSMAP=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-workflow-keyword-parity-01\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "sources": [
+    {
+      "path": "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\ShaderLibrary\\BRDF.hlsl",
+      "sha256": "1e8427056b0ab3046adf753d72fc3afee3d54c335e38a4d1069e6eedb0f78075"
+    },
+    {
+      "path": "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\Shaders\\LitInput.hlsl",
+      "sha256": "4790ecd2f2c8093113b702fdc106486a63308754802c58995f2f0a8121b5b516"
+    },
+    {
+      "path": "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\Shaders\\Lit.shader",
+      "sha256": "dd9a625d92079fb8f923f4085747f5de524cdf1dd6fe52767aee0bbbac5792fc"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGISurface.shader",
+      "sha256": "b8e529a4cb019896ce03f77e852a582aff8071d766d555bca34fbdae6d68c961"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIScreenMaterial.hlsl",
+      "sha256": "757f6f0b32397cc2c2c928e7e394c7dd0dc29d3e840c8433286f4118509e879e"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverPolicyCapture.hlsl",
+      "sha256": "5772f5cfc8dd7fb3eaaa59f6e7a5c65bf10cd2d0a16fd6671d0a6b7278440845"
+    }
+  ],
+  "runner": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+  "runnerSha256": "8dc02bf76d564dba07b117af905335c1281377e8d7fd9e5853e6cd1a07324cb4",
+  "compiledSourceSha256": "ba88b9ba21ecb8da6fe2c5fedaf4e561d90aba7b1f8bdde6eccc71fcf0927134",
+  "inputs": {
+    "metal": "dc9322732393fb7556127ed47a9cad7d99b0887c739dffbcec62a91b5ed1e9d5",
+    "spec": "91ccf9daec8d4f15d73a7f1cc4b56600d578013244f0c7c33b35b1fe85128706",
+    "metal-map": "58c2d73a4d2a1c1eb10a606a6e0bf6a201fb8f288fce1cbe0ce5364f7271fb46",
+    "spec-map": "7871410c1ebbf00d9583a6dcec1c1e4e4f92567749153ae40183a068f041bf0a"
+  },
+  "colorAbsoluteBound": 2e-06,
+  "scope": "Actual Vert/Frag on existing WARP host, fixed shader-space textures and transform/policy adapters; clip recorder masks invalid payload. Real-clip full fragment compilation. No Unity keyword transfer, native raster/image, A2C or performance qualification."
+}

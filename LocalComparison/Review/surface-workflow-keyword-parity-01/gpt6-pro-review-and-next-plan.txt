@@ -1,0 +1,81 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 52
+DECISION: ACCEPT_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: emitter-area-cdf-reuse-01
+
+一、接受工作流修复，收束Surface一致性序列
+
+允许提交当前单shader修改及证据，未发现本范围的提交阻断。不再追加Surface材质组合或原生运行。
+
+已确认 HybridLumenGI / workspace:/ / main@5ed8a0b。我已先列出再读取输出241、242，核对实际diff、冻结合同、执行脚本、两侧保存结果及参考函数；没有修改、重跑或重新计算二进制哈希。
+
+修复价值明确：普通捕获现在按实际shader keyword选择漫反射工作流，不再让不同步的数值属性改变反射率。 产品仅增加_SPECULAR_SETUP变体并替换选择分支；属性／CBUFFER、贴图读取、两条公式、alpha覆盖和输出布局均未改变。〔本轮git diff〕
+
+证据也符合原判定，而非只有exit0：
+
+标量金属反例从非零漫反射变为零；反向specular反例恢复正确值。两种贴图输入与标量值、彼此都不同，能够暴露错误工作流及错误取值，而不是偶然得到相同答案。
+参考值从冻结的shader-space输入独立计算；脚本还检查基线确实符合旧数值分支。没有从候选输出反推期望，也没有引入Material作者色转换。
+两项一致控制比较完整记录；所有对应行从第12字节之后逐字节比较，覆盖AO、发光、有效性、policy和其余记录字段。四个完整workflow／map片元入口保留真实clip并编译通过。〔run-surface-workflow-source.py:77–112；两侧analysis.json〕
+
+当前安装的BRDF／LitInput与固定include cache在执行前作了字节核对，所归档BRDF确实按_SPECULAR_SETUP选择公式。这些参考函数不是本轮全部被执行的URP渲染链：实际执行的是Surface的Vert／Frag，纹理、变换、层和clip记录仍有明确适配边界。 不能据此认证Unity keyword传递、原生光栅、图像故障或整个材质系统。〔执行脚本:39–68；归档BRDF.hlsl:81–98〕
+
+Receive Shadows、detail以及51／52累计属于同一Surface一致性投入。当前序列到此结束，不以目录或断言数量增加“总体完成度”。Release49仍属于产品31c9415，没有获得本候选的原生验收。
+
+二、下一价值：复用稳定的CPU发光三角面积／CDF
+
+对照完整原计划并核对实际实现后，我认可Astra提出的方向：推进目标4及工作流6／8的准备工作复用，不再继续Surface检查。
+
+当前Feature每次准备材质后都调用AreaEmission.TryBuild；该方法重新取得候选三角形、计算世界面积和法线有效性，再重建累积概率分布（CDF）。即使准备好的几何和发光候选资格没有变化，也执行同一路径。〔HybridLumenGIRendererFeature.cs:997–1018；HybridLumenGIAreaEmission.cs:111–135〕
+
+这是明确的重复工作，不是已经测出的CPU热点或FPS瓶颈。下一包只争取减少重复三角求值，不测量或承诺帧率收益，不恢复计时调查。
+
+三、最小实现：一份CPU缓存，当前批次重新绑定
+
+优先只改：
+
+纯文本
+Runtime/HybridLumenGIAreaEmission.cs
+Runtime/HybridLumenGIRendererFeature.cs
+
+保留原无缓存TryBuild作为构建路径和对照。新增一个由各CameraState持有的单条CPU分布缓存；只在严格匹配时跳过三角遍历和面积／CDF计算。每帧源捕获、材质batch创建、RenderGraph临时buffer、上传及执行前复验全部保留，不引入GPU资源池或跨相机全局缓存。
+
+缓存键不能只有GeometryVersion
+
+必须绑定准备好的provider对象身份、有效几何版本、容量，以及有序来源身份和实际发光候选资格。来源数量／顺序、stable ID、owner／geometry revision、submesh或资格改变，都不能误命中。
+
+这里有一个已核对的具体风险：Backend会在实例身份更新时修改instances，但只有变换改变才在该保留路径递增GeometryVersion。因此只比较这个版本会漏掉部分身份变化。〔HybridLumenGIHardwareBackend.cs:399–433〕
+
+复用判断应沿用生产PotentialEmitter的实际条件，不能另写一个“emission大于零”的简化判断，也不能只检查上次入选的三角形——上次被排除或被容量截断的来源同样可能改变候选集合。〔HybridLumenGIAreaEmission.cs:55–65、111–125〕
+
+优先保存小型值键，不持有旧材质batch、纹理lease或完整对象图；不为验证缓存而重新读取所有三角形、live Mesh或重新做完整mesh指纹，否则会抵销本包的主要收益。
+
+当前代次必须进入新Layout
+
+HitMaterialBatch.TryCreate每次都会分配新的Generation；面积记录的geometry.w和Layout.MaterialGeneration必须与本次batch一致。不能返回旧Layout，也不能原地改写仍可能被旧Work引用的记录。〔HybridLumenGIHitMaterialBatch.cs:153–175；HybridLumenGIAreaEmission.cs:36–49〕
+
+最小办法是复用已算好的几何／CDF，在本帧不可变输出中填入当前代次。保留原96字节ABI、顺序、面积、法线、float32区间压缩、CapacityLimited和缺失提议时的方向估计回退。可以保留必要的逐记录复制；本包不追求零分配。
+
+执行前的几何版本检查、源重新捕获、MatchesSources和材质绑定均不得省略。GPU端按当前材质代次匹配命中的规则不变。〔HybridLumenGIRendererFeature.cs:1055–1088；HybridLumenGIAreaEmission.hlsl:94–98〕
+
+缓存仅保留一份成功分布。失败、无有效backend、禁用或清理时不能继续发布旧表；失效后走原构建／回退。相机销毁时清除缓存引用，不改GPU退休协议。须说明新增CPU保留量及替换峰值，不能把“没有新增GPU资源”写成“没有新增内存”。
+
+四、必要验证：每项都决定是否保留优化
+
+复用 Validate-AreaEmissionBuilder.ps1 的实际C# builder入口。现有provider已经带有调用计数，可直接区分重复求值；不需要新观察框架，也不运行会重新构建WARP宿主的完整面积采样套件。〔Tests/StandaloneAreaEmission/Program.cs.txt:9–13〕
+
+先保存同一小型prepared输入连续构建两次的基线。只有确实重复求值，再实施候选。
+
+具体不确定性	最小验证	决定
+稳定输入是否真的少做三角工作？	两次调用仅改变材质batch代次。候选第二次不再调用三角求值／面积构建；输出与同输入、同代次的原builder一致。	仍全量遍历或输出不一致，就没有达到采用条件。
+是否错误沿用旧身份或修改旧Work？	新输出全部使用当前代次；保留第一份Layout并确认其字节不变。另验证几何版本未变而owner身份／发光资格改变时必须失效。	旧代次、混代或旧Layout被改写，立即阻断。
+失效和容量行为是否仍正确？	在同一有限序列中改变prepared几何／provider、候选集合及容量，与原builder对照；空表和一次构建失败不得返回旧有效分布。	错误复用、改变容量子集或失败回退均拒绝候选，不放宽身份条件。
+
+只增加上述缓存合同所需的定向序列；保留原builder已有数值／ABI守卫，不扩随机场景、MIS、可见性或材质矩阵。明确provider、材质来源和准备版本在测试中的适配边界；源码测试不能认证真实Backend版本更新和RenderGraph消费全链。
+
+额度：一次冻结基线命令、一次候选命令；零Unity、Player、GPU运行与计时采集。
+
+**退出条件：**稳定来源确实避免重复三角求值，面积／CDF及当前代次输出与原构建一致，变化来源正确失效，旧输出不可变且存储有界，即交复核并结束。基线没有重复工作、首次候选失败，或安全复用需要改写Backend版本体系、材质生命周期、GPU资源管理或MIS时，保存具体分歧并停止；不自动重试或扩大实现。
+
+现在提交第52轮有限修复，随后执行 emitter-area-cdf-reuse-01。 四项目标、十条工作流继续有效；预算保持待答。Surface、形变、Release和既有场景检查保持关闭，暗区、MC、曝光及计时调查不恢复。
