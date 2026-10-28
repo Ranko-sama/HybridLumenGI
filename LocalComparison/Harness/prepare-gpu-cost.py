@@ -40,10 +40,13 @@ def prepare():
         importer.SetCompatibleWithAnyPlatform(false);importer.SetCompatibleWithEditor(true);
         importer.SetEditorData("CPU","x86_64");importer.SetEditorData("OS","Windows");
         importer.SetCompatibleWithPlatform(BuildTarget.StandaloneWindows,false);
+        importer.SetCompatibleWithPlatform(BuildTarget.StandaloneLinux64,false);
+        importer.SetCompatibleWithPlatform(BuildTarget.StandaloneOSX,false);
         importer.SetCompatibleWithPlatform(BuildTarget.StandaloneWindows64,true);
         importer.SetPlatformData(BuildTarget.StandaloneWindows64,"CPU","x86_64");importer.SaveAndReimport();
         if(importer.GetCompatibleWithAnyPlatform()||!importer.GetCompatibleWithEditor()||!importer.GetCompatibleWithPlatform(BuildTarget.StandaloneWindows64)||
-            importer.GetCompatibleWithPlatform(BuildTarget.StandaloneWindows)||importer.GetEditorData("OS")!="Windows"||importer.GetEditorData("CPU")!="x86_64")
+            importer.GetCompatibleWithPlatform(BuildTarget.StandaloneWindows)||importer.GetCompatibleWithPlatform(BuildTarget.StandaloneLinux64)||
+            importer.GetCompatibleWithPlatform(BuildTarget.StandaloneOSX)||importer.GetEditorData("OS")!="Windows"||importer.GetEditorData("CPU")!="x86_64")
             throw new Exception("Native plugin platform settings mismatch");
         EditorSceneManager.OpenScene(ScenePath,OpenSceneMode.Single);''')
     builder=installer.replace(builder,'            .Concat(Directory.GetFiles("Assets/ComparisonHarness","*",SearchOption.AllDirectories))',

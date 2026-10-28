@@ -93,9 +93,9 @@ flowchart TD
 
 完整生产调度目标是以 `可见影响 × 误差 × 变更紧急度 + 等待年龄` 排序，覆盖 CPU 准备、上传字节、SDF brick 合并、RTAS build/refit、射线、材质捕获、滤波与显存，并给任务设置防饥饿保障。当前实现尚未对所有阶段分别施加时间预算；GPU 反馈以滞后观测、平滑和滞回调整三类更新数量，不动态改变 probe 密度或资源分辨率。验收需要记录冷启动和最坏情况，不能只展示稳定相机的平均 FPS。
 
-当前 [GPU 反馈](GpuBudget.md)只缩放 patch/capture/brick 每帧工作量，不修改 Settings、容量或资源尺寸。`adaptiveGpuBudget=false`、`targetGpuMilliseconds=0` 为默认值，关闭时不探测或加载计时 DLL；目标应按设备基线填写。启用后，`preferNativeGpuTiming=true` 优先选择可选 [原生 DX12 后端](NativeGpuTiming.md)：128 个共享提交槽按实际 fence 完成回收，每帧的六个时间戳绑定 owner、配置/设备代次和 source frame。三个范围结束后在独立 Unsafe pass 中 resolve，不能放入 native raster render pass。托管端每相机最多跟踪 32 个在途提交，并拒绝过期、身份不符或已消费的结果。
+当前 [GPU 反馈](GpuBudget.md)只缩放 patch/capture/brick 每帧工作量，不修改 Settings、容量或资源尺寸。`adaptiveGpuBudget=false`、`measureGpuCost=false`、`targetGpuMilliseconds=0` 为默认值，两种用途均关闭时不探测或加载计时 DLL。只测量可在零目标下保持静态配额，反馈目标应按设备基线填写。启用后，`preferNativeGpuTiming=true` 优先选择可选 [原生 DX12 后端](NativeGpuTiming.md)：128 个共享提交槽按实际 fence 完成回收，每帧的六个时间戳绑定 owner、配置/设备代次和 source frame。三个范围结束后在独立 Unsafe pass 中 resolve，不能放入 native raster render pass。托管端每相机最多跟踪 32 个在途提交；反馈只取最新有效结果，独立有界队列可导出所有完整校验的完成记录。
 
-原生不可用时回退 Recorder；Recorder 仍不提供 query 身份或跨范围原子快照，32 个生命周期通道不复用。原生 ring 暂满不触发提供器切换。缺测不会视为零成本；短缺测保持配额，持续缺测恢复静态上限。提供器或原生设备代次变化会重置反馈，真实 source frame 还用于拒绝旧配额的迟到观测。范围外准备上传、末尾 resolve 和整个应用的 GPU 成本不在三个范围之和内。原生 C++/WARP 软件适配器证据不等于 Unity/实体 GPU 验收，不能关闭 G4/G5。
+原生不可用时回退 Recorder；Recorder 仍不提供 query 身份或跨范围原子快照，32 个生命周期通道不复用。原生 ring 暂满不触发提供器切换。缺测不会视为零成本；短缺测保持配额，持续缺测恢复静态上限。提供器或原生设备代次变化会重置反馈，真实 source frame 还用于拒绝旧配额的迟到观测。范围外准备上传、末尾 resolve 和整个应用的 GPU 成本不在三个范围之和内。e1aa6356已有一次实体DXR Development Player的512源帧只测量基线；原生C++/WARP和这次有限窗口均不能关闭完整G4/G5。
 
 屏幕纹理估算计入8B/pixel整数接收面策略与两张RGBA32F moments：Additive为 `24 × fullWidth × fullHeight + 112 × giWidth × giHeight` 字节/相机，原生替换为 `36 × fullWidth × fullHeight + 112 × giWidth × giHeight`。1920×1080、960×540 GI分别为107,827,200B（102.83203125 MiB）和132,710,400B（126.5625 MiB）。这是分配估算而非GPU测量。owner策略另计16B/scene slot，默认128槽为2KiB；灯记录80B，固定32项buffer为每相机2,560B。
 

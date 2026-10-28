@@ -1,5 +1,5 @@
 """Finite source-identified native GPU intervals. Never fill missing samples."""
-import argparse,importlib.util,json,math,traceback
+import argparse,importlib.util,json,math,re,traceback
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];PACKAGE=ROOT/'LocalComparison/Review/gpu-cost-baseline-01'
 BUILD=Path('I:/Unity test/Comparison/Builds/GpuCost22')
@@ -84,6 +84,14 @@ def run():
     def native():
         exit=load(out/'native-exit.json');r['nativeExit']=exit;hits=base.hits(out/'player.log');r['nativeLogHits']=hits
         assert exit['exitCode']==0 and not exit['watchdogTerminated'] and not hits,'Native exit/log failure'
+        events=[line for line in (out/'player.log').read_text(encoding='utf-8-sig').splitlines() if line.startswith('HybridLumenGI shutdown ')]
+        r['shutdownEvents']=events
+        names=['begin','owners withdrawn','idle fence submitted','completed owner destroyed','generic drain complete']
+        indices=[next(i for i,e in enumerate(events) if e.startswith('HybridLumenGI shutdown '+name+':')) for name in names]
+        assert indices==sorted(indices) and 'outside=True' in events[indices[0]],'Shutdown boundary/order'
+        final=events[-1];assert 'generic drain complete:' in final
+        for key in ['owned','pending','unknown','failed','failedWithdrawals','materialBytes','arenaBytes','deformationBytes','deformationJobs','deformationCleanupFailed']:
+            assert re.search(r'(?:, |: )'+key+r'=0(?:,|$)',final),'Recorded shutdown owner not zero: '+key
     for name,fn in [('provenanceVerified',provenance),('collectionVerified',collection),('samplesVerified',samples),('nativeExitVerified',native)]:check(name,fn)
     r['completeBaseline']=not r['failures'];save(out/'analysis.json',r);print(json.dumps(r));return r['completeBaseline']
 if __name__=='__main__':

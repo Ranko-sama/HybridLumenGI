@@ -2,6 +2,12 @@
 
 2026-10-27，用户明确取消当前朋友交付任务，直接在本机继续开发。冻结的 `runtime-candidate-16` 及其交付 ZIP 保留为历史基线；不再以等待朋友反馈作为开发停点。
 
+## gpu-cost-baseline-01（2026-10-28）
+
+`e1aa6356` 增加默认关闭的独立成本观测和有界完成记录导出。唯一新Development/Mono/DX12构建及实体RTX2080Ti运行完成688帧，其中固定512源帧全部通过实际NativeDX12身份/ticks校验；静态配额不变，反馈关闭。Transport中位19.694ms，三范围和中位19.853ms/p95为21.483ms。Astra接受有限结果，实际GPT6 Pro22已接受有限证据。此数据不覆盖应用总GPU时间、动态/Release尾延迟或峰值显存，下一步聚焦Transport内部归属。
+
+实际构建的插件误保留Linux/macOS导入勾选，原件已归档；本地元数据和未来builder在运行后修正，没有重建或改写原证据。Windows DLL与本次测量不变。详见[结果和范围](../LocalComparison/Review/gpu-cost-baseline-01/result.md)。
+
 ## current-player-shutdown-01（2026-10-28）
 
 用户澄清中间暗区只是疑问，尚无具体故障证据；已取消继续暗区归因，不因旧复审计划自动恢复。转向原计划明确缺失的当前源码 Player 验证。

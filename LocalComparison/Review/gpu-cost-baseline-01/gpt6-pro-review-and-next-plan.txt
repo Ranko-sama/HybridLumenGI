@@ -1,0 +1,135 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 22
+REVIEW_DECISION: RETAIN — 接受Windows有限成本基线，允许提交结果与明确标注的导入器修正
+NEXT_PACKAGE: transport-hotspot-and-reuse-01
+
+一、复核结论
+
+保留e1aa6356的计时改动和本轮成本结果。未发现使这份Windows固定窗口测量失效的阻断。 下一步应定位Transport内部成本，再决定一个保持计算结果的局部优化，不直接降低射线、分辨率或更新配额。
+
+连接器确认 HybridLumenGI / workspace:/ / main@e1aa635。产品候选已提交；当前未提交内容包括结果、文档、分析器退出检查及导入器后置修正。我已先列出再读取iteration 22执行输出114–122，核对实际计时桥、采集与分析代码、窗口边界原始记录、原始ticks、导入器配置和Astra意见。本层没有执行修改、重算或新测试。
+
+计时数据支持当前结论
+范围	中位数	描述性p95	描述性p99
+ReceiverCapture，包含identity链	0.120800 ms	0.129973 ms	0.135453 ms
+Transport	19.694368 ms	21.328670 ms	21.978162 ms
+Composite	0.038656 ms	0.042976 ms	0.043008 ms
+同一source frame的三范围之和	19.853424 ms	21.483394 ms	22.137856 ms
+
+这些是本次静态窗口的GPU队列区间统计，不是整应用帧时间、生产尾延迟保证或GPU预算验收。Transport显著占主导，但六个时间戳没有指出具体kernel。〔native-window/analysis.json；执行输出122〕
+
+二、独立检查中成立的部分与保留项
+1. 512帧不是筛选幸存样本得来的
+
+采集器根据就绪状态连续满足条件后，预先确定source区间145–656；没有根据耗时选择开始位置。分析器要求这个集合完整且每个source仅出现一次，校验token、owner、配置／设备代次、尺寸、读取年龄和时间戳顺序，然后逐source求和、再取百分位。〔GpuCostBaseline.cs:129–157；analyze-gpu-cost.py:50–83〕
+
+抽查原始记录也吻合：source 145的token为18449，readFrame为147；source 656的token为83856，readFrame为658，frequency均为1,000,000,000。整数ticks先相减再换算，没有先把巨大的绝对ticks转成低精度差值。〔completions.jsonl:140、651〕
+
+681条总完成记录包含预热和排空阶段，不能称为681个正式测量样本。五次取消在预热阶段；末尾两项pending不属于选定512帧。因此选定窗口完整，但没有证明退出前整个原生query池已经逐项释放。
+
+2. 只测量与反馈确实分开
+
+当前Feature使用：
+
+纯文本
+enabled = measureGpuCost || feedbackEnabled
+
+而预算控制器仍接收独立的 feedbackEnabled。完成记录在完整校验之后导出；旧完成结果即使不应倒退反馈控制器，也不会因此从成本记录中消失。存储满或被丢弃有独立计数，没有无界扩容。〔HybridLumenGIRendererFeature.cs:311–334；HybridLumenGINativeGpuTiming.cs:122–158、202–219〕
+
+原生窗口记录为target 0、feedback false、scale 1，配额256/24/16不变；所选窗口还实际达到2048个global bricks就绪、无新增dirty更新。该结果没有通过预算控制“降低工作量后测得更快”。〔frames.jsonl:143–147及分析器窗口检查〕
+
+首次测试失败是新增测试中短路表达式的out变量赋值问题，随后通过；它不是产品GPU失败。已有编译、模拟ABI和真实Player证据应继续分别标注。
+
+3. 导入器偏差真实存在，但不推翻Windows测量
+
+原构建metadata明确保留了 Linux64/OSXUniversal enabled=1。这是P2安装合同偏差，不是完全符合“仅Windows”的安装结果。实际Windows x64 DLL、构建包含关系和哈希有效，所以不影响上述Windows区间数据。〔native/PluginImporter.meta:23–38〕
+
+接受当前的处理方式：原metadata不替换，后置修正另存，未来builder显式关闭两个平台。本次“独占平台配置通过”仍为false；直接修改本地metadata不等于已重新导入验证。 下次本来就需要的构建中确认修正即可，不为它单独重跑。〔native/importer-correction.json:1–10；当前 prepare-gpu-cost.py差异〕
+
+原生日志中的已记录GI owner完成链与最终零计账支持本次正常退出。通用Unity UTP汇总、原生计时池末尾状态、驱动及总VRAM仍按原范围保留，不能一起写成“全部原生资源零泄漏”。
+
+三、下一包：一次Transport定位，最多一个计算复用候选
+目标
+
+把Transport的约19.7 ms拆到足以选择一个优化的层级，并只尝试一个有源码依据的候选。
+
+现有源码已经标记了World cache、Gather、Temporal和Atrous。下一包复用这些命令边界，不建立通用profiler，也不修改已有原生ABI或query池。〔HybridLumenGIRendererFeature.cs:1118–1152〕
+
+A. 只增加三个固定子区间，正式三范围计时保持原样
+
+在本包临时测试接线中，复用现有NativeTiming桥和同一个原生池，使用一个额外诊断owner记录三个顺序区间：
+
+子区间	实际命令边界
+World cache	实际 CSUpdateCache dispatch
+Gather	实际 CSTrace dispatch
+Reconstruction	实际temporal开始至全部Atrous dispatch结束
+
+保留原正式Transport起止时间戳。子区间报告使用独立scope映射，不能把它们混入正式ReceiverCapture／Transport／Composite数据。诊断resolve仍接在已有合法Unsafe位置，不能放进原生raster pass。
+
+每个子记录必须与同帧正式记录关联source frame、配置、设备代次及频率，并检查子区间位于外层Transport内。外层减去三个子区间的差值仅称为其余命令、间隔及计时开销，不能直接归因成某一个未测kernel。
+
+采集保持固定来源、DXR、分辨率、射线和配额。窗口缩为64个预选source frames，预热上限256、排空上限32：一次定位运行最多352帧。完整64帧缺一项就报告不完整，不补替代样本，不重跑512帧基线。报告中位数、最大值和四个连续16帧块的分布即可，不在这里追求新的p99认证。
+
+这项新增计时只服务本次定位；不扩展为可配置任意scope、持久化观察平台或新的内存池。
+
+B. 唯一优先候选：接收像素的方向无关深度导数复用
+
+我在实际Gather源码中找到一个值得验证、但尚未证明有性能收益的候选：
+
+HLGITryScreenRayFootprint(uv,depth,p,direction,...)每次会重新计算同一接收像素的两个深度导数；CSTrace在方向采样循环和面积光样本中重复调用它。对同一接收像素，uv/depth/p及深度邻域不变，变化的是射线方向和后续投影。〔HybridLumenGIKernels.hlsl:96–109、275–317〕
+
+仅在Gather实际占主导，而且编译结果确认这些重复操作未被消除时，才实现这个候选。 先检查当前对应shader的编译输出；若编译器已完成复用，不为产生diff再手动改写。
+
+允许的修改限定为 HybridLumenGIKernels.hlsl，必要时增加一个小型footprint输入结构：
+
+每个接收像素准备一次方向无关的邻域／位置数据；每条射线仍调用原来的方向投影及有效性规则。
+
+必须保持这些边界：
+
+不缓存或复用不同screen命中点的邻域；TraceScreen内部的端点会变化。
+不用 hasGeometry代替footprint有效性，它们不是同一合同。
+不移动随机数调用，不减少面积样本、世界查询或shadow查询。
+不改变偏移、LOD／footprint定义、Ng/Ns、confidence、未知值或采样PDF。
+保留原来的浮点运算结构；不能顺手把p+dx再相减的表达式改成另一种近似，随后用宽松图像容差掩盖差异。
+
+HLGITryScreenFootprint仍需要逐方向投影四角，不能把整个footprint当作方向无关量复用。〔HybridLumenGIRayFootprint.hlsl:71–85〕
+
+这是候选优化，不是已发现的正确性缺陷。若World cache、重建或未分解部分才占主导，本包不转而随意调整它们；返回明确排名及一个对应源码问题，停止这个候选。
+
+尤其不能因cache只有256个更新预算，就跳过其他条目：当前kernel明确要维护未调度条目的失效、reactive样本数及Jacobi写入。〔HybridLumenGITransport.hlsl:488–557〕
+
+四、验证与有限执行额度
+1. 候选首先证明计算合同不变
+
+复用现有RayFootprint／相关shader验证入口，只补本次复用所影响的病例：屏幕边界、深度不连续、无效邻域、退化方向、普通／面积样本方向，以及实际场景接收输入。
+
+对旧版和候选的相同输入，比较有效标记、footprint参数及受影响的实际HLSL输出；原始版本与来源哈希保留。未知输入不得变成有效零半径。shader编译检查覆盖共享该代码的受影响入口，但不重跑软件／SDF／DXR运行矩阵。
+
+还要检查寄存器与编译代码：把数据跨循环保存可能增加寄存器压力。减少源码重复不等于减少GPU耗时。
+
+2. 原生额度：一次定位，至多一次候选验证
+
+整个包最多：
+
+两个有明确目的的构建／可见DXR进程：一个定位基线；候选条件成立且定向回归通过后，一个候选验证。
+
+每侧最多256预热＋64测量＋32排空。两侧保留相同计时接线、场景、工作配额与窗口规则；不对比“未插桩512帧”与“新增子计时64帧”来直接宣布加速。
+
+必要的输出一致性读回放在计时窗口之外。只有来源、GI帧／随机输入及缓存状态确实对应时，才做逐像素前后比较；来源不对应不能当成候选画质退化，也不能宣称逐字节一致。
+
+候选可保留的条件是：
+
+计算合同不退化；目标子区间的改善超过本次块间波动；外层Transport和三范围总成本没有明显反向增加；无新有效性、后端、资源或退出故障。
+
+若差异落在波动范围内，结论就是“收益未明确”，不追加样本、不挑低耗时帧、不继续第二个候选。没有收益或出现回归时撤销候选产品diff，保留定位结果。修正后的插件平台标志在这次必要构建中核验，原iteration 22构建记录仍不改写。
+
+五、提交与后续方向
+
+本轮可以提交为：
+
+首次完成当前Windows DXR Player、固定工作量、512个真实source frames的NativeDX12有限成本基线；Transport主导，子kernel尚未归因；独占平台导入配置存在已记录偏差及后置修正。
+
+下一包不再复验等价smoke、不扩大Monte Carlo、不研究暗区。它只完成一次Transport定位及条件满足时的一次计算复用优化。
+
+若这项优化没有明确价值，不能继续无界拆分计时；下一优先应回到原计划的一个具体形变／材质变化事件及其实际传播与重投影响应。四项目标、十条工作流继续有效。当前有限性能数据不关闭整应用／动态／Release性能、峰值显存、长时资源、整图与材质质量关卡。

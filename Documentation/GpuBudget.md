@@ -1,6 +1,6 @@
 # GPU 时间反馈与更新预算
 
-当前实现是有静态上限的实验反馈控制器，不是 GPU 硬截止时间保证。没有在 Unity、实体显卡或 Release Player 上运行。离线控制器/托管桥测试验证各自来源快照的状态机；原生 DLL 另有模拟 Unity 宿主下的 D3D12 WARP 软件适配器测试。这些证据不产生本项目在 Unity 中的 GI 性能数据。当前候选的统一验证状态与报告以 [OfflineValidation.md](OfflineValidation.md) 为入口，不由下述历史结果推定。
+当前实现是有静态上限的实验反馈控制器，不是 GPU 硬截止时间保证。e1aa6356 已在 Unity 6000.0.85f1 / RTX2080Ti 的 Development DX12 Player 中完成固定512源帧的 NativeDX12 只测量基线：三范围和中位19.853ms、描述性p95为21.483ms，反馈关闭且配额不变。见[原始成本结果](../LocalComparison/Review/gpu-cost-baseline-01/result.md)，Pro22已接受有限证据。它不验证反馈自适应效果、整应用/动态尾延迟或Release性能。历史离线控制器、托管桥和WARP报告保留各自来源，不能扩大为完整生产验收。
 
 ## 启用与测量范围
 
@@ -21,9 +21,9 @@
 
 资源页组件另设IO/并发/上传准入/驻留额度，形变组件另设CPU捕获/后台作业/快照上传额度，见对应说明。诊断中的全局纹理/RTAS计数可能在多个相机记录中重复出现，不应相加。实际分配粒度、驱动scratch与系统峰值必须在朋友设备测量；静态数量配额与下方滞后时间反馈相互补充。
 
-启用反馈且 `preferNativeGpuTiming=true` 时，优先使用可选的 [原生 DX12 时间戳后端](NativeGpuTiming.md)：它返回提交身份并按实际 fence 完成读取和回收。源码包不自动安装 DLL；未安装/不支持/不可用时回退下面描述的 Recorder 路径。原生固定池有 128 个跨相机共享的可循环提交槽，不受 Recorder 的 32 个生命周期通道限制；原生插件仍未经过 Unity/实体 GPU 验收。
+启用反馈或只测量且 `preferNativeGpuTiming=true` 时，优先使用可选的 [原生 DX12 时间戳后端](NativeGpuTiming.md)：它返回提交身份并按实际 fence 完成读取和回收。源码包不自动安装 DLL；未安装/不支持/不可用时回退下面描述的 Recorder 路径。原生固定池有 128 个跨相机共享的可循环提交槽，不受 Recorder 的 32 个生命周期通道限制；已有上述单相机实体 GPU 有限基线，其他生产条件仍待验收。
 
-`adaptiveGpuBudget` 默认关闭，`targetGpuMilliseconds` 默认零；关闭时不探测或加载原生计时 DLL。朋友应先在目标设备记录基线，再设置正数目标并启用，各相机维护独立反馈状态。零目标、尚无有效样本或两个提供器均不可用时保留静态更新上限；已进入反馈后的短暂缺测保留最后配额，距最后有效观测达到 16 个引擎帧后恢复静态上限。原生 ring 暂满不改变其可用状态，也不为该帧切换到 Recorder。
+`adaptiveGpuBudget` 和 `measureGpuCost` 默认关闭，`targetGpuMilliseconds` 默认零；两种用途均关闭时不探测或加载原生计时 DLL。先在目标设备记录基线，再设置正数反馈目标，各相机维护独立反馈状态。零目标、尚无有效样本或两个提供器均不可用时保留静态更新上限；已进入反馈后的短暂缺测保留最后配额，距最后有效观测达到 16 个引擎帧后恢复静态上限。原生 ring 暂满不改变其可用状态，也不为该帧切换到 Recorder。
 
 两个提供器都覆盖接收材质捕获、可选身份四个pass、世界更新/追踪/降噪及最终合成。原生ABI1仍使用三个区间：第一个从材质捕获开始，到身份解析结束；关闭身份时仍在材质捕获末尾结束。其余两个区间为transport和composite，硬件`RecordBuild`在transport内。Recorder采用每pass局部配对的`CustomSampler`：身份关闭时三个，开启时七个，不让Begin/End跨越RenderGraph pass。替换原生漫反射的额外目标仍在材质捕获pass中。
 

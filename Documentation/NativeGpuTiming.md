@@ -1,12 +1,12 @@
 # 可选 DX12 原生计时后端
 
-本后端给 GPU 时间观测提供提交编号、设备代次和 fence 完成条件，供更新预算控制器使用。它不替换软件 SDF 或 DXR 追踪实现，也不改变光照方程。已有来源绑定的原生 MSVC 编译、CPU 状态机检查以及 WARP 软件适配器上的 D3D12 查询测试证据；当前候选的统一状态及受测 DLL 身份以 [OfflineValidation.md](OfflineValidation.md) 为入口，不能沿用旧候选结论。尚未通过 Unity/RenderGraph、实体 GPU、Release Player 或真实设备丢失验收。
+本后端给 GPU 时间观测提供提交编号、设备代次和 fence 完成条件，供独立测量或更新预算控制器使用。它不替换软件 SDF 或 DXR 追踪实现，也不改变光照方程。已有 MSVC、CPU 状态机和 WARP 来源证据；e1aa6356 新增一次 Unity/RenderGraph、RTX2080Ti Development DX12 Player 的固定512源帧成本测量，全部有效完成且正常退出，见[实际结果](../LocalComparison/Review/gpu-cost-baseline-01/result.md)，Pro22已接受有限证据。该有限证据不覆盖Release、多相机、长时、异常退出或真实设备丢失。
 
 ## 安装与选择
 
 源码位于 `Runtime/Native~/GpuTiming`，Unity 忽略带 `~` 的目录。源码集成包本身不自动安装 DLL。提供的可选 Windows x64 原生候选包包含 DLL、原生构建/测试报告和来源清单；这是供朋友集成验证的二进制候选，不是生产签核。
 
-朋友在测试工程中将 `HybridLumenGIGpuTiming.dll` 放到 `Assets/Plugins/x86_64`，在 Plugin Inspector 中只启用 Windows Editor/x86_64 和 Windows x86_64 Player，关闭 Any Platform。不要同时安装多个同名 DLL。Unity 原生插件替换后应按 Editor 提示重启，不使用手动 FreeLibrary 热卸载。
+在本机测试工程中将 `HybridLumenGIGpuTiming.dll` 放到 `Assets/Plugins/x86_64`，在 Plugin Inspector 中只启用 Windows Editor/x86_64 和 Windows x86_64 Player，关闭 Any Platform，并明确关闭 Linux64、OSXUniversal 和 Win32；只关闭 Any Platform 不会清除已有平台勾选。不要同时安装多个同名 DLL。Unity 原生插件替换后应按 Editor 提示重启，不使用手动 FreeLibrary 热卸载。
 
 Renderer Feature 的 `adaptiveGpuBudget` 和 `measureGpuCost` 默认关闭，`targetGpuMilliseconds` 默认零。两种用途都关闭时不探测或加载计时 DLL，也不分配完成记录导出缓冲。反馈启用仍要求 adaptive 开关和有效正数目标；`measureGpuCost=true` 可在目标为零、反馈关闭时单独观测，保持原静态配额。`preferNativeGpuTiming=true` 优先选取安装且就绪的原生后端；DLL 缺失、ABI 不匹配或不支持时回退 Recorder。两者都无有效数据则使用静态预算。原生 ring 暂满仅表示该帧缺测，不触发后端来回切换。
 
@@ -54,7 +54,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tests/Build-NativeGpuTiming.
 - 实际 C++17 QueryPool 在 MSVC `/W4 /WX` 下编译执行，包含百万次槽位复用、取消、乱序、旧 token、设备代次及整数耗尽测试。
 - 实际 DLL 在真实 D3D12 WARP 软件适配器上执行，使用模拟的单线程 Unity v7 宿主。测试覆盖提交前拒读、完整回读、取消后 fence 退休、缺失 query、迟到事件和复用；重置测试复用同一真实 device，不能称为实际设备丢失。
 - 故障注入让一个 callback 追加查询后的 fence 值返回零，确认立即停用、旧查询引用仍能执行、隔离容量有界。它验证的是模拟宿主违反契约时的行为。
-- 本机 D3D12 debug layer 不可用，未安装。没有 Unity native-render-pass 合并、实际多线程 callbacks、多相机并行、真实 device removal、实体显卡、Player 或性能验收。
+- 本机 D3D12 debug layer 不可用，未安装。新增的单相机 Development Player/实体 GPU 成本基线见上文；没有多配置 native-render-pass 合并、多相机并行、真实 device removal、Release 或长时性能验收。
 
 朋友必须在原生 render pass 开启/关闭、Editor/Development/Release、两个相机、长期创建销毁相机、后端切换、GPU backlog 和设备重建条件下检查结果。对照独立 profiler 测量三个范围及范围外开销，记录 GPU p95/p99、峰值显存、图像收敛。范围内时间戳是队列区间，包含争用或等待，不代表隔离的 shader 纯成本，也不构成硬 GPU 截止时间保证。
 
