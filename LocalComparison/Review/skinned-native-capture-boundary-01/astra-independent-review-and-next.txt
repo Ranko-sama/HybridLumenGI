@@ -1,0 +1,5 @@
+【转向】46可有限结项：三份原始捕获证实同姿态完整指纹一致、解析骨骼位移误差为0，来源及恢复一致。结合既有传播、合并与复用合同，形变链到此收束；尚不代表候选组件原生全链或性能验收。
+
+下一步优先关闭目标4／工作流7的默认Additive雾合成缺口：Runtime/HybridLumenGIRendererFeature.cs:478在Skybox后执行；实际URP Lit此前已MixFog，而Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader:103只在Replace分支乘透射率，Additive仍直接叠加GI，完全雾化处也可能漏出间接光。这比继续形变观察器更直接影响普通场景合成。
+
+唯一下一步：复用实际Frag及固定URP雾公式确认同输入反例，再最小修复Additive增量的透射。新增判别只决定是否修复此缺陷；无反例即停。增量符合GI×透射率、无雾及原替换合同保持即结束，不扩雾类型／材质矩阵。

@@ -1,0 +1,134 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 46
+DECISION: CLOSE_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_EVIDENCE_COMMIT
+NEXT_PACKAGE: additive-fog-composition-01
+
+一、接受有限原生捕获结论，形变检查到此收束
+
+允许提交本轮脚本与证据，未发现结项阻断。不再增加捕获、骨架、动画或布局组合。
+
+已确认 HybridLumenGI / workspace:/ / main@65e2a11。我已先列出再读取iteration46输出229、230，并核对实际暂存脚本、三份原始捕获、判读实现及恢复记录；没有修改、重跑或重新计算二进制哈希。
+
+本轮解决了一个真实的采用前提，而不是仅重复第45轮适配器测试：
+
+原生内容稳定性成立。 A1／A2来自两个独立目标Mesh，完整指纹一致；保存的两个stream及索引摘要也分别一致。实际布局为stride40与8的两条stream，不是之前适配器的一条合成stream。B的上方顶点从X＝−0.5／0.5变为−0.25／0.75，UV与索引保持不变，bounds随实际几何改变。〔native-editor/run/A1-capture.json、A2-capture.json、B-capture.json〕
+
+几何正确性没有被指纹差异代替。 执行版先保存全部原始捕获，再用预声明解析位置与1e-6误差界判读；最终位置、法线、切线及UV误差均为0。原始JSON中的qualified=false与误差−1是判读前状态，最终结果另存，没有覆盖一次失败。〔暂存 SkinnedNativeCaptureBoundary.cs:68–92、120–149；native-result.json〕
+
+来源与恢复边界清楚。 脚本直接调用已部署的生产指纹函数，其源码与候选依赖相同；没有部署或执行新的DeformedMesh组件。临时脚本、preview scene及私有对象清理有记录，112份原部署源码与场景／设置保持原状。编译warning和原始Editor日志继续保留，不写成“日志完全无警告”。〔prepare.py:12–23、44–59；source-verification.json；instrumentation/restoration.json〕
+
+结合第45轮，可以有限支持这项复用机制的采用。这仍不是候选组件的Unity发布／退休全链、任意动画或性能验收。 Release44和部署继续对应5120a8c。传播、合并请求、相同内容复用及本次依赖检查累计计算，不能再因更名包而扩展形变验证。
+
+二、下一价值判断：优先修默认Additive的雾合成
+
+核对Astra建议和实际代码后，我选择原目标4／工作流7的普通URP合成正确性，优先于新增缓存调度优先级。
+
+当前Feature默认Additive，并在Skybox之后执行；锁定URP Lit此前已经施加MixFog。但Composite仅在Replace分支乘雾透射率，Additive直接叠加未经衰减的间接光。〔HybridLumenGIRendererFeature.cs:147、478；HybridLumenGIComposite.shader:101–109；归档URP LitForwardPass.hlsl:259〕
+
+设原场景颜色为 
+𝐶
+C、新增间接光为 
+𝐺
+G、雾颜色为 
+𝐹
+F、透射率为 
+𝑇
+T，正确关系是：
+
+𝐶
+f
+o
+g
+=
+𝑇
+𝐶
++
+(
+1
+−
+𝑇
+)
+𝐹
+,
+𝐶
+o
+u
+t
+=
+𝐶
+f
+o
+g
++
+𝑇
+𝐺
+.
+C
+fog
+	​
+
+=TC+(1−T)F,C
+out
+	​
+
+=C
+fog
+	​
+
++TG.
+
+当前Additive相当于加上 
+𝐺
+G，因此在有效GI表面且 
+𝑇
+<
+1
+T<1 时会多加 
+(
+1
+−
+𝑇
+)
+𝐺
+(1−T)G。这是P2条件性合成缺口的源码依据，不是对既有截图的漏光归因。 下一包先用实际HLSL建立同输入反例，成立后才修改。
+
+三、最小产品修复
+
+优先只修改 Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader。
+
+在普通最终合成、Additive分支中，用当前完整分辨率深度重建的世界位置，复用锁定URP的雾坐标与透射计算，将新增量乘一次 
+𝑇
+T。补齐该pass必要的fog variants；不新增纹理、捕获通道、GI参数或材质协议。
+
+现有URP实现已提供直接可用的合同：InitializeInputDataFog按视空间深度计算fogCoord，MixFogColor(1,0,fogCoord)取得透射率，并正确处理无雾分支。不要只调用ComputeFogIntensity，因为它在无fog variant时返回0；也不要对新增量调用带雾颜色的MixFog，那会再次加入雾源颜色。〔归档 ShaderVariablesFunctions.hlsl:314–366、390–419；现有 NativeDiffuseCapture.shader:145–148〕
+
+保持以下行为不变：
+
+Replace继续使用捕获的透射率计算有符号差值，不再乘第二次；Debug保持原观察语义；未知GI／无效接收面仍返回零增量；AO、反射率、强度及层策略不变。 雾只作用于最终到相机的新增量，不进入世界缓存、反弹反馈或材质反射率。
+
+四、必要验证与退出条件
+
+复用现有实际HLSL执行设施与锁定URP源码，执行实际Frag及必要辅助函数。资源和矩阵输入可以明确适配，但不能把待测合成分支重写成测试公式；参考值单独由上式生成。
+
+需要解决的不确定性	最小验证	改变的决定
+Additive是否确实遗漏雾衰减？	固定有效接收面和已知GI，使用一个线性雾配置的透射率0、0.5、1；旧版应暴露增量不随透射变化，候选应为 
+𝑇
+𝐺
+TG。	反例不成立就停止，不强改产品。
+是否重复加雾或破坏无雾路径？	无雾variant保持原 
+𝐺
+G；完全雾化时增量为0，且不附加雾颜色。	任一不符即拒绝候选，不调亮度、曝光或容差。
+是否影响已经成立的合成合同？	原Replace有符号差值、Debug及未知测量控制保持原结果；编译受改动pass。	回归则阻断，不扩到材质或雾类型矩阵。
+
+测试前确认当前依赖与所引用的锁定URP源码一致；有差异先按实际依赖核对，不把历史包字节冒充当前。采用预先固定、可明确表示的输入与格式误差界，原始失败和来源清单保留。
+
+额度：一次有限基线反例执行、一次相同输入候选判定；零Unity／Player构建与运行，零场景截图、计时或额外雾类型实验。 这提供实际HLSL的有限合成证据，不提前认证Unity运行时variant选择或所有相机组合。
+
+**退出条件：**Additive增量符合 
+𝑇
+𝐺
+TG，无雾与原Replace／未知合同不退化，即交复核并结束。若需要修改捕获架构、光传输、曝光，或候选首次判定失败，保存具体分歧并停止自动扩展，不追加运行追求通过。
+
+现在提交第46轮有限证据，随后执行 additive-fog-composition-01。四项目标、十条工作流继续有效；生产预算保持待答。已完成的形变、捕获、Release、门、内部层、材质与时域检查不扩展；暗区、MC、曝光和计时调查继续关闭。
