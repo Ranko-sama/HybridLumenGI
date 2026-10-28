@@ -1,0 +1,240 @@
+diff --git a/Runtime/HybridLumenGIResourceRetirement.cs b/Runtime/HybridLumenGIResourceRetirement.cs
+index 7ca0616..8ea727a 100644
+--- a/Runtime/HybridLumenGIResourceRetirement.cs
++++ b/Runtime/HybridLumenGIResourceRetirement.cs
+@@ -79,7 +79,7 @@ namespace HybridLumenGI
+         }
+         private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
+         {outsideRenderLoop=false;contextEnded=false;}
+-        /// <summary>Only the early MonoBehaviour/Editor update boundary may call this.</summary>
++        /// <summary>Only real early-update or root PlayerLoop tail boundaries may call this.</summary>
+         internal static void IdleUpdate()
+         {
+             EnsureRegistered();
+@@ -99,6 +99,7 @@ namespace HybridLumenGI
+             if(!shuttingDown)
+             {
+                 shuttingDown=true;shutdownDeadline=Stopwatch.GetTimestamp()+Stopwatch.Frequency*ShutdownMilliseconds/1000;
++                LogShutdown("begin");
+                 // Close admission before withdrawing any owner. Each callback detaches and
+                 // hands off storage; actual destruction still requires its own completion.
+                 withdrawing=true;
+@@ -109,6 +110,7 @@ namespace HybridLumenGI
+                     HybridLumenGIRayTexturePool.ClearReusable();
+                 }
+                 finally{withdrawing=false;}
++                LogShutdown("owners withdrawn");
+             }
+             DrainShutdown();
+         }
+@@ -120,7 +122,7 @@ namespace HybridLumenGI
+                 do
+                 {
+                     PollOwned();if(outsideRenderLoop)SubmitImmediate();PollOwned();PollOtherOwners();
+-                    if(owned.Count==0 && pending.Count==0){ReportOtherOwners();return;}
++                    if(owned.Count==0 && pending.Count==0){LogShutdown("generic drain complete");ReportOtherOwners();return;}
+                     if(!outsideRenderLoop || UnknownSubmissionCount!=0 || FailedCount!=0 || !CanProgressWithoutMainLoop() ||
+                         !SystemInfo.supportsGraphicsFence || Stopwatch.GetTimestamp()>=shutdownDeadline)break;
+                     System.Threading.Thread.Sleep(1); // Time limits waiting; it never proves completion.
+@@ -164,6 +166,20 @@ namespace HybridLumenGI
+                 ", deformationBytes="+HybridLumenGIDeformedMesh.ReservedBytes+", deformationJobs="+HybridLumenGIDeformedMesh.PendingWorkerCount+
+                 ", deformationCleanupFailed="+HybridLumenGIDeformedMesh.FailedCleanupCount+", failedWithdrawals="+failedWithdrawals+". Callback-dependent work was not waited on synchronously.");
+         }
++        [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
++        [System.Diagnostics.Conditional("UNITY_EDITOR")]
++        private static void LogShutdown(string stage)
++        {
++            if(!shuttingDown)return;
++            Debug.Log("HybridLumenGI shutdown "+stage+": outside="+outsideRenderLoop+", contextEnded="+contextEnded+
++                ", owned="+owned.Count+", pending="+pending.Count+", unknown="+UnknownSubmissionCount+
++                ", failed="+FailedCount+", failedWithdrawals="+failedWithdrawals+
++                ", materialBytes="+HybridLumenGIHitMaterialBatch.TotalAllocatedBytes+
++                ", arenaBytes="+HybridLumenGIRayTexturePool.TotalAllocatedBytes+
++                ", deformationBytes="+HybridLumenGIDeformedMesh.ReservedBytes+
++                ", deformationJobs="+HybridLumenGIDeformedMesh.PendingWorkerCount+
++                ", deformationCleanupFailed="+HybridLumenGIDeformedMesh.FailedCleanupCount);
++        }
+         /// <summary>Call after atomically replacing/detaching the owned object from all new readers.</summary>
+         public static void Retire(Action destroyOwned,HybridLumenGIAssetPageStreaming.ICompletion prerequisite=null)
+             =>Enqueue(destroyOwned,prerequisite,false);
+@@ -231,6 +247,7 @@ namespace HybridLumenGI
+                 var fence=command.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation,SynchronisationStageFlags.AllGPUOperations);
+                 Graphics.ExecuteCommandBuffer(command);
+                 foreach(var ticket in batch){ticket.fence=fence;ticket.submitted=true;pending.Remove(ticket);}
++                LogShutdown("idle fence submitted");
+             }
+             catch(Exception){MarkSubmissionUnknown();}
+             finally{CommandBufferPool.Release(command);}
+@@ -252,7 +269,7 @@ namespace HybridLumenGI
+                     var item=owned[i];if(item.failed || !item.ticket.IsComplete)continue;
+                     bool ready=false;try{ready=item.prerequisite==null || item.prerequisite.IsComplete;}catch(Exception){ }
+                     if(!ready)continue;
+-                    try{item.destroy();owned.RemoveAt(i);}
++                    try{item.destroy();owned.RemoveAt(i);LogShutdown("completed owner destroyed");}
+                     catch(Exception error){item.failed=true;Debug.LogException(error);}
+                 }
+             }
+diff --git a/Runtime/HybridLumenGIResourceRetirementPump.cs b/Runtime/HybridLumenGIResourceRetirementPump.cs
+index 87edfbb..6fbb427 100644
+--- a/Runtime/HybridLumenGIResourceRetirementPump.cs
++++ b/Runtime/HybridLumenGIResourceRetirementPump.cs
+@@ -1,19 +1,34 @@
++using System.Collections.Generic;
+ using UnityEngine;
++using UnityEngine.LowLevel;
+ 
+ namespace HybridLumenGI
+ {
+-    // This callback is the outside-render-loop boundary, including with no cameras.
+-    // It must precede ordinary Update-driven owner withdrawal and application exit.
++    // Both callbacks run outside the synchronous render-context dispatch. The root
++    // tail covers the final render after an Update requested Application.Quit.
+     [DefaultExecutionOrder(-32000)]
+     internal sealed class HybridLumenGIResourceRetirementPump : MonoBehaviour
+     {
+         private static HybridLumenGIResourceRetirementPump instance;
+         internal static void EnsureExists()
+         {
++            InstallFrameBoundary();
+             if(instance!=null)return;
+             var go=new GameObject("HybridLumenGI Resource Retirement"){hideFlags=HideFlags.HideAndDontSave};
+             DontDestroyOnLoad(go);instance=go.AddComponent<HybridLumenGIResourceRetirementPump>();
+         }
+         private void Update()=>HybridLumenGIResourceRetirement.IdleUpdate();
++        private struct FrameBoundary { }
++        private static void InstallFrameBoundary()
++        {
++            // Keep the current loop, including other packages' systems/delegates.
++            // Replace only our own root node, also with domain reload disabled.
++            var loop=PlayerLoop.GetCurrentPlayerLoop();
++            var systems=new List<PlayerLoopSystem>(loop.subSystemList??new PlayerLoopSystem[0]);
++            systems.RemoveAll(system=>system.type==typeof(FrameBoundary));
++            systems.Add(new PlayerLoopSystem{type=typeof(FrameBoundary),updateDelegate=EndFrame});
++            loop.subSystemList=systems.ToArray();PlayerLoop.SetPlayerLoop(loop);
++        }
++        private static void EndFrame()=>HybridLumenGIResourceRetirement.IdleUpdate();
+     }
+ }
+diff --git a/Tests/StandaloneDeformedMesh/Adapters.cs.txt b/Tests/StandaloneDeformedMesh/Adapters.cs.txt
+index fc1dbf3..b3372af 100644
+--- a/Tests/StandaloneDeformedMesh/Adapters.cs.txt
++++ b/Tests/StandaloneDeformedMesh/Adapters.cs.txt
+@@ -7,12 +7,13 @@ using System.Threading;
+ namespace UnityEngine
+ {
+     [AttributeUsage(AttributeTargets.Class)] public sealed class DisallowMultipleComponent:Attribute { }
++    [AttributeUsage(AttributeTargets.Class)] public sealed class DefaultExecutionOrder:Attribute {public DefaultExecutionOrder(int order){}}
+     [AttributeUsage(AttributeTargets.Class)] public sealed class RequireComponent:Attribute { public RequireComponent(Type type){ } }
+     [AttributeUsage(AttributeTargets.Field)] public sealed class RangeAttribute:Attribute { public RangeAttribute(float a,float b){ } }
+     [AttributeUsage(AttributeTargets.Field)] public sealed class MinAttribute:Attribute { public MinAttribute(float value){ } }
+     public enum RuntimeInitializeLoadType {BeforeSceneLoad}
+     [AttributeUsage(AttributeTargets.Method)] public sealed class RuntimeInitializeOnLoadMethodAttribute:Attribute {public RuntimeInitializeOnLoadMethodAttribute(RuntimeInitializeLoadType type){}}
+-    public static class Application {public static event Action quitting;public static void Quit()=>quitting?.Invoke();}
++    public static class Application {public static event Action quitting;public static int LastExitCode;public static void Quit(int code=0){LastExitCode=code;quitting?.Invoke();}}
+     public static class Graphics
+     {
+         public static void ExecuteCommandBuffer(Rendering.CommandBuffer command)
+@@ -25,10 +26,12 @@ namespace UnityEngine
+         }
+     }
+     public enum HideFlags {HideAndDontSave}
+-    public class Object {public string name;public HideFlags hideFlags;public bool Destroyed;}
++    public class Object {public string name;public HideFlags hideFlags;public bool Destroyed;public static void DontDestroyOnLoad(Object value){}}
+     public class GameObject:Object
+     {
+         readonly List<Component> components=new List<Component>();
++        public GameObject(){}public GameObject(string name){this.name=name;}
++        public T AddComponent<T>() where T:Component,new()=>Add<T>();
+         public T Add<T>() where T:Component,new(){var value=new T{gameObject=this};components.Add(value);return value;}
+         public T GetComponent<T>() where T:Component {foreach(var value in components)if(value is T typed)return typed;return null;}
+     }
+@@ -53,6 +56,7 @@ namespace UnityEngine
+         public static readonly List<Exception> Exceptions=new List<Exception>();public static readonly List<string> Warnings=new List<string>();
+         public static void LogException(Exception ex)=>Exceptions.Add(ex);
+         public static void LogWarning(object value)=>Warnings.Add(value.ToString());
++        public static void Log(object value){}
+     }
+     public enum MeshTopology {Triangles,Lines}
+     public class Mesh:Object
+@@ -158,13 +162,23 @@ namespace UnityEngine.Rendering
+     }
+ }
+ 
++namespace UnityEngine.LowLevel
++{
++    public struct PlayerLoopSystem {public Type type;public Action updateDelegate;public PlayerLoopSystem[] subSystemList;}
++    public static class PlayerLoop
++    {
++        private static PlayerLoopSystem current;
++        public static PlayerLoopSystem GetCurrentPlayerLoop()=>current;
++        public static void SetPlayerLoop(PlayerLoopSystem value)=>current=value;
++    }
++}
++
+ namespace HybridLumenGI
+ {
+     using UnityEngine;
+     public static class HybridLumenGIHitMaterialPass {public static void PollRetired(){}}
+     public static class HybridLumenGIHitMaterialBatch {public static long TotalAllocatedBytes=>0;}
+     public static class HybridLumenGIRayTexturePool {public static long TotalAllocatedBytes=>0;public static void ClearReusable(){}}
+-    internal static class HybridLumenGIResourceRetirementPump {internal static void EnsureExists(){}}
+     public sealed class HybridLumenGIProxy:MonoBehaviour
+     {
+         public Renderer SourceRenderer;
+diff --git a/Tests/StandaloneDeformedMesh/Program.cs.txt b/Tests/StandaloneDeformedMesh/Program.cs.txt
+index e86969f..2117309 100644
+--- a/Tests/StandaloneDeformedMesh/Program.cs.txt
++++ b/Tests/StandaloneDeformedMesh/Program.cs.txt
+@@ -126,11 +126,38 @@ static class Program
+     {
+         HybridLumenGIResourceRetirement.EnsureRegistered();
+         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();
+-        ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
++        ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
+         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
+         Console.WriteLine("Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.");
+     }
+     static void OpenNewSession()=>typeof(HybridLumenGIResourceRetirement).GetMethod("InitializeRuntime",PrivateStatic).Invoke(null,null);
++    static void RootTailBeforeNativeQuit()
++    {
++        int foreignCalls=0,parent=0,child=0,withdrawals=0;
++        Action foreign=()=>foreignCalls++;
++        UnityEngine.LowLevel.PlayerLoop.SetPlayerLoop(new UnityEngine.LowLevel.PlayerLoopSystem{
++            subSystemList=new[]{new UnityEngine.LowLevel.PlayerLoopSystem{type=typeof(Program),updateDelegate=foreign}}});
++        OpenNewSession();OpenNewSession();
++        var loop=UnityEngine.LowLevel.PlayerLoop.GetCurrentPlayerLoop();
++        Require(loop.subSystemList.Length==2&&loop.subSystemList[0].updateDelegate==foreign,"Pump duplicated its node or replaced a foreign system");
++        Action tail=loop.subSystemList[1].updateDelegate;
++        Action withdraw=()=>{withdrawals++;HybridLumenGIResourceRetirement.RetireDetachedPass(()=>{parent++;HybridLumenGIResourceRetirement.Retire(()=>child++);});};
++        HybridLumenGIResourceRetirement.RegisterShutdownOwner(withdraw);
++        HybridLumenGIResourceRetirement.IdleUpdate();RenderPipelineManager.Begin();RenderPipelineManager.End();
++        // Old native order is a retained counterexample: a final context invalidated
++        // early Update, and quitting alone cannot manufacture the missing boundary.
++        Application.Quit(7);Require(parent==0&&HybridLumenGIResourceRetirement.PendingCount>0,"Quit bypassed the missing boundary");
++        tail();Require(parent==0,"Root boundary was mistaken for fence completion");
++        RecordedGpu.CompleteSubmitted();tail();Require(parent==1&&child==0,"Child bypassed its own completion");
++        RecordedGpu.CompleteSubmitted();tail();Require(child==1&&HybridLumenGIResourceRetirement.OwnedCount==0,"Root tail did not progress owned children");
++        OpenNewSession();RecordedGpu.AutoCompleteImmediate=true;
++        RenderPipelineManager.Begin();RenderPipelineManager.End();
++        loop.subSystemList[0].updateDelegate();tail();Application.Quit(9);
++        Require(withdrawals==2&&parent==2&&child==2&&HybridLumenGIResourceRetirement.PendingCount==0&&HybridLumenGIResourceRetirement.OwnedCount==0,"Final-render then real root tail failed shutdown");
++        Require(foreignCalls==1&&Application.LastExitCode==9,"Pump changed another system or native exit code");
++        HybridLumenGIResourceRetirement.UnregisterShutdownOwner(withdraw);RecordedGpu.AutoCompleteImmediate=false;
++        Console.WriteLine("PASS: actual pump preserves foreign loop and installs once; old final-context quit stalls; actual tail permits submission, never completion; parent/child completion and original exit code preserved. Native quit ordering still requires Player evidence.");
++    }
+     static void ShutdownWithdrawalAndNewSession()
+     {
+         Defaults();var owner=Add(310);Frame();Started(310);Finish(owner,310);Frame();
+diff --git a/Tests/Validate-DeformedMesh.ps1 b/Tests/Validate-DeformedMesh.ps1
+index 9505736..7de5820 100644
+--- a/Tests/Validate-DeformedMesh.ps1
++++ b/Tests/Validate-DeformedMesh.ps1
+@@ -2,7 +2,7 @@ param([string]$SourceRoot=(Split-Path -Parent $PSScriptRoot))
+ $ErrorActionPreference='Stop'
+ $SourceRoot=(Resolve-Path -LiteralPath $SourceRoot).Path
+ $sources=@{}
+-foreach($name in @('HybridLumenGIDeformedMesh','HybridLumenGIResourceRetirement')) {
++foreach($name in @('HybridLumenGIDeformedMesh','HybridLumenGIResourceRetirement','HybridLumenGIResourceRetirementPump')) {
+     $sources[($name+'.cs')]=[IO.File]::ReadAllText((Join-Path $SourceRoot ('Runtime/'+$name+'.cs')))
+ }
+ foreach($name in @('Adapters','Program')) {

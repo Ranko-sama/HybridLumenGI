@@ -2,6 +2,16 @@
 
 2026-10-27，用户明确取消当前朋友交付任务，直接在本机继续开发。冻结的 `runtime-candidate-16` 及其交付 ZIP 保留为历史基线；不再以等待朋友反馈作为开发停点。
 
+## current-player-shutdown-01（2026-10-28）
+
+用户澄清中间暗区只是疑问，尚无具体故障证据；已取消继续暗区归因，不因旧复审计划自动恢复。转向原计划明确缺失的当前源码 Player 验证。
+
+`d8eb7be` 保留当前源码构建通过、可见软件 Player 退出失败，以及独立探针尾帧覆盖问题。`3088d41` 采用较小的保守修复：在当前 PlayerLoop 根尾部补真实渲染外边界，沿用原有 fence／所有权规则，不改 Application.Quit 或退出码；探针在采集结束前关闭，并绑定唯一帧收据和不可覆盖的 payload。
+
+唯一新软件 Player 在 Unity6000.0.85f1／Windows／Development Mono／DX12 完成120帧、5份有效HDR、零采集错误。第119帧原始moments与统计／哈希／帧身份一致，历史上限32；原生日志确认两父票及七子票分别提交并完成，全部项目owner计账归零，没有旧回收／GC buffer／D3D未释放告警。Astra结果审查无阻断，实际GPT6 Pro已接受较小修复及本次有限验收，并给出同构建单次DXR计划。详见[本轮结果](../LocalComparison/Review/current-player-shutdown-01/result.md)与[Pro复审](../LocalComparison/Review/current-player-shutdown-01/gpt6-pro-review-and-next-plan.txt)。
+
+这只关闭候选当前软件Player的有限正常退出缺口。硬件Player尚未运行；任意外部Quit／关窗、异常scratch、长时增长、总显存、完整画质与性能仍未验收。Unity原生退出汇总保留，不归因GI或冒称总内存零泄漏。后续复用同一283份构建产物，避免为硬件验证重建或重跑软件。
+
 ## cache-failed-result-01（2026-10-28）
 
 Pro第9轮批准后提交 `1b8e751`。实际HLSL反例证实：缓存支持权重为2^-18时，lookup返回false却留下部分结果，world端点继续加入该值，screen包装器则返回零。仅在低总权重失败分支清零完整结构；真实Unity回放保留直接光、发光与confidence，其余五个控制输出逐字节相同。六个完整受影响入口通过固定DXC环境编译；这不代表实体DXR或完整Unity变体验收。详见[审查入口](ReviewBrief-CacheFailedResult01.md)。

@@ -1,0 +1,131 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 20
+REVIEW_DECISION: RETAIN — 接受3088d41及本次软件Player有限验收
+NEXT_PACKAGE: current-player-dxr-smoke-01
+
+一、独立结论
+
+接受这次更小的方案调整。保留PlayerLoop尾部边界修复，不要求再引入受控Quit API；允许使用同一份已哈希构建产物，执行一次DXR 120帧Player检查。
+
+已确认 HybridLumenGI / workspace:/ / main@3088d41。产品及辅助代码已提交；当前未跟踪项是本轮检查点与结果证据目录。可以将这些结果作为后续证据提交，不能写成它们已经包含在3088d41中。
+
+我已先列出再读取iteration 20执行输出104–111，核对实际Runtime、保存的候选差异、执行版探针、119帧收据、分析器和原始Player日志。本层没有执行修改、测试或重新计算二进制哈希；本次复核核对了实际校验实现、其执行结果及对应原始收据。
+
+在已测范围内，没有发现保留候选或继续DXR检查的阻断。原iteration 19失败不改写，暗区调查继续取消。
+
+二、方案调整为何成立
+1. 修复的是提交边界，没有降低释放条件
+
+实际pump读取当前PlayerLoop，保留其他系统，只替换自己的根节点并追加尾部回调；它没有重建默认loop、截获Quit、重发退出或修改退出码。尾部回调复用原 IdleUpdate()。〔Runtime/HybridLumenGIResourceRetirementPump.cs:13–32〕
+
+原有保护仍然有效：
+
+新context会撤销outside证明。
+只有context已结束且提交状态确定时，合法边界才允许继续推进。
+普通 requiresContext票据没有被普遍提升为idle可提交。
+销毁仍经过实际fence和prerequisite检查，未知提交、失败保留和共享期限未被绕过。〔HybridLumenGIResourceRetirement.cs:79–94、118–150、263–275〕
+
+本轮测试首次编译了实际pump源码，检查外部loop节点保留、重复安装不增加节点、没有边界时仍停滞、边界不等于完成，以及父子分别完成。原生运行则补上了测试适配器无法证明的真实退出顺序。〔candidate-runtime.diff；执行输出104〕
+
+因此，这次调整比新增宿主退出API更小，且已回答它所针对的原生问题。
+
+**适用范围仍有限：**这是Unity 6000.0.85f1、Windows、Development Mono、DX12下本次正常Player退出的证据。外部替换PlayerLoop、不同平台、强杀及特殊回调顺序仍未验证。根尾部不是任意退出场景的通用保证；这些限制无需通过重复软件运行来“清空”。
+
+2. 原生日志支持完整推进，不只是最终计数为零
+
+我核对的原始顺序为：
+
+日志位置	状态变化
+player.log:79–105	退出开始时outside/contextEnded为true；撤销后两张票据，首次fence提交。
+:120–135	父owner完成销毁后出现七张子票据；随后形变reservation归零。
+:150	七张子票据另行提交，未借父项完成直接释放。
+:165–270	子owner逐次销毁，最终通用队列及已记录的其他owner计账归零。
+
+这些销毁日志位于 PollOwned()完成检查及销毁返回之后，没有额外读取fence来制造观察副作用。原生记录虽然不是逐ticket ID追踪，但结合实际代码中的检查位置，足以支持本次父子分批完成的结论。
+
+完整日志未出现此前的未解决退休、GC代为处置buffer及D3D未释放签名。Unity的 ##utp MemoryLeaks汇总仍保留在第289行；不能据它单独归因GI泄漏，也不能据本轮owner归零宣布全进程或总VRAM无泄漏。
+
+三、119帧证据覆盖问题已关闭
+
+修正版在恢复相机／target之前关闭探针；活动期间检查匹配收据与唯一逻辑帧，payload使用不覆盖写入。119帧统计直接使用同一次保存的moments读回，而不是重新读取另一帧。〔执行版 ComparisonCapture.cs:193–206；RuntimeAuditProbe.cs:21–27、46–52、73–81、94–101〕
+
+原始文件与校验结果相符：
+
+functional.jsonl恰有120行，最后只有一条119记录。
+四份payload收据均为 logical 119、engine 120、GI 120、readIndex 0、320×180。
+moments收据哈希为 f5b6dc5c76631cf8de7018c5ff6e6975e5e5e82219dfdef959ea3056ed319c9f；分析器重新读取文件核对哈希、尺寸、有限性及统计。
+moments重算最大历史长度为32，比例约0.8064236111，与同帧统计行的float值一致。
+五份HDR均完成了尺寸和有限性检查，不再因其他阶段提前断言而跳过。〔四份 denoise-0119-*.rgba32f.json；functional.jsonl:120；analyze-player-smoke.py:82–113；执行输出111〕
+
+这里应区分纹理原格式和读回文件格式：history原为RGBA16F，material原为RGBA8，统一读成RGBA32F文件；moments的实际资源格式确为RGBA32F。不能因文件后缀相同就把所有资源都记成32位纹理。
+
+本轮可关闭的是：对应软件Player正常退出缺口，以及探针尾部覆盖缺陷的本次集成验证。 不是整个Player、画质或资源生产验收。
+
+四、下一有限包：同一构建，只运行DXR
+A. 产物固定，不构建、不部署、不再运行软件
+
+使用：
+
+纯文本
+I:/Unity test/Comparison/Builds/CurrentShutdown20/HybridLumenGITest.exe
+
+对应 283份产物、142,703,354字节；既有产物清单SHA-256为：
+
+纯文本
+bbda6cbb087d6944cf1ef0210c978806455a12923539073f3d180a8ea5197ef4
+
+启动前、结束后均核对完整文件集合、大小及哈希，不是只检查EXE。引用本轮构建和软件通过证据，不复制或重新生成一份不同的构建基线。当前产物已经包含允许 hardware模式的入口，不需要重新编译。〔执行输出109、111；执行版 RuntimeAuditEntry.cs:15–39〕
+
+新结果放入独立的 LocalComparison/Review/current-player-dxr-smoke-01/。软件结果、构建清单及原失败目录保持不变。
+
+B. 只修改外部启动／分析接线
+
+当前 run-player-smoke.ps1:9明确禁止hardware，这是iteration 20的范围锁，不是产品能力缺陷。下一包可以增加一个仅允许hardware的新工作包入口或参数，并分开：
+
+构建／软件前置证据目录与本次硬件输出目录。
+
+保留软件已通过、设备能力、唯一attempt及产物哈希门槛。分析器复用现有逐阶段检查，只修正目前固定写成“software120frame”的范围文字和输入目录；不要修改Player二进制、Runtime、场景或材质。
+
+不新增观察器，不复跑source测试、Editor导入、构建或软件Player。
+
+C. 一次普通可见窗口启动，固定120帧
+
+沿用已成功的可见窗口启动方式，核心参数为：
+
+纯文本
+-force-d3d12
+-screen-fullscreen 0
+-screen-width 640 -screen-height 360
+-auditScene functional
+-auditSmoke -auditFrames 120
+-comparisonMode hardware
+-auditDenoiseReadback
+
+输出与完整原生日志指向新目录。不得加入-batchmode、Hidden或-nographics。首次出帧及外部watchdog上限沿用现有配置；达到上限即失败，不续时或自动重启。
+
+保持同一Functional场景及其既有前120帧行为、30/119读回、五个图像时点。本包最多一个硬件Player进程，没有重建或第二次原生尝试额度。
+
+五、DXR成功标准与停止条件
+阶段	必须证明
+实际硬件路径	最后16帧104–119实际为hardware，具备有效硬件网格／属性和材质消费者；不能只看请求开关或inlineRT能力。
+覆盖与GPU数据	同一场景无未解释的未表示实例；完成30/119历史／identity检查、RGBA32F moments、唯一119payload及哈希／统计一致，五份HDR有限。
+正常退出	退出码正常且无watchdog终止；完整日志中有合法边界、撤销、提交、完成销毁及最终已记录owner归零，无相关资源／设备／读回错误。
+
+有两点要在运行前明确：
+
+稳定的非零覆盖缺口不等于完整后端通过。 当前分析器只要求 hardwareFallbacks的最小值等于最大值；本轮软件实测为0，所以没有影响已接受结果。下一包应将该场景末16帧的非零未表示实例列为覆盖未通过或明确的未覆盖，而不是仅因其稳定就接受。这个字段是覆盖数量，不是累计回退事件。
+
+硬件退出不必恰好重复“两张父票据＋七张子票据”。 DXR还有加速结构及reservation的退休路径；实际数量可能不同。应按实际提交／销毁顺序检查，不能为了套用软件日志模板误判，也不能只看到通用队列零就补写未测得的RTAS总显存归零。〔Runtime/HybridLumenGIHardwareBackend.cs:691–708〕
+
+启动期有明确原因的资源准备可以记录，但固定稳定区间若仍回退软件，就不算DXR运行通过。不扩大预热、预算或场景以取得通过。
+
+出现构建产物不符、缺失硬件资源／kernel、实际后端未覆盖、重复或无效读回、非有限有效数据、设备错误或退出告警，保存首个证据并停止。下一步根据那个具体阻断修复；本包不原地调参或反复运行。
+
+六、交接与完整计划
+
+保留3088d41；提交本轮证据时使用“当前软件Player有限运行与正常退出通过”，不要使用“全部退出／资源问题已解决”。 当前未跟踪的证据提交应与已提交源码保持清楚关系。
+
+硬件运行完成后分别报告硬件路径、数据、退出及未覆盖项；软件通过状态直接引用，不重新执行。若DXR通过，才形成当前同一构建的软件／DXR有限Player覆盖，仍不宣称两者图像等价、动态质量通过或具备可信性能结果。
+
+暗区调查保持取消。四项目标、十条工作流继续有效；历史异常退出scratch、整图参考、动态质量、Release／其他构建组合、GPU p95/p99、峰值显存和长时资源验收继续开放。

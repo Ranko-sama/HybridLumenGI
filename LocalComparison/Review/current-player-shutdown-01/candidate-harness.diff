@@ -1,0 +1,295 @@
+diff --git a/LocalComparison/Harness/analyze-player-smoke.py b/LocalComparison/Harness/analyze-player-smoke.py
+index 53d79a8..640be67 100644
+--- a/LocalComparison/Harness/analyze-player-smoke.py
++++ b/LocalComparison/Harness/analyze-player-smoke.py
+@@ -5,16 +5,16 @@ import numpy as np
+ from native_log_check import scan
+ 
+ ROOT=Path(__file__).resolve().parents[2]
+-PACKAGE=ROOT/'LocalComparison/Review/current-player-smoke-01'
++PACKAGE=ROOT/'LocalComparison/Review/current-player-shutdown-01'
+ PROJECT=Path('I:/Unity test/Project')
+-BUILD=Path('I:/Unity test/Comparison/Builds/CurrentSource9176b0f')
++BUILD=Path('I:/Unity test/Comparison/Builds/CurrentShutdown20')
+ def load(p):return json.loads(p.read_text(encoding='utf-8-sig'))
+ def lines(p):return [json.loads(s) for s in p.read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+ def save(p,v):p.write_text(json.dumps(v,indent=2)+'\n',encoding='utf-8')
+ def hits(path):
+     result=scan(path)
+-    extra={'scratch':r'D3D12ScratchBufferInternal','d3d-extra':r'\[d3d12\] Unreleased',
++    extra={'scratch':r'D3D12ScratchBufferInternal','gc-buffer-disposal':r'GarbageCollector disposing of (?:ComputeBuffer|GraphicsBuffer)',
+            'exception':r'(?:^|\s)(?:Unhandled\s+)?[A-Za-z0-9_.]*Exception(?::|\s*$)|The referenced script .* is missing|Failed to load .*shader|Invalid bounded Player smoke'}
+     for n,line in enumerate(path.read_text(encoding='utf-8-sig',errors='replace').splitlines(),1):
+         for category,pattern in extra.items():
+@@ -51,57 +51,85 @@ def verify_products():
+ 
+ def run(mode):
+     package=PACKAGE/(mode+'-windowed')
+-    report={'mode':mode,'playerSmokeVerified':False,'normalExitAccepted':False,'fullProductionAccepted':False,
+-            'scope':'Current Development/Mono/DX12 finite120frame scene and normal exit only; no dynamic/image/performance acceptance'}
+-    try:
+-        report['buildProductsManifestSha256']=verify_products();exit=load(package/'native-exit.json')
+-        report['nativeExitCode']=exit['exitCode'];report['watchdogTerminated']=exit['watchdogTerminated']
+-        report['nativeLogHits']=hits(package/'player.log')
+-        report['normalExitAccepted']=exit['exitCode']==0 and not exit['watchdogTerminated'] and not report['nativeLogHits']
+-        runs=list((package/'run').glob('*/run.json'));assert len(runs)==1,'Unique fresh run required';folder=runs[0].parent
+-        meta=load(runs[0]);frames=lines(folder/'frames.jsonl');report['runId']=folder.name
++    report={'mode':mode,'playerSmokeVerified':False,'fullProductionAccepted':False,'failures':{},
++            'scope':'Current Development/Mono/DX12 software120frame capture and natural exit; no image/performance acceptance'}
++    data={}
++    def check(name,fn):
++        report[name]=False
++        try:fn();report[name]=True
++        except Exception as error:report['failures'][name]={'error':str(error),'traceback':traceback.format_exc()}
++    def products():report['buildProductsManifestSha256']=verify_products()
++    def collect():
++        runs=list((package/'run').glob('*/run.json'));assert len(runs)==1,'Unique fresh run required'
++        folder=runs[0].parent;meta=load(runs[0]);frames=lines(folder/'frames.jsonl')
++        data.update(folder=folder,meta=meta,frames=frames);report['runId']=folder.name
+         report['collection']={k:meta[k] for k in ['status','renderedFrames','captures','errors','firstRenderWaitSeconds']}
+-        assert meta['requestedFrames']==meta['renderedFrames']==120 and meta['captures']==5 and meta['errors']==0
+-        assert meta['api']=='Direct3D12' and meta['width']==640 and meta['height']==360
+-        assert [f['logicalFrame'] for f in frames]==list(range(120))
+-        diagnostics=[json.loads(f['diagnosticsJson']) for f in frames];stable=diagnostics[104:120]
+-        report['lastDiagnostics']=diagnostics[-1]
++        assert meta['requestedFrames']==meta['renderedFrames']==120 and meta['captures']==5 and meta['errors']==0,'Capture count/errors'
++        assert meta['api']=='Direct3D12' and meta['width']==640 and meta['height']==360,'Capture configuration'
++        assert [f['logicalFrame'] for f in frames]==list(range(120)),'Missing/duplicate capture receipt'
++    def backend():
++        diagnostics=[json.loads(f['diagnosticsJson']) for f in data['frames']];stable=diagnostics[104:120]
++        assert len(stable)==16;report['lastDiagnostics']=diagnostics[-1]
+         report['startupBackend']=[{'frame':i,'hardware':d['hardwareBackend'],'exactSoftware':d['exactSoftwareGeometry'],
+-                                  'fallbacks':d['hardwareFallbacks'],'materialStatus':d['hardwareMaterialStatus']} for i,d in enumerate(diagnostics[:104])]
++            'fallbacks':d['hardwareFallbacks'],'materialStatus':d['hardwareMaterialStatus']} for i,d in enumerate(diagnostics[:104])]
+         assert all(d['publishedInstances']>0 and d['readyCards']>0 and d['hardwareMaterialFrameBytes']>0 and
+-                   d['hardwareMaterialStatus']=='Uploads and both consumers bound; GPU completion unproven' for d in stable),'Prepared geometry/material consumer path missing'
++            d['hardwareMaterialStatus']=='Uploads and both consumers bound; GPU completion unproven' for d in stable),'Prepared consumers missing'
+         assert all((d['hardwareBackend'] and d['hardwareMeshes']>0 and d['hardwareAttributeBytes']>0) if mode=='hardware' else
+-                   (not d['hardwareBackend'] and d['exactSoftwareGeometry'] and d['softwareGeometryBytes']>0) for d in stable),'Requested stable backend not actually selected'
++            (not d['hardwareBackend'] and d['exactSoftwareGeometry'] and d['softwareGeometryBytes']>0) for d in stable),'Actual backend mismatch'
+         coverage=[d['hardwareFallbacks'] for d in stable]
+-        report['stableUnrepresentedInstanceGauge']={'minimum':min(coverage),'maximum':max(coverage),
+-            'meaning':'Recomputed published instances outside backend, not cumulative fallback events'}
+-        assert min(coverage)==max(coverage),'Stable-window represented-instance coverage changed; requires explanation'
+-        functional=lines(folder/'functional.jsonl');first={}
+-        for row in functional:first.setdefault(row['frame'],row)
+-        report['functionalDuplicateRows']=len(functional)-len(first)
+-        report['inlineRayTracingSupported']=all(first[f]['inlineRT'] for f in range(104,120))
++        report['stableUnrepresentedInstanceGauge']={'minimum':min(coverage),'maximum':max(coverage),'meaning':'Instance coverage gauge, not event counter'}
++        assert min(coverage)==max(coverage),'Unexplained stable coverage change'
++    def gi():
++        folder=data['folder'];rows=lines(folder/'functional.jsonl');frames=data['frames']
++        assert [r['frame'] for r in rows]==list(range(120)),'Missing/duplicate functional receipt'
++        assert all(r['engineFrame']==f['engineFrame'] and r['giFrame']==json.loads(f['diagnosticsJson'])['frame'] for r,f in zip(rows,frames)),'Receipt engine/GI identity mismatch'
++        report['functionalDuplicateRows']=0;report['inlineRayTracingSupported']=all(r['inlineRT'] for r in rows[104:120])
+         for f in [30,119]:
+-            row=first[f];assert row['historyMaximum']>1 and row['historyFraction']>0 and row['validIdentityPixels']>0,'Existing history/identity completion coverage missing'
+-            assert row['momentsFormat0']==row['momentsFormat1']=='R32G32B32A32_SFloat','Actual moments allocation format changed'
+-        w,h=map(int,(folder/'denoise-size.txt').read_text(encoding='utf-8').split());report['giSize']=[w,h]
+-        assert [w,h]==[320,180]
+-        payload={}
++            row=rows[f];assert row['historyMaximum']>1 and row['historyFraction']>0 and row['validIdentityPixels']>0,'History/identity coverage'
++            assert row['momentsFormat0']==row['momentsFormat1']=='R32G32B32A32_SFloat','Moments format'
++        w,h=map(int,(folder/'denoise-size.txt').read_text(encoding='utf-8').split());assert [w,h]==[320,180]
++        report['giSize']=[w,h];payload={};receipts=[];row=rows[119]
+         for field in ['history','moments','geometry','material']:
+-            p=folder/f'denoise-0119-{field}.rgba32f';assert p.stat().st_size==w*h*16
+-            a=np.fromfile(p,'<f4').reshape(h,w,4);assert np.isfinite(a).all(),field
+-            payload[field]=a
+-        history=payload['history'];report['measurementCounts']={'valid':int((history[:,:,3]>0).sum()),'unknown':int((history[:,:,3]<0).sum()),'absent':int((history[:,:,3]==0).sum())}
+-        assert report['measurementCounts']['valid']>0,'No completed GI measurements'
++            path=folder/f'denoise-0119-{field}.rgba32f';receipt=load(Path(str(path)+'.json'))
++            assert receipt['file']==path.name and receipt['field']==field and receipt['sha256']==sha(path),'Payload hash/name mismatch'
++            assert all(receipt[k]==row[k] for k in ['frame','engineFrame','giFrame','readIndex']),'Payload receipt identity mismatch'
++            assert receipt['width']==w and receipt['height']==h and path.stat().st_size==w*h*16,'Payload size'
++            if field=='moments':assert receipt['format']=='R32G32B32A32_SFloat'
++            a=np.fromfile(path,'<f4').reshape(h,w,4);assert np.isfinite(a).all(),field
++            payload[field]=a;receipts.append(receipt)
++        history=payload['history'];samples=payload['moments'][:,:,2]
++        report['payloadReceipts']=receipts
++        report['measurementCounts']={'valid':int((history[:,:,3]>0).sum()),'unknown':int((history[:,:,3]<0).sum()),'absent':int((history[:,:,3]==0).sum())}
++        assert report['measurementCounts']['valid']>0,'No valid measurements'
+         report['measuredBlackCount']=int(((history[:,:,3]>0)&np.all(history[:,:,:3]==0,axis=2)).sum())
+-        report['maximumHistorySamples']=float(payload['moments'][:,:,2].max())
+-        assert report['maximumHistorySamples']>1
+-        for f in frames:
+-            if f['captured']:
+-                p=folder/f['raw'];assert p.stat().st_size==640*360*16 and np.isfinite(np.fromfile(p,'<f4')).all(),'Final HDR payload invalid'
+-        assert report['normalExitAccepted'],'Full native process exit/log not accepted'
+-        report['playerSmokeVerified']=True
+-    except Exception as e:report['failure']=str(e);report['traceback']=traceback.format_exc()
+-    save(package/'analysis.json',report);print(json.dumps({k:v for k,v in report.items() if k not in ['startupBackend','lastDiagnostics']}));return report['playerSmokeVerified']
++        report['maximumHistorySamples']=float(samples.max());report['historyFraction']=float((samples>1).mean())
++        assert report['maximumHistorySamples']==row['historyMaximum'] and abs(report['historyFraction']-row['historyFraction'])<1e-6,'Statistics/payload disagreement'
++        assert report['maximumHistorySamples']>1,'No mature history'
++    def hdr():
++        captures=[f for f in data['frames'] if f['captured']]
++        assert [f['logicalFrame'] for f in captures]==[0,30,60,90,119]
++        for f in captures:
++            path=data['folder']/f['raw'];assert path.stat().st_size==640*360*16 and np.isfinite(np.fromfile(path,'<f4')).all(),'Invalid HDR payload'
++        report['validatedHdrCaptures']=len(captures)
++    def native():
++        exit=load(package/'native-exit.json');report['nativeExitCode']=exit['exitCode'];report['watchdogTerminated']=exit['watchdogTerminated']
++        report['nativeLogHits']=hits(package/'player.log')
++        raw=(package/'player.log').read_text(encoding='utf-8-sig',errors='replace')
++        events=[line for line in raw.splitlines() if line.startswith('HybridLumenGI shutdown ')]
++        report['shutdownEvents']=events
++        assert exit['exitCode']==0 and not exit['watchdogTerminated'] and not report['nativeLogHits'],'Native exit/resource failure'
++        names=['begin','owners withdrawn','idle fence submitted','completed owner destroyed','generic drain complete']
++        indices=[next(i for i,e in enumerate(events) if e.startswith('HybridLumenGI shutdown '+name+':')) for name in names]
++        assert indices==sorted(indices),'Shutdown order missing/invalid'
++        assert 'outside=True' in events[indices[0]],'No real boundary before native shutdown'
++        final=events[-1];assert 'generic drain complete:' in final,'No final completed drain'
++        for field in ['owned','pending','unknown','failed','failedWithdrawals','materialBytes','arenaBytes','deformationBytes','deformationJobs','deformationCleanupFailed']:
++            assert re.search(r'(?:, |: )'+field+r'=0(?:,|$)',final),'Final owner accounting not zero: '+field
++    for name,fn in [('buildProductsVerified',products),('collectionVerified',collect),('backendVerified',backend),('giDataVerified',gi),('hdrVerified',hdr),('normalExitAccepted',native)]:check(name,fn)
++    report['playerSmokeVerified']=not report['failures']
++    save(package/'analysis.json',report)
++    print(json.dumps({k:v for k,v in report.items() if k not in ['startupBackend','lastDiagnostics']}))
++    return report['playerSmokeVerified']
+ 
+ if __name__=='__main__':
+     p=argparse.ArgumentParser();p.add_argument('action',choices=['build','products','software','hardware']);a=p.parse_args()
+diff --git a/LocalComparison/Harness/build-player-smoke.ps1 b/LocalComparison/Harness/build-player-smoke.ps1
+index 6da7b6b..ae93abe 100644
+--- a/LocalComparison/Harness/build-player-smoke.ps1
++++ b/LocalComparison/Harness/build-player-smoke.ps1
+@@ -1,10 +1,10 @@
+ $ErrorActionPreference='Stop'
+ $taskRootPath='C:/Users/Administrator/Desktop/test/HybridLumenGI'
+-$taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/current-player-smoke-01'
++$taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/current-player-shutdown-01'
+ $taskPython='C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
+ $taskInstaller=Join-Path $taskRootPath 'LocalComparison/Harness/prepare-player-smoke.py'
+ $taskAttempt=Join-Path $taskPackagePath 'build-attempt.json'
+-$taskPlayerOutput='I:/Unity test/Comparison/Builds/CurrentSource9176b0f/HybridLumenGITest.exe'
++$taskPlayerOutput='I:/Unity test/Comparison/Builds/CurrentShutdown20/HybridLumenGITest.exe'
+ if(Test-Path -LiteralPath $taskAttempt){throw 'Unique normal build already attempted.'}
+ if(Test-Path -LiteralPath (Split-Path -Parent $taskPlayerOutput)){throw 'New build output must not replace an existing Player.'}
+ if(Get-Process -Name Unity -ErrorAction SilentlyContinue){throw 'An existing Unity process must be handled before installation.'}
+@@ -12,15 +12,15 @@ if(Get-Process -Name Unity -ErrorAction SilentlyContinue){throw 'An existing Uni
+ if($LASTEXITCODE -ne 0){throw 'Player test wiring installation failed.'}
+ $taskNativeExit=-1
+ try {
+-    @{attempt=1;sourceCommit='9176b0f';startedUtc=[DateTime]::UtcNow.ToString('o');output=$taskPlayerOutput} | ConvertTo-Json | Set-Content -LiteralPath $taskAttempt -Encoding utf8
+-    $taskCommand="& 'I:/Unity test/Start-Unity.ps1' -Batch -LogName 'CurrentPlayerSmokeBuild01' -ExecuteMethod 'CurrentPlayerBuild.Build' -ExtraArguments @('-currentPlayerOutput','$taskPlayerOutput','-currentPlayerReceipt','$($taskPackagePath.Replace('\','/'))/build-report.json')"
++    @{attempt=1;sourceCommit=(git rev-parse HEAD);startedUtc=[DateTime]::UtcNow.ToString('o');output=$taskPlayerOutput} | ConvertTo-Json | Set-Content -LiteralPath $taskAttempt -Encoding utf8
++    $taskCommand="& 'I:/Unity test/Start-Unity.ps1' -Batch -LogName 'CurrentPlayerShutdownBuild01' -ExecuteMethod 'CurrentPlayerBuild.Build' -ExtraArguments @('-currentPlayerOutput','$taskPlayerOutput','-currentPlayerReceipt','$($taskPackagePath.Replace('\','/'))/build-report.json')"
+     & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $taskCommand
+     $taskNativeExit=$LASTEXITCODE
+ } finally {
+     @{exitCode=$taskNativeExit;completedUtc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $taskPackagePath 'build-exit.json') -Encoding utf8
+-    foreach($taskLog in @('CurrentPlayerSmokeBuild01.log','CurrentPlayerSmokeBuild01-upm.log')){
++    foreach($taskLog in @('CurrentPlayerShutdownBuild01.log','CurrentPlayerShutdownBuild01-upm.log')){
+         $taskSourceLog=Join-Path 'I:/Unity test/Logs' $taskLog
+-        if(Test-Path -LiteralPath $taskSourceLog){$taskLogName=if($taskLog -eq 'CurrentPlayerSmokeBuild01.log'){'build-unity.log'}else{'build-upm.log'};Copy-Item -LiteralPath $taskSourceLog -Destination (Join-Path $taskPackagePath $taskLogName)}
++        if(Test-Path -LiteralPath $taskSourceLog){$taskLogName=if($taskLog -eq 'CurrentPlayerShutdownBuild01.log'){'build-unity.log'}else{'build-upm.log'};Copy-Item -LiteralPath $taskSourceLog -Destination (Join-Path $taskPackagePath $taskLogName)}
+     }
+     & $taskPython $taskInstaller restore
+     if($LASTEXITCODE -ne 0){throw 'Player test wiring restoration failed.'}
+diff --git a/LocalComparison/Harness/prepare-player-smoke.py b/LocalComparison/Harness/prepare-player-smoke.py
+index e2e7109..c9994e1 100644
+--- a/LocalComparison/Harness/prepare-player-smoke.py
++++ b/LocalComparison/Harness/prepare-player-smoke.py
+@@ -4,7 +4,7 @@ from pathlib import Path
+ 
+ ROOT=Path(__file__).resolve().parents[2]
+ PROJECT=Path('I:/Unity test/Project')
+-PACKAGE=ROOT/'LocalComparison/Review/current-player-smoke-01'
++PACKAGE=ROOT/'LocalComparison/Review/current-player-shutdown-01'
+ OUT=PACKAGE/'instrumentation'
+ H=ROOT/'LocalComparison/Harness'
+ sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+@@ -32,18 +32,63 @@ def prepare():
+         capture.totalFrames=smoke?120:720;
+         if(smoke)capture.quitWhenComplete=true;''')
+     changed[entry]=text.encode('utf-8')
++    capture=PROJECT/'Assets/ComparisonHarness/ComparisonCapture.cs'
++    text=capture.read_text(encoding='utf-8')
++    text=replace(text,'    void Finish(bool collected)', '''    public bool AuditOpen=>running && !closing;
++    public event Action AuditClosing;
++    public bool AuditReceipt(int frame,int engine)=>AuditOpen && receipt && logicalFrame==frame && lastEngine==engine;
++    void Finish(bool collected)''')
++    text=replace(text,'running = false; RenderPipelineManager.endCameraRendering -= Rendered;',
++        'running = false; try{AuditClosing?.Invoke();}catch(Exception e){Fail("Probe close: "+e);} RenderPipelineManager.endCameraRendering -= Rendered;')
++    changed[capture]=text.encode('utf-8')
+     probe=PROJECT/'Assets/ComparisonHarness/RuntimeAuditProbe.cs'
+     text=probe.read_text(encoding='utf-8')
+     text=replace(text,'public bool hasSnapshot,emissionEnabled,inlineRT;public string deformationStatus,areaReason;',
+         'public bool hasSnapshot,emissionEnabled,inlineRT;public string deformationStatus,areaReason,momentsFormat0,momentsFormat1;')
+     text=replace(text,'                var identity=(RTHandle[])Field(state,"receiverIdentity");',
+         '                row.momentsFormat0=moments[0].rt.graphicsFormat.ToString();row.momentsFormat1=moments[1].rt.graphicsFormat.ToString();\n                var identity=(RTHandle[])Field(state,"receiverIdentity");')
++    text=replace(text,'    void Start()', '''    readonly System.Collections.Generic.HashSet<int> acceptedFrames=new System.Collections.Generic.HashSet<int>();
++    bool probeClosed;
++    [Serializable] class Payload {public string field,file,sha256,format;public int frame,engineFrame,giFrame,readIndex,width,height;}
++    static void WriteNew(string path,byte[] bytes)
++    {using(var stream=new FileStream(path,FileMode.CreateNew,FileAccess.Write,FileShare.Read))stream.Write(bytes,0,bytes.Length);}
++    void CloseProbe(){if(probeClosed)return;probeClosed=true;RenderPipelineManager.endCameraRendering-=Rendered;writer?.Dispose();writer=null;}
++    void Start()''')
++    text=replace(text,'        RenderPipelineManager.endCameraRendering+=Rendered;',
++        '        capture.AuditClosing+=CloseProbe;\n        RenderPipelineManager.endCameraRendering+=Rendered;')
++    text=replace(text,'    void Update()\n    {','    void Update()\n    {\n        if(!capture.AuditOpen)return;')
++    text=replace(text,'        if(camera!=capture.camera)return;',
++        '        if(camera!=capture.camera || !capture.AuditOpen || probeClosed)return;')
++    text=replace(text,'        if(writer==null)writer=new StreamWriter(Path.Combine(directory,"functional.jsonl")){AutoFlush=true};', '''        if(!capture.AuditReceipt(f,Time.frameCount))throw new Exception("Probe lacks matching capture receipt");
++        if(!acceptedFrames.Add(f))throw new Exception("Duplicate open probe receipt");
++        if(writer==null)writer=new StreamWriter(new FileStream(Path.Combine(directory,"functional.jsonl"),FileMode.CreateNew,FileAccess.Write,FileShare.Read)){AutoFlush=true};
++        float[] savedMoments=null;''')
++    text=replace(text,'        public int frame,publishedFrame,geometryRevision,areaTriangles,materialSources,emissiveSources,validIdentityPixels;',
++        '        public int frame,engineFrame,giFrame,readIndex,publishedFrame,geometryRevision,areaTriangles,materialSources,emissiveSources,validIdentityPixels;')
++    text=replace(text,'        var row=new Row {frame=f,publishedFrame=',
++        '        var row=new Row {frame=f,engineFrame=Time.frameCount,publishedFrame=')
++    text=replace(text,'            if(!ReferenceEquals(Field(state,"camera"),camera))continue;',
++        '            if(!ReferenceEquals(Field(state,"camera"),camera))continue;\n            row.giFrame=(int)Field(state,"frame");row.readIndex=(int)Field(state,"readIndex");')
++    text=replace(text,'                    File.WriteAllBytes(Path.Combine(directory,"denoise-"+f.ToString("D4")+"-"+field+".rgba32f"),request.GetData<byte>().ToArray());', '''                    byte[] bytes=request.GetData<byte>().ToArray();string filename="denoise-"+f.ToString("D4")+"-"+field+".rgba32f";
++                    WriteNew(Path.Combine(directory,filename),bytes);
++                    if(field=="moments"){savedMoments=new float[bytes.Length/4];Buffer.BlockCopy(bytes,0,savedMoments,0,bytes.Length);}
++                    string hash;using(var digest=System.Security.Cryptography.SHA256.Create())hash=BitConverter.ToString(digest.ComputeHash(bytes)).Replace("-","").ToLowerInvariant();
++                    var payload=new Payload{field=field,file=filename,sha256=hash,format=texture.graphicsFormat.ToString(),frame=f,engineFrame=Time.frameCount,giFrame=row.giFrame,readIndex=currentRead,width=texture.width,height=texture.height};
++                    WriteNew(Path.Combine(directory,filename+".json"),System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload)));''')
++    text=replace(text,'                    var req=AsyncGPUReadback.Request(moments[read].rt,0,TextureFormat.RGBAFloat);req.WaitForCompletion();\n                    if(req.hasError)throw new Exception("History readback failed");var data=req.GetData<float>();int valid=0;', '''                    var data=savedMoments;
++                    if(data==null){var req=AsyncGPUReadback.Request(moments[read].rt,0,TextureFormat.RGBAFloat);req.WaitForCompletion();
++                        if(req.hasError)throw new Exception("History readback failed");data=req.GetData<float>().ToArray();}
++                    int valid=0;''')
++    text=replace(text,'File.WriteAllBytes(Path.Combine(directory,"atlas-"+pair.Item1+".rgba32f"),req.GetData<byte>().ToArray());',
++        'WriteNew(Path.Combine(directory,"atlas-"+pair.Item1+".rgba32f"),req.GetData<byte>().ToArray());')
++    text=replace(text,'    void OnDestroy(){RenderPipelineManager.endCameraRendering-=Rendered;writer?.Dispose();}',
++        '    void OnDestroy(){capture.AuditClosing-=CloseProbe;CloseProbe();}')
+     changed[probe]=text.encode('utf-8')
+     for source,destination in [('CurrentPlayerBuild.cs','Editor/CurrentPlayerBuild.cs')]:
+         changed[PROJECT/'Assets/ComparisonHarness'/destination]=(H/source).read_bytes()
+     OUT.mkdir(parents=True,exist_ok=True)
+     manifest={'baseline':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'productSourceSha256':product,
+-              'scene':'Assets/RuntimeAudit/Functional.unity','scope':'single build; one software and one conditional DXR smoke,120frames each; no source-scene regeneration',
++              'scene':'Assets/RuntimeAudit/Functional.unity','scope':'single build; one visible software120frame smoke; no hardware or scene regeneration',
+               'files':[],'newMetadata':[]}
+     for i,(path,data) in enumerate(changed.items()):
+         rel=path.relative_to(PROJECT).as_posix();old=path.read_bytes() if path.exists() else None
+@@ -55,7 +100,7 @@ def prepare():
+         if not meta.exists():manifest['newMetadata'].append(meta.relative_to(PROJECT).as_posix())
+     (OUT/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
+     (OUT/'installer.executed.py.txt').write_bytes(Path(__file__).read_bytes())
+-    print(json.dumps({'preparedFiles':len(changed),'productSourceCount':len(product),'RuntimeBehaviorChanged':False,'sceneRegenerated':False}))
++    print(json.dumps({'preparedFiles':len(changed),'productSourceCount':len(product),'testWiringAltersProductRuntime':False,'sceneRegenerated':False}))
+ 
+ def install():
+     assert not (OUT/'installed.json').exists(),'Build installation cannot be repeated'
+diff --git a/LocalComparison/Harness/run-player-smoke.ps1 b/LocalComparison/Harness/run-player-smoke.ps1
+index 68a184e..b5a6bda 100644
+--- a/LocalComparison/Harness/run-player-smoke.ps1
++++ b/LocalComparison/Harness/run-player-smoke.ps1
+@@ -1,10 +1,11 @@
+ param([Parameter(Mandatory=$true)][ValidateSet('software','hardware')][string]$Mode)
+ $ErrorActionPreference='Stop'
+ $taskRootPath='C:/Users/Administrator/Desktop/test/HybridLumenGI'
+-$taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/current-player-smoke-01'
++$taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/current-player-shutdown-01'
+ $taskModePath=Join-Path $taskPackagePath ($Mode+'-windowed')
+ $taskPython='C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
+-$taskPlayer='I:/Unity test/Comparison/Builds/CurrentSource9176b0f/HybridLumenGITest.exe'
++$taskPlayer='I:/Unity test/Comparison/Builds/CurrentShutdown20/HybridLumenGITest.exe'
++if($Mode -ne 'software'){throw 'Iteration20 admits only one software Player; hardware awaits separate review.'}
+ if(!(Get-Content -LiteralPath (Join-Path $taskPackagePath 'build-analysis.json') -Raw | ConvertFrom-Json).currentSourceBuildVerified){throw 'Build not accepted.'}
+ if(Test-Path -LiteralPath (Join-Path $taskModePath 'attempt.json')){throw 'This Player route already used its unique attempt.'}
+ if($Mode -eq 'hardware'){

@@ -1,0 +1,278 @@
+LocalComparison/Harness/analyze-player-smoke.py:1: trailing whitespace.
++"""Bounded build/backend/data/normal-exit acceptance. No image-quality oracle."""
+LocalComparison/Harness/analyze-player-smoke.py:2: trailing whitespace.
++import argparse,hashlib,json,re,traceback
+LocalComparison/Harness/analyze-player-smoke.py:3: trailing whitespace.
++from pathlib import Path
+LocalComparison/Harness/analyze-player-smoke.py:4: trailing whitespace.
++import numpy as np
+LocalComparison/Harness/analyze-player-smoke.py:5: trailing whitespace.
++from native_log_check import scan
+LocalComparison/Harness/analyze-player-smoke.py:6: trailing whitespace.
++
+LocalComparison/Harness/analyze-player-smoke.py:7: trailing whitespace.
++ROOT=Path(__file__).resolve().parents[2]
+LocalComparison/Harness/analyze-player-smoke.py:8: trailing whitespace.
++PACKAGE=ROOT/'LocalComparison/Review/current-player-shutdown-01'
+LocalComparison/Harness/analyze-player-smoke.py:9: trailing whitespace.
++PROJECT=Path('I:/Unity test/Project')
+LocalComparison/Harness/analyze-player-smoke.py:10: trailing whitespace.
++BUILD=Path('I:/Unity test/Comparison/Builds/CurrentShutdown20')
+LocalComparison/Harness/analyze-player-smoke.py:11: trailing whitespace.
++def load(p):return json.loads(p.read_text(encoding='utf-8-sig'))
+LocalComparison/Harness/analyze-player-smoke.py:12: trailing whitespace.
++def lines(p):return [json.loads(s) for s in p.read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+LocalComparison/Harness/analyze-player-smoke.py:13: trailing whitespace.
++def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+LocalComparison/Harness/analyze-player-smoke.py:14: trailing whitespace.
++def save(p,v):p.write_text(json.dumps(v,indent=2)+'\n',encoding='utf-8')
+LocalComparison/Harness/analyze-player-smoke.py:15: trailing whitespace.
++def hits(path):
+LocalComparison/Harness/analyze-player-smoke.py:16: trailing whitespace.
++    result=scan(path)
+LocalComparison/Harness/analyze-player-smoke.py:17: trailing whitespace.
++    extra={'scratch':r'D3D12ScratchBufferInternal','gc-buffer-disposal':r'GarbageCollector disposing of (?:ComputeBuffer|GraphicsBuffer)',
+LocalComparison/Harness/analyze-player-smoke.py:18: trailing whitespace.
++           'exception':r'(?:^|\s)(?:Unhandled\s+)?[A-Za-z0-9_.]*Exception(?::|\s*$)|The referenced script .* is missing|Failed to load .*shader|Invalid bounded Player smoke'}
+LocalComparison/Harness/analyze-player-smoke.py:19: trailing whitespace.
++    for n,line in enumerate(path.read_text(encoding='utf-8-sig',errors='replace').splitlines(),1):
+LocalComparison/Harness/analyze-player-smoke.py:20: trailing whitespace.
++        for category,pattern in extra.items():
+LocalComparison/Harness/analyze-player-smoke.py:21: trailing whitespace.
++            if re.search(pattern,line,re.I):result.append({'category':category,'line':n,'text':line})
+LocalComparison/Harness/analyze-player-smoke.py:22: trailing whitespace.
++    return result
+LocalComparison/Harness/analyze-player-smoke.py:23: trailing whitespace.
++
+LocalComparison/Harness/analyze-player-smoke.py:24: trailing whitespace.
++def build():
+LocalComparison/Harness/analyze-player-smoke.py:25: trailing whitespace.
++    report={'currentSourceBuildVerified':False,'fullProductionAccepted':False}
+LocalComparison/Harness/analyze-player-smoke.py:26: trailing whitespace.
++    try:
+LocalComparison/Harness/analyze-player-smoke.py:27: trailing whitespace.
++        b=load(PACKAGE/'build-report.json');exit=load(PACKAGE/'build-exit.json')
+LocalComparison/Harness/analyze-player-smoke.py:28: trailing whitespace.
++        report['nativeLogHits']=hits(PACKAGE/'build-unity.log');report['buildResult']=b['result'];report['buildErrors']=b['errors']
+LocalComparison/Harness/analyze-player-smoke.py:29: trailing whitespace.
++        assert exit['exitCode']==0 and b['result']=='Succeeded' and b['errors']==0 and not report['nativeLogHits'],'Build/native log failed'
+LocalComparison/Harness/analyze-player-smoke.py:30: trailing whitespace.
++        m=load(PACKAGE/'instrumentation/manifest.json');restore=load(PACKAGE/'instrumentation/restoration.json')
+LocalComparison/Harness/analyze-player-smoke.py:31: trailing whitespace.
++        assert restore['currentProductRestored'] and all(x['restored'] for x in restore['files'])
+LocalComparison/Harness/analyze-player-smoke.py:32: trailing whitespace.
++        assert all(sha(PROJECT/'Assets/HybridLumenGI'/p)==v for p,v in m['productSourceSha256'].items())
+LocalComparison/Harness/analyze-player-smoke.py:33: trailing whitespace.
++        selected={x['path']:x for x in b['inputs']}
+LocalComparison/Harness/analyze-player-smoke.py:34: trailing whitespace.
++        assert all(selected['Assets/HybridLumenGI/'+p]['sha256']==v for p,v in m['productSourceSha256'].items())
+LocalComparison/Harness/analyze-player-smoke.py:35: trailing whitespace.
++        assert b['scene']=='Assets/RuntimeAudit/Functional.unity' and b['unity']=='6000.0.85f1'
+LocalComparison/Harness/analyze-player-smoke.py:36: trailing whitespace.
++        assert not (PACKAGE/'build-products.json').exists(),'Build product manifest already frozen'
+LocalComparison/Harness/analyze-player-smoke.py:37: trailing whitespace.
++        files=[{'path':p.relative_to(BUILD).as_posix(),'bytes':p.stat().st_size,'sha256':sha(p)} for p in sorted(BUILD.rglob('*')) if p.is_file()]
+LocalComparison/Harness/analyze-player-smoke.py:38: trailing whitespace.
++        assert any(x['path'].endswith('/Managed/Assembly-CSharp.dll') for x in files),'Actual loaded managed assembly missing'
+LocalComparison/Harness/analyze-player-smoke.py:39: trailing whitespace.
++        assert any(x['path'].endswith('resources.assets') for x in files),'Built Resources data missing'
+LocalComparison/Harness/analyze-player-smoke.py:40: trailing whitespace.
++        save(PACKAGE/'build-products.json',{'root':str(BUILD),'files':files})
+LocalComparison/Harness/analyze-player-smoke.py:41: trailing whitespace.
++        report.update(currentSourceBuildVerified=True,productFileCount=len(files),productBytes=sum(x['bytes'] for x in files),sourceCommit=m['baseline'],
+LocalComparison/Harness/analyze-player-smoke.py:42: trailing whitespace.
++                      productSourceCount=len(m['productSourceSha256']),restored=True)
+LocalComparison/Harness/analyze-player-smoke.py:43: trailing whitespace.
++    except Exception as e:report['failure']=str(e);report['traceback']=traceback.format_exc()
+LocalComparison/Harness/analyze-player-smoke.py:44: trailing whitespace.
++    save(PACKAGE/'build-analysis.json',report);print(json.dumps(report));return report['currentSourceBuildVerified']
+LocalComparison/Harness/analyze-player-smoke.py:45: trailing whitespace.
++
+LocalComparison/Harness/analyze-player-smoke.py:46: trailing whitespace.
++def verify_products():
+LocalComparison/Harness/analyze-player-smoke.py:47: trailing whitespace.
++    m=load(PACKAGE/'build-products.json');root=Path(m['root'])
+LocalComparison/Harness/analyze-player-smoke.py:48: trailing whitespace.
++    assert all((root/f['path']).stat().st_size==f['bytes'] and sha(root/f['path'])==f['sha256'] for f in m['files']),'Built product bytes changed'
+LocalComparison/Harness/analyze-player-smoke.py:49: trailing whitespace.
++    assert set(f['path'] for f in m['files'])=={p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file()},'Built product file set changed'
+LocalComparison/Harness/analyze-player-smoke.py:50: trailing whitespace.
++    return sha(PACKAGE/'build-products.json')
+LocalComparison/Harness/analyze-player-smoke.py:51: trailing whitespace.
++
+LocalComparison/Harness/analyze-player-smoke.py:52: trailing whitespace.
++def run(mode):
+LocalComparison/Harness/analyze-player-smoke.py:53: trailing whitespace.
++    package=PACKAGE/(mode+'-windowed')
+LocalComparison/Harness/analyze-player-smoke.py:54: trailing whitespace.
++    report={'mode':mode,'playerSmokeVerified':False,'fullProductionAccepted':False,'failures':{},
+LocalComparison/Harness/analyze-player-smoke.py:55: trailing whitespace.
++            'scope':'Current Development/Mono/DX12 software120frame capture and natural exit; no image/performance acceptance'}
+LocalComparison/Harness/analyze-player-smoke.py:56: trailing whitespace.
++    data={}
+LocalComparison/Harness/analyze-player-smoke.py:57: trailing whitespace.
++    def check(name,fn):
+LocalComparison/Harness/analyze-player-smoke.py:58: trailing whitespace.
++        report[name]=False
+LocalComparison/Harness/analyze-player-smoke.py:59: trailing whitespace.
++        try:fn();report[name]=True
+LocalComparison/Harness/analyze-player-smoke.py:60: trailing whitespace.
++        except Exception as error:report['failures'][name]={'error':str(error),'traceback':traceback.format_exc()}
+LocalComparison/Harness/analyze-player-smoke.py:61: trailing whitespace.
++    def products():report['buildProductsManifestSha256']=verify_products()
+LocalComparison/Harness/analyze-player-smoke.py:62: trailing whitespace.
++    def collect():
+LocalComparison/Harness/analyze-player-smoke.py:63: trailing whitespace.
++        runs=list((package/'run').glob('*/run.json'));assert len(runs)==1,'Unique fresh run required'
+LocalComparison/Harness/analyze-player-smoke.py:64: trailing whitespace.
++        folder=runs[0].parent;meta=load(runs[0]);frames=lines(folder/'frames.jsonl')
+LocalComparison/Harness/analyze-player-smoke.py:65: trailing whitespace.
++        data.update(folder=folder,meta=meta,frames=frames);report['runId']=folder.name
+LocalComparison/Harness/analyze-player-smoke.py:66: trailing whitespace.
++        report['collection']={k:meta[k] for k in ['status','renderedFrames','captures','errors','firstRenderWaitSeconds']}
+LocalComparison/Harness/analyze-player-smoke.py:67: trailing whitespace.
++        assert meta['requestedFrames']==meta['renderedFrames']==120 and meta['captures']==5 and meta['errors']==0,'Capture count/errors'
+LocalComparison/Harness/analyze-player-smoke.py:68: trailing whitespace.
++        assert meta['api']=='Direct3D12' and meta['width']==640 and meta['height']==360,'Capture configuration'
+LocalComparison/Harness/analyze-player-smoke.py:69: trailing whitespace.
++        assert [f['logicalFrame'] for f in frames]==list(range(120)),'Missing/duplicate capture receipt'
+LocalComparison/Harness/analyze-player-smoke.py:70: trailing whitespace.
++    def backend():
+LocalComparison/Harness/analyze-player-smoke.py:71: trailing whitespace.
++        diagnostics=[json.loads(f['diagnosticsJson']) for f in data['frames']];stable=diagnostics[104:120]
+LocalComparison/Harness/analyze-player-smoke.py:72: trailing whitespace.
++        assert len(stable)==16;report['lastDiagnostics']=diagnostics[-1]
+LocalComparison/Harness/analyze-player-smoke.py:73: trailing whitespace.
++        report['startupBackend']=[{'frame':i,'hardware':d['hardwareBackend'],'exactSoftware':d['exactSoftwareGeometry'],
+LocalComparison/Harness/analyze-player-smoke.py:74: trailing whitespace.
++            'fallbacks':d['hardwareFallbacks'],'materialStatus':d['hardwareMaterialStatus']} for i,d in enumerate(diagnostics[:104])]
+LocalComparison/Harness/analyze-player-smoke.py:75: trailing whitespace.
++        assert all(d['publishedInstances']>0 and d['readyCards']>0 and d['hardwareMaterialFrameBytes']>0 and
+LocalComparison/Harness/analyze-player-smoke.py:76: trailing whitespace.
++            d['hardwareMaterialStatus']=='Uploads and both consumers bound; GPU completion unproven' for d in stable),'Prepared consumers missing'
+LocalComparison/Harness/analyze-player-smoke.py:77: trailing whitespace.
++        assert all((d['hardwareBackend'] and d['hardwareMeshes']>0 and d['hardwareAttributeBytes']>0) if mode=='hardware' else
+LocalComparison/Harness/analyze-player-smoke.py:78: trailing whitespace.
++            (not d['hardwareBackend'] and d['exactSoftwareGeometry'] and d['softwareGeometryBytes']>0) for d in stable),'Actual backend mismatch'
+LocalComparison/Harness/analyze-player-smoke.py:79: trailing whitespace.
++        coverage=[d['hardwareFallbacks'] for d in stable]
+LocalComparison/Harness/analyze-player-smoke.py:80: trailing whitespace.
++        report['stableUnrepresentedInstanceGauge']={'minimum':min(coverage),'maximum':max(coverage),'meaning':'Instance coverage gauge, not event counter'}
+LocalComparison/Harness/analyze-player-smoke.py:81: trailing whitespace.
++        assert min(coverage)==max(coverage),'Unexplained stable coverage change'
+LocalComparison/Harness/analyze-player-smoke.py:82: trailing whitespace.
++    def gi():
+LocalComparison/Harness/analyze-player-smoke.py:83: trailing whitespace.
++        folder=data['folder'];rows=lines(folder/'functional.jsonl');frames=data['frames']
+LocalComparison/Harness/analyze-player-smoke.py:84: trailing whitespace.
++        assert [r['frame'] for r in rows]==list(range(120)),'Missing/duplicate functional receipt'
+LocalComparison/Harness/analyze-player-smoke.py:85: trailing whitespace.
++        assert all(r['engineFrame']==f['engineFrame'] and r['giFrame']==json.loads(f['diagnosticsJson'])['frame'] for r,f in zip(rows,frames)),'Receipt engine/GI identity mismatch'
+LocalComparison/Harness/analyze-player-smoke.py:86: trailing whitespace.
++        report['functionalDuplicateRows']=0;report['inlineRayTracingSupported']=all(r['inlineRT'] for r in rows[104:120])
+LocalComparison/Harness/analyze-player-smoke.py:87: trailing whitespace.
++        for f in [30,119]:
+LocalComparison/Harness/analyze-player-smoke.py:88: trailing whitespace.
++            row=rows[f];assert row['historyMaximum']>1 and row['historyFraction']>0 and row['validIdentityPixels']>0,'History/identity coverage'
+LocalComparison/Harness/analyze-player-smoke.py:89: trailing whitespace.
++            assert row['momentsFormat0']==row['momentsFormat1']=='R32G32B32A32_SFloat','Moments format'
+LocalComparison/Harness/analyze-player-smoke.py:90: trailing whitespace.
++        w,h=map(int,(folder/'denoise-size.txt').read_text(encoding='utf-8').split());assert [w,h]==[320,180]
+LocalComparison/Harness/analyze-player-smoke.py:91: trailing whitespace.
++        report['giSize']=[w,h];payload={};receipts=[];row=rows[119]
+LocalComparison/Harness/analyze-player-smoke.py:92: trailing whitespace.
++        for field in ['history','moments','geometry','material']:
+LocalComparison/Harness/analyze-player-smoke.py:93: trailing whitespace.
++            path=folder/f'denoise-0119-{field}.rgba32f';receipt=load(Path(str(path)+'.json'))
+LocalComparison/Harness/analyze-player-smoke.py:94: trailing whitespace.
++            assert receipt['file']==path.name and receipt['field']==field and receipt['sha256']==sha(path),'Payload hash/name mismatch'
+LocalComparison/Harness/analyze-player-smoke.py:95: trailing whitespace.
++            assert all(receipt[k]==row[k] for k in ['frame','engineFrame','giFrame','readIndex']),'Payload receipt identity mismatch'
+LocalComparison/Harness/analyze-player-smoke.py:96: trailing whitespace.
++            assert receipt['width']==w and receipt['height']==h and path.stat().st_size==w*h*16,'Payload size'
+LocalComparison/Harness/analyze-player-smoke.py:97: trailing whitespace.
++            if field=='moments':assert receipt['format']=='R32G32B32A32_SFloat'
+LocalComparison/Harness/analyze-player-smoke.py:98: trailing whitespace.
++            a=np.fromfile(path,'<f4').reshape(h,w,4);assert np.isfinite(a).all(),field
+LocalComparison/Harness/analyze-player-smoke.py:99: trailing whitespace.
++            payload[field]=a;receipts.append(receipt)
+LocalComparison/Harness/analyze-player-smoke.py:100: trailing whitespace.
++        history=payload['history'];samples=payload['moments'][:,:,2]
+LocalComparison/Harness/analyze-player-smoke.py:101: trailing whitespace.
++        report['payloadReceipts']=receipts
+LocalComparison/Harness/analyze-player-smoke.py:102: trailing whitespace.
++        report['measurementCounts']={'valid':int((history[:,:,3]>0).sum()),'unknown':int((history[:,:,3]<0).sum()),'absent':int((history[:,:,3]==0).sum())}
+LocalComparison/Harness/analyze-player-smoke.py:103: trailing whitespace.
++        assert report['measurementCounts']['valid']>0,'No valid measurements'
+LocalComparison/Harness/analyze-player-smoke.py:104: trailing whitespace.
++        report['measuredBlackCount']=int(((history[:,:,3]>0)&np.all(history[:,:,:3]==0,axis=2)).sum())
+LocalComparison/Harness/analyze-player-smoke.py:105: trailing whitespace.
++        report['maximumHistorySamples']=float(samples.max());report['historyFraction']=float((samples>1).mean())
+LocalComparison/Harness/analyze-player-smoke.py:106: trailing whitespace.
++        assert report['maximumHistorySamples']==row['historyMaximum'] and abs(report['historyFraction']-row['historyFraction'])<1e-6,'Statistics/payload disagreement'
+LocalComparison/Harness/analyze-player-smoke.py:107: trailing whitespace.
++        assert report['maximumHistorySamples']>1,'No mature history'
+LocalComparison/Harness/analyze-player-smoke.py:108: trailing whitespace.
++    def hdr():
+LocalComparison/Harness/analyze-player-smoke.py:109: trailing whitespace.
++        captures=[f for f in data['frames'] if f['captured']]
+LocalComparison/Harness/analyze-player-smoke.py:110: trailing whitespace.
++        assert [f['logicalFrame'] for f in captures]==[0,30,60,90,119]
+LocalComparison/Harness/analyze-player-smoke.py:111: trailing whitespace.
++        for f in captures:
+LocalComparison/Harness/analyze-player-smoke.py:112: trailing whitespace.
++            path=data['folder']/f['raw'];assert path.stat().st_size==640*360*16 and np.isfinite(np.fromfile(path,'<f4')).all(),'Invalid HDR payload'
+LocalComparison/Harness/analyze-player-smoke.py:113: trailing whitespace.
++        report['validatedHdrCaptures']=len(captures)
+LocalComparison/Harness/analyze-player-smoke.py:114: trailing whitespace.
++    def native():
+LocalComparison/Harness/analyze-player-smoke.py:115: trailing whitespace.
++        exit=load(package/'native-exit.json');report['nativeExitCode']=exit['exitCode'];report['watchdogTerminated']=exit['watchdogTerminated']
+LocalComparison/Harness/analyze-player-smoke.py:116: trailing whitespace.
++        report['nativeLogHits']=hits(package/'player.log')
+LocalComparison/Harness/analyze-player-smoke.py:117: trailing whitespace.
++        raw=(package/'player.log').read_text(encoding='utf-8-sig',errors='replace')
+LocalComparison/Harness/analyze-player-smoke.py:118: trailing whitespace.
++        events=[line for line in raw.splitlines() if line.startswith('HybridLumenGI shutdown ')]
+LocalComparison/Harness/analyze-player-smoke.py:119: trailing whitespace.
++        report['shutdownEvents']=events
+LocalComparison/Harness/analyze-player-smoke.py:120: trailing whitespace.
++        assert exit['exitCode']==0 and not exit['watchdogTerminated'] and not report['nativeLogHits'],'Native exit/resource failure'
+LocalComparison/Harness/analyze-player-smoke.py:121: trailing whitespace.
++        names=['begin','owners withdrawn','idle fence submitted','completed owner destroyed','generic drain complete']
+LocalComparison/Harness/analyze-player-smoke.py:122: trailing whitespace.
++        indices=[next(i for i,e in enumerate(events) if e.startswith('HybridLumenGI shutdown '+name+':')) for name in names]
+LocalComparison/Harness/analyze-player-smoke.py:123: trailing whitespace.
++        assert indices==sorted(indices),'Shutdown order missing/invalid'
+LocalComparison/Harness/analyze-player-smoke.py:124: trailing whitespace.
++        assert 'outside=True' in events[indices[0]],'No real boundary before native shutdown'
+LocalComparison/Harness/analyze-player-smoke.py:125: trailing whitespace.
++        final=events[-1];assert 'generic drain complete:' in final,'No final completed drain'
+LocalComparison/Harness/analyze-player-smoke.py:126: trailing whitespace.
++        for field in ['owned','pending','unknown','failed','failedWithdrawals','materialBytes','deformationBytes','deformationJobs','deformationCleanupFailed']:
+LocalComparison/Harness/analyze-player-smoke.py:127: trailing whitespace.
++            assert re.search(r'(?:, |: )'+field+r'=0(?:,|$)',final),'Final owner accounting not zero: '+field
+LocalComparison/Harness/analyze-player-smoke.py:128: trailing whitespace.
++    for name,fn in [('buildProductsVerified',products),('collectionVerified',collect),('backendVerified',backend),('giDataVerified',gi),('hdrVerified',hdr),('normalExitAccepted',native)]:check(name,fn)
+LocalComparison/Harness/analyze-player-smoke.py:129: trailing whitespace.
++    report['playerSmokeVerified']=not report['failures']
+LocalComparison/Harness/analyze-player-smoke.py:130: trailing whitespace.
++    save(package/'analysis.json',report)
+LocalComparison/Harness/analyze-player-smoke.py:131: trailing whitespace.
++    print(json.dumps({k:v for k,v in report.items() if k not in ['startupBackend','lastDiagnostics']}))
+LocalComparison/Harness/analyze-player-smoke.py:132: trailing whitespace.
++    return report['playerSmokeVerified']
+LocalComparison/Harness/analyze-player-smoke.py:133: trailing whitespace.
++
+LocalComparison/Harness/analyze-player-smoke.py:134: trailing whitespace.
++if __name__=='__main__':
+LocalComparison/Harness/analyze-player-smoke.py:135: trailing whitespace.
++    p=argparse.ArgumentParser();p.add_argument('action',choices=['build','products','software','hardware']);a=p.parse_args()
+LocalComparison/Harness/analyze-player-smoke.py:136: trailing whitespace.
++    if a.action=='products':print(verify_products());ok=True
+LocalComparison/Harness/analyze-player-smoke.py:137: trailing whitespace.
++    elif a.action=='build':ok=build()
+LocalComparison/Harness/analyze-player-smoke.py:138: trailing whitespace.
++    else:ok=run(a.action)
+LocalComparison/Harness/analyze-player-smoke.py:139: trailing whitespace.
++    raise SystemExit(0 if ok else 1)
