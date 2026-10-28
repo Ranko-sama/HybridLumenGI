@@ -292,7 +292,7 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
         float weight=(x==0?1-fraction.x:fraction.x)*(y==0?1-fraction.y:fraction.y);
         totalWeight+=weight;result.irradiance+=e.irradiance*weight;result.guide+=e.guide*weight;
     }
-    if(totalWeight<=1e-5) return false;
+    if(totalWeight<=1e-5) { result=(HLGICacheEntry)0;return false; }
     result.irradiance/=totalWeight;result.guide/=totalWeight;
     if(dot(result.guide.xyz,result.guide.xyz)>1e-6) result.guide.xyz=normalize(result.guide.xyz);
     return true;

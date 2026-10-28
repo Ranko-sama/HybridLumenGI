@@ -1,0 +1,957 @@
+{
+  "passed": true,
+  "savedLogCases": [
+    {
+      "path": "gather-cache-visibility-01/Unity-A.log",
+      "expectedFailure": false,
+      "actualFailure": false,
+      "pass": true,
+      "hits": []
+    },
+    {
+      "path": "thin-wall-transport-01/retry-v4/B-Unity.log",
+      "expectedFailure": false,
+      "actualFailure": false,
+      "pass": true,
+      "hits": []
+    },
+    {
+      "path": "thin-wall-transport-01/retry-v3/A-Unity.log",
+      "expectedFailure": true,
+      "actualFailure": true,
+      "pass": true,
+      "hits": [
+        {
+          "category": "unresolved-owner",
+          "line": 640,
+          "text": "HybridLumenGI retained unresolved retirement resources: owned=1, pending=0, unknownSubmission=0, failed=0, failedWithdrawals=0, outsideRenderLoop=True. No completion was assumed."
+        },
+        {
+          "category": "native-allocation",
+          "line": 664,
+          "text": "Leak Detected : Persistent allocates 29 individual allocations."
+        },
+        {
+          "category": "native-allocation",
+          "line": 665,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 680,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 695,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 710,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 724,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 738,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 753,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 767,
+          "text": "Found 2 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 781,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 795,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 809,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 824,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 839,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 854,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 869,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 884,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 898,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 912,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 926,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 941,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 956,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 970,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 984,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 999,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 1014,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 1028,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 1042,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 1057,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1073,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D67617450 (size 65536 B, lastUsedFence 158) 'Buffer-16-19200'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1074,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D676134E0 (size 65536 B, lastUsedFence 158) 'Buffer-16-1280'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1075,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A5090 (size 65536 B, lastUsedFence 158) 'Buffer-16-1024'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1076,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A9910 (size 524288 B, lastUsedFence 158) 'Buffer-16-491520'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1077,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A4780 (size 65536 B, lastUsedFence 158) 'Buffer-16-128'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1078,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D67613DF0 (size 65536 B, lastUsedFence 158) 'Buffer-16-23040'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1079,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D6760B600 (size 65536 B, lastUsedFence 158) 'Buffer-16-24576'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1080,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531ACF70 (size 524288 B, lastUsedFence 158) 'Buffer-16-491520'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1081,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A2C50 (size 65536 B, lastUsedFence 158) 'Buffer-16-512'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1082,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A62B0 (size 65536 B, lastUsedFence 158) 'Buffer-16-2560'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1083,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A9000 (size 65536 B, lastUsedFence 158) 'Buffer-16-49152'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1084,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531AC660 (size 65536 B, lastUsedFence 158) 'Buffer-16-512'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1085,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A74D0 (size 8388608 B, lastUsedFence 158) 'Buffer-16-8388608'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1086,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A59A0 (size 65536 B, lastUsedFence 158) 'Buffer-16-2560'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1087,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A3560 (size 65536 B, lastUsedFence 158) 'Buffer-16-4096'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1088,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D6761C5E0 (size 65536 B, lastUsedFence 158) 'Buffer-16-15328'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1089,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D67616230 (size 65536 B, lastUsedFence 158) 'Buffer-16-2560'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1090,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531AA220 (size 65536 B, lastUsedFence 158) 'Buffer-16-49152'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1091,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A7DE0 (size 65536 B, lastUsedFence 158) 'Buffer-16-65536'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1092,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A86F0 (size 65536 B, lastUsedFence 158) 'Buffer-16-65536'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1093,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531AB440 (size 65536 B, lastUsedFence 158) 'Buffer-16-1536'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1094,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A3E70 (size 589824 B, lastUsedFence 158) 'Buffer-16-532480'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1095,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D6760ACF0 (size 65536 B, lastUsedFence 158) 'Buffer-16-1056'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1096,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531A6BC0 (size 65536 B, lastUsedFence 158) 'Buffer-16-2016'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1097,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D67618F80 (size 65536 B, lastUsedFence 158) 'Buffer-16-15360'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1098,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531B17F0 (size 65536 B, lastUsedFence 158) 'Buffer-16-52224'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1099,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531ABD50 (size 65536 B, lastUsedFence 158) 'Buffer-16-12288'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1100,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D6761AAB0 (size 65536 B, lastUsedFence 158) 'Buffer-16-3840'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 1101,
+          "text": "[d3d12] Unreleased non-evictable resource 0000020D531AD880 (size 65536 B, lastUsedFence 158) 'Buffer-16-128'"
+        }
+      ]
+    },
+    {
+      "path": "thin-wall-transport-01/compile-failure/Unity.log",
+      "expectedFailure": true,
+      "actualFailure": true,
+      "pass": true,
+      "hits": [
+        {
+          "category": "compile",
+          "line": 707,
+          "text": "Assets\\ComparisonHarness\\Editor\\ThinWallEditor.cs(44,155): error CS0266: Cannot implicitly convert type 'int' to 'uint'. An explicit conversion exists (are you missing a cast?)"
+        },
+        {
+          "category": "compile",
+          "line": 714,
+          "text": "Assets\\ComparisonHarness\\Editor\\ThinWallEditor.cs(44,155): error CS0266: Cannot implicitly convert type 'int' to 'uint'. An explicit conversion exists (are you missing a cast?)"
+        },
+        {
+          "category": "compile",
+          "line": 722,
+          "text": "Assets\\ComparisonHarness\\Editor\\ThinWallEditor.cs(44,155): error CS0266: Cannot implicitly convert type 'int' to 'uint'. An explicit conversion exists (are you missing a cast?)"
+        }
+      ]
+    },
+    {
+      "path": "thin-wall-transport-01/observer-failed/Unity.log",
+      "expectedFailure": true,
+      "actualFailure": true,
+      "pass": true,
+      "hits": [
+        {
+          "category": "compile",
+          "line": 587,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 588,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 589,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 590,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 591,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 592,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 593,
+          "text": "HybridLumenGIExactSoftware.compute: Kernel at index (0) is invalid"
+        },
+        {
+          "category": "compile",
+          "line": 607,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 608,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 609,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 610,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 611,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 612,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 613,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 614,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 615,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 616,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 617,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 618,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 619,
+          "text": "HybridLumenGIExactSoftware.compute: Kernel at index (1) is invalid"
+        },
+        {
+          "category": "readback",
+          "line": 643,
+          "text": "System.Exception: Thin-wall stage readback failed: depth"
+        },
+        {
+          "category": "compile",
+          "line": 662,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 663,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 664,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 665,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 666,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 667,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 668,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 669,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 670,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 671,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 672,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 673,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 674,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 675,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 676,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 677,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 678,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 679,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 680,
+          "text": "HybridLumenGIExactSoftware.compute: Kernel at index (5) is invalid"
+        },
+        {
+          "category": "compile",
+          "line": 692,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 693,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 694,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 695,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 696,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 697,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 698,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 699,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 700,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 701,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 702,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 703,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 704,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 705,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 706,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 707,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 708,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 709,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 710,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 711,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 712,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 713,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 714,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 715,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 716,
+          "text": "HybridLumenGIExactSoftware.compute: Kernel at index (3) is invalid"
+        },
+        {
+          "category": "compile",
+          "line": 728,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSFilter at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 729,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 730,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 731,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 732,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected member name or ';' after declaration specifiers at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(5) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 733,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSFilter at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 734,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 735,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 736,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 737,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'direct' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(28) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 738,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSFilter at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 739,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 740,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 741,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 742,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': expected unqualified-id at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(44) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 743,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSFilter at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 744,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 745,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 746,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 747,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNg' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 748,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSFilter at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 749,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 750,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 751,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 752,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitPosition' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(45) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 753,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSFilter at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 754,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSTemporalIdentity at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 755,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSThinWallProbe at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 756,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSTrace at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 757,
+          "text": "Shader error in 'HybridLumenGIExactSoftware': no member named 'hitNs' in 'ThinWallResult' at kernel CSUpdateCache at Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl(46) (on d3d11)"
+        },
+        {
+          "category": "compile",
+          "line": 758,
+          "text": "HybridLumenGIExactSoftware.compute: Kernel at index (4) is invalid"
+        },
+        {
+          "category": "compile",
+          "line": 770,
+          "text": "HybridLumenGIExactSoftware.compute: Kernel at index (4) is invalid"
+        },
+        {
+          "category": "compile",
+          "line": 782,
+          "text": "HybridLumenGIExactSoftware.compute: Kernel at index (4) is invalid"
+        },
+        {
+          "category": "compile",
+          "line": 797,
+          "text": "Comparison failed: Unity Error: HybridLumenGIExactSoftware.compute: Kernel at index (4) is invalid"
+        },
+        {
+          "category": "observer",
+          "line": 797,
+          "text": "Comparison failed: Unity Error: HybridLumenGIExactSoftware.compute: Kernel at index (4) is invalid"
+        },
+        {
+          "category": "unresolved-owner",
+          "line": 809,
+          "text": "HybridLumenGI retained unresolved retirement resources: owned=7, pending=7, unknownSubmission=0, failed=0, failedWithdrawals=0, outsideRenderLoop=True. No completion was assumed."
+        },
+        {
+          "category": "native-allocation",
+          "line": 833,
+          "text": "Leak Detected : Persistent allocates 8 individual allocations."
+        },
+        {
+          "category": "native-allocation",
+          "line": 834,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 849,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 863,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 877,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 891,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 905,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 919,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "native-allocation",
+          "line": 933,
+          "text": "Found 1 leak(s) from callstack:"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 948,
+          "text": "[d3d12] Unreleased non-evictable resource 00000213170AF6B0 (size 1048576 B, lastUsedFence 13) 'D3D12ScratchBufferInternal::D3D12ScratchBufferInternal() ScratchBuffer (tag:1)'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 949,
+          "text": "[d3d12] Unreleased non-evictable resource 00000213D27E8B40 (size 65536 B, lastUsedFence 29) 'Buffer-16-12288'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 950,
+          "text": "[d3d12] Unreleased non-evictable resource 000002136A6E97E0 (size 65536 B, lastUsedFence 29) 'Buffer-16-1024'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 951,
+          "text": "[d3d12] Unreleased non-evictable resource 000002136A6E7CB0 (size 65536 B, lastUsedFence 29) 'Buffer-16-15360'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 952,
+          "text": "[d3d12] Unreleased non-evictable resource 000002136A6E3D40 (size 65536 B, lastUsedFence 29) 'Buffer-16-128'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 953,
+          "text": "[d3d12] Unreleased non-evictable resource 00000213D27E7920 (size 65536 B, lastUsedFence 29) 'Buffer-16-12256'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 954,
+          "text": "[d3d12] Unreleased non-evictable resource 000002136A6EB310 (size 65536 B, lastUsedFence 29) 'Buffer-16-2048'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 955,
+          "text": "[d3d12] Unreleased non-evictable resource 000002136A6EA0F0 (size 65536 B, lastUsedFence 29) 'Buffer-16-3072'"
+        },
+        {
+          "category": "d3d-unreleased",
+          "line": 956,
+          "text": "[d3d12] Unreleased non-evictable resource 000002136A6EAA00 (size 65536 B, lastUsedFence 29) 'Buffer-16-18432'"
+        }
+      ]
+    }
+  ],
+  "criticalSpellingGuards": {
+    "d3d-retained": true,
+    "child-owner": true,
+    "device-removed": true,
+    "device-hung": true,
+    "device-reset": true,
+    "cache-fixture": true
+  },
+  "scope": "Offline scan of existing native logs only; no new Unity execution; no whole-process leak inference."
+}

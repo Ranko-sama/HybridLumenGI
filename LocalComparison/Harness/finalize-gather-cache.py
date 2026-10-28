@@ -2,6 +2,7 @@
 from pathlib import Path
 import hashlib,json,collections,re
 import numpy as np
+from native_log_check import scan
 root=Path(__file__).resolve().parents[2];out=root/'LocalComparison/Review/gather-cache-visibility-01';assets=Path('I:/Unity test/Project/Assets')
 manifest=json.loads((out/'instrumentation/manifest.json').read_text(encoding='utf-8'));run=next((out/'A').glob('20*'))
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
@@ -27,8 +28,7 @@ frames=[json.loads(line) for line in (run/'frames.jsonl').read_text(encoding='ut
 frame_checks={'exactly120':len(frames)==120,'logicalSequence':[f['logicalFrame'] for f in frames]==list(range(120)),
  'allReportedExact':all(json.loads(f['diagnosticsJson'])['exactSoftwareGeometry'] and not json.loads(f['diagnosticsJson'])['hardwareBackend'] for f in frames)}
 log=(out/'Unity-A.log').read_text(encoding='utf-8')
-patterns=[r'error CS\d+',r'Shader error',r'Compute shader .* (?:invalid|failed)',r'Leak Detected',r'leaked \d+ .*Persistent',r'retirement.*(?:unresolved|timed out|owned=)',r'Gather (?:observer|stream|event|source|raw).*?(?:failed|mismatch|missing|overflow)',r'Device (?:removed|lost)',r'Comparison failed']
-fail_signatures=[line for line in log.splitlines() if any(re.search(p,line,re.I) for p in patterns)]
+fail_signatures=scan(out/'Unity-A.log')
 receipt={'baseline':manifest['baseline'],'pid':1356,'exitCode':0,'execSession':58520,'finalExecChunk':'061f9d','singleRun':True,
  'command':"Start-Unity.ps1 -Batch -KeepRunning -LogName GatherCache01-A -ExecuteMethod GatherCacheEditor.Play -ExtraArguments '-comparisonFrames','120','-comparisonOutput','I:/Unity test/Comparison/Evidence/GatherCache01-A','-thinWallConfig','A','-gatherCacheProbe'",
  'nativeLogSha256':sha(out/'Unity-A.log'),'frameChecks':frame_checks,'sceneChecksAgainstPriorA':scene_checks,
