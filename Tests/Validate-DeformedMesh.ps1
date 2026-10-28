@@ -2,7 +2,7 @@ param([string]$SourceRoot=(Split-Path -Parent $PSScriptRoot))
 $ErrorActionPreference='Stop'
 $SourceRoot=(Resolve-Path -LiteralPath $SourceRoot).Path
 $sources=@{}
-foreach($name in @('HybridLumenGIDeformedMesh','HybridLumenGIResourceRetirement')) {
+foreach($name in @('HybridLumenGIDeformedMesh','HybridLumenGIResourceRetirement','HybridLumenGIResourceRetirementPump')) {
     $sources[($name+'.cs')]=[IO.File]::ReadAllText((Join-Path $SourceRoot ('Runtime/'+$name+'.cs')))
 }
 foreach($name in @('Adapters','Program')) {

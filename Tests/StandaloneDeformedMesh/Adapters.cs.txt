@@ -7,12 +7,13 @@ using System.Threading;
 namespace UnityEngine
 {
     [AttributeUsage(AttributeTargets.Class)] public sealed class DisallowMultipleComponent:Attribute { }
+    [AttributeUsage(AttributeTargets.Class)] public sealed class DefaultExecutionOrder:Attribute {public DefaultExecutionOrder(int order){}}
     [AttributeUsage(AttributeTargets.Class)] public sealed class RequireComponent:Attribute { public RequireComponent(Type type){ } }
     [AttributeUsage(AttributeTargets.Field)] public sealed class RangeAttribute:Attribute { public RangeAttribute(float a,float b){ } }
     [AttributeUsage(AttributeTargets.Field)] public sealed class MinAttribute:Attribute { public MinAttribute(float value){ } }
     public enum RuntimeInitializeLoadType {BeforeSceneLoad}
     [AttributeUsage(AttributeTargets.Method)] public sealed class RuntimeInitializeOnLoadMethodAttribute:Attribute {public RuntimeInitializeOnLoadMethodAttribute(RuntimeInitializeLoadType type){}}
-    public static class Application {public static event Action quitting;public static void Quit()=>quitting?.Invoke();}
+    public static class Application {public static event Action quitting;public static int LastExitCode;public static void Quit(int code=0){LastExitCode=code;quitting?.Invoke();}}
     public static class Graphics
     {
         public static void ExecuteCommandBuffer(Rendering.CommandBuffer command)
@@ -25,10 +26,12 @@ namespace UnityEngine
         }
     }
     public enum HideFlags {HideAndDontSave}
-    public class Object {public string name;public HideFlags hideFlags;public bool Destroyed;}
+    public class Object {public string name;public HideFlags hideFlags;public bool Destroyed;public static void DontDestroyOnLoad(Object value){}}
     public class GameObject:Object
     {
         readonly List<Component> components=new List<Component>();
+        public GameObject(){}public GameObject(string name){this.name=name;}
+        public T AddComponent<T>() where T:Component,new()=>Add<T>();
         public T Add<T>() where T:Component,new(){var value=new T{gameObject=this};components.Add(value);return value;}
         public T GetComponent<T>() where T:Component {foreach(var value in components)if(value is T typed)return typed;return null;}
     }
@@ -53,6 +56,7 @@ namespace UnityEngine
         public static readonly List<Exception> Exceptions=new List<Exception>();public static readonly List<string> Warnings=new List<string>();
         public static void LogException(Exception ex)=>Exceptions.Add(ex);
         public static void LogWarning(object value)=>Warnings.Add(value.ToString());
+        public static void Log(object value){}
     }
     public enum MeshTopology {Triangles,Lines}
     public class Mesh:Object
@@ -158,13 +162,23 @@ namespace UnityEngine.Rendering
     }
 }
 
+namespace UnityEngine.LowLevel
+{
+    public struct PlayerLoopSystem {public Type type;public Action updateDelegate;public PlayerLoopSystem[] subSystemList;}
+    public static class PlayerLoop
+    {
+        private static PlayerLoopSystem current;
+        public static PlayerLoopSystem GetCurrentPlayerLoop()=>current;
+        public static void SetPlayerLoop(PlayerLoopSystem value)=>current=value;
+    }
+}
+
 namespace HybridLumenGI
 {
     using UnityEngine;
     public static class HybridLumenGIHitMaterialPass {public static void PollRetired(){}}
     public static class HybridLumenGIHitMaterialBatch {public static long TotalAllocatedBytes=>0;}
     public static class HybridLumenGIRayTexturePool {public static long TotalAllocatedBytes=>0;public static void ClearReusable(){}}
-    internal static class HybridLumenGIResourceRetirementPump {internal static void EnsureExists(){}}
     public sealed class HybridLumenGIProxy:MonoBehaviour
     {
         public Renderer SourceRenderer;

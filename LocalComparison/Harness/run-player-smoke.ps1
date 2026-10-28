@@ -1,10 +1,11 @@
 param([Parameter(Mandatory=$true)][ValidateSet('software','hardware')][string]$Mode)
 $ErrorActionPreference='Stop'
 $taskRootPath='C:/Users/Administrator/Desktop/test/HybridLumenGI'
-$taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/current-player-smoke-01'
+$taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/current-player-shutdown-01'
 $taskModePath=Join-Path $taskPackagePath ($Mode+'-windowed')
 $taskPython='C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
-$taskPlayer='I:/Unity test/Comparison/Builds/CurrentSource9176b0f/HybridLumenGITest.exe'
+$taskPlayer='I:/Unity test/Comparison/Builds/CurrentShutdown20/HybridLumenGITest.exe'
+if($Mode -ne 'software'){throw 'Iteration20 admits only one software Player; hardware awaits separate review.'}
 if(!(Get-Content -LiteralPath (Join-Path $taskPackagePath 'build-analysis.json') -Raw | ConvertFrom-Json).currentSourceBuildVerified){throw 'Build not accepted.'}
 if(Test-Path -LiteralPath (Join-Path $taskModePath 'attempt.json')){throw 'This Player route already used its unique attempt.'}
 if($Mode -eq 'hardware'){

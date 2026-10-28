@@ -5,16 +5,16 @@ import numpy as np
 from native_log_check import scan
 
 ROOT=Path(__file__).resolve().parents[2]
-PACKAGE=ROOT/'LocalComparison/Review/current-player-smoke-01'
+PACKAGE=ROOT/'LocalComparison/Review/current-player-shutdown-01'
 PROJECT=Path('I:/Unity test/Project')
-BUILD=Path('I:/Unity test/Comparison/Builds/CurrentSource9176b0f')
+BUILD=Path('I:/Unity test/Comparison/Builds/CurrentShutdown20')
 def load(p):return json.loads(p.read_text(encoding='utf-8-sig'))
 def lines(p):return [json.loads(s) for s in p.read_text(encoding='utf-8-sig').splitlines() if s.strip()]
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def save(p,v):p.write_text(json.dumps(v,indent=2)+'\n',encoding='utf-8')
 def hits(path):
     result=scan(path)
-    extra={'scratch':r'D3D12ScratchBufferInternal','d3d-extra':r'\[d3d12\] Unreleased',
+    extra={'scratch':r'D3D12ScratchBufferInternal','gc-buffer-disposal':r'GarbageCollector disposing of (?:ComputeBuffer|GraphicsBuffer)',
            'exception':r'(?:^|\s)(?:Unhandled\s+)?[A-Za-z0-9_.]*Exception(?::|\s*$)|The referenced script .* is missing|Failed to load .*shader|Invalid bounded Player smoke'}
     for n,line in enumerate(path.read_text(encoding='utf-8-sig',errors='replace').splitlines(),1):
         for category,pattern in extra.items():
@@ -51,57 +51,85 @@ def verify_products():
 
 def run(mode):
     package=PACKAGE/(mode+'-windowed')
-    report={'mode':mode,'playerSmokeVerified':False,'normalExitAccepted':False,'fullProductionAccepted':False,
-            'scope':'Current Development/Mono/DX12 finite120frame scene and normal exit only; no dynamic/image/performance acceptance'}
-    try:
-        report['buildProductsManifestSha256']=verify_products();exit=load(package/'native-exit.json')
-        report['nativeExitCode']=exit['exitCode'];report['watchdogTerminated']=exit['watchdogTerminated']
-        report['nativeLogHits']=hits(package/'player.log')
-        report['normalExitAccepted']=exit['exitCode']==0 and not exit['watchdogTerminated'] and not report['nativeLogHits']
-        runs=list((package/'run').glob('*/run.json'));assert len(runs)==1,'Unique fresh run required';folder=runs[0].parent
-        meta=load(runs[0]);frames=lines(folder/'frames.jsonl');report['runId']=folder.name
+    report={'mode':mode,'playerSmokeVerified':False,'fullProductionAccepted':False,'failures':{},
+            'scope':'Current Development/Mono/DX12 software120frame capture and natural exit; no image/performance acceptance'}
+    data={}
+    def check(name,fn):
+        report[name]=False
+        try:fn();report[name]=True
+        except Exception as error:report['failures'][name]={'error':str(error),'traceback':traceback.format_exc()}
+    def products():report['buildProductsManifestSha256']=verify_products()
+    def collect():
+        runs=list((package/'run').glob('*/run.json'));assert len(runs)==1,'Unique fresh run required'
+        folder=runs[0].parent;meta=load(runs[0]);frames=lines(folder/'frames.jsonl')
+        data.update(folder=folder,meta=meta,frames=frames);report['runId']=folder.name
         report['collection']={k:meta[k] for k in ['status','renderedFrames','captures','errors','firstRenderWaitSeconds']}
-        assert meta['requestedFrames']==meta['renderedFrames']==120 and meta['captures']==5 and meta['errors']==0
-        assert meta['api']=='Direct3D12' and meta['width']==640 and meta['height']==360
-        assert [f['logicalFrame'] for f in frames]==list(range(120))
-        diagnostics=[json.loads(f['diagnosticsJson']) for f in frames];stable=diagnostics[104:120]
-        report['lastDiagnostics']=diagnostics[-1]
+        assert meta['requestedFrames']==meta['renderedFrames']==120 and meta['captures']==5 and meta['errors']==0,'Capture count/errors'
+        assert meta['api']=='Direct3D12' and meta['width']==640 and meta['height']==360,'Capture configuration'
+        assert [f['logicalFrame'] for f in frames]==list(range(120)),'Missing/duplicate capture receipt'
+    def backend():
+        diagnostics=[json.loads(f['diagnosticsJson']) for f in data['frames']];stable=diagnostics[104:120]
+        assert len(stable)==16;report['lastDiagnostics']=diagnostics[-1]
         report['startupBackend']=[{'frame':i,'hardware':d['hardwareBackend'],'exactSoftware':d['exactSoftwareGeometry'],
-                                  'fallbacks':d['hardwareFallbacks'],'materialStatus':d['hardwareMaterialStatus']} for i,d in enumerate(diagnostics[:104])]
+            'fallbacks':d['hardwareFallbacks'],'materialStatus':d['hardwareMaterialStatus']} for i,d in enumerate(diagnostics[:104])]
         assert all(d['publishedInstances']>0 and d['readyCards']>0 and d['hardwareMaterialFrameBytes']>0 and
-                   d['hardwareMaterialStatus']=='Uploads and both consumers bound; GPU completion unproven' for d in stable),'Prepared geometry/material consumer path missing'
+            d['hardwareMaterialStatus']=='Uploads and both consumers bound; GPU completion unproven' for d in stable),'Prepared consumers missing'
         assert all((d['hardwareBackend'] and d['hardwareMeshes']>0 and d['hardwareAttributeBytes']>0) if mode=='hardware' else
-                   (not d['hardwareBackend'] and d['exactSoftwareGeometry'] and d['softwareGeometryBytes']>0) for d in stable),'Requested stable backend not actually selected'
+            (not d['hardwareBackend'] and d['exactSoftwareGeometry'] and d['softwareGeometryBytes']>0) for d in stable),'Actual backend mismatch'
         coverage=[d['hardwareFallbacks'] for d in stable]
-        report['stableUnrepresentedInstanceGauge']={'minimum':min(coverage),'maximum':max(coverage),
-            'meaning':'Recomputed published instances outside backend, not cumulative fallback events'}
-        assert min(coverage)==max(coverage),'Stable-window represented-instance coverage changed; requires explanation'
-        functional=lines(folder/'functional.jsonl');first={}
-        for row in functional:first.setdefault(row['frame'],row)
-        report['functionalDuplicateRows']=len(functional)-len(first)
-        report['inlineRayTracingSupported']=all(first[f]['inlineRT'] for f in range(104,120))
+        report['stableUnrepresentedInstanceGauge']={'minimum':min(coverage),'maximum':max(coverage),'meaning':'Instance coverage gauge, not event counter'}
+        assert min(coverage)==max(coverage),'Unexplained stable coverage change'
+    def gi():
+        folder=data['folder'];rows=lines(folder/'functional.jsonl');frames=data['frames']
+        assert [r['frame'] for r in rows]==list(range(120)),'Missing/duplicate functional receipt'
+        assert all(r['engineFrame']==f['engineFrame'] and r['giFrame']==json.loads(f['diagnosticsJson'])['frame'] for r,f in zip(rows,frames)),'Receipt engine/GI identity mismatch'
+        report['functionalDuplicateRows']=0;report['inlineRayTracingSupported']=all(r['inlineRT'] for r in rows[104:120])
         for f in [30,119]:
-            row=first[f];assert row['historyMaximum']>1 and row['historyFraction']>0 and row['validIdentityPixels']>0,'Existing history/identity completion coverage missing'
-            assert row['momentsFormat0']==row['momentsFormat1']=='R32G32B32A32_SFloat','Actual moments allocation format changed'
-        w,h=map(int,(folder/'denoise-size.txt').read_text(encoding='utf-8').split());report['giSize']=[w,h]
-        assert [w,h]==[320,180]
-        payload={}
+            row=rows[f];assert row['historyMaximum']>1 and row['historyFraction']>0 and row['validIdentityPixels']>0,'History/identity coverage'
+            assert row['momentsFormat0']==row['momentsFormat1']=='R32G32B32A32_SFloat','Moments format'
+        w,h=map(int,(folder/'denoise-size.txt').read_text(encoding='utf-8').split());assert [w,h]==[320,180]
+        report['giSize']=[w,h];payload={};receipts=[];row=rows[119]
         for field in ['history','moments','geometry','material']:
-            p=folder/f'denoise-0119-{field}.rgba32f';assert p.stat().st_size==w*h*16
-            a=np.fromfile(p,'<f4').reshape(h,w,4);assert np.isfinite(a).all(),field
-            payload[field]=a
-        history=payload['history'];report['measurementCounts']={'valid':int((history[:,:,3]>0).sum()),'unknown':int((history[:,:,3]<0).sum()),'absent':int((history[:,:,3]==0).sum())}
-        assert report['measurementCounts']['valid']>0,'No completed GI measurements'
+            path=folder/f'denoise-0119-{field}.rgba32f';receipt=load(Path(str(path)+'.json'))
+            assert receipt['file']==path.name and receipt['field']==field and receipt['sha256']==sha(path),'Payload hash/name mismatch'
+            assert all(receipt[k]==row[k] for k in ['frame','engineFrame','giFrame','readIndex']),'Payload receipt identity mismatch'
+            assert receipt['width']==w and receipt['height']==h and path.stat().st_size==w*h*16,'Payload size'
+            if field=='moments':assert receipt['format']=='R32G32B32A32_SFloat'
+            a=np.fromfile(path,'<f4').reshape(h,w,4);assert np.isfinite(a).all(),field
+            payload[field]=a;receipts.append(receipt)
+        history=payload['history'];samples=payload['moments'][:,:,2]
+        report['payloadReceipts']=receipts
+        report['measurementCounts']={'valid':int((history[:,:,3]>0).sum()),'unknown':int((history[:,:,3]<0).sum()),'absent':int((history[:,:,3]==0).sum())}
+        assert report['measurementCounts']['valid']>0,'No valid measurements'
         report['measuredBlackCount']=int(((history[:,:,3]>0)&np.all(history[:,:,:3]==0,axis=2)).sum())
-        report['maximumHistorySamples']=float(payload['moments'][:,:,2].max())
-        assert report['maximumHistorySamples']>1
-        for f in frames:
-            if f['captured']:
-                p=folder/f['raw'];assert p.stat().st_size==640*360*16 and np.isfinite(np.fromfile(p,'<f4')).all(),'Final HDR payload invalid'
-        assert report['normalExitAccepted'],'Full native process exit/log not accepted'
-        report['playerSmokeVerified']=True
-    except Exception as e:report['failure']=str(e);report['traceback']=traceback.format_exc()
-    save(package/'analysis.json',report);print(json.dumps({k:v for k,v in report.items() if k not in ['startupBackend','lastDiagnostics']}));return report['playerSmokeVerified']
+        report['maximumHistorySamples']=float(samples.max());report['historyFraction']=float((samples>1).mean())
+        assert report['maximumHistorySamples']==row['historyMaximum'] and abs(report['historyFraction']-row['historyFraction'])<1e-6,'Statistics/payload disagreement'
+        assert report['maximumHistorySamples']>1,'No mature history'
+    def hdr():
+        captures=[f for f in data['frames'] if f['captured']]
+        assert [f['logicalFrame'] for f in captures]==[0,30,60,90,119]
+        for f in captures:
+            path=data['folder']/f['raw'];assert path.stat().st_size==640*360*16 and np.isfinite(np.fromfile(path,'<f4')).all(),'Invalid HDR payload'
+        report['validatedHdrCaptures']=len(captures)
+    def native():
+        exit=load(package/'native-exit.json');report['nativeExitCode']=exit['exitCode'];report['watchdogTerminated']=exit['watchdogTerminated']
+        report['nativeLogHits']=hits(package/'player.log')
+        raw=(package/'player.log').read_text(encoding='utf-8-sig',errors='replace')
+        events=[line for line in raw.splitlines() if line.startswith('HybridLumenGI shutdown ')]
+        report['shutdownEvents']=events
+        assert exit['exitCode']==0 and not exit['watchdogTerminated'] and not report['nativeLogHits'],'Native exit/resource failure'
+        names=['begin','owners withdrawn','idle fence submitted','completed owner destroyed','generic drain complete']
+        indices=[next(i for i,e in enumerate(events) if e.startswith('HybridLumenGI shutdown '+name+':')) for name in names]
+        assert indices==sorted(indices),'Shutdown order missing/invalid'
+        assert 'outside=True' in events[indices[0]],'No real boundary before native shutdown'
+        final=events[-1];assert 'generic drain complete:' in final,'No final completed drain'
+        for field in ['owned','pending','unknown','failed','failedWithdrawals','materialBytes','arenaBytes','deformationBytes','deformationJobs','deformationCleanupFailed']:
+            assert re.search(r'(?:, |: )'+field+r'=0(?:,|$)',final),'Final owner accounting not zero: '+field
+    for name,fn in [('buildProductsVerified',products),('collectionVerified',collect),('backendVerified',backend),('giDataVerified',gi),('hdrVerified',hdr),('normalExitAccepted',native)]:check(name,fn)
+    report['playerSmokeVerified']=not report['failures']
+    save(package/'analysis.json',report)
+    print(json.dumps({k:v for k,v in report.items() if k not in ['startupBackend','lastDiagnostics']}))
+    return report['playerSmokeVerified']
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('action',choices=['build','products','software','hardware']);a=p.parse_args()

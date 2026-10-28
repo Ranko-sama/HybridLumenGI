@@ -1,19 +1,34 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.LowLevel;
 
 namespace HybridLumenGI
 {
-    // This callback is the outside-render-loop boundary, including with no cameras.
-    // It must precede ordinary Update-driven owner withdrawal and application exit.
+    // Both callbacks run outside the synchronous render-context dispatch. The root
+    // tail covers the final render after an Update requested Application.Quit.
     [DefaultExecutionOrder(-32000)]
     internal sealed class HybridLumenGIResourceRetirementPump : MonoBehaviour
     {
         private static HybridLumenGIResourceRetirementPump instance;
         internal static void EnsureExists()
         {
+            InstallFrameBoundary();
             if(instance!=null)return;
             var go=new GameObject("HybridLumenGI Resource Retirement"){hideFlags=HideFlags.HideAndDontSave};
             DontDestroyOnLoad(go);instance=go.AddComponent<HybridLumenGIResourceRetirementPump>();
         }
         private void Update()=>HybridLumenGIResourceRetirement.IdleUpdate();
+        private struct FrameBoundary { }
+        private static void InstallFrameBoundary()
+        {
+            // Keep the current loop, including other packages' systems/delegates.
+            // Replace only our own root node, also with domain reload disabled.
+            var loop=PlayerLoop.GetCurrentPlayerLoop();
+            var systems=new List<PlayerLoopSystem>(loop.subSystemList??new PlayerLoopSystem[0]);
+            systems.RemoveAll(system=>system.type==typeof(FrameBoundary));
+            systems.Add(new PlayerLoopSystem{type=typeof(FrameBoundary),updateDelegate=EndFrame});
+            loop.subSystemList=systems.ToArray();PlayerLoop.SetPlayerLoop(loop);
+        }
+        private static void EndFrame()=>HybridLumenGIResourceRetirement.IdleUpdate();
     }
 }

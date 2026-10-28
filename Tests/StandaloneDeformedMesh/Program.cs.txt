@@ -126,11 +126,38 @@ static class Program
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();
-        ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
+        ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
         Console.WriteLine("Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.");
     }
     static void OpenNewSession()=>typeof(HybridLumenGIResourceRetirement).GetMethod("InitializeRuntime",PrivateStatic).Invoke(null,null);
+    static void RootTailBeforeNativeQuit()
+    {
+        int foreignCalls=0,parent=0,child=0,withdrawals=0;
+        Action foreign=()=>foreignCalls++;
+        UnityEngine.LowLevel.PlayerLoop.SetPlayerLoop(new UnityEngine.LowLevel.PlayerLoopSystem{
+            subSystemList=new[]{new UnityEngine.LowLevel.PlayerLoopSystem{type=typeof(Program),updateDelegate=foreign}}});
+        OpenNewSession();OpenNewSession();
+        var loop=UnityEngine.LowLevel.PlayerLoop.GetCurrentPlayerLoop();
+        Require(loop.subSystemList.Length==2&&loop.subSystemList[0].updateDelegate==foreign,"Pump duplicated its node or replaced a foreign system");
+        Action tail=loop.subSystemList[1].updateDelegate;
+        Action withdraw=()=>{withdrawals++;HybridLumenGIResourceRetirement.RetireDetachedPass(()=>{parent++;HybridLumenGIResourceRetirement.Retire(()=>child++);});};
+        HybridLumenGIResourceRetirement.RegisterShutdownOwner(withdraw);
+        HybridLumenGIResourceRetirement.IdleUpdate();RenderPipelineManager.Begin();RenderPipelineManager.End();
+        // Old native order is a retained counterexample: a final context invalidated
+        // early Update, and quitting alone cannot manufacture the missing boundary.
+        Application.Quit(7);Require(parent==0&&HybridLumenGIResourceRetirement.PendingCount>0,"Quit bypassed the missing boundary");
+        tail();Require(parent==0,"Root boundary was mistaken for fence completion");
+        RecordedGpu.CompleteSubmitted();tail();Require(parent==1&&child==0,"Child bypassed its own completion");
+        RecordedGpu.CompleteSubmitted();tail();Require(child==1&&HybridLumenGIResourceRetirement.OwnedCount==0,"Root tail did not progress owned children");
+        OpenNewSession();RecordedGpu.AutoCompleteImmediate=true;
+        RenderPipelineManager.Begin();RenderPipelineManager.End();
+        loop.subSystemList[0].updateDelegate();tail();Application.Quit(9);
+        Require(withdrawals==2&&parent==2&&child==2&&HybridLumenGIResourceRetirement.PendingCount==0&&HybridLumenGIResourceRetirement.OwnedCount==0,"Final-render then real root tail failed shutdown");
+        Require(foreignCalls==1&&Application.LastExitCode==9,"Pump changed another system or native exit code");
+        HybridLumenGIResourceRetirement.UnregisterShutdownOwner(withdraw);RecordedGpu.AutoCompleteImmediate=false;
+        Console.WriteLine("PASS: actual pump preserves foreign loop and installs once; old final-context quit stalls; actual tail permits submission, never completion; parent/child completion and original exit code preserved. Native quit ordering still requires Player evidence.");
+    }
     static void ShutdownWithdrawalAndNewSession()
     {
         Defaults();var owner=Add(310);Frame();Started(310);Finish(owner,310);Frame();

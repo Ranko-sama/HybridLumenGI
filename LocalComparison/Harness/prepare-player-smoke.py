@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
 PROJECT=Path('I:/Unity test/Project')
-PACKAGE=ROOT/'LocalComparison/Review/current-player-smoke-01'
+PACKAGE=ROOT/'LocalComparison/Review/current-player-shutdown-01'
 OUT=PACKAGE/'instrumentation'
 H=ROOT/'LocalComparison/Harness'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
@@ -32,18 +32,63 @@ def prepare():
         capture.totalFrames=smoke?120:720;
         if(smoke)capture.quitWhenComplete=true;''')
     changed[entry]=text.encode('utf-8')
+    capture=PROJECT/'Assets/ComparisonHarness/ComparisonCapture.cs'
+    text=capture.read_text(encoding='utf-8')
+    text=replace(text,'    void Finish(bool collected)', '''    public bool AuditOpen=>running && !closing;
+    public event Action AuditClosing;
+    public bool AuditReceipt(int frame,int engine)=>AuditOpen && receipt && logicalFrame==frame && lastEngine==engine;
+    void Finish(bool collected)''')
+    text=replace(text,'running = false; RenderPipelineManager.endCameraRendering -= Rendered;',
+        'running = false; try{AuditClosing?.Invoke();}catch(Exception e){Fail("Probe close: "+e);} RenderPipelineManager.endCameraRendering -= Rendered;')
+    changed[capture]=text.encode('utf-8')
     probe=PROJECT/'Assets/ComparisonHarness/RuntimeAuditProbe.cs'
     text=probe.read_text(encoding='utf-8')
     text=replace(text,'public bool hasSnapshot,emissionEnabled,inlineRT;public string deformationStatus,areaReason;',
         'public bool hasSnapshot,emissionEnabled,inlineRT;public string deformationStatus,areaReason,momentsFormat0,momentsFormat1;')
     text=replace(text,'                var identity=(RTHandle[])Field(state,"receiverIdentity");',
         '                row.momentsFormat0=moments[0].rt.graphicsFormat.ToString();row.momentsFormat1=moments[1].rt.graphicsFormat.ToString();\n                var identity=(RTHandle[])Field(state,"receiverIdentity");')
+    text=replace(text,'    void Start()', '''    readonly System.Collections.Generic.HashSet<int> acceptedFrames=new System.Collections.Generic.HashSet<int>();
+    bool probeClosed;
+    [Serializable] class Payload {public string field,file,sha256,format;public int frame,engineFrame,giFrame,readIndex,width,height;}
+    static void WriteNew(string path,byte[] bytes)
+    {using(var stream=new FileStream(path,FileMode.CreateNew,FileAccess.Write,FileShare.Read))stream.Write(bytes,0,bytes.Length);}
+    void CloseProbe(){if(probeClosed)return;probeClosed=true;RenderPipelineManager.endCameraRendering-=Rendered;writer?.Dispose();writer=null;}
+    void Start()''')
+    text=replace(text,'        RenderPipelineManager.endCameraRendering+=Rendered;',
+        '        capture.AuditClosing+=CloseProbe;\n        RenderPipelineManager.endCameraRendering+=Rendered;')
+    text=replace(text,'    void Update()\n    {','    void Update()\n    {\n        if(!capture.AuditOpen)return;')
+    text=replace(text,'        if(camera!=capture.camera)return;',
+        '        if(camera!=capture.camera || !capture.AuditOpen || probeClosed)return;')
+    text=replace(text,'        if(writer==null)writer=new StreamWriter(Path.Combine(directory,"functional.jsonl")){AutoFlush=true};', '''        if(!capture.AuditReceipt(f,Time.frameCount))throw new Exception("Probe lacks matching capture receipt");
+        if(!acceptedFrames.Add(f))throw new Exception("Duplicate open probe receipt");
+        if(writer==null)writer=new StreamWriter(new FileStream(Path.Combine(directory,"functional.jsonl"),FileMode.CreateNew,FileAccess.Write,FileShare.Read)){AutoFlush=true};
+        float[] savedMoments=null;''')
+    text=replace(text,'        public int frame,publishedFrame,geometryRevision,areaTriangles,materialSources,emissiveSources,validIdentityPixels;',
+        '        public int frame,engineFrame,giFrame,readIndex,publishedFrame,geometryRevision,areaTriangles,materialSources,emissiveSources,validIdentityPixels;')
+    text=replace(text,'        var row=new Row {frame=f,publishedFrame=',
+        '        var row=new Row {frame=f,engineFrame=Time.frameCount,publishedFrame=')
+    text=replace(text,'            if(!ReferenceEquals(Field(state,"camera"),camera))continue;',
+        '            if(!ReferenceEquals(Field(state,"camera"),camera))continue;\n            row.giFrame=(int)Field(state,"frame");row.readIndex=(int)Field(state,"readIndex");')
+    text=replace(text,'                    File.WriteAllBytes(Path.Combine(directory,"denoise-"+f.ToString("D4")+"-"+field+".rgba32f"),request.GetData<byte>().ToArray());', '''                    byte[] bytes=request.GetData<byte>().ToArray();string filename="denoise-"+f.ToString("D4")+"-"+field+".rgba32f";
+                    WriteNew(Path.Combine(directory,filename),bytes);
+                    if(field=="moments"){savedMoments=new float[bytes.Length/4];Buffer.BlockCopy(bytes,0,savedMoments,0,bytes.Length);}
+                    string hash;using(var digest=System.Security.Cryptography.SHA256.Create())hash=BitConverter.ToString(digest.ComputeHash(bytes)).Replace("-","").ToLowerInvariant();
+                    var payload=new Payload{field=field,file=filename,sha256=hash,format=texture.graphicsFormat.ToString(),frame=f,engineFrame=Time.frameCount,giFrame=row.giFrame,readIndex=currentRead,width=texture.width,height=texture.height};
+                    WriteNew(Path.Combine(directory,filename+".json"),System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload)));''')
+    text=replace(text,'                    var req=AsyncGPUReadback.Request(moments[read].rt,0,TextureFormat.RGBAFloat);req.WaitForCompletion();\n                    if(req.hasError)throw new Exception("History readback failed");var data=req.GetData<float>();int valid=0;', '''                    var data=savedMoments;
+                    if(data==null){var req=AsyncGPUReadback.Request(moments[read].rt,0,TextureFormat.RGBAFloat);req.WaitForCompletion();
+                        if(req.hasError)throw new Exception("History readback failed");data=req.GetData<float>().ToArray();}
+                    int valid=0;''')
+    text=replace(text,'File.WriteAllBytes(Path.Combine(directory,"atlas-"+pair.Item1+".rgba32f"),req.GetData<byte>().ToArray());',
+        'WriteNew(Path.Combine(directory,"atlas-"+pair.Item1+".rgba32f"),req.GetData<byte>().ToArray());')
+    text=replace(text,'    void OnDestroy(){RenderPipelineManager.endCameraRendering-=Rendered;writer?.Dispose();}',
+        '    void OnDestroy(){capture.AuditClosing-=CloseProbe;CloseProbe();}')
     changed[probe]=text.encode('utf-8')
     for source,destination in [('CurrentPlayerBuild.cs','Editor/CurrentPlayerBuild.cs')]:
         changed[PROJECT/'Assets/ComparisonHarness'/destination]=(H/source).read_bytes()
     OUT.mkdir(parents=True,exist_ok=True)
     manifest={'baseline':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'productSourceSha256':product,
-              'scene':'Assets/RuntimeAudit/Functional.unity','scope':'single build; one software and one conditional DXR smoke,120frames each; no source-scene regeneration',
+              'scene':'Assets/RuntimeAudit/Functional.unity','scope':'single build; one visible software120frame smoke; no hardware or scene regeneration',
               'files':[],'newMetadata':[]}
     for i,(path,data) in enumerate(changed.items()):
         rel=path.relative_to(PROJECT).as_posix();old=path.read_bytes() if path.exists() else None
@@ -55,7 +100,7 @@ def prepare():
         if not meta.exists():manifest['newMetadata'].append(meta.relative_to(PROJECT).as_posix())
     (OUT/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
     (OUT/'installer.executed.py.txt').write_bytes(Path(__file__).read_bytes())
-    print(json.dumps({'preparedFiles':len(changed),'productSourceCount':len(product),'RuntimeBehaviorChanged':False,'sceneRegenerated':False}))
+    print(json.dumps({'preparedFiles':len(changed),'productSourceCount':len(product),'testWiringAltersProductRuntime':False,'sceneRegenerated':False}))
 
 def install():
     assert not (OUT/'installed.json').exists(),'Build installation cannot be repeated'

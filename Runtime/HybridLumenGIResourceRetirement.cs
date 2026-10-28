@@ -79,7 +79,7 @@ namespace HybridLumenGI
         }
         private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
         {outsideRenderLoop=false;contextEnded=false;}
-        /// <summary>Only the early MonoBehaviour/Editor update boundary may call this.</summary>
+        /// <summary>Only real early-update or root PlayerLoop tail boundaries may call this.</summary>
         internal static void IdleUpdate()
         {
             EnsureRegistered();
@@ -99,6 +99,7 @@ namespace HybridLumenGI
             if(!shuttingDown)
             {
                 shuttingDown=true;shutdownDeadline=Stopwatch.GetTimestamp()+Stopwatch.Frequency*ShutdownMilliseconds/1000;
+                LogShutdown("begin");
                 // Close admission before withdrawing any owner. Each callback detaches and
                 // hands off storage; actual destruction still requires its own completion.
                 withdrawing=true;
@@ -109,6 +110,7 @@ namespace HybridLumenGI
                     HybridLumenGIRayTexturePool.ClearReusable();
                 }
                 finally{withdrawing=false;}
+                LogShutdown("owners withdrawn");
             }
             DrainShutdown();
         }
@@ -120,7 +122,7 @@ namespace HybridLumenGI
                 do
                 {
                     PollOwned();if(outsideRenderLoop)SubmitImmediate();PollOwned();PollOtherOwners();
-                    if(owned.Count==0 && pending.Count==0){ReportOtherOwners();return;}
+                    if(owned.Count==0 && pending.Count==0){LogShutdown("generic drain complete");ReportOtherOwners();return;}
                     if(!outsideRenderLoop || UnknownSubmissionCount!=0 || FailedCount!=0 || !CanProgressWithoutMainLoop() ||
                         !SystemInfo.supportsGraphicsFence || Stopwatch.GetTimestamp()>=shutdownDeadline)break;
                     System.Threading.Thread.Sleep(1); // Time limits waiting; it never proves completion.
@@ -163,6 +165,20 @@ namespace HybridLumenGI
                 HybridLumenGIHitMaterialBatch.TotalAllocatedBytes+", arenaBytes="+HybridLumenGIRayTexturePool.TotalAllocatedBytes+
                 ", deformationBytes="+HybridLumenGIDeformedMesh.ReservedBytes+", deformationJobs="+HybridLumenGIDeformedMesh.PendingWorkerCount+
                 ", deformationCleanupFailed="+HybridLumenGIDeformedMesh.FailedCleanupCount+", failedWithdrawals="+failedWithdrawals+". Callback-dependent work was not waited on synchronously.");
+        }
+        [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        private static void LogShutdown(string stage)
+        {
+            if(!shuttingDown)return;
+            Debug.Log("HybridLumenGI shutdown "+stage+": outside="+outsideRenderLoop+", contextEnded="+contextEnded+
+                ", owned="+owned.Count+", pending="+pending.Count+", unknown="+UnknownSubmissionCount+
+                ", failed="+FailedCount+", failedWithdrawals="+failedWithdrawals+
+                ", materialBytes="+HybridLumenGIHitMaterialBatch.TotalAllocatedBytes+
+                ", arenaBytes="+HybridLumenGIRayTexturePool.TotalAllocatedBytes+
+                ", deformationBytes="+HybridLumenGIDeformedMesh.ReservedBytes+
+                ", deformationJobs="+HybridLumenGIDeformedMesh.PendingWorkerCount+
+                ", deformationCleanupFailed="+HybridLumenGIDeformedMesh.FailedCleanupCount);
         }
         /// <summary>Call after atomically replacing/detaching the owned object from all new readers.</summary>
         public static void Retire(Action destroyOwned,HybridLumenGIAssetPageStreaming.ICompletion prerequisite=null)
@@ -231,6 +247,7 @@ namespace HybridLumenGI
                 var fence=command.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation,SynchronisationStageFlags.AllGPUOperations);
                 Graphics.ExecuteCommandBuffer(command);
                 foreach(var ticket in batch){ticket.fence=fence;ticket.submitted=true;pending.Remove(ticket);}
+                LogShutdown("idle fence submitted");
             }
             catch(Exception){MarkSubmissionUnknown();}
             finally{CommandBufferPool.Release(command);}
@@ -252,7 +269,7 @@ namespace HybridLumenGI
                     var item=owned[i];if(item.failed || !item.ticket.IsComplete)continue;
                     bool ready=false;try{ready=item.prerequisite==null || item.prerequisite.IsComplete;}catch(Exception){ }
                     if(!ready)continue;
-                    try{item.destroy();owned.RemoveAt(i);}
+                    try{item.destroy();owned.RemoveAt(i);LogShutdown("completed owner destroyed");}
                     catch(Exception error){item.failed=true;Debug.LogException(error);}
                 }
             }
