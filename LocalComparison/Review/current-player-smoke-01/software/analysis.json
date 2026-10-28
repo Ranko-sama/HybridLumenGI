@@ -1,0 +1,27 @@
+{
+  "mode": "software",
+  "playerSmokeVerified": false,
+  "normalExitAccepted": false,
+  "fullProductionAccepted": false,
+  "scope": "Current Development/Mono/DX12 finite120frame scene and normal exit only; no dynamic/image/performance acceptance",
+  "buildProductsManifestSha256": "e1640798217978d0da7a0417bd710499c90574f276618d1c1b67900b200a2f8d",
+  "nativeExitCode": 1,
+  "watchdogTerminated": false,
+  "nativeLogHits": [
+    {
+      "category": "observer",
+      "line": 41,
+      "text": "Comparison failed: Timed out waiting for first target-camera render receipt."
+    }
+  ],
+  "runId": "20261028-074409-884b299d74b34e69b392ba073a8c2f06",
+  "collection": {
+    "status": "failed",
+    "renderedFrames": 0,
+    "captures": 0,
+    "errors": 1,
+    "firstRenderWaitSeconds": 0.0
+  },
+  "failure": "",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Harness\\analyze-player-smoke.py\", line 64, in run\n    assert meta['requestedFrames']==meta['renderedFrames']==120 and meta['captures']==5 and meta['errors']==0\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+}

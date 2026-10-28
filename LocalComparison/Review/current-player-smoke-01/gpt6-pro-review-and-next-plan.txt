@@ -1,0 +1,140 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 19
+REVIEW_DECISION: 保留构建通过证据；Player运行／退出仍为FAILED，进入最小修复
+NEXT_PACKAGE: current-player-shutdown-01
+
+一、独立审查结论
+
+本轮确实发现了Player退出缺陷；119帧文件被覆盖则是独立的探针缺陷。两者都需要修复，但不能据此修改GI历史算法。
+
+已确认 HybridLumenGI / workspace:/ / main@9176b0f，Runtime diff为空。本轮构建／运行辅助代码及证据尚未提交。我已先列出再读取执行输出96–103，核对Runtime退休代码、构建分析、原始Player日志、两条119帧记录及实际探针源码。本层未执行修改或测试。
+
+项目	本次判断
+当前源码构建	可保留为通过。 110份产品源码对应、283份构建产物已绑定；首次分析只是把源文件名中的Exception.cs误判为异常，没有发生构建失败。
+原隐藏／batchmode启动	保留为独立的零渲染失败，不能算作GI测试。可见窗口修正是一次明确记录的范围调整，不能把两次进程写成一次。
+可见软件Player	完成120帧、5次采集，稳定区间有精确软件路径证据；但整体smoke和正常退出未通过。
+119帧历史证据	第一条统计记录上限32；保存的同名二进制被尾部第二次回调覆盖。不能将其解释为目标采集期间历史突然丢失。
+硬件Player	未启动，继续未覆盖。
+
+允许提交构建通过＋运行失败检查点，保留两次启动、分析假阳性及原始失败。当前还没有可批准的Runtime修复候选。〔build-analysis.json:1–12；执行输出98–103〕
+
+二、缺陷定位
+F1 — P1：退出请求与最终退出通知之间，缺少可安全推进的关闭阶段
+
+原始Player日志明确记录：
+
+纯文本
+owned=2, pending=2
+unknownSubmission=0, failed=0
+outsideRenderLoop=False
+deformationBytes=53760
+
+随后出现GC代为处置buffer和29条D3D未释放记录。exit 0只证明进程结束，不能覆盖这些清理失败。 当前日志没有逐票据身份，不能把29项分配逐一归给两张票据；但GI关闭未完成已经是确定事实。〔本包 software-windowed/player.log:81–170〕
+
+源码中的断点也明确：
+
+运行时只在 Application.quitting调用 BeginShutdown()；早期pump的Update在此之前运行。
+每个新render context都会撤销 outsideRenderLoop；自己的EndContext返回也不会立即恢复这个证明。
+DrainShutdown()在outside为false时不能提交idle fence，随即保留资源退出。〔Runtime/HybridLumenGIResourceRetirement.cs:46–92、95–130〕
+
+保守保留是正确的安全行为，错误在于关闭启动太晚。 不能通过在quitting中强设outside、提升普通尾部票据资格或增加等待秒数解决。
+
+Feature整份pass和已发布形变快照均已有撤销／退休入口，下一包应复用，不重新写资源系统。〔HybridLumenGIRendererFeature.cs:193–205；HybridLumenGIDeformedMesh.cs:119–143〕
+
+F2 — P2：探针没有跟随采集关闭，且允许覆盖同一帧的证据
+
+执行版 RuntimeAuditProbe.Rendered()只检查camera和目录，没有检查采集仍开放；它直到OnDestroy()才取消订阅，并以 File.WriteAllBytes写固定119文件名。〔本包执行版 RuntimeAuditProbe.cs:43–65、130〕
+
+原始 functional.jsonl:120–121保存了两条119记录：
+
+第一次：history maximum 32，fraction约0.8064。
+第二次：maximum 1，fraction 0。
+
+分析器取第一条统计行，却读取已被第二次覆盖的payload，构成来源不一致。当前FAILED必须保留；不能删除重复行后追认首次payload，也不能放宽maximumHistorySamples>1来通过。〔analyze-player-smoke.py:78–97〕
+
+三、下一最小修复包
+A. 产品侧提供受控的两阶段退出，不再等最终通知才撤销owner
+
+本包选择一个明确、可复用的产品退出请求入口，例如 RequestPlayerQuit(int exitCode)，由现有Runtime退休类和pump负责完成。测试采集器只提交退出请求，不直接Dispose、反射调用drain或自行轮询私有资源。
+
+最小状态顺序应为：
+
+接收请求并关闭新GI准入 → 在真实idle边界撤销owner → 按原规则提交／检查完成 → 完成清理或明确失败 → 调用最终Application.Quit。
+
+文件范围优先限定为：
+
+文件	修改职责
+HybridLumenGIResourceRetirement.cs	保存退出请求与原退出码；区分“已请求关闭”和“owner已撤销”；幂等推进并报告结果。
+HybridLumenGIResourceRetirementPump.cs	在现有真实早期Update边界推进请求；完成后才发出最终退出。
+测试侧ComparisonCapture	停止采集后使用上述公开退出入口，不再立即发出最终Quit。
+
+关键约束：
+
+请求可以立即关闭新任务准入，但资源转交必须等合法边界。 若请求发生在活动context或尾部回调内，不能先把形变快照等普通票据放入“需要未来context”的状态，再期待一个不存在的context来收尾。已记录读者继续持有资源，直到真实提交和完成。
+
+完成条件不只是通用队列为零。 同时检查已归属的材质／arena、形变reservation与worker、失败清理、未知提交和撤销失败状态。未完成prerequisite不得同步忙等到阻塞其主线程回调。
+
+保留一次共享期限，不因重复请求重新计时；0和非0退出码都必须保留。清理失败不能自动以0退出，也不能无限阻止退出。超时／未知完成时记录未解决owner，保持“不提前释放”的规则，以失败状态结束。
+
+Application.quitting仍作为幂等兜底。这次验证的范围是接入该公开请求入口的受控Player退出；不宣称任意外部直接Quit、强杀或关窗路径都自动修复。 若将来接管wantsToQuit，必须另行处理取消、重试和退出码语义，不能在本包顺手加入一套未经验证的通用退出拦截器。
+
+B. 探针先关闭，再恢复相机；所有帧证据只允许写一次
+
+给采集器增加简单的可读开放状态或已有关闭通知，令probe在Finish开始时就停止接收新事件，早于恢复camera／target。Update()中的测试动作也要服从该状态。
+
+在probe内保留两层保护：
+
+**事件保护：**只接受本次采集开放期间、目标相机且有匹配帧收据的回调。活动采集期间同一逻辑帧重复是错误；关闭后的尾部回调只记录为已拒绝，不能产生读回或写文件。
+
+**文件保护：**对按帧保存的history、moments、geometry、material及其他固定payload采用不覆盖写入；记录逻辑帧、引擎帧、实际GI帧／读索引、尺寸、格式和payload哈希。统计行与二进制应来自同一份完成的读回，避免再次出现“第一条摘要＋第二次文件”。
+
+现有读回已经同步等待，无需引入新异步观察框架。关闭流程只需停止新请求、完成既有请求、取消订阅并关闭writer。
+
+分析器改为要求唯一记录和payload身份一致，不再用setdefault容忍重复。收集、GI数据、HDR和退出分别报告，使一个moments断言失败不再掩盖尚未执行的其他检查。不重写本轮失败报告。
+
+四、必要验证：定向源码测试后，只做一个新Player运行
+1. 复用实际源码退休测试，补这一条真实时序
+
+当前适配器把 Application.Quit()立即转成quitting，没有模拟“请求后还有最终render、然后才最终退出”的窗口；这正是本轮缺失覆盖。〔Tests/StandaloneDeformedMesh/Adapters.cs.txt:15〕
+
+在现有 StandaloneDeformedMesh入口补有限病例，不另建框架：
+
+病例	必须证明
+请求后仍完成最后context，再到idle	新准入已关闭；已记录读者安全完成；owner只撤销一次；父、子及形变资源依原完成证明释放。
+请求发生在context／尾部内	请求本身不制造outside或fence完成；实际idle之前不得销毁。
+未完成fence／prerequisite、重复请求及失败码	不提前释放、不重置期限、不双重退出、不把非0退出码变0；需要主线程推进的工作不被同步等待锁住。
+
+基线旧调用顺序的停滞可以在实际源码适配器中保留为反例，不再启动一个旧Player复现。新状态推进方法应由实际源码执行；若pump仍在测试中被空stub代替，不得声称整个运行时接线已由单元测试覆盖。
+
+探针只增加一个小型事件序列检查：正常119回调一次、重复开放回调、关闭后尾部回调。验证首次文件不被覆盖、关闭后不再读回；无需任何画质输入。
+
+2. 一个新构建、一次可见软件Player，最多120帧
+
+新包独立目录、run ID和产物清单；不覆盖9176b0f产物和本轮两个启动目录。
+
+只做：
+
+一次当前候选Development／Mono／DX12构建 → 一次普通可见窗口的软件Player，120帧。
+
+不使用-batchmode、Hidden或-nographics启动Player；保持本轮已验证的可见启动方式、Functional场景、事件和采样设置。五个既有采集时点及30／119检查不增加。退出收尾可继续正常主循环推进，但目标采集仍严格只有120帧，不得借收尾继续写119或新增测试帧。
+
+硬件本包不运行。软件修复通过并复核后，再继续原计划的DXR Player缺口。
+
+3. 原生确认必须包含退出顺序，不只看日志安静
+
+复用现有有限退休记录方式，只记录已有状态和完成检查结果，不额外读取fence来改变时序。保存：
+
+退出请求及退出码、准入关闭、实际idle、owner撤销、提交／完成／销毁、最终各owner状态和最终Quit。
+
+同时要求119摘要、payload哈希和真实history统计一致；五份HDR逐一完成尺寸／有限性检查。扫描完整进程日志，并将 GC代为处置ComputeBuffer／GraphicsBuffer 也纳入失败条件，不能只在伴随D3D告警时才识别。
+
+本次成功应同时满足：正常采集完成、唯一有效证据、稳定精确软件路径、实际GI读回、资源完成链及完整退出检查。管理计账归零不等于总VRAM证明。
+
+五、停止与后续
+
+新构建或定向验证失败就保存最小反例；唯一新Player出现未提交票据、错误释放、重复payload、挂起、设备错误或新的退出告警，立即停止，不继续硬件、不延长等待、不反复启动到偶然成功。
+
+本轮构建通过证据可提交，Player整体失败保持原样；下一包只修受控退出顺序和探针证据唯一性。 原先29项资源不能仅凭两张票据推定全部归属，新的有限确认应据实际记录说明关闭了什么。
+
+暗区调查保持取消。软件Player修复完成后，继续当前源码DXR Player及完整原计划的其他缺口；历史scratch、异常退出、长期增长、整图／动态质量、性能与显存验收仍不因这次局部修复自动关闭。

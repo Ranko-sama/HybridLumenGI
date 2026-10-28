@@ -1,0 +1,28 @@
+本机对照复现（当前local-runtime-fix02已完成默认精确/SDF固定Editor序列；未变结果请直接复用，不重复运行）
+
+# 本轮默认精确软件命令（已完成；供必要时复现）
+.\Start-Unity.ps1 -Batch -KeepRunning -ProjectPath 'I:\Unity test\Project' -LogName replay-exact-fix02 -ExecuteMethod ComparisonRunnerEditor.Play -ExtraArguments @('-comparisonMode','final','-comparisonFrames','720','-comparisonLabel','local-runtime-fix02','-comparisonBounceFeedback','1')
+# 对应SDF回退仅将comparisonMode改为sdf，并换LogName。本机工程现已恢复exact=true。
+# 首次目标相机receipt允许900秒冷编译/驱动初始化，逻辑序列仍从0帧开始，engine-frame界限仍120；不是改变Unity shader timeout。
+
+PowerShell，工作目录 I:\Unity test：
+
+# 旧版兼容副本，Editor Final 720帧
+.\Start-Unity.ps1 -Batch -KeepRunning -ProjectPath 'I:\Unity test\Comparison\OldProject' -LogName replay-old-final -ExecuteMethod ComparisonRunnerEditor.Play -ExtraArguments @('-comparisonMode','final','-comparisonFrames','720','-comparisonLabel','old-compat-replay')
+
+# 旧版 GI 关闭基线：以上 comparisonMode 改为 off，并使用不同 LogName。
+
+# 新版本机修复副本，明确的 SDF 回退组（不是默认精确软件路径）
+.\Start-Unity.ps1 -Batch -KeepRunning -ProjectPath 'I:\Unity test\Project' -LogName replay-new-sdf -ExecuteMethod ComparisonRunnerEditor.Play -ExtraArguments @('-comparisonMode','sdf','-comparisonFrames','720','-comparisonLabel','integration15-runtimefix-replay')
+
+# 新版 SDF GI 关闭基线：comparisonMode=sdf-off，并使用不同 LogName。
+
+# 旧 Player 成功条件：从资源管理器双击 Comparison\Builds\Old-v2\ComparisonOld.exe。
+# 普通可见窗口启动；DX12、640x360、场景与模式已烘入该Player。完成720帧后自动退出。
+# 隐藏窗口或 -batchmode 的旧Player运行未产生渲染receipt，失败记录保留。
+
+结果：I:\Unity test\Comparison\Results\<UTC>-<UUID>
+当前实际结果以 REPORT.md 与 run-index.json 为准。
+Editor 自动化完成后会退出 Editor；运行前应确保该隔离工程未被另一个 Editor 打开。
+不要提高 shader timeout 或删除 ShaderCache 重复制造历史超时；编译阻断已通过实际源码修复解除。
+不要将回退组改名为默认路径通过。

@@ -1,0 +1,127 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 19
+PRIORITY_DECISION: APPROVE — 转向当前源码的Player构建、后端运行与正常退出验证
+CANCELLED_PACKAGE: low-light-reconstruction-attribution-01
+NEXT_PACKAGE: current-player-smoke-01
+
+一、优先级调整成立
+
+取消低亮度归因包，不将它保留为自动恢复的待办。 暗区只是用户的问题，现有证据没有建立具体缺陷；不再为此新增观察器、积分、截图或参数实验。
+
+已确认 HybridLumenGI / workspace:/ / main@9176b0f。iteration 18已提交；本次读取期间仅新增了未跟踪的 Documentation/Checkpoint-Iteration19.md，未发现Runtime修改。
+
+下一包转向Player有明确价值：原计划要求当前源码的Player构建及软件／硬件运行证据，而历史Player检查属于runtime-candidate-16，早于本轮降噪和资源生命周期修复。特别是当前退休逻辑在Player中依赖运行时pump与 Application.quitting，不能用Editor的update／退出路径代替。〔OriginalDevelopmentPlan.md:55–60；LocalRuntimeFunctionalAudit.md:27–33；HybridLumenGIResourceRetirement.cs:46–71；HybridLumenGIResourceRetirementPump.cs:7–18〕
+
+本次复核只围绕现有构建／运行入口及这项缺口，没有重做完整源码审计。
+
+二、实际入口中需要处理的三个边界
+
+我读取了工作区保存的实际构建器和运行器源码，位于已归档的 Assets/ComparisonHarness/ 下；执行前应与部署副本核对，不能假定归档内容永远等于当前外部工程。
+
+入口	已核对的行为	本包处理
+RuntimeAuditEditor.Build()	先调用 Prepare()，创建／修改材质、对象和功能场景，再把Functional与Streaming一起构建。	不要直接调用。 使用已存在的Functional场景，绕过Prepare与Streaming。
+RuntimeAuditEntry.Apply()	支持运行时切换 final/hardware，但无条件把帧数设为720。	增加严格限定的测试侧smoke参数；保留原720模式默认行为。
+ComparisonCapture／RuntimeAuditProbe	已有有限采集、正常 Application.Quit、诊断和history／identity读回；退出码首先代表采集完成。	复用这些能力，另外检查实际后端、GI数据及完整原生退出日志。
+
+依据：归档 Editor/RuntimeAuditEditor.cs:65–128、RuntimeAuditEntry.cs:12–31、RuntimeAuditProbe.cs:43–103。无需为这次冒烟检查再搭一个观察框架。
+
+三、工作包：一次构建，同一产物最多两次Player运行
+A. 建立当前构建来源，不重新生成场景
+
+先固定 9176b0f 及部署的Runtime／Editor源码哈希。将实际采用的builder、runner、Functional场景、Renderer／Pipeline、材质、纹理、烘焙几何／charts及构建设置记录到本包清单。
+
+新增一个很薄的测试侧构建入口，或给现有builder增加明确的 build-existing 分支：
+
+直接打开已有 Assets/RuntimeAudit/Functional.unity，只构建该场景。 必需场景或资产缺失时直接报错，不触发生成器、重烘焙或改成另一个场景。不要依赖当前 EditorBuildSettings 恰好指向正确文件；显式向 BuildPlayerOptions.scenes传入这一场景。
+
+构建范围固定为：
+
+Windows x64、Development、Mono、DX12、Linear、现有640×360采集配置。
+
+这是当前本机支持路径的构建／运行检查，不是Release、IL2CPP或跨平台验收。一个Player同时包含软件和硬件所需资源；不为两种模式分别构建，也不通过全量保留所有shader变体来掩盖具体缺失。
+
+保存BuildReport、完整构建日志、产品及辅助源码版本、关键设置、产物文件清单与哈希。只记录EXE哈希不足以绑定实际加载的程序集和资源数据。
+
+B. 最小运行器修改
+
+在 RuntimeAuditEntry 增加测试专用参数，例如：
+
+纯文本
+-auditSmoke -auditFrames 120
+
+仅在明确smoke模式下接受有界帧数，并限制场景为functional、后端请求为 final 或 hardware；非法参数应失败，不能回落到720帧。普通历史运行入口默认行为不变。
+
+本包复用Functional场景及其已有前120帧行为，不新增事件或修改GI设置。现有probe中的启动形变、相机动作与读回若执行，应如实记录；它们只提供功能运行覆盖，不构成动态画质验收。
+
+复用已有30／119帧history、identity检查，以及 -auditDenoiseReadback 在119帧保存实际history／moments等数据的能力。不添加低亮度tap、Monte Carlo或新的画质参考。〔归档 RuntimeAuditProbe.cs:24–36、49–103〕
+
+C. 两次Player按顺序运行
+次序	请求	目的
+1	-auditScene functional -auditSmoke -auditFrames 120 -comparisonMode final	当前精确软件Player路径、GI输出与正常退出。
+2	同一EXE及资源，仅改为 -comparisonMode hardware	当前DXR Player路径、所需构建资源与正常退出。
+
+每次独立日志、输出目录和run ID，保存实际命令行及产物哈希。使用真实DX12渲染，不带 -nographics。
+
+软件运行出现阻断，停止，不继续硬件运行。软件运行记录的设备能力若不支持inline ray tracing，则硬件项记为未覆盖／设备不支持，不把软件回退算成DXR通过，也不需要再启动一次已知无效的硬件请求。
+
+保持现有首次出帧等待上限，不借冷启动延长逻辑帧数；等待／编译时间单独记录，不称为GI帧时间。
+
+四、通过标准：构建、实际后端、GI执行、退出分别判定
+1. 构建通过，不等于Player已经运行正确
+
+要求构建成功，且无当前代码的Player编译错误、缺失脚本／资源或致命shader错误。不要仅凭Editor预检绿色关闭这一项。
+
+正常路径只做一次构建。 若被一个明确、局部的Player编译或资源保留错误阻断，允许保存失败后做一项最小修复，并至多重建一次；不得借机改光照或资源架构。修复产生的Runtime差异须单列交回审查。
+
+2. 后端开关不能代替实际后端
+
+每帧保留诊断、实际请求与回退原因。允许启动期资产上传／材质回读尚未就绪，但必须与稳定运行区间分开。
+
+固定要求最后16帧，即104–119：
+
+软件模式实际为 exactSoftwareGeometry=true、非hardware，并具备已发布几何及有效材质路径。
+硬件模式实际为 hardwareBackend=true，具备实际硬件网格／RTAS准备与材质消费者接线；不能只检查 supportsInlineRayTracing或请求开关。
+记录回退计数的变化，而非要求从进程启动起累计计数绝对为零；稳定区间不得继续发生无法解释的回退。
+
+当前源码会在材质、几何记录或上传失败时主动回退，且其状态文字明确区分“已绑定”和“GPU完成未证明”。这些状态应按实际意义解释。〔HybridLumenGIRendererFeature.cs:984–1016、1044–1065〕
+
+3. 需要实际GI读回，不是仅有最终截图
+
+结合既有完成读回和119帧GI纹理数据，检查：
+
+有限性、有效测量覆盖、历史样本数、对象身份输出，以及实际moments纹理格式。 当前两张moments应为RGBA32F；不重跑HDR数学夹具，只确认Player真实资源与数据合同没有回到旧布局。
+
+最终HDR／PNG使用采集器已有的有限时点即可，不新增画质矩阵。保留有效黑色与未知值的区别，不以“非零像素越多越好”作为通过标准。
+
+后端状态、实际资源绑定及完成的GI读回共同支持该Player后端路径的有限运行证据，但不代表每种材质、每类射线或完整软件／DXR图像一致性已经验收。
+
+4. 正常退出必须由完整Player日志确认
+
+保持GI及相关owner正常活跃，由现有采集器在正常Update路径完成收尾并调用 Application.Quit。不提前禁用Feature、手动Dispose、反射调用drain、额外渲染一帧或强制GC来替产品清理。
+
+退出后由外部收集器读取完整Player日志，复用 native_log_check.py，保留scratch补充检查。以下任一出现都不能认定退出通过：未解决退休owner、Persistent/native泄漏、D3D未释放资源、设备丢失、读回失败或相关异常。
+
+本包默认是有限Player正常退出检查，不重复逐票据实验。若有新失败，保存最后后端／资源状态和完整日志，再建立该失败的最小归因；不要原地反复启动到偶然成功。
+
+即使两次日志都干净，也只能关闭本次正常路径缺口，不能解决历史异常退出scratch、长期增长或峰值VRAM问题。
+
+五、执行边界与交付
+
+本包上限是：一次正常构建，必要时一次有具体修复的重建；软件Player一次、硬件Player至多一次，每次120帧。 不运行Editor配对、720帧、off、SDF、Streaming/HLOD、低亮度或性能矩阵；Player失败不自动重跑。
+
+产物和报告至少分别给出：
+
+纯文本
+currentSourceBuildVerified
+softwarePlayerSmokeVerified
+hardwarePlayerSmokeVerified / notCoveredReason
+softwareNormalExitAccepted
+hardwareNormalExitAccepted
+fullProductionAccepted = false
+
+还原测试侧入口、场景／构建设置和部署修改，保存执行版本与恢复哈希；不能让上轮radiometry插桩进入Player后仍称它为未经插桩的当前产品。
+
+成功后可关闭“当前源码Windows/DX12 Development Player构建及对应后端有限运行缺口”，而不是关闭G0–G5。 若发现确定阻断，下一步修那个阻断；若无阻断，再依据原计划选择动态／材质／流式或可信性能测量，不恢复已取消的暗区调查。
+
+四项目标、十条工作流及自主循环全部继续。没有朋友交付依赖，也不以缺少绝对亮度证明为由持续调查一个尚未成立的暗区故障。

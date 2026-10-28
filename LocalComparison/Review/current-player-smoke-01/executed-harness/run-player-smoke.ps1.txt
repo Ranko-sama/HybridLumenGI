@@ -1,0 +1,42 @@
+param([Parameter(Mandatory=$true)][ValidateSet('software','hardware')][string]$Mode)
+$ErrorActionPreference='Stop'
+$taskRootPath='C:/Users/Administrator/Desktop/test/HybridLumenGI'
+$taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/current-player-smoke-01'
+$taskModePath=Join-Path $taskPackagePath ($Mode+'-windowed')
+$taskPython='C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
+$taskPlayer='I:/Unity test/Comparison/Builds/CurrentSource9176b0f/HybridLumenGITest.exe'
+if(!(Get-Content -LiteralPath (Join-Path $taskPackagePath 'build-analysis.json') -Raw | ConvertFrom-Json).currentSourceBuildVerified){throw 'Build not accepted.'}
+if(Test-Path -LiteralPath (Join-Path $taskModePath 'attempt.json')){throw 'This Player route already used its unique attempt.'}
+if($Mode -eq 'hardware'){
+    $taskSoftware=Get-Content -LiteralPath (Join-Path $taskPackagePath 'software-windowed/analysis.json') -Raw | ConvertFrom-Json
+    if(!$taskSoftware.playerSmokeVerified -or !$taskSoftware.normalExitAccepted -or !$taskSoftware.inlineRayTracingSupported){throw 'Software/capability gate does not admit hardware run.'}
+}
+& $taskPython (Join-Path $taskRootPath 'LocalComparison/Harness/analyze-player-smoke.py') products
+if($LASTEXITCODE -ne 0){throw 'Player product hashes differ.'}
+New-Item -ItemType Directory -Path $taskModePath -Force | Out-Null
+$taskLog=Join-Path $taskModePath 'player.log'
+$taskRun=Join-Path $taskModePath 'run'
+$taskBackend=if($Mode -eq 'hardware'){'hardware'}else{'final'}
+$taskArgs=@('-force-d3d12','-screen-fullscreen','0','-screen-width','640','-screen-height','360',
+    '-auditScene','functional','-auditSmoke','-auditFrames','120','-comparisonMode',$taskBackend,
+    '-auditDenoiseReadback','-auditOutput',$taskRun,'-logFile',$taskLog)
+@{attempt=1;mode=$Mode;executable=$taskPlayer;arguments=$taskArgs;startedUtc=[DateTime]::UtcNow.ToString('o');maximumLogicalFrames=120;watchdogSeconds=1200} |
+    ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $taskModePath 'attempt.json') -Encoding utf8
+$taskInfo=New-Object System.Diagnostics.ProcessStartInfo
+$taskInfo.FileName=$taskPlayer
+$taskInfo.WorkingDirectory=Split-Path -Parent $taskPlayer
+$taskInfo.UseShellExecute=$false
+# This is the interactive rendered Player, not a background helper/service.
+# The existing reproduction contract requires its ordinary window for camera receipts.
+$taskInfo.WindowStyle=[System.Diagnostics.ProcessWindowStyle]::Normal
+$taskInfo.CreateNoWindow=$false
+$taskInfo.Arguments=($taskArgs | ForEach-Object {'"'+$_+'"'}) -join ' '
+$taskProcess=[System.Diagnostics.Process]::Start($taskInfo)
+Write-Output "Player $Mode PID $($taskProcess.Id); complete native log: $taskLog"
+$taskTerminated=$false
+if(!$taskProcess.WaitForExit(1200000)){$taskTerminated=$true;Stop-Process -Id $taskProcess.Id -Force;$taskProcess.WaitForExit()}
+$taskNativeExit=$taskProcess.ExitCode
+@{processId=$taskProcess.Id;exitCode=$taskNativeExit;watchdogTerminated=$taskTerminated;completedUtc=[DateTime]::UtcNow.ToString('o')} |
+    ConvertTo-Json | Set-Content -LiteralPath (Join-Path $taskModePath 'native-exit.json') -Encoding utf8
+Write-Output "Player $Mode exited $taskNativeExit; watchdog=$taskTerminated"
+exit $taskNativeExit

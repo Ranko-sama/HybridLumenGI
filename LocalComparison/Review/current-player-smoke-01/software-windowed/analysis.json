@@ -1,0 +1,1160 @@
+{
+  "mode": "software",
+  "playerSmokeVerified": false,
+  "normalExitAccepted": false,
+  "fullProductionAccepted": false,
+  "scope": "Current Development/Mono/DX12 finite120frame scene and normal exit only; no dynamic/image/performance acceptance",
+  "buildProductsManifestSha256": "e1640798217978d0da7a0417bd710499c90574f276618d1c1b67900b200a2f8d",
+  "nativeExitCode": 0,
+  "watchdogTerminated": false,
+  "nativeLogHits": [
+    {
+      "category": "unresolved-owner",
+      "line": 81,
+      "text": "HybridLumenGI retained unresolved retirement resources: owned=2, pending=2, unknownSubmission=0, failed=0, failedWithdrawals=0, outsideRenderLoop=False. No completion was assumed."
+    },
+    {
+      "category": "unresolved-owner",
+      "line": 94,
+      "text": "HybridLumenGI separate owners remain after generic drain: materialAndArenaBytes=0, arenaBytes=0, deformationBytes=53760, deformationJobs=0, deformationCleanupFailed=0, failedWithdrawals=0. Callback-dependent work was not waited on synchronously."
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 142,
+      "text": "PlayerConnection::Cleanup[d3d12] Unreleased non-evictable resource 0000027D61C7B7E0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-2944'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 143,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B3DBD0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-65536'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 144,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D13EF0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-65536'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 145,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61C7C0F0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-24576'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 146,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D15110 (size 65536 B, lastUsedFence 15393) 'Buffer-16-512'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 147,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D15A20 (size 65536 B, lastUsedFence 15393) 'Buffer-16-16864'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 148,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B3D2C0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-49152'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 149,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B47EF0 (size 524288 B, lastUsedFence 15393) 'Buffer-16-491520'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 150,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B42450 (size 65536 B, lastUsedFence 15393) 'Buffer-16-25344'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 151,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B451A0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-128'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 152,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61C75D40 (size 65536 B, lastUsedFence 15393) 'Buffer-16-52224'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 153,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B3E4E0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-512'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 154,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B40920 (size 65536 B, lastUsedFence 15393) 'Buffer-16-1536'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 155,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B43670 (size 65536 B, lastUsedFence 15393) 'Buffer-16-4224'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 156,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B41B40 (size 65536 B, lastUsedFence 15393) 'Buffer-16-49152'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 157,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B3C9B0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-21120'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 158,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B3EDF0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-1024'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 159,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D123C0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-16896'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 160,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61C7A5C0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-1056'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 161,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D14800 (size 65536 B, lastUsedFence 15393) 'Buffer-16-128'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 162,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B43F80 (size 524288 B, lastUsedFence 15393) 'Buffer-16-491520'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 163,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61C81B90 (size 65536 B, lastUsedFence 15393) 'Buffer-16-1472'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 164,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D16C40 (size 65536 B, lastUsedFence 15393) 'Buffer-16-4096'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 165,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B41230 (size 65536 B, lastUsedFence 15393) 'Buffer-16-12288'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 166,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D0E450 (size 65536 B, lastUsedFence 15393) 'Buffer-16-2560'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 167,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D12CD0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-2016'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 168,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D16330 (size 8388608 B, lastUsedFence 15393) 'Buffer-16-8388608'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 169,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D10890 (size 65536 B, lastUsedFence 15393) 'Buffer-16-2560'"
+    },
+    {
+      "category": "d3d-unreleased",
+      "line": 170,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D17550 (size 589824 B, lastUsedFence 15393) 'Buffer-16-532480'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 142,
+      "text": "PlayerConnection::Cleanup[d3d12] Unreleased non-evictable resource 0000027D61C7B7E0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-2944'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 143,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B3DBD0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-65536'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 144,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D13EF0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-65536'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 145,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61C7C0F0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-24576'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 146,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D15110 (size 65536 B, lastUsedFence 15393) 'Buffer-16-512'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 147,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D15A20 (size 65536 B, lastUsedFence 15393) 'Buffer-16-16864'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 148,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B3D2C0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-49152'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 149,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B47EF0 (size 524288 B, lastUsedFence 15393) 'Buffer-16-491520'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 150,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B42450 (size 65536 B, lastUsedFence 15393) 'Buffer-16-25344'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 151,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B451A0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-128'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 152,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61C75D40 (size 65536 B, lastUsedFence 15393) 'Buffer-16-52224'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 153,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B3E4E0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-512'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 154,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B40920 (size 65536 B, lastUsedFence 15393) 'Buffer-16-1536'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 155,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B43670 (size 65536 B, lastUsedFence 15393) 'Buffer-16-4224'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 156,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B41B40 (size 65536 B, lastUsedFence 15393) 'Buffer-16-49152'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 157,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B3C9B0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-21120'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 158,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B3EDF0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-1024'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 159,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D123C0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-16896'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 160,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61C7A5C0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-1056'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 161,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D14800 (size 65536 B, lastUsedFence 15393) 'Buffer-16-128'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 162,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B43F80 (size 524288 B, lastUsedFence 15393) 'Buffer-16-491520'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 163,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61C81B90 (size 65536 B, lastUsedFence 15393) 'Buffer-16-1472'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 164,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D16C40 (size 65536 B, lastUsedFence 15393) 'Buffer-16-4096'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 165,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D61B41230 (size 65536 B, lastUsedFence 15393) 'Buffer-16-12288'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 166,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D0E450 (size 65536 B, lastUsedFence 15393) 'Buffer-16-2560'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 167,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D12CD0 (size 65536 B, lastUsedFence 15393) 'Buffer-16-2016'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 168,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D16330 (size 8388608 B, lastUsedFence 15393) 'Buffer-16-8388608'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 169,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D10890 (size 65536 B, lastUsedFence 15393) 'Buffer-16-2560'"
+    },
+    {
+      "category": "d3d-extra",
+      "line": 170,
+      "text": "[d3d12] Unreleased non-evictable resource 0000027D60D17550 (size 589824 B, lastUsedFence 15393) 'Buffer-16-532480'"
+    }
+  ],
+  "runId": "20261028-074825-b81d0cbb4eb744bd934b2c4d5a2118f3",
+  "collection": {
+    "status": "incomplete-probe",
+    "renderedFrames": 120,
+    "captures": 5,
+    "errors": 0,
+    "firstRenderWaitSeconds": 108.7615767
+  },
+  "lastDiagnostics": {
+    "camera": "Validation Camera",
+    "sceneLightingPolicyBytes": 512,
+    "frame": 120,
+    "publishedInstances": 22,
+    "warmingInstances": 0,
+    "pendingCapacity": 0,
+    "bvhNodes": 43,
+    "readyCards": 132,
+    "pendingCards": 0,
+    "warmupBudgetBlockedCards": 0,
+    "cachePatchesScheduled": 256,
+    "chartedOwners": 22,
+    "approximateOwners": 0,
+    "requiredSurfaceCards": 132,
+    "rejectedSdfSources": 0,
+    "receiverTrackedSubmeshes": 19,
+    "receiverUntrackedRenderers": 0,
+    "receiverFingerprintMeshes": 3,
+    "receiverFingerprintBytes": 7816,
+    "receiverSourcesPublished": true,
+    "receiverIdentityEnabled": true,
+    "receiverIdentityStatus": "Identity resolve recorded; GPU completion not implied",
+    "receiverIdentityDraws": 18,
+    "receiverUnknownRectangles": 1,
+    "receiverIdentityBufferBytes": 2766320,
+    "changeRegionBytes": 52224,
+    "proposalCapacity": 32,
+    "proposalBudget": 16,
+    "globalReadyBricks": 1750,
+    "globalPendingBricks": 298,
+    "globalUpdatedBricks": 16,
+    "completedHlodReadbacks": 0,
+    "failedHlodReadbacks": 0,
+    "acceptedInitializationTickets": 0,
+    "hlodReadbackPending": false,
+    "hardwareBackend": false,
+    "hardwareMeshes": 0,
+    "hardwareFallbacks": 0,
+    "hardwareSceneRebuilds": 0,
+    "hardwareTransformUpdates": 0,
+    "hardwareTriangleUploads": 0,
+    "hardwareBindingUploads": 0,
+    "hardwareMaterialStatus": "Uploads and both consumers bound; GPU completion unproven",
+    "hardwareMaterialUnknownRecords": 0,
+    "hardwareMaterialFrameBytes": 83600,
+    "hardwareMaterialGlobalAllocatedBytes": 89856,
+    "exactSoftwareGeometry": true,
+    "softwareGeometryBytes": 88992,
+    "areaEmitterBytes": 1152,
+    "rtasGlobalAccountedBytes": 0,
+    "rtasGlobalEstimatedBytes": 0,
+    "rtasGlobalMeasuredHighWaterBytes": 0,
+    "rtasGlobalRetiredBytes": 0,
+    "rtasPendingDemands": 0,
+    "rtasBuildsThisFrame": 0,
+    "rtasTriangleWorkThisFrame": 0,
+    "rtasInstanceWorkThisFrame": 0,
+    "rtasBudgetStatus": "Not prepared",
+    "materialUploadEngineFrame": 120,
+    "materialUploadBudgetBytes": 16777216,
+    "materialUploadBytesUsed": 0,
+    "screenTextureEstimateBytes": 14745600,
+    "worldMaterialBytes": 16496640,
+    "objectSdfBytes": 8392704,
+    "globalSdfBytes": 664704,
+    "worldCacheBytes": 983040,
+    "hardwareAttributeBytes": 0,
+    "proposalBufferBytes": 1056,
+    "surfaceTriangleMappingCpuBytes": 1240,
+    "gpuTimingStatus": "Disabled",
+    "gpuTimingProvider": "Recorder",
+    "nativeGpuTimingStatus": "Disabled",
+    "gpuTimingRequiresIdentity": true,
+    "nativeGpuPendingSubmissions": 0,
+    "nativeGpuMeasuredSourceFrame": -1,
+    "gpuObservationValid": false,
+    "gpuFeedbackActive": false,
+    "gpuMinimumWorkOverBudget": false,
+    "gpuStableCompletedFrames": 0,
+    "gpuLastObservationConsumedFrame": -1,
+    "effectiveCachePatchBudget": 256,
+    "effectiveSurfaceCaptureBudget": 24,
+    "effectiveGlobalBrickBudget": 16,
+    "gpuAcceptedObservations": 0,
+    "gpuRejectedObservations": 0,
+    "gpuLastObservedMilliseconds": 0.0,
+    "gpuSmoothedMilliseconds": 0.0,
+    "gpuWorkScale": 1.0
+  },
+  "startupBackend": [
+    {
+      "frame": 0,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 1,
+      "hardware": false,
+      "exactSoftware": false,
+      "fallbacks": 0,
+      "materialStatus": "Matching source upload/readback is pending; no duplicate large allocation."
+    },
+    {
+      "frame": 2,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 3,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 4,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 5,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 6,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 7,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 8,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 9,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 10,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 11,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 12,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 13,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 14,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 15,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 16,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 17,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 18,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 19,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 20,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 21,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 22,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 23,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 24,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 25,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 26,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 27,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 28,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 29,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 30,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 31,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 32,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 33,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 34,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 35,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 36,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 37,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 38,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 39,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 40,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 41,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 42,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 43,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 44,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 45,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 46,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 47,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 48,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 49,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 50,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 51,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 52,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 53,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 54,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 55,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 56,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 57,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 58,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 59,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 60,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 61,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 62,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 63,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 64,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 65,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 66,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 67,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 68,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 69,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 70,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 71,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 72,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 73,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 74,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 75,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 76,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 77,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 78,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 79,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 80,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 81,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 82,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 83,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 84,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 85,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 86,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 87,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 88,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 89,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 90,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 91,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 92,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 93,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 94,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 95,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 96,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 97,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 98,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 99,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 100,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 101,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 102,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    },
+    {
+      "frame": 103,
+      "hardware": false,
+      "exactSoftware": true,
+      "fallbacks": 0,
+      "materialStatus": "Uploads and both consumers bound; GPU completion unproven"
+    }
+  ],
+  "stableUnrepresentedInstanceGauge": {
+    "minimum": 0,
+    "maximum": 0,
+    "meaning": "Recomputed published instances outside backend, not cumulative fallback events"
+  },
+  "functionalDuplicateRows": 1,
+  "inlineRayTracingSupported": true,
+  "giSize": [
+    320,
+    180
+  ],
+  "measurementCounts": {
+    "valid": 46335,
+    "unknown": 0,
+    "absent": 11265
+  },
+  "measuredBlackCount": 8236,
+  "maximumHistorySamples": 1.0,
+  "failure": "",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Harness\\analyze-player-smoke.py\", line 97, in run\n    assert report['maximumHistorySamples']>1\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+}
