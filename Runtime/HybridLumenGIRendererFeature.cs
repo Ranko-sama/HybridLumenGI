@@ -147,6 +147,8 @@ namespace HybridLumenGI
             [Range(1,4)] public int maxCameras=2;
             [Tooltip("Opt-in feedback from valid GPU timings. Set a positive target; unavailable timings retain static update budgets.")]
             public bool adaptiveGpuBudget;
+            [Tooltip("Observe GPU cost and retain bounded native completion records without enabling budget feedback. A positive target is not required. Default off.")]
+            public bool measureGpuCost;
             [Tooltip("Prefer the optional Windows x64 native DX12 timestamp plugin when installed and ready; otherwise use the Recorder fallback.")]
             public bool preferNativeGpuTiming=true;
             [Min(0),Tooltip("Target milliseconds for the three GI render passes per camera, excluding preparation uploads outside the passes. Zero disables feedback; choose a target from measurements on the target device.")]
@@ -307,8 +309,10 @@ namespace HybridLumenGI
                     gpuWidth=width;gpuHeight=height;gpuBackend=lastHardware;gpuIdentity=receiverIdentityEnabled;
                 }
                 lastBudgetFrame=engineFrame;
-                bool enabled=settings.adaptiveGpuBudget && settings.targetGpuMilliseconds>0 &&
+                bool feedbackEnabled=settings.adaptiveGpuBudget && settings.targetGpuMilliseconds>0 &&
                     !float.IsNaN(settings.targetGpuMilliseconds) && !float.IsInfinity(settings.targetGpuMilliseconds);
+                bool enabled=settings.measureGpuCost || feedbackEnabled;
+                nativeGpuTiming.EnableCompletedRecords(settings.measureGpuCost);
                 bool nativeValid=nativeGpuTiming.BeginFrame(engineFrame,gpuGeneration,enabled && settings.preferNativeGpuTiming,out double nativeMs);
                 bool selectNative=enabled && settings.preferNativeGpuTiming && nativeGpuTiming.Available;
                 if(selectNative!=useNativeGpuTiming || (selectNative && selectedNativeEpoch!=nativeGpuTiming.DeviceEpoch))
@@ -324,7 +328,7 @@ namespace HybridLumenGI
                 double milliseconds=selectNative?nativeMs:recorderMs;
                 gpuObservationValid=selectNative?nativeValid:recorderValid;
                 if(gpuObservationValid) { gpuLastObservedMilliseconds=milliseconds;gpuLastObservationFrame=engineFrame; }
-                var config=new HybridLumenGIGpuBudgetController.Configuration(enabled,settings.targetGpuMilliseconds,
+                var config=new HybridLumenGIGpuBudgetController.Configuration(feedbackEnabled,settings.targetGpuMilliseconds,
                     settings.minimumGpuWorkFraction,Mathf.Clamp(settings.cachePatchesPerFrame,1,4096),
                     Mathf.Clamp(settings.surfaceCapturesPerFrame,1,96),settings.globalSdfEnabled?Mathf.Clamp(settings.globalSdfBricksPerFrame,1,128):0);
                 effectiveBudget=gpuBudget.Step(engineFrame,(ulong)gpuGeneration,gpuObservationValid,milliseconds,config,

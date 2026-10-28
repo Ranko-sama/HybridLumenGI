@@ -4,6 +4,8 @@
 
 ## 启用与测量范围
 
+`measureGpuCost` 是默认关闭的独立观测开关。计时可在 `targetGpuMilliseconds=0` 时运行；只有原 `adaptiveGpuBudget` 加有效正数目标才启用反馈。只观测时 Scale 为 1，三项更新配额保持配置上限。关闭反馈的控制器仍沿用既有拒绝观测计数，该计数不表示原生样本无效。严格源帧统计使用原生桥的完整验证记录及独立失败计数，不能重复采集 `LastMilliseconds` 或用 Recorder 猜测源帧。参见 [原生完成记录契约](NativeGpuTiming.md)。
+
 独立静态准入已接入当前渲染路径：
 
 | 设置 | 默认值与行为 |

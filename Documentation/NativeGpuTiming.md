@@ -8,7 +8,9 @@
 
 朋友在测试工程中将 `HybridLumenGIGpuTiming.dll` 放到 `Assets/Plugins/x86_64`，在 Plugin Inspector 中只启用 Windows Editor/x86_64 和 Windows x86_64 Player，关闭 Any Platform。不要同时安装多个同名 DLL。Unity 原生插件替换后应按 Editor 提示重启，不使用手动 FreeLibrary 热卸载。
 
-Renderer Feature 的 `adaptiveGpuBudget` 默认关闭，`targetGpuMilliseconds` 默认零。关闭时不探测或加载计时 DLL。启用并设置正数设备目标后，`preferNativeGpuTiming=true` 优先选取安装且就绪的原生后端；DLL 缺失、ABI 不匹配或不支持时回退 Recorder。两者都无有效数据则使用静态预算。原生 ring 暂满仅表示该帧缺测，不触发后端来回切换。
+Renderer Feature 的 `adaptiveGpuBudget` 和 `measureGpuCost` 默认关闭，`targetGpuMilliseconds` 默认零。两种用途都关闭时不探测或加载计时 DLL，也不分配完成记录导出缓冲。反馈启用仍要求 adaptive 开关和有效正数目标；`measureGpuCost=true` 可在目标为零、反馈关闭时单独观测，保持原静态配额。`preferNativeGpuTiming=true` 优先选取安装且就绪的原生后端；DLL 缺失、ABI 不匹配或不支持时回退 Recorder。两者都无有效数据则使用静态预算。原生 ring 暂满仅表示该帧缺测，不触发后端来回切换。
+
+只测量开关同时开启每 owner 最多 32 条只读完成记录。`TryDequeueCompleted` 不增加原生轮询；记录通过既有完整校验后保留原提交身份、源帧、读取帧、频率和六个 ticks。反馈仍只取最新结果，迟到但有效的完成项仍可导出。`CompletedResults = ExportedResults + UnexportedResults + BufferedCompletedRecords`（计数未饱和时）；缓冲满丢弃新导出项，停用/失效/销毁清除未读项，均计入 Unexported。InvalidCompleted 单独记录无效结果，Cancelled/TimedOut 记录取消及超时（超时也是取消）。RejectedResults 包含仅被反馈拒绝的旧结果，不能直接当成坏时间戳数量。导出失败不改变 GI 命令或配额。
 
 诊断中的 `gpuTimingProvider` 为 `NativeDX12` 或 `Recorder`；同时检查 `nativeGpuTimingStatus`、`nativeGpuPendingSubmissions`、`nativeGpuMeasuredSourceFrame` 和有效观测标志。Native 的 source frame 来自完整匹配的提交结果；Recorder 的预期 frame 仍只是延迟启发式。后端或原生设备代次切换会清空控制器历史，旧配额测量不能驱动新配额再次调整。
 

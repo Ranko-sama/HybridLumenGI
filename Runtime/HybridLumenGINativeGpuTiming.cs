@@ -37,6 +37,20 @@ namespace HybridLumenGI
             { Callback=callback;EventId=eventId;Data=new IntPtr((long)token); }
         }
 
+        /// <summary>A validated completed GPU submission, independent of newest-only feedback.</summary>
+        public readonly struct CompletedSample
+        {
+            public readonly ulong Token,Owner,DeviceEpoch,Frequency,Begin0,End0,Begin1,End1,Begin2,End2;
+            public readonly int Generation,SourceFrame,ReadFrame;
+            public readonly long Epoch;
+            internal CompletedSample(Result value,int readFrame,long epoch)
+            {
+                Token=value.token;Owner=value.owner;DeviceEpoch=value.deviceEpoch;Frequency=value.frequency;
+                Generation=(int)value.generation;SourceFrame=(int)value.engineFrame;ReadFrame=readFrame;Epoch=epoch;
+                Begin0=value.begin0;End0=value.end0;Begin1=value.begin1;End1=value.end1;Begin2=value.begin2;End2=value.end2;
+            }
+        }
+
         [StructLayout(LayoutKind.Sequential, Pack=8)]
         internal struct ApiInfo
         {
@@ -98,6 +112,8 @@ namespace HybridLumenGI
         private int lastFrame,generation,lastAcceptedSourceFrame=-1;
         private ulong lastIssuedId,lastAcceptedId;
         private bool hasFrame,disposed,interopUnavailable;
+        private CompletedSample[] completed;
+        private int completedHead,completedCount;
 
         public bool Available { get; private set; }
         public ulong DeviceEpoch => info.deviceEpoch;
@@ -108,6 +124,46 @@ namespace HybridLumenGI
         public double LastMilliseconds { get; private set; }
         public ulong AcceptedResults { get; private set; }
         public ulong RejectedResults { get; private set; }
+        public ulong CompletedResults { get; private set; }
+        public ulong ExportedResults { get; private set; }
+        public ulong UnexportedResults { get; private set; }
+        public ulong InvalidCompletedResults { get; private set; }
+        public ulong CancelledSubmissions { get; private set; }
+        public ulong TimedOutSubmissions { get; private set; }
+        public int BufferedCompletedRecords=>completedCount;
+        /// <summary>Opt-in bounded result storage; no native calls or new GPU query pool.</summary>
+        public void EnableCompletedRecords(bool enabled)
+        {
+            if(enabled && !disposed)
+            {if(completed==null)completed=new CompletedSample[MaximumPendingSubmissions];}
+            else {DiscardCompleted();completed=null;}
+        }
+        /// <summary>Only dequeues an already validated result; never polls a GPU/fence.</summary>
+        public bool TryDequeueCompleted(out CompletedSample sample)
+        {
+            sample=default;if(completedCount==0)return false;
+            sample=completed[completedHead];completed[completedHead]=default;
+            completedHead=(completedHead+1)%completed.Length;completedCount--;
+            ExportedResults=Increment(ExportedResults);return true;
+        }
+        private static ulong Increment(ulong value)=>value==ulong.MaxValue?value:value+1;
+        private void CaptureCompleted(PendingSubmission submission,Result value,int readFrame)
+        {
+            CompletedResults=Increment(CompletedResults);
+            if(completed==null || completedCount==completed.Length)
+            {UnexportedResults=Increment(UnexportedResults);return;}
+            completed[(completedHead+completedCount)%completed.Length]=new CompletedSample(value,readFrame,submission.Token.Epoch);
+            completedCount++;
+        }
+        private void DiscardCompleted()
+        {
+            while(completedCount>0)
+            {
+                completed[completedHead]=default;completedHead=(completedHead+1)%completed.Length;completedCount--;
+                UnexportedResults=Increment(UnexportedResults);
+            }
+            completedHead=0;
+        }
         public HybridLumenGINativeGpuTiming(int cameraId) : this(new NativeApi()) { }
         internal HybridLumenGINativeGpuTiming(INativeApi nativeApi)
         { api=nativeApi??throw new ArgumentNullException(nameof(nativeApi)); }
@@ -148,7 +204,7 @@ namespace HybridLumenGI
                 if(!submission.Token.IsValid) continue;
                 long age=(long)engineFrame-submission.Token.EngineFrame;
                 if(age<0 || age>MaximumResultAgeFrames)
-                { CancelAt(i);continue; }
+                { TimedOutSubmissions=Increment(TimedOutSubmissions);CancelAt(i);continue; }
                 Result result;
                 int code;
                 try { code=api.Poll(submission.Token.Id,out result,ResultSize); }
@@ -159,8 +215,12 @@ namespace HybridLumenGI
                 // Success and -3 consume their native result. Unknown errors are cancelled.
                 if(code!=1 && code!=-3 && code!=-1) CancelAt(i);
                 else RemoveAt(i);
-                if(code!=1 || !Validate(submission,result,engineFrame,out double value) ||
-                    result.engineFrame<=lastAcceptedSourceFrame || result.token<=lastAcceptedId)
+                if(code!=1 || !Validate(submission,result,engineFrame,out double value))
+                { InvalidCompletedResults=Increment(InvalidCompletedResults);Reject();Status=TimingStatus.InvalidResult;continue; }
+                // A valid older completion is still a physical measurement, even when it
+                // must not rewind the adaptive controller's newest accepted observation.
+                CaptureCompleted(submission,result,engineFrame);
+                if(result.engineFrame<=lastAcceptedSourceFrame || result.token<=lastAcceptedId)
                 { Reject();Status=TimingStatus.InvalidResult;continue; }
                 if(result.engineFrame>newestFrame || (result.engineFrame==newestFrame && result.token>newestId))
                 { accepted=true;newestFrame=(int)result.engineFrame;newestId=result.token;milliseconds=value; }
@@ -284,7 +344,7 @@ namespace HybridLumenGI
         private bool RejectSequence() { ClearPending();Status=TimingStatus.InvalidSequence;return false; }
         private void Reject() { if(RejectedResults<ulong.MaxValue) RejectedResults++; }
         private void RemoveAt(int index) { pending[index]=default;PendingCount--; }
-        private void CancelAt(int index) { TryCancel(pending[index].Token.Id);RemoveAt(index); }
+        private void CancelAt(int index) { CancelledSubmissions=Increment(CancelledSubmissions);TryCancel(pending[index].Token.Id);RemoveAt(index); }
         private void TryCancel(ulong token)
         {
             if(token==0) return;
@@ -294,6 +354,7 @@ namespace HybridLumenGI
         private void ClearPending()
         {
             for(int i=0;i<pending.Length;i++) if(pending[i].Token.IsValid) CancelAt(i);
+            DiscardCompleted();
             CurrentFrameToken=default;epoch++;lastAcceptedSourceFrame=-1;
             LastMilliseconds=0;LastMeasuredSourceFrame=-1;
         }
@@ -305,6 +366,7 @@ namespace HybridLumenGI
         {
             if(disposed) return;
             ClearPending();disposed=true;Available=false;Status=TimingStatus.Disposed;
+            completed=null;
         }
     }
 }

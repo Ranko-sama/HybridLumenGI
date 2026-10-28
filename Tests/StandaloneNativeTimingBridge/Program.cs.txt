@@ -133,6 +133,60 @@ internal static class Program
         }
     }
     private delegate void ActionRef(ref Bridge.Result result);
+    private static void CompletionExport()
+    {
+        var api=new FakeApi();using var b=new Bridge(api);
+        Check(typeof(Bridge).GetField("completed",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(b)==null,
+            "Default has no completion buffer");
+        b.EnableCompletedRecords(true);
+        Check(api.InfoCalls==0 && api.SupportReads==0,"Opt-in storage does not probe native capability");
+        var a=Start(b,0);Record(b,api,a);var c=Start(b,1);Record(b,api,c);
+        api.Codes[Id(a)]=api.Codes[Id(c)]=1;
+        Check(b.BeginFrame(2,1,true,out _) && b.LastMeasuredSourceFrame==1 && b.AcceptedResults==1,"Feedback still chooses latest of batch");
+        Check(b.CompletedResults==2 && b.BufferedCompletedRecords==2,"Both validated batch completions retained");
+        int polls=api.Polled.Count;
+        bool haveA=b.TryDequeueCompleted(out var sa),haveC=b.TryDequeueCompleted(out var sc);
+        Check(haveA && haveC && !b.TryDequeueCompleted(out _),"Export exactly once");
+        Check(api.Polled.Count==polls && sa.Token==Id(a) && sc.Token==Id(c) && sa.SourceFrame==0 && sc.SourceFrame==1 &&
+            sa.ReadFrame==2 && sa.Owner==a.Owner && sa.Generation==a.Generation && sa.DeviceEpoch==a.DeviceEpoch && sa.Epoch==a.Epoch &&
+            sa.Frequency==api.Info.frequency && sa.Begin0==100 && sa.End0==1100 && sa.Begin1==1500 && sa.End1==3500 && sa.Begin2==4000 && sa.End2==7000,
+            "Dequeue preserves original submission identity/ticks without polling");
+        Record(b,api,b.CurrentFrameToken);var late=b.CurrentFrameToken;
+        var newer=Start(b,3);Record(b,api,newer);api.Codes[Id(newer)]=1;
+        b.BeginFrame(4,1,true,out _);Record(b,api,b.CurrentFrameToken);b.TryDequeueCompleted(out _);
+        api.Codes[Id(late)]=1;
+        Check(!b.BeginFrame(5,1,true,out _) && b.TryDequeueCompleted(out var sl) && sl.Token==Id(late) && sl.ReadFrame==5 &&
+            b.RejectedResults==1 && b.InvalidCompletedResults==0,"Late valid completion exported without rewinding feedback or marking invalid");
+        Record(b,api,b.CurrentFrameToken);
+        var bad=b.CurrentFrameToken;var badValue=api.Issued[Id(bad)];badValue.owner++;api.Issued[Id(bad)]=badValue;api.Codes[Id(bad)]=1;
+        b.BeginFrame(6,1,true,out _);
+        Check(!b.TryDequeueCompleted(out _) && b.InvalidCompletedResults==1 && b.CompletedResults==4 && b.ExportedResults==4,"Wrong owner never exported");
+
+        foreach(string boundary in new[]{"generation","device","disable","invalidate","dispose","export-off"})
+        {
+            var f=new FakeApi();using var q=new Bridge(f);q.EnableCompletedRecords(true);
+            var t=Start(q,0);Record(q,f,t);f.Codes[Id(t)]=1;var next=Start(q,1);Record(q,f,next);
+            if(boundary=="generation")q.BeginFrame(2,2,true,out _);
+            else if(boundary=="device"){f.Info.deviceEpoch++;q.BeginFrame(2,1,true,out _);}
+            else if(boundary=="disable")q.BeginFrame(2,1,false,out _);
+            else if(boundary=="invalidate")q.Invalidate();
+            else if(boundary=="dispose")q.Dispose();
+            else q.EnableCompletedRecords(false);
+            Check(!q.TryDequeueCompleted(out _) && q.CompletedResults==1 && q.ExportedResults==0 && q.UnexportedResults==1,
+                "Discarded unexported item accounted at "+boundary);
+            if(boundary!="export-off")Check(q.CancelledSubmissions==1,"Pending cancellation counted at "+boundary);
+        }
+        var fullApi=new FakeApi();using var full=new Bridge(fullApi);full.EnableCompletedRecords(true);
+        for(int frame=0;frame<=35;frame++)
+        {
+            var t=Start(full,frame);Record(full,fullApi,t);fullApi.Codes[Id(t)]=1;
+            Check(full.Available && full.CurrentFrameToken.IsValid,"Export buffer cannot stop rendering acquisition");
+        }
+        Check(full.CompletedResults==35 && full.BufferedCompletedRecords==32 && full.UnexportedResults==3 && full.AcceptedResults==35,
+            "Overflow retains oldest entries and counts dropped new records; feedback unaffected");
+        for(int frame=0;frame<32;frame++)Check(full.TryDequeueCompleted(out var s) && s.SourceFrame==frame,"FIFO retains exact bounded source set");
+        Check(!full.TryDequeueCompleted(out _) && full.CompletedResults==full.ExportedResults+full.UnexportedResults,"Completion accounting closes");
+    }
     private static void InvalidationAndSequence()
     {
         var api=new FakeApi();using var b=new Bridge(api);var token=Start(b,0);Record(b,api,token);
@@ -193,6 +247,7 @@ internal static class Program
         api.Codes[Id(timed)]=1;int polls=api.Polled.Count;
         Check(!timeout.BeginFrame(33,1,true,out _)&&api.Cancelled.Contains(Id(timed))&&api.Polled.Count==polls&&timeout.Available,
             "A completed but expired result is cancelled before poll and never consumed");
+        Check(timeout.TimedOutSubmissions==1 && timeout.CancelledSubmissions==1 && timeout.CompletedResults==0,"Timeout and cancellation counted without fabricating a result");
     }
     private static void FailuresAndIsolation()
     {
@@ -244,7 +299,7 @@ internal static class Program
     {
         try
         {
-            AbiAndPlatform();IdentityLatestAndNoReplay();MalformedResults();InvalidationAndSequence();BoundedPendingAndRetirement();FailuresAndIsolation();
+            AbiAndPlatform();IdentityLatestAndNoReplay();MalformedResults();CompletionExport();InvalidationAndSequence();BoundedPendingAndRetirement();FailuresAndIsolation();
             Console.WriteLine("Actual-source native timing bridge: "+checks+" assertions passed. Fake C ABI only; no DLL call, Unity render graph, DX12 query, fence or GPU execution.");return 0;
         }
         catch(Exception error) { Console.Error.WriteLine(error);return 1; }
