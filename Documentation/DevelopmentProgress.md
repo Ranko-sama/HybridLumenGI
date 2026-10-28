@@ -52,3 +52,7 @@ iteration24：唯一Unity构建成功并恢复部署；唯一DXR运行在logical
 iteration25：02唯一新构建与DXR Player完成256帧，真实159准入、160普通MPB事件、92完整GPU数据、4组HDR/PNG、native0、退出计账归零。映射与三CPU角色来源/上传核对通过；目标key30→39、reusable变0，已知当前测量历史count32→1，随后恢复累积至32。172帧Green-wall选定像素的一条原始winning proxy路径以正权重消费了变更后的目标槽0材质；其余零权重评估不计消费。槽1屏幕历史保持未覆盖，完整生产验收仍false；Runtime未改，旧01失败不回填。泛用mixed-motion probe标签保留原样，不冒充原混合事件序列完成。正在交Astra与实际Pro25复审并选择下一项实质开发。详见ReviewBrief-MaterialMpbPropagation02.md。
 
 实际Pro25已批准该有限证据提交并结束材质包；172帧首个被记录的正贡献不能解释为12帧传播时延。下一包deformation-snapshot-propagation-01验证现有可读网格的一次正常更新，分开记录源编辑、CPU完整快照发布和实际GPU消费者；保留预算、一次构建/一次256帧运行，不自动追加。PublishedFrame为捕获帧，不能当成实际发布时点。完整原计划与未覆盖验收继续。
+
+iteration26：唯一构建和DXR Player完成256帧、70完整数据、4组HDR/PNG、160普通RequestCapture形变、native0及退出归零。可见网格GeometryGeneration7→39，材质代次8不变，160目标历史重建；新mesh/SDF/charts在logical161/engine162完整发布，原PublishedFrame161为捕获引擎帧。实际绑定instance/12个三角形读回匹配新快照，proxy/surface/backend几何revision22→23；历史随后恢复。选定原始射线没有命中目标，实际新RTAS命中及被改变三角命中保持未覆盖，不补射线或重跑。Runtime未改，完整生产验收仍false。详见ReviewBrief-DeformationSnapshotPropagation01.md。
+
+实际Pro26已批准有限证据提交，并独立读取执行输出137–142。下一项asset-page-inflight-withdrawal-01使用既有detail组完整页闭包，验证真实LoadAssetAsync尚未完成时通过公共API撤回需求后的操作保留、迟到完成和依赖释放；不绑定renderer或取得消费lease，不重复历史runtime-candidate-16已经执行的正常流式/HLOD/双相机矩阵。限一次构建/一次可见Player、256个实际pump tick，不足覆盖不自动重跑。原计划其余关卡继续。

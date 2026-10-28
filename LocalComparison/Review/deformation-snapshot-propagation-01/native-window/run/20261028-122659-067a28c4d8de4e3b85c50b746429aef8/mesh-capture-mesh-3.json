@@ -1,0 +1,41 @@
+{
+    "label": "capture-mesh-3",
+    "file": "mesh-capture-mesh-3.bin",
+    "sha256": "98f98e59cf69d5c3553f0c3ea53ca8240c9ad50222a753640cf25d3d48740dba",
+    "mesh": -392,
+    "bytes": 1364,
+    "vertices": 24,
+    "normals": 24,
+    "tangents": 24,
+    "uv": 24,
+    "submeshes": 6,
+    "indices": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+    ],
+    "topologies": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "bounds": {
+        "m_Center": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "m_Extent": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+        }
+    },
+    "format": "little endian: int vertex count then float3 positions; same count-prefixed normals(float3), tangents(float4), UV(float2); int submesh count; each int topology, int index count, int32 indices"
+}

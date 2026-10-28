@@ -1,0 +1,153 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 26
+REVIEW_DECISION: RETAIN — APPROVE_LOCAL_EVIDENCE_COMMIT
+PACKAGE_STATUS: 来源／发布／绑定数据／历史响应通过有限复核；新几何射线命中仍未覆盖
+NEXT_PACKAGE: asset-page-inflight-withdrawal-01
+
+一、提交决定
+
+允许提交本轮辅助代码、执行来源和有限事件证据。没有发现要求修改产品Runtime的反例，也不再增加射线、视角或运行来补齐本次命中覆盖。
+
+已确认 HybridLumenGI / workspace:/ / main@e8e8123，Runtime相对HEAD无差异。我已先列出再读取第26轮执行输出137–142，检查合同、分析实现、执行版hook、原始生命周期记录、保存的历史样本及原生日志。本层没有执行测试、重算二进制或重新哈希；核对的是实际校验实现、对应执行结果与原始收据。
+
+构建记录支持110份产品源码、17项临时接线、284份产物；唯一Player完成256帧、70份payload、四组图像和一次160帧事件，退出码0。三次managed预检成功，但仍有原有warning，不能写成“无警告构建”。〔执行输出137–142；本包 contract.md、native-window/analysis.json:1–79〕
+
+二、独立复核：可以关闭哪些问题
+1. 可见源编辑与GI快照发布没有混成一个时点
+阶段	本次记录	有效结论
+可见源编辑及请求	logical160／engine161，同一个可读mesh完成顶点修改并请求捕获	事件真实发生，不是仅增加版本号
+新快照捕获	mesh−422，request/job generation均为3	worker处理的是本次复制后的来源
+CPU发布	logical161／engine162，mesh、SDF、capture mesh和charts关联新快照	完整CPU表示切换成立
+新绑定数据	从logical161起，实例4、几何revision23，12个三角形位置匹配新快照	当前命令流绑定的数据已经更新
+
+分析器逐数组比较事件前后、捕获和发布结果，验证预定的上半部顶点位移及未变的索引、UV和切线；没有根据最终截图倒推来源。原始生命周期sequence 4–8也保留了请求、捕获、发布、旧快照退休及销毁顺序。〔analyze-deformation-event.py:55–81；本次 geometry-lifecycle.jsonl:4–8〕
+
+PublishedFrame=161仍是捕获引擎帧；实际发布引擎帧是162。 本次相隔一帧不是一般异步延迟保证，采集等待也不能成为性能证据。
+
+SDF字节、chart及capture-mesh关联支持的是来源一致性，不是重新完成了SDF距离或chart数学准确性验收。
+
+2. GPU数据覆盖与射线命中覆盖被正确分开
+
+实际读回位于原transport命令流中，读取已绑定backend的instance、surface、binding和transform buffer。分析器将其中全部12个三角形的三个float3位置与对应旧／新快照逐项比较，而不只是检查revision数值。〔DeformationEventGpu.cs:95–139；analyze-deformation-event.py:117–137〕
+
+这足以支持 newGeometryBufferCoverage=true，但不能替代RTAS内部几何命中证据。当前：
+
+纯文本
+actualNewGeometryHitCoverage = false
+actualDisplacedTriangleHitCoverage = false
+
+应原样保留。准确说法是“已保存的选定原始路径没有目标命中证明”，不是“全部产品查询都没有命中目标”。Astra还检查了记录中的其他hit代码，同样没有补出目标命中；未记录的查询仍不在这个否定范围内。〔本包 astra-results-review.md:31–39〕
+
+不为此再开几何射线实验。
+
+3. 旧来源历史拒绝发生在可见几何变化时，不是等到GI发布后
+
+160帧保存样本为：当前key39、上一帧key8、实际对象行不可复用，已知raw等于新history，count为1。161帧对象行恢复可复用，但count仍为1；162帧为2，后续才恢复至32。〔native-window/analysis.json:11698–11774及后续样本〕
+
+因此，本轮不能写成“160帧之后历史连续增长”，也不能将161帧有效黑色解释为缺失测量或新故障。接收器GeometryGeneration39、proxy几何revision23、backend GeometryVersion3是不同版本域，只能通过来源关联，不能数值互比。
+
+4. 退休结论限于已观察到的清理与计账
+
+旧快照一次销毁回执使逻辑预留107,520→53,760字节；关闭时新快照一次销毁使其归零。原生日志最终通用、材质、arena及形变计账也归零。〔geometry-lifecycle.jsonl:7–10；player.log:300〕
+
+这些记录证明清理调用执行及计账返回，不精确测定Unity何时物理释放每个对象，也不是新的逐票据最后读者证明。完成前禁止销毁仍依赖现有退休实现；本包没有重新开展fence归因实验。UTP汇总与历史scratch范围继续保留。
+
+提交说明建议使用“正常可读网格更新的有限发布、绑定数据与历史响应验证”，不要使用“动态几何／DXR形变全面通过”。
+
+三、下一优先：真实资源页请求在完成前撤回
+
+下一包不再扩大材质或形变事件，转到独立资源页的在途撤回。
+
+我也核对了历史记录：runtime-candidate-16已经做过六个真实LZ4页的加载、HLOD切换、第二相机持有和离场退休。因此，重新执行一遍正常加载／卸载或720帧流式序列，价值有限。〔Documentation/LocalRuntimeFunctionalAudit.md:21–29〕
+
+尚有明确且不同的问题值得验证：
+
+真实 LoadAssetAsync 尚未完成时，需求被撤回，当前实现是否仍持有原生操作及预留，接受迟到完成，并按依赖顺序释放，而不遗失handle或提前归零？
+
+这直接对应第三项目标及第八工作流。当前scheduler已有该合同，离线适配器覆盖过；下一包验证真实Unity操作，不建立新流式架构。〔HybridLumenGIAssetPageStreaming.cs:197–215、260–285〕
+
+四、执行包：asset-page-inflight-withdrawal-01
+A. 只使用一组既有资源页和一个请求者
+
+复用现有流式场景／manifest中的一个detail表示组及其完整依赖闭包。冻结当前实际manifest、bundle文件、CRC、大小、哈希、目标平台和产品来源；这是本次输入，不追认历史运行字节。
+
+优先复用已有六页资产，不调用场景生成器、不重烘焙、不重新设计exporter。输入缺失、平台不符或无法形成闭合依赖清单时，停止准备并报告，不自动换资产。
+
+本包通过现有公共入口：
+
+纯文本
+streamer.SetRequests(requester, groupIds)
+streamer.RemoveRequests(requester)
+
+发出一次需求及一次撤回。只保留这一个测试请求者；旧StreamingAuditProbe、第二相机和距离／HLOD动作全部关闭。
+
+不调用 TryAcquire，不把这组资源绑定到renderer。 本包针对“尚未成为消费资源的在途请求”，不声称验证正常representation发布、GPU读者退休或HLOD切换。这样可以把问题限定在真实IO、依赖、预留和迟到完成，不再次牵入画质与几何路径。
+
+B. 撤回必须针对真正未完成的原生操作
+
+触发条件固定为：该组中的首个实际 LoadingAsset 操作，其底层 AssetBundleRequest.isDone在撤回前仍为false。
+
+仅看到scheduler的 Phase.LoadingAsset不够——原生请求可能已经完成，只是尚未被下一次Poll消费。应在普通主线程更新中，紧邻 RemoveRequests记录对应request身份、page generation及实际未完成状态。
+
+若所有可观察请求都已完成，记 pendingWithdrawalCovered=false，不增加文件、故意阻塞worker、延迟回调、换成假provider或重新启动以制造在途窗口。
+
+也不要对所有 IOperation.IsDone泛化地“多读几次”：当前Release的该getter会推进失效／卸载操作。观察器应记录产品原本读取的结果；额外的即时检查仅限明确的原生加载请求完成状态。〔HybridLumenGIAssetPageStreamer.cs:108–166〕
+
+C. 记录现有状态，不替产品完成操作
+
+文件级接线保持很小：
+
+位置	必要工作
+现有流式测试入口	增加单请求者、单次在途撤回模式；不复制原720帧动作序列
+HybridLumenGIAssetPageStreamer临时只读hook	原生加载／释放handle的开始、既有完成结果、错误与实际释放调用
+HybridLumenGIAssetPageStreaming临时只读hook	page generation、状态、依赖、预算预留，以及Poll前后变化
+一个离线分析入口	将请求、迟到完成、释放和计账变化按同一page／operation身份关联
+
+不得由观察器调用额外 State.Step()、直接修改 Wanted、替换operation、强制 Unload(true)、GC、伪造完成或清空预留。原生不可取消请求继续由原有pump处理。〔HybridLumenGIAssetPageStreamer.cs:46–75；HybridLumenGIAssetPageStreaming.cs:201–285〕
+
+不保留loaded asset的强引用作为测试“保险”；只存数值身份和必要字段，避免观察器改变被测资源寿命。
+
+D. 预算与时间边界预先固定
+
+根据闭包的manifest成本，运行前确定能容纳这一完整组的bundle／resident额度，以及能容纳每个单页的IO／upload限额。并发和每步启动数限制为1，便于明确归因；这是该实验的输入，不是性能优化。
+
+原有GPU材质、RTAS或图像质量预算不改。页成本仍是声明的逻辑资源／文件成本，不能称作VRAM硬上限。
+
+一次新构建、一个可见Player，主线程驱动上限256个实际pump tick。
+
+其中最多64个tick寻找预声明的未完成加载操作；撤回后最多128个tick等待正常处理与释放，再要求连续8个tick无残留状态。所有阶段合计仍受256上限约束。记录实际pump tick与引擎帧，不以截图帧数或墙钟时间替代。
+
+没有额外导出试跑、软件／DXR对照、截图矩阵或第二次Player额度。该包不产生GPU耗时结论。
+
+五、接受条件与修复边界
+
+本次只有在真实在途撤回被覆盖后，才检查以下链条：
+
+完整组需求被接受 → 原生asset request开始且未完成 → 普通API撤回需求 → 原操作仍被持有 → 实际迟到完成 → 无消费lease的资源进入释放 → 父依赖关系正确收尾 → 释放完成后才归还对应预留。
+
+需要特别保留两项语义：
+
+撤回需求不等于可以立即把 Wanted或所有计账清零。 当前operation和已加载父页会继续固定其依赖，这是设计的一部分。取消后短暂保留某些dependency，甚至完成必要的依赖工作，不自动构成泄漏。〔HybridLumenGIAssetPageStreaming.cs:211–216〕
+
+页归零不等于全进程原生内存归零。 成功应核对本组所有页最终Unloaded、无未完成operation／lease／失败状态，IO、bundle和resident预留与实际完成顺序一致；再单独检查完整退出日志。不把这个没有GPU消费lease的实验称为GPU退休验收。
+
+建议结果分列：
+
+纯文本
+inputClosureVerified
+pendingWithdrawalCovered
+nativeOperationRetained
+lateCompletionHandled
+dependencyReleaseOrdered
+pageReservationsReturned
+nativeExitAccepted
+fullProductionAccepted = false
+
+若真实操作在撤回前已经完成，只保留“未覆盖”，不算通过或产品缺陷。若出现handle遗失、提前归还预留、依赖提前释放、失败状态被清除等确定反例，保存最早时序，再提出对应一处Runtime修复；本包不预授权修复后的第二次原生回放。
+
+六、继续执行
+
+现在提交 deformation-snapshot-propagation-01 的有限证据，随后执行 asset-page-inflight-withdrawal-01。 提交时一并纳入Astra结果补充，保持事前gate与事后复核的时间关系。
+
+新几何实际射线命中、位移三角形命中及完整动态画质继续未覆盖；不为补表扩大本事件。四项目标、十条工作流全部保留。下一包推进真实异步资源生命周期，不恢复暗区、Monte Carlo、计时拆分，也不重复已经具备历史证据的正常流式矩阵。

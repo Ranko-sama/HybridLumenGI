@@ -1,0 +1,3813 @@
+{
+    "scene": "Assets/RuntimeAudit/Functional.unity",
+    "unity": "6000.0.85f1",
+    "output": "I:/Unity test/Comparison/Builds/DeformationEvent26/HybridLumenGITest.exe",
+    "result": "Succeeded",
+    "executableSha256": "52ab8e26136e47d051ac74a2cf57031f4909f25a08cb62b82e5dbbd34a86e092",
+    "inputScope": "Existing readable project dependencies, Runtime and harness sources plus project settings/package lock; not a physical radiometry source archive",
+    "dependencyRoots": [
+        "Resources/unity_builtin_extra",
+        "Assets/Comparison/Pipeline.asset",
+        "Assets/Settings/UniversalRenderPipelineGlobalSettings.asset",
+        "Assets/Settings/Mobile_RPAsset.asset",
+        "Assets/RuntimeAudit/Functional.unity"
+    ],
+    "dependenciesWithoutProjectFile": [
+        "Resources/unity_builtin_extra"
+    ],
+    "totalBytes": 142774364,
+    "errors": 0,
+    "warnings": 23,
+    "inputs": [
+        {
+            "path": "Assets/Comparison/Pipeline.asset",
+            "sha256": "f0d39cb596559d916bc255067e943c690625446ec79d9839505f6a9097162d2a",
+            "bytes": 4403
+        },
+        {
+            "path": "Assets/Comparison/Pipeline.asset.meta",
+            "sha256": "a0515e3f329f89bb744fe0b053d3b1ecb04d21b8a7c57596ee1f5a0933167932",
+            "bytes": 189
+        },
+        {
+            "path": "Assets/Comparison/Renderer.asset",
+            "sha256": "39fb7c74a1b34a1aa35a71f7bbe07fefe06183bd379fe922108d85353cd4495a",
+            "bytes": 4188
+        },
+        {
+            "path": "Assets/Comparison/Renderer.asset.meta",
+            "sha256": "9f61ab9616b6f3106942f2ddabf2844147eb39019ccf5f1a024484965f51f578",
+            "bytes": 189
+        },
+        {
+            "path": "Assets/ComparisonHarness/CacheInspection.cs",
+            "sha256": "938219372faf1a34d0e31e2d709157a3f19553c453dd4cb705b5b443ba56cb55",
+            "bytes": 1693
+        },
+        {
+            "path": "Assets/ComparisonHarness/CacheInspection.cs.meta",
+            "sha256": "06e9806acc8b12b6649edd706d4bae0a66ad777cbffce7b058db0da36806c7e0",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/ComparisonCapture.cs",
+            "sha256": "fb674e446197bfc535b3b418601e39e23d6f22aca1519a7663d1b360260de37f",
+            "bytes": 19074
+        },
+        {
+            "path": "Assets/ComparisonHarness/ComparisonCapture.cs.meta",
+            "sha256": "2a75221f54d71cd44c087e21a5be2e8c582d7ba77e83f4de11526a1d6cfd1e32",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/DeformationEventMode.cs",
+            "sha256": "a06ea38a386e135c577e26dc2467e1d7e0a1ce431b616638dd342ee710ee95c0",
+            "bytes": 5530
+        },
+        {
+            "path": "Assets/ComparisonHarness/DeformationEventMode.cs.meta",
+            "sha256": "d45e799383c29f2d563e0aec71b0c7f2a2de2f0560a1454e2ff6b7bc15f88d72",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/DenoiseSceneTap.cs",
+            "sha256": "d899ec21fb55f7ac507d3418efd24b40c01893c61c75d95891535d87e92918d7",
+            "bytes": 3757
+        },
+        {
+            "path": "Assets/ComparisonHarness/DenoiseSceneTap.cs.meta",
+            "sha256": "7e56f80cef6594c070b4fc0b65975ae7b2f8ec987091fafd4969bee94ceaba5a",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/EarlyExitRetirementTrace.cs",
+            "sha256": "cf1eaa00c72da0ebb53477137ff374c2d0123eeb5e13730e517bbec9530b1e0c",
+            "bytes": 5236
+        },
+        {
+            "path": "Assets/ComparisonHarness/EarlyExitRetirementTrace.cs.meta",
+            "sha256": "44caa25dee47bf8789231c1645a33f1677fe15771a02217c9a72e4bada9c244e",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor.meta",
+            "sha256": "7773cc364ac43b4318dfe9edc395e1dd10a8152cd5d8c422c3266ab1292cbdd1",
+            "bytes": 172
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/CacheEnergyDecayEditor.cs",
+            "sha256": "f18502e95321e226b93af1d83a1afce1e9c73ea18d37b0ad3e34182914692102",
+            "bytes": 10498
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/CacheEnergyDecayEditor.cs.meta",
+            "sha256": "5dc11376df2af75bdfeb83d145db960f915ea5f39521063ccbd20686a5914960",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/CacheFailedResultEditor.cs",
+            "sha256": "439428c0a895f4e8c6cc0c08b48885bc2bac905bd34ef7beb9a824daf05bfb9e",
+            "bytes": 7438
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/CacheFailedResultEditor.cs.meta",
+            "sha256": "36ac78e1a3ec5f54ed1418d9a36fc85d08bc16e977121a6a3defee4219a0e3fd",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs",
+            "sha256": "a1fd643a61e3d57f47eca568c2f1cc2645c185f67374907eb61c683858d689e7",
+            "bytes": 8751
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs.meta",
+            "sha256": "6238c1d3a0cd88af5009e93bb327b14153e0f6228a992e67a0b1b2582a163376",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/ComparisonSceneBuilder.cs",
+            "sha256": "c79957dfd90c3a9e9a0cb3aaa77d0887ab4a40c7febcdd92ccf2cf7e806937ad",
+            "bytes": 11904
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/ComparisonSceneBuilder.cs.meta",
+            "sha256": "31f128be705fc96a029c259d94b8b6dae335b2fbc553b3314a96fd15f47a48a7",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/CurrentPlayerBuild.cs",
+            "sha256": "bb008193bd621a1afc6a2a9087676e322463a386cc30ed7a62ceadc01ed9de73",
+            "bytes": 5289
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/CurrentPlayerBuild.cs.meta",
+            "sha256": "113a87c43c9e3ea2b828c49cff384bf2bb805b9e004a814d2daa44d32fefb9a9",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/DenoiseFixture.compute",
+            "sha256": "27587a2b384fe5a93e177d5f617231a9f9aa5f6a44712bba28d5e9b9905eae9b",
+            "bytes": 371
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/DenoiseFixture.compute.meta",
+            "sha256": "abcd26e35e5c9ce44ad67258fcdf5785816ebbca6ac6136876a2f31f7eae03e1",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/DenoiseRegressionEditor.cs",
+            "sha256": "7749e6b95d880da42e02336d0208979db876b08d1851464b3e97f4def67d039f",
+            "bytes": 31921
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/DenoiseRegressionEditor.cs.meta",
+            "sha256": "960984fa3d92853eb7b0a08de9c6e46eba0050c334bec535a750a7f0950d7cba",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/GatherCacheEditor.cs",
+            "sha256": "0f15277aaae5c9ba6888150b27985cb5cc87a6e4d5cbd8c3de11804b9df3b4b4",
+            "bytes": 2873
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/GatherCacheEditor.cs.meta",
+            "sha256": "19ad8602cf7c16c1e4201aa2134d15d2e1663dac6e2dbaf7ca69b16ff89316fc",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/ResourceLifecycleEntry.cs",
+            "sha256": "7cebf4f88eb7c68f7f0e10c280f706974372c2d5139ce9ad08db3bf88ebbbb54",
+            "bytes": 228
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/ResourceLifecycleEntry.cs.meta",
+            "sha256": "60da3ca9d2849f2c1c1a9b87274105bf67f902a494d6e5d3ecfafa5f9dde24dd",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/ResourceProgressEntry.cs",
+            "sha256": "39977fbaebd99e593da4f84922e5b0832adb971a6dcea0de2935f8179e4ea250",
+            "bytes": 915
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/ResourceProgressEntry.cs.meta",
+            "sha256": "980adde6d7d6afaf6de18ccabc2074e996e0b19e4b2d20bc2098b8c85489be34",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/RuntimeAuditEditor.cs",
+            "sha256": "12129f849c7829be7da8d89c534c9c0c79a78ec9db08a3b1c55eec3e253b5ef3",
+            "bytes": 9739
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/RuntimeAuditEditor.cs.meta",
+            "sha256": "366b9ab2092d4d767e01db05d4061e5b5e1c49902d4ed06e06fc399dac51c31a",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs",
+            "sha256": "ad8361860365c5746fe648074a07396afa235d1c0feb5b79bf58f36b8c10d4ca",
+            "bytes": 4408
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs.meta",
+            "sha256": "0d9d2cff1089750a1a6f46d1e781b93b393adc1306c6ba06cd655d291f657ec7",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/StreamingAuditEditor.cs",
+            "sha256": "c1cded735e28a6fb69ede2326da76eea76249b13a464687b16ea5d124456104f",
+            "bytes": 2211
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/StreamingAuditEditor.cs.meta",
+            "sha256": "449e6b66a62d3437aa46e771acc8bcd97447f239bed68207eb7911485ee6079e",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/ThinWallEditor.cs",
+            "sha256": "707cfeea1f22492669ea281895426f26d1c31a62374dd131546d6b6979af0808",
+            "bytes": 5568
+        },
+        {
+            "path": "Assets/ComparisonHarness/Editor/ThinWallEditor.cs.meta",
+            "sha256": "863d87ac0e50de1249742b631b2b960f94606800255c8f163387d709561aa3d9",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/GatherCacheTap.cs",
+            "sha256": "164e11a408e5c0df1334474133fbdd02ab31a2d2399bc98a5bcc58b61770d0cd",
+            "bytes": 9066
+        },
+        {
+            "path": "Assets/ComparisonHarness/GatherCacheTap.cs.meta",
+            "sha256": "528f88610f47a705c9133f20bf7ad5bac761ed8afd898c4037264314ccaa3d24",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/LightoffPatchMap.cs",
+            "sha256": "1804f4658caef8aeadefc760a32551eb4b2ce4c6c50c72aae5904be52435b5c1",
+            "bytes": 1747
+        },
+        {
+            "path": "Assets/ComparisonHarness/LightoffPatchMap.cs.meta",
+            "sha256": "86c8e537ccb8d59c6ac1004b23e29abe7ded4a05f685184cf6b0d2e4c2498011",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/ResourceLifecycleProbe.cs",
+            "sha256": "269134106acff05a1975b16117178880a039448fa72fd221fa908c95bb4fdffa",
+            "bytes": 6164
+        },
+        {
+            "path": "Assets/ComparisonHarness/ResourceLifecycleProbe.cs.meta",
+            "sha256": "4e74a1a3b3a489db29641b0d7450a480f8cdc114fb921b233523ec23fd98d44e",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/ResourceShutdownTrace.cs",
+            "sha256": "fe2c5ec651f9fb3f08565aca5dd799bef9cbdf1ea6aa2e4c3ef78477c02fd63c",
+            "bytes": 8472
+        },
+        {
+            "path": "Assets/ComparisonHarness/ResourceShutdownTrace.cs.meta",
+            "sha256": "277da32c7aa23f50fda477b6ecb2ad98855ff04b438c3f9791d484df9ce59cad",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources.meta",
+            "sha256": "cf61888e0c070ebadee064b834ee273fee7eac351c4a25065ec5d2bcfcb3c0c5",
+            "bytes": 172
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheEnergyActualFunctions.hlsl",
+            "sha256": "500f1023a1eca6f061f92aa244defac86e62239ddbc1cb1a2dcc362417daa2f7",
+            "bytes": 20221
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheEnergyActualFunctions.hlsl.meta",
+            "sha256": "694957de2d48909f706188e0132db2f6113891a3e71fafa1f54307326396d525",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheEnergyDecay.compute",
+            "sha256": "519378c9f378aba7f2de960ddeeaca84a7e9bce9a4a67628210ac5a4ae465843",
+            "bytes": 4847
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheEnergyDecay.compute.meta",
+            "sha256": "477dac10e636352a69be321d5d4f8ed67088b74fde49f6a534354d8ec8d443f1",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheEnergySampling.hlsl",
+            "sha256": "471c88293238e8a503913b48b02ddd922cf316c227e5db7e067bd76ef3448fcd",
+            "bytes": 1218
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheEnergySampling.hlsl.meta",
+            "sha256": "ff907a2943b7db8068d1de832fa1d9f0edd309b1f77e1c187956ffb0e2afd6d0",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheEnergyStructs.hlsl",
+            "sha256": "2b5a5803baf0a0b1f9d4a89155c764172ba1e32d05ea524f706d5a6766db3562",
+            "bytes": 1024
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheEnergyStructs.hlsl.meta",
+            "sha256": "2d5f4676a177105899579b44e0fd34169aefed66088e0e74b3272cf15c7b5363",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheFailedActualFunctions.hlsl",
+            "sha256": "b8756bc10b5ca1b7227662f6c9ca0ca822e8670fca69926a8901586860085041",
+            "bytes": 10109
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheFailedActualFunctions.hlsl.meta",
+            "sha256": "0316cfc5f5166ac914a8b2d660e613a0ec37356996ab88a5a99ca6742470ee2b",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheFailedResult.compute",
+            "sha256": "27be28f746ab1dd9d6138a7a6a67bcdeb61647d2c659da58a6cb2189e5983fef",
+            "bytes": 5082
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheFailedResult.compute.meta",
+            "sha256": "5a65c24a7914ef0ceca543261b537003a110521c07d3f0744f8b31f47df9553c",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheFailedStructs.hlsl",
+            "sha256": "ca267f1c18e8a769fd6404169f0ff1740ce6cd5b07a0c22ad9b19694b38afac8",
+            "bytes": 692
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/CacheFailedStructs.hlsl.meta",
+            "sha256": "6c0627db86dccb9eade3348bd876af7f6d3f99ecae13e5b7ca2f5ae9c22cdae8",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/MaterialEventIdentity.hlsl",
+            "sha256": "29f6523c6ac3ab0e6aafbdd491a5c3ea1562feaf780b47b4fde0a0829cd7bab9",
+            "bytes": 887
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/MaterialEventIdentity.hlsl.meta",
+            "sha256": "fee7d921085c4d3c7b8683c1b259f0ec5f64b39ef0560833686a727cf6f6ce30",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/MaterialEventReadback.compute",
+            "sha256": "d3c06ac19012d68e6acfd628d93267a57b42ddfc5b9608e87e1579bf840c9a42",
+            "bytes": 2463
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/MaterialEventReadback.compute.meta",
+            "sha256": "3dfd03dd40ef2bbe30a20a623c4eeccf7159265978133d223f1069a47e2d4519",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/RuntimeAuditReadback.compute",
+            "sha256": "6b8b1c097c5083b5ae5eb1591465d4e877fe67f770803e01bc34088ca93fe112",
+            "bytes": 332
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/RuntimeAuditReadback.compute.meta",
+            "sha256": "513bee96fa840a7f8e80cdc6ee36dfab89ec648f51443b2ab3f52cee37e19936",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/ThinWallDepthCopy.compute",
+            "sha256": "11f29f906bec3ce775ce67e23d6325b9e2e02fd9d1225ec6049e60156191215a",
+            "bytes": 395
+        },
+        {
+            "path": "Assets/ComparisonHarness/Resources/ThinWallDepthCopy.compute.meta",
+            "sha256": "592b4abbcb8fd437c847d40b8f3c1ebb2604dd28518947427595059f802b0853",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/ComparisonHarness/RetirementProgressTrace.cs",
+            "sha256": "5d8938464a36a09afb3db4a14c16ae0f9224ff08c0e82ca1d01e1aed401db9d2",
+            "bytes": 3487
+        },
+        {
+            "path": "Assets/ComparisonHarness/RetirementProgressTrace.cs.meta",
+            "sha256": "fb4037b8eeaca6179dcc9a891bea91a3a9a23b5840161ee4cf5f25386e60a527",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/RuntimeAuditEntry.cs",
+            "sha256": "943070dd5d3722a55845c13525ecc4e4eec3c26e707c66da8cba70a7a7b5e640",
+            "bytes": 2516
+        },
+        {
+            "path": "Assets/ComparisonHarness/RuntimeAuditEntry.cs.meta",
+            "sha256": "8cc232fcd6c1aacb60178a25c8dfacd762766a38fd52af1dd7c59815ba30f2b3",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/RuntimeAuditProbe.cs",
+            "sha256": "eb8f32d41d5893076041e18322f4c151826a0d601e42daecd6b1f18179c54fc2",
+            "bytes": 9073
+        },
+        {
+            "path": "Assets/ComparisonHarness/RuntimeAuditProbe.cs.meta",
+            "sha256": "182599825c79aa6d69a87280bf931f43503d4e36cb246035403e2ed632a63096",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/SceneLightoffTap.cs",
+            "sha256": "5b8f0d71f405e174b832863e01beb89b88268afe00210c137f8419984cb38749",
+            "bytes": 25346
+        },
+        {
+            "path": "Assets/ComparisonHarness/SceneLightoffTap.cs.meta",
+            "sha256": "6ce8dce62d496c527a9c8187e8585b18c3fda04cf1df3cbced0056aa0fef88f4",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/StreamingAuditProbe.cs",
+            "sha256": "3fe41c9101fd4f4f2b89935e88e6da44b1606089f627fb7bf66838592528efcb",
+            "bytes": 4228
+        },
+        {
+            "path": "Assets/ComparisonHarness/StreamingAuditProbe.cs.meta",
+            "sha256": "9fd8ae132acd10dadb6463be0cfcf05a21908181e8b435c5f0f1f59aa65a9082",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonHarness/ThinWallTap.cs",
+            "sha256": "05f76159a653e1006b6790b491d20fcf478076397b091755db105260568b09ec",
+            "bytes": 15702
+        },
+        {
+            "path": "Assets/ComparisonHarness/ThinWallTap.cs.meta",
+            "sha256": "0503f362ac57ce38e3eeb44d37a75e79b56fda6366982893769fe4a16d91e71f",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/ComparisonScene/Run/Black.mat",
+            "sha256": "347e2d668618941fba8f2e1eaf4767338e45885ae8861d9c0ad3839ee17c5384",
+            "bytes": 3685
+        },
+        {
+            "path": "Assets/ComparisonScene/Run/Black.mat.meta",
+            "sha256": "c5800abd174b8993495bd3e0b1048739fc935c4d7b727d2084406c5d38b84316",
+            "bytes": 188
+        },
+        {
+            "path": "Assets/ComparisonScene/Run/Metal.mat",
+            "sha256": "a7de7dd25da9e2646d68d4b9b4893154ed1680d0b7ccbb93649576aa1264b8b7",
+            "bytes": 3703
+        },
+        {
+            "path": "Assets/ComparisonScene/Run/Metal.mat.meta",
+            "sha256": "7c80c1cb84e59f1cdf9dcd7107c5e872872b604c6f9f5d2e168b61908e990a7f",
+            "bytes": 188
+        },
+        {
+            "path": "Assets/ComparisonScene/Run/Red.mat",
+            "sha256": "1cb8cb4a3eedeff356b7909be1dc3724707e2508b5844de367f087c170e400f4",
+            "bytes": 3701
+        },
+        {
+            "path": "Assets/ComparisonScene/Run/Red.mat.meta",
+            "sha256": "ed53f637502bb29239b9b9ce988684f51ae14f5e747859cdf66768f66924243a",
+            "bytes": 188
+        },
+        {
+            "path": "Assets/ComparisonScene/Run/White.mat",
+            "sha256": "85c491132a29c8e84b7cd02f75d0b41d7d684bcf848442c08d7d060066f1b3c2",
+            "bytes": 3703
+        },
+        {
+            "path": "Assets/ComparisonScene/Run/White.mat.meta",
+            "sha256": "2a9634e306c475b1f05f94bea397c68f789dd03feab488d8efe3ede95c6d1455",
+            "bytes": 188
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIAssetPageBuilder.cs",
+            "sha256": "58378e20c81bed75e75e255805ed09cfffd2522f7d733364a7f63502368f62ca",
+            "bytes": 13180
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIAssetPageBuilder.cs.meta",
+            "sha256": "2fab7bf9a67a07500852324dfc5d994fb2554a0b207db9b2302a997c266a0eef",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIColorContractValidation.cs",
+            "sha256": "41124a44766a922b218332b646b93f8a397387b3b831992224d0f283b41eb394",
+            "bytes": 8885
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIColorContractValidation.cs.meta",
+            "sha256": "c2b8f533fa5aec0f2685d283831e9b32b6990ed5d803c776bd5bbd42ab09d03a",
+            "bytes": 240
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIDiagnostics.cs",
+            "sha256": "8e82a424e0b0cbbcacca42ac01602e97f18318cf0c667a5e8ea3237aeb311c8b",
+            "bytes": 682
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIDiagnostics.cs.meta",
+            "sha256": "fb03039fbcefea199a053f1d2c96b6ee10779c8de0bae2882ce3b286314d6abf",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIMeshSdfBaker.cs",
+            "sha256": "b94829f00b76cd9befc9ab8fdbbc1d26e9d37e2f1788c11abcc10054338967ed",
+            "bytes": 5050
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIMeshSdfBaker.cs.meta",
+            "sha256": "6f2cb0be4241c517067dd093d173b4c4ebc170c5932ffb645088b426ffc0a9ad",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIMeshSdfValidation.cs",
+            "sha256": "c08c400893b847f6aa17ee8738672a3baaaee09af1d7da4eb07769115fed17dd",
+            "bytes": 3038
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIMeshSdfValidation.cs.meta",
+            "sha256": "fa7587c76b1fde94851e6f2d57e0eeb3805393270789d9dea82cbe66c5439e0a",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGISetupWindow.cs",
+            "sha256": "0e1cfdd481e0a1c51662a80cb81c53bebef1883d586f86ed78f1f7cecdadd54b",
+            "bytes": 4668
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGISetupWindow.cs.meta",
+            "sha256": "e250de9446df109f0e6fd9a63b200a49b32e803cb9a04092754e010e129fc769",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGISurfaceChartBaker.cs",
+            "sha256": "321bb06e7beeda6ad26e4a58307d7b20ed0a30de6244a85a0b6e75fc6178365f",
+            "bytes": 5590
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGISurfaceChartBaker.cs.meta",
+            "sha256": "0c0a21986b7f76e6f58d761a57a3ad3e62e2854b717808d42a4e37f57456cd48",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIValidationScene.cs",
+            "sha256": "b7bbea7f61e8f9374f6dd14589d65cd404d2d9577622491bea39361ad55575fd",
+            "bytes": 12235
+        },
+        {
+            "path": "Assets/HybridLumenGI/Editor/HybridLumenGIValidationScene.cs.meta",
+            "sha256": "4e7d9b059a3f26dfbeea91ed7e68058e7df584c31137a817503ec6c1f291d3de",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/DeformationEventGpu.cs",
+            "sha256": "d68b54e27188c110b9edf3b2c9372018471de54983fa477625663763f4fb3fbe",
+            "bytes": 19071
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/DeformationEventGpu.cs.meta",
+            "sha256": "9c68eeb891590805cfd22717b8a095af5a6f498ed6574146416d53aa307c5add",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/DeformationEventLifecycle.cs",
+            "sha256": "1907e2a875f8ed1e49034078d34b2eb6288b4ae04f77dec4a29c4bf92f000dec",
+            "bytes": 10651
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/DeformationEventLifecycle.cs.meta",
+            "sha256": "ecdb85d2e361c7f82b114291684a10c41e529b42f01c5152a87c3a435f2023c0",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/DeformationEventTap.cs",
+            "sha256": "6bdb879093ea8b66d854f9cf768708acf706579c95c8e6f68890c540a47a2b16",
+            "bytes": 15522
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/DeformationEventTap.cs.meta",
+            "sha256": "fcd4b15aa1f095c39e18c5497567fd7f18032707b3ef2f1016f6967f17913cb4",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIAreaEmission.cs",
+            "sha256": "90a14aaea059cf6743e622b22dff80e0e57c782fdf087d3ce3c83ee504a63764",
+            "bytes": 8382
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIAreaEmission.cs.meta",
+            "sha256": "afbc05e87cca19225492a5a164a947698c85253a39a97ce1e7a1dc91106b6bdd",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageManifest.cs",
+            "sha256": "59010848c42d60e3fd67c1d5db1ac467ce480f458b5d11e1347ccc7ba44bcc35",
+            "bytes": 1026
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageManifest.cs.meta",
+            "sha256": "6884b184108f47f97d4f712047dff4ca9ca8eee65fbeadc0f20f48dec4c228ba",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageRetirementPump.cs",
+            "sha256": "f67cc8feabbcbe2c92e8a2913cf3f548b2e59dcfd71295be4ff9a8a2deb6890c",
+            "bytes": 849
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageRetirementPump.cs.meta",
+            "sha256": "762d2bdd17c487e14d02c71a263a7bf5190ef50ef2a5d11cbcfe660b6e3fed58",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageStreamer.cs",
+            "sha256": "c42e20ebed49e2f8ae641e86f20aa190472d10da8e8b85cc33bab2c364428973",
+            "bytes": 11774
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageStreamer.cs.meta",
+            "sha256": "30b776991189ce0727e2cc6e22dd894c5a64f8f5227f9b84aa5f60e37f549b2d",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageStreaming.cs",
+            "sha256": "41a73c4ca77953bdcf706a6d5a589a3a714fda1ccf5cd2733059ad7fd4da762a",
+            "bytes": 18333
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageStreaming.cs.meta",
+            "sha256": "bb8b41be9883fa480bec9c2e256ece33bf607b1a6b3568f8cf92eb5bae334ee8",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGICacheScheduler.cs",
+            "sha256": "42d3c7ba461eb759911b63afc0be321ce8b9aeb363aeceb65e53ff7ece292776",
+            "bytes": 12568
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGICacheScheduler.cs.meta",
+            "sha256": "b3e69bf5d92bf2d674aee862129413b67f6ecc6bf4c03976fb2ae6cf327dccd9",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIChangeRegions.cs",
+            "sha256": "b003b71a0e82fdb89a21917c5429a383d640e0540033167fcce50c2b93e2ea18",
+            "bytes": 6104
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIChangeRegions.cs.meta",
+            "sha256": "ff0ad63a9b3651fa1b7f88f85fc7de24caefd354279630e58c2fbeacc4321980",
+            "bytes": 61
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIChunkStreamer.cs",
+            "sha256": "4459beabcf0c7e6ce9baf396185206e5fb646452ad0ea2476ef4278b7c7bf51c",
+            "bytes": 3421
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIChunkStreamer.cs.meta",
+            "sha256": "4c7f1bb2a7a805ddfd0a22088edd168b67eaa53c488ee710dd757106116d73d8",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIChunkStreaming.cs",
+            "sha256": "fac232be82c99c6b90f0260cecaa5648942e4473ea6cf51e1a54ca2bc61d5673",
+            "bytes": 9749
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIChunkStreaming.cs.meta",
+            "sha256": "dfd45903489d9fff58ca841b64a216af372882eba2689adb5fb446e45947643e",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIDeformedMesh.cs",
+            "sha256": "7f1422bc287ebe26207dcb1a638d03041f5530adaf33f668b27fba11aafecfb2",
+            "bytes": 19158
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIDeformedMesh.cs.meta",
+            "sha256": "6b61a7d57278bb376f64360d0ff5a25ec57115f2b9fe50105f02edbc6a558f4e",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIEmissiveSampling.cs",
+            "sha256": "5be9f0a4cd2904b4204f7f550e1831019a3eaf4e18b28957a0291bc420aa6820",
+            "bytes": 5861
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIEmissiveSampling.cs.meta",
+            "sha256": "42255ee631f90651fd735906cb2d7533b128aba59a210f664cc7430e7b5df1ac",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIGlobalSdf.cs",
+            "sha256": "9dd2f78cabf90d2c9edfad464d3042487aaaff50e8933fd948f0b8b5c1952033",
+            "bytes": 23020
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIGlobalSdf.cs.meta",
+            "sha256": "c9b8b109097b2ff216d7499eda039a375afc7d9fe6704bad141a593c4755a9ac",
+            "bytes": 156
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIGpuBudgetController.cs",
+            "sha256": "eedcd0226a7b2e9bb445d3ce2280ff7962f3ea9eb8f65472a173d628899bfd2c",
+            "bytes": 13116
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIGpuBudgetController.cs.meta",
+            "sha256": "ae7ad3ba373078f603dd0a46c19a9116fb4b3bd339873a869d6a23f0eeaf4867",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIGpuFrameTiming.cs",
+            "sha256": "6735e30d7a75ce5a9638ed293f52d1274f2b69dd21235c9b0ef72ee23441aab8",
+            "bytes": 13378
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIGpuFrameTiming.cs.meta",
+            "sha256": "d256a64db086a4233c830e627c68e04bec0de37b76c6175c70737dc8f35a9e4b",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIGpuTiming.cs",
+            "sha256": "c895d10daa0995b68672d1989d7fdabef5c76b6f86abad0c4a098214b3c8c7ed",
+            "bytes": 16252
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIGpuTiming.cs.meta",
+            "sha256": "c6c22386c5225114934d2a9afbca6a2a51bfff17239996be4061504c6a3fecf6",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs",
+            "sha256": "e36aeea78a54f4df3e08f703a9affc0d6da55bb59b7d7576ecbd21ff625013fe",
+            "bytes": 44956
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs.meta",
+            "sha256": "a50c9ddc3e441ac686e97e0b7f0f62d44d4f3b1c78943a1ff4116be905755fbf",
+            "bytes": 61
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHistoryLifecycle.cs",
+            "sha256": "c349e3c00399cd8d4d041f43911f8b24ef1605af109d7a98396ee3684ad4b288",
+            "bytes": 6879
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHistoryLifecycle.cs.meta",
+            "sha256": "76a6722ad40eff157bb55b5bc10daee22a7c60e40a01c804c52ffb959810117c",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialBatch.cs",
+            "sha256": "72ad78cb5378ccbbb5e7dc7a0e55fb9eb025eb2280eed3fbe5f62a9cfed743ea",
+            "bytes": 23246
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialBatch.cs.meta",
+            "sha256": "88f628444f32bda57f7e7660bf50c93279eaed105251c385072549bfff6da32e",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialData.cs",
+            "sha256": "5eb8cff0ce5a8418d3dc81ca3fffe49c0b588cd863c4e844a4c5195736f33689",
+            "bytes": 10238
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialData.cs.meta",
+            "sha256": "b6a66437bf5c8e36c19c911c17811c8eb0ea235f61e4232a4178d1db19dede55",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialLayout.cs",
+            "sha256": "17786c8ca01fb97f539757ab1bf9855c68d5a02e6e2075012f9006fc66a23075",
+            "bytes": 9878
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialLayout.cs.meta",
+            "sha256": "220f9c7e3c828f35c381476b9294f70e9db85984b8a0b011ad00f711686e8bb8",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialPass.cs",
+            "sha256": "4041c2135ce7a7e95b3c4ab79ab00bf55128ff96c49c83c5b6d970be7b8467dc",
+            "bytes": 7441
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHitMaterialPass.cs.meta",
+            "sha256": "640eb69dd3a85e98c58cddabfbcb9553de75faf046e8b8a372ff4fd48adf5db3",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHlodReadback.cs",
+            "sha256": "9eddfb61d8207f2b6a500c75285419182f19cb9d79bfb2e6508e77cbafb80d51",
+            "bytes": 11082
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHlodReadback.cs.meta",
+            "sha256": "f0293b9b544c3c2c86086323cea5a9ac9a8fae2ff6c287c771be1b0a761dbdd8",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHlodReadiness.cs",
+            "sha256": "cacac592064e13a89a8a484ff89c226f2222788f86670727fd5aca14fa77d148",
+            "bytes": 1032
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIHlodReadiness.cs.meta",
+            "sha256": "1613d3e2f6356865bb18b51ce70a6791f2636b777bd0e11cae98e76feb469913",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGILights.cs",
+            "sha256": "bee6f17aaec8b00ab2299c561cab624feed062131b77056d40c14f2134d0ed1e",
+            "bytes": 8098
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGILights.cs.meta",
+            "sha256": "42017bae2cea40a2056e940ff5f7f7d0145467e0349693adfe295f740bbabc7b",
+            "bytes": 254
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGILitQualification.cs",
+            "sha256": "dbf049f4c649fa2effb72af8c91d8a19cd43df9877716fda74f2240caf2de670",
+            "bytes": 1568
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGILitQualification.cs.meta",
+            "sha256": "63bd90bd6bc510bdbd177829324b286652c5d4eb07bf33b8d80eb39dc394cc47",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIMaterialSource.cs",
+            "sha256": "26b45b372a6fcab865e24ffbaabe56ceb1dd1fafe12dc33bffd990c02f9f58d3",
+            "bytes": 22979
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIMaterialSource.cs.meta",
+            "sha256": "e0f679d7667a8da9a401792e37ebea64f1cfbfd51b570a694f4117293fd091e6",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIMeshSdf.cs",
+            "sha256": "00e31015ccc28edd7d85768f17633859540b75bab701489d7f33d8ffc0c4fcdf",
+            "bytes": 6445
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIMeshSdf.cs.meta",
+            "sha256": "3fe53beab77d471f76374ea8b089df7c655ed41c8484b73bbc667dca6962b976",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIMeshSdfBake.cs",
+            "sha256": "13cb9bb95bbfa7475d863955f5378ec6de2916eb6fe1e2a77c46639a6e35c9ac",
+            "bytes": 12529
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIMeshSdfBake.cs.meta",
+            "sha256": "f04b0c191cff17710e3f2cc90c89c76cccf2f588d6181252a8a7d1b167a2a337",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIMeshSource.cs",
+            "sha256": "affdd1711b6fb80755f6927af61ce73e8d4fdf748fc93027f470cd70968ca7b8",
+            "bytes": 2342
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIMeshSource.cs.meta",
+            "sha256": "55a8546d7a2bdcef9177b4fe4a4dc4f0ce145379996b3797d4a418d63659f3b2",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGINativeGpuTiming.cs",
+            "sha256": "428a054345c6ed4c3d28b5535aa4845053d1ce7c40dd5733b34574cd547c6cca",
+            "bytes": 20768
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGINativeGpuTiming.cs.meta",
+            "sha256": "e2d05671cb82d67f550faf9bf24ded45f8d69bc5f5f9c6fd5e34cfe50a70fd3c",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIProxy.cs",
+            "sha256": "81d6bedc2a371cf1ae763d21592742cc80e435d1f9e94d9f7c7c347b60980b04",
+            "bytes": 18157
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIProxy.cs.meta",
+            "sha256": "bf789b5227d3fceb01e5c95e26773e58cc194b46aa12b662e3350cde7462dc5e",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIRayTextureImporter.cs",
+            "sha256": "6d01ece181fb0a9413b58f807bb07963da375b770197d9bcc3df5ebbc15146a6",
+            "bytes": 9234
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIRayTextureImporter.cs.meta",
+            "sha256": "0f8145d9fb0a0f72f59e25adbfe45815bad7346c2a3afcf2374c78403a1f1546",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIRayTextureLayout.cs",
+            "sha256": "920db1699c7b4d2454310b54ce5d517508955c873e8a6ad05d422327ce83d083",
+            "bytes": 6215
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIRayTextureLayout.cs.meta",
+            "sha256": "9c89ce5fc4c7ba41d94a537ba0528e5bfd2708a0fc9118b532c8345cec599097",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIRayTexturePool.cs",
+            "sha256": "0a66e2ecc891a0b00fcfb154f745e69a3930f4c55f867188e99f6d8b7877f51b",
+            "bytes": 32535
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIRayTexturePool.cs.meta",
+            "sha256": "a79d2ea4462d30005148e977fb57169924c84fc2a6b9ec6970d78fbf74d0de1c",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIReceiverDiscovery.cs",
+            "sha256": "7c945dd142cb1590d79cb1a0c58ab11ac96cf25e953efa875ff038afac7848e8",
+            "bytes": 12802
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIReceiverDiscovery.cs.meta",
+            "sha256": "f6e08c513c8955e948d2840be1eda9d3d6a09b86b937068f1c9958bdd422457e",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIReceiverHistory.cs",
+            "sha256": "7992332f09e74b513f8dea44a4468d212806cb4a41ad2a13a9458e65397db5ab",
+            "bytes": 5214
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIReceiverHistory.cs.meta",
+            "sha256": "d528d0d51309b34024c6c7008e40f2521392b45abaa814737777d2d1bafed1ce",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIReceiverIdentityFrame.cs",
+            "sha256": "8d30bf95213890854b08593714e41f39ae7b7148c21d3c83032912d8b7c6ef9f",
+            "bytes": 16765
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIReceiverIdentityFrame.cs.meta",
+            "sha256": "3631e5a82f8a43e86f66cf52574b095dd2db55af768288824ce68a68bb574c5e",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIReceiverIdentityPass.cs",
+            "sha256": "cfd2b3566a1acbe446c483689cc527ee65c41037f2d5fa9fa3c27e53d6fb56f9",
+            "bytes": 26211
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIReceiverIdentityPass.cs.meta",
+            "sha256": "afdd3e9afd4046e85abce56ba4fc72d6cd4c1d0c2aebc8215dce407710789d09",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIReceiverRegistry.cs",
+            "sha256": "7298ee0bf8787c715235b56454381e1cb7fe1bf9cffefa93e39261736b5630d4",
+            "bytes": 16779
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIReceiverRegistry.cs.meta",
+            "sha256": "12c053980bb07a55b195478d170010d081450f4c8fda9e0c65c07be009fa9d9c",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs",
+            "sha256": "5d1f5efe34046075fa51cc64b3295169de108de45a673c8f99843842b190df76",
+            "bytes": 101361
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs.meta",
+            "sha256": "997b285a16d57c2f01bccff678f6af03467e64ab57ab68bd38a17c15ac718f89",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIResourceRetirement.cs",
+            "sha256": "48c0e279da529aaddf58602b7d5caa8ba422d7e538d9dec6d8a1313bd4fb9af9",
+            "bytes": 16526
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIResourceRetirement.cs.meta",
+            "sha256": "43cc03d80fd9df0ef4ffd94124da08fc286ae3cad8b4b9d11e32935e8eb16b73",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIResourceRetirementPump.cs",
+            "sha256": "af95b1a7d5f464b41b1573b09bdbddf31ca90cad3ce47c822d249cf40740fdd3",
+            "bytes": 1662
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIResourceRetirementPump.cs.meta",
+            "sha256": "660f0cf0bae8dbaf03b145845a00d55c968db7e8ee9766cd412f2329f9a1ff61",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIRtasBudget.cs",
+            "sha256": "7e8b58beeb1413939b3a2411e0e1037b93e216c3b3432bf2bf36bdac5c3e50b5",
+            "bytes": 10791
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIRtasBudget.cs.meta",
+            "sha256": "8126d323114e7dc17d898d4ecaa5a56da869c5821fba0a20f3c33de5ac698d40",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIScene.cs",
+            "sha256": "85215e8a6d6cfd0fe97d17a4616625142925760422324a7613e670714c84530e",
+            "bytes": 34620
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIScene.cs.meta",
+            "sha256": "b8c6fa4b2f2c0a55d3e7d5da963fe52239ded3f5f397777d49af8148ab5a9319",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGISceneBvh.cs",
+            "sha256": "0dd488e459bee8033ac7de06d7a399151c5310ac5f5ccd18293e42be079d9ec1",
+            "bytes": 9600
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGISceneBvh.cs.meta",
+            "sha256": "96823d49705f981b40c5a12cf1e964d1a925d5ca905a429649f41993643cb14f",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIScreenBudget.cs",
+            "sha256": "83f4686a169f0463e562c0a3aa441ea79afeb1e5343a38ed1a4ed128299bc3a3",
+            "bytes": 5043
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIScreenBudget.cs.meta",
+            "sha256": "d51c9e688157c3d6a1b494965a13478774b55248d661ea69ba06a970de7d75c7",
+            "bytes": 243
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGISdfAtlas.cs",
+            "sha256": "734524c6a97b0ac2d327119acd62eea338c130f8f67eb5535d224d6f1c107eb5",
+            "bytes": 31053
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGISdfAtlas.cs.meta",
+            "sha256": "d72b7e152902ca731e1896870d5a4656f53d208581648e19aad1b902609b00dc",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGISoftwareTriangleBvh.cs",
+            "sha256": "34ab4c246a39862b30627994f8f6680baf3ac7f9628d4dab7e91ec24c9e2b08e",
+            "bytes": 6154
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGISoftwareTriangleBvh.cs.meta",
+            "sha256": "58838385b711c149e67fb4b1e6b593aa42732a46e0041ff0eba55c8dc27eff0b",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIStreamedRepresentation.cs",
+            "sha256": "0673d367e310e0a21e2c6c417fb040a98a3f5d6ea633a5e82b22afc0f1fe8193",
+            "bytes": 10797
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIStreamedRepresentation.cs.meta",
+            "sha256": "873e2dc2223e371ecd5dc062f3d8dfe8d227ce2c43448d6863dd4e965ace845a",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIStreamingManifest.cs",
+            "sha256": "b94679fc93cc10daa801bca769fdcd2aa946c3c46a56051dab1ab190bab80016",
+            "bytes": 471
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIStreamingManifest.cs.meta",
+            "sha256": "436b04e0674ff401a5f335412b9e8e45bfb2dcbf6e91867e3d316d50b6586b9b",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGISurfaceCache.cs",
+            "sha256": "3069a6ffe01a9042696a67c907fa1f05a74bcbcb54bf67e6b50ec3e2a19fab9f",
+            "bytes": 71052
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGISurfaceCache.cs.meta",
+            "sha256": "00d97314ed01bf14292a36fb7b8c7f028fed6b6d96cbe136da269b1ca2657ee3",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGISurfaceCharts.cs",
+            "sha256": "04c1a2ec9468a3524deb845c06f5480346d25e7d97fa0b699422c6eabcdb2e92",
+            "bytes": 36734
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGISurfaceCharts.cs.meta",
+            "sha256": "f0e372cc5cb48249bdc8034bf374c6cbc7e5002720657d317209d38d76ca8faf",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIValidationMotion.cs",
+            "sha256": "65253d52cf3312d8e75788353cedacde34ec1d67c7054912b67fed4842e48c2f",
+            "bytes": 1056
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIValidationMotion.cs.meta",
+            "sha256": "39f927875898774b5b5ff112f662c12544a775911d7936e964eb311339b07eb5",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIValidationSequence.cs",
+            "sha256": "db6a3bba4a0d9564723aa9d2146ad72fe14de2ec152eb6b080c15fe7b4bac204",
+            "bytes": 25207
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/HybridLumenGIValidationSequence.cs.meta",
+            "sha256": "a76a3aaf04730e838028c91b091de033c86a13ca9493124223e06ec5a528f332",
+            "bytes": 61
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/MaterialEventSelection.cs",
+            "sha256": "5a8824a8ff34a09ebb7ca2a2b1b6019b6306dc941c94a37e1ff134a92c859bb3",
+            "bytes": 2067
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/MaterialEventSelection.cs.meta",
+            "sha256": "8013da58c5e280173c03cc9a02c54061f4bd2172021695d8e444c007635daf3e",
+            "bytes": 59
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~.meta",
+            "sha256": "3ddb3620c2b8cd99c2498282890447e3df1bfbbe5ec1b4d950831cfdecb8d59c",
+            "bytes": 77
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming.meta",
+            "sha256": "d40daf7ca98f37cf928c6be3213e45c06f190c2109dd50bdba0fefaca1181bf8",
+            "bytes": 77
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/CMakeLists.txt",
+            "sha256": "ca07e71fc9100d00d5e9f91cca1b8c848035f1c0b4a1acdf789b8700eeaf991f",
+            "bytes": 1912
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/CMakeLists.txt.meta",
+            "sha256": "fd74513abaf3c76f37dda017dfb5400d52f1328872b596d79f9dd79ec62dc903",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/GpuTimingPlugin.cpp",
+            "sha256": "6820685f00f7e235136319b4bcc315f357b2ec9a55bba5666052b4e94fbf68ff",
+            "bytes": 13225
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/GpuTimingPlugin.cpp.meta",
+            "sha256": "5a1cfb0297ee270ca81695fa51f1ef35bb86d94476b96f7bb39a10f1a970d0e7",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/NativeAbi.h",
+            "sha256": "948c4e8107ff9c3ec2409a51a90e9685ad00d52b7585fa9edadc900e1967b959",
+            "bytes": 947
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/NativeAbi.h.meta",
+            "sha256": "51c76234eb2f030b19a06df8cc8adffe0d06919d3069a1aebb850f1bd7f3297f",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/QueryPool.h",
+            "sha256": "7a835e481fbfa5e03f195639f86b8bead1fd1dcc73718cbd1b09b9db58b4d4df",
+            "bytes": 7235
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/QueryPool.h.meta",
+            "sha256": "ab851f9d84454830e862472d43fd5f7b271a4b2a767a6c2c2b446bd06850079f",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/tests.meta",
+            "sha256": "769622e1e8e18a83519c271b37e9a91c23da5ff63c4fb0b8883775945815f14e",
+            "bytes": 77
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/tests/NativeTimingSmoke.cpp",
+            "sha256": "c4f2808c0293803c4b07ad0ad6aceadc62790993e17e6435cfb1bae6943faad7",
+            "bytes": 31200
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/tests/NativeTimingSmoke.cpp.meta",
+            "sha256": "1983c89905830aac0ef2e89d1bcaec603396b80e8941e7c80466cd0eddccea9a",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/tests/QueryPoolTests.cpp",
+            "sha256": "5688cda317da0562036fbdaf38b05b30b1562e7baa24e8684a8a8c4b13b5b3c3",
+            "bytes": 18463
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Native~/GpuTiming/tests/QueryPoolTests.cpp.meta",
+            "sha256": "225974e5ffc94a8cf65d206c17236c3401bce4ba68d29700292ee617558c8560",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources.meta",
+            "sha256": "757408eaa479e0b0a7b1488785ba9fffa4bf567d45d4ba4680e1b725c7d7b274",
+            "bytes": 172
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI.meta",
+            "sha256": "f7c640ba1b5c3d9c233030be69401181a9748ad16b3763c8a4fa1626eea0876d",
+            "bytes": 172
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/GatherTraceWriter.hlsl",
+            "sha256": "47a3266482dc34ac895453b294a41dc9f91997936a60c8b4835a4c1627dbe063",
+            "bytes": 2440
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/GatherTraceWriter.hlsl.meta",
+            "sha256": "c2bec39b83475c5c10c07a2249d62ce8e51dde1ae98cee2225bb156f93c2fc4d",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGI.compute",
+            "sha256": "b75c71bfa33a46dbfb4430a486c559010d4418b0e5a13441ef731ffd31a65319",
+            "bytes": 231
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGI.compute.meta",
+            "sha256": "1da27488e83d317a1309860205acbf18049fb4d13fafeede752870b55aaa4fc9",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIAreaEmission.hlsl",
+            "sha256": "1afa21078910f749d24393020b7f8204afdd3285233e82683071c5297f5dec0e",
+            "bytes": 7357
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIAreaEmission.hlsl.meta",
+            "sha256": "75e8a31fdd43fc1c79b166dc1f0d36708d7492952b740f35f02b4e1473cca0da",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGICardCapture.shader",
+            "sha256": "20adf46a44a368d09ce9386e5e924ce0d324ffe3d60804d68390921e4fd2106b",
+            "bytes": 11564
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGICardCapture.shader.meta",
+            "sha256": "633f52b0500d3c39249385ac8d600dd865f2cdd506154ac7c51a3f7dd6895b80",
+            "bytes": 201
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl",
+            "sha256": "36dd5c0ea5f29f4ae0a28a2363667c65a215d5fa5543e93b14112b7d96437720",
+            "bytes": 1446
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl.meta",
+            "sha256": "b0c275081c7bd270306842a8bbcc1554c41b3ea80ec08973d3d749422fec2fbb",
+            "bytes": 61
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIColorContractProbe.shader",
+            "sha256": "d6436cfe2eff1df880fcf8bbb7c30ba6fe7deb0571119dee013203440470f391",
+            "bytes": 1737
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIColorContractProbe.shader.meta",
+            "sha256": "a35d1adc5d86d790210d394d25a1837d63d7b398f143ecf16e9699ded423003f",
+            "bytes": 201
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader",
+            "sha256": "0c1ba08daf94289c3936c17e6b141017742ea0bda407290e151e9ade6874fcfc",
+            "bytes": 7206
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIComposite.shader.meta",
+            "sha256": "1fee0c13a024a99e66842ac1cf5205f63209898921f325b3a81a01c0f67133d2",
+            "bytes": 204
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveProposals.compute",
+            "sha256": "43eda35c8872cf8f53ad6df5ba6e4db4b0434855f74337c4c884478898cba0f9",
+            "bytes": 3814
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveProposals.compute.meta",
+            "sha256": "45d3c12871487d473d6d676cd2ac2dbd4951444687bf6b6c331bc92d48742928",
+            "bytes": 105
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveRecords.hlsl",
+            "sha256": "b6083a3522d11da35fb9d73251f3e9c6a339b82d668ee8e7caa5010ac1996a16",
+            "bytes": 392
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveRecords.hlsl.meta",
+            "sha256": "6d05845fec5e101b74bbdc621cb1e76791d57bc1e4b0a09cb0eb375238e43c47",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl",
+            "sha256": "5a06573326a31fb757bd504f4f938c97d8c9d48e1de801e07936d680e2a09724",
+            "bytes": 7853
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl.meta",
+            "sha256": "6ffdfe7aa15f9ec5933ebe336b915c8d3813870476523c5483bdca9fc9cce9df",
+            "bytes": 105
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIExactMesh.hlsl",
+            "sha256": "80f873b8a83002e78adf8bc4215dc58e43ffd6c6472df67594e1fc537b8de678",
+            "bytes": 6048
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIExactMesh.hlsl.meta",
+            "sha256": "8282f32cb1dc013fdf1fd58aa2546fed519f8c91a7069c4379be5c1edbd07f2d",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIExactSoftware.compute",
+            "sha256": "f94ca5b81aa5afa5df35cc66e5d45185461d0a573f5990232d0dc1390a6a9f1f",
+            "bytes": 265
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIExactSoftware.compute.meta",
+            "sha256": "2f0570bc22432e363597f537c37db2a623b3ebb9afbdae93148adf49d789939f",
+            "bytes": 168
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIGlobalSdf.compute",
+            "sha256": "a11f5122b6cb87ff9e431f688c769b4f81b3bee2caa25e3522c2d3797a2056c7",
+            "bytes": 5132
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIGlobalSdf.compute.meta",
+            "sha256": "50e084c79acd0d098473c9e861fc8b73890a04e13282fd17b50c2ac202693b70",
+            "bytes": 165
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIGlobalSdf.hlsl",
+            "sha256": "3bf31a3b3bcb082ca702cd98c0640e6d5db081e8dcc5a8d6f685be06b77042ff",
+            "bytes": 3125
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIGlobalSdf.hlsl.meta",
+            "sha256": "2d1c2af0d5277374c2fee647562ea29457b8dcae08206b9d5ecf3a77dc313bca",
+            "bytes": 165
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardware.compute",
+            "sha256": "abddb2f1e588075858c83a6575fc6f9aa802e05a3abb1869a71422d292677e84",
+            "bytes": 358
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardware.compute.meta",
+            "sha256": "4b12593bbf5576370ccb99c8e323f1fbd2ec767bfa4add8b7b6f63ff786ac3ff",
+            "bytes": 61
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareMaterials.hlsl",
+            "sha256": "b8d132cafaec85d2a00aba500e4dfb0046de3a766c3fe63084c28f18d042bf75",
+            "bytes": 8408
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareMaterials.hlsl.meta",
+            "sha256": "d29cc010fea8dc640c8eeeac9c17969ef021c8b1d27ae89850f0cc225ee5f526",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareNormals.hlsl",
+            "sha256": "419bff04b6f9b44cffda3343ae0ddddb4b0f3ee185b8de309404d7475cd22a4b",
+            "bytes": 2215
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareNormals.hlsl.meta",
+            "sha256": "ee764cdf0254016249f030fe341e7b0afa051f65da736064b258a49f7ded0c41",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareSurface.hlsl",
+            "sha256": "a87c4778d7e14d5d236d5b0e351aa2766c33767440084de0a3aa18a032f19164",
+            "bytes": 7166
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareSurface.hlsl.meta",
+            "sha256": "d1fda9983f2c9ad43e6395861a74733e9b0684a3fd9fcb2de5a32deac257619a",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl",
+            "sha256": "eb42d3eda7a7ddfe22581c5e35bd8bad6f64c4cec19053046df8b7841e629ae8",
+            "bytes": 9312
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl.meta",
+            "sha256": "2388715d40e8723ac539d8f28da5ff35e6a76086fc998d6330a57451d4c4b377",
+            "bytes": 61
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl",
+            "sha256": "c9bc5a9089102de5d70814e077c7e3394013b8542bd14cade7f9c1dffe37b284",
+            "bytes": 2474
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl.meta",
+            "sha256": "41fabb0bc678607c37b3cb8bac00524e49f3546a2f10faecc2e38d99208be6c3",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHitMaterials.hlsl",
+            "sha256": "77ca138dbcc6dd6e9543dbfda38963780cca9658f0498142647863c5a174e0a4",
+            "bytes": 10195
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHitMaterials.hlsl.meta",
+            "sha256": "1ed626301193dfde4e591558facee8bffe9cdce8529c6028f97013ddd9d2366d",
+            "bytes": 162
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl",
+            "sha256": "f6f186243f551e9a594d69abf6f9ead0b08df44fde98c339e5fcb0218bb85d0e",
+            "bytes": 32411
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl.meta",
+            "sha256": "2251d413d187f28444cac1fcc58ffc620a597d71c1f7e47ef419dad22349a04b",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGILightingPolicy.hlsl",
+            "sha256": "581f74482b70c8ae02c5d5bb0cebbbf49886cfc9e76417f6f6677632961844d7",
+            "bytes": 1010
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGILightingPolicy.hlsl.meta",
+            "sha256": "65cca5bc170277206475c953c078918b72d2f1ddb936104767b60a32eefd416c",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGINativeDiffuseCapture.shader",
+            "sha256": "96e53cde485da77c7dc98587ec15e8f6561f479ff0669a9b6e82601b07f4b537",
+            "bytes": 9008
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGINativeDiffuseCapture.shader.meta",
+            "sha256": "bcfe036f31e8014159193a371a56fb8a1a687359f5df2a001f551ec0c4c965fa",
+            "bytes": 210
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl",
+            "sha256": "c86a90bb01da33d26d06d2f34686ac24ed5d0086f7202e79846abb25ca17637e",
+            "bytes": 2700
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl.meta",
+            "sha256": "1be80c51a614ab0c2ed24e8aa4705a60b76b7e2c109356f674787ec6fcfcc5ea",
+            "bytes": 160
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayFootprint.hlsl",
+            "sha256": "6ea7286e57abde318f1e318e17cec6ed1e1c0e8451dd7e3546fb62977741b1ac",
+            "bytes": 9134
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayFootprint.hlsl.meta",
+            "sha256": "24991cf59d807ba939ff73ff11524c217c4075f5edf66961f703893be6151bd5",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextureCopy.compute",
+            "sha256": "c9e91af98bb614d09f493c28344a25c5a3bc1a311084a686b2c62d09611bc6f2",
+            "bytes": 256
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextureCopy.compute.meta",
+            "sha256": "80f5aef7d5a3fa55dea2f2aac9c14f42808fc7e143545244d09dbcd2db854fc5",
+            "bytes": 168
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextureCopy.hlsl",
+            "sha256": "3af3352daa3a053c31ce4d3f5a7669993a3fd9dc5170050165f9a82e7c6c43f6",
+            "bytes": 12977
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextureCopy.hlsl.meta",
+            "sha256": "b19147d18d9443888f698e13dbae4e6f22663a1d9ca61d036742c60a32c289ae",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextures.hlsl",
+            "sha256": "f09e5fa8ec91938707b246b1a67b7024fbf34aef4c3d5e6240fbe9df715bd4fb",
+            "bytes": 7319
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayTextures.hlsl.meta",
+            "sha256": "94fcdb1bc59602dd002e4a847055775aebdeace8b8925a22441ff3feda9bd30c",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.compute",
+            "sha256": "78f60feac6235395a7e986eed84a3bdeda7b8aec503954981e8d47229a46775f",
+            "bytes": 2134
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.compute.meta",
+            "sha256": "efe4023b6f5c00dd144734d75c2af06a0de4c280ae0377f9a072264630cda2d2",
+            "bytes": 158
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl",
+            "sha256": "9ada21bd73db96fb3b0d71031d19522e2b0e344a58df74aeaf956fd9152818fb",
+            "bytes": 445
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl.meta",
+            "sha256": "22191e0db3dc721b9b344096f3132be3377968a8b8c2025ff31750b1f489f915",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+            "sha256": "2f3c467d36fbe63a6f9581a4517a24cba77f19d9b14510c6d5f7dc0dfa35480a",
+            "bytes": 5732
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader.meta",
+            "sha256": "7d50cba75bb141f3736dcee019485649eec2ca18690dbf97169e0627ecf3fce8",
+            "bytes": 201
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverPolicyCapture.hlsl",
+            "sha256": "5772f5cfc8dd7fb3eaaa59f6e7a5c65bf10cd2d0a16fd6671d0a6b7278440845",
+            "bytes": 921
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverPolicyCapture.hlsl.meta",
+            "sha256": "c0a56794b04dacd51ff2edb647499eca9660a9f101d5489318b537b93dc9c0ee",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl",
+            "sha256": "9efec293ca3475a00ba584765fbed9adfd60129eaed3099407f5ddb10498478a",
+            "bytes": 1576
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverTemporal.hlsl.meta",
+            "sha256": "b9a6fffc6d083b3dc1af7abe569e270bfdd6ecf0bac758f372721ae852055edc",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISceneBvh.hlsl",
+            "sha256": "7b39ffaf26f71045a192e614b7b5d9793993c0c4051af6172b564efcdd7b0d51",
+            "bytes": 1513
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISceneBvh.hlsl.meta",
+            "sha256": "172e61d4dd1457ec93e2e839a15548d995c0d236e0550809caa16b2fe1b6f4ec",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIScreenGeometry.hlsl",
+            "sha256": "5ba1dd165e0df7e852e125407b9f26fe1371a545630662838a4174f7fa72b563",
+            "bytes": 2476
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIScreenGeometry.hlsl.meta",
+            "sha256": "50a4fc7960a2631b1cfda119c9b7516adcf5a959992e49a27ff44e36db690d73",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIScreenSampling.hlsl",
+            "sha256": "25607ffeba963c9c7a2e1474f99337c3e4ac4079db5cc6ac54e6d1d3505f52cf",
+            "bytes": 3188
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIScreenSampling.hlsl.meta",
+            "sha256": "a3be95b0442dabe34c5bab1359e5b8a3cef9d71bd0c4f65eb4c518a2beb4ed6d",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISdfTrace.hlsl",
+            "sha256": "dd94feb356d7add0197029f0921b0c61a885d88560fe25fccbd13e0e8ea73e89",
+            "bytes": 7787
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISdfTrace.hlsl.meta",
+            "sha256": "014ec16d9ee3eeee4f6681f109a22d3b13404df36b6575cd04d008e0bd21a891",
+            "bytes": 158
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISoftwareTriangleBvh.hlsl",
+            "sha256": "595c56c351d66c393244ff7b934fe3fe3eb5e05d6a21f6d2e400d9495eaed3f7",
+            "bytes": 13114
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISoftwareTriangleBvh.hlsl.meta",
+            "sha256": "954e2f55030d130b28e23e277daccde72e346a9f7dd50f13183f2c87f4bd14e4",
+            "bytes": 62
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISurface.shader",
+            "sha256": "ed86e063802466811141ef1a16276406471953d0ea8cfb868723b59d3b6c82b1",
+            "bytes": 6181
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISurface.shader.meta",
+            "sha256": "4a231f386c8b2bc4d395f2fb66e0af22f5d5c07a688169b5d07662f5ca993455",
+            "bytes": 201
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceAnchors.compute",
+            "sha256": "dc19a4ae6a31c54aedf46d2c636c78afb09e76099a798a4e195f16b38bdef414",
+            "bytes": 4728
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceAnchors.compute.meta",
+            "sha256": "0291926a23e933fe25796b4a5fbe4acff9c72de6175534d14837d3c196409b36",
+            "bytes": 165
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceCache.hlsl",
+            "sha256": "44ed0a0f51905578766824ec58d40f13e4976069fe12fd938924e8e4d87f1ae2",
+            "bytes": 14229
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceCache.hlsl.meta",
+            "sha256": "acf001459063c96d49754b081bc79e8c23deff2c93d340c679caea9d835a3917",
+            "bytes": 158
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl",
+            "sha256": "b876dccf4bd733d0483cee45c369a4801eab4aee48bee76e366b85f7aed5bb92",
+            "bytes": 33332
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl.meta",
+            "sha256": "6f9d87d7935dc3c8c2db4bc0167f5b72721e5a8d538bd7af17e4e010dc6c6e4d",
+            "bytes": 60
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/LightOffCacheWriter.hlsl",
+            "sha256": "2228c35ec832e1734653ffbaa3384b58a7252d319521286a645b47923cb745d9",
+            "bytes": 2536
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/LightOffCacheWriter.hlsl.meta",
+            "sha256": "7c88ec51431193ce9a5cd2153ec33723c3cbed586616c02d1199337ad4350c56",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/MaterialEventTraceWriter.hlsl",
+            "sha256": "49d8437d889fae5f190f7cde7d00f6c4b0670531daeead8dc6d39ae207581560",
+            "bytes": 2886
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/MaterialEventTraceWriter.hlsl.meta",
+            "sha256": "e6bdbb5d7e3a772065174b301d6a5def7b0e495e234308bc7b13115b6e1d1453",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl",
+            "sha256": "38653bf1a755858445956ebea29bdbcdaa29745ac335602fcfcb962853fd6eec",
+            "bytes": 2725
+        },
+        {
+            "path": "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl.meta",
+            "sha256": "4c194722d517b7de7e4a6146801d895d2ff81c30b325d67e17516211925b9434",
+            "bytes": 161
+        },
+        {
+            "path": "Assets/LocalTest/Mesh-718-Charts.asset",
+            "sha256": "8d77641a5e4b86d416ac2a77d2c2ca5de6e9567284254b0f7cd5ecc949042173",
+            "bytes": 10764
+        },
+        {
+            "path": "Assets/LocalTest/Mesh-718-Charts.asset.meta",
+            "sha256": "3d72852bd0084bf6ffea669c0f998bc1b19b6d7bdd2c24efb00e17817e8ee146",
+            "bytes": 189
+        },
+        {
+            "path": "Assets/LocalTest/Mesh-718-SDF.asset",
+            "sha256": "b04c405b6e47d83e4b849188765595658dad0ff4e3ed99e9653a950ec2486bf8",
+            "bytes": 263697
+        },
+        {
+            "path": "Assets/LocalTest/Mesh-718-SDF.asset.meta",
+            "sha256": "f145bef842d98668bed3237a06b315d985bbf5b71abf0323b125dc441759683a",
+            "bytes": 189
+        },
+        {
+            "path": "Assets/RuntimeAudit/Checker.mat",
+            "sha256": "0811141119f351e70790a747179c69ac2056ff62df79c0a6611d1880f7180d87",
+            "bytes": 3797
+        },
+        {
+            "path": "Assets/RuntimeAudit/Checker.mat.meta",
+            "sha256": "d6e9589dd3709935a6955cda39ef83503f5ce18f125102943f337e99a42545d1",
+            "bytes": 188
+        },
+        {
+            "path": "Assets/RuntimeAudit/Checker.png",
+            "sha256": "680d83bdb30a43db55be9c9d35ffb19a698edd432d049d41df674f7ac8246846",
+            "bytes": 148
+        },
+        {
+            "path": "Assets/RuntimeAudit/Checker.png.meta",
+            "sha256": "1cc7e835b9fb7f7c693be142bb5d34ac943210e31917481f91a40960f5166b0f",
+            "bytes": 2652
+        },
+        {
+            "path": "Assets/RuntimeAudit/Cutout.mat",
+            "sha256": "d6d1306e87502adad7a1485d4388ea21d90b23a20364162134263a179eafdc59",
+            "bytes": 3823
+        },
+        {
+            "path": "Assets/RuntimeAudit/Cutout.mat.meta",
+            "sha256": "380f399de5624bd69d4feea1e957be5ad8ad9989c2ebc044a304a38e5327b759",
+            "bytes": 188
+        },
+        {
+            "path": "Assets/RuntimeAudit/Cutout.png",
+            "sha256": "7900bb640431dab890c18d8ec85338546046da1db43b2639379571ab9b060c0c",
+            "bytes": 148
+        },
+        {
+            "path": "Assets/RuntimeAudit/Cutout.png.meta",
+            "sha256": "fe5c51a6c1ab480f92cca4b91e135690b3490776100c0005272fc9e14bc11b7b",
+            "bytes": 2652
+        },
+        {
+            "path": "Assets/RuntimeAudit/EnabledEmitter.mat",
+            "sha256": "4fd1ab74e04f64e8c691caf36308c34849b3e69ab093805a2d152a43ef26dcf9",
+            "bytes": 3706
+        },
+        {
+            "path": "Assets/RuntimeAudit/EnabledEmitter.mat.meta",
+            "sha256": "491f58cb3d686efa119598fb04a4f7711cc327bb7b7818bdb77f82ecf4391aa8",
+            "bytes": 188
+        },
+        {
+            "path": "Assets/RuntimeAudit/Functional.unity",
+            "sha256": "bfa2fff2cecdd0cc6fd03279abb6470e71ed10059bacc2a064cfb5f892a98a16",
+            "bytes": 108122
+        },
+        {
+            "path": "Assets/RuntimeAudit/Functional.unity.meta",
+            "sha256": "b5ea8398b2377ef415eabee87abe539aeeffded05dce6a12e01734c725a41981",
+            "bytes": 155
+        },
+        {
+            "path": "Assets/RuntimeAudit/Multi-Charts.asset",
+            "sha256": "8162e9bad610411bcfa8ecd043701305b6080d11a505b76797f28a7afd7507c4",
+            "bytes": 10771
+        },
+        {
+            "path": "Assets/RuntimeAudit/Multi-Charts.asset.meta",
+            "sha256": "df2525eec9783f3dd69efa4fc2ae070b9d58c72bfe69623c02e73232b8ea3335",
+            "bytes": 189
+        },
+        {
+            "path": "Assets/RuntimeAudit/Multi-SDF.asset",
+            "sha256": "6aa24250205dfb3d0dd7bfdf24fd40bf5a273fc71bec1f8b3c20577c396c2597",
+            "bytes": 34315
+        },
+        {
+            "path": "Assets/RuntimeAudit/Multi-SDF.asset.meta",
+            "sha256": "bbae3bcfc20a2ab83ee8854510d4ef269478481689d929bdeb097f1ed5660a3a",
+            "bytes": 189
+        },
+        {
+            "path": "Assets/RuntimeAudit/MultiSubmesh.asset",
+            "sha256": "2008e3722264e495a32f053863cb28f42f62cde237df727f604ec91fec4e21c5",
+            "bytes": 6194
+        },
+        {
+            "path": "Assets/RuntimeAudit/MultiSubmesh.asset.meta",
+            "sha256": "584d35d11ab50ae9b27d3caaeb03a344edbdec0f7047b57beb544a8e26fae6b6",
+            "bytes": 188
+        },
+        {
+            "path": "Assets/RuntimeAudit/Normal.png",
+            "sha256": "c7d07586fe262706ba164984a255c1184204b6337dddcb6e0f91a1e2aea8fd94",
+            "bytes": 143
+        },
+        {
+            "path": "Assets/RuntimeAudit/Normal.png.meta",
+            "sha256": "173f92cdf984e6f88dcd1e947c0ef416c0bb77234ab7dbed4932cbc88b4070ac",
+            "bytes": 2652
+        },
+        {
+            "path": "Assets/RuntimeAudit/NormalMapped.mat",
+            "sha256": "9bca02432020bc8b08b083b069173fab58dff7ff4933f3d2547c62843f8d1b39",
+            "bytes": 3779
+        },
+        {
+            "path": "Assets/RuntimeAudit/NormalMapped.mat.meta",
+            "sha256": "261fd5f04ee6527378534abb6922083076dd1958c322ecf44f3e43b65c0b96cb",
+            "bytes": 188
+        },
+        {
+            "path": "Assets/Settings/DefaultVolumeProfile.asset",
+            "sha256": "3a6f825e8d07fe8b9f3b52e7d4e2dfa0e22c555b22335adb19f0ecc66dfa38dd",
+            "bytes": 23987
+        },
+        {
+            "path": "Assets/Settings/DefaultVolumeProfile.asset.meta",
+            "sha256": "efbcb026cee6b8e32fdf27018c06b0515296a6ccbb43969e792fea270310700a",
+            "bytes": 189
+        },
+        {
+            "path": "Assets/Settings/Mobile_RPAsset.asset",
+            "sha256": "077b30c366ee79c2b0906284297c3433c470b59a7bca563801901512d6cabf64",
+            "bytes": 4345
+        },
+        {
+            "path": "Assets/Settings/Mobile_RPAsset.asset.meta",
+            "sha256": "53ea46647712c615fd1a3f2e0dddfa8559eeedc649e9a1dbf93ff913de28544c",
+            "bytes": 189
+        },
+        {
+            "path": "Assets/Settings/Mobile_Renderer.asset",
+            "sha256": "aa93274c9521fa941170becec9e87c5fa36b8587eefd5eeb5c0eed0d1d4b1dbe",
+            "bytes": 1713
+        },
+        {
+            "path": "Assets/Settings/Mobile_Renderer.asset.meta",
+            "sha256": "a148ee2b4987b05b8ff7ae5f9bf84916184f77aefddc821dceb551f5a69f8179",
+            "bytes": 189
+        },
+        {
+            "path": "Assets/Settings/SampleSceneProfile.asset",
+            "sha256": "a8677d4bac051d24caa11cd622e39f968155ee277bfce132274f1de225692fe9",
+            "bytes": 3703
+        },
+        {
+            "path": "Assets/Settings/SampleSceneProfile.asset.meta",
+            "sha256": "2e23abc214069f0adbf2b2207f1db54be7876629ec2a3681d0f4aa5b61622ef0",
+            "bytes": 182
+        },
+        {
+            "path": "Assets/Settings/UniversalRenderPipelineGlobalSettings.asset",
+            "sha256": "283c0db8d6b9a5d38b28de74cc069c9f095a762e5d92bc13afef2d66ceb8e9f3",
+            "bytes": 21978
+        },
+        {
+            "path": "Assets/Settings/UniversalRenderPipelineGlobalSettings.asset.meta",
+            "sha256": "f61661d8bc8dbe531daf09f6211ef978c7ba145c9207c8e76524396ae0722d7c",
+            "bytes": 189
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/DynamicGI/DynamicGISkyOcclusion.urtshader",
+            "sha256": "ba499556a83d948bacfc838950a250be15da8a29ae8d682b97e16803e0132835",
+            "bytes": 6899
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/DynamicGI/DynamicGISkyOcclusion.urtshader.meta",
+            "sha256": "660ee6556b47b7bd6949d7ae4a5c64d1df3ab6d82721c4074ae3cdb30c10be6d",
+            "bytes": 285
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/ProbeVolumeCellDilation.compute",
+            "sha256": "275aa366faa96d06c790e2e515c61c940049aa99bcff84932ccba8da7c042a6a",
+            "bytes": 6600
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/ProbeVolumeCellDilation.compute.meta",
+            "sha256": "3ae6b6a77a0cad6ba57af14f2d602f7237af4c1e75afe9fc96550ec4d2a3c9d4",
+            "bytes": 187
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/ProbeVolumeSubdivide.compute",
+            "sha256": "ccd3c7f5cfbf72c12a8bde6f6f56190135087dddb5af173ac82d9225b34e84a6",
+            "bytes": 6888
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/ProbeVolumeSubdivide.compute.meta",
+            "sha256": "45de647f558c56d9d3569bd8316ef68367c6d1dda902f760a550586665628920",
+            "bytes": 187
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/RenderingLayerMask/TraceRenderingLayerMask.urtshader",
+            "sha256": "5c31d447eeac8a1896e7eb3cc8ad59a4850d6a2d6825a3b44eec53899fc117c0",
+            "bytes": 2685
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/RenderingLayerMask/TraceRenderingLayerMask.urtshader.meta",
+            "sha256": "117b0df6e75665af6c28cd84e9b6d08645830233a7fd1cb71aa68d64e792332d",
+            "bytes": 285
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/VirtualOffset/TraceVirtualOffset.urtshader",
+            "sha256": "5e3fbf4ead8ae3234fab0b2e098f9ed85171befbf5301437b79233f1791fcda1",
+            "bytes": 4263
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/VirtualOffset/TraceVirtualOffset.urtshader.meta",
+            "sha256": "3b73958222b5c86fcbd09103b5dddc6f4c2d28013a67ab564b29d9b07d289daa",
+            "bytes": 285
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/VoxelizeScene.shader",
+            "sha256": "211fe2d137a2c23d2cc052240cadc88fc563dfda9dd9b7ff5aa4746431736a99",
+            "bytes": 3664
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/VoxelizeScene.shader.meta",
+            "sha256": "251ed3c04c9226b65d5359875373bc6521a44771a4b39b0d5d8370dec9e91aa6",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeSamplingDebugMesh.fbx",
+            "sha256": "37f208b31602e0351a0050120e916a2b8a7590de698ae97de8f9cf36ed4b565a",
+            "bytes": 21068
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeSamplingDebugMesh.fbx.meta",
+            "sha256": "2d5b88c7db2d0df7b9aa2349d9f50734416cabdfcdb4cbcf9f5cd7a79f872012",
+            "bytes": 2801
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeDebug.shader",
+            "sha256": "c4acc439f6063e8ec13efd285a25c1c020fdaea4f39d80d748c1ef767126b2dc",
+            "bytes": 1250
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeDebug.shader.meta",
+            "sha256": "32c3c918ccff51ea2d1719d94a703ac44174fe04f37c168c03c08faf11cfe041",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeFragmentationDebug.shader",
+            "sha256": "6cafa0f587b5c93e72792b9f24cda517c6a2af3734ea233168708c347b54516f",
+            "bytes": 1199
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeFragmentationDebug.shader.meta",
+            "sha256": "ca0878a5b8c22ecc73b634b67c2235512f62a54507fb8b3713cb39daa512a239",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeNumbersDisplayTex.png",
+            "sha256": "52ecc9375b70c2c6d24933f0960c66e2b476e9557de11be4a176de067882b547",
+            "bytes": 18684
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeNumbersDisplayTex.png.meta",
+            "sha256": "b3598ce2801db7b468df8b10f8a204edb69d05beeb3de2bd52d2c9e7dfdec4e2",
+            "bytes": 2163
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeOffsetDebug.shader",
+            "sha256": "46183d2161d4caba686dcf3abb42b0b3c82dc9a055641a2f85fbdad5bb523d20",
+            "bytes": 1259
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeOffsetDebug.shader.meta",
+            "sha256": "35ccd782167d60cda1d83702b0a1404e3efaf585afd1e6ce54ef59142c6968ee",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeSamplingDebug.shader",
+            "sha256": "72d74a960dad6a9b16325d3d9618fd64ab4ac8875b6d08872ef55997a8f33eb1",
+            "bytes": 1076
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeSamplingDebug.shader.meta",
+            "sha256": "301da9425c1db8650137dd25e4daafd705ae7be0c65a788957d5122836da10c9",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeBlendStates.compute",
+            "sha256": "dd41bd2cf7abc97c8c7c8b3ef0d7268d925ba8177e2c4b567c143c26f5c05bed",
+            "bytes": 2424
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeBlendStates.compute.meta",
+            "sha256": "4aefb28fdeef9dc6bc2dbee47c293df24f6332633d5130b88c3b5e78eea556e5",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadData.compute",
+            "sha256": "663bc417481676958038c9fc05d597c32d276c30104516fe209f6f89f7d71c30",
+            "bytes": 7499
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadData.compute.meta",
+            "sha256": "b23414ab68ad262f920d42118d3b529b0e87f8453c64d088bd86dc07c01f85f7",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadDataL2.compute",
+            "sha256": "c25cc9bbb2aa83e7cb5383677db0f87ca1b6e54b1e666e46ce36fea15fe37889",
+            "bytes": 3109
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadDataL2.compute.meta",
+            "sha256": "fe7762f4eb424e926dc6167e3c9c5d90892897196dd63086737826ceb388f14b",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumesOptions.cs",
+            "sha256": "093e4dc84996b993db66aebbccf18b80281ba6d1c790b4db2fe1c8f010da2c5a",
+            "bytes": 5366
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumesOptions.cs.meta",
+            "sha256": "549daac96091aa4752f1b13c6d69690311e4ec815c278857150ec68be3c81570",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/DebugOccluder.shader",
+            "sha256": "d9de8aaf4ad40daa33af29d6ebebf512b86d32dc30c0d680f40a4c2067c69be4",
+            "bytes": 1727
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/DebugOccluder.shader.meta",
+            "sha256": "f172deeea65330612fb47693a91697b93ce053a98641f9af480bd06f41059333",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/DebugOcclusionTest.shader",
+            "sha256": "1d47f9f42f614e1f1df9bc7384265e24ad8fdc9e8964d5c43988377877ecf529",
+            "bytes": 4200
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/DebugOcclusionTest.shader.meta",
+            "sha256": "58446aadbacf89b9f2002252faff19fac1c1b1689e4996c3ac634a30a3e71cc0",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferCopyKernels.compute",
+            "sha256": "9639aabfe4f5cb4676ba44dca47c4ae670852c51ad449f623ebb640a1769ec05",
+            "bytes": 2171
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferCopyKernels.compute.meta",
+            "sha256": "03bc09491e667c359014765cc2356c7eefe12db385a804533185f33561a690ec",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferUploadKernels.compute",
+            "sha256": "1a5c8d4f9592933f296e3a34b686aca44e683ce59dd68aa54b43cd4c4bcfb5ce",
+            "bytes": 1980
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferUploadKernels.compute.meta",
+            "sha256": "963a56850e667156604fc6eee62c6606fe9959ca794b8c830c9912193de7d0fa",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceOcclusionCullingKernels.compute",
+            "sha256": "a3e57a9256b795deff0de205aad33ed3f8da5159a5adf5404378051891b9be43",
+            "bytes": 9178
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceOcclusionCullingKernels.compute.meta",
+            "sha256": "31fe166a2cffde1a1e094ddccb370345622ed9ef7050338b86123c91d648cfef",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceTransformUpdateKernels.compute",
+            "sha256": "ec40096c3689787e6b55f8106b574bdb16538b355c76c7577b0a436c244d08e2",
+            "bytes": 12079
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceTransformUpdateKernels.compute.meta",
+            "sha256": "71b3b223986b2d234b5c094c5ac1e83d71c7b18feaa5694770d42c04ac3f1129",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceWindDataUpdateKernels.compute",
+            "sha256": "0f65521763f7e5bea4e28b837ccf9ac4b8923bded349fda80bebc3f1f5af5773",
+            "bytes": 1151
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceWindDataUpdateKernels.compute.meta",
+            "sha256": "3e88ee51054b86222c13cae46ee3b4d202fae15b41f206bfdf97f14d7d3634d0",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/OccluderDepthPyramidKernels.compute",
+            "sha256": "0b23845308e2e7d9ef2aa789f41de4617448385dee389ff2cb4d042f642e01e1",
+            "bytes": 6252
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/OccluderDepthPyramidKernels.compute.meta",
+            "sha256": "1158d7b8ae41e4e7041d65577c97a37ae5ee884687a53004def38157d5beb3c7",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/OcclusionCullingDebug.compute",
+            "sha256": "86a034e377b94624c0c35a2bc7569dad05df65f86bc8a9ec215e270b5a896c0e",
+            "bytes": 866
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/OcclusionCullingDebug.compute.meta",
+            "sha256": "5c4073434f3f9dc53dccaa9683874042e9e51cc0ab7e2b69bf5569d7efe1de9a",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/STP/StpPreTaa.compute",
+            "sha256": "abdc66e99bd4f804eee6b6372f353afaecd236f50cb9cdddb85f65d3c9165b42",
+            "bytes": 3309
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/STP/StpPreTaa.compute.meta",
+            "sha256": "9de069dd5f7ace8b85fb08d1a284fd8f7ae44bf3355673bed2d093b615d75a8d",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/STP/StpSetup.compute",
+            "sha256": "79671c21e636900b79a5cb0e3140c6fed340897f56154ee3e64291a6ef5b2b7f",
+            "bytes": 22273
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/STP/StpSetup.compute.meta",
+            "sha256": "adb235c64015f890abd2b811367abda31aa190a8ffef95bf0befab90946b406c",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/STP/StpTaa.compute",
+            "sha256": "881536df5de539c887c6b4b029f186abe46211cc8e5455d6aa67815a640bbcdf",
+            "bytes": 4802
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/STP/StpTaa.compute.meta",
+            "sha256": "dd6c0bde38fed1f98ac81cfb1da781fdc82cf5e446a236944504eef0fa92fa70",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Volume/VolumeProfile.cs",
+            "sha256": "1eecc1244a20ccd0e2c34188c158dd09741678555a31e09488d0886537b6269d",
+            "bytes": 14734
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Runtime/Volume/VolumeProfile.cs.meta",
+            "sha256": "0920fb151c7c4a27ba9c1466e6d4720cb446b086c94a222f867842d0a79b82f1",
+            "bytes": 219
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Shaders/CoreCopy.shader",
+            "sha256": "c322b9834b9f75008a5fc01c197250505d057d53df23a63ddcf37e0813b0e1b4",
+            "bytes": 4543
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.core/Shaders/CoreCopy.shader.meta",
+            "sha256": "690cbfd9128ebd8ee8ac09820edfbf76abc4d05b141354ee5ab3791c2b143f26",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Editor/AssetVersion.cs",
+            "sha256": "96ed27e15286cda1fdada6923e804887b6447a905b38360e0f5561f79cd0344c",
+            "bytes": 148
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Editor/AssetVersion.cs.meta",
+            "sha256": "e7ec88783b56ae3a5adbe60d3ab71fd3b6fe269932af20218d4cc00eb3879868",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/UniversalMetadata.cs",
+            "sha256": "88083201ba4b354bde926decedd11354a32b41a69e49efcd08eabe095cb15a5a",
+            "bytes": 1879
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/UniversalMetadata.cs.meta",
+            "sha256": "665c03a7a47eb649a052b5fce4b70fc20cde2177e6fbd7026f67e9a888a3b5d4",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Editor/Volume/DefaultVolumeProfile.asset",
+            "sha256": "6698bfacfad479acfd9766d00aba81ab52527d3b15c8b133d03ed7a2401499d6",
+            "bytes": 23987
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Editor/Volume/DefaultVolumeProfile.asset.meta",
+            "sha256": "39abc540f33d73a03495f86a4c65978e3af61782ac8597116ae5123538d47c76",
+            "bytes": 189
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/2D/Data/Textures/FalloffLookupTexture.png",
+            "sha256": "12c3b60a50ba5e6e45317fac91dc9b1ed6a37df413c0c624711e8e573ffb925a",
+            "bytes": 28361
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/2D/Data/Textures/FalloffLookupTexture.png.meta",
+            "sha256": "eab76b783f92022a2f3f4be2aebf307c11ceb984215f3c1076734009943925fa",
+            "bytes": 2788
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Data/PostProcessData.asset",
+            "sha256": "5c7db8408e343cdc1d4958bef280e1fdd2af5327eb78d053df28d45c38086fb4",
+            "bytes": 5138
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Data/PostProcessData.asset.meta",
+            "sha256": "083325c2bd769ece74f99ba5f8bd03eec77a679c97eefa947fb689e7c8c89dd0",
+            "bytes": 189
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Data/PostProcessData.cs",
+            "sha256": "a0e9155df238540b6b315b3dbc7df195c7d8c3cec3fdd604ce67e360f651e6d9",
+            "bytes": 13172
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Data/PostProcessData.cs.meta",
+            "sha256": "2b9dc7bdcb0a5086e259220b83ce10f135f0e6a6f62f8385b9ab0efd9278edb2",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Data/UniversalRenderPipelineAsset.cs",
+            "sha256": "d56bda2d0314d63d02f33470e59d9e8d59488fee34283a054baa72cb0688d781",
+            "bytes": 77945
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Data/UniversalRenderPipelineAsset.cs.meta",
+            "sha256": "f023b0f31acc4b3cd7530fc27bdc0fcdd550afe1f93f077e49556bea64a7995a",
+            "bytes": 262
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Decal/DBuffer/DBufferClear.shader",
+            "sha256": "5fb93781fd6a64e8e46de832ab60d30756b35b0f9d4a42a7fa6160cd55dd4522",
+            "bytes": 1334
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Decal/DBuffer/DBufferClear.shader.meta",
+            "sha256": "dbeb72dbef9153162247a6a1e83645338f04f33421e22ec87644dac93c0f6d5a",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Decal.mat",
+            "sha256": "036908a5d81b0c2a1f71e6ca65a77f191f53a562b999ca4f5e676c65e05fb962",
+            "bytes": 3875
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Decal.mat.meta",
+            "sha256": "292422a29b1f96b0d81948e34f95cd457b888ebf2cc9973d0069c70e07c37bdf",
+            "bytes": 188
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Lit.mat",
+            "sha256": "a79f6ee52f6c31fc482abf73b04f915ea3dff0cbfe8ee7351e4f5a57aa94e8f1",
+            "bytes": 4123
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Lit.mat.meta",
+            "sha256": "a96f8b5c6b76d1fefe7b4cd7d75120b07cb97338810776d2161d291eb2886ea8",
+            "bytes": 229
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/ParticlesUnlit.mat",
+            "sha256": "9ad30a782b59f1d14af9323078d5f85c56f6aece4f6b849fccb6563573a0ded1",
+            "bytes": 3876
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/ParticlesUnlit.mat.meta",
+            "sha256": "75368c84a084dca75546314c8c192da14c2ad7ad5e2ba723404bb60bc3828d0d",
+            "bytes": 229
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Lit-Default.mat",
+            "sha256": "d8bb446a4852290139d56b13d09d9e81e23ed56e77171dd1594e4e3d4dddd245",
+            "bytes": 1251
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Lit-Default.mat.meta",
+            "sha256": "d4cb079f1d198d2581e2cea8713c761593c431bbf5cc48af4ea7f34c15fecd18",
+            "bytes": 188
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat",
+            "sha256": "c05e922c34c71f8d159e91b447485555ee01c150a91aa2a9479c06a8e69e5718",
+            "bytes": 1255
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat.meta",
+            "sha256": "9b85f94f58d5b7fdd47a4b10389af532bfbc2397feaf308370e95f45b2b89426",
+            "bytes": 182
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/SpriteMask-Default.mat",
+            "sha256": "8a70f353703d0e7b099f783ade53d76a803120d792b0387141381be60fa6b3cd",
+            "bytes": 1232
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/SpriteMask-Default.mat.meta",
+            "sha256": "a8d553e83cc45029e38d0346205e6c74f5decccc0ec5d53b85f84e84ff1ee1b4",
+            "bytes": 182
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/TerrainLit.mat",
+            "sha256": "694a0752c40848178080a0ff0f580448d55cb528d08c8d1156e97cb1dc8c9e26",
+            "bytes": 4718
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/TerrainLit.mat.meta",
+            "sha256": "cacfb0861cbb08f3cf7e2c07da52ac55a144720e8a9691d9962d74542ff1d560",
+            "bytes": 229
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Bloom.cs",
+            "sha256": "9554daacdbd6ab164e5e833550ca038c40f430f95303859fe21770fb55ef5ecc",
+            "bytes": 5189
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Bloom.cs.meta",
+            "sha256": "e7c39e90eba4c59b1392ce9f52218ec5443740d290457e052de0be053bf02758",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ChannelMixer.cs",
+            "sha256": "832c594cc45285af7bbc9e184afbf2b81aa7c1297f7988e747a6a96dc0d0beb0",
+            "bytes": 3688
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ChannelMixer.cs.meta",
+            "sha256": "f31e60ff8ea960267d415016934321812fed53aad189a570caac093fb90fdaf4",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ChromaticAberration.cs",
+            "sha256": "645b436665abcdc55f520e1d73841ab5dc09cc558501831e4d175cc3a380d48b",
+            "bytes": 990
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ChromaticAberration.cs.meta",
+            "sha256": "7582adc54d2a2060f1667255b1a1acf6077bf99c94bd6da3380233220d77e1e8",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorAdjustments.cs",
+            "sha256": "c74162b190d2393a9428c700243845ed381da3e1ae6d5df1caf9df035b8f872c",
+            "bytes": 2410
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorAdjustments.cs.meta",
+            "sha256": "18018287b0dc0d110f84b3e1c3eb13daa6bbac66fee7cc0b6fdd09efeb248a9d",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorCurves.cs",
+            "sha256": "ea9e81abbdbcf2237717b9fd9e2a34244d03ab7aa371e9ff39b6dd8aa9eb946c",
+            "bytes": 3632
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorCurves.cs.meta",
+            "sha256": "117918a6541c7abb78fab3cc7a7e69f6efe16569b5e41d8dba2611a4bcb23d0b",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorLookup.cs",
+            "sha256": "55f6e5b2e08e360a534a932ad08a839bc52505cebfcfd0f773858db5ee4b8939",
+            "bytes": 2391
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorLookup.cs.meta",
+            "sha256": "011dc1bc398f0a84e9c23747e9b2bd5f475bfdff3fbb32323426eff5494c4699",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/DepthOfField.cs",
+            "sha256": "87c6e104fd6f718207bff7de539a2bbffb8669c47ef06847a0abc41f2515215f",
+            "bytes": 5691
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/DepthOfField.cs.meta",
+            "sha256": "b68fc87214623afa670f29b5ca2964153badb51f5ffbc9a9fb9fe98b363f3891",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/FilmGrain.cs",
+            "sha256": "d4feffe6363e135203e9775460d40fcfe288611e62429f9c0b1c6ba44acd12cb",
+            "bytes": 4013
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/FilmGrain.cs.meta",
+            "sha256": "5120923f6d30f8ca509c0143fb21ac3712bc2eccf3967187e869aa8cefc7eecd",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/LensDistortion.cs",
+            "sha256": "d2c79dd15aefbbb90893108c01a0c197846b5d579f481b47cb8b1b4ce6a20829",
+            "bytes": 2364
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/LensDistortion.cs.meta",
+            "sha256": "941b6628a6f0d8151e649046968b77ca9c4d4f36b2b2b83df12ea6dfa9988241",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/LiftGammaGain.cs",
+            "sha256": "e261d91024bf29ec95c8c039bafde39402f9958ff4e046f70bd6fe0c3fe17f25",
+            "bytes": 1558
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/LiftGammaGain.cs.meta",
+            "sha256": "31f488aaa8e3eb81ea05a5ca19f74da2e0b4a9f2d5e69d2be85632fb82fe0cec",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/MotionBlur.cs",
+            "sha256": "32cb0b2520feb0c08db98127c124c16e41fe93a11fe553eabff1996f5e1edf29",
+            "bytes": 4535
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/MotionBlur.cs.meta",
+            "sha256": "d54de25155d491c2f96bb501a9c822f57a58ecf2c39503878848c887515384ea",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/PaniniProjection.cs",
+            "sha256": "ec9896556768f075bfd6762bdf8fab29082eddc3670ef431bcf39dd98141efb4",
+            "bytes": 1309
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/PaniniProjection.cs.meta",
+            "sha256": "aa48b662bc00fb615bcfb31623d60c3a94edc715065e7a1797ed6026af88f975",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ScreenSpaceLensFlare.cs",
+            "sha256": "b5f32da21c89e75b6a09afcad584be31d2f8a2bab877a2c36700594c141d9a73",
+            "bytes": 7542
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ScreenSpaceLensFlare.cs.meta",
+            "sha256": "1f66a8271b0bc2d0165282713a8f266d816440e11892173d7c1fd16e80c08020",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ShadowsMidtonesHighlights.cs",
+            "sha256": "1384cdbdfbcc24e6412bedf7a47f664aea350c4cd00b434ced4b6dd693ab0644",
+            "bytes": 2723
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ShadowsMidtonesHighlights.cs.meta",
+            "sha256": "99088e7a3a0329d98f7e25d912f14ac58df8ce74508d5e5c9289bfa73d7298f6",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/SplitToning.cs",
+            "sha256": "2f1b08f657ff32f8483d85edfe8ec3b0c6fcd41164284c5baf987d73091a70f2",
+            "bytes": 1447
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/SplitToning.cs.meta",
+            "sha256": "4bbb7c1b56c7f20f673eaf7ff354486a87aff0c6d88175eef9e4b64ea69d02b5",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Tonemapping.cs",
+            "sha256": "34f67d1df334aa9323eaa41137c85438c539e0af982d195b803ac3684a13b63b",
+            "bytes": 8750
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Tonemapping.cs.meta",
+            "sha256": "830eb88a209e76516f1cb3a3fa24199b342e742f5cfea2f4088ede6de2e794c0",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Vignette.cs",
+            "sha256": "a3d5118e3c010f119ba33e0be745754c0096e17c211000a4543dffa9abd0144e",
+            "bytes": 1978
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Vignette.cs.meta",
+            "sha256": "e5680982e58732ed47d1e770de0a939cb0da57568ea44782e818172dc957422e",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/WhiteBalance.cs",
+            "sha256": "7b4cc05615df51426b4e35238e53ee9bc68557d2ddf2ee12192b45d01c0b45bf",
+            "bytes": 1284
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/WhiteBalance.cs.meta",
+            "sha256": "9aedc84f32fec3b9fd2dbf860876d240cd4b8e3123ce1db37ec3c1aead7d9dab",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/UniversalAdditionalCameraData.cs",
+            "sha256": "857536a9daa20e149d96297becb9dfb3a75a12a1a0249a707110cdf6163b534b",
+            "bytes": 34942
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/UniversalAdditionalCameraData.cs.meta",
+            "sha256": "073ed9d37f3742da3b73a364f7b721cc7f9ee74c4873c0385068be8da7090633",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/UniversalRenderPipelineGlobalSettings.cs",
+            "sha256": "f92c511b88fbf70dcfbed236347d5115cc98ef4faeddc195f54c379c6fe1fdc0",
+            "bytes": 16998
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/UniversalRenderPipelineGlobalSettings.cs.meta",
+            "sha256": "a654c84771864a33a225361e862119e3d6f5ec68371ead3ec6ed21c119d09c58",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/UniversalRendererData.cs",
+            "sha256": "08211994b8988c2d436a8f85460bca68b9a5b9afd1888acdb9e0a619918f692c",
+            "bytes": 14509
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Runtime/UniversalRendererData.cs.meta",
+            "sha256": "65bb0c3e6416b350ae0e3c0d175181217618032a0f0c429ddce0ad82a930bf88",
+            "bytes": 873
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Light2D.shader",
+            "sha256": "ce7ad6cdfb9ddf82859b713079b29acd1fe5a032d5fd820b32ef0fcb6586df93",
+            "bytes": 9014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Light2D.shader.meta",
+            "sha256": "87a3a09dd2354ce717cb0ac5b122744857093c6aca50bcd0ab286c614af66459",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Projected.shader",
+            "sha256": "7b284f48ca4158eb0a6b00808ed881af4b9d2e3420dde25d49991f931556cd94",
+            "bytes": 3199
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Projected.shader.meta",
+            "sha256": "337cf73b471577243749500beef0ee354f1ff79d71726f23daee0904b91f1a24",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Shadow-Geometry.shader",
+            "sha256": "6e43a4908976c9488075ef24a6105b24b42f7f53eb7b989319cc256543a1e754",
+            "bytes": 1155
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Shadow-Geometry.shader.meta",
+            "sha256": "34ec8e914937432b44eae6b25aede26deaf48ba5277e73dad583b6f879ed2f6d",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Shadow-Sprite.shader",
+            "sha256": "3059b04487264f15711c975c272605c5bd5fd2fbdda5f7434698d9b07522443d",
+            "bytes": 1698
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Shadow-Sprite.shader.meta",
+            "sha256": "8e04c5f7b2a28ecb2c0f7ec64e310138c0c8638188daa71fec805606a6930768",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Unshadow-Geometry.shader",
+            "sha256": "584efa10cb4eddaec2c74d5f57c1a4a65bc81a16ce5f2081d02ec7d598f91402",
+            "bytes": 2616
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Unshadow-Geometry.shader.meta",
+            "sha256": "15168e3a97739eecab5cb272a5fdbee3665467cce84dca858561116f06602ccc",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Unshadow-Sprite.shader",
+            "sha256": "b3b17b50a3844ddbad03e5ad888fea94ad5209a6babfc9a4f530839b6ba40e4f",
+            "bytes": 3730
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Unshadow-Sprite.shader.meta",
+            "sha256": "6736cb26899580912e82d1751ad3def1eb89d3b771b2d840f5afdf5d624815b2",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Lit-Default.shader",
+            "sha256": "aa310810fd107305fa43fad0f73abbda0cc57125dcc102b866887d4a4c67a57d",
+            "bytes": 12035
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Lit-Default.shader.meta",
+            "sha256": "26d26e3d3f4de88d22f9b156bc0e7c75ee64affeb1732f940e456ec8ae8c31fa",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Mask.shader",
+            "sha256": "893a09f1e6d1b9293b0424aef69ae6cb7c04f2ef4fba33d2a0acf89871c8e204",
+            "bytes": 1749
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Mask.shader.meta",
+            "sha256": "e5bd7c399d551edf3bffbb828937cc47ec4e2c9bb942ea8896dae21f12311c78",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Unlit-Default.shader",
+            "sha256": "609514c44eae5b99ada6309e37fcdf9a32fa9ea7215cd4abcedf667da06d5d08",
+            "bytes": 8359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Unlit-Default.shader.meta",
+            "sha256": "b123f67aa9b92b7cb061c71f5f4274af85758662b6d8eff31231f6e1573e9b9d",
+            "bytes": 86
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractive.shadergraph",
+            "sha256": "3a470df1dff4e2123de21d350fb4ddd754ad1a36af2da1196328a126a7b42c44",
+            "bytes": 119038
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractive.shadergraph.meta",
+            "sha256": "76ee71dcb283205cd046b87f4eee065d19f5b82a9018829b313e6f2c8822a584",
+            "bytes": 280
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractiveMasked.shadergraph",
+            "sha256": "52b6b88b28783c63dde656201a716cd6c7941b652c037c7528ac59e03d137d3a",
+            "bytes": 127716
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractiveMasked.shadergraph.meta",
+            "sha256": "3ad403846626d0716f515f9320d8509746f7c22cbd1f00b56c3d1fb900b552d8",
+            "bytes": 280
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractiveTransparent.shadergraph",
+            "sha256": "f63d1a84ac6bea2df1f7ac1200481bc804fb6b5be2d9cd0a23cd2b6f77a2b6e5",
+            "bytes": 118838
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractiveTransparent.shadergraph.meta",
+            "sha256": "ceb1f40067669a57eed463e1e05e4af71d8776a55fb69e00229cc3ce8963d64e",
+            "bytes": 280
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/CameraMotionVectors.shader",
+            "sha256": "d0e1927c83b413aafbab771e3ab910c19755449fadd0f5ae7b67cae7d2979ba8",
+            "bytes": 5190
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/CameraMotionVectors.shader.meta",
+            "sha256": "58373272a77cf0a80e8879a4ddf89352acbfa59c49001ad1ed337e9dacb2402c",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Debug/DebugReplacement.shader",
+            "sha256": "b9509c00cf949c892eba9aafd2b60d5b5962908c0c59669a2dd7e865d7349a6c",
+            "bytes": 3721
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Debug/DebugReplacement.shader.meta",
+            "sha256": "d50d267bb304f2e046d4db5bd323fb1f6776514d145b5a2587a65c1e5514644a",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Debug/HDRDebugView.shader",
+            "sha256": "a504b149f27c44b591ebe7accd68c7a494ea0b6a084e00e7ce4f4998d7c74b9d",
+            "bytes": 8962
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Debug/HDRDebugView.shader.meta",
+            "sha256": "f613d533e5c1dd370d056243522230050178e1b61348d1ffc6e9921fb5a0f091",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Debug/ProbeVolumeSamplingDebugPositionNormal.compute",
+            "sha256": "c455ee184c5bf02ad07f4e214cc17f4bae9ab43559efd687fd8af8ffb5ce2f6c",
+            "bytes": 1174
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Debug/ProbeVolumeSamplingDebugPositionNormal.compute.meta",
+            "sha256": "65f6cf554fde1ff4bb524433559193f65d0ea100e5dc3d2eab65ff44bcdbed6a",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Decal.shadergraph",
+            "sha256": "1724fb16dfc18a0f43563b6e48fcf9bcc7760b14039a3aa6651aec50deecc754",
+            "bytes": 35608
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Decal.shadergraph.meta",
+            "sha256": "9c6aa656a91b3bea75cb51087368a6b38447d7dab4e50cf824dff619026c23c9",
+            "bytes": 285
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader",
+            "sha256": "dd9a625d92079fb8f923f4085747f5de524cdf1dd6fe52767aee0bbbac5792fc",
+            "bytes": 21927
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader.meta",
+            "sha256": "f0db005307ffe5480c40a402ca5bfb0b3726259031a86e255e49626228ceb008",
+            "bytes": 217
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree7.shader",
+            "sha256": "214dce67fbe8165a64603aa63cd7009675bcae078ed91110ceaa57135d1228a4",
+            "bytes": 8594
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree7.shader.meta",
+            "sha256": "99231ba443ceb27f5e23f79fde79eda8c46283480d7fb71fd5d6ad3807567f38",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree8_PBRLit.shadergraph",
+            "sha256": "3ac42a039c41535074e6c369aa1f9ab8957c7dd6a811c23215797352b29e0ab8",
+            "bytes": 268165
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree8_PBRLit.shadergraph.meta",
+            "sha256": "52d7a06852712422484033550b91d131876faa1564215a402cc30ee615e8bf11",
+            "bytes": 285
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree9_URP.shadergraph",
+            "sha256": "7bbd09fc798d99ad0a54e3b69d62330a02abdf579b2a67864fc8dae773c9afee",
+            "bytes": 244686
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree9_URP.shadergraph.meta",
+            "sha256": "c854fdad9165202b7b72b830c09cc8ca2dbbeaece61584e39b71b2a9c286cf8b",
+            "bytes": 285
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Particles/ParticlesUnlit.shader",
+            "sha256": "a9923ec855237bb215e98f92291ac7ac4c64987aef6798fcd5e800a15597ee9b",
+            "bytes": 12363
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Particles/ParticlesUnlit.shader.meta",
+            "sha256": "122a44759a8ca196415d39727a270c5554553e8270b0cd7871cc45939cd996a4",
+            "bytes": 217
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/Bloom.shader",
+            "sha256": "c9f2ea0a7c00de3914572e2239dbddcf8799bc62210d4166d897dcda797771e6",
+            "bytes": 10111
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/Bloom.shader.meta",
+            "sha256": "6059727589b7978318b21160e90d9bf9121f12f1bc8b152fb07f7bc6d1e0ca73",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/BokehDepthOfField.shader",
+            "sha256": "0832e88938830e8e08613830643ef0b48572408e40fc4540de7e702731b1e233",
+            "bytes": 13103
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/BokehDepthOfField.shader.meta",
+            "sha256": "4a14c756c8597631f59fa008ac648fa5367d949fba1d1d65fd8cbfccf2dff16b",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/CameraMotionBlur.shader",
+            "sha256": "60555b5c91155f7f6a32f9abac04faa62a78a9a3d58034882aff7b6440644780",
+            "bytes": 7126
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/CameraMotionBlur.shader.meta",
+            "sha256": "b948d27da83cd99f0cdc06f96657d6f6982c08712daa58c1ef0cfdf5853c67e6",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/EdgeAdaptiveSpatialUpsampling.shader",
+            "sha256": "8c00ba6f3465720e9295e7335c2e6958b3000d5cefd1363ea876fc4c6d917ecd",
+            "bytes": 2220
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/EdgeAdaptiveSpatialUpsampling.shader.meta",
+            "sha256": "7edd0265de2082442560666d39d3e4f2305475601a0fc47574b3a49049efa272",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/FinalPost.shader",
+            "sha256": "e9be627ebf749bf8b47fd87b4cbbb356f87c0f1c111e9ace7bd600a81381f799",
+            "bytes": 7931
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/FinalPost.shader.meta",
+            "sha256": "d056196c42b8c7eaebe5a7e27a3b174c760f886416c72e596998c1d671729f2d",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/GaussianDepthOfField.shader",
+            "sha256": "daf1449bbd23d14eba8381cba415b2fae995ea7a1f0ab279d1731e40f3537735",
+            "bytes": 9581
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/GaussianDepthOfField.shader.meta",
+            "sha256": "f6309d12e9304b646582e1d470d373969c2b5115142bc533bc1fa986ec732a4d",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LensFlareDataDriven.shader",
+            "sha256": "bf43d36bf0e1e24c1ec6fd08dfb5e378a5d3fd299465d3c1531f225bdea94e3c",
+            "bytes": 6262
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LensFlareDataDriven.shader.meta",
+            "sha256": "30cf00ba6c4efb14578d2767a0e239be54ea8c4ac92fc54f8778d56f4f6f03e6",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LensFlareScreenSpace.shader",
+            "sha256": "3cd6c18348914be6627c4c82888328503f855b624da6ff931c648a86231624a2",
+            "bytes": 5765
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LensFlareScreenSpace.shader.meta",
+            "sha256": "b3bb054522929b24024a45f186efd9e223687bbe5b3fcaf62149078f3241e5c0",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LutBuilderHdr.shader",
+            "sha256": "9aaa902e8d6b47f9fd9a96b6d52fe0c677cb98204fa8e0f96a7995dc8b711f9a",
+            "bytes": 10857
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LutBuilderHdr.shader.meta",
+            "sha256": "2a0eb38500daf86d9030dc60859d36b073569686ca42e19a98ed8407c64fe2a6",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LutBuilderLdr.shader",
+            "sha256": "e858546a45890d9b45f3d83f289ced7ab28a594c6bbfaa76e484f2b954e34f4a",
+            "bytes": 6555
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LutBuilderLdr.shader.meta",
+            "sha256": "bfd0c139e8d5064703e7fcdee0d07d42444c59f605504734803af46be6f596f5",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/PaniniProjection.shader",
+            "sha256": "e9d728d3e795e1b551f0acc73b69717cc1d10754ec6f7712266977e80918bb1d",
+            "bytes": 4296
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/PaniniProjection.shader.meta",
+            "sha256": "42835ffe591281a9fa41dbf06afc594a7e4c6b85490de6cb18405691eb2d6733",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/ScalingSetup.shader",
+            "sha256": "9e3ce9bc1d27d9d39496c023c1d3bf208f4e253295a2fcee2e1dc7391521008b",
+            "bytes": 3792
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/ScalingSetup.shader.meta",
+            "sha256": "67f4c47164151e3ca62ee2eb06e854c4d8166746c3ff04f41628ed45fa387313",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/StopNaN.shader",
+            "sha256": "157731dfb02a03e11525737375c1872296eb0e1e301cac9ab56edb97162ff489",
+            "bytes": 1104
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/StopNaN.shader.meta",
+            "sha256": "76aa5df272af90ab2335ac35b365570bb27567ae6eb4000b9ba22fd62a120ba3",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/SubpixelMorphologicalAntialiasing.shader",
+            "sha256": "84d602c0d79abaadda480ab88b28b324529d50c8bd1d02d80f9fa1fb25da6372",
+            "bytes": 1692
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/SubpixelMorphologicalAntialiasing.shader.meta",
+            "sha256": "b3b1b8fd47ddaeb2bd1df616053eea96b9544d7b5f95fda55ed2eb96bdbc3165",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/TemporalAA.shader",
+            "sha256": "48b53bc4087c86a1e56976afbe1faefbd73a4e6452997a670de0a4d887488451",
+            "bytes": 3390
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/TemporalAA.shader.meta",
+            "sha256": "e70b2a331de4bec5705dbf9bae01321d62cf3b0bbb9f43416bda8a8fcadef51f",
+            "bytes": 201
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/UberPost.shader",
+            "sha256": "32abcd1b4a99808c9d0c719a7a0eac619cb6ff93951c98364ecd5319840c4864",
+            "bytes": 14974
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/UberPost.shader.meta",
+            "sha256": "4b012e53488e2a78c4503a362b863244f550cd0afa959b3603e62f25ab8b1789",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainDetailLit.shader",
+            "sha256": "f89529c62dc4d5deda7a005f2b7fa808fc3595d3aec7f5ac03dfa2dd6ad07fb6",
+            "bytes": 10160
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainDetailLit.shader.meta",
+            "sha256": "0ee9c6444e68c50197c522240417e3d8b313da6a05b9f5cfb97ee4a4a8f8478c",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLit.shader",
+            "sha256": "8aedd1fe35ea59e6e63fe560b198b6e9e1d1e897a5f3b1b4849e6513117c00c0",
+            "bytes": 12923
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLit.shader.meta",
+            "sha256": "46d64c347fdab5132c6bc3611dc9a5a935bcfd355223fdec673c20aeaaeacbc1",
+            "bytes": 217
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/WavingGrass.shader",
+            "sha256": "eb2860a6a49ba5113d21daecf990d1fe662daecf201528283eafe3dddd6b5ac3",
+            "bytes": 7469
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/WavingGrass.shader.meta",
+            "sha256": "713f26acbcde6750591448515fccde41ca5a470e6ce5fb205f783d9afebbddc9",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/WavingGrassBillboard.shader",
+            "sha256": "cfa7148b52d1a81569d4d9e7aa0362b4198cc80c2dabfeeadb34c5f8c622b833",
+            "bytes": 6002
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/WavingGrassBillboard.shader.meta",
+            "sha256": "4972526fdf479979d8f071a9e2ee1a362dfab91179061ba477a84ae51c68fd27",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/BlitHDROverlay.shader",
+            "sha256": "374ceb8fd152a7079364fb836ccf27170610fc30af1ebcaba0284351796f2890",
+            "bytes": 3790
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/BlitHDROverlay.shader.meta",
+            "sha256": "a9334e4df5f3654ffaf5889b3e1ff499a65ea24999dda06a14f1dcc4d3b9de48",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CopyDepth.shader",
+            "sha256": "465d81eb964e0b44485a2c0f6e4bfd42e66fc6329b4164f1775b57519851646e",
+            "bytes": 666
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CopyDepth.shader.meta",
+            "sha256": "9bec4310ad32c925a2cf30ac78603db469e6ff48d3926796b10223f389409f9c",
+            "bytes": 217
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CoreBlit.shader",
+            "sha256": "111adb36a08142215867771ad85487ce6aae4880e08e54569ac7d90996519067",
+            "bytes": 10921
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CoreBlit.shader.meta",
+            "sha256": "db4ba42a11bef63ae0e7d2437ceff6cc596cdfea3acf62e3f7e9b6886c429ef0",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CoreBlitColorAndDepth.shader",
+            "sha256": "fd8b76d8e952fed6ea354bbf5a947ffab2e04d5cfa7920e73d6ee6ffe6540861",
+            "bytes": 1040
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CoreBlitColorAndDepth.shader.meta",
+            "sha256": "9520cf01f47f37e2e9146b7c2245aabecd502602e5274c4c0e603a5940ab30c9",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/FallbackError.shader",
+            "sha256": "6bdb875dc44fdbdd5ea2a92b3c9bd7aaf9ac9e7650c62bd9e77d0332d048418e",
+            "bytes": 1926
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/FallbackError.shader.meta",
+            "sha256": "36b82517d0cc96fdb97e0d851ece36efbf8c44bc3af5005d4e2ce05a392520b6",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/Sampling.shader",
+            "sha256": "097d0523ccfe54bcd351ff5273840ed5a84dc1ee3ae9fa91bd230003b611c968",
+            "bytes": 1516
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/Sampling.shader.meta",
+            "sha256": "69f4178938aa1b839c60bcd6cc867d4f54aa3cc6ff6ae0368a5a157aedf2a5b3",
+            "bytes": 217
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/ScreenSpaceAmbientOcclusion.shader",
+            "sha256": "c80f2fcd4d166efe99b4e7110a1eaf9bbad7cff99b3d20726c80c45cb216aa9e",
+            "bytes": 7560
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/ScreenSpaceAmbientOcclusion.shader.meta",
+            "sha256": "ed798f53fda5f33e5c9e37cec79b6ef4eef9ff6e85e73f9edcb6bb73f129e5d2",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/StencilDeferred.shader",
+            "sha256": "b0b53db0bcb14267c2f8f47f4171437a4627832fd229c71a58cddbf96efe38a3",
+            "bytes": 17475
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/Utils/StencilDeferred.shader.meta",
+            "sha256": "c11139e69d38d779253b1010595ad77c5b722e87890c42a442c454bd8050b8cc",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/XR/XRMirrorView.shader",
+            "sha256": "287ab3e36dd6fdda72dd57c1cc6d83929b4d3a48da1d5967597a06e7094ed0bf",
+            "bytes": 1126
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/XR/XRMirrorView.shader.meta",
+            "sha256": "9a3f46d9fe02989ec19812a3d765c217d5885a5e95ea87bb5e3e07574c01bd1b",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/XR/XRMotionVector.shader",
+            "sha256": "21b5e659390ac39852629be7c4ee6afbc2aa6004f8be077defc674a09b712883",
+            "bytes": 3371
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/XR/XRMotionVector.shader.meta",
+            "sha256": "fb4ec1c5d858f09d7563a95a74b1bdfa0b847f1bf4fe2b27a0887e848f9aaca4",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/XR/XROcclusionMesh.shader",
+            "sha256": "15f5f2f7b563a3cf0b9218f091aadafe02d7618dbea10df862e3099237f55272",
+            "bytes": 2090
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Shaders/XR/XROcclusionMesh.shader.meta",
+            "sha256": "1fd7a24790aad33d90972952d454398fadd9be9b17ad4a8f7df86db8a32c41cc",
+            "bytes": 230
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BayerMatrix.png",
+            "sha256": "ab857985cb2fbbda35a23b55d0da84e26684cf8979ae777341e9dd9b952d940c",
+            "bytes": 597
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BayerMatrix.png.meta",
+            "sha256": "6f72db8797ac40573c8b72a8d00b144ff678e5e126045d483300002ebf7b1df9",
+            "bytes": 4820
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_0.png",
+            "sha256": "cf5280f77247d7a029c4e6c7c37d3ca233ad1189e39703608b5224b425032036",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_0.png.meta",
+            "sha256": "94f74956fc385450ef4177a9ec39fea82ee760731fd3639a9bea9856dc332072",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_1.png",
+            "sha256": "bb962e645c074d7ccaa05da10dfc63d300552845b1c60220199697f452bbee9e",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_1.png.meta",
+            "sha256": "ba567e12ce2e724313f7f5464736c1d831aa7d9ac2452a51ce1f6816a3a079f6",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_10.png",
+            "sha256": "4354c6a217a5add3c614a7a59d6e04e5d1be14d2937364f281fd1919bf37d013",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_10.png.meta",
+            "sha256": "492ccd43d999db1fd33b2130186b5883643afbd7145e11cba29ff3daf679270c",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_11.png",
+            "sha256": "490f1ac6e0ade24d8c115dc7ec3c08672a84ea9e10bbb246b2eb7adb7ce96853",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_11.png.meta",
+            "sha256": "38e179c262bd1dd1087ff1645175c4e5efd67e1a6a317b7a6a75da13fe9b718d",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_12.png",
+            "sha256": "bd62e15d43dfa805782d6461c433f274fbeaf8d60a608672a42d7a2b0e691062",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_12.png.meta",
+            "sha256": "b92f6d44150bc1b54d3fafff8eabc2e31128bb186e5831030969d1eb001c8e68",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_13.png",
+            "sha256": "75cf9d9e8155501810bd6d5dae4cc12a2ef1d530a7c133227db7efaba0660d01",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_13.png.meta",
+            "sha256": "39c6d2ac11ec9d48df9a670914bff955b4f38dd9ebfeff9204e430f69ac6239f",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_14.png",
+            "sha256": "e8576a7250ddc398e69b3821af0a8a7bf1c981c26e0eb326c867c3ad13eaaed5",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_14.png.meta",
+            "sha256": "c1e9bc249b9883dba67ed8a22f7b3038aa7e9eb0184e82a5c22c0cc54d72a8e9",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_15.png",
+            "sha256": "284607d8ee7b80d7fcebf53193a5477c3cc06903e271a2ff665e0354656c14c6",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_15.png.meta",
+            "sha256": "646976af9a9dfdf53d1dec8d14f0964e11c5dc076f6195e306be3ea9c5e589b1",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_16.png",
+            "sha256": "b8c896444fd218e10698906269f949fedd33c3e81a6a52e4da812b91252b656f",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_16.png.meta",
+            "sha256": "1fe5954c4e1b4584b87b49101498342e977d1bedf034d968e2d983de57256d16",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_17.png",
+            "sha256": "852571a69ae73632915feaed17a45f50da76c7653a287a55de1782263bf03a9f",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_17.png.meta",
+            "sha256": "5021cb5c91a10fb25f61ba4faac26fd0e64c4557f66e68e39f29e2a4172d587e",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_18.png",
+            "sha256": "6f5093fca5e4031f76f52d0e30d4f104755316712544e142c6af5f5726e92f54",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_18.png.meta",
+            "sha256": "94270881a1befb043df8e23f3d1c7108f657bd9b72f6f4fa7f962bd672f8aa91",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_19.png",
+            "sha256": "35b0d8d3ff3052f391b5ffc8c6f223e5ebb7a3698e3f1aa6e6869420540ac45c",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_19.png.meta",
+            "sha256": "e4d2cdc838856374d96e5045891d60220d8628231507a680e7c4f539e99557ec",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_2.png",
+            "sha256": "eb763adf35a97279b581663de8c692f47a89b556443d260b308e9b3b9c82fa9c",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_2.png.meta",
+            "sha256": "82aa69e9174e66b675a7f96127ada305faee514e4670b79c48d3120e8ff8fc7c",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_20.png",
+            "sha256": "727a57f9061f118e4c93c2e9c67712b5f56a041c91e9f2b7233eb6604d4cd3a1",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_20.png.meta",
+            "sha256": "cc02294d0ca1b8f014b0cb072693425c8199fd1ff321d8a61d2d1638e87444af",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_21.png",
+            "sha256": "8ae9b97ff3c2d4f565a34f63ad290b2e47996376d799ab705f575a69b4c1a07b",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_21.png.meta",
+            "sha256": "e4fc496053236590c8cc4c56e17de6709778b749822c9d95dd81f9afba687111",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_22.png",
+            "sha256": "e5eeddcd318088182a6b011739793a77748e87e5e594502844d7662908bab7f8",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_22.png.meta",
+            "sha256": "45fb84e2e409b93a04b849888d2f6ccb3156ac6250044ac82ace804aba4d3f15",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_23.png",
+            "sha256": "472cdf0fd5b7905f6e46a41970f2fe12c7884f3c0578eb3e481d935113707917",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_23.png.meta",
+            "sha256": "0a335b2826918ff108a04e7267bd7f90335fa0973446ecf771fbf059cc8817d4",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_24.png",
+            "sha256": "df44a2a080d3e22853343792f3c87a2a9f846c1da2ac5dafe11b6e99a839db14",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_24.png.meta",
+            "sha256": "1362f5d26c6929641fe9055c0274515b0de64efead1c6d290f2fb1cc9ac5869c",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_25.png",
+            "sha256": "2f1a46bac549eb0efc5a3249ede54806b86145e61157e72939db3dfd1381dd66",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_25.png.meta",
+            "sha256": "acaaca44039ba47dd4e40ea7a7179430a36f3e31b50246d01afb7ebb90cd3e16",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_26.png",
+            "sha256": "f2a14a6057757e7cb859b5c5598e68bb09ba4a9e9a5e646dc8c210e1eab6f14e",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_26.png.meta",
+            "sha256": "40096224c1dbfaa343fa091a2df91a9100aafad2499f5f107a90a27cffa9c461",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_27.png",
+            "sha256": "6f4f4a048ac82a1747bf3c634289bd434f32ab3fdc7a7d4c5de5c2b9dff77c1a",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_27.png.meta",
+            "sha256": "a90cde2d6ee7767c11790725d5b8e1c346950431aea051ac7a3654af9dc80206",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_28.png",
+            "sha256": "bcd1b2274feaa7fda986457f3fdb83e28f679b08ec0d22e13dfe16710824f380",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_28.png.meta",
+            "sha256": "f162c444aad4b0c6a40fb40553f384f568ce7d847e963d10b56265c801d60c2a",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_29.png",
+            "sha256": "c444d0e6eaf51d9e9d0beb23e22afa81f44c8532103526d468a2159fdeb4fd32",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_29.png.meta",
+            "sha256": "749c0a982b9b307a16ed803047b015df13d8fd79441a7da1e497ebdbba06baa2",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_3.png",
+            "sha256": "cfe506434c592237cf8f9e5ae2ada55a83946f8224dfe5d935afbd5ad6f324ef",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_3.png.meta",
+            "sha256": "383dc6515e3461ff0486a225644365c8b63daacb5e8fb9053ae729bc98a64baf",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_30.png",
+            "sha256": "9cfbf8d6dd085b1fc4841eecffe433ca9844d9c8d3dbd3619ea7fe0a32a3aeb9",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_30.png.meta",
+            "sha256": "99fe9544361b6a809175660d628f94f7efa34a6c8700f7a00c0c209d6c449a36",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_31.png",
+            "sha256": "9bd9e78ffe3c735e845ac622b9bea371b9bfd68339b7fcb472e3bd6f58789771",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_31.png.meta",
+            "sha256": "d12e3b52019f980c8607575554dc767c3fcbc8ca6a189d66645d56a15d3de8de",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_4.png",
+            "sha256": "29fa52bc2b45b894291df90239acdabcf05f20ee343723bb0bd6bb0a51db0b0f",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_4.png.meta",
+            "sha256": "2cf752e285ba10e05be9207ecd48f12be7a974923086e3721cf3be6c2de99543",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_5.png",
+            "sha256": "3177dd550d087a78f9aae2116e500034cf677643fee02b74fb92e1324bec9199",
+            "bytes": 1011
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_5.png.meta",
+            "sha256": "fcaafaf552c344d556105330dcd8c865364924f26fff5f3bf70e7ecd1bb1b234",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_6.png",
+            "sha256": "eda087de32456e271178730119c52641b5628d48fc782c38399f6b259ffcc121",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_6.png.meta",
+            "sha256": "690d7321fb439a7b232db2a4c9b13d05c6e31c5b4144b724651c17b56faca6a8",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_7.png",
+            "sha256": "c08955fae20eeb607afdd3a6104df8d5ffe8c7920a9e9a493057aaa93897ecf0",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_7.png.meta",
+            "sha256": "eecfe04c423f4c53010c80ce4fda431a25288fc0a9a81b1f9d41357b59c6a6dc",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_8.png",
+            "sha256": "517c88d36520eb78bed54f8ade983e4bbf20e232515d79a25854774d9a8e769d",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_8.png.meta",
+            "sha256": "ca0069e411118f08673143633cc959cca00ca15fc38183a1072e8e9a954d8c09",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_9.png",
+            "sha256": "519284e06252c1be8f6049559c06c0296acddaf6953398a6ab43d79b6ece06ec",
+            "bytes": 1014
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_9.png.meta",
+            "sha256": "e61e6839715c7dfd49fbc6f7fad40d6d86e29b30a8c1d4e26f8d046847673834",
+            "bytes": 2360
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_0.png",
+            "sha256": "90564273ed872da744aa7cc87d81b0090c7103eab2f223225c357909b41da803",
+            "bytes": 99216
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_0.png.meta",
+            "sha256": "0690f1830535b07b2f694db49b1a61a6c2aab0caec2592c312b6591165dd9419",
+            "bytes": 3819
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_1.png",
+            "sha256": "7360c0d8880110ec841114c6aea59c39123d1fb8b261e6bf9fc9573b65b0d0ea",
+            "bytes": 99204
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_1.png.meta",
+            "sha256": "6acda6cb6d57581796163f21974cde86bbdd5b57a5aaa6137858fd8bc8f36905",
+            "bytes": 3819
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_2.png",
+            "sha256": "d7db3110bd3f60169e09066e061e161e522625b013a557e923eb384a97316d5f",
+            "bytes": 99123
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_2.png.meta",
+            "sha256": "b12b2bca9104c8b875d458799884054d7f1dddee54111bb6dcedceab0b2bdd56",
+            "bytes": 3819
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_3.png",
+            "sha256": "19c67a1256b2c20c779470719386737aaa3366bd2058197bbfc3ebea71e5de29",
+            "bytes": 99283
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_3.png.meta",
+            "sha256": "27d012f2a02f678e760f9e139d54dd397d3dc74db2e7457165e17ea5337f605f",
+            "bytes": 3819
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_4.png",
+            "sha256": "2c928bfffc64c339f980c02a022bf0ac2e3b37df29b079e44625b97fdde76058",
+            "bytes": 99205
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_4.png.meta",
+            "sha256": "9d09ad0b96e7b73ac3b4479ef2165d20821e1d4f403a8ebd910f55499b5b31f3",
+            "bytes": 3819
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_5.png",
+            "sha256": "5c9977b8fc9b7c83d00ca60937977824badc5eb2ce3c744539f96cb22796157b",
+            "bytes": 99194
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_5.png.meta",
+            "sha256": "9e9dfcff773a0a2daa2427127be8211f4ff8d5504b4f94894d0ae6e9e2de182b",
+            "bytes": 3819
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_6.png",
+            "sha256": "e35af946a68313ad0973bc298bfb2db18238f885ee04b4a7e760c75acafc777a",
+            "bytes": 99248
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_6.png.meta",
+            "sha256": "995095e196cdb6a504066c5abfd524e7a19012604ea2a2e35433385013219334",
+            "bytes": 3819
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise64/L/LDR_LLL1_0.png",
+            "sha256": "140c55bd97c21b9b22008d7054b492333fec67fbfc1a1b266e5b0209b647eed4",
+            "bytes": 7115
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise64/L/LDR_LLL1_0.png.meta",
+            "sha256": "979f79be8dce3792e58e15f20f925615ee7191b535d27fac1be2221c430efd16",
+            "bytes": 4820
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/DebugFont.tga",
+            "sha256": "a89bb057dd2a4442a582856c1ba6da4ae12c0ed1534696a191e54baa9de6dfc3",
+            "bytes": 98348
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/DebugFont.tga.meta",
+            "sha256": "e3d44b2d5f428d0ceb386d1ade5c15c40d9f9e4e2aca51b1cffce14151ae828e",
+            "bytes": 4410
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Large01.png",
+            "sha256": "5a362d4d91a1c00395bb5ead5b23933f213d51f1f46bf35e9d84d3fabcc41aa2",
+            "bytes": 111712
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Large01.png.meta",
+            "sha256": "0503a993589fe3371534f7fbd78b568908b01e7be83dedd11edcc34bb390625a",
+            "bytes": 2359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Large02.png",
+            "sha256": "156bf1876f04533477c57a06821a01818ed6c8c88b937be6ba12d4ea1b6dbf7c",
+            "bytes": 132267
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Large02.png.meta",
+            "sha256": "a311e5e3969f0e875ef2c4e1ba17a389b03f364e8bcc2c8cdac229866baeb144",
+            "bytes": 2359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium01.png",
+            "sha256": "3c4037a5b64ff1ee65852038ea931871bf5ee4eeedec896be75362fe1bcd2785",
+            "bytes": 147940
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium01.png.meta",
+            "sha256": "ac9ecc2b5721f0633820226473aa1b305519f6225cb53620340b8774652c9392",
+            "bytes": 2359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium02.png",
+            "sha256": "3dd77147f8ff1acbe40a639c199500202d960f8db9fa26e9ca0bada483a531d8",
+            "bytes": 165091
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium02.png.meta",
+            "sha256": "d012560807218fa6a09e8357099c509984fa3052fa8a472acfbd967344112270",
+            "bytes": 2359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium03.png",
+            "sha256": "fd01f022f743c0d3508b37421b5070a2a6263d4d966ea4532902c5930880b312",
+            "bytes": 163662
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium03.png.meta",
+            "sha256": "47dc78c66a95a6af8270608227c4723a34d447df593ce934a00eb5f6b3c3df31",
+            "bytes": 2359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium04.png",
+            "sha256": "6e7ea6b73413a6dd244c9948351afa3838d8d606e1840c7d948544b62666c828",
+            "bytes": 139347
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium04.png.meta",
+            "sha256": "ab7c5a1acc94b5144296b1117b4c92ac979664cde6a4c70045de1f5d8d59ff69",
+            "bytes": 2359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium05.png",
+            "sha256": "b963d8d662439cb5047bebcddfd8e758b04eae4135ebbba89dde85f9151fbccf",
+            "bytes": 168183
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium05.png.meta",
+            "sha256": "cbb53520b5d101a2c54b2eeb088dc52f3f44809031c44fcb1cc516d66be707f0",
+            "bytes": 2359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium06.png",
+            "sha256": "67645d1dde72645dbe45cdf17bce2493da1f9982f6717c203ac059d0a8a69d71",
+            "bytes": 131307
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium06.png.meta",
+            "sha256": "69e53f6bcd924f604d98ae606215c3c220a8298e53ca504dcff64a834d73e95e",
+            "bytes": 2359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Thin01.png",
+            "sha256": "bed8cd1fc2f330638afd1707ff981b288c83f99c3fbbcc0dc0d9acbdc49683d9",
+            "bytes": 152067
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Thin01.png.meta",
+            "sha256": "62efd83ff1171153c15595af48baaf000eaa99672fdd61b4a1a1b68ea2b373eb",
+            "bytes": 2359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Thin02.png",
+            "sha256": "d0a2704d54931629bb5cec4e75ec2532355f36c38141b2a25a2c2e9fe3637367",
+            "bytes": 169753
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Thin02.png.meta",
+            "sha256": "0cc47e5bd18d1009590eefb919221760f69f2b09c084e00bbce8bdf71805ae3d",
+            "bytes": 2359
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/SMAA/AreaTex.tga",
+            "sha256": "84779b2c0dd6ee236bccd3a2046404ffeb8fda5bf4b24857f59ec5c3bd1270cf",
+            "bytes": 358444
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/SMAA/AreaTex.tga.meta",
+            "sha256": "11d393c45e42bcb2f302aacaca1c01a1f326a5fd5f556ee512d41d74902399f3",
+            "bytes": 3008
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/SMAA/SearchTex.tga",
+            "sha256": "96661ff73a56093bf2284bf4789027f33cd11d3203d2bde0f33cdd1d4336c89f",
+            "bytes": 3116
+        },
+        {
+            "path": "Packages/com.unity.render-pipelines.universal/Textures/SMAA/SearchTex.tga.meta",
+            "sha256": "627c9d96c81e43ac10d1390b0a66b66b569166331be5f1d73f3c0440c6081135",
+            "bytes": 3452
+        },
+        {
+            "path": "Packages/com.unity.rendering.light-transport/Editor/UnifiedRTShaderImporter.cs",
+            "sha256": "549eb3e5cd9e6eb817f8cd4300ccd1a26e4954261892440ffd7977c287ffb9be",
+            "bytes": 1330
+        },
+        {
+            "path": "Packages/com.unity.rendering.light-transport/Editor/UnifiedRTShaderImporter.cs.meta",
+            "sha256": "dbab912bd5dedbbc04bc57e7b43d97ba26d46081a9f0d2980ba9ec5c5ba09429",
+            "bytes": 59
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/Editor/Data/SubGraph/SubGraphAsset.cs",
+            "sha256": "5f1977a3d91b12a653f4e4ea9ab295f59e6a0e01f451942231799bde5c3ed38e",
+            "bytes": 10192
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/Editor/Data/SubGraph/SubGraphAsset.cs.meta",
+            "sha256": "967590ef051a96da3ce3cd872ccf2e4b9515c82266a6587eac3a799c1a5e48a1",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/Editor/Importers/ShaderGraphImporter.cs",
+            "sha256": "22732059b17b226bd36cbf6059aa81e267dc1fedda05f6793dd0e66d7c5c7395",
+            "bytes": 44216
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/Editor/Importers/ShaderGraphImporter.cs.meta",
+            "sha256": "1a7dd38dcb8455d6564ba9c53b27204045dde6c67c148ff11f54cbd5e693d83b",
+            "bytes": 262
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/Editor/Importers/ShaderGraphMetadata.cs",
+            "sha256": "21e86e48c5a9114a3fd7ea363d9743d1ece6993c1056f8814aa1218d0e9fc42f",
+            "bytes": 2584
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/Editor/Importers/ShaderGraphMetadata.cs.meta",
+            "sha256": "1d971d0d921dd2abacd6fc997b2b7b787b69f5f2a67988217324adea16b8cf64",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/Editor/Importers/ShaderSubGraphImporter.cs",
+            "sha256": "8e8623687b157a60a123f6c733b8eb37982a69f26d7c7d68a134e9f974ae4b4f",
+            "bytes": 24661
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/Editor/Importers/ShaderSubGraphImporter.cs.meta",
+            "sha256": "dca56a4352c513533da47217b49a385e54e599254e12d4001c6cdb8d4fd688e9",
+            "bytes": 262
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/Editor/Importers/ShaderSubGraphMetadata.cs",
+            "sha256": "8b05fd83982e45edfd34e4349961235c679146e9564fc2ec2bef983c1ff0cdb0",
+            "bytes": 203
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/Editor/Importers/ShaderSubGraphMetadata.cs.meta",
+            "sha256": "b5b3cda17ed10ac1cb3e8d9ee9ccf2a6007de99045b4b75c05b5729b797a47e5",
+            "bytes": 243
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/LODDitheringTransition.hlsl",
+            "sha256": "a6729cf89712e8e7230d1bee8e56cd61b2d2f598e9c68ed000fe0dd0dec083cb",
+            "bytes": 2348
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/LODDitheringTransition.hlsl.meta",
+            "sha256": "bf4a3c4faf19345258690f9306aaecf36ca41bb5b6d9a1e45d5cef0e780725f5",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Billboard.shadersubgraph",
+            "sha256": "9cc03f5ee654877ea3b8db09f0745ade9d366aeaefcb20c835c4a6d0cf38b6a0",
+            "bytes": 155773
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Billboard.shadersubgraph.meta",
+            "sha256": "804d1f80e8fc250f26ac5ac96d94c792ead74caab9fbcb474c9166c25eb9ed19",
+            "bytes": 332
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8CameraFacingLeafEffect.shadersubgraph",
+            "sha256": "21fc7daffa66054f9f3598231a20bfd0ed00e5b772f1f60cdc28a0ed705be0f6",
+            "bytes": 15260
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8CameraFacingLeafEffect.shadersubgraph.meta",
+            "sha256": "0a47bb81d8aea583588e704f03549a7ed8e5f239e883112d7c9321b852a77781",
+            "bytes": 332
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8ColorAlpha.shadersubgraph",
+            "sha256": "0557ad1fc2991d767faab24d944379e5de7286d9d6fb34bf6ae6ae9d545c5830",
+            "bytes": 144726
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8ColorAlpha.shadersubgraph.meta",
+            "sha256": "918e78c94945559cdf2064b1e65814b2b3c037f877e34fdfed4dc63d7397d40b",
+            "bytes": 332
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8InterpolatedNormals.shadersubgraph",
+            "sha256": "50174aed0e7b700802498086a044833fca01dad5c8c56cc9a7d2196655f26d34",
+            "bytes": 97700
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8InterpolatedNormals.shadersubgraph.meta",
+            "sha256": "ced072d5a788cf2f1590f6208e524b69b17640ee2d48ca5e03f564bb68b2b7f2",
+            "bytes": 332
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8LODTransition.shadersubgraph",
+            "sha256": "734024e5aa32bcc7500b86fb8bd2f98daaa074350a25cde8430fe874c766500c",
+            "bytes": 13391
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8LODTransition.shadersubgraph.meta",
+            "sha256": "8d6f3a2de56d4110ec1a9815677ee7effb4e8f3aafb0f58afab94abeae3de607",
+            "bytes": 332
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Wind.hlsl",
+            "sha256": "ebdc18a8bece25222ce1ca62d3c4a117a6d4260c4877ccf09f25dd62fae81364",
+            "bytes": 35888
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Wind.hlsl.meta",
+            "sha256": "dc1e97ced503211b764b0d218d93dc20874ae6d68ec84c80339100c5d331b794",
+            "bytes": 204
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Wind.shadersubgraph",
+            "sha256": "40facd0bfbf859e0a588509edae135380ef41eb3d8a9151148b7c92df6ba8c70",
+            "bytes": 41383
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Wind.shadersubgraph.meta",
+            "sha256": "4a5e43245042b418e5fb6252b23f36957681a51ecabcc3985fa310ff02751745",
+            "bytes": 332
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9CameraFacingLeafEffect.shadersubgraph",
+            "sha256": "5466b96cd8a78660a29d7c1127db17f9711ef38cf40d2811d0e1b53474e818c1",
+            "bytes": 19058
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9CameraFacingLeafEffect.shadersubgraph.meta",
+            "sha256": "dd1abfceef940b8987beea9785dbe0a9ca0c98d31ced663e032a1ff239f1e8dc",
+            "bytes": 332
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9Wind.hlsl",
+            "sha256": "59e0fe7027192df5396d731932c5dbc0f83b274890bc866b739ef4b2b1be39d9",
+            "bytes": 27972
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9Wind.hlsl.meta",
+            "sha256": "7ca4860cbf27af8a0434900e140af15345003b4b6bb75faa871d6d9c57b29ea8",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9Wind.shadersubgraph",
+            "sha256": "14ca2787e60c3c4bbcc7737a77205aed41e6d711437a2e955a38a66854554b23",
+            "bytes": 32383
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9Wind.shadersubgraph.meta",
+            "sha256": "b6102a82d361f60140a78cae5fe30d83555f682d180bd754c44b6289f44d046e",
+            "bytes": 332
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTreeCommon.hlsl",
+            "sha256": "086788eca6e93126b2ff7b0862b278f396f88f50feffe7aa6d2dc5903e61091d",
+            "bytes": 5245
+        },
+        {
+            "path": "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTreeCommon.hlsl.meta",
+            "sha256": "e4d24c802a4c9ab3cbc50e80e03fd1ce2ef6196aec545e6400640a0d454d2bad",
+            "bytes": 161
+        },
+        {
+            "path": "Packages/manifest.json",
+            "sha256": "cb6083897e503b228bc95ee7002078aa5745093922408094d7bf8c388b1d6792",
+            "bytes": 184
+        },
+        {
+            "path": "Packages/packages-lock.json",
+            "sha256": "7ade6d88d528682fc1cd699806ae4402e99923a36a7235fdaf06c096437963e5",
+            "bytes": 4710
+        },
+        {
+            "path": "ProjectSettings/GraphicsSettings.asset",
+            "sha256": "db4b5fe7b0a7c45e7a7227a0f6891a2d5283e42d764a02662d3d91bb837ea5a4",
+            "bytes": 2554
+        },
+        {
+            "path": "ProjectSettings/ProjectSettings.asset",
+            "sha256": "a5672236086d1d069204e907ec12e6c524a4eb079b2f8b76be52337bef665da2",
+            "bytes": 25191
+        },
+        {
+            "path": "ProjectSettings/QualitySettings.asset",
+            "sha256": "8a30b29a572bae8c04249582e65ff6c0cc97d4f45a60017cdd93f7d6a2cfefdd",
+            "bytes": 3675
+        }
+    ]
+}

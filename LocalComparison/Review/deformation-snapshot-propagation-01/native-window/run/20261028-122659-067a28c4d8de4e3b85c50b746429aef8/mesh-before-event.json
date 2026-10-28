@@ -1,0 +1,31 @@
+{
+    "label": "before-event",
+    "file": "mesh-before-event.bin",
+    "sha256": "13d63d36d479f07d2442b20b415228995bb487cc28a6e28b82f11a6cf9436655",
+    "mesh": -94,
+    "bytes": 1324,
+    "vertices": 24,
+    "normals": 24,
+    "tangents": 24,
+    "uv": 24,
+    "submeshes": 1,
+    "indices": [
+        36
+    ],
+    "topologies": [
+        0
+    ],
+    "bounds": {
+        "m_Center": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "m_Extent": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+        }
+    },
+    "format": "little endian: int vertex count then float3 positions; same count-prefixed normals(float3), tangents(float4), UV(float2); int submesh count; each int topology, int index count, int32 indices"
+}
