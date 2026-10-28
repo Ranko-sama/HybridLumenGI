@@ -98,3 +98,7 @@ iteration34：候选四点历史重建两个实际入口通过DXC，唯一Unity 
 iteration38：当前8a5f17b一次构建/可见DXR198帧正常自动exit0，29组图像、21raw及189阶段payload、pending0、0采集错误，112产品源/8临时接线恢复。实际motion/jitter/上传刚体映射及采样位置判定192已知raw的新显露静态背景，全部history=current、length1；3未知测量另列，未作为已知黑色验收。119/179/196实图已查看，没有可归因的持续门轮廓反例；无物理真值，整体动态质量未验收。有限当前集成覆盖完成，Runtime零改动，不追加运行/调参。交独立Astra及实际Pro38收束并选下一实质缺口，完整原计划继续。见ReviewBrief-MovingOccluderStageReview01.md。
 
 实际Pro38读取200–204及179/196原图批准提交并关闭门片段；认可独立Astra转G2内部多层世界缓存链。下一包复用CPU封闭房间/内部夹层几何为单owner，源primitive12–15；一次构建/最多120帧可见DXR、一次就绪快照/四条固定实际TraceSceneQuery及原surface/cache读取。验证内部层捕获、anchor和primitive→card消费，不手填命中/伪造辐射，不扩材质矩阵；成功/首个错误/未覆盖均结束，零预授权产品改动或第二次运行。
+
+iteration39：原工作流3/4、G2内部多层缓存链完成一次有限真实验证，Runtime未变。复用同一owner的既有16三角房间+两层平面，一次build/120帧DXR正常退出，零错误/截图、pending0、来源恢复。四条原TraceSceneQuery命中12–15，实际材料捕获和原HLGICachedSample分别使用card6/7及各自层上的实际anchor，返回有效已测量黑色[0,0,0,14]；冻结首分析通过。初次离线DXC引用路径失败保留，只修编译mirror后通过，未追加Unity运行。此项结束，不扩凹面矩阵、不算G2整体完成；等待计划知情Astra独立下一方向及实际Pro39复核。见ReviewBrief-InteriorSurfaceCacheChain01.md。
+
+实际Pro39读取205–210并批准内部层有限链及本地提交，同意Astra独立方向：local-release-baseline-01。下一轮复用Functional和现有配置，显式BuildOptions.None，正常启动停用旧测试自动入口/序列/探针，默认保持可见可关闭，另120实际目标帧验证模式正常Quit。仅公开GetDiagnostics验证实际进度/后端/准备状态；无新GPU查询或图像读回，一次build/一次Player，任一失败保留后停止。Release详细逐owner日志可能按条件不编译，不据日志安静声称清零。Full plan仍开放。

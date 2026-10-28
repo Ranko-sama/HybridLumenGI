@@ -1,0 +1,74 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 39
+DECISION: CLOSE_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_EVIDENCE_COMMIT
+NEXT_PACKAGE: local-release-baseline-01
+
+一、批准有限结项，内部层检查到此结束
+
+允许提交第39轮证据及辅助代码。未发现需要修改产品算法的反例；不追加内部层射线、材质或动态组合。
+
+已确认 HybridLumenGI / workspace:/ / main@4af9a95，Runtime diff为空。我已先列出再读取iteration39输出205–210，包括首次离线编译失败，并检查实际部署的查询、缓存记录位置、冻结分析器、原始快照和完成收据。本层没有执行修改、重跑或重新计算二进制哈希。
+
+接受依据是实际路径，而不只是ready计数：
+
+查询使用原 TraceSceneQuery返回的hit，继续调用原 HLGITrySurfaceMaterialHit和HLGICachedSample，没有手填primitive或chart绑定。〔执行版 InteriorSurfaceQuery.hlsl:10–21〕
+缓存记录的“已接受”标志写在原代次、法线、层面及连接可见性检查之后，与原累加同步；没有另写一份测试用缓存算法。〔执行版 HybridLumenGITransport.hlsl:267–311〕
+冻结分析器从源三角形独立求交，检查12–15号primitive分别对应card6／7、各自层上的捕获位置和anchor，再核对实际返回与已记录支持。原收据证明唯一5120字节读回完成、pending为0。〔analyze-interior-surface.py:30–97；原始 interior-result.json:2–8〕
+
+初始化的黑色 [0,0,0,14]是合法缓存测量，不是漏读的证据；但各tap数值相同，也不能用返回值吻合证明一般辐射分布下的插值精度。 本包关闭的是这组同owner内部层的捕获、绑定和消费来源链，不是光能、随机gather、所有凹面或G2整体完成。
+
+首次DXC失败属于离线包含路径没有找到插桩声明，原日志已保留；修正编译镜像不等于修复产品。最终已记录owner归零与UTP汇总也继续分开，不宣称总VRAM无泄漏。〔执行输出206–210；native-window/player.log:249、268〕
+
+累计投入为既有CPU夹具加本次一次构建／一次120帧运行。该检查已达到退出条件，没有继续扩展的决策价值。
+
+二、下一优先：形成可直接运行的普通Release本地基线
+
+对照完整原计划，下一步选择工作流10的当前Windows Release产物，而不是再开一个微观观察器。
+
+具体缺口已经由源码确认：现有 CurrentPlayerBuild.Build()固定使用 BuildOptions.Development。此前通过的运行还普遍带有测试侧启动、采集或临时命令流接线，尚不能回答：
+
+当前产品脱离临时GPU探针、使用非Development构建后，是否仍能在既有场景正常启用并退出？
+
+这项工作交付一个实际可用的本地版本；失败会指向构建配置、变体／资源保留或对测试代码的意外依赖，而不是再产生无法归因的画质数据。〔LocalComparison/Harness/CurrentPlayerBuild.cs:57–66〕
+
+三、最小工作范围
+构建：显式Release分支，不改渲染算法
+
+在现有构建入口增加明确的Release配置，使用 BuildOptions.None，保留原Development入口行为。仍为Windows x64、Mono、DX12、Linear；不同时更换IL2CPP、图形API、平台或资源配置。
+
+产品Runtime／Editor源码保持当前已批准字节。构建前确认所有内部层、门、材质和计时临时插桩均已撤销，完整产物清单绑定EXE、Data、程序集及必要插件，不能只保存EXE哈希。
+
+不要通过禁用全部裁剪、全量保留所有shader或打开Development来绕过Release错误。构建报告保存实际选项；运行时另记录 Debug.isDebugBuild=false，避免仅凭文件夹名认定Release。
+
+启动：复用Functional初始视图，不执行旧测试序列
+
+只使用已有Functional场景及当前产品配置，不重新生成几何或烘焙资产。
+
+测试工程可以增加一个很薄的普通启动模式，但必须使旧 RuntimeAuditEntry不再启动720帧序列，并停止ComparisonCapture和RuntimeAuditProbe的自动事件、阶段读回及重型诊断。只禁用MonoBehaviour而留下自动初始化入口仍然介入，不算完成隔离。
+
+保留正常产品组件及初始化。形变组件自身的OnEnable已经登记owner并请求初始快照，不需要调用测试probe来维持产品工作。〔HybridLumenGIDeformedMesh.cs:101–110〕
+
+正常启动默认保持可见窗口、允许用户关闭；另提供一个有限验证参数，在固定120个实际目标相机帧后调用正常 Application.Quit。同一产物既可用于本轮有限验证，也可随后直接本地运行，不是只能生成测试报告的一次性程序。
+
+四、唯一验证及其决策意义
+
+授权一次新构建、一次普通可见Player，最多120个目标相机帧。 固定初始视图，不再移动门、切材质或形变，不运行软件／DXR对照。沿用现有分辨率和启动等待规则，不将它们定义为生产目标。
+
+只复用公开 GetDiagnostics()记录必要的相机执行进度、实际后端和资源准备状态；不新增GPU查询、纹理读回、逐票据记录或观察框架。公开诊断只能支持相应执行／绑定状态，不能冒充新的逐射线GPU证明。
+
+具体不确定性	必要验证	改变的决定
+Release是否依赖Development配置或临时资源？	构建选项、实际运行标志、来源与产物匹配；无缺失脚本、kernel、资源或致命shader错误。	失败才定位具体构建／依赖阻断；成功则保留普通Release产物。
+停止测试动作与插桩后，GI是否仍正常启用？	固定窗口中的实际相机进度、Feature状态、DXR准备和材质绑定；不能只检查请求开关。	未启用或持续意外回退，定位普通启动／资源接线；不调预算制造通过。
+普通退出是否出现新的失败？	自动退出0、无watchdog，扫描完整原生日志中的未解决资源、设备及异常签名。	出现失败就保存最早证据并停止，不自动再启动。
+
+特别注意：当前逐阶段 LogShutdown()带有DEVELOPMENT_BUILD/UNITY_EDITOR条件，Release中可能没有这些信息；未解决资源警告则仍在正常代码路径中。不能因为详细日志消失而失败，也不能把日志安静补写为逐owner清零证明。 本轮只做普通Release有限退出检查。〔HybridLumenGIResourceRetirement.cs:119–133、160–179〕
+
+五、退出条件与交接
+
+交付一个来源可追溯、无临时GPU插桩、正常可见启动的Release本地目录，附最短运行说明和本次有限结果。构建、实际启用、自动退出三项成立，就结束该包；任一失败，保存具体阻断，不自动第二次构建／运行。
+
+默认不改产品Runtime。若发现只能通过生命周期重构、shader全量保留或更换后端才能继续，先返回最小反例，不扩大本包。
+
+现在提交第39轮证据，随后执行 local-release-baseline-01。 这推进可用本地基线，不等于G5或整体生产放行。四项目标、十条工作流全部保留；生产分辨率、FPS、GI时间及显存阈值仍待定，不虚构合格线。门、内部层、材质、时间重建的已完成检查，以及暗区、MC、曝光和计时扩展，均保持关闭。

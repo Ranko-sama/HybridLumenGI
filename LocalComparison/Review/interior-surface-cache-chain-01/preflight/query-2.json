@@ -1,0 +1,33 @@
+{
+  "arguments": [
+    "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxc.exe",
+    "-T",
+    "cs_6_5",
+    "-E",
+    "CSInteriorSurfaceProbe",
+    "-O3",
+    "-D",
+    "HLGI_INTERIOR_QUERY=1",
+    "-D",
+    "SHADER_API_D3D11=1",
+    "-D",
+    "SHADER_STAGE_COMPUTE=1",
+    "-D",
+    "UNITY_COMPILER_DXC=1",
+    "-D",
+    "UNITY_VERSION=600000",
+    "-I",
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\interior-surface-cache-chain-01\\preflight\\shader-sources",
+    "-I",
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+    "-I",
+    "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+    "-I",
+    "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+    "-Fo",
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\interior-surface-cache-chain-01\\preflight\\query.dxil",
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\interior-surface-cache-chain-01\\preflight\\shader-sources\\HybridLumenGIHardware.compute"
+  ],
+  "exitCode": 0,
+  "scope": "Known Unity RayQuery adapter compile; actual Unity build/run still required"
+}

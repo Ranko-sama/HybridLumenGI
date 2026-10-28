@@ -1,0 +1,87 @@
+#pragma kernel CSBuildEmissiveProposals
+#pragma target 5.0
+#pragma use_dxc
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+struct HLGIProxy { float4 centerShape, extentsRoughness, albedo, emission, identity; };
+StructuredBuffer<HLGIProxy> _HLGI_Proxies;
+int _HLGI_ProxyCount;
+#include "HybridLumenGISurfaceCache.hlsl"
+#include "HybridLumenGIEmissiveRecords.hlsl"
+
+StructuredBuffer<HLGIEmissiveRecord> _HLGI_SurfaceEmitters;
+RWStructuredBuffer<HLGIEmissiveRecord> _HLGI_EmissiveProposals;
+int _HLGI_EmitterBudget;
+
+// One small ordered build per camera. Entry 0 is a header, then up to 32
+// continuous directional proposals. No readback or atomic publication is needed
+// on the same graphics queue: all consuming dispatches follow this dispatch.
+[numthreads(1,1,1)]
+void CSBuildEmissiveProposals(uint3 id:SV_DispatchThreadID)
+{
+    if(any(id!=0)) return;
+    [loop] for(uint clear=0;clear<33;clear++)
+        _HLGI_EmissiveProposals[clear]=(HLGIEmissiveRecord)0;
+    int budget=clamp(_HLGI_EmitterBudget,0,32);
+    if(budget==0 || _HLGI_SurfaceCardCount<=0 || _HLGI_ProxyCount<=0) return;
+
+    float scores[32];
+    float4 spheres[32];
+    [unroll] for(int initialize=0;initialize<32;initialize++)
+    { scores[initialize]=0;spheres[initialize]=0; }
+    int count=0;
+    [loop] for(uint card=0;card<(uint)_HLGI_SurfaceCardCount;card++)
+    {
+        // Surface material queries also allow warming receivers. A proposal must
+        // instead describe the currently published world, never both HLOD sets.
+        if(!HLGISurfaceCardValid(card)) continue;
+        uint owner=_HLGI_SurfaceCards[card].ownerSlot;
+        if(_HLGI_Proxies[owner].identity.w!=1) continue;
+        HLGIEmissiveRecord candidate=_HLGI_SurfaceEmitters[card];
+        float score=candidate.data.x;
+        if(!all(isfinite(candidate.sphere)) || candidate.sphere.w<=0 ||
+            !isfinite(score) || score<=0) continue;
+        // Stable descending selection: ties retain the earlier physical card.
+        // Truncating a proposal distribution does not truncate the integrand:
+        // the transport sampler retains positive cosine density everywhere above
+        // the receiver, including directions absent from this bounded table.
+        if(count==budget && score<=scores[budget-1]) continue;
+        int insertion=0;
+        [loop] while(insertion<count)
+        {
+            if(score>scores[insertion]) break;
+            insertion++;
+        }
+        if(insertion>=budget) continue;
+        [loop] for(int move=min(count,budget-1);move>insertion;move--)
+        { scores[move]=scores[move-1];spheres[move]=spheres[move-1]; }
+        scores[insertion]=score;spheres[insertion]=candidate.sphere;
+        count=min(count+1,budget);
+    }
+    if(count==0) return;
+
+    // Normalize by the largest finite score before summation. Absolute HDR power
+    // may be very large; all scaled summands are in [0,1] and total is in [1,32].
+    float total=0;
+    [loop] for(int sumIndex=0;sumIndex<count;sumIndex++) total+=scores[sumIndex]/scores[0];
+    float prefix=0,lower=0;
+    uint written=0;
+    [loop] for(int i=0;i<count;i++)
+    {
+        prefix+=scores[i]/scores[0];
+        float upper=i==count-1?1:saturate(prefix/total);
+        upper=max(lower,upper);
+        // The sampler uses the *stored* interval difference as the PMF, so zero
+        // intervals lost to float precision can be removed without PDF mismatch.
+        if(upper>lower)
+        {
+            HLGIEmissiveRecord proposal;
+            proposal.sphere=spheres[i];proposal.data=float4(lower,upper,0,0);
+            _HLGI_EmissiveProposals[++written]=proposal;
+        }
+        lower=upper;
+    }
+    HLGIEmissiveRecord header=(HLGIEmissiveRecord)0;
+    header.data.x=(float)written;
+    _HLGI_EmissiveProposals[0]=header;
+}
