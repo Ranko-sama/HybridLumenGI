@@ -1,0 +1,9 @@
+#pragma kernel CSBeginRayTextureCopy
+#pragma kernel CSCopyRayTextureMip
+#pragma kernel CSFinishRayTextureCopy
+#pragma kernel CSCopyRayTextureRange
+#pragma target 5.0
+#pragma use_dxc
+#pragma only_renderers d3d11
+
+#include "HybridLumenGIRayTextureCopy.hlsl"

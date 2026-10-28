@@ -1,0 +1,416 @@
+[
+  {
+    "name": "flat-edge-(0, 0)",
+    "pixel": [
+      0,
+      0
+    ],
+    "expected": [
+      true,
+      true
+    ],
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "flat-edge-(1, 1)",
+    "pixel": [
+      1,
+      1
+    ],
+    "expected": [
+      true,
+      true
+    ],
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "flat-edge-(3, 3)",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      true,
+      true
+    ],
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "flat-edge-(6, 6)",
+    "pixel": [
+      6,
+      6
+    ],
+    "expected": [
+      true,
+      true
+    ],
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "flat-edge-(7, 7)",
+    "pixel": [
+      7,
+      7
+    ],
+    "expected": [
+      true,
+      true
+    ],
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "both-directions-degenerate",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      false,
+      false
+    ],
+    "oldValid": [
+      false,
+      false
+    ]
+  },
+  {
+    "name": "grazing-direction",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      true,
+      true
+    ],
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "all-invalid",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      false,
+      false
+    ],
+    "oldValid": [
+      false,
+      false
+    ]
+  },
+  {
+    "name": "nan-neighbors",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      false,
+      false
+    ],
+    "oldValid": [
+      false,
+      false
+    ]
+  },
+  {
+    "name": "infinite-neighbors",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      false,
+      false
+    ],
+    "oldValid": [
+      false,
+      false
+    ]
+  },
+  {
+    "name": "discontinuous",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      false,
+      false
+    ],
+    "oldValid": [
+      false,
+      false
+    ]
+  },
+  {
+    "name": "one-valid-side",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      true,
+      true
+    ],
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "sloped",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      true,
+      true
+    ],
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "uv-outside",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      false,
+      false
+    ],
+    "oldValid": [
+      false,
+      false
+    ]
+  },
+  {
+    "name": "depth-zero",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      false,
+      false
+    ],
+    "oldValid": [
+      false,
+      false
+    ]
+  },
+  {
+    "name": "depth-nan",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      false,
+      false
+    ],
+    "oldValid": [
+      false,
+      false
+    ]
+  },
+  {
+    "name": "depth-outside",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      false,
+      false
+    ],
+    "oldValid": [
+      false,
+      false
+    ]
+  },
+  {
+    "name": "position-invalid",
+    "pixel": [
+      3,
+      3
+    ],
+    "expected": [
+      false,
+      false
+    ],
+    "oldValid": [
+      false,
+      false
+    ]
+  },
+  {
+    "name": "scene-(1, 1)",
+    "pixel": [
+      1,
+      1
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(639, 359)",
+    "pixel": [
+      639,
+      359
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(321, 181)",
+    "pixel": [
+      321,
+      181
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(101, 101)",
+    "pixel": [
+      101,
+      101
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(201, 181)",
+    "pixel": [
+      201,
+      181
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(401, 181)",
+    "pixel": [
+      401,
+      181
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(501, 281)",
+    "pixel": [
+      501,
+      281
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(301, 301)",
+    "pixel": [
+      301,
+      301
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(21, 181)",
+    "pixel": [
+      21,
+      181
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(621, 181)",
+    "pixel": [
+      621,
+      181
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(321, 21)",
+    "pixel": [
+      321,
+      21
+    ],
+    "expected": null,
+    "oldValid": [
+      true,
+      true
+    ]
+  },
+  {
+    "name": "scene-(321, 341)",
+    "pixel": [
+      321,
+      341
+    ],
+    "expected": null,
+    "oldValid": [
+      false,
+      false
+    ]
+  }
+]

@@ -2,6 +2,10 @@
 
 2026-10-27，用户明确取消当前朋友交付任务，直接在本机继续开发。冻结的 `runtime-candidate-16` 及其交付 ZIP 保留为历史基线；不再以等待朋友反馈作为开发停点。
 
+## transport-hotspot-and-reuse-01（2026-10-28）
+
+两个必要的实体DXR窗口均完整取得64个预选源帧，并通过原始ticks嵌套、固定配额和退出检查。Gather中位约16.907ms，占Transport主要成本。唯一接收像素导数复用候选虽通过有限实际HLSL逐字节等价及编译检查，但Gather仅降低0.027856ms，低于块间波动，已撤回。仓库与Unity部署110产品源码恢复原基线，保留全部证据；不追加采样或热点优化。必要构建也验证了修正后的独占Windows导入配置。实际Pro23已批准证据提交与撤回，下一包为单一材质槽MPB自动传播事件。详见[本包结果](../LocalComparison/Review/transport-hotspot-and-reuse-01/result.md)。
+
 ## gpu-cost-baseline-01（2026-10-28）
 
 `e1aa6356` 增加默认关闭的独立成本观测和有界完成记录导出。唯一新Development/Mono/DX12构建及实体RTX2080Ti运行完成688帧，其中固定512源帧全部通过实际NativeDX12身份/ticks校验；静态配额不变，反馈关闭。Transport中位19.694ms，三范围和中位19.853ms/p95为21.483ms。Astra接受有限结果，实际GPT6 Pro22已接受有限证据。此数据不覆盖应用总GPU时间、动态/Release尾延迟或峰值显存，下一步聚焦Transport内部归属。

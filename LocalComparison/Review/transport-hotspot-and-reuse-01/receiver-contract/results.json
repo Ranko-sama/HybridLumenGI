@@ -1,0 +1,111 @@
+{
+  "passed": true,
+  "cases": 30,
+  "directionOutputs": 60,
+  "validOutputs": 38,
+  "bitwiseDifferentRows": [],
+  "failures": [],
+  "scope": "Old and candidate actual extracted HLSL, same finite inputs on D3D12 WARP; depth texture fetch adapter only. Not full-frame or physical-GPU equality.",
+  "sceneView": "Reconstructed from recorded camera transform; invVP and depth copied from actual Unity frame. No claim of byte-identical recorded View constant.",
+  "files": {
+    "LocalComparison\\Review\\transport-hotspot-and-reuse-01\\compiler\\baseline\\source\\HybridLumenGIKernels.hlsl": "3868477a4994deb918718372d4bd36f55bc98c1753b1a9fd7be1bfbfe60cf799",
+    "Runtime\\Resources\\HybridLumenGI\\HybridLumenGIKernels.hlsl": "ee22fda79a465d1f63026be1e9383cb50303d8be26fdfe8768a6e1daf10c7f1d",
+    "Runtime\\Resources\\HybridLumenGI\\HybridLumenGIRayFootprint.hlsl": "6ea7286e57abde318f1e318e17cec6ed1e1c0e8451dd7e3546fb62977741b1ac",
+    "LocalComparison\\Review\\thin-wall-transport-01\\retry-v4\\C\\20261027-202314-2ac063eef20c4d9391e863bf1ead5fe2\\thin-0119-depth.bin": "35cfbc3865aefa9b5b3c01b8a25cd55aee7e6b6cb4baba680ff0506dd374ccd5",
+    "LocalComparison\\Review\\thin-wall-transport-01\\retry-v4\\C\\20261027-202314-2ac063eef20c4d9391e863bf1ead5fe2\\thin-0119-sources.json": "d79f94a436d74f18c5b1815f576a8537b6dc81ee88c0d3dd84d0ac4e9bccbfed",
+    "LocalComparison\\Review\\thin-wall-transport-01\\retry-v4\\C\\20261027-202314-2ac063eef20c4d9391e863bf1ead5fe2\\frame-0119.json": "0b3f276c77a3f5bd349108ca6beb472c4eef1e3d8064beca29b0f158b0da3aa7"
+  },
+  "artifacts": {
+    "candidate-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-warp.log": "1919490471cf9b87cfacbc0a8e17e8c5b22a4973c08e736fe5424ea1f0b4ce07",
+    "candidate.asm": "596c6c5e2ac3035cce5713daa9bfabb53cfb911528c4f54ed7d628fdb12c6cab",
+    "candidate.bin": "144351af0a59f06f6b4119712f04431d85e5af707da0694f37b808cec8cdaac5",
+    "candidate.dxil": "fae39fdb566539a82e8a2006c9ab3313319cdc9339455e49907e79e6b47a32d6",
+    "cases.json": "9032c565e30b5b9abc48e72e708f5d433e468b94d9bb335387d20c5585f3f628",
+    "commands.json": "10629b3bfa0112368388b26f99ab66eb2af021ec182d039e19fad3a1de73c2d3",
+    "inputs.bin": "4e9f93b6ff3339c961e42b4b0fce537effe6b4cbe35f4823b5e0447f649cba89",
+    "old-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "old-warp.log": "1919490471cf9b87cfacbc0a8e17e8c5b22a4973c08e736fe5424ea1f0b4ce07",
+    "old.asm": "b1c7a027075aec3a33b4e937a42a0c545b86e7aff1da547f5612b8bfe671b8f6",
+    "old.bin": "144351af0a59f06f6b4119712f04431d85e5af707da0694f37b808cec8cdaac5",
+    "old.dxil": "a485dc4d1d1222269fa0c1b1d2dd8a6f6ebb83faf7d7d7b53b93efbe3075be16",
+    "RayFootprintWarp.exe": "aeb2117fa97584e0b747dfeb1c8c8e8a648002c3777d28d66687c642e26c4424",
+    "ReceiverFootprint.hlsl": "147c240a5e207da92798b0711378b2cbe9caa2252231ba8343327a9700f25139"
+  },
+  "commands": [
+    {
+      "name": "old-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSRayFootprintTest",
+        "-O3",
+        "-D",
+        "CANDIDATE=0",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\old.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\old.asm",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\ReceiverFootprint.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "old-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\RayFootprintWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\old.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\old.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "candidate-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSRayFootprintTest",
+        "-O3",
+        "-D",
+        "CANDIDATE=1",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\candidate.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\candidate.asm",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\ReceiverFootprint.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "candidate-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\RayFootprintWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\candidate.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\candidate.bin"
+      ],
+      "exitCode": 0
+    }
+  ]
+}

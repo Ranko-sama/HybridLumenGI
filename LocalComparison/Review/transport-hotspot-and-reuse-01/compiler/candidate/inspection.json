@@ -1,0 +1,876 @@
+{
+  "side": "candidate",
+  "scope": "Optimized DXC with pinned Unity includes/RayQuery adapter; not Unity driver ISA or physical register allocation.",
+  "assemblySha256": "07fa5a5eefd4500aec9e4afc4708412f916a007697aa1b92b8e46500c8bc3c20",
+  "instructionLines": 430337,
+  "rayLoop": {
+    "sourceLine": 295,
+    "header": ".lr.ph89114",
+    "headerAssemblyLine": 88275,
+    "backedgeAssemblyLine": 491894,
+    "backedge": "br i1 %141863, label %.lr.ph89114, label %.loopexit.86833.loopexit, !dbg !35553, !llvm.loop !184168 ; line:295 col:12"
+  },
+  "receiverDepthLoads": 8,
+  "receiverDepthLoadsInsideLoop": 0,
+  "receiverGroups": [
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGIPrepareReceiverFootprint",
+          "line": 117
+        },
+        {
+          "function": "CSTrace",
+          "line": 294
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 87550,
+          "block": ".lr.ph89119",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 87554,
+          "block": ".lr.ph89119",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 87632,
+          "block": ".preheader.263427",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 87636,
+          "block": ".preheader.263427",
+          "insideRayLoop": false
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGIPrepareReceiverFootprint",
+          "line": 118
+        },
+        {
+          "function": "CSTrace",
+          "line": 294
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 87921,
+          "block": ".lr.ph89116",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 87925,
+          "block": ".lr.ph89116",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 88003,
+          "block": ".preheader.263426",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 88007,
+          "block": ".preheader.263426",
+          "insideRayLoop": false
+        }
+      ]
+    }
+  ],
+  "allDepthDeltaGroups": [
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGIScreenDepthDerivative",
+          "line": 94
+        },
+        {
+          "function": "HLGITryScreenGeometricNormal",
+          "line": 136
+        },
+        {
+          "function": "CSTrace",
+          "line": 282
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 1263,
+          "block": ".lr.ph89577",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 1267,
+          "block": ".lr.ph89577",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 1345,
+          "block": ".preheader.263453",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 1349,
+          "block": ".preheader.263453",
+          "insideRayLoop": false
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGIScreenDepthDerivative",
+          "line": 94
+        },
+        {
+          "function": "HLGITryScreenGeometricNormal",
+          "line": 137
+        },
+        {
+          "function": "CSTrace",
+          "line": 282
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 1659,
+          "block": ".lr.ph89574",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 1663,
+          "block": ".lr.ph89574",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 1741,
+          "block": ".preheader.263452",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 1745,
+          "block": ".preheader.263452",
+          "insideRayLoop": false
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGITryScreenRayFootprint",
+          "line": 104
+        },
+        {
+          "function": "HLGITryScreenWorldMatch",
+          "line": 160
+        },
+        {
+          "function": "CSTrace",
+          "line": 286
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 2294,
+          "block": ".lr.ph89571",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 2298,
+          "block": ".lr.ph89571",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 2376,
+          "block": ".preheader.263451",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 2380,
+          "block": ".preheader.263451",
+          "insideRayLoop": false
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGITryScreenRayFootprint",
+          "line": 105
+        },
+        {
+          "function": "HLGITryScreenWorldMatch",
+          "line": 160
+        },
+        {
+          "function": "CSTrace",
+          "line": 286
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 2659,
+          "block": ".lr.ph89568",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 2663,
+          "block": ".lr.ph89568",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 2741,
+          "block": ".preheader.263450",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 2745,
+          "block": ".preheader.263450",
+          "insideRayLoop": false
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGIPrepareReceiverFootprint",
+          "line": 117
+        },
+        {
+          "function": "CSTrace",
+          "line": 294
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 87550,
+          "block": ".lr.ph89119",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 87554,
+          "block": ".lr.ph89119",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 87632,
+          "block": ".preheader.263427",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 87636,
+          "block": ".preheader.263427",
+          "insideRayLoop": false
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGIPrepareReceiverFootprint",
+          "line": 118
+        },
+        {
+          "function": "CSTrace",
+          "line": 294
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 87921,
+          "block": ".lr.ph89116",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 87925,
+          "block": ".lr.ph89116",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 88003,
+          "block": ".preheader.263426",
+          "insideRayLoop": false
+        },
+        {
+          "assemblyLine": 88007,
+          "block": ".preheader.263426",
+          "insideRayLoop": false
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGIScreenDepthDerivative",
+          "line": 94
+        },
+        {
+          "function": "HLGITryScreenGeometricNormal",
+          "line": 136
+        },
+        {
+          "function": "TraceScreen",
+          "line": 222
+        },
+        {
+          "function": "CSTrace",
+          "line": 312
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 143739,
+          "block": ".lr.ph87063",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 143743,
+          "block": ".lr.ph87063",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 143821,
+          "block": ".preheader.263412",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 143825,
+          "block": ".preheader.263412",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGIScreenDepthDerivative",
+          "line": 94
+        },
+        {
+          "function": "HLGITryScreenGeometricNormal",
+          "line": 137
+        },
+        {
+          "function": "TraceScreen",
+          "line": 222
+        },
+        {
+          "function": "CSTrace",
+          "line": 312
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 144135,
+          "block": ".lr.ph87066",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 144139,
+          "block": ".lr.ph87066",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 144217,
+          "block": ".preheader.263411",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 144221,
+          "block": ".preheader.263411",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGITryScreenRayFootprint",
+          "line": 104
+        },
+        {
+          "function": "HLGITryScreenWorldMatch",
+          "line": 160
+        },
+        {
+          "function": "TraceScreen",
+          "line": 229
+        },
+        {
+          "function": "CSTrace",
+          "line": 312
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 144776,
+          "block": ".lr.ph87072",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 144780,
+          "block": ".lr.ph87072",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 144858,
+          "block": ".preheader.263425",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 144862,
+          "block": ".preheader.263425",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGITryScreenRayFootprint",
+          "line": 105
+        },
+        {
+          "function": "HLGITryScreenWorldMatch",
+          "line": 160
+        },
+        {
+          "function": "TraceScreen",
+          "line": 229
+        },
+        {
+          "function": "CSTrace",
+          "line": 312
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 145141,
+          "block": ".lr.ph87075",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 145145,
+          "block": ".lr.ph87075",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 145223,
+          "block": ".preheader.263424",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 145227,
+          "block": ".preheader.263424",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGITryScreenRayFootprint",
+          "line": 104
+        },
+        {
+          "function": "TraceScreen",
+          "line": 241
+        },
+        {
+          "function": "CSTrace",
+          "line": 312
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 185272,
+          "block": ".lr.ph87295",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 185276,
+          "block": ".lr.ph87295",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 185354,
+          "block": ".preheader.263423",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 185358,
+          "block": ".preheader.263423",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGITryScreenRayFootprint",
+          "line": 105
+        },
+        {
+          "function": "TraceScreen",
+          "line": 241
+        },
+        {
+          "function": "CSTrace",
+          "line": 312
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 185637,
+          "block": ".lr.ph87298",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 185641,
+          "block": ".lr.ph87298",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 185719,
+          "block": ".preheader.263422",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 185723,
+          "block": ".preheader.263422",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGIScreenDepthDerivative",
+          "line": 94
+        },
+        {
+          "function": "HLGITryScreenGeometricNormal",
+          "line": 136
+        },
+        {
+          "function": "TraceScreen",
+          "line": 222
+        },
+        {
+          "function": "CSTrace",
+          "line": 339
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 380545,
+          "block": ".lr.ph88429",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 380549,
+          "block": ".lr.ph88429",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 380627,
+          "block": ".preheader.263401",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 380631,
+          "block": ".preheader.263401",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGIScreenDepthDerivative",
+          "line": 94
+        },
+        {
+          "function": "HLGITryScreenGeometricNormal",
+          "line": 137
+        },
+        {
+          "function": "TraceScreen",
+          "line": 222
+        },
+        {
+          "function": "CSTrace",
+          "line": 339
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 380941,
+          "block": ".lr.ph88432",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 380945,
+          "block": ".lr.ph88432",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 381023,
+          "block": ".preheader.263400",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 381027,
+          "block": ".preheader.263400",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGITryScreenRayFootprint",
+          "line": 104
+        },
+        {
+          "function": "HLGITryScreenWorldMatch",
+          "line": 160
+        },
+        {
+          "function": "TraceScreen",
+          "line": 229
+        },
+        {
+          "function": "CSTrace",
+          "line": 339
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 381582,
+          "block": ".lr.ph88437",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 381586,
+          "block": ".lr.ph88437",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 381664,
+          "block": ".preheader.263421",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 381668,
+          "block": ".preheader.263421",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGITryScreenRayFootprint",
+          "line": 105
+        },
+        {
+          "function": "HLGITryScreenWorldMatch",
+          "line": 160
+        },
+        {
+          "function": "TraceScreen",
+          "line": 229
+        },
+        {
+          "function": "CSTrace",
+          "line": 339
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 381947,
+          "block": ".lr.ph88440",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 381951,
+          "block": ".lr.ph88440",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 382029,
+          "block": ".preheader.263420",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 382033,
+          "block": ".preheader.263420",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGITryScreenRayFootprint",
+          "line": 104
+        },
+        {
+          "function": "TraceScreen",
+          "line": 241
+        },
+        {
+          "function": "CSTrace",
+          "line": 339
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 422080,
+          "block": ".lr.ph88660",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 422084,
+          "block": ".lr.ph88660",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 422162,
+          "block": ".preheader.263419",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 422166,
+          "block": ".preheader.263419",
+          "insideRayLoop": true
+        }
+      ]
+    },
+    {
+      "chain": [
+        {
+          "function": "HLGIScreenDepthDelta",
+          "line": 73
+        },
+        {
+          "function": "HLGITryScreenRayFootprint",
+          "line": 105
+        },
+        {
+          "function": "TraceScreen",
+          "line": 241
+        },
+        {
+          "function": "CSTrace",
+          "line": 339
+        }
+      ],
+      "loads": [
+        {
+          "assemblyLine": 422445,
+          "block": ".lr.ph88663",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 422449,
+          "block": ".lr.ph88663",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 422527,
+          "block": ".preheader.263418",
+          "insideRayLoop": true
+        },
+        {
+          "assemblyLine": 422531,
+          "block": ".preheader.263418",
+          "insideRayLoop": true
+        }
+      ]
+    }
+  ],
+  "registerImplication": "Candidate explicitly keeps 6 delta floats and validity across the ray loop; physical register/spill count unavailable from this DXIL. Actual same-instrumentation GPU comparison is decisive."
+}

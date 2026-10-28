@@ -1,0 +1,303 @@
+{
+  "completeAttribution": true,
+  "failures": {},
+  "scope": "64 selected sources, instrumented fixed DXR scene; formal scopes plus separate diagnostic owner",
+  "diagnosticScopeMap": {
+    "begin0/end0": "WorldCache",
+    "begin1/end1": "Gather",
+    "begin2/end2": "Reconstruction (Temporal through Atrous)"
+  },
+  "remainderMeaning": "Other commands, gaps and instrumentation inside formal Transport; not a named kernel or pure ALU cost",
+  "buildManifestSha256": "d8990958a089b2bf85b148362df54883aeb537fdb4561db16da80089444f8fd6",
+  "runId": "20261028-101825-bfb1e356ebe44a15a7518995b107cac1",
+  "collection": {
+    "status": "collected",
+    "error": "",
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "driver": "Direct3D 12 [level 12.1]",
+    "scene": "Assets/RuntimeAudit/Functional.unity",
+    "scope": "Fixed Functional DXR; preallocated CPU receipts and validated native completions only; no image/readback/per-frame IO.",
+    "warmupLimit": 256,
+    "window": 64,
+    "drainLimit": 32,
+    "frameLimit": 352,
+    "frames": 240,
+    "completions": 233,
+    "sourceStart": 145,
+    "sourceEnd": 208,
+    "firstEngineFrame": 1,
+    "diagnosticCompletions": 233,
+    "diagnosticPendingBeforeStop": 2,
+    "diagnosticPendingAfterStop": 0,
+    "diagnosticCancelledAfterStop": 2,
+    "measureOnly": true,
+    "adaptive": false,
+    "targetMs": 0.0,
+    "scopeExclusions": "CPU preparation, out-of-scope uploads/RenderGraph work and whole-app GPU time. Queue intervals can include barriers/waits. Finite descriptive statistics only."
+  },
+  "collectionVerified": true,
+  "parentMissingSources": [],
+  "childMissingSources": [],
+  "statistics": {
+    "ReceiverCapture": {
+      "count": 64,
+      "medianMs": 0.121104,
+      "maxMs": 0.139264
+    },
+    "Transport": {
+      "count": 64,
+      "medianMs": 19.610416,
+      "maxMs": 21.825536
+    },
+    "Composite": {
+      "count": 64,
+      "medianMs": 0.038016,
+      "maxMs": 0.043008
+    },
+    "FormalSum": {
+      "count": 64,
+      "medianMs": 19.770336,
+      "maxMs": 21.984928
+    },
+    "WorldCache": {
+      "count": 64,
+      "medianMs": 2.361568,
+      "maxMs": 3.139328
+    },
+    "Gather": {
+      "count": 64,
+      "medianMs": 16.87952,
+      "maxMs": 19.135488
+    },
+    "Reconstruction": {
+      "count": 64,
+      "medianMs": 0.072912,
+      "maxMs": 0.198144
+    },
+    "TransportRemainder": {
+      "count": 64,
+      "medianMs": 0.20763199999999998,
+      "maxMs": 0.21424
+    }
+  },
+  "consecutiveBlocks": [
+    {
+      "sourceStart": 145,
+      "sourceEnd": 160,
+      "statistics": {
+        "ReceiverCapture": {
+          "count": 16,
+          "medianMs": 0.121952,
+          "maxMs": 0.131072
+        },
+        "Transport": {
+          "count": 16,
+          "medianMs": 19.442416,
+          "maxMs": 20.673024
+        },
+        "Composite": {
+          "count": 16,
+          "medianMs": 0.037808,
+          "maxMs": 0.043008
+        },
+        "FormalSum": {
+          "count": 16,
+          "medianMs": 19.601152,
+          "maxMs": 20.833376
+        },
+        "WorldCache": {
+          "count": 16,
+          "medianMs": 2.354176,
+          "maxMs": 3.011392
+        },
+        "Gather": {
+          "count": 16,
+          "medianMs": 16.824192,
+          "maxMs": 17.381376
+        },
+        "Reconstruction": {
+          "count": 16,
+          "medianMs": 0.073104,
+          "maxMs": 0.1968
+        },
+        "TransportRemainder": {
+          "count": 16,
+          "medianMs": 0.207424,
+          "maxMs": 0.21424
+        }
+      }
+    },
+    {
+      "sourceStart": 161,
+      "sourceEnd": 176,
+      "statistics": {
+        "ReceiverCapture": {
+          "count": 16,
+          "medianMs": 0.120832,
+          "maxMs": 0.139264
+        },
+        "Transport": {
+          "count": 16,
+          "medianMs": 19.609488,
+          "maxMs": 20.219904
+        },
+        "Composite": {
+          "count": 16,
+          "medianMs": 0.037744,
+          "maxMs": 0.042592
+        },
+        "FormalSum": {
+          "count": 16,
+          "medianMs": 19.77168,
+          "maxMs": 20.385376
+        },
+        "WorldCache": {
+          "count": 16,
+          "medianMs": 2.361568,
+          "maxMs": 2.949376
+        },
+        "Gather": {
+          "count": 16,
+          "medianMs": 16.847696,
+          "maxMs": 17.570176
+        },
+        "Reconstruction": {
+          "count": 16,
+          "medianMs": 0.073504,
+          "maxMs": 0.197024
+        },
+        "TransportRemainder": {
+          "count": 16,
+          "medianMs": 0.207136,
+          "maxMs": 0.210208
+        }
+      }
+    },
+    {
+      "sourceStart": 177,
+      "sourceEnd": 192,
+      "statistics": {
+        "ReceiverCapture": {
+          "count": 16,
+          "medianMs": 0.120432,
+          "maxMs": 0.135872
+        },
+        "Transport": {
+          "count": 16,
+          "medianMs": 19.337328,
+          "maxMs": 21.825536
+        },
+        "Composite": {
+          "count": 16,
+          "medianMs": 0.037808,
+          "maxMs": 0.042656
+        },
+        "FormalSum": {
+          "count": 16,
+          "medianMs": 19.499152000000002,
+          "maxMs": 21.984928
+        },
+        "WorldCache": {
+          "count": 16,
+          "medianMs": 2.400272,
+          "maxMs": 3.0992
+        },
+        "Gather": {
+          "count": 16,
+          "medianMs": 16.738,
+          "maxMs": 18.597344
+        },
+        "Reconstruction": {
+          "count": 16,
+          "medianMs": 0.07324800000000001,
+          "maxMs": 0.198144
+        },
+        "TransportRemainder": {
+          "count": 16,
+          "medianMs": 0.20779199999999998,
+          "maxMs": 0.209952
+        }
+      }
+    },
+    {
+      "sourceStart": 193,
+      "sourceEnd": 208,
+      "statistics": {
+        "ReceiverCapture": {
+          "count": 16,
+          "medianMs": 0.12115200000000001,
+          "maxMs": 0.126784
+        },
+        "Transport": {
+          "count": 16,
+          "medianMs": 20.683056,
+          "maxMs": 21.6008
+        },
+        "Composite": {
+          "count": 16,
+          "medianMs": 0.038447999999999996,
+          "maxMs": 0.042336
+        },
+        "FormalSum": {
+          "count": 16,
+          "medianMs": 20.842655999999998,
+          "maxMs": 21.757632
+        },
+        "WorldCache": {
+          "count": 16,
+          "medianMs": 2.3556,
+          "maxMs": 3.139328
+        },
+        "Gather": {
+          "count": 16,
+          "medianMs": 17.876176,
+          "maxMs": 19.135488
+        },
+        "Reconstruction": {
+          "count": 16,
+          "medianMs": 0.07200000000000001,
+          "maxMs": 0.074016
+        },
+        "TransportRemainder": {
+          "count": 16,
+          "medianMs": 0.2084,
+          "maxMs": 0.212032
+        }
+      }
+    }
+  ],
+  "rankedTransportParts": [
+    "Gather",
+    "WorldCache",
+    "TransportRemainder",
+    "Reconstruction"
+  ],
+  "selectedSources": 64,
+  "nestedSamplesVerified": true,
+  "nativeExit": {
+    "processId": 13268,
+    "exitCode": 0,
+    "watchdogTerminated": false,
+    "completedUtc": "2026-10-28T10:20:04.9387236Z"
+  },
+  "nativeLogHits": [],
+  "shutdownEvents": [
+    "HybridLumenGI shutdown begin: outside=True, contextEnded=True, owned=0, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=83600, arenaBytes=77344, deformationBytes=53760, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown owners withdrawn: outside=True, contextEnded=True, owned=2, pending=2, unknown=0, failed=0, failedWithdrawals=0, materialBytes=6256, arenaBytes=0, deformationBytes=53760, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown idle fence submitted: outside=True, contextEnded=True, owned=2, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=6256, arenaBytes=0, deformationBytes=53760, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown completed owner destroyed: outside=True, contextEnded=True, owned=8, pending=7, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=53760, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown completed owner destroyed: outside=True, contextEnded=True, owned=7, pending=7, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=0, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown idle fence submitted: outside=True, contextEnded=True, owned=7, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=0, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown completed owner destroyed: outside=True, contextEnded=True, owned=6, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=0, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown completed owner destroyed: outside=True, contextEnded=True, owned=5, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=0, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown completed owner destroyed: outside=True, contextEnded=True, owned=4, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=0, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown completed owner destroyed: outside=True, contextEnded=True, owned=3, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=0, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown completed owner destroyed: outside=True, contextEnded=True, owned=2, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=0, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown completed owner destroyed: outside=True, contextEnded=True, owned=1, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=0, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown completed owner destroyed: outside=True, contextEnded=True, owned=0, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=0, deformationJobs=0, deformationCleanupFailed=0",
+    "HybridLumenGI shutdown generic drain complete: outside=True, contextEnded=True, owned=0, pending=0, unknown=0, failed=0, failedWithdrawals=0, materialBytes=0, arenaBytes=0, deformationBytes=0, deformationJobs=0, deformationCleanupFailed=0"
+  ],
+  "nativeExitVerified": true
+}
