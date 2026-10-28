@@ -84,6 +84,7 @@ Shader "Hidden/HybridLumenGI/NativeDiffuseCapture"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
             #include "HybridLumenGIReceiverPolicyCapture.hlsl"
+            #include "HybridLumenGIScreenMaterial.hlsl"
 
             struct HLGIDiffuseCaptureOutput
             {
@@ -145,10 +146,10 @@ Shader "Hidden/HybridLumenGI/NativeDiffuseCapture"
                     // branch. ComputeFogIntensity alone returns zero without fog.
                     half fogTransmission = MixFogColor(half3(1,1,1), half3(0,0,0), inputData.fogCoord).r;
                     output.diffuseOcclusion = half4(brdfData.diffuse, ao.indirectAmbientOcclusion);
-                    // [1,2] encodes valid + material-only AO. Screen-hit bounce
-                    // transport uses alpha-1; final receiver uses target0.a, which
-                    // also contains native SSAO. Uncovered/rejected pixels are 0.
-                    output.emissionValidity = half4(surfaceData.emission, 1 + saturate(surfaceData.occlusion));
+                    // Magnitude [1,2] encodes valid + material-only AO; sign is
+                    // Receive Shadows. Final receiver target0.a also includes
+                    // native SSAO. Uncovered/rejected pixels remain zero.
+                    output.emissionValidity = half4(surfaceData.emission, HLGIEncodeScreenMaterial(1 + saturate(surfaceData.occlusion), HLGICaptureReceivesShadows()));
                     output.nativeDiffuseFog = half4(nativeDiffuse, fogTransmission);
                     output.receiverPolicy = HLGICaptureReceiverPolicy();
                     return output;

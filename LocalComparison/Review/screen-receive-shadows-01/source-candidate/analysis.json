@@ -1,0 +1,727 @@
+{
+  "stage": "candidate",
+  "passed": true,
+  "failures": [],
+  "rows": [
+    {
+      "case": {
+        "name": "ordinary-blockedFalse-onFalse",
+        "on": false,
+        "blocked": false,
+        "native": false,
+        "valid": true,
+        "ao": 0.375,
+        "black": false
+      },
+      "screen": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "world": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "queries": [
+        0,
+        0
+      ],
+      "alpha": [
+        -1.0,
+        1.0,
+        0.75,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "ordinary-blockedFalse-onTrue",
+        "on": true,
+        "blocked": false,
+        "native": false,
+        "valid": true,
+        "ao": 0.375,
+        "black": false
+      },
+      "screen": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "world": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "queries": [
+        1,
+        1
+      ],
+      "alpha": [
+        1.0,
+        1.0,
+        0.75,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "ordinary-blockedTrue-onFalse",
+        "on": false,
+        "blocked": true,
+        "native": false,
+        "valid": true,
+        "ao": 0.375,
+        "black": false
+      },
+      "screen": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "world": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "queries": [
+        0,
+        0
+      ],
+      "alpha": [
+        -1.0,
+        1.0,
+        0.75,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "ordinary-blockedTrue-onTrue",
+        "on": true,
+        "blocked": true,
+        "native": false,
+        "valid": true,
+        "ao": 0.375,
+        "black": false
+      },
+      "screen": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "world": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "queries": [
+        1,
+        1
+      ],
+      "alpha": [
+        1.0,
+        1.0,
+        0.75,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "native-blockedFalse-onFalse",
+        "on": false,
+        "blocked": false,
+        "native": true,
+        "valid": true,
+        "ao": 0.375,
+        "black": false
+      },
+      "screen": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "world": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "queries": [
+        0,
+        0
+      ],
+      "alpha": [
+        -1.375,
+        1.375,
+        0.375,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "native-blockedFalse-onTrue",
+        "on": true,
+        "blocked": false,
+        "native": true,
+        "valid": true,
+        "ao": 0.375,
+        "black": false
+      },
+      "screen": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "world": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "queries": [
+        1,
+        1
+      ],
+      "alpha": [
+        1.375,
+        1.375,
+        0.375,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "native-blockedTrue-onFalse",
+        "on": false,
+        "blocked": true,
+        "native": true,
+        "valid": true,
+        "ao": 0.375,
+        "black": false
+      },
+      "screen": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "world": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "queries": [
+        0,
+        0
+      ],
+      "alpha": [
+        -1.375,
+        1.375,
+        0.375,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "native-blockedTrue-onTrue",
+        "on": true,
+        "blocked": true,
+        "native": true,
+        "valid": true,
+        "ao": 0.375,
+        "black": false
+      },
+      "screen": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "world": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "queries": [
+        1,
+        1
+      ],
+      "alpha": [
+        1.375,
+        1.375,
+        0.375,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "ao0-onFalse",
+        "on": false,
+        "blocked": true,
+        "native": true,
+        "valid": true,
+        "ao": 0,
+        "black": false
+      },
+      "screen": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "world": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "queries": [
+        0,
+        0
+      ],
+      "alpha": [
+        -1.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "ao0-onTrue",
+        "on": true,
+        "blocked": true,
+        "native": true,
+        "valid": true,
+        "ao": 0,
+        "black": false
+      },
+      "screen": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "world": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "queries": [
+        1,
+        1
+      ],
+      "alpha": [
+        1.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "ao1-onFalse",
+        "on": false,
+        "blocked": true,
+        "native": true,
+        "valid": true,
+        "ao": 1,
+        "black": false
+      },
+      "screen": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "world": [
+        0.625,
+        0.75,
+        1.0,
+        1.0
+      ],
+      "queries": [
+        0,
+        0
+      ],
+      "alpha": [
+        -2.0,
+        2.0,
+        1.0,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "ao1-onTrue",
+        "on": true,
+        "blocked": true,
+        "native": true,
+        "valid": true,
+        "ao": 1,
+        "black": false
+      },
+      "screen": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "world": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "queries": [
+        1,
+        1
+      ],
+      "alpha": [
+        2.0,
+        2.0,
+        1.0,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "valid-black-onFalse",
+        "on": false,
+        "blocked": true,
+        "native": true,
+        "valid": true,
+        "ao": 0.375,
+        "black": true
+      },
+      "screen": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "world": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "queries": [
+        0,
+        0
+      ],
+      "alpha": [
+        -1.375,
+        1.375,
+        0.375,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "invalid-onFalse",
+        "on": false,
+        "blocked": true,
+        "native": true,
+        "valid": false,
+        "ao": 0.375,
+        "black": true
+      },
+      "screen": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "world": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "queries": [
+        0,
+        0
+      ],
+      "alpha": [
+        -0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "valid-black-onTrue",
+        "on": true,
+        "blocked": true,
+        "native": true,
+        "valid": true,
+        "ao": 0.375,
+        "black": true
+      },
+      "screen": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "world": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "queries": [
+        1,
+        1
+      ],
+      "alpha": [
+        1.375,
+        1.375,
+        0.375,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    },
+    {
+      "case": {
+        "name": "invalid-onTrue",
+        "on": true,
+        "blocked": true,
+        "native": true,
+        "valid": false,
+        "ao": 0.375,
+        "black": true
+      },
+      "screen": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "world": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "queries": [
+        1,
+        0
+      ],
+      "alpha": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "checks": {
+        "worldExpected": true,
+        "screenHit": true,
+        "screenExpected": true,
+        "screenKnown": true,
+        "samePathRadiance": true,
+        "validity": true,
+        "sign": true,
+        "halfMagnitude": true,
+        "ao": true
+      }
+    }
+  ],
+  "runner": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+  "runnerSha256": "8dc02bf76d564dba07b117af905335c1281377e8d7fd9e5853e6cd1a07324cb4",
+  "runnerCppSha256": "ed1031b28a397aa2258798d4e3f7c51063486dd14a6a2ea8793d4523c00a9161",
+  "dxcSha256": "7c6918a0e2d4e437629fa8549f5ce800970494780f363bbbe1e3d3034f435aee",
+  "inputSha256": "1db41065ee206a5fd90cb1aa54b7a030f0d1ef506e5a820cfa659e59893c83d0",
+  "fixtureSha256": "8d48484e88ba4db42fc9118d2f1b9476ff2d2924e673f9538ad459c067547ded",
+  "sources": {
+    "HybridLumenGITransport.hlsl": "5a101905cabdcdd43e458a34fbc0e45c18d42e7fa9557106bfb9766fcd858afb",
+    "HybridLumenGIKernels.hlsl": "be34c3f5da63159db78d5e7f972296fb544e2bbfbb042736fcd4b8f2d6fe82ed",
+    "HybridLumenGIExactMesh.hlsl": "80f873b8a83002e78adf8bc4215dc58e43ffd6c6472df67594e1fc537b8de678",
+    "HybridLumenGIHit.hlsl": "c9bc5a9089102de5d70814e077c7e3394013b8542bd14cade7f9c1dffe37b284",
+    "HybridLumenGIRayFootprint.hlsl": "6ea7286e57abde318f1e318e17cec6ed1e1c0e8451dd7e3546fb62977741b1ac",
+    "HybridLumenGIRadianceValidity.hlsl": "c86a90bb01da33d26d06d2f34686ac24ed5d0086f7202e79846abb25ca17637e",
+    "HybridLumenGIScreenMaterial.hlsl": "757f6f0b32397cc2c2c928e7e394c7dd0dc29d3e840c8433286f4118509e879e"
+  },
+  "scope": "Actual extracted TraceScreen/ProxyRadiance/DirectIrradiance and half conversion on WARP; same p/n/layers/footprint, explicit dependency adapters. Not Unity capture or real occlusion traversal."
+}

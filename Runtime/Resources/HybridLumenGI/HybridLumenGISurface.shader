@@ -38,8 +38,10 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             #pragma multi_compile_fragment _ _METALLICSPECGLOSSMAP
             #pragma multi_compile_fragment _ _EMISSION
             #pragma multi_compile_fragment _ _OCCLUSIONMAP
+            #pragma multi_compile_local_fragment _ _RECEIVE_SHADOWS_OFF
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "HybridLumenGIReceiverPolicyCapture.hlsl"
+            #include "HybridLumenGIScreenMaterial.hlsl"
 
             TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
             TEXTURE2D(_MetallicGlossMap); SAMPLER(sampler_MetallicGlossMap);
@@ -70,7 +72,7 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             {
                 // Linear diffuse reflectance, including dielectric/metal split.
                 half4 diffuseOcclusion : SV_Target0;
-                // Linear emitted radiance; alpha is the valid-material marker.
+                // Linear emitted radiance; alpha carries validity and shadow policy.
                 half4 emissionValidity : SV_Target1;
                 // R32G32_UInt: GameObject layer bit and Renderer rendering mask.
                 uint2 receiverPolicy : SV_Target2;
@@ -118,7 +120,7 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                 #endif
                 SurfaceOutput output;
                 output.diffuseOcclusion = half4(saturate(baseSample.rgb * _BaseColor.rgb) * diffuseFraction, saturate(occlusion));
-                output.emissionValidity = half4(emission, 1.0h);
+                output.emissionValidity = half4(emission, HLGIEncodeScreenMaterial(1.0h, HLGICaptureReceivesShadows()));
                 output.receiverPolicy = HLGICaptureReceiverPolicy();
                 return output;
             }

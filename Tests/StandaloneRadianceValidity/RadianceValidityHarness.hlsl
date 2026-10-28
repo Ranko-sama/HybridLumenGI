@@ -1,6 +1,7 @@
 #include "HybridLumenGIRadianceValidity.hlsl"
 #include "HybridLumenGIHit.hlsl"
 #include "HybridLumenGIRayFootprint.hlsl"
+#include "HybridLumenGIScreenMaterial.hlsl"
 struct RadianceInput
 {
     float4 incoming,control,initialSum,irradiance,guide,history,moments;

@@ -1,6 +1,7 @@
 #include "HybridLumenGITransport.hlsl"
 #include "HybridLumenGIScreenGeometry.hlsl"
 #include "HybridLumenGIScreenSampling.hlsl"
+#include "HybridLumenGIScreenMaterial.hlsl"
 #if defined(HLGI_RECEIVER_IDENTITY)
 #include "HybridLumenGIReceiverTemporal.hlsl"
 Texture2D<uint4> _HLGI_IdentityCurrent, _HLGI_IdentityPrevious;
@@ -196,7 +197,7 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                 float captureRaw=_HLGI_CaptureDepth.SampleLevel(sampler_PointClamp,uv,0);
                 bool captured=ValidDepth(captureRaw) && distance(p,WorldPosition(uv,captureRaw,_HLGI_InvVP))<0.03;
                 float surfaceT=dot(p-origin,dir);
-                if(emission.a>0.5 && captured && surfaceT>0 && surfaceT<=maxT)
+                if(HLGIHasScreenMaterial(emission.a) && captured && surfaceT>0 && surfaceT<=maxT)
                 {
                     float raw=_HLGI_Depth.SampleLevel(sampler_PointClamp,uv,0);
                     float3 geometricNormal;
@@ -221,7 +222,7 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                     HLGIRayFootprint screenFootprint;
                     HLGITryScreenRayFootprint(uv,raw,p,cameraRay,screenFootprint);
                     bool directKnown;
-                    float3 direct=DirectIrradiance(p,n,biasNormal,receiverLayers,true,cameraRay,screenFootprint,directKnown);
+                    float3 direct=DirectIrradiance(p,n,biasNormal,receiverLayers,HLGIScreenReceivesShadows(emission.a),cameraRay,screenFootprint,directKnown);
                     // A captured surface with unknown incident light is still a
                     // hit. Never continue behind it or reinterpret it as a miss.
                     distanceHit=surfaceT;
@@ -230,7 +231,7 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                     // Only registered spatially matching surfaces can contribute higher-order cache light.
                     if(worldMatch)
                     {
-                        float materialAO=_HLGI_NativeComposition!=0?saturate(emission.a-1):diffuse.a;
+                        float materialAO=HLGIScreenMaterialAO(emission.a,_HLGI_NativeComposition!=0,diffuse.a);
                         radiance+=diffuse.rgb*materialAO*_HLGI_BounceFeedback*CachedIrradiance(match,n);
                     }
                     known=all(isfinite(radiance));return true;
@@ -251,7 +252,7 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
     float4 material=_HLGI_Diffuse.Load(int3(fullPixel,0));
     float capturedDepth=_HLGI_CaptureDepth.Load(int3(fullPixel,0));
     bool sameSurface=ValidDepth(capturedDepth) && distance(WorldPosition(uv,depth,_HLGI_InvVP),WorldPosition(uv,capturedDepth,_HLGI_InvVP))<0.03;
-    if(!ValidDepth(depth) || !sameSurface || _HLGI_Emission.Load(int3(fullPixel,0)).a<0.5)
+    if(!ValidDepth(depth) || !sameSurface || !HLGIHasScreenMaterial(_HLGI_Emission.Load(int3(fullPixel,0)).a))
     {
         _HLGI_Output[id.xy]=0; _HLGI_GeometryOut[id.xy]=0; _HLGI_MaterialOut[id.xy]=0; return;
     }

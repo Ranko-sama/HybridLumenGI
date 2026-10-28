@@ -1,0 +1,19 @@
+LocalComparison/Review/screen-receive-shadows-01/instrumentation/prepared/Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl:279:24: error: modifiers must appear before type
+                float3 point=WorldPosition(uv,depth,_HLGI_InvVP),origin=_HLGI_MaterialView.xyz;
+                       ^
+LocalComparison/Review/screen-receive-shadows-01/instrumentation/prepared/Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl:279:29: error: expected unqualified-id
+                float3 point=WorldPosition(uv,depth,_HLGI_InvVP),origin=_HLGI_MaterialView.xyz;
+                            ^
+LocalComparison/Review/screen-receive-shadows-01/instrumentation/prepared/Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl:280:44: error: expected expression
+                float3 direction=normalize(point-origin),value;float distanceHit;bool known;
+                                           ^
+LocalComparison/Review/screen-receive-shadows-01/instrumentation/prepared/Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl:281:73: error: expected expression
+                bool found=TraceScreen(origin,direction,distance(origin,point)+0.2,value,distanceHit,known);
+                                                                        ^
+LocalComparison/Review/screen-receive-shadows-01/instrumentation/prepared/Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl:281:66: error: use of undeclared identifier 'origin'
+                bool found=TraceScreen(origin,direction,distance(origin,point)+0.2,value,distanceHit,known);
+                                                                 ^
+LocalComparison/Review/screen-receive-shadows-01/instrumentation/prepared/Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl:281:40: error: use of undeclared identifier 'origin'
+                bool found=TraceScreen(origin,direction,distance(origin,point)+0.2,value,distanceHit,known);
+                                       ^
+

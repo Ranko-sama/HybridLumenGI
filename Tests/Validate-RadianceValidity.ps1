@@ -12,6 +12,7 @@ $shaderRoot=Join-Path $SourceRoot 'Runtime/Resources/HybridLumenGI'
 . (Join-Path $PSScriptRoot 'Invoke-OfflineCheck.ps1')
 $checks=New-Object 'System.Collections.Generic.List[object]'
 $sourceNames=@('Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl','Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl',
+    'Runtime/Resources/HybridLumenGI/HybridLumenGIScreenMaterial.hlsl',
     'Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl','Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl',
     'Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl','Runtime/Resources/HybridLumenGI/HybridLumenGIExactMesh.hlsl','Runtime/Resources/HybridLumenGI/HybridLumenGIRayFootprint.hlsl',
     'Tests/StandaloneRadianceValidity/RadianceValidityWarp.cpp.txt','Tests/StandaloneRadianceValidity/RadianceValidityHarness.hlsl',

@@ -8,6 +8,7 @@ Shader "Hidden/HybridLumenGI/Composite"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "HybridLumenGIScreenGeometry.hlsl"
         #include "HybridLumenGIScreenSampling.hlsl"
+        #include "HybridLumenGIScreenMaterial.hlsl"
         Texture2D<float4> _HLGI_GITexture, _HLGI_Geometry, _HLGI_Diffuse, _HLGI_Emission, _HLGI_Normals, _HLGI_Moments;
         Texture2D<float> _HLGI_Depth, _HLGI_CaptureDepth;
         Texture2D<float4> _HLGI_NativeDiffuseFog;
@@ -89,7 +90,7 @@ Shader "Hidden/HybridLumenGI/Composite"
             float2 uv=HLGIFullPixelCenterUv(fullPixel,fullSize);
             float4 material=_HLGI_Diffuse.Load(int3(fullPixel,0));
             float valid=_HLGI_Emission.Load(int3(fullPixel,0)).a;
-            if(valid<0.5) return 0;
+            if(!HLGIHasScreenMaterial(valid)) return 0;
             float depth=_HLGI_Depth.Load(int3(fullPixel,0));
             float captureDepth=_HLGI_CaptureDepth.Load(int3(fullPixel,0));
             if(distance(Reconstruct(uv,depth),Reconstruct(uv,captureDepth))>0.03) return 0;
