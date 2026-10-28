@@ -1,10 +1,14 @@
 # HybridLumenGI
 
-**当前源码：local-development-resource-shutdown-01b，已通过 GPT-6 Pro 复审，继续本机开发。** 已修复已测 Editor 自然退出、重入和直接关闭中的资源晚撤销问题；关闭准入后先撤销 owner，再按真实 fence 完成释放。此前的 HDR 时间矩修复和短历史滤波过渡保留。见 [本机开发记录](Documentation/LocalDevelopment.md)、[完整推进表](Documentation/DevelopmentProgress.md) 与 [本包证据边界](Documentation/ReviewBrief-ResourceShutdown01b.md)。当前 Player 尚未重建；不将有限 Editor 结果写成生产验收。
+**当前本机基线：Release49；已验证产品来源为 `31c941589b53a6065b9191fac6d6b984124968c0`。** 后续文档提交的 HEAD 不自动成为该 EXE 的产品来源。当前继续本机开发，不需要朋友交付；四项目标与十条工作流仍以[完整原计划](Documentation/OriginalDevelopmentPlan.md)为准。
 
-**上一冻结基线：runtime-candidate-16。** 该基线已在 Unity 6000.0.85f1 / URP 17.0.4 / Windows DX12 / RTX 2080 Ti 构建并运行，功能与流式 Player 各完成720帧、32张HDR、零采集错误。基于 integration-15，修复了编译展开、黑室缓存漏光、Unity API接线、发光keyword/HDR颜色、RGB24贴图拒绝、Player灯光API、资源页导出引用失效，以及HLOD返回近场的覆盖空洞。见 [基线运行范围](Documentation/LocalRuntimeFunctionalAudit.md) 和 [基线源码对应的运行摘要](Tests/runtime-validation-results.json)。历史交付包和记录保持不变。
+本机入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease49/Start-LocalRelease.cmd>)（`I:\Unity test\Comparison\Builds\LocalRelease49\Start-LocalRelease.cmd`）。默认窗口常驻，可正常关闭。本轮实际运行的是同一 EXE 的 `-localReleaseVerify120` 分支，默认模式未另跑一次。640×360 是本次运行配置，不是生产分辨率目标。
 
-The integration-15 offline report remains historical evidence for its source, not a new all-green run of this revision. This repair uses targeted existing regressions and actual Editor/Player captures; unchanged old/off/SDF evidence is reused. DXR ran in the Editor, while the final Player exercised exact software and streamed HLOD. Dynamic noise, thin-wall reference quality, Player and untested shutdown states, GPU timing/peak VRAM and long-run production acceptance remain open. The documented normal Editor shutdown defect is fixed; the final cancelled-worker exception-path increment has targeted actual-source evidence, separately from the archived native-run source. This is not UE5 Lumen equivalence or production certification.
+Release49 已在 Unity 6000.0.85f1 / URP17.0.4 / Windows x64 / Mono / DX12 / Linear / RTX2080Ti 完成普通 Release（BuildOptions.None）构建与静态120个真实相机/GI帧、正常退出；112份产品来源与189项产物有清单。23条构建警告保留，不能写为无警告。见[当前整合结果与边界](Documentation/ReviewBrief-CurrentReleaseIntegration01.md)、[实际构建清单](LocalComparison/Review/current-release-integration-01/build-report.json)和[实际运行收据](LocalComparison/Review/current-release-integration-01/native-window/analysis.json)。120帧模式未采集的嵌套资源/退休字段，其默认零值不代表资源归零。
+
+**已实现与已验证需要分开。** 当前产品包括不变Skinned快照复用、Additive雾衰减和局部灯光更新优先权，各有有限专项证据；49的静态整合不补齐这些条件各自的原生全链，也不认证整体画质、性能、总显存或G0–G5。代码明确跳过非DX12/非Linear、非Base及立体相机；原生漫反射替换还有[限定条件](Documentation/NativeDiffuseComposition.md)。明确拒绝的配置与尚未验证的配置见[当前支持范围](Documentation/ProductionPlan.md#当前支持范围与证据层级)。目标分辨率/FPS、GI毫秒与显存预算仍待确定。
+
+**历史证据保留各自来源。** Release44的300秒公开计账窗口对应5120a8c，见[旧版持续使用结果](Documentation/ReviewBrief-LocalReleaseSteadyUse01.md)，不升级为Release49稳态验收。更早的runtime-candidate-16功能/流式Player及后续软件/DXR图像、动态和资源专项仍可追溯，见[历史功能检查](Documentation/LocalRuntimeFunctionalAudit.md)与[完整推进表](Documentation/DevelopmentProgress.md)。旧失败、归档包和报告继续保留；朋友交付资料属于历史流程，不是当前使用前提。有限记录不代表UE5 Lumen等价或生产认证。
 
 Experimental Unity 6 / URP 17 diffuse light transport. The source includes baked triangle surface charts with a variable card pool, mesh SDF baking and residency, a stackless instance BVH, a global distance-field empty-space accelerator, patch irradiance caching, guided sampling, temporal reconstruction, and optional triangle DXR queries. Independent of VXGI.
 

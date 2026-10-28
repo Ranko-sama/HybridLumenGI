@@ -1,6 +1,18 @@
 # 实时光传输架构与生产交付计划
 
-状态：**持续本机开发，当前 local-development-denoise-02-contracts 已通过局部复核；runtime-candidate-16 为历史冻结基线，生产验收尚未完成**。更新：2026-10-28。用户当前不需要朋友交付，也不以等待朋友反馈作为开发停点。当前增量见 [本机开发记录](LocalDevelopment.md)，完整原计划状态见 [推进表](DevelopmentProgress.md)。
+状态：**持续本机开发；当前可运行基线为Release49，产品来源31c941589b53a6065b9191fac6d6b984124968c0，已获实际GPT-6 Pro采用复核；完整生产验收尚未完成。** 更新：2026-10-29。用户不需要朋友交付，也不等待朋友反馈。当前入口见[README](../README.md)，当前来源与有限整合见[Release49结果](ReviewBrief-CurrentReleaseIntegration01.md)，完整目标仍由[原始计划](OriginalDevelopmentPlan.md)约束；后续文档HEAD不改变已构建产品来源。
+
+## 当前支持范围与证据层级
+
+| 类别 | 当前合同 | 证据与边界 |
+| --- | --- | --- |
+| 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；普通Release None、Functional静态120相机/GI帧、正常退出 | [Release49](ReviewBrief-CurrentReleaseIntegration01.md)，产品31c9415；640×360只是本次配置。默认常驻入口沿用原实现，实际使用同EXE的120帧分支；没有新增动态事件或性能测量 |
+| 已实现、有限验证 | 不变Skinned快照复用、Additive雾衰减、局部灯变化优先调度及现有架构能力 | 分别见[复用](ReviewBrief-SkinnedUnchangedSnapshotReuse01.md)、[原生捕获依赖](ReviewBrief-SkinnedNativeCaptureBoundary01.md)、[雾合成](ReviewBrief-AdditiveFogComposition01.md)、[调度](ReviewBrief-LocalLightSchedulingPriority01.md)；源码适配器、原生依赖与完整功能验收分开，49不补齐未触发条件 |
+| 历史证据 | Release44稳态、早期软件/DXR图像、流式及动态专项 | [44的300秒窗口](ReviewBrief-LocalReleaseSteadyUse01.md)属于5120a8c；其他见[推进表](DevelopmentProgress.md)各自来源，不改旧FAIL、不改标为当前通过 |
+| 代码明确限制/拒绝 | Feature跳过非DX12、非Linear、非Base或立体相机，以及无compute/必要资源的路径；仅Game及显式允许的SceneView、Tex2D目标可进入 | [实际准入代码](../Runtime/HybridLumenGIRendererFeature.cs)；替换原生漫反射还要求普通URP Lit、Forward/Forward+、有符号HDR及MSAA关闭等，失败保留原照明，见[完整替换合同](NativeDiffuseComposition.md)。这些限制不是单纯“尚未测试” |
+| 尚未完成的验收 | 整体图像质量/动态收敛、各功能未覆盖的原生条件、目标规模、总VRAM、GPU p95/p99、完整G0–G5 | 生产分辨率/FPS、GI时间和显存预算仍待确定。未采集的资源/退休字段默认值不能当清零；首帧等待不是受控性能改善；不由120帧静态运行推导生产放行 |
+
+以下架构与G0–G5条件继续保留。早期阶段叙述和朋友包只提供历史背景，不决定当前启动步骤。
 
 上一阶段已修复实际阻断、完成有限 Unity/Player 检查并交付来源一致的朋友测试包。用户后来已安装 Unity，本机已运行精确软件、SDF、DXR 与材质/历史/资源页场景。基线证据见 [Unity 功能接线检查](LocalRuntimeFunctionalAudit.md)，原计划对应关系见 [九项交接表](PreFriendReadiness.md)。后续在本机处理光照正确性、动态画质、性能与资源稳定性；朋友工程集成暂不作为当前任务。
 
@@ -13,7 +25,7 @@ integration-14及更早归档保持不变，只代表当时来源。[早期独�
 
 `HitMaterialPass` 和真实Feature的Execute清理方法进入实际源码适配器检查。空间足迹由完整像素深度差分或实际card patch生成，随近远场原点推进，并在命中后投影到方向/点光阴影连接；缓存插值的短线段仍是点可见性门控，不宣称整个patch可见。完整漫反射BRDF角度过滤不在当前支持范围；专项报告不能替代Unity集成或实体GPU验收。
 
-用户长期目标是 UE5 Lumen 等价的生产 GI：真实网格 SDF、表面材质缓存、世界空间辐射度缓存、运动矢量重投影和可选 DXR。当前有限场景的测试候选不声称已经达到完全等价；源码包与可运行测试产物用于朋友工程反馈，生产支持范围由后续实际验收决定。
+用户长期目标是 UE5 Lumen 等价的生产 GI：真实网格 SDF、表面材质缓存、世界空间辐射度缓存、运动矢量重投影和可选 DXR。当前有限场景的测试候选不声称已经达到完全等价；源码包与可运行产物用于当前本机开发；朋友交付已取消，生产支持范围仍由后续实际验收决定。
 
 ## 1. 审查结论与本轮变更
 
@@ -21,9 +33,9 @@ integration-14及更早归档保持不变，只代表当时来源。[早期独�
 
 当前代码采用分阶段传输：普通 URP Lit 属性捕获 → 有预算的场景/SDF 驻留与真实三角 chart 捕获 → 覆盖像素 anchor/发光统计构建 → 发光方向提议 → 双缓冲世界缓存更新 → 屏幕/网格 SDF/可选三角形 DXR gather → 运动矢量重投影及拒绝 → 方差与 à-trous 滤波 → 按接收材质合成。可变 chart 和发光方向提议已接入；是否完成某个候选的统一离线回归与打包，须以该候选的报告和清单为准。
 
-Ng/Ns 分别用于几何与着色，屏幕历史要求成功记录的f-1来源。主线程相机边界刷新和共享Mesh版本触发局部失效。新形变组件捕获Skinned或显式可读网格，在后台生成同一快照的SDF/charts，完成后一起切换；旧资源在最终context fence后回收。见 [形变流程](DeformedGeometry.md) 与 [历史合同](GeometryHistoryContracts.md)。动态物体的实际URP运动/光栅/历史质量仍需朋友端验收。
+Ng/Ns 分别用于几何与着色，屏幕历史要求成功记录的f-1来源。主线程相机边界刷新和共享Mesh版本触发局部失效。新形变组件捕获Skinned或显式可读网格，在后台生成同一快照的SDF/charts，完成后一起切换；旧资源在最终context fence后回收。见 [形变流程](DeformedGeometry.md) 与 [历史合同](GeometryHistoryContracts.md)。动态物体的整体URP运动/光栅/历史质量仍待本机验收；已有有限事件结果见推进表，不能扩写为整体动态质量通过。
 
-命中链保留局部 `HLGIHit` 的source submesh、primitive、重心、UV、Ng/Ns和版本，并通过精确绑定查询对应chart。硬件三角命中的反射率/发光/法线来自新UV材质求值，card只提供缓存入射光；失效材质保留遮挡并拒绝未知辐射度，不再由常量近似变成已知。候选在提交前按来源Cull和覆盖筛选，保留后方合法命中。卡捕获不使用顶点Ns推断几何面向；屏幕历史的朝相机Ng与采样偏移独立。SDF/解析形状仍保留明确的近似路径。Unity/实体GPU验收未执行。
+命中链保留局部 `HLGIHit` 的source submesh、primitive、重心、UV、Ng/Ns和版本，并通过精确绑定查询对应chart。硬件三角命中的反射率/发光/法线来自新UV材质求值，card只提供缓存入射光；失效材质保留遮挡并拒绝未知辐射度，不再由常量近似变成已知。候选在提交前按来源Cull和覆盖筛选，保留后方合法命中。卡捕获不使用顶点Ns推断几何面向；屏幕历史的朝相机Ng与采样偏移独立。SDF/解析形状仍保留明确的近似路径。早期源码阶段尚未进行该链路的原生验收；后来已有各自来源的有限Unity/实体GPU记录。当前Release49只证明静态整合，完整链路质量和配置矩阵仍未验收，见上表与推进表。
 
 共享 `MeshSource`、普通 Renderer `Discovery`、`Registry` 与每相机 `ReceiverHistory` CPU 来源快照已接入实际 Feature。新选项 `receiverObjectHistory=false` 默认关闭，开启会同时启用来源核验、像素身份/UAV冲突解析、GPU receiver表和独立 `CSTemporalIdentity` kernel。材质捕获、身份resolve和同相机f-1票据共同控制复用；未知覆盖或记录失败保留当前GI。支持范围及未验证边界见 [GeometryHistoryContracts.md](GeometryHistoryContracts.md)；不能据此宣称Unity中的移动物体历史已经验收通过。
 
@@ -121,16 +133,18 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
-| G0：基线锁定 | Unity/URP 精确版本、设备矩阵、目标分辨率/FPS、GI GPU/显存预算、参考场景与图 | 本机导入/Player build及来源一致基线；当前已验证候选3088d41的Windows/Mono/DX12构建与有限软件/DXR运行，完整配置/性能预算仍开放 |
+| G0：基线锁定 | Unity/URP 精确版本、设备矩阵、目标分辨率/FPS、GI GPU/显存预算、参考场景与图 | 本机导入/Player build及来源一致基线；当前Release49/31c9415已完成Windows x64/Mono/DX12普通构建与有限静态运行；3088d41的软件/DXR记录仍为历史，完整配置/性能预算仍开放 |
 | G1：传输正确性 | 灯光单位/阴影/材质合约、真实 hit 材质、白炉/黑室/金属/色墙对照 | 线性 HDR 与匹配参考比对；无重复环境/烘焙贡献；能量/关灯衰减通过 |
 | G2：世界表面与几何 | cards/atlas、mesh SDF 资产管线、实例空间加速、global SDF clipmaps、dirty bricks | 复杂多房间、薄壁、凹物体、离屏纹理与材质正确；覆盖 debug 可解释 |
 | G3：动态稳定性 | 局部失效、运动/形变一致性、可见性缓存、引导/MIS、时域重建 | 规定 camera/light/door 序列通过；误差、拖影、收敛时间量化 |
 | G4：规模与后端 | 异步 streaming、原子 HLOD 切换、反馈预算；DXR refit/alpha/纹理支持 | 冷/热/高速移动与长时压力通过，软件/DXR 视觉偏差可解释；无残留引用/增长 |
 | G5：发布 | CI 导入和构建、回归图、GPU/显存报告、支持矩阵、版本迁移、打包清单 | 每一承诺平台完成 p95/p99 与峰值内存验收；无未关闭阻断缺陷 |
 
-本机已有Unity6000.0.85f1、URP17.0.4、DX12和RTX2080Ti的实际记录；目标分辨率/FPS及GI GPU/显存放行预算尚未确定，不填写虚构阈值。完整当前进度见LocalDevelopment.md。当前源码构建和有限运行不等于整个G0完成，**不能跳过 G2–G5 后标注为“完整生产交付”**。开发不再依赖朋友工程反馈。
+本机已有Unity6000.0.85f1、URP17.0.4、DX12和RTX2080Ti的实际记录；目标分辨率/FPS及GI GPU/显存放行预算尚未确定，不填写虚构阈值。完整当前进度见[推进表](DevelopmentProgress.md)。G5目前增加了当前本地构建/启动证据，尚未完成CI、承诺平台矩阵、性能或峰值内存放行；上表G0–G5条件不因此降低。当前源码构建和有限运行不等于整个G0完成，**不能跳过 G2–G5 后标注为“完整生产交付”**。开发不再依赖朋友工程反馈。
 
-## 7. 交付朋友的步骤
+## 7. 历史朋友工程接入步骤
+
+以下保留早期朋友工程接入流程，**不作为当前本机使用或继续开发的前置条件**。当前直接从README指向的Release49入口使用；无需重复下列旧阶段采集来获得本轮采用结论。
 
 1. 将源码功能包放到 Unity 6 / URP 17、DX12、Linear color 工程的 `Assets/HybridLumenGI`，等待导入。不要同时保留旧同名源码。当前 FXC 兼容检查未通过，其他 API 路径明确禁用。
 2. 按 `Implementation.md` 添加 feature、设材质 layer mask，运行 `Tools > Hybrid Lumen GI > Create Validation Scene Assets`。

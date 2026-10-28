@@ -2,7 +2,9 @@
 
 更新：2026-10-29。本表按 OriginalDevelopmentPlan.md 的十项工作流区分实现、当前来源实测和生产验收。旧版报告保留来源，不重新标为当前版本通过。当前先处理已证实的阻断和可复现缺陷，再补缺失验收；不因新增局部测试而重跑无关矩阵。
 
-最新本机基线：产品31c9415已整合为普通Release49，包含45不变Skinned捕获复用、47 Additive雾衰减和48局部灯变化优先调度。一次真实Release None构建、一次可见DX12 120相机/GI帧运行及首次原判据分析通过，112源/189产物与场景设置恢复核对一致，原生退出0；不等于三项功能分别原生全链或完整G5验收。旧Release44的300秒公开计账证据继续只对应5120a8c。详见ReviewBrief-CurrentReleaseIntegration01.md；本轮已获独立Astra及实际Pro49采用复核；Release49为当前本机入口。
+最新本机基线：Release49，已验证产品来源31c941589b53a6065b9191fac6d6b984124968c0；文档HEAD不自动替换该EXE来源。本机入口[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease49/Start-LocalRelease.cmd>)默认常驻，本轮实际为同EXE的120帧分支。Unity6000.0.85f1/URP17.0.4、Windows x64/Mono/DX12/Linear、RTX2080Ti，640×360仅为本次配置；一普通Release构建、一静态120相机/GI帧及正常退出已获Astra和实际Pro49采用复核，112源/189产物一致。
+
+45快照复用、47雾衰减、48局部灯调度是已实现且有各自有限专项证据的能力，49不补齐它们未触发的原生条件。Release44的300秒公开计账仍对应5120a8c；旧图像和专项结果保留来源。明确拒绝的配置与待验收配置分列于[当前支持范围](ProductionPlan.md#当前支持范围与证据层级)，实际本轮边界见[Release49结果](ReviewBrief-CurrentReleaseIntegration01.md)。整体画质、性能、总显存、预算目标与G0–G5继续开放；原始四项目标和十条工作流不改、不标为完成。
 
 | 工作流 | 已有实现/审查依据 | 当前版本新增或复用证据的边界 | 剩余验收与下一问题 |
 | --- | --- | --- | --- |
