@@ -1,0 +1,7 @@
+【继续】对当前prepared Backend，所列键覆盖了原builder依赖；全部有序来源参与、直接复用PotentialEmitter，足以补上仅GeometryVersion不能表达的身份变化。合法Cull不写入记录，无需另建版本体系。
+
+新Layout复制后仅改当前代次，保留旧Work与原执行前复验，所有权方案可行。
+
+需守住两个边界：cap0仍沿用原TryBuild的失败／CapacityLimited语义；零或不可信几何版本仅禁用复用，不能凭空发布缓存。内存说明须包含原builder暂存集合及仍被Work引用的旧Layout，不能把“两份数组”称作总峰值上界。
+
+稳定输入省去三角求值、与原构建同代次输出一致、旧Layout不变且失效正确即结束；首次分歧停，不增加缓存层。

@@ -220,6 +220,7 @@ namespace HybridLumenGI
             internal readonly HybridLumenGIScene scene=new HybridLumenGIScene();
             internal readonly HybridLumenGIHardwareBackend hardware=new HybridLumenGIHardwareBackend();
             internal readonly HybridLumenGIHardwareBackend softwareGeometry=new HybridLumenGIHardwareBackend(true);
+            internal readonly HybridLumenGIAreaEmission.Cache areaEmissionCache=new HybridLumenGIAreaEmission.Cache();
             internal long softwareGeometryBytes,areaEmitterBytes;
             internal bool exactSoftwareGeometry;
             private HybridLumenGISoftwareTriangleBvh.Layout retainedSoftwareLayout;
@@ -441,6 +442,7 @@ namespace HybridLumenGI
             }
             public void Dispose()
             {
+                areaEmissionCache.Clear();
                 RetireSoftwareBuffers();retainedSoftwareLayout=null;
                 InvalidateScreenHistory();
                 ReleaseTextures();foreach(var b in cache) b?.Release();lights?.Release();scene.Dispose();hardware.Dispose();softwareGeometry.Dispose();sdf.Dispose();
@@ -1000,7 +1002,7 @@ namespace HybridLumenGI
                 state.hardwareMaterialFrameBytes=0;state.hardwareMaterialUnknownRecords=0;
                 state.softwareGeometryBytes=state.areaEmitterBytes=0;state.exactSoftwareGeometry=false;
                 state.hardwareMaterialStatus=d.geometry!=null?"Preparing immutable hit materials":"SDF/analytic software tracing";
-                if(d.geometry==null)return;
+                if(d.geometry==null){state.areaEmissionCache.Clear();return;}
                 if(!d.geometry.TryCaptureHitMaterialSources(state.scene,out var sources,out string reason) ||
                     !HybridLumenGIHitMaterialPass.TryCreate(graph,sources,Math.Max(1L,s.hardwareMaterialBudgetMiB)*1024*1024,
                         out d.hitMaterials,out reason))
@@ -1013,7 +1015,7 @@ namespace HybridLumenGI
                         out d.softwareLayout,out d.softwareNodes,out d.softwareLeaves,out reason))
                     { FallBackToSoftware(d,reason);return; }
                 }
-                if(!HybridLumenGIAreaEmission.TryBuild(sources,d.geometry,d.hitMaterials.Generation,
+                if(!state.areaEmissionCache.TryBuild(sources,d.geometry,d.geometryVersion,d.hitMaterials.Generation,
                     Mathf.Clamp(s.maxAreaEmitterTriangles,0,HybridLumenGIAreaEmission.MaxTriangles),out d.areaLayout,out reason))
                     d.areaLayout=null; // A missing proposal never removes the original direction estimator.
                 state.hardwareMaterialFrameBytes=d.hitMaterials.ByteCount;
@@ -1022,6 +1024,7 @@ namespace HybridLumenGI
             private void FallBackToSoftware(Work d,string reason)
             {
                 var state=d.state;
+                state.areaEmissionCache.Clear();
                 state.hardwareMaterialStatus=string.IsNullOrEmpty(reason)?"Hardware preparation failed; software tracing":reason;
                 state.InvalidateGpuFeedback();d.frameTiming.Invalidate();
                 d.compute=software;d.hardware=false;d.geometry=null;d.softwareLayout=null;d.valid=false;state.InvalidateScreenHistory();

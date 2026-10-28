@@ -48,6 +48,76 @@ namespace HybridLumenGI
             internal Layout(GpuRecord[] records,uint generation,bool limited)
             { this.records=records;Records=Array.AsReadOnly(records);MaterialGeneration=generation;CapacityLimited=limited; }
             public GpuRecord[] CopyRecords() => (GpuRecord[])records.Clone();
+            internal Layout WithMaterialGeneration(uint generation)
+            {
+                var copy=CopyRecords();
+                for(int i=0;i<copy.Length;i++)copy[i].geometry.w=generation;
+                return new Layout(copy,generation,CapacityLimited);
+            }
+        }
+
+        /// <summary>
+        /// One camera's CPU-only prepared distribution. The provider/version must identify
+        /// immutable prepared geometry; zero disables reuse. Source identities independently
+        /// cover changes that need not increment the backend's geometry version.
+        /// </summary>
+        public sealed class Cache
+        {
+            [StructLayout(LayoutKind.Sequential,Pack=4)]
+            private readonly struct SourceKey
+            {
+                private readonly uint stable,owner,geometry,submesh,emitter;
+                internal SourceKey(HybridLumenGIHitMaterialBatch.Source source)
+                {
+                    stable=source.StableId;owner=source.OwnerRevision;geometry=source.GeometryRevision;
+                    submesh=source.Submesh;emitter=PotentialEmitter(source)?1u:0u;
+                }
+                internal bool Matches(HybridLumenGIHitMaterialBatch.Source source) =>
+                    stable==source.StableId && owner==source.OwnerRevision && geometry==source.GeometryRevision &&
+                    submesh==source.Submesh && emitter==(PotentialEmitter(source)?1u:0u);
+            }
+            private ITriangleProvider provider;
+            private ulong geometryVersion;
+            private int capacity;
+            private SourceKey[] keys;
+            private Layout retained;
+
+            public void Clear(){provider=null;geometryVersion=0;capacity=0;keys=null;retained=null;}
+
+            public bool TryBuild(IReadOnlyList<HybridLumenGIHitMaterialBatch.Source> sources,
+                ITriangleProvider preparedProvider,ulong preparedGeometryVersion,uint materialGeneration,
+                int maximumTriangles,out Layout layout,out string reason)
+            {
+                layout=null;reason=null;
+                try
+                {
+                    if(preparedGeometryVersion==0 || sources==null || preparedProvider==null || materialGeneration==0 ||
+                        maximumTriangles<0 || maximumTriangles>MaxTriangles || sources.Count>HybridLumenGIHitMaterialBatch.MaxMaterials)
+                    {
+                        Clear();
+                        return HybridLumenGIAreaEmission.TryBuild(sources,preparedProvider,materialGeneration,maximumTriangles,out layout,out reason);
+                    }
+                    bool match=retained!=null && ReferenceEquals(provider,preparedProvider) &&
+                        geometryVersion==preparedGeometryVersion && capacity==maximumTriangles && keys.Length==sources.Count;
+                    if(match)
+                        for(int i=0;i<keys.Length;i++)if(!keys[i].Matches(sources[i])){match=false;break;}
+                    if(match)
+                    {
+                        // An earlier Work may still own the old array. Never update it in place.
+                        layout=retained.WithMaterialGeneration(materialGeneration);retained=layout;return true;
+                    }
+                    Clear();
+                    if(!HybridLumenGIAreaEmission.TryBuild(sources,preparedProvider,materialGeneration,maximumTriangles,out layout,out reason))return false;
+                    var captured=new SourceKey[sources.Count];
+                    for(int i=0;i<captured.Length;i++)captured[i]=new SourceKey(sources[i]);
+                    provider=preparedProvider;geometryVersion=preparedGeometryVersion;capacity=maximumTriangles;
+                    keys=captured;retained=layout;return true;
+                }
+                catch(Exception ex)
+                {
+                    Clear();layout=null;reason="Prepared emitter reuse failed: "+ex.GetType().Name;return false;
+                }
+            }
         }
 
         private static bool Finite(float x) => !float.IsNaN(x) && !float.IsInfinity(x);
