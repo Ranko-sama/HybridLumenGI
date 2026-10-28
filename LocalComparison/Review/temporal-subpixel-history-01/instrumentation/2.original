@@ -1,0 +1,11 @@
+// Test input upload only. All identity validation runs in the shipped kernel.
+#pragma kernel FillIdentity
+#pragma target 5.0
+RWTexture2D<uint4> Result;
+uint Primitive;
+[numthreads(8,8,1)]
+void FillIdentity(uint3 id:SV_DispatchThreadID)
+{
+    uint width,height;Result.GetDimensions(width,height);
+    if(id.x<width && id.y<height)Result[id.xy]=uint4(7,11,Primitive,1);
+}

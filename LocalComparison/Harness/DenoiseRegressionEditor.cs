@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Experimental.Rendering;
 using System.Runtime.InteropServices;
 
-public static class DenoiseRegressionEditor
+public static partial class DenoiseRegressionEditor
 {
     [Serializable] class Row { public string name; public float historyLength, spatialVariance, confidence, luminance; public bool passed; }
     [Serializable] class Report { public string unity, gpu, api; public bool passed; public Row[] cases; }
@@ -136,9 +136,9 @@ public static class DenoiseRegressionEditor
             var upload=AssetDatabase.LoadAssetAtPath<ComputeShader>("Assets/ComparisonHarness/Editor/DenoiseFixture.compute");
             int k=upload.FindKernel("FillIdentity");upload.SetTexture(k,"Result",t);upload.SetInt("Primitive",(int)primitive);upload.Dispatch(k,(Size+7)/8,(Size+7)/8,1);
         }
-        internal Fixture(bool useIdentity,RenderTextureFormat momentsFormat=RenderTextureFormat.ARGBFloat)
+        internal Fixture(bool useIdentity,RenderTextureFormat momentsFormat=RenderTextureFormat.ARGBFloat,ComputeShader source=null)
         {
-            identity=useIdentity;shader=Resources.Load<ComputeShader>("HybridLumenGI/HybridLumenGI");
+            identity=useIdentity;shader=source?source:Resources.Load<ComputeShader>("HybridLumenGI/HybridLumenGI");
             kernel=shader.FindKernel(identity?"CSTemporalIdentity":"CSTemporal");filter=shader.FindKernel("CSFilter");
             input=Tex(TextureFormat.RGBAHalf,Gray(1));geometry=Tex(TextureFormat.RGBAFloat,new Color(0,0,8390657,.5f));
             material=Tex(TextureFormat.RGBA32,new Color(.5f,.5f,.5f,1));zero=Tex(TextureFormat.RGBAFloat,Color.clear);

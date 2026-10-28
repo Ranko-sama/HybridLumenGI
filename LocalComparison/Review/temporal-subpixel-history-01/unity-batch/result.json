@@ -1,0 +1,696 @@
+{
+    "passed": false,
+    "error": "System.InvalidOperationException: unknown-geometric-normal identity=False: Baseline final radiance differs from nearest oracle ---> System.InvalidOperationException: Baseline final radiance differs from nearest oracle\r\n  at DenoiseRegressionEditor.RunSubpixel () [0x00284] in I:\\Unity test\\Project\\Assets\\ComparisonHarness\\Editor\\TemporalSubpixelRegression.cs:159 \r\n   --- End of inner exception stack trace ---\r\n  at DenoiseRegressionEditor.RunSubpixel () [0x004c2] in I:\\Unity test\\Project\\Assets\\ComparisonHarness\\Editor\\TemporalSubpixelRegression.cs:169 ",
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "scope": "One actual Unity temporal-kernel batch; same fixed inputs, no Player, scene flicker or broad denoise acceptance",
+    "giWidth": 17,
+    "giHeight": 17,
+    "fullWidth": 25,
+    "fullHeight": 23,
+    "radianceErrorBound": 0.0009,
+    "momentErrorBound": 0.000002,
+    "baselineRmse": [
+        0.0,
+        0.0
+    ],
+    "candidateRmse": [
+        0.0,
+        0.0
+    ],
+    "rows": [
+        {
+            "name": "linear-0",
+            "identity": false,
+            "passed": true,
+            "exactFallback": false,
+            "previousUv": {
+                "x": 0.38499999046325686,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.9931640625,
+                0.9931640625,
+                0.9931640625,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9935369491577148,
+                0.9871295690536499,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                0.99365234375,
+                0.99365234375,
+                0.99365234375,
+                1.0
+            ],
+            "candidateMoments": [
+                0.99386066198349,
+                0.9877728223800659,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 0.9935369565217391,
+            "expectedCandidate": 0.9938605973497032,
+            "expectedMoment1": 0.9938605973497032,
+            "expectedMoment2": 0.9877728374824004,
+            "expectedLength": 17.0,
+            "baselineError": -0.0006965348497032231,
+            "candidateError": -0.0002082535997032231,
+            "failure": ""
+        },
+        {
+            "name": "linear-1",
+            "identity": false,
+            "passed": true,
+            "exactFallback": false,
+            "previousUv": {
+                "x": 0.39500001072883608,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.9931640625,
+                0.9931640625,
+                0.9931640625,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9935369491577148,
+                0.9871295690536499,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                0.994140625,
+                0.994140625,
+                0.994140625,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9943856000900269,
+                0.9888167977333069,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 0.9935369565217391,
+            "expectedCandidate": 0.9943855984136462,
+            "expectedMoment1": 0.9943855984136462,
+            "expectedMoment2": 0.9888168169350714,
+            "expectedLength": 17.0,
+            "baselineError": -0.0012215359136461546,
+            "candidateError": -0.00024497341364615455,
+            "failure": ""
+        },
+        {
+            "name": "linear-2",
+            "identity": false,
+            "passed": true,
+            "exactFallback": false,
+            "previousUv": {
+                "x": 0.4050000011920929,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.9931640625,
+                0.9931640625,
+                0.9931640625,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9935369491577148,
+                0.9871295690536499,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                0.99462890625,
+                0.99462890625,
+                0.99462890625,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9949105978012085,
+                0.9898607730865479,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 0.9935369565217391,
+            "expectedCandidate": 0.9949105979129673,
+            "expectedMoment1": 0.9949105979129673,
+            "expectedMoment2": 0.9898607932764476,
+            "expectedLength": 17.0,
+            "baselineError": -0.0017465354129673206,
+            "candidateError": -0.0002816916629673205,
+            "failure": ""
+        },
+        {
+            "name": "linear-3",
+            "identity": false,
+            "passed": true,
+            "exactFallback": false,
+            "previousUv": {
+                "x": 0.41499999165534975,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.9931640625,
+                0.9931640625,
+                0.9931640625,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9935369491577148,
+                0.9871295690536499,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                0.9951171875,
+                0.9951171875,
+                0.9951171875,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9954355955123901,
+                0.9909047484397888,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 0.9935369565217391,
+            "expectedCandidate": 0.9954355974122882,
+            "expectedMoment1": 0.9954355974122882,
+            "expectedMoment2": 0.9909047696178237,
+            "expectedLength": 17.0,
+            "baselineError": -0.0022715349122881536,
+            "candidateError": -0.0003184099122881534,
+            "failure": ""
+        },
+        {
+            "name": "linear-4",
+            "identity": false,
+            "passed": true,
+            "exactFallback": false,
+            "previousUv": {
+                "x": 0.42500001192092898,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.99755859375,
+                0.99755859375,
+                0.99755859375,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9977369904518127,
+                0.9954807758331299,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                0.99560546875,
+                0.99560546875,
+                0.99560546875,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9959605932235718,
+                0.9919487833976746,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 0.9977369565217391,
+            "expectedCandidate": 0.995960598476231,
+            "expectedMoment1": 0.995960598476231,
+            "expectedMoment2": 0.9919487490704948,
+            "expectedLength": 17.0,
+            "baselineError": 0.0015979952737690262,
+            "candidateError": -0.00035512972623097383,
+            "failure": ""
+        },
+        {
+            "name": "linear-5",
+            "identity": false,
+            "passed": true,
+            "exactFallback": false,
+            "previousUv": {
+                "x": 0.4350000023841858,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.99755859375,
+                0.99755859375,
+                0.99755859375,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9977369904518127,
+                0.9954807758331299,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                0.99609375,
+                0.99609375,
+                0.99609375,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9964855909347534,
+                0.9929927587509155,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 0.9977369565217391,
+            "expectedCandidate": 0.996485597975552,
+            "expectedMoment1": 0.996485597975552,
+            "expectedMoment2": 0.992992725411871,
+            "expectedLength": 17.0,
+            "baselineError": 0.0010729957744479713,
+            "candidateError": -0.00039184797555202877,
+            "failure": ""
+        },
+        {
+            "name": "linear-6",
+            "identity": false,
+            "passed": true,
+            "exactFallback": false,
+            "previousUv": {
+                "x": 0.4449999928474426,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.99755859375,
+                0.99755859375,
+                0.99755859375,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9977369904518127,
+                0.9954807758331299,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                0.99658203125,
+                0.99658203125,
+                0.99658203125,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9970106482505798,
+                0.9940366744995117,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 0.9977369565217391,
+            "expectedCandidate": 0.9970105974748731,
+            "expectedMoment1": 0.9970105974748731,
+            "expectedMoment2": 0.9940367017532471,
+            "expectedLength": 17.0,
+            "baselineError": 0.0005479962751269163,
+            "candidateError": -0.0004285662248730837,
+            "failure": ""
+        },
+        {
+            "name": "linear-7",
+            "identity": false,
+            "passed": true,
+            "exactFallback": false,
+            "previousUv": {
+                "x": 0.45500001311302187,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.99755859375,
+                0.99755859375,
+                0.99755859375,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9977369904518127,
+                0.9954807758331299,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                0.9970703125,
+                0.9970703125,
+                0.9970703125,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9975356459617615,
+                0.9950807094573975,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 0.9977369565217391,
+            "expectedCandidate": 0.9975355985388159,
+            "expectedMoment1": 0.9975355985388159,
+            "expectedMoment2": 0.9950806812059182,
+            "expectedLength": 17.0,
+            "baselineError": 0.000022995211184095865,
+            "candidateError": -0.00046528603881590413,
+            "failure": ""
+        },
+        {
+            "name": "constant",
+            "identity": false,
+            "passed": true,
+            "exactFallback": true,
+            "previousUv": {
+                "x": 0.39500001072883608,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "baselineMoments": [
+                1.0,
+                1.0,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "candidateMoments": [
+                1.0,
+                1.0,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 1.0,
+            "expectedCandidate": 0.9999999999999999,
+            "expectedMoment1": 0.9999999999999999,
+            "expectedMoment2": 0.9999999999999999,
+            "expectedLength": 17.0,
+            "baselineError": 0.0,
+            "candidateError": 0.0,
+            "failure": ""
+        },
+        {
+            "name": "minimum-history-length",
+            "identity": false,
+            "passed": true,
+            "exactFallback": false,
+            "previousUv": {
+                "x": 0.39500001072883608,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "baselineMoments": [
+                1.0,
+                1.0,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "candidateMoments": [
+                1.0,
+                1.0,
+                5.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 1.0,
+            "expectedCandidate": 0.9999999999999999,
+            "expectedMoment1": 0.9999999999999999,
+            "expectedMoment2": 0.9999999999999999,
+            "expectedLength": 5.0,
+            "baselineError": 0.0,
+            "candidateError": 0.0,
+            "failure": ""
+        },
+        {
+            "name": "duplicate-edge",
+            "identity": false,
+            "passed": true,
+            "exactFallback": true,
+            "previousUv": {
+                "x": 0.004999999888241291,
+                "y": 0.004999999888241291
+            },
+            "baseline": [
+                0.97265625,
+                0.97265625,
+                0.97265625,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9730064868927002,
+                0.946984589099884,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                0.97265625,
+                0.97265625,
+                0.97265625,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9730064868927002,
+                0.946984589099884,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 0.9730065217391305,
+            "expectedCandidate": 0.9730065217391305,
+            "expectedMoment1": 0.9730065217391305,
+            "expectedMoment2": 0.9469845739697543,
+            "expectedLength": 17.0,
+            "baselineError": 0.0,
+            "candidateError": 0.0,
+            "failure": ""
+        },
+        {
+            "name": "depth-boundary",
+            "identity": false,
+            "passed": true,
+            "exactFallback": true,
+            "previousUv": {
+                "x": 0.39500001072883608,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.9931640625,
+                0.9931640625,
+                0.9931640625,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9935369491577148,
+                0.9871295690536499,
+                17.0,
+                0.0
+            ],
+            "candidate": [
+                0.9931640625,
+                0.9931640625,
+                0.9931640625,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9935369491577148,
+                0.9871295690536499,
+                17.0,
+                0.0
+            ],
+            "expectedBaseline": 0.9935369565217391,
+            "expectedCandidate": 0.9935369565217391,
+            "expectedMoment1": 0.9935369565217391,
+            "expectedMoment2": 0.9871296076181475,
+            "expectedLength": 17.0,
+            "baselineError": 0.0,
+            "candidateError": 0.0,
+            "failure": ""
+        },
+        {
+            "name": "history-boundary",
+            "identity": false,
+            "passed": true,
+            "exactFallback": true,
+            "previousUv": {
+                "x": 0.39500001072883608,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.9931640625,
+                0.9931640625,
+                0.9931640625,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9935369491577148,
+                0.9871295690536499,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                0.9931640625,
+                0.9931640625,
+                0.9931640625,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9935369491577148,
+                0.9871295690536499,
+                17.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 0.9935369565217391,
+            "expectedCandidate": 0.9935369565217391,
+            "expectedMoment1": 0.9935369565217391,
+            "expectedMoment2": 0.9871296076181475,
+            "expectedLength": 17.0,
+            "baselineError": 0.0,
+            "candidateError": 0.0,
+            "failure": ""
+        },
+        {
+            "name": "invalid-nearest",
+            "identity": false,
+            "passed": true,
+            "exactFallback": true,
+            "previousUv": {
+                "x": 0.39500001072883608,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "baselineMoments": [
+                1.0,
+                1.0,
+                1.0,
+                7.450580596923828e-9
+            ],
+            "candidate": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "candidateMoments": [
+                1.0,
+                1.0,
+                1.0,
+                7.450580596923828e-9
+            ],
+            "expectedBaseline": 1.0,
+            "expectedCandidate": 1.0,
+            "expectedMoment1": 1.0,
+            "expectedMoment2": 1.0,
+            "expectedLength": 1.0,
+            "baselineError": 0.0,
+            "candidateError": 0.0,
+            "failure": ""
+        },
+        {
+            "name": "unknown-current",
+            "identity": false,
+            "passed": true,
+            "exactFallback": true,
+            "previousUv": {
+                "x": 0.39500001072883608,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.9912109375,
+                0.9912109375,
+                0.9912109375,
+                1.0
+            ],
+            "baselineMoments": [
+                0.9913825988769531,
+                0.9828394651412964,
+                16.0,
+                0.0
+            ],
+            "candidate": [
+                0.9912109375,
+                0.9912109375,
+                0.9912109375,
+                1.0
+            ],
+            "candidateMoments": [
+                0.9913825988769531,
+                0.9828394651412964,
+                16.0,
+                0.0
+            ],
+            "expectedBaseline": 0.9913826086956522,
+            "expectedCandidate": 0.9913826086956522,
+            "expectedMoment1": 0.9913826086956522,
+            "expectedMoment2": 0.9828394768241967,
+            "expectedLength": 16.0,
+            "baselineError": 0.0,
+            "candidateError": 0.0,
+            "failure": ""
+        },
+        {
+            "name": "unknown-geometric-normal",
+            "identity": false,
+            "passed": false,
+            "exactFallback": false,
+            "previousUv": {
+                "x": 0.39500001072883608,
+                "y": 0.4728260934352875
+            },
+            "baseline": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "baselineMoments": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "candidate": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "candidateMoments": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "expectedBaseline": 1.0,
+            "expectedCandidate": 1.0,
+            "expectedMoment1": 1.0,
+            "expectedMoment2": 1.0,
+            "expectedLength": 1.0,
+            "baselineError": 0.0,
+            "candidateError": 0.0,
+            "failure": "Baseline final radiance differs from nearest oracle"
+        }
+    ]
+}
