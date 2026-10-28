@@ -1,0 +1,11 @@
+Before any Unity batch or GPU output existed:
+
+Independent Astra design review accepted the ideal two-node scope and required first measured-black validity, untrimmed partner cache reads at the lighting-only reactive step, exact old/new buffer provenance and scale-dependent error bounds.
+
+Reference generation completed with SHA256 49365a7fe6f483bcf86dd044bcbec581a3bb6b35d30598230f1c982ffc3855e6, 512 rounds, fixed gamma32 bound. This file has never been regenerated or adjusted from GPU output.
+
+Single generated CSUpdateCache DXC preflight passed with exit 0, no diagnostics, chunk de286f. DXIL SHA256 f6b648f8c028708554b8f4896c4f910b4320b075662989a5b0168ad5332b53f4. Runtime is unchanged from 1b8e751.
+
+Primary preflight clarified that mathematical cosine/cosine=1 may evaluate within float division rounding. Before GPU execution, the observation gate was fixed to gamma4 and the one-ray sum comparison to incoming*observedWeight with 2u*abs(sum)+tiny. Astra independently agreed and pointed out the coupled sum gate. Frozen gamma32 propagation and ideal CPU answers did not change. Original reference-generator snapshot is preserved.
+
+Astra found a lifecycle corner in the harness: incrementing pending only after Request could allow disposal if Request threw after dispatch. Before any execution, pending was moved ahead of Dispatch for both intended readbacks; only proven done decrements. A throwing dispatch/request retains ownership until process exit. No new retirement framework or extra test was added. Updated helper hashes were installed and captured; shader bytes and the compile result did not change.

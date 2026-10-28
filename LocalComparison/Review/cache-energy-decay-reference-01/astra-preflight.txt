@@ -1,0 +1,11 @@
+Astra Max final preflight, before the only GPU execution:
+
+无剩余启动阻断，可以执行唯一的 512 轮批次。
+
+已确认：
+- 416 字节观察记录、80 字节 cache 及分析偏移一致；提取仅增加观察，没有改写更新算法。
+- pending+=2 已移至 Dispatch 前，异常路径会保留未证明完成的资源。
+- gamma4 权重准入及实际加权和检查已同步；冻结参考哈希未变，末段误差界随残留量级缩小。
+- 已安装 helper、生成源码与最新 manifest 匹配，Runtime 无改动。
+
+结果仍须通过完整逐轮参考、有效性和退出检查；不增加轮数、种子或重试。
