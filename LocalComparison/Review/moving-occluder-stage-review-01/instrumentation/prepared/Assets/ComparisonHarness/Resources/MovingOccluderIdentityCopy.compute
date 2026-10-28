@@ -1,0 +1,12 @@
+#pragma kernel CopyIdentity
+#pragma target 5.0
+#pragma use_dxc
+Texture2D<uint4> _Identity;
+RWStructuredBuffer<uint4> _IdentityCopy;
+int2 _Size;
+[numthreads(8,8,1)]
+void CopyIdentity(uint3 id:SV_DispatchThreadID)
+{
+    if(any(id.xy>=(uint2)_Size))return;
+    _IdentityCopy[id.y*_Size.x+id.x]=_Identity.Load(int3(id.xy,0));
+}

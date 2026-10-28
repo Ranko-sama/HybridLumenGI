@@ -94,3 +94,7 @@ iteration34：候选四点历史重建两个实际入口通过DXC，唯一Unity 
 实际Pro36读取191–197批准候选及原FAIL提交2516da3，允许仅用已有数据修正native编写颜色解释。iteration37补充报告通过全部原断言/原容差，13冻结证据未变，零新增Unity/构建/GPU；detail有限修复结束，不追加材料矩阵。已完成时域/detail后整体阶段复评，独立Astra选择移动遮挡物后的GI恢复。旧176–196数组中三组显露代理初次history等于raw，未发现首次跨表面历史残留；后续无真值且来源旧，不能判为当前输入滞后或绝对残影。停止离线扩拆，下一方向交Pro37选择是否复用原Functional门片段做一次当前整体动态检查；尚未启动新采集。全计划/G0–G5及性能阈值继续开放。见StageReassessment-TemporalAndDetail.md。
 
 实际Pro37读取198–199批准阶段检查点与detail结项。下一步一个当前DXR198帧Functional门段，关闭测试probe的相机摆动/形变/MPB混合动作，复用既有integer copy与阶段读回，检查来源可靠的新显露静态背景是否错误带入旧primitive历史。默认不改产品；一次运行后明确反例、有限覆盖无反例或仍不足即结束，不自动补帧/重跑，不把结果称为整体物理或性能通过。
+
+iteration38：当前8a5f17b一次构建/可见DXR198帧正常自动exit0，29组图像、21raw及189阶段payload、pending0、0采集错误，112产品源/8临时接线恢复。实际motion/jitter/上传刚体映射及采样位置判定192已知raw的新显露静态背景，全部history=current、length1；3未知测量另列，未作为已知黑色验收。119/179/196实图已查看，没有可归因的持续门轮廓反例；无物理真值，整体动态质量未验收。有限当前集成覆盖完成，Runtime零改动，不追加运行/调参。交独立Astra及实际Pro38收束并选下一实质缺口，完整原计划继续。见ReviewBrief-MovingOccluderStageReview01.md。
+
+实际Pro38读取200–204及179/196原图批准提交并关闭门片段；认可独立Astra转G2内部多层世界缓存链。下一包复用CPU封闭房间/内部夹层几何为单owner，源primitive12–15；一次构建/最多120帧可见DXR、一次就绪快照/四条固定实际TraceSceneQuery及原surface/cache读取。验证内部层捕获、anchor和primitive→card消费，不手填命中/伪造辐射，不扩材质矩阵；成功/首个错误/未覆盖均结束，零预授权产品改动或第二次运行。
