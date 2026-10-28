@@ -1,0 +1,48 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 35
+DECISION: CLOSE_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: surface-detail-albedo-01
+
+1. 接受候选，结束亚像素历史包
+
+允许提交已恢复的冻结候选及本轮证据。累计两次Unity计算批次、零Player构建／运行；不再追加第三批或时间重建矩阵。
+
+已确认 HybridLumenGI / workspace:/ / main@140b7dc。当前唯一产品差异是 HybridLumenGIKernels.hlsl。我已先列出再读取iteration35输出187–190，检查实际diff、原计划／进度、身份边界及未知Ng原始结果；没有执行修改、重跑或重新哈希。
+
+接受依据不只是exit0：
+
+两个实际入口均达到原解析收益要求：固定线性场最终输出RMSE约 0.001332→0.000347，不是重新选择样本或放宽误差界得到的结果。
+身份／primitive边界、无效最近邻、未知当前及正确编码的未知Ng，按原要求保持旧输出和moments；不同历史长度的候选输出为5，没有把空间邻居当成新增时间样本。〔02包 unity-batch/result.json:1074–1113、1242–1407〕
+产品diff没有放宽原准入条件：只有已接受的最近历史、已知当前测量才尝试插值；任一新增tap不合格则不替换原history／moments。〔HybridLumenGIKernels.hlsl:334–393、469–482〕
+
+来源比较只允许夹具Ng常量0→−1，执行记录确认恢复的Runtime／部署匹配冻结候选。原01失败永久保留。关闭的是可靠表面的有限历史取样能力，不是整场景抗闪烁、动态质量或性能验收。
+
+2. 唯一下一步：补齐普通Surface的detail albedo
+
+在完整原计划中，优先修这个确定的颜色求值缺口，比继续扩已完成的时间重建验证更有直接收益。
+
+普通屏幕捕获目前只计算基础贴图／颜色与漫反射分量，完全没有detail贴图、mask、变换或keyword分支；世界三角材质已有detail计算，原生捕获则调用锁定URP的相应实现。因此，使用detail albedo的材质会因进入普通屏幕路径还是其他路径而得到不同反射率。〔HybridLumenGISurface.shader:45–56、122；HybridLumenGIHitMaterials.hlsl:189–212〕
+
+最小实现
+
+优先只改 HybridLumenGISurface.shader。 补齐 _DetailMask、_DetailAlbedoMap、其ST与Scale，以及 _DETAIL_MULX2/_DETAIL_SCALED变体；按已锁定URP约定，在漫反射分量计算前应用detail颜色。
+
+这里已有可直接核对的来源：归档URP LitInput.hlsl规定mask取alpha，MulX2因子为 2×detailRGB，Scaled因子为 2×detailRGB×scale−scale+1；detail UV由已变换的基础UV再应用detail ST。不要另创一套UV或混合规则。〔归档 source-assets/4790ecd2…b516.bin:201–230、283–287〕
+
+保持关闭detail时原行为不变；不修改已有反射率限幅、纹理格式、Receive Shadows编码、AO、发光或层策略。不同时补detail normal、parallax、MPB框架或全部URP材质一致性。 当前原生／世界实现作为对照，不顺手重构它们。
+
+3. 必要验证与退出条件
+
+验证只回答两个会改变开发决定的问题：
+
+不确定性	最小验证	决策
+缺的是颜色计算，还是UV／mask语义也有偏差？	保存旧普通捕获反例；以固定非中性纹素、非单位ST和明确mask，核对实际旧／新shader的MulX2、Scaled及关闭分支。期望值来自锁定URP公式，误差界按现有存储格式预声明。	开启不匹配则修这段求值；关闭分支变化则拒绝候选，不扩大改动。
+Unity是否把源材质detail keyword和纹理正确交给普通捕获？	复用现有材质捕获／读回入口，至多一次构建、一次64帧可见Player；固定两个接收材质分别覆盖MulX2和Scaled，与已有原生捕获比较对应diffuse值。	数学通过但捕获错误，则定位属性／变体传递；全部一致就结束，不扩材质组合。
+
+原生检查必须使用真实源材质及原捕获接线，不能直接给替代材质手工开keyword后冒充传递验证。只读取必要的diffuse和既有有效性／AO字段；不新增世界射线、亮度评分或缓存收敛实验。不同目标格式按已声明量化误差比较，不能要求不合理的逐字节相等，也不能事后放宽容差。
+
+**退出条件：**detail开启时普通捕获符合相同来源的材质参考，关闭时保持旧行为，其他输出合同不退化，实际属性／keyword传递成立。通过即提交并收束；唯一原生尝试失败就保存首个分歧，不自动第二次运行，不改曝光或反馈补偿。
+
+现在提交第35轮候选，随后执行 surface-detail-albedo-01。它推进原目标1／4及工作流2／7；四项目标、十条工作流仍全部有效。暗区、MC、曝光、计时、已关闭的选灯与Receive Shadows扩展继续关闭。

@@ -330,6 +330,59 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
     }
     _HLGI_Output[id.xy]=estimateKnown?float4(sum/max(_HLGI_Rays,1),confidence/max(_HLGI_Rays,1)):float4(0,0,0,-1);
 }
+// The nearest sample and every prospective reconstruction tap use the same
+// existing receiver gates. Encoded geometry/material/identity are never blended.
+bool HLGITemporalTapMatches(int2 pixel,float3 expectedP,float3 expectedNs,float3 expectedNg,float3 rho,float tolerance)
+{
+    float4 oldGeometry=_HLGI_PreviousGeometry.Load(int3(pixel,0));
+    float3 oldRho=_HLGI_PreviousMaterial.Load(int3(pixel,0)).rgb;
+    float3 oldShadingNormal,oldGeometricNormal;bool oldHasGeometry;
+    bool oldReceiver=HLGIDecodeScreenGeometry(oldGeometry,oldShadingNormal,oldGeometricNormal,oldHasGeometry);
+    float3 oldP=WorldPosition(HLGIGiSampleUv((uint2)pixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),oldGeometry.w,_HLGI_PreviousInvVP);
+    float geometricAgreement=dot(expectedNg,oldGeometricNormal);
+#if defined(HLGI_RECEIVER_IDENTITY)
+    // Screen Ng faces its own camera; its sign may differ between rigid poses.
+    geometricAgreement=abs(geometricAgreement);
+#endif
+    return oldReceiver && oldHasGeometry && dot(expectedNs,oldShadingNormal)>_HLGI_NormalThreshold &&
+        geometricAgreement>0.85 &&
+        abs(dot(expectedP-oldP,expectedNg))<tolerance && abs(dot(expectedP-oldP,oldGeometricNormal))<tolerance &&
+        distance(expectedP,oldP)<tolerance && max(abs(rho.x-oldRho.x),max(abs(rho.y-oldRho.y),abs(rho.z-oldRho.z)))<0.1;
+}
+bool HLGITrySubpixelHistory(float2 uv,int2 nearestPixel,uint4 identity,
+    float3 expectedP,float3 expectedNs,float3 expectedNg,float3 rho,float tolerance,
+    float4 nearestHistory,float4 nearestMoments,out float4 history,out float4 moments)
+{
+    history=nearestHistory;moments=nearestMoments;
+    uint2 lower,upper;float2 fraction;
+    HLGIGiBilinearFootprint(uv,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy,lower,upper,fraction);
+    float4 sumHistory=0;float3 sumMoments=0;float weightSum=0,minimumLength=0;
+    [unroll] for(int y=0;y<2;y++) [unroll] for(int x=0;x<2;x++)
+    {
+        float weight=(x==0?1-fraction.x:fraction.x)*(y==0?1-fraction.y:fraction.y);
+        // The footprint gives zero weight to duplicate upper edge indices.
+        if(weight<=0) continue;
+        int2 q=int2(x==0?lower.x:upper.x,y==0?lower.y:upper.y);
+        float4 h=nearestHistory,m=nearestMoments;
+        if(any(q!=nearestPixel))
+        {
+#if defined(HLGI_RECEIVER_IDENTITY)
+            if(!HLGISameReceiverPrimitive(identity,_HLGI_IdentityPrevious.Load(int3(q,0)))) return false;
+#endif
+            if(!HLGITemporalTapMatches(q,expectedP,expectedNs,expectedNg,rho,tolerance)) return false;
+            h=_HLGI_History.Load(int3(q,0));m=_HLGI_PreviousMoments.Load(int3(q,0));
+            if(!HLGIHasTemporalHistory(h,m)) return false;
+        }
+        minimumLength=weightSum==0?m.z:min(minimumLength,m.z);
+        sumHistory+=weight*h;sumMoments+=weight*float3(m.xy,m.w);weightSum+=weight;
+    }
+    if(!isfinite(weightSum) || weightSum<=0) return false;
+    float4 reconstructed=sumHistory/weightSum;
+    float3 reconstructedMoments=sumMoments/weightSum;
+    float4 nextMoments=float4(reconstructedMoments.xy,minimumLength,reconstructedMoments.z);
+    if(!HLGIHasTemporalHistory(reconstructed,nextMoments)) return false;
+    history=reconstructed;moments=nextMoments;return true;
+}
 [numthreads(8,8,1)]
 #if defined(HLGI_RECEIVER_IDENTITY)
 void CSTemporalIdentity(uint3 id:SV_DispatchThreadID)
@@ -394,23 +447,10 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
 #if defined(HLGI_RECEIVER_IDENTITY)
     valid=valid && HLGISameReceiverPrimitive(identity,_HLGI_IdentityPrevious.Load(int3(previousPixel,0)));
 #endif
-    float4 oldGeometry=_HLGI_PreviousGeometry.Load(int3(previousPixel,0));
-    float3 oldRho=_HLGI_PreviousMaterial.Load(int3(previousPixel,0)).rgb;
-    float3 oldShadingNormal,oldGeometricNormal;bool oldHasGeometry;
-    bool oldReceiver=HLGIDecodeScreenGeometry(oldGeometry,oldShadingNormal,oldGeometricNormal,oldHasGeometry);
     // Previous raw depth belongs to this GI texel's stored full-resolution
     // sample. Frame-context validation must reject a changed full/low size.
-    float3 oldP=WorldPosition(HLGIGiSampleUv((uint2)previousPixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),oldGeometry.w,_HLGI_PreviousInvVP);
     float tolerance=_HLGI_DepthThreshold*max(1,abs(mul(_HLGI_View,float4(p,1)).z));
-    float geometricAgreement=dot(expectedNg,oldGeometricNormal);
-#if defined(HLGI_RECEIVER_IDENTITY)
-    // Screen Ng faces its own camera; its sign may differ between rigid poses.
-    geometricAgreement=abs(geometricAgreement);
-#endif
-    valid=valid && oldReceiver && oldHasGeometry && dot(expectedNs,oldShadingNormal)>_HLGI_NormalThreshold &&
-        geometricAgreement>0.85 &&
-        abs(dot(expectedP-oldP,expectedNg))<tolerance && abs(dot(expectedP-oldP,oldGeometricNormal))<tolerance &&
-        distance(expectedP,oldP)<tolerance && max(abs(rho.x-oldRho.x),max(abs(rho.y-oldRho.y),abs(rho.z-oldRho.z)))<0.1;
+    valid=valid && HLGITemporalTapMatches(previousPixel,expectedP,expectedNs,expectedNg,rho,tolerance);
 #if defined(HLGI_RECEIVER_IDENTITY)
     float2 change=HLGIChangeAtReceiver(p,valid?receiverGroup:0u);
 #else
@@ -425,6 +465,19 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
         float4 retained,retainedMoments;
         HLGIResolveUnknownHistory(valid,history,moments,retained,retainedMoments);
         _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
+    }
+    // Reconstruction may improve an already accepted known measurement only.
+    // Any incomplete support retains the exact original nearest history pair.
+    if(valid)
+    {
+        uint4 expectedIdentity=0;
+#if defined(HLGI_RECEIVER_IDENTITY)
+        expectedIdentity=identity;
+#endif
+        float4 reconstructed,reconstructedMoments;
+        if(HLGITrySubpixelHistory(prevUV,previousPixel,expectedIdentity,expectedP,expectedNs,expectedNg,rho,tolerance,
+            history,moments,reconstructed,reconstructedMoments))
+        { history=reconstructed;moments=reconstructedMoments; }
     }
     // Invalid/uninitialized textures may contain NaNs; lerp(old,current,1) does not remove NaNs.
     if(!valid) { history=current; moments=float4(lum,lum*lum,0,0); }

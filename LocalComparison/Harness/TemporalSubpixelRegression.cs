@@ -91,7 +91,7 @@ public static partial class DenoiseRegressionEditor
         if(test.boundary=="depth")
         {var geometry=Fixture.Fill(new Color(0,0,8390657,.5f));geometry[boundaryPixel].a=.8f;Fixture.Set(f.geometry,geometry);}
         if(test.noGeometry)
-        {var geometry=Fixture.Fill(new Color(0,0,8390657,.5f));geometry[Fixture.Center/4].b=0;Fixture.Set(f.geometry,geometry);}
+        {var geometry=Fixture.Fill(new Color(0,0,8390657,.5f));geometry[Fixture.Center/4].b=-1;Fixture.Set(f.geometry,geometry);}
         if(test.unknown)
         {var input=Fixture.Fill(Fixture.Gray(1));input[Fixture.Center/4]=Fixture.Gray(0,-1);Fixture.Set(f.input,input);}
         if(test.boundary=="identity")

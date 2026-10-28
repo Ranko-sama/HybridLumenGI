@@ -8,18 +8,21 @@ ROOT=base.ROOT;PROJECT=base.PROJECT
 PACKAGE=ROOT/'LocalComparison/Review/temporal-subpixel-history-01'
 OUT=PACKAGE/'instrumentation';base.OUT=OUT
 KERNEL='Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl'
+BASELINE=PACKAGE/'baseline/HybridLumenGIKernels.hlsl'
+CANDIDATE=ROOT/KERNEL
+DEPLOY_CANDIDATE=True
 
 def prepare():
     assert not (OUT/'manifest.json').exists(),'Single frozen preparation already exists'
-    baseline=PACKAGE/'baseline/HybridLumenGIKernels.hlsl'
+    baseline=BASELINE
     deployed=PROJECT/'Assets/HybridLumenGI'/KERNEL
     assert base.sha(deployed)==base.sha(baseline),'Unexpected deployed kernel'
-    deployed.write_bytes((ROOT/KERNEL).read_bytes())
+    if DEPLOY_CANDIDATE:deployed.write_bytes(CANDIDATE.read_bytes())
     product={p.relative_to(ROOT).as_posix():base.sha(p) for top in ['Runtime','Editor'] for p in (ROOT/top).rglob('*') if p.is_file() and p.suffix!='.meta'}
     assert all(base.sha(PROJECT/'Assets/HybridLumenGI'/p)==v for p,v in product.items())
     changed={PROJECT/'Assets/ComparisonHarness/Editor'/n:(HERE/n).read_bytes() for n in ['DenoiseRegressionEditor.cs','TemporalSubpixelRegression.cs','DenoiseFixture.compute']}
     directories=[]
-    for name,source in [('Baseline',baseline),('Candidate',ROOT/KERNEL)]:
+    for name,source in [('Baseline',baseline),('Candidate',CANDIDATE)]:
         folder=PROJECT/'Assets/ComparisonHarness/Editor'/('TemporalSubpixel'+name)
         assert not folder.exists();directories.append(folder.relative_to(PROJECT).as_posix())
         changed[folder/'HybridLumenGIKernels.hlsl']=source.read_bytes()
