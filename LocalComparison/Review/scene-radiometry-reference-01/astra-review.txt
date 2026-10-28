@@ -1,0 +1,22 @@
+GPT-6 Astra Max independent guard, iteration15
+
+Source-gate preflight:
+chain02 的 executed-assets 仅存8个场景/设置文件，Static.unity 内材质仍是外部 GUID 引用；source-inventory 只存发光相关字段，不能证明历史 BaseColor/Metallic。
+当前六个.mat可读且 Emitter keyword 仍为空，但当前值与已知字段相同不能补出历史漫反射来源。
+若没有旧.mat/.meta字节或执行前哈希/完整快照，本包应保存来源缺口并停止历史定量比较，勿以新只读导出重新认证历史。
+
+Stop-boundary review:
+这个提前停止点符合 Pro14 明确的来源停止条件，可执行。
+归档当前六份.mat/.meta及哈希，标记current-only；时间戳、相同GUID和发光字段一致不能证明历史漫反射参数一致。
+保留冻结场景、历史inventory和六个实际目标的来源链；目标位置可信与材质来源闭合应分开判定。
+报告historicalSourceClosure=false、integrationExecuted=false、historicalQuantitativeComparisonPerformed=false。
+这是参考输入缺口，不是GI产品缺陷，也不是六点参考完成。
+当前停止Unity导出和积分合理。新导出不能恢复历史身份，无需先构建完整求解器证明这一点。
+
+Final artifact review:
+无阻断，可提交 Pro15。
+当前六份材质均明确标记current-only、historicalIdentityProven=false；搜索范围和未发现匹配的限制写清，没有冒充历史来源。
+六个目标仅输出实际位置、法线、身份及记录索引。虽然原始记录包含照明数据，提取代码没有将cache RGB、incoming、材质观测值或guide写入目标。
+triangleCorrespondenceVerified=false、未积分、未定量比较和六点参考未完成均如实保留。
+exit2是预声明的来源门槛停止，不能写成产品失败。
+当前工件足以支持请求下一份输入与观测相匹配的前向基线，无需扩大搜索或追加运行。
