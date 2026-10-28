@@ -1,0 +1,103 @@
+"""Bounded collection/query gates; raw rows only, no whole-image quality claim."""
+import argparse, importlib.util, json, sys
+from pathlib import Path
+import numpy as np
+from PIL import Image
+
+SAMPLES=[0,1,3,7,15,31,63,95,119]
+STAGES=['raw','geometry','material','depth','diffuse','emission','history','moments','filtered','native','lights-packed','scene-packed','policy-packed','cache','queries']
+PIXELS=[(160,45),(100,90),(220,90),(100,30)]
+ROIS={'receiver interior':(295,345,50,105,'Thin-wall receiver'),'left wall':(170,230,155,225,'Thin wall 3cm'),'right wall':(410,470,155,225,'Thin wall 3cm')}
+def read(path):return json.loads(path.read_text(encoding='utf-8-sig'))
+def vec(d):return np.array([d[a] for a in 'xyz'],dtype=np.float64)
+def mat(d):return np.array([[d[f'e{i}{j}'] for j in range(4)] for i in range(4)],dtype=np.float64)
+def world(inv,x,y,depth):
+    q=inv@np.array([2*(x+.5)/640-1,1-2*(y+.5)/360,depth,1]);return q[:3]/q[3]
+def intersections(origin,directions,objects):
+    # Independent double slab intersections with existing axis-aligned cube bounds.
+    distance=np.full(directions.shape[:-1],np.inf);identity=np.full(directions.shape[:-1],-1,dtype=np.int32)
+    for i,obj in enumerate(objects):
+        assert obj['mesh']=='Cube', 'Box oracle cannot cover another mesh'
+        center,size=vec(obj['boundsCenter']),vec(obj['boundsSize']);lo,hi=center-size/2,center+size/2
+        near=np.zeros_like(distance);far=np.full_like(distance,np.inf)
+        for axis in range(3):
+            d=directions[...,axis];parallel=np.abs(d)<1e-15;safe=np.where(parallel,1,d)
+            a,b=(lo[axis]-origin[axis])/safe,(hi[axis]-origin[axis])/safe
+            near=np.maximum(near,np.where(parallel,-np.inf,np.minimum(a,b)))
+            far=np.minimum(far,np.where(parallel,np.inf,np.maximum(a,b)))
+            if not lo[axis]<=origin[axis]<=hi[axis]:far=np.where(parallel,-np.inf,far)
+        valid=(near<=far)&(far>0)&(near>1e-8)&(near<distance)
+        distance=np.where(valid,near,distance);identity=np.where(valid,i,identity)
+    return distance,identity
+def analyze(run):
+    result={'run':str(run),'scope':'Observer/selected connections only; no whole-image correctness or performance acceptance','errors':[],'frames':[]}
+    errors=result['errors']
+    def check(ok,message):
+        if not ok:errors.append(message)
+    contract=read(run.parent/'scene-contract.json');objects=contract['objects'];manifest=read(run/'run.json')
+    check(manifest['status']=='incomplete-probe' and manifest['renderedFrames']==120 and manifest['errors']==0,'run completion/error gate')
+    summary=read(run/'thin-summary.json');check(summary['passed'],'observer summary')
+    receipts=[json.loads(l) for l in (run/'thin-receipts.jsonl').read_text(encoding='utf-8').splitlines()]
+    mapping={(r['logicalFrame'],r['stage']):r for r in receipts}
+    check(len(mapping)==len(receipts)==135,'receipt duplicate/count')
+    check(set(mapping)=={(f,s) for f in SAMPLES for s in STAGES},'declared frame/stage set')
+    frames=[json.loads(l) for l in (run/'frames.jsonl').read_text(encoding='utf-8').splitlines()]
+    check([x['logicalFrame'] for x in frames]==list(range(120)),'logical frame sequence')
+    seen_exact=False
+    for f in frames:
+        diag=json.loads(f['diagnosticsJson']);exact=diag['exactSoftwareGeometry'] and not diag['hardwareBackend']
+        check(not seen_exact or exact,f"backend fallback frame {f['logicalFrame']}");seen_exact|=exact
+    origin=vec(contract['cameraPosition']);last_masks={}
+    for frame in SAMPLES:
+        source=read(run/f'thin-{frame:04d}-sources.json');inv=mat(source['invVP']);gi=source['giFrame']
+        def array(stage):
+            r=mapping[frame,stage];p=run/f'thin-{frame:04d}-{stage}.bin';check(p.stat().st_size==r['bytes'],f'{frame} {stage} file size')
+            return np.fromfile(p,dtype='<f4').reshape(r['height'],r['width'],r['channels'])
+        for stage in STAGES:
+            r=mapping[frame,stage];check(r['giFrame']==gi and r['engineFrame']==source['engineFrame'],f'{frame} {stage} frame correlation')
+        depth=array('depth')[...,0];query=array('queries').reshape(6,40)
+        ids=np.fromfile(run/f'thin-{frame:04d}-queries.bin',dtype='<u4').reshape(6,40)
+        check(np.all(query[:,11]==gi+100001),f'{frame} query stamp')
+        check(np.all(np.isfinite(np.concatenate([query[:,:28],query[:,36:]],axis=1))),f'{frame} query float finite')
+        diag=source['diagnostics'];owners={o['slot']:o for o in source['owners']}
+        row={'logicalFrame':frame,'giFrame':gi,'exact':diag['exactSoftwareGeometry'],'readyCards':diag['readyCards'],'requiredCards':diag['requiredSurfaceCards'],'receiverProbes':[],'roi':{}}
+        check(row['exact'] and not diag['hardwareBackend'],f'{frame} exact software coverage')
+        for index,(gx,gy) in enumerate(PIXELS,2):
+            px,py=2*gx+1,2*gy+1;near=world(inv,px,py,.5);direction=near-origin;direction/=np.linalg.norm(direction)
+            expected,object_id=intersections(origin,direction,objects);expected=float(expected);object_id=int(object_id)
+            name=objects[object_id]['name'] if object_id>=0 else 'miss';q=query[index];owner=owners.get(int(ids[index,28]),{})
+            check(np.max(np.abs(direction-q[4:7]))<2e-5,f'{frame} receiver {index} direction')
+            check(q[23]==1 and owner.get('name')==name,f'{frame} receiver {index} hit identity expected {name}, got {owner.get("name")}')
+            check(abs(float(q[19])-expected)<=2e-4,f'{frame} receiver {index} t mismatch')
+            if frame==119:
+                check(q[27]==1 and ids[index,34]==1 and (ids[index,35]&17)==17,f'{frame} receiver {index} known triangle coverage')
+            depth_position=world(inv,px,py,float(depth[py,px]));expected_position=origin+direction*expected
+            depth_error=float(np.linalg.norm(depth_position-expected_position));check(depth_error<=.002,f'{frame} receiver {index} raw depth geometry mismatch')
+            row['receiverProbes'].append({'expected':name,'actual':owner.get('name'),'tError':float(q[19])-expected,'depthWorldError':depth_error,'materialKnown':bool(q[27]),'published':owner.get('published'),'ready':owner.get('ready')})
+        final=np.fromfile(run/f'frame-{frame:04d}.rgba32f',dtype='<f4').reshape(360,640,4)
+        check(np.all(np.isfinite(final)),f'{frame} final finite')
+        for name,(x0,x1,y0,y1,owner_name) in ROIS.items():
+            yy,xx=np.mgrid[y0:y1,x0:x1];coords=np.stack([2*(xx+.5)/640-1,1-2*(yy+.5)/360,np.full_like(xx,.5,dtype=float),np.ones_like(xx)],axis=-1)
+            pts=coords@inv.T;directions=pts[...,:3]/pts[...,3:]-origin;directions/=np.linalg.norm(directions,axis=-1,keepdims=True)
+            _,hit=intersections(origin,directions,objects);names=np.array([o['name'] for o in objects]);mask=(hit>=0)&(names[np.maximum(hit,0)]==owner_name)
+            # Preserve predeclared region even if its surface mask is empty.
+            coverage=int(mask.sum());last_masks[name]=coverage
+            values=final[y0:y1,x0:x1,:3][mask]
+            row['roi'][name]={'expectedSurface':owner_name,'validPixels':coverage,'totalPixels':int(mask.size),'meanRGB':values.mean(axis=0).tolist() if coverage else None,'hitNames':{n:int(np.sum((hit>=0)&(names[np.maximum(hit,0)]==n))) for n in sorted(set(names[np.maximum(hit,0)].ravel()))}}
+        if frame==119:
+            required={'Thin wall 3cm','Thin-wall floor','Thin-wall receiver'}
+            check(required<={o['name'] for o in source['owners']},'final target owners missing')
+            check(all(o['published'] and o['ready'] for o in source['owners'] if o['name'] in {'Thin wall 3cm','Thin-wall floor','Thin-wall receiver'}), 'final target owner readiness')
+            check(all(p['published'] and p['ready'] for p in row['receiverProbes']),'final selected receiver readiness')
+        result['frames'].append(row)
+    result['roiCoverage']=last_masks
+    check(all(n>0 for n in last_masks.values()),'declared ROI has no valid surface pixels')
+    result['collectionAndQueryGate']=not errors
+    result['cReferenceCheck']='not run by this collection gate'
+    return result
+if __name__=='__main__':
+    p=argparse.ArgumentParser();p.add_argument('run',type=Path);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+    try:result=analyze(a.run)
+    except Exception as e:result={'run':str(a.run),'collectionAndQueryGate':False,'errors':[repr(e)]}
+    a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(result,indent=2),encoding='utf-8')
+    print(json.dumps({k:v for k,v in result.items() if k!='frames'},indent=2));sys.exit(0 if result['collectionAndQueryGate'] else 1)

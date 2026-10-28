@@ -1,0 +1,9 @@
+#pragma kernel CSUpdateCache
+#pragma kernel CSTrace
+#pragma kernel CSTemporal
+#pragma kernel CSTemporalIdentity HLGI_RECEIVER_IDENTITY
+#pragma kernel CSFilter
+#pragma target 5.0
+#pragma use_dxc
+#define HLGI_SOFTWARE_TRIANGLES 1
+#include "HybridLumenGIKernels.hlsl"

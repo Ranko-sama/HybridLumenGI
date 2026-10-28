@@ -1,0 +1,101 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 6
+REVIEW_DECISION: REVISE — 保留A的有效观测，暂停B/C，先修退休循环的推进判断
+NEXT_PACKAGE: resource-shutdown-01c-completion-progress
+
+一、总体判断
+
+已确认 HybridLumenGI / workspace:/ / main@870ba82，当前Runtime diff为空。已按要求先列出再读取iteration 6执行输出，并核对当前退休源码、实际测试适配器、A分析实现、采集汇总及原始退出日志。本层未执行修改或测试。
+
+本次应分成两个结论：A采集有效，整次运行的资源退出失败。 不需要丢弃A数据，也不能因原生进程退出码0而接受生命周期结果。
+
+A保存了120个逻辑帧、135份预声明阶段文件，阶段及query覆盖完整、无未完成读回；分析还核对了选定接收面的方向、身份、距离与深度重建。其范围仍是观测与局部查询，不能据此判定薄壁能量、缓存连接或整图正确。〔retry-v3/A/.../thin-summary.json:2–13；retry-v3/analyzer.executed.py.txt:40–80、119–128；retry-v3/A-analysis.json:1918–1926〕
+
+与此同时，原始日志明确记录 owned=1, pending=0，随后出现29项Persistent分配及SDF、变化域等产品分配堆栈。这不是此前未归属的通用内存汇总。〔LocalComparison/Review/thin-wall-transport-01/retry-v3/A-Unity.log:640–697〕
+
+不整体回退已提交的owner提前撤销修复。下一步只处理已经发现的推进逻辑缺陷，保留全部完成证明。
+
+二、独立诊断：源码窗口成立，本次运行的精确归因仍需区分
+F1 — P1：已经完成、但尚未执行销毁的票据，可能被误判为“无法继续推进”
+
+DrainShutdown()先执行：
+
+PollOwned → SubmitImmediate → PollOwned → PollOtherOwners
+
+随后调用 CanProgressWithoutMainLoop()决定是否继续。后者对已提交票据仅在 !ticket.IsComplete 时返回true；它没有把“刚刚完成、现在可以执行销毁”算作可推进状态。〔Runtime/HybridLumenGIResourceRetirement.cs:112–141〕
+
+存在以下合法时序：
+
+时点	状态与行为
+后一次 PollOwned()	fence尚未完成，跳过该owner，销毁回调仍留在队列。
+两次检查之间	GPU完成该fence。
+CanProgressWithoutMainLoop()	再读fence得到完成；由于代码只接受“不完成”，没有返回true。
+没有其他可提交票据	函数返回false，drain提前退出，留下 owned=1, pending=0。
+
+这是一项源码层面可构造的推进缺陷，并非缺少内存锁：即使全部C#操作都在主线程，GPU完成状态仍可在两次查询之间改变。
+
+Feature父退休项没有额外prerequisite；其销毁回调负责旧pass的Dispose。因此，如果留下的是父项，多个CameraState资源会一起未释放，与本次日志形态相符。〔Runtime/HybridLumenGIRendererFeature.cs:193–201〕
+
+但本次未记录剩余ticket身份、每次完成查询和具体退出原因，不能据日志断言29项分配全部由这个窗口造成。期限到达等其他停止原因也没有被日志排除。当前结论是“找到必须修的确定源码缺陷，并有相符的实机症状”，不是“该实机根因已经完整证明”。
+
+三、最小实际源码复现与修复
+1. 先在未改Runtime上建立确定性反例
+
+复用 Tests/StandaloneDeformedMesh，继续编译实际 HybridLumenGIResourceRetirement.cs。只扩展fence适配器与一个定向用例，不复制一份退休算法。
+
+在适配器中，为指定fence提供单调的查询序列：第一次合法完成查询为false，第二次及以后为true。未提交时仍不得完成；记录查询序号、提交和销毁次数，不靠线程竞争或随机Sleep复现。
+
+测试通过已有入口建立outside条件，再登记一个关闭owner：关闭时产生一个无prerequisite的父退休项，父销毁后可产生一个子项。调用一次实际关闭流程，之后不要额外调用IdleUpdate来替测试收尾。
+
+在当前源码上，应观察到父项未销毁、owned=1/pending=0，即使其fence随后已完成。保存失败断言与查询轨迹，再修改产品源码。新用例应放在既有故意保留失败owner的测试之前，或独立进程运行，避免被已有 FailedCount/SubmissionUncertain污染。当前适配器尚没有这种单次drain内部状态变化覆盖。〔Tests/StandaloneDeformedMesh/Adapters.cs.txt:112–128；Program.cs.txt:124–129、160–227〕
+
+2. 首选修复：进度判断不再用第二次fence查询排除已完成owner
+
+只改 CanProgressWithoutMainLoop()及直接相关注释/测试。 对尚未销毁、未失败且提交已知有效的owner，若prerequisite为空或已满足，就应认为仍有可推进工作：
+
+fence尚未完成：可以在原有期限内等待；
+fence已经完成：下一次 PollOwned()可以执行销毁。
+
+因此，最小方向是：进度谓词检查有效提交与prerequisite是否允许推进，不再把 !IsComplete当成必要条件，也不需要在这里额外读取fence。 prerequisite查询异常按未就绪处理。待提交且符合现有idle规则的子票据继续沿用原分支。
+
+真正释放仍只发生在 PollOwned()，并继续要求实际fence及prerequisite通过。requiresContext、提交不确定性、父子项各自的完成证据、五秒共享期限和重入保护均不改变。〔HybridLumenGIResourceRetirement.cs:132–141、224–239〕
+
+不要只在退出前补一次 PollOwned()：那可能只是移动同一个检查窗口。也不要把所有 owned>0或所有submitted状态一概视为可等待，否则会把需要后续主线程回调的prerequisite变成阻塞等待。
+
+3. 必要回归
+定向检查	成功条件
+false→true反例	原源码失败；修复后同一输入在该次drain内完成父项销毁，恰好一次。
+父项产生子项	子项取得自己的提交/完成证明后才释放；不继承一个伪造的完成布尔值，也不重入销毁父项。
+已完成fence＋未满足/抛错prerequisite	不释放、不耗尽整个期限忙等；所有权和计账保留。
+未完成、未知提交及销毁失败	继续遵守原有期限和保留规则；复用既有失败路径测试，不扩成新框架。
+
+不改画质代码、owner撤销顺序或材质/纹理池状态机。若反例没有按上述序列成立，先返回实际轨迹，不预先把修复标为通过。
+
+四、一次有界实机确认，不重采A图像
+
+定向反例与相关回归通过、独立guard核对diff后，做一次12逻辑帧的资源退出探针：复用当前静态thinView和精确软件配置，走本次失败相同的自然调用链：
+
+ComparisonCapture.Finish → EditorApplication.Exit
+
+这不是改薄壁A/B/C的120帧合同；它是独立的资源确认入口。关闭135份全阶段图像采集，只保留实际资源已建立的诊断和必要退出trace。夹具不得手动Dispose、额外poll产品队列或提前关闭Feature来代替产品解决问题。12帧内没有建立待验证owner就记未覆盖，不自动延长。
+
+trace至少保留父项、子项的域/身份、提交、完成检查、销毁与drain停止原因。记录应复用产品本次已读取的状态，不为日志额外查询fence来改变观察时序。 同时记录期限是否到达及prerequisite状态，避免再次仅凭 owned=1猜原因。
+
+通过条件是旧域中父项及子项有完整、恰好一次的完成链，相关计账归零，原始退出日志没有同类产品分配泄漏或未解决owner警告。进程退出码只是其中一项条件。一次干净实机运行是集成确认；确定性测试才是对竞争窗口的覆盖，二者不能互相替代。
+
+若仍有未释放owner、提前释放、挂起、设备错误或观察器错误，停止，不再反复跑到偶然成功。保留ticket与退出原因，按新证据决定下一步。
+
+五、确认后恢复B/C，复用A
+
+上述资源关卡通过后，可继续已经授权的 B→C各一次，保持原120帧上限、九个采样时点和固定场景/参数，不追加A重跑或其他矩阵。
+
+只要实际产品差异确实限定在退休进度判断、采集前设置与来源可核对，现有A可以继续作为传输诊断基线。保存A来源与修复后B/C来源的差异说明，不称它们源码逐字节相同。B、C各自仍须检查完整原生退出日志；B退出失败则不进入C。
+
+同时把外层判定明确拆成：
+
+采集/查询有效性、参考检查结果、退出接受状态。
+
+本次A的采集结果不改写成失败数据，原 run.json也不覆写；新增汇总继续明确其 shutdownAccepted=false。A−B仍不是精确高阶反弹分量，C仍只验证固定阴影连接，均不等于整图物理正确。
+
+当前没有尚待批准的产品修复diff，不能预先批准提交。 Codex完成这一小修复及证据后返回独立复核；已通过的早期短运行记录保留原适用范围，同时把资源退出标记为本轮重新打开的问题。完整四项目标、十条工作流继续推进，不因这个局部故障停止，也不据有限Editor结果宣布整体完成。

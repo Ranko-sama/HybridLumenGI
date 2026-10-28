@@ -1,0 +1,51 @@
+// Test-project-only entry; included after the actual transport/kernels source.
+// It reads the same prepared graph buffers and writes only its private output.
+struct ThinWallResult
+{
+    float4 originMax, directionLength, receiverPoint, direct, hitPosition, hitNg, hitNs;
+    uint4 identity, primitive;
+    float4 shadow;
+};
+RWStructuredBuffer<ThinWallResult> _TW_Results;
+float4 _TW_Camera, _TW_Light;
+[numthreads(8,1,1)]
+void CSThinWallProbe(uint3 id:SV_DispatchThreadID)
+{
+    if(id.x>=6)return;
+    ThinWallResult value=(ThinWallResult)0;
+    float3 origin,direction,p;float limit,lengthToTarget;bool shadowQuery=id.x<2;
+    uint culling=0xffffffffu,layers=0xffffffffu;bool useLayers=false;
+    if(shadowQuery)
+    {
+        p=float3(6.5,0,id.x==0?-0.5:1.2);
+        origin=p+float3(0,_HLGI_RayBias,0);
+        float3 connection=_TW_Light.xyz-origin;lengthToTarget=length(connection);
+        direction=connection/lengthToTarget;limit=max(0,lengthToTarget-_HLGI_RayBias);
+        if(_HLGI_LightCount==1)
+        {culling=_HLGI_Lights[0].masks.x;layers=_HLGI_Lights[0].masks.z;useLayers=(_HLGI_Lights[0].masks.w&1u)!=0;}
+        bool directKnown;
+        float3 directValue=DirectIrradiance(p,float3(0,1,0),float3(0,1,0),uint2(1,1),true,directKnown);
+        value.direct=float4(directValue,directKnown?1:0);
+        bool shadowKnown;
+        bool blocked=TraceShadow(origin,direction,limit,culling,layers,useLayers,HLGIPointQueryFootprint(),float4(p,1),shadowKnown);
+        value.shadow.xy=float2(blocked?1:0,shadowKnown?1:0);
+    }
+    else
+    {
+        uint2 pixel=id.x==2?uint2(160,45):id.x==3?uint2(100,90):id.x==4?uint2(220,90):uint2(100,30);
+        float2 uv=HLGIGiSampleUv(pixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy);
+        origin=_TW_Camera.xyz;p=WorldPosition(uv,0.5,_HLGI_InvVP);
+        direction=normalize(p-origin);lengthToTarget=limit=_HLGI_MaxDistance;
+        value.shadow.xy=-1;
+    }
+    HLGIHit hit;
+    bool found=TraceSceneQuery(origin,direction,limit,shadowQuery,!shadowQuery,culling,layers,useLayers,
+        HLGIPointQueryFootprint(),float4(shadowQuery?p:origin,1),hit);
+    value.originMax=float4(origin,limit);value.directionLength=float4(direction,lengthToTarget);value.receiverPoint=float4(p,shadowQuery?0:1);
+    value.hitPosition=float4(hit.position,hit.t);value.hitNg=float4(hit.rawNg,found?1:0);
+    value.hitNs=float4(hit.shadingNormal,(!found||HLGIHitMaterialKnown(hit))?1:0);
+    value.identity=uint4(hit.ownerSlot,hit.stableId,hit.ownerRevision,hit.geometryRevision);
+    value.primitive=uint4(hit.submesh,hit.primitive,hit.representation,hit.flags);
+    value.shadow.zw=float2(_HLGI_LightCount,_HLGI_BounceFeedback);
+    _TW_Results[id.x]=value;
+}

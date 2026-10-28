@@ -1,0 +1,138 @@
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.RenderGraphModule;
+
+namespace HybridLumenGI
+{
+    /// <summary>
+    /// One graph's immutable hardware material inputs. The graph borrows the four buffers and
+    /// source textures; it does not own them. The caller records on the graphics queue after
+    /// source producers, binds every consumer before dispatch, then calls Finish in a finally.
+    /// An external producer must explicitly order its writes before this pass; a new imported
+    /// handle alone cannot establish a dependency on another handle for the same texture.
+    /// </summary>
+    internal sealed class HybridLumenGIHitMaterialPass : IDisposable
+    {
+        private static readonly List<HybridLumenGIHitMaterialPass> Resident=new List<HybridLumenGIHitMaterialPass>();
+        private readonly HybridLumenGIHitMaterialBatch batch;
+        private readonly List<RTHandle> borrowedTextures=new List<RTHandle>();
+        private bool finished,disposed;
+        internal readonly List<BufferHandle> Buffers=new List<BufferHandle>(4);
+        internal readonly List<TextureHandle> SourceTextures=new List<TextureHandle>();
+        internal long ByteCount => batch.ByteCount;
+        internal uint Generation => batch.Generation;
+        internal long TextureUploadByteCount => batch.TextureUploadByteCount;
+        internal bool ReusesTextureResidency => batch.ReusesTextureResidency;
+        internal int UnknownRecords => batch.UnknownRecords;
+        internal HybridLumenGIHitMaterialBatch.BatchState State => batch.State;
+
+        private sealed class TextureReferences : IEqualityComparer<Texture>
+        {
+            internal static readonly TextureReferences Instance=new TextureReferences();
+            public bool Equals(Texture a,Texture b) => ReferenceEquals(a,b);
+            public int GetHashCode(Texture value) => RuntimeHelpers.GetHashCode(value);
+        }
+        private HybridLumenGIHitMaterialPass(HybridLumenGIHitMaterialBatch batch)
+        { this.batch=batch;Resident.Add(this); }
+
+        internal static bool TryCreate(RenderGraph graph,IReadOnlyList<HybridLumenGIHitMaterialBatch.Source> sources,
+            long globalBudgetBytes,out HybridLumenGIHitMaterialPass pass,out string reason)
+        {
+            pass=null;reason=null;PollRetired();
+            if(graph==null){reason="Missing material render graph.";return false;}
+            if(!HybridLumenGIHitMaterialBatch.TryCreate(sources,globalBudgetBytes,out var batch,out reason))return false;
+            var next=new HybridLumenGIHitMaterialPass(batch);
+            try
+            {
+                if(!batch.GetResources(out var records,out var bindings,out var metadata,out var texels))
+                    throw new InvalidOperationException("Prepared material resources unavailable.");
+                foreach(var buffer in new[]{records,bindings,metadata,texels})
+                    next.Buffers.Add(graph.ImportBuffer(buffer)); // forceRelease remains false
+                var textures=new HashSet<Texture>(TextureReferences.Instance);
+                for(int i=0;i<batch.TextureUploadCount;i++)
+                {
+                        var texture=batch.GetUploadSource(i);
+                        if(ReferenceEquals(texture,null) || !textures.Add(texture))continue;
+                        // Force the Texture overload: a RenderTexture overload can transfer
+                        // ownership. These wrappers must never destroy the user's textures.
+                        var wrapper=RTHandles.Alloc((Texture)texture);
+                        if(wrapper==null)throw new InvalidOperationException("Source texture wrapper unavailable.");
+                        next.borrowedTextures.Add(wrapper);
+                        next.SourceTextures.Add(graph.ImportTexture(wrapper));
+                }
+                pass=next;return true;
+            }
+            catch(Exception ex)
+            {
+                // No pass has been published and no GPU commands can reference this batch.
+                next.Dispose();reason="Material graph import failed: "+ex.GetType().Name;return false;
+            }
+        }
+
+        internal bool MatchesSources(IReadOnlyList<HybridLumenGIHitMaterialBatch.Source> current)
+        {
+            if(disposed || finished || current==null || current.Count!=batch.Count)return false;
+            for(int i=0;i<batch.Count;i++)
+            {
+                var a=batch.GetSource(i);var b=current[i];
+                if(a.StableId!=b.StableId || a.OwnerRevision!=b.OwnerRevision || a.GeometryRevision!=b.GeometryRevision ||
+                    a.Submesh!=b.Submesh || !a.LinearProxyTint.Equals(b.LinearProxyTint) || !a.LinearProxyEmission.Equals(b.LinearProxyEmission) ||
+                    a.Snapshot==null || b.Snapshot==null || !ReferenceEquals(a.Snapshot.SourceRenderer,b.Snapshot.SourceRenderer) ||
+                    !ReferenceEquals(a.Snapshot.SourceMaterial,b.Snapshot.SourceMaterial) || !a.Snapshot.Equals(b.Snapshot))return false;
+            }
+            return true;
+        }
+
+        // This method never dispatches a consumer. A failed second binding must not leave a
+        // partially updated hardware path in use; the caller selects software before dispatch.
+        internal bool RecordAndBind(CommandBuffer cmd,ComputeShader shader,int cacheKernel,int traceKernel,out string reason)
+        {
+            reason=null;
+            if(disposed || finished || shader==null || cacheKernel<0 || traceKernel<0)
+            { reason="Invalid or completed material consumer recording.";return false; }
+            return batch.Record(cmd,out reason) && batch.Bind(cmd,shader,cacheKernel,out reason) &&
+                batch.Bind(cmd,shader,traceKernel,out reason) && (!global::ThinWallTap.Enabled || !shader.HasKernel("CSThinWallProbe") || batch.Bind(cmd,shader,shader.FindKernel("CSThinWallProbe"),out reason));
+        }
+
+        internal bool Finish(CommandBuffer cmd,out string reason)
+        {
+            reason=null;
+            if(finished){reason="Material pass already finished.";return false;}
+            finished=true;
+            bool sealedOrPristine=batch.State==HybridLumenGIHitMaterialBatch.BatchState.Prepared;
+            if(!sealedOrPristine)sealedOrPristine=batch.SealAfterConsumers(cmd,out reason);
+            Dispose();return sealedOrPristine;
+        }
+
+        internal static void PollRetired()
+        {
+            HybridLumenGIHitMaterialBatch.PollRetired();
+            for(int i=Resident.Count-1;i>=0;i--)
+            {
+                var pass=Resident[i];
+                if(pass.batch.State!=HybridLumenGIHitMaterialBatch.BatchState.Released)continue;
+                // External Texture wrappers own no GPU texture. Keep them through the final
+                // consumer fence anyway, since the graph also retains these same wrappers.
+                try
+                {
+                    while(pass.borrowedTextures.Count>0)
+                    {
+                        int last=pass.borrowedTextures.Count-1;
+                        pass.borrowedTextures[last].Release();pass.borrowedTextures.RemoveAt(last);
+                    }
+                    Resident.RemoveAt(i);
+                }
+                catch { /* Retry wrapper cleanup later; never dispose source textures. */ }
+            }
+        }
+
+        public void Dispose()
+        {
+            if(!disposed){disposed=true;batch.Dispose();}
+            PollRetired();
+        }
+    }
+}

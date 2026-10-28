@@ -1,0 +1,1272 @@
+{
+    "config": "B",
+    "scope": "120-frame static probe; not a 720-frame sequence or physical whole-image reference",
+    "unity": "6000.0.85f1",
+    "featureJson": "{\n    \"m_Active\": true,\n    \"settings\": {\n        \"resolutionScale\": 0.5,\n        \"raysPerPixel\": 2,\n        \"screenSteps\": 24,\n        \"traceDistance\": 18.0,\n        \"shadowDistance\": 200.0,\n        \"rayBias\": 0.05999999865889549,\n        \"screenThickness\": 0.18000000715255738,\n        \"residentProxies\": 32,\n        \"nearDistance\": 8.0,\n        \"globalSdfEnabled\": true,\n        \"globalSdfLevels\": 4,\n        \"globalSdfBricksPerAxis\": 8,\n        \"globalSdfBaseVoxelSize\": 1.0,\n        \"globalSdfBricksPerFrame\": 16,\n        \"farDistance\": 150.0,\n        \"chunkSize\": 16.0,\n        \"proxyUploadsPerFrame\": 16,\n        \"cachePatchesPerFrame\": 256,\n        \"cachePatchGrid\": 4,\n        \"cacheRaysPerFace\": 8,\n        \"guidedSamplingWeight\": 0.3499999940395355,\n        \"emissiveSamplingWeight\": 0.5,\n        \"maxEmissiveProposals\": 16,\n        \"maxAreaEmitterTriangles\": 16384,\n        \"surfaceTileResolution\": 32,\n        \"residentSurfaceCards\": 384,\n        \"surfaceCapturesPerFrame\": 24,\n        \"surfaceDrawsPerFrame\": 256,\n        \"surfaceAtlasBudgetMiB\": 64,\n        \"bounceFeedback\": 0.0,\n        \"maxLights\": 16,\n        \"environmentRadiance\": {\n            \"r\": 0.0,\n            \"g\": 0.0,\n            \"b\": 0.0,\n            \"a\": 1.0\n        },\n        \"indirectIntensity\": 1.0,\n        \"radianceClamp\": 0.0,\n        \"temporalAccumulation\": true,\n        \"receiverSourceTracking\": true,\n        \"receiverObjectHistory\": true,\n        \"receiverSourceCapacity\": 1024,\n        \"receiverFingerprintBudgetMiB\": 16,\n        \"temporalCurrentWeight\": 0.25,\n        \"maxHistory\": 32,\n        \"relativeDepthThreshold\": 0.014999999664723874,\n        \"normalThreshold\": 0.8999999761581421,\n        \"filterIterations\": 3,\n        \"normalsOctEncoded\": false,\n        \"includeSceneView\": false,\n        \"preferHardwareTracing\": false,\n        \"exactSoftwareTracing\": true,\n        \"meshTriangleBudget\": 250000,\n        \"softwareGeometryBudgetMiB\": 128,\n        \"hardwareGeometryBudgetMiB\": 128,\n        \"rtasMemoryBudgetMiB\": 256,\n        \"rtasBuildsPerFrame\": 4,\n        \"rtasTriangleWorkPerFrame\": 250000,\n        \"rtasInstanceWorkPerFrame\": 4096,\n        \"rtasTriangleBurstCapacity\": 1000000,\n        \"rtasInstanceBurstCapacity\": 16384,\n        \"hardwareMaterialBudgetMiB\": 256,\n        \"materialTextureUploadMiBPerFrame\": 16,\n        \"composition\": 0,\n        \"materialLayers\": {\n            \"serializedVersion\": \"2\",\n            \"m_Bits\": 4294967295\n        },\n        \"textureBudgetMiB\": 128,\n        \"maxCameras\": 2,\n        \"adaptiveGpuBudget\": false,\n        \"preferNativeGpuTiming\": true,\n        \"targetGpuMilliseconds\": 0.0,\n        \"minimumGpuWorkFraction\": 0.125,\n        \"debugView\": 0\n    },\n    \"traceCompute\": {\n        \"instanceID\": 0\n    },\n    \"compositeShader\": {\n        \"instanceID\": 0\n    },\n    \"surfaceShader\": {\n        \"instanceID\": 0\n    },\n    \"nativeDiffuseShader\": {\n        \"instanceID\": 0\n    }\n}",
+    "objects": [
+        {
+            "name": "Sealed room floor",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 16.0,
+                "y": -0.15000000596046449,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 8.300000190734864,
+                "y": 0.30000001192092898,
+                "z": 8.300000190734864
+            },
+            "boundsCenter": {
+                "x": 16.0,
+                "y": -0.15000000596046449,
+                "z": 0.0
+            },
+            "boundsSize": {
+                "x": 8.300000190734864,
+                "y": 0.30000001192092898,
+                "z": 8.300000190734864
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 8.300000190734864,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 16.0,
+                "e10": 0.0,
+                "e11": 0.30000001192092898,
+                "e12": 0.0,
+                "e13": -0.15000000596046449,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 8.300000190734864,
+                "e23": 0.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Roof back half",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 0.0,
+                "y": 4.0,
+                "z": 2.0
+            },
+            "scale": {
+                "x": 8.0,
+                "y": 0.30000001192092898,
+                "z": 4.0
+            },
+            "boundsCenter": {
+                "x": 0.0,
+                "y": 4.0,
+                "z": 2.0
+            },
+            "boundsSize": {
+                "x": 8.0,
+                "y": 0.30000001192092898,
+                "z": 4.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 8.0,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 0.0,
+                "e10": 0.0,
+                "e11": 0.30000001192092898,
+                "e12": 0.0,
+                "e13": 4.0,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 4.0,
+                "e23": 2.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Black zero diffuse receiver",
+            "mesh": "Cube",
+            "material": "Black",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 2.200000047683716,
+                "y": 0.6499999761581421,
+                "z": 1.2999999523162842
+            },
+            "scale": {
+                "x": 1.2000000476837159,
+                "y": 1.2999999523162842,
+                "z": 1.2000000476837159
+            },
+            "boundsCenter": {
+                "x": 2.200000047683716,
+                "y": 0.6499999761581421,
+                "z": 1.2999999523162842
+            },
+            "boundsSize": {
+                "x": 1.2000000476837159,
+                "y": 1.2999999523162842,
+                "z": 1.2000000476837159
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 1.2000000476837159,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 2.200000047683716,
+                "e10": 0.0,
+                "e11": 1.2999999523162842,
+                "e12": 0.0,
+                "e13": 0.6499999761581421,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 1.2000000476837159,
+                "e23": 1.2999999523162842,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Red wall",
+            "mesh": "Cube",
+            "material": "Red",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": -4.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.30000001192092898,
+                "y": 4.0,
+                "z": 8.0
+            },
+            "boundsCenter": {
+                "x": -4.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "boundsSize": {
+                "x": 0.30000001192092898,
+                "y": 4.0,
+                "z": 8.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 0.30000001192092898,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": -4.0,
+                "e10": 0.0,
+                "e11": 4.0,
+                "e12": 0.0,
+                "e13": 2.0,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 8.0,
+                "e23": 0.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Floor",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 0.0,
+                "y": -0.15000000596046449,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 8.0,
+                "y": 0.30000001192092898,
+                "z": 8.0
+            },
+            "boundsCenter": {
+                "x": 0.0,
+                "y": -0.15000000596046449,
+                "z": 0.0
+            },
+            "boundsSize": {
+                "x": 8.0,
+                "y": 0.30000001192092898,
+                "z": 8.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 8.0,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 0.0,
+                "e10": 0.0,
+                "e11": 0.30000001192092898,
+                "e12": 0.0,
+                "e13": -0.15000000596046449,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 8.0,
+                "e23": 0.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Sealed room back",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 16.0,
+                "y": 2.0,
+                "z": 4.0
+            },
+            "scale": {
+                "x": 8.300000190734864,
+                "y": 4.300000190734863,
+                "z": 0.30000001192092898
+            },
+            "boundsCenter": {
+                "x": 16.0,
+                "y": 2.0,
+                "z": 4.0
+            },
+            "boundsSize": {
+                "x": 8.300000190734864,
+                "y": 4.300000190734863,
+                "z": 0.30000001192092898
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 8.300000190734864,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 16.0,
+                "e10": 0.0,
+                "e11": 4.300000190734863,
+                "e12": 0.0,
+                "e13": 2.0,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 0.30000001192092898,
+                "e23": 4.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Thin-wall receiver",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 8.0,
+                "y": 0.6000000238418579,
+                "z": -0.5
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.2000000476837159,
+                "z": 1.0
+            },
+            "boundsCenter": {
+                "x": 8.0,
+                "y": 0.6000000238418579,
+                "z": -0.5
+            },
+            "boundsSize": {
+                "x": 1.0,
+                "y": 1.2000000476837159,
+                "z": 1.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 1.0,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 8.0,
+                "e10": 0.0,
+                "e11": 1.2000000476837159,
+                "e12": 0.0,
+                "e13": 0.6000000238418579,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 1.0,
+                "e23": -0.5,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Sealed room right",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 20.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.30000001192092898,
+                "y": 4.300000190734863,
+                "z": 8.300000190734864
+            },
+            "boundsCenter": {
+                "x": 20.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "boundsSize": {
+                "x": 0.30000001192092898,
+                "y": 4.300000190734863,
+                "z": 8.300000190734864
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 0.30000001192092898,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 20.0,
+                "e10": 0.0,
+                "e11": 4.300000190734863,
+                "e12": 0.0,
+                "e13": 2.0,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 8.300000190734864,
+                "e23": 0.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Metal zero diffuse receiver",
+            "mesh": "Cube",
+            "material": "Metal",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 0.0,
+                "y": 0.6499999761581421,
+                "z": 1.2999999523162842
+            },
+            "scale": {
+                "x": 1.2000000476837159,
+                "y": 1.2999999523162842,
+                "z": 1.2000000476837159
+            },
+            "boundsCenter": {
+                "x": 0.0,
+                "y": 0.6499999761581421,
+                "z": 1.2999999523162842
+            },
+            "boundsSize": {
+                "x": 1.2000000476837159,
+                "y": 1.2999999523162842,
+                "z": 1.2000000476837159
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 1.2000000476837159,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 0.0,
+                "e10": 0.0,
+                "e11": 1.2999999523162842,
+                "e12": 0.0,
+                "e13": 0.6499999761581421,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 1.2000000476837159,
+                "e23": 1.2999999523162842,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Back wall",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 0.0,
+                "y": 2.0,
+                "z": 4.0
+            },
+            "scale": {
+                "x": 8.0,
+                "y": 4.0,
+                "z": 0.30000001192092898
+            },
+            "boundsCenter": {
+                "x": 0.0,
+                "y": 2.0,
+                "z": 4.0
+            },
+            "boundsSize": {
+                "x": 8.0,
+                "y": 4.0,
+                "z": 0.30000001192092898
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 8.0,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 0.0,
+                "e10": 0.0,
+                "e11": 4.0,
+                "e12": 0.0,
+                "e13": 2.0,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 0.30000001192092898,
+                "e23": 4.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Thin-wall floor",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 8.0,
+                "y": -0.15000000596046449,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 6.0,
+                "y": 0.30000001192092898,
+                "z": 6.0
+            },
+            "boundsCenter": {
+                "x": 8.0,
+                "y": -0.15000000596046449,
+                "z": 0.0
+            },
+            "boundsSize": {
+                "x": 6.0,
+                "y": 0.30000001192092898,
+                "z": 6.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 6.0,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 8.0,
+                "e10": 0.0,
+                "e11": 0.30000001192092898,
+                "e12": 0.0,
+                "e13": -0.15000000596046449,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 6.0,
+                "e23": 0.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Thin wall 3cm",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 8.0,
+                "y": 1.5,
+                "z": 0.5
+            },
+            "scale": {
+                "x": 6.0,
+                "y": 3.0,
+                "z": 0.029999999329447748
+            },
+            "boundsCenter": {
+                "x": 8.0,
+                "y": 1.5,
+                "z": 0.5
+            },
+            "boundsSize": {
+                "x": 6.0,
+                "y": 3.0,
+                "z": 0.029999999329447748
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 6.0,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 8.0,
+                "e10": 0.0,
+                "e11": 3.0,
+                "e12": 0.0,
+                "e13": 1.5,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 0.029999999329447748,
+                "e23": 0.5,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Sealed room roof",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 16.0,
+                "y": 4.150000095367432,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 8.300000190734864,
+                "y": 0.30000001192092898,
+                "z": 8.300000190734864
+            },
+            "boundsCenter": {
+                "x": 16.0,
+                "y": 4.150000095367432,
+                "z": 0.0
+            },
+            "boundsSize": {
+                "x": 8.300000190734864,
+                "y": 0.30000001192092898,
+                "z": 8.300000190734864
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 8.300000190734864,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 16.0,
+                "e10": 0.0,
+                "e11": 0.30000001192092898,
+                "e12": 0.0,
+                "e13": 4.150000095367432,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 8.300000190734864,
+                "e23": 0.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Sealed room front",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 16.0,
+                "y": 2.0,
+                "z": -4.0
+            },
+            "scale": {
+                "x": 8.300000190734864,
+                "y": 4.300000190734863,
+                "z": 0.30000001192092898
+            },
+            "boundsCenter": {
+                "x": 16.0,
+                "y": 2.0,
+                "z": -4.0
+            },
+            "boundsSize": {
+                "x": 8.300000190734864,
+                "y": 4.300000190734863,
+                "z": 0.30000001192092898
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 8.300000190734864,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 16.0,
+                "e10": 0.0,
+                "e11": 4.300000190734863,
+                "e12": 0.0,
+                "e13": 2.0,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 0.30000001192092898,
+                "e23": -4.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Moving occluder",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": -1.100000023841858,
+                "y": 1.399999976158142,
+                "z": -0.800000011920929
+            },
+            "scale": {
+                "x": 1.7999999523162842,
+                "y": 2.799999952316284,
+                "z": 0.25
+            },
+            "boundsCenter": {
+                "x": -1.100000023841858,
+                "y": 1.399999976158142,
+                "z": -0.800000011920929
+            },
+            "boundsSize": {
+                "x": 1.7999999523162842,
+                "y": 2.799999952316284,
+                "z": 0.25
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 1.7999999523162842,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": -1.100000023841858,
+                "e10": 0.0,
+                "e11": 2.799999952316284,
+                "e12": 0.0,
+                "e13": 1.399999976158142,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 0.25,
+                "e23": -0.800000011920929,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "White receiver",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": -2.200000047683716,
+                "y": 0.6499999761581421,
+                "z": 1.2999999523162842
+            },
+            "scale": {
+                "x": 1.2000000476837159,
+                "y": 1.2999999523162842,
+                "z": 1.2000000476837159
+            },
+            "boundsCenter": {
+                "x": -2.200000047683716,
+                "y": 0.6499999761581421,
+                "z": 1.2999999523162842
+            },
+            "boundsSize": {
+                "x": 1.2000000476837159,
+                "y": 1.2999999523162842,
+                "z": 1.2000000476837159
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 1.2000000476837159,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": -2.200000047683716,
+                "e10": 0.0,
+                "e11": 1.2999999523162842,
+                "e12": 0.0,
+                "e13": 0.6499999761581421,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 1.2000000476837159,
+                "e23": 1.2999999523162842,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Emissive source",
+            "mesh": "Cube",
+            "material": "Emitter",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": -3.75,
+                "y": 1.7999999523162842,
+                "z": 2.5
+            },
+            "scale": {
+                "x": 0.15000000596046449,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "boundsCenter": {
+                "x": -3.75,
+                "y": 1.7999999523162842,
+                "z": 2.5
+            },
+            "boundsSize": {
+                "x": 0.15000000596046449,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 0.15000000596046449,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": -3.75,
+                "e10": 0.0,
+                "e11": 1.0,
+                "e12": 0.0,
+                "e13": 1.7999999523162842,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 1.0,
+                "e23": 2.5,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Green wall",
+            "mesh": "Cube",
+            "material": "Green",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 4.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.30000001192092898,
+                "y": 4.0,
+                "z": 8.0
+            },
+            "boundsCenter": {
+                "x": 4.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "boundsSize": {
+                "x": 0.30000001192092898,
+                "y": 4.0,
+                "z": 8.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 0.30000001192092898,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 4.0,
+                "e10": 0.0,
+                "e11": 4.0,
+                "e12": 0.0,
+                "e13": 2.0,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 8.0,
+                "e23": 0.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Sealed room gray receiver",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 16.0,
+                "y": 0.699999988079071,
+                "z": 1.0
+            },
+            "scale": {
+                "x": 1.399999976158142,
+                "y": 1.399999976158142,
+                "z": 1.399999976158142
+            },
+            "boundsCenter": {
+                "x": 16.0,
+                "y": 0.699999988079071,
+                "z": 1.0
+            },
+            "boundsSize": {
+                "x": 1.399999976158142,
+                "y": 1.399999976158142,
+                "z": 1.399999976158142
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 1.399999976158142,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 16.0,
+                "e10": 0.0,
+                "e11": 1.399999976158142,
+                "e12": 0.0,
+                "e13": 0.699999988079071,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 1.399999976158142,
+                "e23": 1.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        },
+        {
+            "name": "Sealed room left",
+            "mesh": "Cube",
+            "material": "White",
+            "shader": "Universal Render Pipeline/Lit",
+            "charts": "Mesh-718-Charts",
+            "position": {
+                "x": 12.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.30000001192092898,
+                "y": 4.300000190734863,
+                "z": 8.300000190734864
+            },
+            "boundsCenter": {
+                "x": 12.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "boundsSize": {
+                "x": 0.30000001192092898,
+                "y": 4.300000190734863,
+                "z": 8.300000190734864
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "matrix": {
+                "e00": 0.30000001192092898,
+                "e01": 0.0,
+                "e02": 0.0,
+                "e03": 12.0,
+                "e10": 0.0,
+                "e11": 4.300000190734863,
+                "e12": 0.0,
+                "e13": 2.0,
+                "e20": 0.0,
+                "e21": 0.0,
+                "e22": 8.300000190734864,
+                "e23": 0.0,
+                "e30": 0.0,
+                "e31": 0.0,
+                "e32": 0.0,
+                "e33": 1.0
+            },
+            "layer": 0,
+            "cull": 2,
+            "renderingLayer": 1,
+            "shadows": "On"
+        }
+    ],
+    "lights": [
+        {
+            "name": "Directional",
+            "type": "Directional",
+            "shadows": "Soft",
+            "enabled": true,
+            "position": {
+                "x": 0.0,
+                "y": 5.0,
+                "z": -2.0
+            },
+            "rotation": {
+                "x": 0.4126005470752716,
+                "y": -0.1961609274148941,
+                "z": 0.0914713442325592,
+                "w": 0.8848246932029724
+            },
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "intensity": 1.2000000476837159,
+            "range": 10.0,
+            "strength": 1.0,
+            "mask": -1,
+            "renderingMask": 1
+        },
+        {
+            "name": "Point (toggle for invalidation)",
+            "type": "Point",
+            "shadows": "Soft",
+            "enabled": true,
+            "position": {
+                "x": -2.4000000953674318,
+                "y": 2.799999952316284,
+                "z": 2.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "color": {
+                "r": 1.0,
+                "g": 0.75,
+                "b": 0.5,
+                "a": 1.0
+            },
+            "intensity": 7.0,
+            "range": 8.0,
+            "strength": 1.0,
+            "mask": -1,
+            "renderingMask": 1
+        },
+        {
+            "name": "Spot (toggle for invalidation)",
+            "type": "Spot",
+            "shadows": "Soft",
+            "enabled": true,
+            "position": {
+                "x": 2.299999952316284,
+                "y": 3.5,
+                "z": 0.5
+            },
+            "rotation": {
+                "x": 0.6427876353263855,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 0.7660444974899292
+            },
+            "color": {
+                "r": 0.5,
+                "g": 0.699999988079071,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "intensity": 12.0,
+            "range": 9.0,
+            "strength": 1.0,
+            "mask": -1,
+            "renderingMask": 1
+        },
+        {
+            "name": "Behind thin wall",
+            "type": "Point",
+            "shadows": "Soft",
+            "enabled": true,
+            "position": {
+                "x": 8.0,
+                "y": 2.0,
+                "z": 2.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "intensity": 12.0,
+            "range": 5.0,
+            "strength": 1.0,
+            "mask": -1,
+            "renderingMask": 1
+        },
+        {
+            "name": "Outside sealed room only",
+            "type": "Point",
+            "shadows": "Soft",
+            "enabled": true,
+            "position": {
+                "x": 10.699999809265137,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "intensity": 20.0,
+            "range": 10.0,
+            "strength": 1.0,
+            "mask": -1,
+            "renderingMask": 1
+        }
+    ],
+    "cameraPosition": {
+        "x": 8.0,
+        "y": 1.7000000476837159,
+        "z": -3.0
+    },
+    "cameraRotation": {
+        "x": 0.0427396334707737,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.9990862607955933
+    },
+    "fov": 60.0,
+    "aspect": 1.7777777910232545,
+    "ambientIntensity": 0.0,
+    "ambientLight": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 1.0
+    },
+    "ambientMode": "Flat",
+    "skybox": false
+}

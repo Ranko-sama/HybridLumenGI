@@ -1,0 +1,56 @@
+{
+  "scope": "Independent CPU geometry only; no product/GPU test or whole-image reference claim",
+  "source": "Zero-capture v2 scene-contract.json; actual GPU packed light values remain required for DirectIrradiance comparison",
+  "wallMinimum": [
+    5.0,
+    0.0,
+    0.4850000003352761
+  ],
+  "wallMaximum": [
+    11.0,
+    3.0,
+    0.5149999996647239
+  ],
+  "queries": [
+    {
+      "name": "blocked",
+      "point": [
+        6.5,
+        0,
+        -0.5
+      ],
+      "light": [
+        8.0,
+        2.0,
+        2.0
+      ],
+      "biasedOrigin": [
+        6.5,
+        0.06,
+        -0.5
+      ],
+      "physicalIntersectionT": 1.393000359411651,
+      "biasedShortenedIntersectionT": 1.3797652738404476
+    },
+    {
+      "name": "clear",
+      "point": [
+        6.5,
+        0,
+        1.2
+      ],
+      "light": [
+        8.0,
+        2.0,
+        2.0
+      ],
+      "biasedOrigin": [
+        6.5,
+        0.06,
+        1.2
+      ],
+      "physicalIntersectionT": null,
+      "biasedShortenedIntersectionT": null
+    }
+  ]
+}

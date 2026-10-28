@@ -1,0 +1,24 @@
+diff --git a/Runtime/HybridLumenGIResourceRetirement.cs b/Runtime/HybridLumenGIResourceRetirement.cs
+index fd4c8c8..70f6f34 100644
+--- a/Runtime/HybridLumenGIResourceRetirement.cs
++++ b/Runtime/HybridLumenGIResourceRetirement.cs
+@@ -130,10 +130,16 @@ namespace HybridLumenGI
+         }
+         private static bool CanProgressWithoutMainLoop()
+         {
+-            // No busy wait for an unsubmitted context or a prerequisite that requires a
+-            // later main-thread callback. Those remain owned and are reported immediately.
++            // Both waiting for a submitted fence and destroying a newly completed owner
++            // can progress. Do not reread the fence here: it may complete after PollOwned,
++            // and that transition must not strand its still-queued destroy callback.
++            // Callback-dependent prerequisites remain nonblocking and retain ownership.
+             foreach(var item in owned)
+-                if(!item.failed && item.ticket.submitted && !item.ticket.IsComplete)return true;
++            {
++                if(item.failed || !item.ticket.submitted || item.ticket.submissionUnknown)continue;
++                try{if(item.prerequisite==null || item.prerequisite.IsComplete)return true;}
++                catch(Exception){ }
++            }
+             // A completed parent can enqueue children during PollOwned. They still need
+             // their own fence, and an eligible idle submission can make real progress.
+             foreach(var ticket in pending)

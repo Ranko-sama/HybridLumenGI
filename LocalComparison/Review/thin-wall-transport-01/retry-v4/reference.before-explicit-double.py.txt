@@ -1,0 +1,41 @@
+"""Independent double geometry reference, never reads a failed GPU capture."""
+import json, math
+from pathlib import Path
+
+def segment_box(origin, target, minimum, maximum, shorten=0):
+    delta=[b-a for a,b in zip(origin,target)];length=math.sqrt(sum(x*x for x in delta))
+    direction=[x/length for x in delta];enter,leave=0.0,length-shorten
+    for o,d,lo,hi in zip(origin,direction,minimum,maximum):
+        if abs(d)<1e-15:
+            if not lo<=o<=hi:return None
+        else:
+            a,b=(lo-o)/d,(hi-o)/d
+            enter=max(enter,min(a,b));leave=min(leave,max(a,b))
+    return enter if enter<=leave and leave>0 else None
+
+def direct_value(point,light,packed_rgb,range_value):
+    offset=[b-a for a,b in zip(point,light)];distance2=sum(x*x for x in offset)
+    cosine=max(0,offset[1]/math.sqrt(distance2))
+    cutoff=max(0,1-(distance2/(range_value*range_value))**2)
+    return [value*cosine*cutoff*cutoff/distance2 for value in packed_rgb]
+
+if __name__=='__main__':
+    root=Path(__file__).resolve().parents[2]
+    contract=json.loads((root/'LocalComparison/Review/thin-wall-transport-01/preflight-v2/scene-contract.json').read_text(encoding='utf-8'))
+    wall=next(x for x in contract['objects'] if x['name']=='Thin wall 3cm')
+    center=[wall['boundsCenter'][a] for a in 'xyz'];size=[wall['boundsSize'][a] for a in 'xyz']
+    lo=[c-s/2 for c,s in zip(center,size)];hi=[c+s/2 for c,s in zip(center,size)]
+    lamp=next(x for x in contract['lights'] if x['name']=='Behind thin wall');light=[lamp['position'][a] for a in 'xyz']
+    results=[]
+    for name,point in [('blocked',[6.5,0,-.5]),('clear',[6.5,0,1.2])]:
+        biased=[point[0],point[1]+.06,point[2]]
+        physical=segment_box(point,light,lo,hi);actual=segment_box(biased,light,lo,hi,.06)
+        results.append({'name':name,'point':point,'light':light,'biasedOrigin':biased,'physicalIntersectionT':physical,'biasedShortenedIntersectionT':actual})
+    assert results[0]['physicalIntersectionT'] is not None and results[0]['biasedShortenedIntersectionT'] is not None
+    assert results[1]['physicalIntersectionT'] is None and results[1]['biasedShortenedIntersectionT'] is None
+    result={'scope':'Independent CPU geometry only; no product/GPU test or whole-image reference claim',
+            'source':'Zero-capture v2 scene-contract.json; actual GPU packed light values remain required for DirectIrradiance comparison',
+            'wallMinimum':lo,'wallMaximum':hi,'queries':results}
+    output=root/'LocalComparison/Review/thin-wall-transport-01/independent-geometry-reference.json'
+    output.write_text(json.dumps(result,indent=2),encoding='utf-8')
+    print(json.dumps(result,indent=2))

@@ -1,0 +1,9 @@
+GPT-6 Astra Max independent guard, read-only review of v3 and the native A outcome.
+
+Static preflight accepted after fixing four concrete risks: observer Finish must not bypass original cleanup; diagnostic material binding must not trigger product fallback; required owner sets must be nonempty/present; final receiver probes require known triangle identity. The query160-byte offsets and mixed layouts match current source. No agent tests were run.
+
+A outcome:135 stage copies and120 capture frames can remain valid observations. Exit0 is not lifecycle acceptance. New owned1/pending0 retirement warning and29 Persistent allocations justify stopping B/C pending the narrow resource review. Earlier short-run shutdown evidence remains scoped to those runs.
+
+Independent static finding: Feature.WithdrawForShutdown retires the parent pass without a prerequisite. DrainShutdown polls it, then CanProgressWithoutMainLoop polls the same fence again but returns true only when it is incomplete. If the fence changes false→true between these reads, the parent destroy callback is still queued while CanProgress returns false. Drain exits with owned1/pending0; the entire CameraState remains undisposed. This is a provable source window and fits the native report, but the uninstrumented report alone cannot establish that this exact branch caused this run.
+
+Smallest next package: an actual-source deterministic fence sequence reproducing false at PollOwned and true at CanProgress; no new Unity matrix or increased waiting time first. Then repair only the progress predicate/loop so ready destruction is actionable while callback-dependent prerequisites remain fail-closed and nonblocking.

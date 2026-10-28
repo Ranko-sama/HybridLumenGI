@@ -1,0 +1,130 @@
+// Test-project-only stage/readback observer. No product parameter or resource-state writes.
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.RenderGraphModule;
+using HybridLumenGI;
+
+public static class ThinWallTap
+{
+    public static readonly bool Enabled=Array.IndexOf(Environment.GetCommandLineArgs(),"-thinWallProbe")>=0;
+    static readonly int[] Samples={0,1,3,7,15,31,63,95,119};
+    static readonly HashSet<string> completed=new HashSet<string>();
+    static readonly object gate=new object();
+    static ComparisonCapture capture;static GraphicsBuffer queries;static int pending,errors,skippedQueries;static bool finished;
+    const BindingFlags Fields=BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public;
+    static object Field(object value,string name)=>value.GetType().GetField(name,Fields).GetValue(value);
+    [Serializable] class Receipt {public int logicalFrame,giFrame,engineFrame,width,height,channels,bytes;public string stage,actualFormat;}
+    [Serializable] class Owner {public int slot,stableId,revision;public string name;public bool published,ready;public Vector3 center,size;}
+    [Serializable] class Sources {public int logicalFrame,giFrame,engineFrame,lightCount,cacheEntries;public Matrix4x4 invVP;public Owner[] owners;public HybridLumenGIRendererFeature.CameraDiagnostics diagnostics;}
+    [Serializable] class Summary {public int expectedSamples=9,completedFiles,pending,errors,skippedQueries;public bool passed;public string scope="Stage copies/receiver probes only; not a whole-image reference or performance capture";}
+    public static bool Wants(int frame)=>Enabled&&Array.IndexOf(Samples,frame)>=0;
+    static bool Target(Camera camera,out int logical,out string directory)
+    {
+        logical=-1;directory=null;if(!Enabled)return false;
+        if(!capture)capture=UnityEngine.Object.FindFirstObjectByType<ComparisonCapture>();
+        if(!capture||capture.camera!=camera)return false;
+        logical=(int)Field(capture,"logicalFrame");directory=(string)Field(capture,"directory");return Wants(logical)&&!string.IsNullOrEmpty(directory);
+    }
+    public static GraphicsBuffer QueryBuffer
+    {
+        get{if(queries==null)queries=new GraphicsBuffer(GraphicsBuffer.Target.Structured,6,160);return queries;}
+    }
+    static void Save(string directory,Receipt receipt,byte[] bytes)
+    {
+        string key=receipt.logicalFrame.ToString("D4")+"-"+receipt.stage;receipt.bytes=bytes.Length;
+        lock(gate)
+        {
+            if(!completed.Add(key))throw new Exception("Duplicate thin-wall stage: "+key);
+            File.WriteAllBytes(Path.Combine(directory,"thin-"+key+".bin"),bytes);
+            File.AppendAllText(Path.Combine(directory,"thin-receipts.jsonl"),JsonUtility.ToJson(receipt)+"\n");
+        }
+    }
+    public static void Texture(CommandBuffer cmd,RenderTexture texture,Camera camera,int giFrame,string stage,bool scalar=false)
+    {
+        if(!Target(camera,out int frame,out string directory))return;
+        if(!texture)throw new Exception("Missing thin-wall source texture: "+stage);
+        var receipt=new Receipt{logicalFrame=frame,giFrame=giFrame,engineFrame=Time.frameCount,width=texture.width,height=texture.height,
+            channels=scalar?1:4,stage=stage,actualFormat=texture.graphicsFormat.ToString()};
+        pending++;
+        cmd.RequestAsyncReadback(texture,0,scalar?TextureFormat.RFloat:TextureFormat.RGBAFloat,request=>
+        {
+            try
+            {
+                if(request.hasError)throw new Exception("Thin-wall stage readback failed: "+stage);
+                var data=request.GetData<float>();if(data.Length!=receipt.width*receipt.height*receipt.channels)throw new Exception("Thin-wall stage size changed");
+                for(int i=0;i<data.Length;i++)if(float.IsNaN(data[i])||float.IsInfinity(data[i]))throw new Exception("Nonfinite thin-wall stage: "+stage);
+                Save(directory,receipt,request.GetData<byte>().ToArray());
+            }
+            catch(Exception error){errors++;Debug.LogError(error);}
+            finally{pending--;}
+        });
+    }
+    static void Buffer(CommandBuffer cmd,ComputeBuffer buffer,Camera camera,int giFrame,string stage)
+    {
+        if(!Target(camera,out int frame,out string directory))return;
+        var receipt=new Receipt{logicalFrame=frame,giFrame=giFrame,engineFrame=Time.frameCount,width=buffer.count,height=1,channels=buffer.stride/4,stage=stage,actualFormat="structured bytes"};
+        pending++;cmd.RequestAsyncReadback(buffer,request=>
+        {try{if(request.hasError)throw new Exception("Thin-wall buffer readback failed: "+stage);Save(directory,receipt,request.GetData<byte>().ToArray());}catch(Exception error){errors++;Debug.LogError(error);}finally{pending--;}});
+    }
+    public static void Query(CommandBuffer cmd,ComputeShader shader,int kernel,Camera camera,int giFrame)
+    {
+        if(!Target(camera,out int frame,out string directory))return;
+        var light=GameObject.Find("Behind thin wall").transform;
+        cmd.SetComputeVectorParam(shader,"_TW_Camera",camera.transform.position);cmd.SetComputeVectorParam(shader,"_TW_Light",light.position);
+        cmd.SetComputeBufferParam(shader,kernel,"_TW_Results",QueryBuffer);cmd.DispatchCompute(shader,kernel,1,1,1);
+        var receipt=new Receipt{logicalFrame=frame,giFrame=giFrame,engineFrame=Time.frameCount,width=6,height=1,channels=40,stage="queries",actualFormat="ThinWallResult 160-byte mixed float/uint record"};
+        pending++;cmd.RequestAsyncReadback(QueryBuffer,request=>
+        {try{if(request.hasError)throw new Exception("Thin-wall query readback failed");Save(directory,receipt,request.GetData<byte>().ToArray());}catch(Exception error){errors++;Debug.LogError(error);}finally{pending--;}});
+    }
+    public static void QueryUnavailable(Camera camera,int giFrame)
+    {
+        if(!Target(camera,out int frame,out string directory))return;skippedQueries++;
+        File.AppendAllText(Path.Combine(directory,"thin-query-unavailable.jsonl"),JsonUtility.ToJson(new Receipt{logicalFrame=frame,giFrame=giFrame,engineFrame=Time.frameCount,stage="query-unavailable-nonexact-backend"})+"\n");
+    }
+    public static void State(CommandBuffer cmd,object state,Camera camera,int giFrame,int cacheRead,int lightCount,Matrix4x4 invVP)
+    {
+        if(!Target(camera,out int frame,out string directory))return;
+        var scene=(HybridLumenGIScene)Field(state,"scene");var surface=(HybridLumenGISurfaceCache)Field(state,"surfaceCache");
+        var owners=new List<Owner>();
+        for(int slot=0;slot<scene.Capacity;slot++)
+        {
+            var proxy=scene.GetProxy(slot);if(!proxy)continue;var gpu=scene.Data[slot];var renderer=proxy.SourceRenderer;
+            owners.Add(new Owner{slot=slot,stableId=(int)gpu.identity.x,revision=(int)gpu.identity.y,name=proxy.name,published=scene.IsPublished(slot),
+                ready=surface.IsSlotReady(slot,(int)gpu.identity.x,(int)gpu.identity.y),center=renderer.bounds.center,size=renderer.bounds.size});
+        }
+        var feature=(HybridLumenGIRendererFeature)capture.feature;
+        var source=new Sources{logicalFrame=frame,giFrame=giFrame,engineFrame=Time.frameCount,lightCount=lightCount,cacheEntries=(int)Field(state,"cacheEntryCount"),
+            invVP=invVP,owners=owners.ToArray(),diagnostics=feature.GetDiagnostics().First(d=>d.camera==camera.name)};
+        File.WriteAllText(Path.Combine(directory,"thin-"+frame.ToString("D4")+"-sources.json"),JsonUtility.ToJson(source,true));
+        Buffer(cmd,(ComputeBuffer)Field(state,"lights"),camera,giFrame,"lights-packed");
+        Buffer(cmd,scene.Buffer,camera,giFrame,"scene-packed");Buffer(cmd,scene.LightingPolicyBuffer,camera,giFrame,"policy-packed");
+        Buffer(cmd,((ComputeBuffer[])Field(state,"cache"))[cacheRead],camera,giFrame,"cache");
+    }
+    sealed class NativeData {public TextureHandle texture;public Camera camera;public int frame;}
+    public static void Native(RenderGraph graph,TextureHandle color,Camera camera,int giFrame)
+    {
+        if(!Target(camera,out _,out _))return;
+        using(var builder=graph.AddUnsafePass<NativeData>("Thin-wall pre-GI color readback",out var data))
+        {
+            data.texture=color;data.camera=camera;data.frame=giFrame;builder.UseTexture(color,AccessFlags.Read);builder.AllowPassCulling(false);
+            builder.SetRenderFunc(static(NativeData d,UnsafeGraphContext context)=>Texture(CommandBufferHelpers.GetNativeCommandBuffer(context.cmd),((RTHandle)d.texture).rt,d.camera,d.frame,"native"));
+        }
+    }
+    public static void Finish(bool collected)
+    {
+        if(!Enabled||finished)return;finished=true;AsyncGPUReadback.WaitAllRequests();
+        // Ten textures, four buffers and one query buffer per predeclared sample.
+        var summary=new Summary{completedFiles=completed.Count,pending=pending,errors=errors,skippedQueries=skippedQueries,passed=completed.Count+skippedQueries==9*15&&pending==0&&errors==0};
+        string directory=capture?(string)Field(capture,"directory"):null;
+        if(!string.IsNullOrEmpty(directory))File.WriteAllText(Path.Combine(directory,"thin-summary.json"),JsonUtility.ToJson(summary,true));
+        // Each query dispatch is ordered before its completed copy; no future dispatch
+        // can be recorded after capture Finish. This buffer belongs only to this fixture.
+        if(pending==0){queries?.Dispose();queries=null;}
+        if(collected&&!summary.passed)throw new Exception("Thin-wall stage evidence incomplete");
+    }
+}

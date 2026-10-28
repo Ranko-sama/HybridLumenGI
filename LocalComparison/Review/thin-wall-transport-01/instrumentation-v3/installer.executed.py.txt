@@ -1,0 +1,80 @@
+"""Archive/install/restore bounded test-project stage taps and query kernel."""
+import argparse,hashlib,json,shutil,subprocess
+from pathlib import Path
+p=argparse.ArgumentParser();p.add_argument('action',choices=['install','restore']);p.add_argument('--revision',choices=['v1','v2','v3'],default='v3');a=p.parse_args()
+root=Path(__file__).resolve().parents[2];assets=Path('I:/Unity test/Project/Assets')
+out=root/'LocalComparison/Review/thin-wall-transport-01'/('instrumentation' if a.revision=='v1' else 'instrumentation-'+a.revision);out.mkdir(parents=True,exist_ok=True)
+files={'feature':assets/'HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs',
+       'materials':assets/'HybridLumenGI/Runtime/HybridLumenGIHitMaterialPass.cs',
+       'shader':assets/'HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIExactSoftware.compute',
+       'capture':assets/'ComparisonHarness/ComparisonCapture.cs'}
+sha=lambda b:hashlib.sha256(b).hexdigest()
+if a.action=='install':
+    changes={
+      'feature':[
+        ('                    Copy(work,data);','                    Copy(work,data);\n                    if(global::ThinWallTap.Enabled){builder.UseBuffer(graph.ImportBuffer(global::ThinWallTap.QueryBuffer),AccessFlags.ReadWrite);builder.UseBuffer(graph.ImportBuffer(global::ThinWallTap.DepthBuffer),AccessFlags.ReadWrite);}'),
+        ('                TextureHandle filtered=s.filterIterations<=0?', '                global::ThinWallTap.Native(graph,resources.activeColorTexture,state.camera,work.frame);\n                TextureHandle filtered=s.filterIterations<=0?'),
+        ('                state.exactSoftwareGeometry=d.geometry!=null && !d.hardware;', '                int thinProbe=global::ThinWallTap.Enabled&&c.HasKernel("CSThinWallProbe")?c.FindKernel("CSThinWallProbe"):-1;\n                state.exactSoftwareGeometry=d.geometry!=null && !d.hardware;'),
+        ('                foreach(int k in new[]{update,trace})\n                {','                foreach(int k in new[]{update,trace,thinProbe})\n                {\n                    if(k<0)continue;'),
+        ('                using(d.frameTiming.Profile(cmd,"HLGI Gather")) Dispatch(cmd,c,trace,state);',
+         '''                using(d.frameTiming.Profile(cmd,"HLGI Gather")) Dispatch(cmd,c,trace,state);
+                global::ThinWallTap.Texture(cmd,((RTHandle)d.raw).rt,state.camera,d.frame,"raw");
+                global::ThinWallTap.Texture(cmd,((RTHandle)d.geometryWrite).rt,state.camera,d.frame,"geometry");
+                global::ThinWallTap.Texture(cmd,((RTHandle)d.materialWrite).rt,state.camera,d.frame,"material");
+                global::ThinWallTap.Texture(cmd,((RTHandle)d.depth).rt,state.camera,d.frame,"depth",true);
+                global::ThinWallTap.Texture(cmd,((RTHandle)d.diffuse).rt,state.camera,d.frame,"diffuse");
+                global::ThinWallTap.Texture(cmd,((RTHandle)d.emission).rt,state.camera,d.frame,"emission");
+                if(thinProbe>=0)global::ThinWallTap.Query(cmd,c,thinProbe,state.camera,d.frame);
+                else global::ThinWallTap.QueryUnavailable(state.camera,d.frame,state.exactSoftwareGeometry);
+                global::ThinWallTap.State(cmd,state,state.camera,d.frame,1-d.cacheRead,d.lightCount,d.invVP);'''),
+        ('                using(d.frameTiming.Profile(cmd,"HLGI Temporal")) Dispatch(cmd,c,temporal,state);',
+         '''                using(d.frameTiming.Profile(cmd,"HLGI Temporal")) Dispatch(cmd,c,temporal,state);
+                global::ThinWallTap.Texture(cmd,((RTHandle)d.historyWrite).rt,state.camera,d.frame,"history");
+                global::ThinWallTap.Texture(cmd,((RTHandle)d.momentsWrite).rt,state.camera,d.frame,"moments");'''),
+        ('                state.readiness.Record(cmd,state.scene,state.sdf,state.surfaceCache,state.cache[1-d.cacheRead],state.patchGrid,d.epoch,d.frame);',
+         '''                global::ThinWallTap.Texture(cmd,((RTHandle)(s.filterIterations<=0?d.historyWrite:(Mathf.Clamp(s.filterIterations,0,4)%2==1?d.tempA:d.tempB))).rt,state.camera,d.frame,"filtered");
+                state.readiness.Record(cmd,state.scene,state.sdf,state.surfaceCache,state.cache[1-d.cacheRead],state.patchGrid,d.epoch,d.frame);''')],
+      'materials':[
+        ('            return batch.Record(cmd,out reason) && batch.Bind(cmd,shader,cacheKernel,out reason) &&\n                batch.Bind(cmd,shader,traceKernel,out reason);',
+         '''            bool productBound=batch.Record(cmd,out reason) && batch.Bind(cmd,shader,cacheKernel,out reason) &&
+                batch.Bind(cmd,shader,traceKernel,out reason);
+            if(productBound && global::ThinWallTap.Enabled && shader.HasKernel("CSThinWallProbe") &&
+                !batch.Bind(cmd,shader,shader.FindKernel("CSThinWallProbe"),out string probeReason))
+                throw new System.InvalidOperationException("Thin-wall observer binding failed: "+probeReason);
+            return productBound;''')],
+      'shader':[
+        ('#pragma kernel CSFilter','#pragma kernel CSFilter\n#pragma kernel CSThinWallProbe HLGI_THIN_WALL_QUERY'),
+        ('#include "HybridLumenGIKernels.hlsl"','#include "HybridLumenGIKernels.hlsl"\n#if defined(HLGI_THIN_WALL_QUERY)\n#include "ThinWallQuery.hlsl"\n#endif')],
+      'capture':[
+        ('    static bool CaptureAt(int n) => n % 30 == 0','    static bool CaptureAt(int n) => ThinWallTap.Wants(n) || n % 30 == 0'),
+        ('            if (pending) { readback.WaitForCompletion();','            try { ThinWallTap.Finish(collected); } catch(Exception error) { Fail("Thin-wall observer close: "+error); }\n            if (pending) { readback.WaitForCompletion();'),
+        ('            for (int i = 0; i < lights.Length; i++) { var l = lights[i];', '            if(ThinWallTap.Enabled)f.stage="thin-wall-static";\n            for (int i = 0; i < lights.Length; i++) { var l = lights[i];')]}
+    prepared={};manifest={}
+    for label,path in files.items():
+        original=path.read_bytes();backup=out/(label+'.original.txt')
+        assert not backup.exists() or backup.read_bytes()==original,('Already instrumented or changed',path)
+        if label!='capture':
+            relative=path.relative_to(assets/'HybridLumenGI');assert original==(root/relative).read_bytes(),('Product deployment mismatch',relative)
+        text=original.decode('utf-8').replace('\r\n','\n');newline='\r\n' if b'\r\n' in original else '\n'
+        for old,new in changes[label]:
+            assert text.count(old)==1,(label,old[:80],text.count(old));text=text.replace(old,new)
+        data=text.replace('\n',newline).encode('utf-8');prepared[label]=(original,data)
+        manifest[label]={'path':str(path),'originalSha256':sha(original),'instrumentedSha256':sha(data)}
+    for label,(original,data) in prepared.items():
+        (out/(label+'.original.txt')).write_bytes(original);(out/(label+'.instrumented.txt')).write_bytes(data);files[label].write_bytes(data)
+    helpers={
+      'ThinWallTap.cs':assets/'ComparisonHarness/ThinWallTap.cs',
+      'ThinWallDepthCopy.compute':assets/'ComparisonHarness/Resources/ThinWallDepthCopy.compute',
+      'ThinWallEditor.cs':assets/'ComparisonHarness/Editor/ThinWallEditor.cs',
+      'ThinWallQuery.hlsl':assets/'HybridLumenGI/Runtime/Resources/HybridLumenGI/ThinWallQuery.hlsl'}
+    for name,destination in helpers.items():
+        source=root/'LocalComparison/Harness'/name;destination.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,destination);(out/(name+'.executed.txt')).write_bytes(source.read_bytes())
+        manifest[name]={'path':str(destination),'sha256':sha(source.read_bytes())}
+    manifest['baseline']=subprocess.run(['git','rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip()
+    (out/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
+else:
+    manifest=json.loads((out/'manifest.json').read_text(encoding='utf-8'))
+    for label,path in files.items():
+        assert sha(path.read_bytes())==manifest[label]['instrumentedSha256'],('Do not overwrite modified source',path)
+        data=(out/(label+'.original.txt')).read_bytes();assert sha(data)==manifest[label]['originalSha256'];path.write_bytes(data)
+print(json.dumps({'action':a.action,'files':list(files),'scope':'temporary project instrumentation; original bytes archived'}))
