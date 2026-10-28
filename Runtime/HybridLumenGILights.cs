@@ -33,6 +33,9 @@ namespace HybridLumenGI
         }
         public const int Stride = 80;
         private Light[] lights = Array.Empty<Light>();
+        // Scratch only: each camera supplies its own prior effective table to Update.
+        private Data[] previousData = Array.Empty<Data>();
+        private bool[] currentMatched = Array.Empty<bool>();
         private int snapshotFrame;
         private bool hasSnapshot;
 
@@ -54,20 +57,32 @@ namespace HybridLumenGI
         {
             changes.Clear(); hash = 17;
             int count = 0, limit = Math.Min(destination.Length, Math.Max(0, maxLights));
+            if (previousData.Length < previousCount) previousData = new Data[previousCount];
+            Array.Copy(destination, previousData, previousCount);
             uint definedLayers = GetDefinedLayers(useRenderingLayers);
             foreach (var light in Snapshot(engineFrame))
             {
                 if (!TryPack(light, useRenderingLayers, definedLayers, out Data value)) continue;
                 if (count >= limit) break;
-                if (count >= previousCount || !destination[count].Equals(value))
-                {
-                    if (count < previousCount) changes.Add(destination[count]);
-                    changes.Add(value);
-                }
                 destination[count++] = value;
                 unchecked { hash = hash * 31 + value.GetHashCode(); }
             }
-            for (int i = count; i < previousCount; i++) { changes.Add(destination[i]); destination[i] = default; }
+            for (int i = count; i < previousCount; i++) destination[i] = default;
+            // Table compaction is not a lighting change. Match each occurrence once:
+            // numerically identical lights still contribute independently.
+            if (currentMatched.Length < count) currentMatched = new bool[count];
+            Array.Clear(currentMatched, 0, count);
+            for (int old = 0; old < previousCount; old++)
+            {
+                int match = -1;
+                for (int current = 0; current < count; current++)
+                    if (!currentMatched[current] && previousData[old].Equals(destination[current]))
+                    { match = current; break; }
+                if (match >= 0) currentMatched[match] = true;
+                else changes.Add(previousData[old]);
+            }
+            for (int current = 0; current < count; current++)
+                if (!currentMatched[current]) changes.Add(destination[current]);
             hash ^= count;
             return count;
         }

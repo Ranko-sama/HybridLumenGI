@@ -1,0 +1,82 @@
+// Dependency substitutes only; complete production light collector is compiled unchanged.
+// The fake object finder/component registry does not validate native Unity discovery/lifetime.
+using System;
+using System.Collections.Generic;
+namespace UnityEngine
+{
+    public enum FindObjectsInactive { Exclude, Include }
+    public enum FindObjectsSortMode { None, InstanceID }
+    public enum LightType { Directional, Point, Spot, Area }
+    public enum LightShadows { None, Hard, Soft }
+    public enum LightmapBakeType { Realtime, Mixed, Baked }
+    public enum ColorSpace { Gamma, Linear }
+    public class Object
+    {
+        public static Light[] Found=Array.Empty<Light>(); public static int Scans;
+        public static T[] FindObjectsByType<T>(FindObjectsInactive inactive,FindObjectsSortMode mode) where T:class
+        {
+            if(inactive!=FindObjectsInactive.Include || mode!=FindObjectsSortMode.InstanceID) throw new Exception("Discovery contract");
+            Scans++; return (T[])(object)Found.Clone();
+        }
+    }
+    public class Light:Object
+    {
+        public bool isActiveAndEnabled=true,useColorTemperature;
+        public LightmapBakeType lightmapBakeType; public LightType type=LightType.Point;
+        public struct BakingOutput { public LightmapBakeType lightmapBakeType; }
+        public BakingOutput bakingOutput=>new BakingOutput{lightmapBakeType=lightmapBakeType};
+        public float intensity=1,range=10,spotAngle=60,innerSpotAngle=30,shadowStrength=1,colorTemperature=6500;
+        public int cullingMask=-1; public uint renderingLayerMask=1;
+        public LightShadows shadows=LightShadows.Hard; public Color color=Color.white;
+        public Transform transform=new(); public object additional;
+        public T GetComponent<T>() where T:class => additional as T;
+    }
+    public class Transform { public Vector3 position; public Vector3 forward=new(0,0,1); }
+    public struct Vector3
+    {
+        public float x,y,z; public Vector3(float x,float y,float z){this.x=x;this.y=y;this.z=z;}
+        public static Vector3 zero=>new(); public static Vector3 operator -(Vector3 v)=>new(-v.x,-v.y,-v.z);
+    }
+    public struct Vector4:IEquatable<Vector4>
+    {
+        public float x,y,z,w; public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}
+        public bool Equals(Vector4 v)=>x==v.x&&y==v.y&&z==v.z&&w==v.w;
+        public override bool Equals(object v)=>v is Vector4 other&&Equals(other);
+        // Stable across harness processes for before/after table-hash comparison;
+        // this is a controlled adapter hash, not Unity's native hash implementation.
+        public override int GetHashCode(){unchecked{return ((x.GetHashCode()*397^y.GetHashCode())*397^z.GetHashCode())*397^w.GetHashCode();}}
+    }
+    public struct Color
+    {
+        public float r,g,b,a; public Color(float r,float g,float b,float a=1){this.r=r;this.g=g;this.b=b;this.a=a;}
+        public static Color white=>new(1,1,1);
+        static float Linear(float x)=>x<=0.04045f?x/12.92f:MathF.Pow((x+.055f)/1.055f,2.4f);
+        public Color linear=>new(Linear(r),Linear(g),Linear(b),a);
+        public static Color operator *(Color c,float v)=>new(c.r*v,c.g*v,c.b*v,c.a*v);
+        public static Color operator *(Color c,Color v)=>new(c.r*v.r,c.g*v.g,c.b*v.b,c.a*v.a);
+        public static implicit operator Vector4(Color c)=>new(c.r,c.g,c.b,c.a);
+    }
+    public static class QualitySettings { public static ColorSpace activeColorSpace=ColorSpace.Linear; }
+    public static class Mathf
+    {
+        public const float Deg2Rad=MathF.PI/180;
+        public static float Cos(float x)=>MathF.Cos(x); public static float Max(float a,float b)=>MathF.Max(a,b);
+        public static float Clamp01(float x)=>Math.Clamp(x,0,1);
+        public static Color CorrelatedColorTemperatureToRGB(float x)=>new(.9f,.8f,.7f);
+    }
+    public struct RenderingLayerMask { public static uint DefinedMask=uint.MaxValue; public static uint GetDefinedRenderingLayersCombinedMaskValue()=>DefinedMask; }
+}
+namespace UnityEngine.Rendering
+{
+    public static class GraphicsSettings
+    {
+        public static bool lightsUseColorTemperature; public static object GlobalSettings=new();
+        public static object GetSettingsForRenderPipeline(Type type)=>GlobalSettings;
+    }
+}
+namespace UnityEngine.Rendering.Universal
+{
+    public sealed class UniversalAdditionalLightData
+    { public uint renderingLayers=1,shadowRenderingLayers=1; public bool customShadowLayers; }
+    public sealed class UniversalRenderPipeline { }
+}

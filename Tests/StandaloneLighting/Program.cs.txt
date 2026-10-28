@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -87,6 +88,70 @@ static class Program
         light.type=LightType.Point;light.lightmapBakeType=LightmapBakeType.Baked;Check(!L.TryPack(light,true,out _),"baked excluded");
         light.lightmapBakeType=LightmapBakeType.Mixed;Check(L.TryPack(light,true,out _),"mixed current realtime approximation");
         light.range=float.NaN;Check(!L.TryPack(light,true,out _),"invalid range");
+        CompactionChanges();
         Console.WriteLine($"PASS {checks} actual light-collector checks; native Unity discovery/API/rendering remain unexecuted.");
+    }
+    static Light Point(float x){var light=new Light();light.transform.position=new(x,0,0);return light;}
+    static void TraceTable(string label,L.Data[] table,int count,int hash,List<L.Data> changes)
+    {
+        string digest=Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(table.AsSpan(0,count))));
+        Console.WriteLine($"TABLE {label}: count={count}; hash={hash}; sha256={digest}");
+        Console.WriteLine($"CHANGES {label}: count={changes.Count}; types="+string.Join(",",changes.ConvertAll(d=>d.positionType.w==0?"directional":"local")));
+    }
+    static void CompactionChanges()
+    {
+        var point=Point(1);var directional=new Light{type=LightType.Directional};
+        var p=Pack(point);var d=Pack(directional);var collector=new L();var table=new L.Data[3];var changes=new List<L.Data>();
+        UO.Found=new[]{point,directional};
+        int count=collector.Update(100,true,table,3,0,changes,out int hash);
+        TraceTable("front-before",table,count,hash,changes);
+        Check(count==2&&table[0].Equals(p)&&table[1].Equals(d),"front baseline source/order");
+        point.isActiveAndEnabled=false;
+        count=collector.Update(100,true,table,3,count,changes,out hash);
+        TraceTable("front-after",table,count,hash,changes);
+        Check(count==1&&table[0].Equals(d)&&table[1].Equals(default),"compaction changed current table or failed tail clear");
+        Check(changes.Count==1&&changes[0].Equals(p),"front point removal falsely reports unchanged directional light");
+
+        var middle=Point(2);var m=Pack(middle);point.isActiveAndEnabled=true;
+        UO.Found=new[]{point,middle,directional};count=collector.Update(101,true,table,3,count,changes,out hash);
+        middle.isActiveAndEnabled=false;count=collector.Update(101,true,table,3,count,changes,out hash);
+        Check(count==2&&table[0].Equals(p)&&table[1].Equals(d)&&table[2].Equals(default),"middle removal changed current order");
+        Check(changes.Count==1&&changes[0].Equals(m),"middle compaction reports unchanged records");
+
+        var duplicate=Point(1);UO.Found=new[]{point,duplicate};
+        count=collector.Update(102,true,table,3,count,changes,out hash);
+        Check(count==2&&table[0].Equals(p)&&table[1].Equals(p),"identical lights lost a GPU contribution");
+        point.isActiveAndEnabled=false;count=collector.Update(102,true,table,3,count,changes,out hash);
+        Check(count==1&&table[0].Equals(p)&&changes.Count==1&&changes[0].Equals(p),"identical-light removal lost multiplicity");
+        duplicate.transform.position=new(7,0,0);var moved=Pack(duplicate);
+        count=collector.Update(102,true,table,3,count,changes,out hash);
+        Check(count==1&&table[0].Equals(moved)&&changes.Count==2&&changes[0].Equals(p)&&changes[1].Equals(moved),"real change lost old/new domains");
+
+        point.isActiveAndEnabled=middle.isActiveAndEnabled=true;UO.Found=new[]{point,middle,directional};
+        count=collector.Update(103,true,table,2,count,changes,out hash);
+        Check(count==2&&table[0].Equals(p)&&table[1].Equals(m),"capacity admission order changed");
+        point.isActiveAndEnabled=false;count=collector.Update(103,true,table,2,count,changes,out hash);
+        Check(count==2&&table[0].Equals(m)&&table[1].Equals(d),"compaction changed bounded current table");
+        Check(changes.Count==2&&changes[0].Equals(p)&&changes[1].Equals(d),"capacity replacement lost real change or reported retained middle light");
+        count=collector.Update(103,true,table,1,count,changes,out hash);
+        Check(count==1&&table[1].Equals(default)&&changes.Count==1&&changes[0].Equals(d),"capacity shrink did not retire old contribution once");
+        count=collector.Update(103,true,table,2,count,changes,out hash);
+        Check(count==2&&changes.Count==1&&changes[0].Equals(d),"capacity growth did not add contribution once");
+
+        // One collector serves different camera histories; scratch storage is not history.
+        point.isActiveAndEnabled=true;UO.Found=new[]{point,directional};var shared=new L();var a=new L.Data[2];var b=new L.Data[4];
+        int ac=shared.Update(200,true,a,2,0,changes,out hash),bc=shared.Update(200,true,b,1,0,changes,out hash);
+        point.isActiveAndEnabled=false;ac=shared.Update(200,true,a,2,ac,changes,out hash);
+        Check(ac==1&&a[0].Equals(d)&&changes.Count==1&&changes[0].Equals(p),"camera A removal used foreign history");
+        bc=shared.Update(200,true,b,1,bc,changes,out hash);
+        Check(bc==1&&b[0].Equals(d)&&changes.Count==2&&changes[0].Equals(p)&&changes[1].Equals(d),"camera B missed its independently newly admitted directional light");
+        point.isActiveAndEnabled=true;bc=shared.Update(200,true,b,1,bc,changes,out hash);
+        Check(bc==1&&b[0].Equals(p)&&changes.Count==2&&changes[0].Equals(d)&&changes[1].Equals(p),"camera B restoration lost old/new domains");
+        ac=shared.Update(200,true,a,2,ac,changes,out hash);
+        Check(ac==2&&a[0].Equals(p)&&a[1].Equals(d)&&changes.Count==1&&changes[0].Equals(p),"camera A restoration inherited camera B history");
+        ac=shared.Update(200,true,a,2,ac,changes,out hash);int stableHash=hash;
+        ac=shared.Update(200,true,a,2,ac,changes,out hash);
+        Check(changes.Count==0&&hash==stableHash,"stable table retained stale match bits or changed hash");
+        Console.WriteLine("PASS compaction, multiplicity, exact changes, capacity and interleaved camera histories; current GPU table order retained.");
     }
 }

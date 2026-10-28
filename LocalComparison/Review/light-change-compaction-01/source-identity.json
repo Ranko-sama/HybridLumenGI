@@ -1,0 +1,35 @@
+{
+  "package": "light-change-compaction-01",
+  "baselineCommit": "0994d15fb1d574fa62fa34cb5a37b2c0a2509fd7",
+  "baselineProductMatchesHead": true,
+  "sameTestInputsVerified": true,
+  "currentTablesCountsAndControlledHashesEqual": true,
+  "nativeRuns": 0,
+  "hashScope": "Same deterministic Unity adapter; not native Unity Vector4 hash",
+  "observations": [
+    "TABLE front-before: count=2; hash=1993486355; sha256=9437F3FA4E2C9863547626EAD3597759F91C38D297F2B81647BE46397C07F25F",
+    "TABLE front-after: count=1; hash=1803522448; sha256=61CA164923BC81050839D2535AC2DB2C93676BC91BC3CE344362A5F912C99570"
+  ],
+  "sources": [
+    {
+      "path": "Runtime/HybridLumenGILights.cs",
+      "sha256": "296f658dcfb1e41271d4b0d0b9452151517e8df830654311f616b77312e6349c"
+    },
+    {
+      "path": "Tests/StandaloneLighting/Program.cs.txt",
+      "sha256": "1f7ee0b22ef8087fd247f2bf2d21b1ebe8b81e0be9424b955868d59591a5fe02"
+    },
+    {
+      "path": "Tests/StandaloneLighting/UnityStubs.cs.txt",
+      "sha256": "be85a3f949c36b725ccf633e9886aaa11c9bb5417529739604ba813a2969d0a9"
+    },
+    {
+      "path": "Tests/Validate-Lighting.ps1",
+      "sha256": "0822ab6d007e77720c40f716ef6918af3f9e9818f6a85c3c6e3005492b003d3a"
+    },
+    {
+      "path": "Tests/Invoke-CSharpHarness.ps1",
+      "sha256": "461c0eda33ebd408d18a9fdc76e1c944cc7a80bc6d7f3420c59135e6db064ed7"
+    }
+  ]
+}

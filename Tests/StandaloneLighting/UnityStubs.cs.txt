@@ -42,7 +42,9 @@ namespace UnityEngine
         public float x,y,z,w; public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}
         public bool Equals(Vector4 v)=>x==v.x&&y==v.y&&z==v.z&&w==v.w;
         public override bool Equals(object v)=>v is Vector4 other&&Equals(other);
-        public override int GetHashCode()=>HashCode.Combine(x,y,z,w);
+        // Stable across harness processes for before/after table-hash comparison;
+        // this is a controlled adapter hash, not Unity's native hash implementation.
+        public override int GetHashCode(){unchecked{return ((x.GetHashCode()*397^y.GetHashCode())*397^z.GetHashCode())*397^w.GetHashCode();}}
     }
     public struct Color
     {

@@ -64,3 +64,7 @@ iteration27：既有6页/4直接ID冻结后，唯一真实构建通过、7处临
 iteration28：既有实际源码适配测试确定复现双失败，基线清理异常穿透、Job丢失、154368字节预留保留但FailedCleanupCount0，并跳过另一已完成任务。最小候选仅后移成功终态的CTS/Job清理，失败时保留原Job/snapshot/预留、设置cleanupFailed并记录两个异常，继续其他任务；相同输入通过，后续请求/context/idle/关闭/禁用/新会话无重复销毁或已DisposeCTS异常，最终仅38592字节失败预留。既有完整相关守卫通过。0新Unity/Player/GPU运行；仓库候选比上次实际部署多一个Runtime文件改动，旧原生证据不升级。待Astra与实际Pro28复核后提交。详见ReviewBrief-SnapshotPublicationCleanup01.md。
 
 实际Pro28已读取执行输出149–151并批准局部修复提交，Astra无阻断。下一包light-change-compaction-01处理按下标比较灯表导致的局部失效误报：关闭前置点光后，未变方向光被压缩到前一槽而进入changes，触发全局照明reactive。先实际源码反例，再以完整Data精确、保留重数的差分修复；GPU灯表/ABI/准入/hash与相机独立性保持，0新增Unity/Player/GPU。
+
+iteration29：0994d15基线在原灯光入口实际复现[P,D,D]误报。仅Lights.cs改为精确保留重数差分，旧表来自各相机调用者，复用临时数组而不保存跨相机历史。相同测试字节下候选301项通过；反例两帧上传表的字节摘要/count/受控hash均与基线相同，只去掉未变方向光的changes。额外小用例涵盖中间移位、相同灯重数、真实移动、容量进出与交错相机。0新Unity/Player/GPU；不是实测视觉改善或整个缓存清空问题。Astra已认可方向/设计，待最终Astra与实际Pro29复审。详见ReviewBrief-LightChangeCompaction01.md。
+
+实际Pro29已读取执行输出152–153并批准局部修复提交，Astra最终无阻断。下一包world-light-relevance-01新增默认关闭、仅容量溢出时启用的保守空间选灯：完整屏幕有限视体加本次published/warming遍历范围，剔除确定域外的局部灯，保留未知/边界/方向光及原稳定顺序；相关灯仍超限明确报告。先既有源码入口证明能力与兼容，再至多一次构建/一次64帧可见DXR上传检查，不做亮度或计时调查，不进入形变历史重用。
