@@ -150,6 +150,9 @@ public static class SceneLightoffTap
         }
         var points=Select(state);var mapping=LightoffPatchMap.Build(points.Select(p=>p.Identity()).ToArray());
         var patches=mapping.representatives.Select((point,lane)=>{var p=points[point].Copy();p.lane=lane;return p;}).ToArray();
+        if(logical==0 && (points.Length!=4 || patches.Length!=2 || patches.Any(p=>p.entry<0) ||
+            patches.Select(p=>p.entry).Distinct().Count()!=2 || !mapping.aliases.SequenceEqual(new[]{0,0,1,1})))
+            throw new Exception("First-frame fixed geometric rules/unique addresses/aliases do not match the frozen C mapping");
         pointRules.Add(logical,points);pointAliases.Add(logical,mapping.aliases);
         selections.Add(logical,patches);workFrames.Add(logical,giFrame);epochs.Add(logical,(int)Field(state,"epoch"));
         if(logical>119)for(int point=0;point<4;point++){

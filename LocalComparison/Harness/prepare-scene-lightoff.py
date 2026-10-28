@@ -2,7 +2,7 @@
 import argparse,ast,hashlib,json,shutil,subprocess
 from pathlib import Path
 root=Path(__file__).resolve().parents[2];project=Path('I:/Unity test/Project');assets=project/'Assets'
-out=root/'LocalComparison/Review/scene-lightoff-chain-01/instrumentation'
+out=root/'LocalComparison/Review/scene-lightoff-chain-02/instrumentation'
 parser=argparse.ArgumentParser();parser.add_argument('action',choices=['prepare','install','restore']);args=parser.parse_args()
 sha=lambda b:hashlib.sha256(b).hexdigest()
 paths={'feature':assets/'HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs',
@@ -15,6 +15,7 @@ asset_paths=['Assets/Comparison/Renderer.asset','Assets/Comparison/Pipeline.asse
 helpers={'LightOffCacheWriter.hlsl':'Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/LightOffCacheWriter.hlsl',
     'GatherTraceWriter.hlsl':'Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/GatherTraceWriter.hlsl',
     'SceneLightoffTap.cs':'Assets/ComparisonHarness/SceneLightoffTap.cs',
+    'LightoffPatchMap.cs':'Assets/ComparisonHarness/LightoffPatchMap.cs',
     'SceneLightoffEditor.cs':'Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs',
     'ThinWallEditor.cs':'Assets/ComparisonHarness/Editor/ThinWallEditor.cs','GatherCacheTap.cs':'Assets/ComparisonHarness/GatherCacheTap.cs'}
 if args.action=='restore':
@@ -103,7 +104,7 @@ def capture(text):
 
 out.mkdir(parents=True,exist_ok=True)
 assert not (out/'installed.json').exists(),'Installed once; do not overwrite or repeat an experiment'
-head=subprocess.run(['git','rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip();assert head.startswith('3093a22')
+head=subprocess.run(['git','rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip();assert head.startswith('c50ec78')
 manifest={'baseline':head,'files':{},'assets':{},'helpers':{},'productSourceSha256':{},'gatherFunctionSourceSha256':sha(reuse_path.read_bytes())}
 for source in (root/'Runtime').rglob('*'):
     if source.suffix not in ['.cs','.hlsl','.compute','.shader']:continue

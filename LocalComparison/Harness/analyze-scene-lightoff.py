@@ -17,7 +17,7 @@ def identity(p):return tuple(p[k] for k in ['entry','card','slot','stableId','re
 
 class Analysis:
  def __init__(self,directory):
-  self.d=directory;self.fail=[];self.count=collections.Counter();self.cache=[];self.pixels=[];self.maxerr=collections.defaultdict(float)
+  self.d=directory;self.fail=[];self.count=collections.Counter();self.cache=[];self.pixels=[];self.sources=[];self.maxerr=collections.defaultdict(float)
  def check(self,ok,label,**where):
   if not ok:self.fail.append({'check':label,**where})
  def exact(self,a,b,label,**where):self.check(np.array_equal(a,b),label,**where)
@@ -56,6 +56,11 @@ class Analysis:
    self.exact([binding['giFrame'],binding['cacheRead'],binding['cacheWrite'],binding['gatherRead']],
     [s['giFrame'],s['readBuffer'],s['writeBuffer'],s['writeBuffer']],'work buffer provenance',**where)
    self.check(binding['distinct'] and binding['exact'] and binding['cacheWrite']==1-binding['cacheRead'],'Jacobi distinct',**where)
+   if (self.d/f'lightoff-{frame:04d}-gpu-proposals.bin').exists():
+    proposals=self.bin(frame,'gpu-proposals').reshape(33,8);count=float(proposals[0,4])
+    self.check(np.isfinite(count) and count==int(count) and 0<=count<=32,'actual proposal header',**where)
+    self.sources.append({**where,'effectiveLights':binding['lightCount'],'areaCount':binding['areaCount'],'proposalCount':count})
+   else:self.check(False,'actual proposal source missing',**where)
    gpu=(self.d/f'lightoff-{frame:04d}-gpu-lights.bin').read_bytes()
    self.check(gpu[:80*expected_count]==b''.join(pack_light(v) for v in after['records']),'effective CPU/GPU Light bytes',**where)
    if frame==120:
@@ -140,8 +145,11 @@ class Analysis:
     else:self.check(False,'partial gather/image coverage',**where)
   return {'passed':not self.fail,'failures':self.fail,'coverage':dict(self.count),'queueFrames':queue_frames,'fairnessQueueCovered':queue_frames>0,
    'observedFrames':sorted(frame_map),'missingFrames':sorted(set(range(360))-set(frame_map)),
-   'maxAbsoluteErrors':dict(self.maxerr),'cache':self.cache,'pixels':self.pixels,'scope':'One source-removal scene only. Effective sources require actual inventory; no assumed zero-equilibrium, performance, general convergence, DXR or full-plan acceptance.'}
+   'maxAbsoluteErrors':dict(self.maxerr),'cache':self.cache,'pixels':self.pixels,'sources':self.sources,'scope':'One source-removal scene only. Effective sources require actual inventory; no assumed zero-equilibrium, performance, general convergence, DXR or full-plan acceptance.'}
  def gather(self,frame,s):
+  required=[self.d/f'gather-{frame:04d}-{stage}.bin' for stage in ['events','raw-selected']]+[self.d/f'lightoff-{frame:04d}-{stage}.bin' for stage in ['raw','history','filtered']]+[self.d/f'frame-{frame:04d}.rgba32f']
+  if any(not p.exists() for p in required):self.check(False,'partial gather stage coverage',frame=frame);return
+  if required[0].stat().st_size!=4*256*32*4:self.check(False,'invalid gather stream size',frame=frame);return
   data=np.fromfile(self.d/f'gather-{frame:04d}-events.bin',dtype='<u4').reshape(4,256,32);floats=data.view('<f4').astype(float)
   stages={stage:self.bin(frame,stage).reshape(4,4).astype(float) for stage in ['raw','history','filtered']}
   other=np.fromfile(self.d/f'gather-{frame:04d}-raw-selected.bin',dtype='<f4').reshape(4,4)
@@ -149,11 +157,15 @@ class Analysis:
   final=np.fromfile(self.d/f'frame-{frame:04d}.rgba32f',dtype='<f4').reshape(360,640,4)
   self.check(np.all(np.isfinite(final)),'finite final HDR',frame=frame)
   for lane in range(4):
-   where={'frame':frame,'lane':lane};header=data[lane,0];count=int(header[1]);self.check(2<=count<=256,'gather record count',**where)
-   self.exact(header[:4],[0,count,1,0],'gather complete',**where);self.exact(header[4:8],[frame,s['giFrame'],lane,0x47434131],'gather provenance',**where)
+   where={'frame':frame,'lane':lane};header=data[lane,0];count=int(header[1])
+   valid=2<=count<=256 and np.array_equal(header[:4],[0,count,1,0]) and np.array_equal(header[4:8],[frame,s['giFrame'],lane,0x47434131])
+   self.check(valid,'valid complete gather header/provenance',**where)
+   if not valid:self.count['invalid-gather-record']+=1;continue
    self.exact(data[lane,1:count,1],np.arange(1,count),'gather sequence',**where)
-   events=[{'code':int(data[lane,i,0]),'context':int(data[lane,i,2]),'f':floats[lane,i,4:].reshape(7,4),'u':data[lane,i,4:].reshape(7,4)} for i in range(1,count)]
-   terminal=events[-1]['f'][0];reason=int(events[-1]['u'][1,0]);self.exact(events[-1]['code'],1,'gather terminal',**where)
+   events=[{'code':int(data[lane,i,0]),'context':int(data[lane,i,2]),'call':int(data[lane,i,3]),'f':floats[lane,i,4:].reshape(7,4),'u':data[lane,i,4:].reshape(7,4)} for i in range(1,count)]
+   self.exact(events[-1]['code'],1,'gather terminal',**where)
+   if events[-1]['code']!=1:self.count['invalid-gather-record']+=1;continue
+   terminal=events[-1]['f'][0];reason=int(events[-1]['u'][1,0])
    half=terminal.astype(np.float16);ulp=np.abs(np.nextafter(half,np.float16(np.inf)).astype(float)-half.astype(float))
    self.check(np.all(np.abs(stages['raw'][lane]-terminal)<=ulp+2**-120),'raw half storage',**where)
    receiver=next((e for e in events if e['code']==10),None);running=np.zeros(3);confidence=0.
@@ -175,7 +187,11 @@ class Analysis:
      if end is not None:confidence+=acc['f'][0,3];self.near(end['f'][0],np.append(running,confidence),'gather ray sum',**where)
     if reason==1:self.near(terminal,np.append(running,confidence)/max(rays,1),'gather raw reconstruction',**where)
    if reason==2:self.exact(terminal,[0,0,0,-1],'unknown gather sentinel',**where)
+   consumed=self.consumption(events,reason,terminal,s,where)
+   material_sources=[]
    for e in events:
+    if e['code']==50:material_sources.append({'path':'world','context':e['context'],'emission':e['f'][1,:3].tolist(),'emissionWeight':float(e['f'][1,3]),'materialResolved':bool(e['f'][5,3]),'endpoint':e['f'][4].tolist()})
+    if e['code']==30:material_sources.append({'path':'screen','context':e['context'],'emission':e['f'][4].tolist(),'directKnown':bool(e['f'][5,3])})
     if frame>=120 and e['code']==50:self.exact(e['f'][2,:3],[0,0,0],'gather world direct off',**where);self.count['gather-world-direct-off']+=1
     if frame>=120 and e['code']==30 and e['f'][5,3]>0:self.exact(e['f'][5,:3],[0,0,0],'gather screen direct off',**where);self.count['gather-screen-direct-off']+=1
     if e['code']==110:
@@ -184,7 +200,61 @@ class Analysis:
    for stage,v in stages.items():self.check(np.all(np.isfinite(v[lane])),'finite '+stage,**where)
    classification='unknown' if reason==2 else 'no-receiver' if reason==0 else 'measured-black' if terminal[3]>0 and np.all(terminal[:3]==0) else 'valid' if terminal[3]>0 else 'unmeasured'
    self.count['gather-'+classification]+=1
-   self.pixels.append({**where,'classification':classification,**{stage:v[lane].tolist() for stage,v in stages.items()},'finalImageMeanRGB':final[:,:,:3].mean(axis=(0,1),dtype=float).tolist()})
+   x=[160,100,220,100][lane];y=[45,90,90,30][lane]
+   self.pixels.append({**where,'classification':classification,**{stage:v[lane].tolist() for stage,v in stages.items()},'consumedCacheCalls':consumed,'observedMaterialEvaluations':material_sources,
+    'giPixel':[x,y],'finalFootprint2x2':final[2*y:2*y+2,2*x:2*x+2].tolist(),'finalFootprintNote':'Full-resolution 2x2 footprint corresponding to the GI pixel; composition/reconstruction is not asserted equal to raw GI.',
+    'finalImageMeanRGB':final[:,:,:3].mean(axis=(0,1),dtype=float).tolist()})
+
+ def consumption(self,events,reason,terminal,s,where):
+  # Reuse prior gather analysis's winner/endpoint/return/positive-weight logic.
+  # A code110 byte link alone includes rejected taps and is never consumption.
+  calls={};consumed=[];selected={p['entry'] for p in s['patches']}
+  for e in events:
+   if e['code']==100:
+    part=[v for v in events if v['call']==e['call'] and v['context']==e['context']]
+    returned=next((v for v in part if v['code']==120),None);result=next((v for v in part if v['code']==121),None)
+    self.check(returned is not None,'cache call return recorded',**where)
+    positive=[]
+    for v in part:
+     if v['code']!=115 or v['f'][0,0]<=0:continue
+     tap=int(v['f'][0,2]);entry=next((u for u in part if u['code']==110 and int(u['u'][5,1])==tap),None)
+     if entry is not None:positive.append(int(entry['u'][5,0]))
+    calls[e['call']]={'context':e['context'],'returned':bool(returned is not None and returned['u'][0,0]),'irradiance':result['f'][0] if result is not None else np.zeros(4),'positiveEntries':positive}
+  receiver=next((e for e in events if e['code']==10),None)
+  if receiver is None:return consumed
+  for ray in range(int(receiver['f'][5,0])):
+   context=100+ray*10;part=[e for e in events if context<=e['context']<=context+1]
+   get=lambda code,ctx=None:next((e for e in part if e['code']==code and (ctx is None or e['context']==ctx)),None)
+   winner=get(23);acc=get(24);after=get(25)
+   if winner is None or acc is None:continue
+   branch=int(winner['u'][0,0]);endpoint=None;coefficient=np.zeros(3);world=get(50,context+1);screen=get(32,context)
+   if branch==2 and world is not None:
+    a,b,c,cache,value=world['f'][:5];expected=np.maximum(b[:3],0)*b[3]+np.clip(a[:3],0,.98)*(c[:3]+a[3]*c[3]*np.maximum(cache[:3],0))
+    self.near(value[:3],expected,'selected world endpoint',**where);self.near(acc['f'][0,:3],value[:3],'selected world incoming',**where)
+    endpoint=world;coefficient=np.clip(a[:3],0,.98)*a[3]*c[3]
+   elif branch==1:
+    base=get(30,context)
+    if base is not None and base['f'][5,3]>0:
+     expected=base['f'][4,:3]+base['f'][3,:3]*base['f'][5,:3]
+     if screen is not None:
+      coefficient=base['f'][3,:3]*screen['f'][0,3]*screen['f'][1,3];expected+=coefficient*screen['f'][0,:3];endpoint=screen
+     self.near(acc['f'][0,:3],expected,'selected screen incoming',**where)
+   if endpoint is None or endpoint['call'] not in calls:continue
+   cached=calls[endpoint['call']]
+   # The writer retains its last call ID when an endpoint takes a no-cache path.
+   # That older receiver/other-ray call is not this endpoint's cache evaluation.
+   if cached['context']!=endpoint['context']:continue
+   observed=world['f'][3] if branch==2 else screen['f'][0,:3]
+   expected=cached['irradiance'] if branch==2 else np.maximum(cached['irradiance'][:3],0) if cached['returned'] else np.zeros(3)
+   self.near(observed,expected,'selected endpoint cache return',**where)
+   if reason!=1 or terminal[3]<=0 or after is None or acc['f'][1,3]<=0 or not np.any(coefficient!=0) or not cached['returned'] or not cached['positiveEntries']:continue
+   links=[entry for entry in cached['positiveEntries'] if entry in selected]
+   consumed.append({'ray':ray,'call':endpoint['call'],'context':endpoint['context'],'path':'world' if branch==2 else 'screen','sampleWeight':float(acc['f'][1,3]),
+    'coefficient':coefficient.tolist(),'cacheIrradiance':cached['irradiance'].tolist(),'positiveTapEntries':cached['positiveEntries'],'selectedPatchEntries':links,
+    'measuredBlack':bool(np.all(cached['irradiance'][:3]==0))})
+   self.count['final-radiance-cache-consumed']+=1
+   if links:self.count['consumed-selected-patch-link']+=1
+  return consumed
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('directory',type=Path);p.add_argument('--output',required=True,type=Path);a=p.parse_args();analysis=Analysis(a.directory)

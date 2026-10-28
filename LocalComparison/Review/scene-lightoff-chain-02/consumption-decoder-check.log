@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Harness\check-scene-consumption.py", line 13, in <module>
+    assert [v['call'] for v in got]==pixel['consumedCalls'],(frame,lane,got,pixel['consumedCalls'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (15, 2, [{'ray': 0, 'call': 1, 'context': 101, 'path': 'world', 'sampleWeight': 1.1645708084106445, 'coefficient': [0.0022291019558906555, 0.30580493807792664, 0.004700453951954842], 'cacheIrradiance': [0.7315622568130493, 0.747062087059021, 0.7316879034042358, 2.0], 'positiveTapEntries': [229, 230, 233, 234], 'selectedPatchEntries': [], 'measuredBlack': False}, {'ray': 1, 'call': 2, 'context': 111, 'path': 'world', 'sampleWeight': 1.0389201641082764, 'coefficient': [0.5016207098960876, 0.5016207098960876, 0.5016207098960876], 'cacheIrradiance': [0.8284595608711243, 0.8362776041030884, 0.8285231590270996, 3.0], 'positiveTapEntries': [24, 25, 29], 'selectedPatchEntries': [], 'measuredBlack': False}], [2])

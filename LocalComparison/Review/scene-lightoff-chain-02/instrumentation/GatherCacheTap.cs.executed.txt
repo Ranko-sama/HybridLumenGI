@@ -1,0 +1,120 @@
+// Test-project-only observation of the existing CSTrace dispatch.
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using UnityEngine;
+using UnityEngine.Rendering;
+using HybridLumenGI;
+
+public static class GatherCacheTap
+{
+    static readonly bool requested=Array.IndexOf(Environment.GetCommandLineArgs(),"-gatherCacheProbe")>=0;
+    public static bool Enabled=>requested&&!finished;
+    static readonly int[] Samples={119,120,121,123,127,135,151,239,359};
+    static readonly int[] X={160,100,220,100},Y={45,90,90,30};
+    static readonly HashSet<string> completed=new HashSet<string>();
+    static ComparisonCapture capture;static GraphicsBuffer records;static bool finished;static int pending,errors;
+    const BindingFlags Fields=BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public;
+    static object Field(object value,string name)=>value.GetType().GetField(name,Fields).GetValue(value);
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    struct Seed {public Vector4 meta,a,b,c,d,e,f,g;}
+    [Serializable] class Receipt {public int logicalFrame,giFrame,engineFrame,bytes,stride,count;public string stage;}
+    [Serializable] class Owner {public int slot,stableId,revision;public string name;public bool published,ready;}
+    [Serializable] class Source {public int logicalFrame,giFrame,engineFrame;public Matrix4x4 invVP;public Owner[] owners;public HybridLumenGIRendererFeature.CameraDiagnostics diagnostics;}
+    [Serializable] class Summary {public int errors,pending,files;public bool collected,passed;public string[] missing;}
+    public static GraphicsBuffer Records
+    {
+        get{if(!Enabled)throw new InvalidOperationException("Gather observer admission closed");
+            if(records==null){records=new GraphicsBuffer(GraphicsBuffer.Target.Structured,4*256,128);records.SetData(new Seed[4*256]);}return records;}
+    }
+    static bool Target(Camera camera,out int logical,out string directory)
+    {
+        logical=-1;directory=null;if(!Enabled)return false;
+        if(!capture)capture=UnityEngine.Object.FindFirstObjectByType<ComparisonCapture>();
+        if(!capture||capture.camera!=camera)return false;
+        logical=(int)Field(capture,"logicalFrame");directory=(string)Field(capture,"directory");
+        return Array.IndexOf(Samples,logical)>=0&&!string.IsNullOrEmpty(directory);
+    }
+    public static void Begin(CommandBuffer cmd,ComputeShader shader,int kernel,Camera camera,int giFrame,bool exact)
+    {
+        bool selected=Target(camera,out int logical,out _);
+        if(capture&&capture.camera==camera&&!exact)throw new Exception("Gather observer requires actual exact-software backend on every target frame; fallback stops this package");
+        if(!exact)return;
+        if(selected)pending++;
+        cmd.SetComputeIntParam(shader,"_GC_Enabled",selected?1:0);
+        cmd.SetComputeIntParam(shader,"_GC_Logical",logical);cmd.SetComputeIntParam(shader,"_GC_GiFrame",giFrame);
+        cmd.SetComputeBufferParam(shader,kernel,"_GC_Records",Records);
+    }
+    static void Save(string directory,Receipt receipt,byte[] data)
+    {
+        string key=receipt.logicalFrame.ToString("D4")+"-"+receipt.stage;
+        if(!completed.Add(key))throw new Exception("Duplicate gather receipt "+key);
+        receipt.bytes=data.Length;File.WriteAllBytes(Path.Combine(directory,"gather-"+key+".bin"),data);
+        File.AppendAllText(Path.Combine(directory,"gather-receipts.jsonl"),JsonUtility.ToJson(receipt)+"\n");
+    }
+    static uint U(byte[] data,int index)=>BitConverter.ToUInt32(data,index);
+    static void Buffer(CommandBuffer cmd,ComputeBuffer buffer,string stage,int logical,int giFrame,string directory)
+    {
+        if(buffer==null)throw new Exception("Missing observer source "+stage);
+        var receipt=new Receipt{logicalFrame=logical,giFrame=giFrame,engineFrame=Time.frameCount,stage=stage,stride=buffer.stride,count=buffer.count};
+        pending++;cmd.RequestAsyncReadback(buffer,request=>{try{
+            if(request.hasError)throw new Exception("Gather source readback failed: "+stage);
+            var bytes=request.GetData<byte>().ToArray();if(bytes.Length!=receipt.stride*receipt.count)throw new Exception("Gather source size mismatch");
+            Save(directory,receipt,bytes);
+        }catch(Exception error){errors++;Debug.LogError(error);}finally{pending--;}});
+    }
+    public static void Read(CommandBuffer cmd,RenderTexture raw,object state,Camera camera,int giFrame,Matrix4x4 invVP)
+    {
+        if(!Target(camera,out int logical,out string directory))return;
+        if(raw.width!=320||raw.height!=180)throw new Exception("Gather raw dimensions changed");
+        var receipt=new Receipt{logicalFrame=logical,giFrame=giFrame,engineFrame=Time.frameCount,stage="events",stride=128,count=4*256};
+        cmd.RequestAsyncReadback(Records,request=>{try{
+            if(request.hasError)throw new Exception("Gather event readback failed");
+            var bytes=request.GetData<byte>().ToArray();
+            // Save failed bytes before validation so a missing/overflow stream stays reviewable.
+            Save(directory,receipt,bytes);
+            if(bytes.Length!=4*256*128)throw new Exception("Gather event buffer size mismatch");
+            for(int lane=0;lane<4;lane++){
+                int start=lane*256*128;uint count=U(bytes,start+4);
+                if(U(bytes,start)!=0||count<2||count>256||U(bytes,start+8)!=1||U(bytes,start+12)!=0||
+                    U(bytes,start+16)!=(uint)logical||U(bytes,start+20)!=(uint)giFrame||U(bytes,start+24)!=(uint)lane||U(bytes,start+28)!=0x47434131u)
+                    throw new Exception("Gather stream missing, stale, unfinished or overflowed; lane="+lane);
+                for(int i=1;i<count;i++)if(U(bytes,start+i*128+4)!=(uint)i)throw new Exception("Gather stream sequence mismatch");
+                if(U(bytes,start+((int)count-1)*128)!=1)throw new Exception("Gather terminal event missing");
+                for(int j=0;j<4;j++){float v=BitConverter.ToSingle(bytes,start+((int)count-1)*128+16+j*4);
+                    if(float.IsNaN(v)||float.IsInfinity(v))throw new Exception("Nonfinite terminal raw");}
+            }
+        }catch(Exception error){errors++;Debug.LogError(error);}finally{pending--;}});
+        var rawReceipt=new Receipt{logicalFrame=logical,giFrame=giFrame,engineFrame=Time.frameCount,stage="raw-selected",stride=16,count=4};
+        pending++;cmd.RequestAsyncReadback(raw,0,TextureFormat.RGBAFloat,request=>{try{
+            if(request.hasError)throw new Exception("Gather raw readback failed");
+            var all=request.GetData<byte>();if(all.Length!=320*180*16)throw new Exception("Gather raw size mismatch");
+            var bytes=new byte[64];for(int lane=0;lane<4;lane++)for(int j=0;j<16;j++)bytes[lane*16+j]=all[(Y[lane]*320+X[lane])*16+j];
+            Save(directory,rawReceipt,bytes);
+        }catch(Exception error){errors++;Debug.LogError(error);}finally{pending--;}});
+        var scene=(HybridLumenGIScene)Field(state,"scene");var surface=(HybridLumenGISurfaceCache)Field(state,"surfaceCache");
+        var owners=new List<Owner>();for(int slot=0;slot<scene.Capacity;slot++){
+            var proxy=scene.GetProxy(slot);if(!proxy)continue;var data=scene.Data[slot];
+            owners.Add(new Owner{slot=slot,name=proxy.name,stableId=(int)data.identity.x,revision=(int)data.identity.y,published=scene.IsPublished(slot),ready=surface.IsSlotReady(slot,(int)data.identity.x,(int)data.identity.y)});
+        }
+        File.WriteAllText(Path.Combine(directory,"gather-"+logical.ToString("D4")+"-sources.json"),JsonUtility.ToJson(new Source{
+            logicalFrame=logical,giFrame=giFrame,engineFrame=Time.frameCount,invVP=invVP,owners=owners.ToArray(),
+            diagnostics=((HybridLumenGIRendererFeature)capture.feature).GetDiagnostics().First(d=>d.camera==camera.name)},true));
+        Buffer(cmd,(ComputeBuffer)Field(surface,"metadataBuffer"),"cards",logical,giFrame,directory);
+        Buffer(cmd,(ComputeBuffer)Field(surface,"rangesBuffer"),"ranges",logical,giFrame,directory);
+    }
+    public static void Finish(bool collected)
+    {
+        if(!requested||finished)return;finished=true;
+        try{
+            AsyncGPUReadback.WaitAllRequests();
+            var missing=Samples.SelectMany(f=>new[]{"events","raw-selected","cards","ranges"}.Select(s=>f.ToString("D4")+"-"+s)).Where(k=>!completed.Contains(k)).ToArray();
+            var summary=new Summary{collected=collected,errors=errors,pending=pending,files=completed.Count,missing=missing,passed=collected&&errors==0&&pending==0&&missing.Length==0};
+            string directory=capture?(string)Field(capture,"directory"):null;
+            if(!string.IsNullOrEmpty(directory))File.WriteAllText(Path.Combine(directory,"gather-summary.json"),JsonUtility.ToJson(summary,true));
+            if(collected&&!summary.passed)throw new Exception("Gather observation incomplete");
+        }finally{if(pending==0&&SceneLightoffTap.CompletionProven){records?.Dispose();records=null;}}
+    }
+}

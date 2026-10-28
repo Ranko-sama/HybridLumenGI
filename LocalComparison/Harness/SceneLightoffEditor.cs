@@ -19,7 +19,7 @@ public static class SceneLightoffEditor
             throw new Exception("Fixed C light-off and gather observers required, legacy probe forbidden");
         ThinWallEditor.Prepare();
         var capture=UnityEngine.Object.FindFirstObjectByType<ComparisonCapture>();
-        capture.totalFrames=360;capture.label="scene-lightoff-chain-01-C";capture.quitWhenComplete=true;
+        capture.totalFrames=360;capture.label="scene-lightoff-chain-02-C";capture.quitWhenComplete=true;
         if(capture.lights.Count(l=>l.enabled)!=1||!capture.lights.Single(l=>l.enabled).name.Equals("Behind thin wall"))throw new Exception("Expected unique existing C point light");
         var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
         EditorUtility.SetDirty(capture);EditorSceneManager.MarkSceneDirty(scene);EditorSceneManager.SaveScene(scene);AssetDatabase.SaveAssets();
