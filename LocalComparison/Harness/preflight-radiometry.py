@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
 PROJECT=Path('I:/Unity test/Project')
-OUT=ROOT/'LocalComparison/Review/scene-radiometry-matched-baseline-01/instrumentation'
+OUT=ROOT/'LocalComparison/Review/scene-radiometry-matched-baseline-02/instrumentation'
 BUILD=OUT.parent/'preflight'
 EDITOR=Path('I:/Unity test/Editor/6000.0.85f1/Editor/Data')
 manifest=json.loads((OUT/'manifest.json').read_text(encoding='utf-8'))

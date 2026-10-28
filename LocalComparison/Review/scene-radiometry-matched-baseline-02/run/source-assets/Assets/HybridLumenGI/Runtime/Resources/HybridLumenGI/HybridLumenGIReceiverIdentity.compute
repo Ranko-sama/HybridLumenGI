@@ -1,0 +1,54 @@
+#pragma kernel CSClearIdentity
+#pragma kernel CSMaskUnknownIdentity
+#pragma kernel CSResolveIdentity
+#pragma target 5.0
+#pragma only_renderers d3d11
+
+#include "HybridLumenGIReceiverIdentity.hlsl"
+#include "HybridLumenGIScreenSampling.hlsl"
+
+RWStructuredBuffer<uint3> _HLGI_IdentityCandidates;
+StructuredBuffer<HLGIReceiverIdentityObject> _HLGI_IdentityObjects;
+RWTexture2D<uint4> _HLGI_IdentityOutput;
+uint2 _HLGI_IdentityFullSize;
+uint2 _HLGI_IdentityGiSize;
+uint _HLGI_IdentityObjectCount;
+// Clamped full-resolution [min,maxExclusive]. Dispatch only the rectangle extent.
+uint4 _HLGI_IdentityUnknownRect;
+
+[numthreads(8,8,1)]
+void CSClearIdentity(uint3 id:SV_DispatchThreadID)
+{
+    if(any(id.xy>=_HLGI_IdentityFullSize)) return;
+    _HLGI_IdentityCandidates[id.y*_HLGI_IdentityFullSize.x+id.x]=0;
+}
+
+[numthreads(8,8,1)]
+void CSMaskUnknownIdentity(uint3 id:SV_DispatchThreadID)
+{
+    uint2 start=min(_HLGI_IdentityUnknownRect.xy,_HLGI_IdentityFullSize);
+    uint2 end=min(_HLGI_IdentityUnknownRect.zw,_HLGI_IdentityFullSize);
+    if(any(start>=end)||any(id.xy>=end-start)) return;
+    uint2 pixel=start+id.xy;
+    InterlockedOr(_HLGI_IdentityCandidates[pixel.y*_HLGI_IdentityFullSize.x+pixel.x].y,1u);
+}
+
+[numthreads(8,8,1)]
+void CSResolveIdentity(uint3 id:SV_DispatchThreadID)
+{
+    if(any(id.xy>=_HLGI_IdentityGiSize)) return;
+    uint4 output=0;
+    if(all(_HLGI_IdentityFullSize>0)&&all(_HLGI_IdentityGiSize>0)&&
+        all(_HLGI_IdentityGiSize<=_HLGI_IdentityFullSize)&&all(_HLGI_IdentityFullSize<=16384u))
+    {
+        uint2 pixel=HLGIFullPixelForGiPixel(id.xy,_HLGI_IdentityGiSize,_HLGI_IdentityFullSize);
+        uint3 candidate=_HLGI_IdentityCandidates[pixel.y*_HLGI_IdentityFullSize.x+pixel.x];
+        if(candidate.x>0&&candidate.x<=_HLGI_IdentityObjectCount&&candidate.y==0&&candidate.z>0)
+        {
+            // Explicitly nested guard: HLSL short-circuit behavior must not authorize an OOB load.
+            HLGIReceiverIdentityObject owner=_HLGI_IdentityObjects[candidate.x-1u];
+            if(any(owner.key!=0u)) output=uint4(owner.key,candidate.z,1u);
+        }
+    }
+    _HLGI_IdentityOutput[id.xy]=output;
+}

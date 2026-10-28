@@ -1,7 +1,9 @@
 """Post-reference comparison only. Never feeds product values into reference inputs."""
-import argparse, hashlib, json, math
+import argparse, hashlib, json, math, importlib.util
 from pathlib import Path
 import numpy as np
+spec=importlib.util.spec_from_file_location('radiometry_qualification',Path(__file__).with_name('qualify-radiometry.py'))
+qualification=importlib.util.module_from_spec(spec);spec.loader.exec_module(qualification)
 
 
 def load(path):return json.loads(path.read_text(encoding='utf-8-sig'))
@@ -12,6 +14,9 @@ def vec(o):return np.array([o[k] for k in 'xyz'])
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--package',type=Path,required=True);a=p.parse_args();package=a.package
+    previous_gate=load(package/'pre-integration-gate.json');assert previous_gate['passed'],'Integration must first be admitted'
+    current_gate=qualification.qualify(package)
+    assert all(current_gate[k]==previous_gate[k] for k in ['runId','sceneSha256','targetsSha256'])
     output=package/'run';run_paths=list(output.glob('*/run.json'));assert len(run_paths)==1
     run=run_paths[0].parent;meta=load(run/'run.json');reference=load(package/'reference/reference.json')
     assert reference['integrationExecuted'], 'Reference must exist before product comparison'
@@ -73,11 +78,8 @@ def main():
             'availableMeasurementCount':len(available),'windowMinimum':values.min(0).tolist() if len(available) else None,
             'windowMaximum':values.max(0).tolist() if len(available) else None,'observations':observations,
             'GPUConfidenceInterval':None,'steadyStateProven':False,'classification':'finite estimation/model difference; no deterministic counterexample established by numeric distance alone'})
-    native=load(package/'native-exit.json');log=(package/'unity.log').read_text(encoding='utf-8-sig',errors='replace')
-    bad=[line for line in log.splitlines() if any(s in line.lower() for s in ['d3d12scratchbufferinternal','leak detected','leaked','crash!!!','failed to create','shader error',
-        'retained unresolved retirement resources','[d3d12] unreleased'])]
-    restoration=load(package/'instrumentation/restoration.json')
-    accepted=native['exitCode']==0 and not bad and all(r['restored'] for r in restoration)
+    bad=load(package/'native-log-check.json')['hits']
+    accepted=current_gate['nativeExitAccepted']
     report={'baseline':'C-prospective-01','historicalSourceClosure':False,'prospectiveSourceClosure':source_closed,
         'targetSurfaceCorrespondenceVerified':reference['targetSurfaceCorrespondenceVerified'],'productObservationValid':True,
         'referenceEstimateQualified':reference['referenceEstimateQualified'],'comparisonConclusive':False,'nativeExitAccepted':accepted,

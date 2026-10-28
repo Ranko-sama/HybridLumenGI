@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PROJECT = Path('I:/Unity test/Project')
-PACKAGE = ROOT / 'LocalComparison/Review/scene-radiometry-matched-baseline-01'
+PACKAGE = ROOT / 'LocalComparison/Review/scene-radiometry-matched-baseline-02'
 OUT = PACKAGE / 'instrumentation'
 OLD = ROOT / 'LocalComparison/Review/scene-lightoff-chain-02'
 HARNESS = ROOT / 'LocalComparison/Harness'

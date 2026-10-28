@@ -1,0 +1,77 @@
+#pragma kernel CSUpdateCache
+#pragma target 5.0
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayFootprint.hlsl"
+#include "CacheEnergyStructs.hlsl"
+StructuredBuffer<HLGIProxy> _HLGI_Proxies;
+StructuredBuffer<HLGILight> _HLGI_Lights;
+StructuredBuffer<HLGICacheEntry> _HLGI_CacheRead;
+RWStructuredBuffer<HLGICacheEntry> _HLGI_CacheWrite;
+StructuredBuffer<uint> _HLGI_CacheUpdateMask;
+StructuredBuffer<HLGISurfaceCard> _HLGI_SurfaceCards;
+StructuredBuffer<uint4> _HLGI_SurfaceOwnerRanges;
+float4 _HLGI_SurfaceAtlasSize;
+int _HLGI_ProxyCount,_HLGI_LightCount,_HLGI_Epoch,_HLGI_FrameIndex;
+int _HLGI_CacheGrid,_HLGI_CacheRays,_HLGI_SurfaceCardCount;
+float _HLGI_GuideWeight,_HLGI_MaxDistance,_HLGI_ShadowDistance,_HLGI_RayBias,_HLGI_BounceFeedback;
+float4 _HLGI_Environment;
+uint _HLGI_AreaMaterialGeneration;
+int _ReadIdentity,_WriteIdentity;
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGILightingPolicy.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl"
+#include "CacheEnergySampling.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIAreaEmission.hlsl"
+
+struct EnergyObservation
+{
+    HLGICacheEntry oldEntry,newEntry; // 10 float4
+    float4 preparedIrradiance,preparedGuide,change,directionWeight,incoming,direct;
+    float4 lookupIrradiance,lookupGuide,lookupState,dispatch,source,status,calls,estimate,footprint,configuration;
+}; // 26 float4 = 416 bytes, one record per actual update thread
+RWStructuredBuffer<EnergyObservation> _EnergyOutput;
+static EnergyObservation observed;
+static uint activeNode;
+
+// The reference environment has two ideal patches. This maps every positive
+// cosine direction to the other patch; it is NOT Euclidean triangle traversal.
+// It supplies material/geometry only and never evaluates light or reads cache.
+float3 ReferencePosition(uint node){return float3(.5,.5,.5+2*node);}
+bool HLGITrySurfacePatch(uint card,uint2 cell,uint grid,out HLGISurfaceSample surface)
+{
+    surface=(HLGISurfaceSample)0;
+    if(card>=2 || grid!=1 || any(cell!=0))return false;
+    surface.position=ReferencePosition(card);surface.normal=surface.geometricNormal=float3(0,0,1);
+    surface.diffuse=_HLGI_Proxies[card].albedo.rgb;surface.emission=0;surface.occlusion=surface.confidence=1;
+    surface.cardIndex=surface.ownerSlot=card;surface.generation=_HLGI_SurfaceCards[card].generation;
+    return true;
+}
+bool HLGITrySurfaceMaterialHit(HLGIHit hit,out HLGISurfaceSample surface)
+{return HLGITrySurfacePatch(hit.ownerSlot,0,1,surface);}
+bool TraceSceneHit(float3 origin,float3 direction,float limit,HLGIRayFootprint footprint,float4 view,out HLGIHit hit)
+{
+    observed.calls.x++;hit=HLGIEmptyHit(limit);
+    uint sourceNode=view.z<1?0u:1u,target=1u-sourceNode;
+    if(sourceNode!=activeNode || !all(isfinite(direction)) || direction.z<=0 || limit<=1 || footprint.valid!=1u)
+    {observed.configuration.w++;return false;}
+    hit.t=1;hit.position=ReferencePosition(target);hit.rawNg=hit.shadingNormal=float3(0,0,1);
+    hit.ownerSlot=target;hit.stableId=(uint)_HLGI_Proxies[target].identity.x;hit.ownerRevision=2;hit.geometryRevision=1;
+    hit.representation=HLGI_REPRESENTATION_TRIANGLE;hit.submesh=hit.primitive=0;hit.hardwareInstance=target;
+    hit.surfaceBinding=uint4(target,target+1,7,1);
+    hit.flags=HLGI_HIT_VALID|HLGI_HIT_ORIENTED_NG|HLGI_HIT_TRIANGLE|HLGI_HIT_SURFACE_BINDING|HLGI_HIT_UV|
+        HLGI_HIT_SHADING_NORMAL|HLGI_HIT_GEOMETRIC_NORMAL|HLGI_HIT_UV_MATERIAL;
+    hit.materialDiffuse=_HLGI_Proxies[target].albedo.rgb;hit.materialEmission=0;hit.materialOcclusion=1;hit.materialReceivesShadows=1;
+    observed.calls.w=target;observed.footprint=float4(footprint.radius,footprint.slope,footprint.valid,1);
+    return true;
+}
+bool TraceSceneVisibilityHit(float3 origin,float3 direction,float limit,HLGIRayFootprint footprint,float4 view,out HLGIHit hit)
+{observed.calls.y++;hit=HLGIEmptyHit(limit);return false;} // Zero-length anchor connection must not call this.
+bool TraceShadow(float3 origin,float3 direction,float limit,uint mask,uint layers,bool useLayers,
+    HLGIRayFootprint footprint,float4 view,out bool known)
+{observed.calls.z++;known=false;return false;} // Fixed light strength=0; any call fails the reference.
+
+// All transport algorithms and CSUpdateCache are mechanically extracted.
+// Added assignments only copy values into the private observation record.
+#include "CacheEnergyActualFunctions.hlsl"
