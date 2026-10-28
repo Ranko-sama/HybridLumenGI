@@ -10,6 +10,11 @@ def configure_steady():
     global PACKAGE,BUILD
     PACKAGE=ROOT/'LocalComparison/Review/local-release-steady-use-01';BUILD=Path('I:/Unity test/Comparison/Builds/LocalRelease44')
     existing.PACKAGE=PACKAGE;existing.BUILD=BUILD;existing.smoke.PACKAGE=PACKAGE;existing.smoke.BUILD=BUILD
+
+def configure_integration():
+    global PACKAGE,BUILD
+    PACKAGE=ROOT/'LocalComparison/Review/current-release-integration-01';BUILD=Path('I:/Unity test/Comparison/Builds/LocalRelease49')
+    existing.PACKAGE=PACKAGE;existing.BUILD=BUILD;existing.smoke.PACKAGE=PACKAGE;existing.smoke.BUILD=BUILD
 def build():
     report=load(PACKAGE/'build-report.json');assert report['configuration']=='Release' and report['requestedOptions']==report['actualOptions']=='None','Actual Release build options differ'
     assert load(PACKAGE/'instrumentation/excluded-restoration.json')['allRestored'],'Historical includes not restored'
@@ -33,4 +38,6 @@ def run():
     except Exception as e:report.update(failure=str(e),traceback=traceback.format_exc())
     assert not (n/'analysis.json').exists(),'Preserve first Release analysis';save(n/'analysis.json',report);print(json.dumps(report,indent=2));return report['ordinaryReleaseVerified']
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['build','products','run']);a=p.parse_args();ok=build() if a.action=='build' else existing.smoke.verify_products() if a.action=='products' else run();raise SystemExit(0 if ok else 1)
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['build','products','run']);p.add_argument('--integration',action='store_true');a=p.parse_args()
+    if a.integration:configure_integration()
+    ok=build() if a.action=='build' else existing.smoke.verify_products() if a.action=='products' else run();raise SystemExit(0 if ok else 1)

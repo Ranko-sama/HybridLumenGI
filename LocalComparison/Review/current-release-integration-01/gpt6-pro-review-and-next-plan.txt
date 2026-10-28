@@ -1,0 +1,98 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 49
+DECISION: ADOPT_AND_CLOSE
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: current-local-support-contract-01
+
+一、采用Release49，结束本轮整合
+
+允许提交本轮包装代码和证据，采用Release49作为当前可运行的本机基线。未发现需要重建、补跑或修改产品的阻断。
+
+已确认 HybridLumenGI / workspace:/ / main@31c9415。我已先列出再读取iteration49输出235–237，并核对实际diff、BuildReport、原始运行收据、部署与恢复实现及来源记录；没有执行修改、重跑或重新计算文件哈希。
+
+本轮完成的是一个具体交付结果：已接受的源码现在共同进入了完整Unity工程和普通Release，而不再只存在于局部验证中。
+
+采用依据
+
+构建报告明确为Release / BuildOptions.None，0 errors、23 warnings；运行时debugBuild=false。包装diff只增加新目录／标识重定向，没有改变构建或120帧判定函数；冻结清单另记录bootstrap字节及判据AST未变。〔build-report.json:1–23；execution-source-manifest.json:1–4；本轮git diff〕
+
+实际60／120帧收据分别报告GI帧60／120，均有22个硬件网格、132张就绪卡及原绑定状态。完整日志显示自动结束，退出记录为0、watchdog为false。因此不是仅凭相机回调或“请求DXR”开关认定运行成立。〔native-window/run/diagnostics.jsonl:2–3；player.log:32–40；执行输出237〕
+
+部署脚本先核对旧来源，明确限制为四处预期产品变化，再保存旧字节并部署；恢复记录指向新的31c9415产品基线，不是回退5120a8c。临时覆盖和历史include恢复、112份产品源码及189项产物核验均有对应记录。〔prepare-deployment.py:7–20；source-verification.json；两份instrumentation/*restoration.json〕
+
+不随采用而升级的结论
+
+120帧模式没有填充嵌套资源诊断及退休字段。 原JSON中的这些零值是未采集字段的默认值，不能解释为内存或owner归零；有效运行判断来自顶层选定字段。现有判据没有误用这些默认值，故不是本轮阻断。
+
+2.9055秒首次回执等待不是受控性能比较；23项构建warning及原生阴影图集警告继续保留。当前运行也没有分别验证不变Skinned复用、开启雾的variant或局部灯变化响应。
+
+与Release40／44累计，这是三次构建、三次运行，对应启动、固定窗口持续使用及当前版本整合。44轮300秒证据仍只属于5120a8c；49轮不能继承它成为当前源码稳态验收。 本轮到此结束。
+
+二、下一价值判断：统一当前使用入口与支持范围
+
+重新对照完整原计划后，下一步选择工作流10的当前支持范围与本机使用合同，不再开启一个测试包。
+
+实际主入口已经落后于可用产物：
+
+README仍把当前版本写为local-development-resource-shutdown-01b，并说“当前Player尚未重建”。
+ProductionPlan首页仍把当前阶段写为local-development-denoise-02-contracts；后文还有未限定来源的“Unity／实体GPU验收未执行”和朋友交付步骤。
+
+这些表述会让使用者选错版本、误判已有证据，或重新执行已经关闭的工作。它们与Release49记录存在直接冲突，不是纯排版问题。〔README.md:3–7；ProductionPlan.md:3、25、130–141〕
+
+Astra的独立建议也是统一当前入口；本层读取上述实际文件后认可。这是交付采用的必要收尾，不是新增渲染能力，也不代表完整架构目标结束。
+
+三、唯一下一包：只修改现有入口文档
+
+优先限定 README.md、Documentation/ProductionPlan.md、Documentation/DevelopmentProgress.md。不新建另一套状态报告或验收数据库。
+
+README：让用户能够选对版本、直接启动
+
+首页明确区分：
+
+当前已验证产品来源：31c941589b53a6065b9191fac6d6b984124968c0；当前本机产物：Release49；后续文档提交的HEAD不自动成为该EXE的产品来源。
+
+给出现有本机入口：
+
+纯文本
+I:\Unity test\Comparison\Builds\LocalRelease49\Start-LocalRelease.cmd
+
+说明默认常驻、正常关闭；实测的是同一EXE的-localReleaseVerify120分支，默认模式没有另跑一次。640×360是当前本机运行配置，不是生产分辨率目标。入口和行为已经记在包内说明中，直接复用，不增加新启动器。〔current-release-integration-01/LocalRelease-README.txt:1–12〕
+
+把旧基线叙述明确标为历史并保留链接，不删除旧失败或重新解释旧结果。朋友交付文档仍可保留为历史资料，但不再作为当前使用的必经步骤。
+
+ProductionPlan：保留架构与关卡，修正“当前”语气
+
+更新首页当前状态及G0／G5的有限证据说明；不降低或重写G0–G5放行条件。对于旧阶段的“尚未运行”叙述，补足来源／阶段标签，或改为准确的当前有限边界，而不是一律替换成“已验证”。
+
+支持范围至少清楚区分以下事实：
+
+类别	应表达的合同
+当前本机已验证	指定Unity／URP、Windows x64／Mono／DX12／Linear环境；Release49静态120帧整合与正常退出
+已实现、有限验证	相关源码能力及各自专项证据；不能由49静态运行补齐未触发条件
+历史证据	Release44稳态、早期软件／DXR图像及其他专项，保留各自产品来源
+明确限制或待验收	当前代码明确拒绝／回退的配置，与“尚未验证”的配置分开；整体画质、性能、总显存及完整G0–G5仍开放
+
+四项目标、十条工作流继续由OriginalDevelopmentPlan.md约束，该文件本包不改、不勾选完成。
+
+DevelopmentProgress：只同步摘要，不重写历史流水
+
+同步当前来源、入口与上述分层表述，链接回现有证据。不要逐轮扩写所有历史记录，也不要将包数、断言数或本轮文档工作计为算法进展。
+
+冻结证据、旧FAIL、BuildReport、产物清单和Release49目录内文件全部不改。 尤其不要为了更新说明而修改已纳入189项清单的README／启动器，造成已验产物字节漂移。
+
+四、验证与退出条件
+
+零Unity、零构建、零Player、零GPU运行；不重跑源码测试。
+
+只做两项会改变交付判断的离线核对：
+
+核对	需要解决的问题	决定
+入口与来源一致性	从README找到的启动入口、产品commit、构建配置是否对应49的现有清单？	不对应就修文档，不重新构建来迎合文档。
+承诺与证据一致性	每项“已验证”是否能对应具体来源、输入和证据层级？旧44数据是否仍标历史？	无证据则降为有限／未验证，不补跑来填表；预算未定继续明确待定。
+
+**退出条件：**从主入口即可明确知道“运行哪个版本、怎样启动、这次实际验证了什么、哪些承诺尚未成立”，且三份现有文档不再互相矛盾，即提交并结束本包。
+
+这不是一次全库文档审计，也不要求清理所有历史措辞。发现无法由现有证据决定的技术支持项，保留未知，不顺势扩展成测试或实现任务。
+
+现在提交第49轮整合记录，采用Release49，再执行 current-local-support-contract-01。 完整开发循环继续；生产预算不重复询问、不虚构限额。已关闭的形变、Release窗口、场景、材质、时域及源码检查不重开，暗区、MC、曝光和计时调查继续关闭。
