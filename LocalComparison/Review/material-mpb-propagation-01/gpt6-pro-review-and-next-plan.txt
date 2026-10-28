@@ -1,0 +1,154 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 24
+REVIEW_DECISION: APPROVE_FAILED_CHECKPOINT — 原实验保持FAILED；不批准产品修复或原合同回放
+NEXT_PACKAGE: material-mpb-propagation-02 — 可见目标事件＋分层对照
+
+一、独立结论
+
+允许提交本轮失败检查点。下一步继续同一个实际材质事件，但必须先修正观察器，并建立明确缩小屏幕覆盖的新合同。 不移动相机、不换目标、不延长预热，也不把第24轮重新解释成通过。
+
+已确认 HybridLumenGI / workspace:/ / main@ee7144e。当前没有Runtime差异；文档与辅助代码尚未暂存，证据目录尚未跟踪。我已读取完整原计划、原合同、执行版观察器、产品身份生产／消费代码、失败日志、覆盖分析和Astra纠正意见。本层没有修改或执行测试。
+
+第24轮在连接器 execution_output 中目前仅提供记录133：两个copy kernel编译成功，明确没有Unity执行。构建和Player结果另由包内构建分析、原始日志及运行收据核对，不能声称存在未提供的执行记录。
+
+本次事实是：159个目标相机收据，logical 0–158；12份完整payload；零MPB事件、零截图，原生退出码1。 原始 material-event-result.json明确保存了首次选择错误及 eventApplied=false。这不是材质传播失败，更不是GI历史缺陷。
+
+二、两个观察器错误与一个独立覆盖限制
+F1 — P2，确定且已触发：把primitive编号当成对象行号
+
+产品的实际ABI为：
+
+字段	含义
+candidate.x	对象表行号＋1
+candidate.y	歧义／未知覆盖标记
+candidate.z	primitive编号＋1
+resolved identity	(sourceKeyLow, sourceKeyHigh, primitive＋1, valid)
+
+产品resolve以 candidate.x-1读取对象行，再把 candidate.z写入identity.z。〔HybridLumenGIReceiverIdentity.shader:66–74；HybridLumenGIReceiverIdentity.compute:44–50〕
+
+冻结执行版的 MaterialEventGpu.SameIdentity()却要求：
+
+纯文本
+identity.z == source.row + 1
+
+槽0的实际primitive值为3–6，而对象行＋1为15；Green wall实际为9／10，而行＋1为18。这个条件必然排除这些有效像素。首次“槽0没有内部像素”是观察器错误诊断，不能作为产品覆盖缺失。〔执行版 MaterialEventGpu.cs:132–148；coverage-identity-contract.json〕
+
+F2 — P2，确定但未执行：CopySamples读取错误对象行
+
+MaterialEventReadback.compute:40同样使用 identityNow.z-1索引 _Objects。即使未越界，也可能读到其他对象的key／flags，随后制造假的历史资格结论。
+
+该分支从159帧开始，本次未到达，不能称为已发生的GPU数据损坏；但未来复用前必须修正。只修C#选择条件不够。
+
+G1 — 覆盖限制，不是产品缺陷：槽1确实没有已观察到的身份像素
+
+校正ABI解释后的离线结果是：
+
+来源	有效身份像素	同primitive的3×3几何内部像素
+目标槽0	139	66
+目标槽1	0	0
+Green wall	11,874	10,947
+
+我检查了修正分析代码：它按key、valid==1、正primitive及邻域primitive一致性计数，没有根据辐射亮度挑点。〔inspect-material-coverage.py:15–25〕
+
+槽1为零仅说明该帧、该视角和身份路径未覆盖它，不证明几何原因，也不证明渲染错误。 因此，修复ABI仍不能满足原合同的“三个可见屏幕对照点”。原实验应在这里关闭为失败，不继续沿用原准入条件启动。
+
+Astra已经明确撤回其先前“没有阻断”的身份语义判断，原gate和纠正附录都应保留。字节布局272字节正确，不代表各字段语义正确。
+
+退出结果单独保留
+
+原生日志记录了合法关闭边界、提交和最终已记录owner归零；没有本次匹配到的GC buffer／D3D未释放故障。两项采集错误来自首次异常及关闭时重报，不是两次实验。〔native-window/player.log:79–169、289〕
+
+这支持本次失败路径完成了已记录的清理，不能把exit 1改成成功，也不关闭通用UTP、历史scratch或全部异常退出问题。
+
+三、下一最小包：继续材质问题，不继续原三点夹具
+为什么继续，而不是转去形变
+
+自动MPB发现、实际材质绑定和旧历史拒绝仍是原计划的明确缺口。本轮未执行事件，也未建立产品反例。现在已有两个可见来源和三组实际CPU来源／上传收据，修复范围清楚；转去形变会引入另一条异步发布链，反而扩大变量。
+
+新包保留槽0事件和Green wall屏幕对照；槽1保留为实际来源／上传对照，屏幕历史明确未覆盖。
+
+角色	新合同中的覆盖
+目标槽0	来源、上传／绑定、card变化、可见像素历史，以及实际路径有覆盖时的消费
+Green wall	未修改来源、可见像素身份与历史对照
+目标槽1	实际产品快照、材质代次、上传字段／绑定及owner级card记录；不要求屏幕像素，不认证其屏幕历史
+
+这是新合同的覆盖分层，不是把缺失槽1当成通过。原01包的合同、分析、gate和运行结果全部不动。槽1的CPU上传记录也不能升级成其GPU像素已验证。
+
+四、修正范围与运行前门槛
+A. 修复两个字段映射，保留当前产品ABI
+
+MaterialEventGpu.cs
+
+来源成员判定应检查key匹配、identity.w==1、identity.z>0，不得再与CPU行号比较。既然内部点规则是“同一primitive”，3×3邻居应与中心的完整identity.xyz一致，并通过原几何有效性检查。
+
+冻结的是像素坐标及renderer／submesh选择规则。事件发生后，材质key本来就应变化；不能继续要求新identity等于158帧旧key。新旧key应分别关联当帧实际来源。
+
+MaterialEventReadback.compute
+
+通过实际 candidate.x做显式范围检查，再读取 _Objects[candidate.x-1]。同时保留并核对candidate歧义、candidate.z与identity.z、对象key与identity.xy。
+
+对象行的reusable flag为0必须允许被记录。 这正是材质变化后需要观察的状态，不能把它作为读回失败过滤掉。identity未知、没有对象行、对象行存在但不可复用，也必须分别表达。
+
+不要通过CPU key反查一个行号，冒充直接读取的GPU对象表。
+
+B. 只减少活动屏幕lane，不扩大观察器
+
+保留现有小容量buffer、payload结构和trace布局，用明确的活动lane数量／掩码表示两个屏幕点及原选定cache路径。未使用槽位标为inactive，不解析成黑色、不要求terminal，也不复制另一个对照点填满三槽。
+
+MaterialEventTap仍记录三个CPU角色及实际上传；选择、159准入、GPU copy、trace终止检查和分析器统一使用同一角色映射。不得只删掉选择器的一条要求，留下下游仍按三点解释。
+
+C. 用保存数据完成一次小型合同检查，随后直接进入实际事件
+
+原生运行前只做直接相关检查：
+
+用保存的158输入验证实际修正选择函数：旧谓词拒绝槽0，新谓词识别已有内部候选；槽1仍报告屏幕未覆盖。新报告另存，不生成历史159帧或历史事件准入。
+用一组确定字段值检查行／primitive语义：行号与primitive刻意不同，包含零／越界candidate、歧义和key不匹配；尤其保留“合法对象行、reusable=0”。
+编译受改动的copy shader及C#接线。编译成功只记编译成功，不能再代替语义检查。
+
+不新增场景、IO框架、独立Unity预热或等价产品测试矩阵。159帧首次真实CopySamples结果仍须在事件之前完成校验。
+
+五、唯一新执行：同场景、同事件、256帧上限
+
+本次授权是新的02合同实验，不是01的产品修复回放。
+
+一次构建、一次普通可见DXR Player，最多256个目标相机逻辑帧。 保留原场景、相机、对象、灯光、预算及采样设置；计时和反馈关闭，后续形变／相机／门事件关闭。
+
+时间线不变：158选择，159准入，160在相机准备前执行唯一槽0 _BaseColor=(0,0,1,1) MPB修改，观察至255。详细GPU窗口及四个最终图像时点沿用原计划，不增加帧或射线。
+
+159准入要求：
+
+三个CPU来源／上传角色均完整；两个可见像素及原cache选择有效；对象行映射正确；过去16帧必要来源／资源稳定。 槽1没有屏幕像素不再是新合同的停止项，但其来源／上传缺失仍然是。
+
+事件仍只能通过普通 Renderer.SetPropertyBlock(slot0)发出。不得调用 MarkDirty、写变化域、清缓存或重置历史。原逐材质MPB优先级检查和其他属性保留规则不变。
+
+六、结果必须分层，不用“图变蓝”代替传播证明
+
+新分析分别报告：
+
+纯文本
+observerMappingVerified
+sourceAndUploadVerified
+targetHistoryResponseVerified
+actualConsumptionCoverage
+slot1ScreenHistoryCovered = false
+nativeExitAccepted
+fullProductionAccepted = false
+
+当前分析器的 eventVerified主要由来源／历史检查决定，不能据它自动宣布实际gather消费或cache传播全部通过。〔analyze-material-event.py:39–80〕
+
+最重要的判定仍是：
+
+目标新材质被自动发现、进入实际绑定；旧材质历史失去资格；已知当前测量重新开始正确历史；随后有有效恢复。 未知测量保持未知合同，不能制造有效黑色。同renderer其他card按owner粒度重捕获，不自动等于槽间污染；邻近照明reactive也不等于错误身份拒绝。
+
+原始GI／cache是入射量，不要求目标自身立即变蓝。实际路径没有消费目标槽0时，消费分支记未覆盖，不补射线、不换点。最终图像只辅助解释，不恢复亮度或暗区调查。
+
+本包不预授权第二次Player，也不预设Runtime修改。 新观察器错误、来源不符、读回不完整、有效数据非有限、后端或退出故障，保存首次证据并停止。若首次真正执行事件后得到产品反例，再返回局部证据决定修复；原01未使用的条件回放额度不能转为自动重试权。
+
+七、推进决定
+
+现在提交第24轮失败检查点；随后执行 material-mpb-propagation-02。 修正只针对测试观察器和覆盖合同，不改变产品身份、材质或历史算法。
+
+四项目标、十条工作流继续有效。下一包推进世界材质缓存、局部失效、历史响应与URP／DXR材质一致性；槽1屏幕历史、形变、流式、整图质量、Release、显存及长时验收继续开放。原失败不回填，暗区／MC和继续拆计时均不恢复。
+
+

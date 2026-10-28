@@ -44,3 +44,7 @@ iteration14–17：已保留实际关灯链的有限缓存响应分解；旧场�
 iteration18：首次完成新来源配对的真实120帧、2组PNG/HDR、0采集错误、native0，来源冻结与恢复通过；独立六点来源对应及48批共196608路径积分实际完成，随后比较完成。严格统计/尾项界过宽，referenceEstimateQualified与comparisonConclusive保持false，无追加采样。此前一次JSON序列化失败发生在积分前，0条路径；原脚本、日志与开始标记保留，修复仅两处输出标量转换。中央墙/方块的直接光参考为零，间接光与最终滤波结果微弱但非零；不能把近黑截图当成正确亮度或降噪故障的证明。详见scene-radiometry-matched-baseline-03/result.md。Astra无阻断，实际GPT6Pro18已批准有限证据提交；下一包为真实滤波与上采样贡献归因。Runtime未改，整个原计划及Player/DXR/动态质量/性能/显存/长时验收继续开放。
 
 iteration23：两个固定64源帧DXR窗口均完成，Gather占主要成本；有限等价且编译提升成立的唯一接收导数复用候选只省0.027856ms，未超过块间波动，已撤回并验证仓库/部署110源码恢复。保留原始数据、候选patch与有限结论，不追加样本、不继续无界热点拆分。必要构建验证独占Windows导入标志，22轮历史偏差不改写。实际Pro23已批准有限证据提交与撤回；下一包material-mpb-propagation-01检验单一材质槽MPB事件的自动发现、缓存消费和历史响应，完整生产关卡仍开放。
+
+iteration24：唯一Unity构建成功并恢复部署；唯一DXR运行在logical158停止，159帧、12完整GPU数据、0事件、0截图、native1。测试观察器误把identity.z（三角形编号+1）当成对象行号；未执行的CopySamples分支也有对应索引错误。产品现有temporal通过candidate.x正确定位对象，尚无产品反例。离线修正解释后槽0有139身份像素及66内部像素，槽1仍为0，不能只修观察器就沿用原三屏幕控制点合同重跑。原失败、初版错误分析及Astra事前gate均保留；退出资源计账最终归零。交实际Pro决定下一最小工作包，不自行改视角、换目标或追加测试。详见ReviewBrief-MaterialMpbPropagation01.md。
+
+实际Pro24已批准失败检查点提交，并明确另开material-mpb-propagation-02：修正观察器ABI、用已存数据和少量不等行号/primitive值验证语义，再保留槽0与Green wall两个可见GPU点；槽1只做CPU来源/上传/card对照，屏幕历史保持未覆盖。新合同限一次构建、一次256帧运行，不预授权第二次Player或Runtime修改。原01失败不回填，完整原计划继续。
