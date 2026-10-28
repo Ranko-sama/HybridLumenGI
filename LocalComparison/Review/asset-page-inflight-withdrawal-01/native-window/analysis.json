@@ -1,0 +1,49 @@
+{
+  "inputClosureVerified": true,
+  "pendingWithdrawalCovered": true,
+  "nativeOperationRetained": true,
+  "lateCompletionHandled": true,
+  "dependencyReleaseOrdered": false,
+  "pageReservationsReturned": true,
+  "nativeExitAccepted": true,
+  "fullProductionAccepted": false,
+  "productCounterexample": false,
+  "coverageGaps": [
+    "No actual reserved parent/dependency release edge; complete input closure is not executed dependency coverage"
+  ],
+  "productsSha256": "1145c3107444a9b25d210fcc7c76b79a9c48fa6d0f5519e3407c7962563cd080",
+  "result": {
+    "status": "collected",
+    "error": "",
+    "unity": "6000.0.85f1",
+    "api": "Direct3D12",
+    "scope": "One unbound request withdrawal; no GPU lease/HLOD/performance acceptance",
+    "ticks": 12,
+    "withdrawTick": 2,
+    "zeroTicks": 8,
+    "requestCalls": 1,
+    "withdrawCalls": 1,
+    "pendingWithdrawalCovered": true,
+    "fullProductionAccepted": false
+  },
+  "pendingOperation": {
+    "page": "geometry-74ab8faeaec044bb9ea93b4b59255665",
+    "operation": 4,
+    "native": 5,
+    "generation": 1,
+    "withdrawTick": 2,
+    "completionTick": 3
+  },
+  "observedDependencyEdges": [],
+  "loadedPages": [
+    "geometry-74ab8faeaec044bb9ea93b4b59255665"
+  ],
+  "nativeExit": {
+    "watchdogTerminated": false,
+    "completedUtc": "2026-10-28T12:55:41.2979935Z",
+    "processId": 7584,
+    "exitCode": 0
+  },
+  "nativeLogHits": [],
+  "status": "bounded-evidence-collected"
+}

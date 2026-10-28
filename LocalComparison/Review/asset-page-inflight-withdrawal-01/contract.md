@@ -1,0 +1,17 @@
+# Asset page in-flight withdrawal 01
+
+Pro26 selected this distinct gap after accepting bounded deformation evidence. Baseline 4a04e64. Reuse the existing Streaming scene and its detail representation group, existing six built Windows LZ4 pages and exact dependency closure. Archive current manifest/scene/bundles and hashes. No export, rebake, asset substitution or scene regeneration. Build-time CRC validation and runtime original CRC checks remain active.
+
+One requester uses SetRequests once before the first normal pump. Disable the old capture/actions, StreamingAuditProbe and both streamed representation components before Start; no second camera. No TryAcquire and no renderer binds for these pages. Keep the existing scene camera/lights/geometry and GPU budgets. No timing or screenshot experiment.
+
+Concurrency/start limits are1. Exact logical bundle/resident limits equal the complete closure sums; single-start IO/upload limits equal the largest page cost. These are frozen in input.json before execution. Not physical VRAM limits.
+
+A test component at Update execution order30000 observes the normal pump after it has run. It checks only actual LoadingAsset wrappers, prepares a scalar receipt, then reads their underlying AssetBundleRequest.isDone once immediately before one RemoveRequests. No serialization or file IO occurs between that check and removal; save the receipt afterward. Record page generation, stable weak operation/native handle identities and the returned value. No generic extra IsDone polling: Release.IsDone has side effects. Product Poll results are recorded at their original evaluation locations. If the native request has already finished, continue within64 actual pump ticks; never slow work or substitute a provider to manufacture coverage.
+
+Maximum64 actual pump ticks to observe a genuine pending asset request. On withdrawal, at most128 further ticks to reach zero residual state, followed by8 consecutive zero ticks (all phases within256 total). If no pending request is observed by64, withdraw the sole request once as uncovered cleanup, and keep the same bounded cleanup. Preserve incomplete/failed results rather than replay. One new build, one visible Player, no second attempt.
+
+Read-only staged hooks log every page generation/phase/operation/reservation, dependency pins, provider starts, original Poll completion/error/results and actual unload calls. Hooks swallow observation failures into a separate error flag; no state mutation, extra Step, forced unload, GC or completion fabrication. Use ConditionalWeakTable numeric IDs; observer never retains loaded assets or requests strongly.
+
+Analyze full request acceptance -> real pending withdrawal -> original operation retained -> late completion -> dependency-ordered release -> reservation return only after original successful release completion. Requested/Wanted are not expected to clear immediately because pending/loaded parents pin dependencies. No GPU consumer retirement claim, HLOD acceptance, process memory claim or full production acceptance. First error/source mismatch/native failure stops the experiment; retained unresolved resources remain evidence.
+
+Astra design boundary: the first actual asset request can be a dependency-free geometry leaf. If no parent/dependency pair is actually reserved and released, dependencyReleaseOrdered remains false/uncovered. A complete six-page input closure is not evidence that all six loaded or that any release edge was exercised. Do not alter the first-window rule to manufacture that coverage.

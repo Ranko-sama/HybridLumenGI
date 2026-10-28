@@ -1,0 +1,134 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 27
+REVIEW_DECISION: RETAIN — APPROVE_LOCAL_EVIDENCE_COMMIT
+NEXT_PACKAGE: snapshot-publication-cleanup-01
+
+一、提交决定
+
+允许提交本轮有限证据及辅助代码；结束这项在途撤回实验，不补测依赖释放边。 本轮没有建立资源页产品缺陷。下一包转向本次定向源码检查发现的一处所有权保留缺口，而不是再创建观察器。
+
+已确认 HybridLumenGI / workspace:/ / main@4a04e64。当前暂存内容为辅助代码、文档和实验归档，Runtime相对HEAD无差异。我已先列出再读取第27轮执行输出143–148，检查冻结合同、实际执行hook、原始事件、分析器、暂存安装差异和Astra结果审查。本层没有执行修改、测试、重新哈希或启动Unity。
+
+首次预检失败来自缓存响应文件仍引用已恢复／移除的旧观察器，随后预检通过；唯一Unity构建成功，保留23项warning。不能把预检修正说成产品修复，也不能称为无警告构建。〔执行输出143–146〕
+
+二、本轮结论成立，但仅限实际加载的几何页
+原始时序不是只看最终零计数
+阶段	原始记录	支持的结论
+撤回	tick2，operation4／native5，generation1；紧邻撤回前的原生完成值为false	覆盖了真实未完成asset请求的需求撤回
+迟到完成	tick3，原Poll消费同一operation4，得到asset6	操作及结果没有因撤回而被遗忘
+释放开始	tick3进入release operation7；tick4启动UnloadAsync，读取未完成	bundle 4,190字节、resident 4,304字节继续保留
+释放返回	tick5原生unload完成，asset6的显式UnloadAsset调用返回，随后原release Poll成功	预留归还发生在对应完成链之后
+稳定空闲	tick5–12，共八个实际step回执	无操作、lease、pin及页预留残留
+
+依据：本次 events.jsonl sequence 33–40、52–78、89–188；analyze-page-withdrawal.py:66–113。
+
+执行版确实在读取原生 AssetBundleRequest.isDone后，先调用原 RemoveRequests，再写收据。观察器使用弱键数值身份，没有为了记录而强持有loaded asset，也没有额外调用带副作用的Release完成getter。〔执行版 HybridLumenGIAssetPageStreamer.cs:79–89；PageWithdrawalMode.cs:87–97；PageWithdrawalTap.cs:8–17〕
+
+这里仍不是原子锁：原生操作可以在两条主线程指令之间完成。因此准确结论是撤回紧前观察到未完成，原操作随后被正常保留和消费，不是证明它在整个撤回调用期间都不可能完成。
+
+撤回当tick的缓存 requested/Wanted尚未更新，或释放期间 Wanted因在途operation而再次为true，都不构成泄漏。实际handle、预留及后续原Poll才是判定依据。
+
+明确保留的范围
+
+dependencyReleaseOrdered=false必须保留。 六页是输入闭包，不是执行覆盖；实际只加载了一个无依赖geometry叶子，没有父页—依赖页释放边可供验证。无需选择更晚的请求来把这个字段变绿。
+
+本次没有取得消费lease、没有绑定这些页到renderer，因而不证明GPU读者退休、HLOD发布或全部页类型。显式卸载调用返回与逻辑计账归零也不是物理内存回收时间或总VRAM证明。
+
+原生日志最终已记录owner计账归零，无本次匹配到的资源故障；UTP汇总仍保留。〔native-window/player.log:255–274〕
+
+三、重新锚定原计划：不再把“未覆盖”自动变成下一实验
+
+已重新读取四项目标、十条工作流及推进表。历史runtime-candidate-16已有真实页加载、近远/HLOD替换、第二相机持有和离场退休记录；这些不能追认为当前源码全验收，但也不应当作从未做过再完整重跑。〔OriginalDevelopmentPlan.md:5–60；LocalRuntimeFunctionalAudit.md:21–31〕
+
+近期材质、形变、资源页事件又分别补上了有限当前证据。下一优先不是新增取消变体，也不是为了产生功能diff重新实现已有模块。
+
+现在有一个更明确的产品代码问题：形变快照发布失败后的清理失败，没有保留原任务owner。 它影响第三项目标的动态资源更新和第四项目标的内存预算可靠性，且可以直接复用已有实际源码测试，不需要新的原生观察器。
+
+四、新发现：发布失败的二次清理异常会丢失所有权记录
+F1 — P2：条件性源码缺陷，尚未做本层故障注入或原生复现
+
+触发条件限定为：
+
+worker已完成、结果仍属当前请求，进入快照发布；发布构造发生异常，随后清理该失败快照时又有销毁调用抛错。
+
+当前正常发布分支在进入构造／发布的try之前就执行：
+
+C#
+Jobs.RemoveAt(i);
+job.cancellation.Dispose();
+
+catch回滚 Published后直接调用：
+
+C#
+job.snapshot.Destroy();
+
+如果这次Destroy抛错，当前分支没有像取消清理分支那样设置 cleanupFailed并保留Job。Snapshot.Destroy()又是在所有销毁调用之后才扣除reservation。因此会出现：
+
+失败快照尚未完整清理、预留仍在，但已经不在Jobs中；失败清理计数也无法枚举到它，异常还会退出当前BeginContext处理。〔Runtime/HybridLumenGIDeformedMesh.cs:168–213；同文件 :31–35、45–59〕
+
+这不是第26轮成功发布或第27轮页撤回的失败归因，也不能据此撤销它们的有限结果。它是对当前异常分支的源码控制流判断，下一包首先用实际源码建立反例。
+
+现有测试已经分别覆盖“发布失败但销毁成功”和“取消任务销毁失败后保留owner”，却没有覆盖这两个条件在当前有效发布任务中的组合。可直接利用已有 HybridLumenGISurfaceCharts.FailSet与 CoreUtils.FailDestroy，不新增故障框架。〔Tests/StandaloneDeformedMesh/Program.cs.txt:100–104、289–297〕
+
+五、下一执行包：snapshot-publication-cleanup-01
+A. 先保存未修源码的确定性反例
+
+提交第27轮证据并固定基线。复用 Tests/Validate-DeformedMesh.ps1，它编译实际组件、退休协调器和pump；只添加一个定向病例：
+
+建立一个已发布旧快照，再完成一个当前有效的新任务。令新快照在chart发布构造处失败，并令其私有mesh清理抛错。保存两个独立异常、任务状态、旧发布引用、失败快照引用和reservation。
+
+基线预期失败应来自所有权／异常隔离断言，不是编译失败或worker未完成。不得直接从测试中修改Jobs或把资源塞回列表来挽救基线。
+
+需要证明的反例是：原实现提前移除了Job，后续清理异常使它无法按既有失败保留合同被枚举。若实际源码执行不符合这个推断，就保存反例结果，停止修复，不硬改代码。
+
+B. 最小修复：责任转移或清理成功后，才移除任务
+
+优先只修改：
+
+纯文本
+Runtime/HybridLumenGIDeformedMesh.cs
+Tests/StandaloneDeformedMesh/Program.cs.txt
+
+必要时补充现有适配器的断言记录和简短合同说明；不改资源页、退休fence、shader或渲染配置。
+
+修复应满足以下终态：
+
+结果	任务与资源处理
+发布成功	新快照交给Published；旧快照按原退休路径转交；任务只移除一次
+发布失败，清理成功	恢复旧Published或保持无发布；失败私有快照销毁后归还预留，再移除任务
+发布失败，清理再失败	保留可追踪Job／snapshot及未解决预留，设置失败状态；不再自动重复销毁
+
+不能只移动 Jobs.RemoveAt，却仍提前Dispose取消源。 RequestCapture、OnDisable和关闭撤销会访问列表中任务的取消源；保留Job却留下已Dispose的取消源，会引入另一条异常路径。取消源与Job的终态必须一起处理。〔HybridLumenGIDeformedMesh.cs:113–150〕
+
+同样不能通过强制把reservation置零来通过测试。若销毁已经部分执行，现有策略是保守保留并报告失败，而不是无条件再次销毁整份snapshot。
+
+本包修复限定于已完成任务的发布回滚所有权。没有证据时，不顺手重写捕获、worker、发布架构或所有资源分配异常分支。
+
+C. 必要验证，复用既有入口
+
+只增加／复用以下直接相关检查：
+
+检查	成功条件
+发布＋清理双失败	旧发布保持一致；失败新快照仍可追踪；预留未假清零；原异常不再穿透导致后续正常owner处理被跳过
+后续context、idle、关闭／禁用	不重复销毁失败snapshot，不丢失失败记录，不因已Dispose取消源产生二次异常
+普通发布失败、清理成功	私有资源清理与预留归还一次；Job移除；旧快照可继续使用
+正常发布和旧快照退休	原有原子发布、父子资源完成证明及预算行为不退化
+
+故意保留失败资源的用例放到独立测试进程或既有失败保留测试的适当末尾，避免它的保守计账污染其他断言。保留基线失败和修复后相同输入结果，不能用新输入替换原失败。
+
+这仍是实际C#组件配合明确Unity／销毁适配器的证据，不是实体原生销毁异常复现。
+
+D. 本包额度与停止条件
+
+零新增Unity／Player／GPU运行。 不重跑256帧形变、12tick撤回或软件／DXR冒烟；没有理由为这个确定的异常分支再采图。
+
+完成标准是：实际源码基线反例成立，最小候选使相同输入通过，既有成功发布／回滚／退休守卫不退化，失败所有权和诊断可见，候选diff保持局部。
+
+若修复需要改变GPU完成条件、引入通用生命周期管理器、修改页调度或画质算法，停止并返回最小分歧。候选完成后交独立复核，本回复不预先批准尚不存在的Runtime提交，也不把旧原生结果归到新源码上。
+
+六、推进决定
+
+现在提交第27轮有限成功证据；随后执行 snapshot-publication-cleanup-01，先复现、再做最小产品修复。
+
+本轮依赖释放边未覆盖、第26轮新几何射线命中未覆盖及其他历史限制继续保留，不为补齐表格扩包。四项目标、十条工作流仍全部有效；下一包解决的是动态资源失败时的所有权与预算一致性，不代表动态画质、流式全路径、Release、峰值显存或长时验收完成。暗区、Monte Carlo和计时调查均不恢复。
