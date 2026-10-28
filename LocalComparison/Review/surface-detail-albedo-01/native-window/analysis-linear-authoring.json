@@ -1,0 +1,265 @@
+{
+  "captureVerified": true,
+  "fullProductionAccepted": false,
+  "scope": "Two real source detail variants through original ordinary/native capture; finite color contract only",
+  "samples": [
+    {
+      "frame": 31,
+      "lane": 0,
+      "marker": [
+        12345.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "diffuse": [
+        0.1411764770746231,
+        0.05098039284348488,
+        0.01568627543747425,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "metadata": [
+        273.0,
+        179.0,
+        1.0,
+        1.0
+      ],
+      "expected": [
+        0.14126715271827348,
+        0.05220726040474472,
+        0.014499685128893684
+      ],
+      "bound": 0.004421568627450981,
+      "checks": {
+        "invocation": true,
+        "detailColor": true,
+        "ao": true,
+        "validity": true,
+        "emission": true
+      }
+    },
+    {
+      "frame": 31,
+      "lane": 1,
+      "marker": [
+        12345.0,
+        1.0,
+        0.0,
+        1.0
+      ],
+      "diffuse": [
+        0.12156862765550613,
+        0.06666667014360428,
+        0.0117647061124444,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "metadata": [
+        367.0,
+        179.0,
+        1.0,
+        1.0
+      ],
+      "expected": [
+        0.12200345007487255,
+        0.06786943852616814,
+        0.013354973145033656
+      ],
+      "bound": 0.004421568627450981,
+      "checks": {
+        "invocation": true,
+        "detailColor": true,
+        "ao": true,
+        "validity": true,
+        "emission": true
+      }
+    },
+    {
+      "frame": 63,
+      "lane": 0,
+      "marker": [
+        12345.0,
+        1.0,
+        1.0,
+        0.0
+      ],
+      "diffuse": [
+        0.1412353515625,
+        0.05218505859375,
+        0.014495849609375,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        2.0
+      ],
+      "metadata": [
+        273.0,
+        179.0,
+        1.0,
+        1.0
+      ],
+      "expected": [
+        0.14126715271827348,
+        0.05220726040474472,
+        0.014499685128893684
+      ],
+      "bound": 0.001,
+      "checks": {
+        "invocation": true,
+        "detailColor": true,
+        "ao": true,
+        "validity": true,
+        "emission": true
+      }
+    },
+    {
+      "frame": 63,
+      "lane": 1,
+      "marker": [
+        12345.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "diffuse": [
+        0.1219482421875,
+        0.06781005859375,
+        0.0133514404296875,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        2.0
+      ],
+      "metadata": [
+        367.0,
+        179.0,
+        1.0,
+        1.0
+      ],
+      "expected": [
+        0.12200345007487255,
+        0.06786943852616814,
+        0.013354973145033656
+      ],
+      "bound": 0.001,
+      "checks": {
+        "invocation": true,
+        "detailColor": true,
+        "ao": true,
+        "validity": true,
+        "emission": true
+      }
+    }
+  ],
+  "bounds": {
+    "ordinary": 0.004421568627450981,
+    "native": 0.001,
+    "crossMode": 0.00542156862745098
+  },
+  "supplement": {
+    "onlyOracleChange": "Convert authored non-HDR Material BaseColor to linear before the unchanged detail formula",
+    "authoredBaseColor": [
+      0.5,
+      0.375,
+      0.25
+    ],
+    "linearBaseColor": [
+      0.21404114048223255,
+      0.11601613423276605,
+      0.05087608817155679
+    ],
+    "linearBaseTexture": [
+      0.5,
+      0.75,
+      0.25
+    ],
+    "baseProduct": [
+      0.10702057024111628,
+      0.08701210067457454,
+      0.012719022042889197
+    ],
+    "basis": "Existing HitMaterialLayout.ShaderColor and pinned Core Color.hlsl SRGBToLinear; executed Material.SetColor and RGBAFloat linear=true textures",
+    "originalFailurePreserved": true,
+    "originalFailureSha256": "5346f881df6c218dc6740051d34aa51af70c3213015f3200ece248d0b3e26501",
+    "originalBoundsUnchanged": true,
+    "newUnityRuns": 0,
+    "newBuilds": 0,
+    "newGpuRuns": 0
+  },
+  "buildProductsManifestSha256": "a6c5d184abd021d98b7c760d050d46e0ca44fe068930225ea4793ae948e31319",
+  "exit": {
+    "completedUtc": "2026-10-28T17:19:13.6160967Z",
+    "processId": 13664,
+    "watchdogTerminated": false,
+    "exitCode": 0
+  },
+  "nativeLogHits": [],
+  "run": {
+    "status": "incomplete-probe",
+    "label": "surface-detail-albedo-01",
+    "startedUtc": "2026-10-28T17:17:47.9524253Z",
+    "completedUtc": "2026-10-28T17:19:13.3712257Z",
+    "error": "",
+    "unity": "6000.0.85f1",
+    "urpAssembly": "0.0.0.0",
+    "api": "Direct3D12",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "driver": "Direct3D 12 [level 12.1]",
+    "featureType": "HybridLumenGI.HybridLumenGIRendererFeature",
+    "actualMode": "Final",
+    "scene": "Assets/RuntimeAudit/Functional.unity",
+    "requestedFrames": 64,
+    "renderedFrames": 64,
+    "captures": 0,
+    "errors": 0,
+    "width": 640,
+    "height": 360,
+    "startupEngineFrame": 1,
+    "firstRenderEngineFrame": 1,
+    "startupFrameLimit": 120,
+    "firstRenderWaitSeconds": 79.96395810000001,
+    "startupSecondsLimit": 900.0,
+    "fullSequenceCompleted": false,
+    "featureOff": false,
+    "indirectOnly": false,
+    "graphicsUVStartsAtTop": true,
+    "format": "R32G32B32A32_SFloat Linear; raw little-endian RGBA32F, unflipped GPU rows",
+    "png": "Preview only: max(0,RGB)/(1+max(0,RGB)), then LinearToGammaSpace; no row flip",
+    "timing": "FrameTimingManager whole-frame samples, potentially delayed/repeated, capture/IO contaminated; zero or nonfinite is missing, not GI timing",
+    "scope": "Collection only; not image quality, successful GI passes, DXR execution, or performance acceptance",
+    "ambientIntensity": 0.0,
+    "reflectionIntensity": 0.0,
+    "ambientLight": {
+      "r": 0.0,
+      "g": 0.0,
+      "b": 0.0,
+      "a": 1.0
+    },
+    "fog": false,
+    "skybox": false
+  },
+  "runId": "20261028-171747-3ba991a35f6847c297fba6c871eab397",
+  "receipt": {
+    "receipts": 64,
+    "pending": 0,
+    "completed": 2,
+    "failure": ""
+  }
+}
