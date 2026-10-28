@@ -1,0 +1,4 @@
+Actual source shutdown: parent=1, child=1, owned=0, pending=0, warnings=0
+External fence adapter: submitted=True, completed=True, queryCount=2
+External fence adapter: submitted=True, completed=True, queryCount=2
+PASS: submitted fence false on first read, true from second read; both parent and child destroy exactly once in the same shutdown. External deterministic adapter; no native/GPU claim.

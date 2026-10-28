@@ -126,7 +126,7 @@ static class Program
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();
-        ShutdownWithdrawalAndNewSession();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
+        ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
         Console.WriteLine("Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.");
     }
@@ -157,7 +157,34 @@ static class Program
         Require(HybridLumenGIResourceRetirement.OwnedCount==0,"Late owner disable enqueued duplicate retirement");
         Console.WriteLine("PASS: close-before-withdraw; no new deformation admission; old recorded reader completion; parent/child EndContext fences; cancelled workers retain storage through new session and cannot publish; late disable idempotence.");
     }
-    sealed class Completion:HybridLumenGIAssetPageStreaming.ICompletion {public bool Ready;public bool IsComplete=>Ready;}
+    sealed class Completion:HybridLumenGIAssetPageStreaming.ICompletion
+    {public bool Ready,ThrowQuery;public int Queries;public bool IsComplete {get{Queries++;if(ThrowQuery)throw new Exception("Controlled prerequisite query failure");return Ready;}}}
+    static void ShutdownCompletionProgress()
+    {
+        OpenNewSession();HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(HybridLumenGIResourceRetirement.OwnedCount==0,"Progress case requires clean ownership");
+        int parent=0,child=0,firstFence=RecordedGpu.Fences.Count;
+        RecordedGpu.CompleteNewFenceOnQuery=2;
+        Action withdraw=()=>HybridLumenGIResourceRetirement.Retire(()=>{parent++;HybridLumenGIResourceRetirement.Retire(()=>child++);});
+        HybridLumenGIResourceRetirement.RegisterShutdownOwner(withdraw);Application.Quit();
+        HybridLumenGIResourceRetirement.UnregisterShutdownOwner(withdraw);RecordedGpu.CompleteNewFenceOnQuery=0;
+        Console.WriteLine("Completion-transition shutdown: parent="+parent+", child="+child+", owned="+HybridLumenGIResourceRetirement.OwnedCount+", pending="+HybridLumenGIResourceRetirement.PendingCount);
+        Require(parent==1&&child==1&&HybridLumenGIResourceRetirement.OwnedCount==0&&HybridLumenGIResourceRetirement.PendingCount==0,"A completed fence stranded its parent/child destroy callbacks");
+        Require(RecordedGpu.Fences.Count==firstFence+2,"Child did not receive a separate submission");
+        for(int i=firstFence;i<RecordedGpu.Fences.Count;i++)Require(RecordedGpu.Fences[i].Submitted&&RecordedGpu.Fences[i].Completed&&RecordedGpu.Fences[i].QueryCount>=2,"Adapter completed before a submitted fence was actually queried");
+        foreach(bool throws in new[]{false,true})
+        {
+            OpenNewSession();HybridLumenGIResourceRetirement.IdleUpdate();RecordedGpu.AutoCompleteImmediate=true;
+            int destroyed=0;var prerequisite=new Completion{ThrowQuery=throws};
+            HybridLumenGIResourceRetirement.Retire(()=>destroyed++,prerequisite);
+            Application.Quit();
+            Require(destroyed==0&&HybridLumenGIResourceRetirement.OwnedCount==1&&prerequisite.Queries<=3,"Unready/throwing prerequisite was released or synchronously busy-waited");
+            prerequisite.ThrowQuery=false;prerequisite.Ready=true;HybridLumenGIResourceRetirement.IdleUpdate();
+            Require(destroyed==1&&HybridLumenGIResourceRetirement.OwnedCount==0,"Retained prerequisite owner could not finish after external completion");
+        }
+        RecordedGpu.AutoCompleteImmediate=false;OpenNewSession();
+        Console.WriteLine("PASS: deterministic submitted fence false-to-true transition completes parent and separately fenced child in one shutdown; unready/throwing prerequisites retain ownership without busy waiting.");
+    }
     static void IdleAndShutdownRetirement()
     {
         RenderPipelineManager.End();HybridLumenGIResourceRetirement.IdleUpdate();

@@ -1,0 +1,100 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 7
+REVIEW_DECISION: RETAIN — APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: gather-cache-visibility-01
+
+一、提交决定
+
+保留并允许本地提交退休进度修复；薄壁A/B/C结果可以作为有限诊断与固定连接回归证据提交。 在本次核对的差异和证据范围内，未发现新的提交阻断。不需要再重复资源退出、A图像采集或已经通过的固定阴影矩阵。
+
+访问确认：HybridLumenGI / workspace:/ / main@870ba82，候选尚未提交。当前唯一Runtime差异是 HybridLumenGIResourceRetirement.CanProgressWithoutMainLoop()；我还检查了测试diff、原始反例入口、iteration 7执行输出、原生票据、日志、C参考实现及来源恢复记录。本层没有修改、执行测试或提交。
+
+这次可以关闭的是已完成票据仍待销毁，却被进度判断提前排除的源码缺陷。不能据此宣布所有退出状态、薄壁整图或整个项目完成。
+
+二、资源修复的证据成立
+修复没有把“可以推进”改成“可以直接释放”
+
+新进度谓词不再第二次读取fence来排除刚完成的owner，而是检查有效提交、失败状态及prerequisite是否允许继续。实际销毁仍由 PollOwned()独立检查真实fence和prerequisite；共享期限、提交不确定性、context要求与父子项的完成证明均未改变。〔当前Runtime git_diff；Runtime/HybridLumenGIResourceRetirement.cs:132–147〕
+
+核验	结论
+原源码确定性反例	提交后的fence首次查询false、随后true；一次关闭后留下 parent=0, child=0, owned=1, pending=0，执行失败。
+同一保存输入替换修复源码	同一次关闭完成 parent=1, child=1, owned=0, pending=0；父子各有独立提交，均经过实际适配器完成查询。
+前置条件守卫	未就绪或抛错的prerequisite仍保留所有权，不同步忙等；随后外部就绪才能释放。
+原生集成	12帧自然退出的旧域中，21张票据形成有序提交、完成及销毁链；父项产生的七个子项另有自己的完成证明。
+
+反例调用一次实际 Application.Quit()，没有额外idle“救场”；集成用例也放在故意保留失败owner的测试之前，避免状态污染。〔retry-v3/progress-race-baseline-sources/Program.cs:8–20；执行输出29、30；resource-shutdown-01c/unit-DeformedMesh.log:1–8〕
+
+原生trace的sequence 174–187记录父项提交、完成和产生子项，195–229记录子项各自提交与销毁，230记录队列清空。我检查的插桩只记录产品原本读取的结果，没有额外查询fence；原始日志也没有同类产品泄漏或未解决owner警告。〔LocalComparison/Review/resource-shutdown-01c/native/progress-timeline.jsonl:176–232；LocalComparison/Harness/prepare-retirement-progress.py:9–33〕
+
+**证据边界继续保留：**实机父fence首次读取就已完成，因此它是集成确认，竞争窗口由确定性测试覆盖。A中29项泄漏与该缺陷相符，但A当时没有逐票据记录，不能追认其唯一根因已经完整证明。实际原生prerequisite均为空，不能扩展为在途CPU任务、readback、Player或设备故障验收。
+
+三、薄壁结果足以保留，但只关闭对应问题
+
+B、C各一次120帧/135阶段的采集与退出记录成立；我检索的完整日志没有对应产品泄漏、shader、读回或设备错误签名。两次日志级退出检查，不等于在各自120帧运行中重新做了21票据归属验证。〔retry-v4/B-execution-receipt.json:2–8；C-execution-receipt.json:2–8；两份原始Unity日志〕
+
+C的数值结果与最终显式双精度参考一致：
+
+固定连接	GPU结果	独立参考
+被墙遮挡	已知遮挡；t=1.379765272140503；直接光RGB为0	t=1.3797652738404476；直接光为0
+无遮挡	已知无遮挡；各通道直接光约 1.1331003904342651	各通道约 1.1331001923629862
+
+参考先把输入提升为双精度，再计算线段/箱体相交、距离衰减和N·L；没有通过放宽容差获得通过。对已保存C数据重新分析即可，不需要为参考精度修正另跑GPU。无遮挡记录中的 actualT是miss的距离上限，不是实际命中距离。〔retry-v4/reference.executed.py.txt:5–24；C-analysis.json:220–260；analyzer.executed.py.txt:99–117〕
+
+因此，本包没有为这两条固定阴影连接找到反例。A/B区域变化只能说明反馈依赖，不能解释成精确高阶反弹分量；C也没有检查实际gather命中或cache tap连接。尤其要继续区分：
+
+ROI的 validPixels 是几何表面归属，不是有效GI测量数。
+nonzeroAlpha可能包含负的未知哨兵，不能当作有效confidence计数。
+A采集仍有效，但其退出失败保留；不改写原始运行记录。
+
+这些限制已经在简报中明确，足以作为本地提交的证据边界，不需要追加测试来美化结果。
+
+建议将资源源码/定向回归与薄壁观察器/诊断证据保留为清楚的提交边界。所有失败工件、参考修正前结果和恢复记录继续保留；当前进度表只更新对应有限关卡。
+
+四、下一包：gather-cache-visibility-01
+目标：观察真实消费路径，而不是再增加独立测试射线
+
+下一步应回答：
+
+现有薄壁接收像素的真实gather最终选择了哪个屏幕或世界命中？哪些cache taps真正进入了返回辐射亮度，它们的连接、身份、代次和权重是否符合合同？
+
+这是原计划光传输、表面缓存与几何正确性的直接缺口。当前 CSTrace会先查world hit，再在其距离界限内尝试screen hit；接收点cache还可能只用于引导采样。不能把这几种访问混为同一份能量贡献。〔HybridLumenGIKernels.hlsl:261–329〕
+
+1. 固定范围：单一A配置，一次最多120帧
+
+提交本轮后固定新commit。复用A的场景、灯光、相机、分辨率和原参数；沿用已有四个GI像素中心及九个采样时点。不增加B/C对照、种子、偏移或后端扫描。
+
+只增加这些像素实际gather调用链的有界记录。无需重复输出全套135份图像；保留足以关联旧阶段数据的来源、就绪状态、选定raw输出和必要资源快照。已有A/B/C结果继续复用。
+
+2. 文件级实现：记录原调用结果，不重放一套“近似gather”
+位置	最小观测内容
+HybridLumenGIKernels.hlsl::CSTrace	实际采样方向、权重、world候选、screen结果、最终采用分支、known/confidence、实际累加量和最终raw值。
+TraceScreen、ProxyRadiance	实际端点身份、Ng/Ns、材质状态，以及返回值中直接光、发光、cache项的关系。
+HybridLumenGITransport.hlsl::HLGICachedSurface	每次cache访问的用途、card/entry、代次和tag；四个tap的接受/拒绝原因、实际连接、可见性结果、插值权重及归一化结果。
+既有测试helper/installer	固定容量私有输出、写入标识、溢出与缺测检测、读回生命周期及源码恢复。
+
+访问用途至少区分接收点引导与最终命中点的辐射亮度查询。如果面积光采样或screen抑制分支执行，也要记录其对最终累加的作用，不能漏掉后再宣称重建了raw输出。
+
+插桩只读取原有计算结果并写私有输出：不额外调用Random，不再次执行TraceScene或cache查询来替代原结果，不改变分支、浮点累加顺序、缓存输入或seal位置。对诊断代码继续做kernel级隔离；这里需要观测的是实际CSTrace调用链，不能用另一个独立probe kernel冒充。
+
+3. 两项独立检查，避免把“记录完整”当成正确
+
+数值与身份检查。 依据实际读到的tag、card generation、Ng/Ns、entry值和权重，独立检查tap选择及归一化；按记录的最终消费分支与样本权重复算选定raw结果。容差预先按float运算和输出纹理量化确定。未知测量、已测黑色与有效样本分列，不能用非零alpha替代合同。
+
+连接可见性检查。 使用冻结场景中实际变换后的不透明几何建立双精度参考，检查被执行的query→anchor连接。这里调用的是普通可见性：保留表面Cull/alpha语义，不等同于C的shadow-caster策略。同时保存未偏移物理端点和产品实际偏移/截短后的段；两者若不同，先报告影响，不能直接宣布穿墙。〔HybridLumenGITransport.hlsl:207–224、247–296〕
+
+若遇到参考未覆盖的材质或几何类型，明确标为未覆盖，不临时把它当不透明箱体。若连接太短而产品根本未执行可见性查询，也要记录该分支，不能填一个伪造的“无遮挡”。
+
+4. 成功、停止与修复边界
+
+本包成功要求：记录能关联到真实gather及其最终消费结果，至少覆盖实际进入辐射亮度的cache访问，而非全部只是引导查询；独立数值和连接检查给出可复核结论。只观察到接受tap，不代表拒绝路径也已验收；没有覆盖某分支就如实保持开放。
+
+若120帧内没有目标消费路径，记录未覆盖，不增加射线或换像素挑结果。出现观察器编译/执行错误、输出溢出、帧来源不匹配、非有限有效数据、后端异常回退或退出资源错误，停止当前实验并保留证据。
+
+本包不预授权修改bias、cache平面阈值、插值、反馈或滤波算法。若得到确定反例，返回最小调用记录与独立参考，再决定局部修复；没有反例则提交诊断覆盖，不为完成工作包强行改算法。
+
+五、推进顺序
+
+现在可由Codex本地提交01c修复及有限薄壁证据；随后执行上述实际gather/cache消费观测。 这比继续重复已通过的固定阴影连接更能缩小当前正确性缺口。
+
+四项目标、十条工作流继续有效。后续仍需独立能量/图像参考、反馈收敛、真实动态、当前Player/DXR、性能与长时资源验收；本次局部修复和Editor结果不关闭这些关卡，也不引入朋友交付依赖。

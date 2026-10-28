@@ -107,16 +107,16 @@ namespace UnityEngine.Rendering
     public enum IndexFormat {UInt16,UInt32}
     public enum GraphicsFenceType {AsyncQueueSynchronisation}
     public enum SynchronisationStageFlags {AllGPUOperations}
-    public sealed class FenceRecord {public bool Enqueued,Submitted,Completed,Immediate,FailQuery;public int Context;public Action[] Readers=Array.Empty<Action>();}
+    public sealed class FenceRecord {public bool Enqueued,Submitted,Completed,Immediate,FailQuery;public int Context,QueryCount,CompleteOnQuery;public Action[] Readers=Array.Empty<Action>();}
     public struct GraphicsFence
     {
         internal FenceRecord record;
-        public bool passed {get{if(record?.FailQuery==true)throw new InvalidOperationException("Fence query failed");return record!=null && record.Submitted && record.Completed;}}
+        public bool passed {get{if(record?.FailQuery==true)throw new InvalidOperationException("Fence query failed");if(record!=null && record.Submitted){record.QueryCount++;if(record.CompleteOnQuery>0 && record.QueryCount>=record.CompleteOnQuery)record.Completed=true;}return record!=null && record.Submitted && record.Completed;}}
     }
     public static class RecordedGpu
     {
         public static readonly List<FenceRecord> Fences=new List<FenceRecord>();
-        public static int Submits;
+        public static int Submits,CompleteNewFenceOnQuery;
         public static bool FailSubmit,FailImmediate,AutoCompleteImmediate;
         internal static readonly Dictionary<int,List<Action>> Readers=new Dictionary<int,List<Action>>();
         public static void CompleteSubmitted(){foreach(var fence in Fences)if(fence.Submitted&&!fence.Completed){foreach(var reader in fence.Readers)reader();fence.Completed=true;}}
@@ -125,7 +125,7 @@ namespace UnityEngine.Rendering
     {
         internal FenceRecord fence;
         public GraphicsFence CreateGraphicsFence(GraphicsFenceType type,SynchronisationStageFlags stage)
-        {fence=new FenceRecord();RecordedGpu.Fences.Add(fence);return new GraphicsFence{record=fence};}
+        {fence=new FenceRecord{CompleteOnQuery=RecordedGpu.CompleteNewFenceOnQuery};RecordedGpu.Fences.Add(fence);return new GraphicsFence{record=fence};}
     }
     public static class CommandBufferPool {public static CommandBuffer Get(string name)=>new CommandBuffer();public static void Release(CommandBuffer command){ }}
     public struct ScriptableRenderContext
