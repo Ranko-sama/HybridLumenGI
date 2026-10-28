@@ -1,0 +1,99 @@
+#pragma kernel CSBuildAnchors
+#pragma target 5.0
+#pragma use_dxc
+#define HLGI_SURFACE_ANCHOR_SCAN 1
+#include "HybridLumenGISurfaceCache.hlsl"
+#include "HybridLumenGIEmissiveRecords.hlsl"
+
+RWStructuredBuffer<int2> _HLGI_SurfaceAnchors;
+RWStructuredBuffer<HLGIEmissiveRecord> _HLGI_SurfaceEmitters;
+int _HLGI_AnchorCard, _HLGI_AnchorGrid;
+float4 _HLGI_AnchorRect;
+float _HLGI_AnchorEmitterPadding;
+groupshared float3 _HLGI_EmitterMin[16], _HLGI_EmitterMax[16];
+groupshared float _HLGI_EmitterLuminance[16];
+groupshared uint _HLGI_EmitterTexels[16];
+
+// One 4x4 thread group per captured card, after its raster writes and before ready
+// publication. Each active thread scans its complete, nonoverlapping texel cell.
+[numthreads(4,4,1)]
+void CSBuildAnchors(uint3 thread:SV_GroupThreadID)
+{
+    // No early return: inactive cells for grids 1..3 must reach every barrier.
+    uint lane=thread.y*4u+thread.x;
+    float3 minimumEmission=3.402823466e+38,maximumEmission=-3.402823466e+38;
+    float luminanceSum=0;
+    uint emittingTexels=0,emitterCount,emitterStride,anchorCount,anchorStride;
+    _HLGI_SurfaceEmitters.GetDimensions(emitterCount,emitterStride);
+    _HLGI_SurfaceAnchors.GetDimensions(anchorCount,anchorStride);
+    bool validCard=_HLGI_AnchorCard>=0 && (uint)_HLGI_AnchorCard<emitterCount;
+    bool validGrid=_HLGI_AnchorGrid>=1 && _HLGI_AnchorGrid<=4;
+    uint grid=validGrid?(uint)_HLGI_AnchorGrid:1u;
+    bool active=validCard && validGrid && all(thread.xy<grid);
+    uint address=active?(uint)_HLGI_AnchorCard*grid*grid+thread.y*grid+thread.x:0u;
+    active=active && address<anchorCount;
+    int2 selected=int2(-1,-1);
+    int2 minimum,count;
+    if(active && HLGISurfaceAtlasRect(_HLGI_AnchorRect,minimum,count))
+    {
+        int2 cell=(int2)thread.xy;
+        int2 begin=cell*count/(int)grid;
+        int2 end=(cell+1)*count/(int)grid;
+        // Scaled integer center distance gives deterministic row-major tie breaking.
+        // Capture tiles are bounded to 128x128 texels by the CPU surface cache.
+        int bestDistance=2147483647;
+        [loop] for(int y=begin.y;y<end.y;y++)
+        [loop] for(int x=begin.x;x<end.x;x++)
+        {
+            int2 pixel=minimum+int2(x,y);
+            HLGISurfaceSample sample;
+            if(!HLGILoadSurfaceTexel(pixel,sample)) continue;
+            float power=dot(sample.emission,float3(0.2126,0.7152,0.0722));
+            if(isfinite(power) && power>0)
+            {
+                minimumEmission=min(minimumEmission,sample.position);
+                maximumEmission=max(maximumEmission,sample.position);
+                luminanceSum+=power;
+                emittingTexels++;
+            }
+            int2 delta=(int2(x,y)*2+1)*(int)grid-(cell*2+1)*count;
+            int distance=dot(delta,delta);
+            if(distance<bestDistance){bestDistance=distance;selected=pixel;}
+        }
+    }
+    // Empty/invalid cells always overwrite prior data, including after tile reuse.
+    if(active) _HLGI_SurfaceAnchors[address]=selected;
+    _HLGI_EmitterMin[lane]=minimumEmission;
+    _HLGI_EmitterMax[lane]=maximumEmission;
+    _HLGI_EmitterLuminance[lane]=luminanceSum;
+    _HLGI_EmitterTexels[lane]=emittingTexels;
+    GroupMemoryBarrierWithGroupSync();
+    [unroll] for(uint stride=8u;stride>0u;stride>>=1u)
+    {
+        if(lane<stride)
+        {
+            _HLGI_EmitterMin[lane]=min(_HLGI_EmitterMin[lane],_HLGI_EmitterMin[lane+stride]);
+            _HLGI_EmitterMax[lane]=max(_HLGI_EmitterMax[lane],_HLGI_EmitterMax[lane+stride]);
+            _HLGI_EmitterLuminance[lane]+=_HLGI_EmitterLuminance[lane+stride];
+            _HLGI_EmitterTexels[lane]+=_HLGI_EmitterTexels[lane+stride];
+        }
+        GroupMemoryBarrierWithGroupSync();
+    }
+    if(lane==0u && validCard)
+    {
+        HLGIEmissiveRecord record=(HLGIEmissiveRecord)0;
+        if(validGrid && _HLGI_EmitterTexels[0]>0u && isfinite(_HLGI_AnchorEmitterPadding) && _HLGI_AnchorEmitterPadding>=0)
+        {
+            // Halve first to avoid overflow in center/extent subtraction.
+            float3 center=_HLGI_EmitterMin[0]*0.5+_HLGI_EmitterMax[0]*0.5;
+            float3 extent=_HLGI_EmitterMax[0]*0.5-_HLGI_EmitterMin[0]*0.5;
+            float radius=max(length(extent)+_HLGI_AnchorEmitterPadding,0.001);
+            float mean=_HLGI_EmitterLuminance[0]/_HLGI_EmitterTexels[0];
+            float importance=mean*radius*radius;
+            if(all(isfinite(center)) && isfinite(radius) && radius>0 && isfinite(importance) && importance>0)
+            { record.sphere=float4(center,radius);record.data=float4(importance,0,0,0); }
+        }
+        // Every scan overwrites the record, including empty/invalid recaptures.
+        _HLGI_SurfaceEmitters[(uint)_HLGI_AnchorCard]=record;
+    }
+}

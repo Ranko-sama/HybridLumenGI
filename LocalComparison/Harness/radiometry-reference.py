@@ -56,7 +56,7 @@ def closest_triangle(p, a, b, c):
 class Scene:
     def __init__(self, source):
         self.source = source
-        assert source['linear'] and not source['skybox'] and not source['fog']
+        assert source['linear'] and source['lightsUseLinearIntensity'] and not source['skybox'] and not source['fog']
         self.materials = {}
         for m in source['materials']:
             assert m['surface']==0 and m['alphaClip']==0 and not m['emissionEnabled']
@@ -101,7 +101,7 @@ class Scene:
         assert not self.light['useTemperature'], 'Baseline has no temperature source; reject rather than approximate'
         self.lightpos=vector(self.light['position'])
         self.light_rgb=srgb(vector(self.light['color']['srgb'],'rgb'))*self.light['intensity']
-        # Candidate source is white, making linear-intensity policy irrelevant to this one source.
+        # The fixed source is white and uses the explicitly checked linear-intensity policy.
         assert np.array_equal(vector(self.light['color']['srgb'],'rgb'),np.ones(3))
         self.range2=self.light['range']**2
         self.dmin=min(np.linalg.norm(self.lightpos-closest_triangle(self.lightpos,*tri)) for tri in self.vertices)
@@ -181,9 +181,9 @@ class Scene:
                    np.linalg.norm(self.normals[c['index']]-self.normals[first['index']])<1e-8 and
                    abs((self.vertices[c['index'],0]-self.vertices[first['index'],0])@self.normals[first['index']])<64*EPS*self.scale for c in candidates), ('Ambiguous source surface',target['id'],candidates)
         if target['kind']=='cache':assert first['name']=='Thin-wall floor'
-        return {'id':target['id'],'position':p.tolist(),'normal':ns.tolist(),'geometricNormal':ng.tolist(),'positionTolerance':tolerance,
+        return {'id':target['id'],'position':p.tolist(),'normal':ns.tolist(),'geometricNormal':ng.tolist(),'positionTolerance':float(tolerance),
                 'shadingNormalVectorTolerance':.02,'geometricNormalRepresentationTolerance':.002 if target['kind']=='cache' else .02,
-                'originOffset':tolerance,'snapped':False,'sourceTriangle':first['index'],'candidates':candidates}
+                'originOffset':float(tolerance),'snapped':False,'sourceTriangle':first['index'],'candidates':candidates}
 
 
 def cosine_directions(rng,normals):

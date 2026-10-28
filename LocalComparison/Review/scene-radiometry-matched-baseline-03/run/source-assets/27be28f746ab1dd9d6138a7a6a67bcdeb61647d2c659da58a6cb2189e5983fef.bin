@@ -1,0 +1,77 @@
+#pragma kernel CSTestCacheFailedResult
+#pragma target 5.0
+#pragma use_dxc
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl"
+#include "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl"
+#include "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayFootprint.hlsl"
+#include "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveRecords.hlsl"
+#include "CacheFailedStructs.hlsl"
+
+StructuredBuffer<HLGIProxy> _HLGI_Proxies;
+StructuredBuffer<HLGICacheEntry> _HLGI_CacheRead;
+StructuredBuffer<HLGISurfaceCard> _HLGI_SurfaceCards;
+StructuredBuffer<uint4> _HLGI_SurfaceOwnerRanges, _HLGI_LightingPolicies;
+StructuredBuffer<HLGIEmissiveRecord> _HLGI_EmissiveProposals;
+int _HLGI_ProxyCount,_HLGI_SurfaceCardCount,_HLGI_CacheGrid,_HLGI_Epoch,_TestCase;
+float _HLGI_RayBias,_HLGI_BounceFeedback,_HLGI_GuideWeight,_HLGI_EmissiveWeight;
+float4 _TestPosition,_TestDirect,_TestDiffuse,_TestEmission;
+static float observedWeight,observedTotal;
+static uint observedAccepted,observedExit,observedQueries,unexpectedEmissiveCalls;
+static float4 observedCellFraction;
+
+// Explicit dependency adapters, not traversal, atlas capture or lighting tests.
+bool TraceSceneVisibilityHit(float3 o,float3 d,float limit,HLGIRayFootprint footprint,float4 view,out HLGIHit hit)
+{ observedQueries++;hit=HLGIEmptyHit(limit);return false; }
+bool HLGITrySurfaceMaterialHit(HLGIHit hit,out HLGISurfaceSample surface)
+{
+    surface=(HLGISurfaceSample)0;surface.position=_TestPosition.xyz;
+    surface.normal=surface.geometricNormal=float3(0,0,1);
+    surface.diffuse=.9;surface.emission=0;surface.occlusion=1;surface.confidence=1;
+    surface.cardIndex=0;surface.generation=4;surface.ownerSlot=0;
+    return true;
+}
+float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,bool receivesShadows,
+    float3 direction,HLGIRayFootprint footprint,out bool known)
+{ known=all(receiverLayers==uint2(1,1))&&receivesShadows&&all(isfinite(_TestDirect));return _TestDirect.rgb; }
+float HLGIEmissiveDirectionalPdf(float3 origin,float3 direction,uint count)
+{ unexpectedEmissiveCalls++;return 0; } // Must stay unused with actual count=0 header.
+
+// Mechanically extracted actual functions. Only private read-only observation
+// statements are inserted in HLGICachedSurface; the algorithm is not reimplemented.
+#include "CacheFailedActualFunctions.hlsl"
+struct TestOutput
+{
+    float4 lookupIrradiance,lookupTag,lookupAnchor,lookupNormal,lookupGuide;
+    float4 lookupState,cellFraction,lookupObservation;
+    float4 screenCache,worldRadiance,receiverIrradiance,receiverGuide,receiverState,pdfState;
+};
+RWStructuredBuffer<TestOutput> _TestOutput;
+[numthreads(1,1,1)]
+void CSTestCacheFailedResult(uint3 id:SV_DispatchThreadID)
+{
+    TestOutput output=(TestOutput)0;HLGIHit hit=HLGIEmptyHit(1);
+    hit.position=_TestPosition.xyz;hit.rawNg=hit.shadingNormal=float3(0,0,1);
+    hit.ownerSlot=0;hit.stableId=1;hit.ownerRevision=2;hit.geometryRevision=1;hit.representation=HLGI_REPRESENTATION_TRIANGLE;
+    hit.flags=HLGI_HIT_VALID|HLGI_HIT_ORIENTED_NG|HLGI_HIT_TRIANGLE|HLGI_HIT_UV|HLGI_HIT_SHADING_NORMAL|HLGI_HIT_GEOMETRIC_NORMAL|HLGI_HIT_UV_MATERIAL;
+    hit.materialDiffuse=_TestDiffuse.rgb;hit.materialEmission=_TestEmission.rgb;hit.materialOcclusion=_TestDiffuse.a;hit.materialReceivesShadows=1;
+    HLGISurfaceSample surface;HLGITrySurfaceMaterialHit(hit,surface);
+    HLGICacheEntry cached;bool lookup=HLGICachedSurface(0,hit.position,hit.rawNg,hit.shadingNormal,surface,cached);
+    output.lookupIrradiance=cached.irradiance;output.lookupTag=cached.tag;output.lookupAnchor=cached.anchor;
+    output.lookupNormal=cached.normal;output.lookupGuide=cached.guide;
+    output.lookupState=float4(lookup,observedWeight,observedTotal,observedExit);
+    output.cellFraction=observedCellFraction;output.lookupObservation=float4(observedAccepted,observedQueries,_TestCase,314159);
+    output.screenCache=float4(CachedIrradiance(hit,hit.shadingNormal),0);
+    HLGIRayFootprint footprint=HLGIPointQueryFootprint();float confidence;
+    float3 world=ProxyRadiance(hit,-hit.rawNg,footprint,1,confidence);output.worldRadiance=float4(world,confidence);
+    HLGICacheEntry receiverCache=(HLGICacheEntry)0;
+    // Preserve CSTrace's actual ignored-bool consumption; never zero this guide in the fixture.
+    bool receiver=HLGICachedSample(hit,hit.shadingNormal,receiverCache);
+    output.receiverIrradiance=receiverCache.irradiance;output.receiverGuide=receiverCache.guide;
+    output.receiverState=float4(receiver,observedTotal,observedExit,observedQueries);
+    unexpectedEmissiveCalls=0;
+    float actualPdf=HLGITransportDirectionPdf(hit.position,hit.shadingNormal,receiverCache.guide,hit.shadingNormal);
+    float zeroPdf=HLGITransportDirectionPdf(hit.position,hit.shadingNormal,0,hit.shadingNormal);
+    output.pdfState=float4(actualPdf,zeroPdf,HLGIEmissiveProposalCount(),unexpectedEmissiveCalls);
+    _TestOutput[0]=output;
+}

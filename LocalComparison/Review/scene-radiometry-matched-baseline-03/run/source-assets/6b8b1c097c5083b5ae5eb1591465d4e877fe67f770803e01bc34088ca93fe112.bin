@@ -1,0 +1,12 @@
+#pragma kernel CountIdentity
+#pragma target 5.0
+Texture2D<uint4> _Identity;
+RWStructuredBuffer<uint> _Counts;
+int2 _Size;
+[numthreads(8,8,1)]
+void CountIdentity(uint3 id:SV_DispatchThreadID)
+{
+    if(any(id.xy>=(uint2)_Size))return;
+    uint4 value=_Identity.Load(int3(id.xy,0));
+    if(value.w==1u)InterlockedAdd(_Counts[0],1u);
+}

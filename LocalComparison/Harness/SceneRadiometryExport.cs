@@ -50,13 +50,16 @@ public static class SceneRadiometryExport
     }
     [Serializable] public class FileInput {public string path,sha256,archive; public long bytes;}
     [Serializable] class Exclusion {public string path,reason;}
-    [Serializable] class DependencySelection {public string[] selected;public Exclusion[] exclusions;}
-    [Serializable] class Freeze {public string baseline="C-prospective-01",sourceSha256;public bool historicalSourceClosure=false;public FileInput[] files;public Exclusion[] exclusions;}
+    [Serializable] class MetadataSource {public string path,source;}
+    [Serializable] class DependencySelection {public string[] requested,selected;public MetadataSource[] additionalMetadata;public Exclusion[] exclusions;}
+    [Serializable] class Freeze {public string baseline="C-prospective-01",sourceSha256,dependencySelectionSha256;public bool historicalSourceClosure=false,archiveVerified,pathCorrespondenceVerified;public FileInput[] files;public Exclusion[] exclusions;}
     [Serializable] class Check {public int logicalFrame;public string sourceSha256;public bool sameSource,sameDependencyBytes;}
     static ComparisonCapture capture;
     static string output,sourceHash;
     static FileInput[] frozenFiles;
     static readonly List<Exclusion> dependencyExclusions=new List<Exclusion>();
+    static DependencySelection dependencySelection;
+    static string dependencySelectionHash;
     const BindingFlags Fields=BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic;
     static string Arg(string key){var a=Environment.GetCommandLineArgs();int i=Array.IndexOf(a,key);return i>=0&&i+1<a.Length?a[i+1]:"";}
     static string Hash(byte[] bytes){using(var h=SHA256.Create())return BitConverter.ToString(h.ComputeHash(bytes)).Replace("-","").ToLowerInvariant();}
@@ -156,7 +159,7 @@ public static class SceneRadiometryExport
         foreach(string path in AssetDatabase.GetAllAssetPaths())if((path.StartsWith("Assets/HybridLumenGI/Runtime/",StringComparison.Ordinal)||path.StartsWith("Assets/ComparisonHarness/",StringComparison.Ordinal)||
             path.StartsWith("Packages/com.unity.render-pipelines.universal/",StringComparison.Ordinal)||path.StartsWith("Packages/com.unity.render-pipelines.core/",StringComparison.Ordinal))&&
             new[]{".hlsl",".shader",".compute",".cs","package.json","LICENSE.md"}.Any(s=>path.EndsWith(s,StringComparison.Ordinal)))paths.Add(path);
-        dependencyExclusions.Clear();
+        dependencyExclusions.Clear();string[] requested=paths.OrderBy(p=>p,StringComparer.Ordinal).ToArray();
         foreach(string path in paths.ToArray()){
             if(AssetDatabase.IsValidFolder(path)){
                 paths.Remove(path);dependencyExclusions.Add(new Exclusion{path=path,reason="Unity AssetDatabase confirms a directory, not a byte-bearing file"});
@@ -166,11 +169,16 @@ public static class SceneRadiometryExport
                 paths.Remove(path);dependencyExclusions.Add(new Exclusion{path=path,reason="Observed Unity built-in mesh resource; actual mesh arrays exported in reference-scene.json"});
             }
         }
-        Json(Path.Combine(output,"dependency-selection.json"),new DependencySelection{selected=paths.OrderBy(p=>p,StringComparer.Ordinal).ToArray(),exclusions=dependencyExclusions.ToArray()});
+        dependencySelection=new DependencySelection{requested=requested,selected=paths.OrderBy(p=>p,StringComparer.Ordinal).ToArray(),exclusions=dependencyExclusions.ToArray(),additionalMetadata=new MetadataSource[0]};
+        Json(Path.Combine(output,"dependency-selection.json"),dependencySelection);
+        var additional=new List<MetadataSource>();
         foreach(string path in paths.ToArray()){
             if(!File.Exists(Resolve(path)))throw new Exception("Missing selected source dependency: "+path);
-            if(File.Exists(Resolve(path)+".meta"))paths.Add(path+".meta");
+            if(File.Exists(Resolve(path)+".meta")&&paths.Add(path+".meta"))additional.Add(new MetadataSource{path=path+".meta",source=path});
         }
+        dependencySelection.additionalMetadata=additional.OrderBy(m=>m.path,StringComparer.Ordinal).ToArray();
+        Json(Path.Combine(output,"dependency-selection.json"),dependencySelection);
+        dependencySelectionHash=Hash(File.ReadAllBytes(Path.Combine(output,"dependency-selection.json")));
         return paths.OrderBy(p=>p,StringComparer.Ordinal).ToArray();
     }
     static FileInput Archive(string path)
@@ -185,6 +193,22 @@ public static class SceneRadiometryExport
         }else File.WriteAllBytes(destination,bytes);
         return new FileInput{path=path,sha256=digest,bytes=bytes.LongLength,archive=archive};
     }
+    static void VerifyArchive(SceneInput source,string[] paths)
+    {
+        var selected=new HashSet<string>(dependencySelection.selected,StringComparer.Ordinal);
+        var excluded=new HashSet<string>(dependencySelection.exclusions.Select(e=>e.path),StringComparer.Ordinal);
+        if(selected.Overlaps(excluded)||!new HashSet<string>(dependencySelection.requested,StringComparer.Ordinal).SetEquals(selected.Concat(excluded)))
+            throw new Exception("Selected/excluded source correspondence failed");
+        foreach(var e in dependencySelection.exclusions)if(!(AssetDatabase.IsValidFolder(e.path)||
+            (e.path=="Library/unity default resources"&&source.meshes.Any(m=>m.meshPath==e.path))))throw new Exception("Unproved dependency exclusion: "+e.path);
+        foreach(var meta in dependencySelection.additionalMetadata)if(!selected.Contains(meta.source)||meta.path!=meta.source+".meta")throw new Exception("Unproved metadata source: "+meta.path);
+        var expected=new HashSet<string>(selected,StringComparer.Ordinal);expected.UnionWith(dependencySelection.additionalMetadata.Select(m=>m.path));
+        if(!expected.SetEquals(paths)||frozenFiles.Length!=expected.Count||!expected.SetEquals(frozenFiles.Select(f=>f.path)))throw new Exception("Archive file selection mismatch");
+        foreach(var file in frozenFiles){
+            byte[] bytes=File.ReadAllBytes(Path.Combine(output,file.archive));
+            if(bytes.LongLength!=file.bytes||Hash(bytes)!=file.sha256)throw new Exception("Archive readback mismatch: "+file.path);
+        }
+    }
     public static void Play()
     {
         output=Arg("-comparisonOutput");string scene=Arg("-radiometryScene");
@@ -198,8 +222,9 @@ public static class SceneRadiometryExport
         var source=Build();if(!source.linear)throw new Exception("Linear source required");
         string json=JsonUtility.ToJson(source,true);sourceHash=Hash(Encoding.UTF8.GetBytes(json));
         File.WriteAllText(Path.Combine(output,"reference-scene.json"),json,new UTF8Encoding(false));
-        frozenFiles=Dependencies(source).Select(Archive).ToArray();
-        Json(Path.Combine(output,"source-freeze.json"),new Freeze{sourceSha256=sourceHash,files=frozenFiles,exclusions=dependencyExclusions.ToArray()});
+        string[] paths=Dependencies(source);frozenFiles=paths.Select(Archive).ToArray();VerifyArchive(source,paths);
+        Json(Path.Combine(output,"source-freeze.json"),new Freeze{sourceSha256=sourceHash,dependencySelectionSha256=dependencySelectionHash,
+            archiveVerified=true,pathCorrespondenceVerified=true,files=frozenFiles,exclusions=dependencyExclusions.ToArray()});
         Debug.Log("RADIOMETRY_SOURCE_FROZEN C-prospective-01 / static120 / no historical source recertification");
         EditorApplication.EnterPlaymode();
     }
@@ -208,9 +233,10 @@ public static class SceneRadiometryExport
         if(!capture)capture=UnityEngine.Object.FindFirstObjectByType<ComparisonCapture>();
         if(string.IsNullOrEmpty(output))output=Arg("-comparisonOutput");
         // Domain reload is allowed: restore only the immutable pre-Play receipt, never a new baseline.
-        if(frozenFiles==null){var receipt=JsonUtility.FromJson<Freeze>(File.ReadAllText(Path.Combine(output,"source-freeze.json")));frozenFiles=receipt.files;sourceHash=receipt.sourceSha256;}
+        if(frozenFiles==null){var receipt=JsonUtility.FromJson<Freeze>(File.ReadAllText(Path.Combine(output,"source-freeze.json")));frozenFiles=receipt.files;sourceHash=receipt.sourceSha256;dependencySelectionHash=receipt.dependencySelectionSha256;}
         string json=JsonUtility.ToJson(Build(),true);string actual=Hash(Encoding.UTF8.GetBytes(json));
-        bool files=frozenFiles.All(f=>File.Exists(Resolve(f.path))&&Hash(File.ReadAllBytes(Resolve(f.path)))==f.sha256);
+        bool files=frozenFiles.All(f=>File.Exists(Resolve(f.path))&&Hash(File.ReadAllBytes(Resolve(f.path)))==f.sha256)&&
+            Hash(File.ReadAllBytes(Path.Combine(output,"dependency-selection.json")))==dependencySelectionHash;
         Json(Path.Combine(output,"source-check-"+logicalFrame.ToString("D4")+".json"),new Check{logicalFrame=logicalFrame,sourceSha256=actual,sameSource=actual==sourceHash,sameDependencyBytes=files});
         if(actual!=sourceHash)File.WriteAllText(Path.Combine(output,"source-changed-"+logicalFrame.ToString("D4")+".json"),json,new UTF8Encoding(false));
         if(!files||actual!=sourceHash)throw new Exception("Prospective source changed after freeze; pairing rejected");

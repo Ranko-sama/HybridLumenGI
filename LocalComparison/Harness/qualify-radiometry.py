@@ -37,9 +37,16 @@ def qualify(package):
         p=project/f['path'];assert (digest(p) if p.exists() else None)==f['originalSha256'],('Restored deployment changed',f['path'])
     assert all(digest(project/'Assets/HybridLumenGI'/p)==v for p,v in manifest['productSourceSha256'].items())
     freeze=load(output/'source-freeze.json');assert not freeze['historicalSourceClosure']
+    assert freeze['archiveVerified'] and freeze['pathCorrespondenceVerified']
+    selection_path=output/'dependency-selection.json';assert digest(selection_path)==freeze['dependencySelectionSha256']
+    selection=load(selection_path);selected=set(selection['selected']);excluded={e['path'] for e in selection['exclusions']}
+    assert not selected&excluded and set(selection['requested'])==selected|excluded
+    assert selection['exclusions']==freeze['exclusions'] and all(e['reason'] for e in selection['exclusions'])
+    assert all(m['source'] in selected and m['path']==m['source']+'.meta' for m in selection['additionalMetadata'])
     source_path=output/'reference-scene.json';source_hash=digest(source_path);assert source_hash==freeze['sourceSha256']
-    for f in freeze['files']:assert digest(output/f['archive'])==f['sha256'],('Archived source differs',f['path'])
+    for f in freeze['files']:assert (output/f['archive']).stat().st_size==f['bytes'] and digest(output/f['archive'])==f['sha256'],('Archived source differs',f['path'])
     names={f['path'] for f in freeze['files']}
+    assert len(names)==len(freeze['files']) and names==selected|{m['path'] for m in selection['additionalMetadata']}
     assert {'Packages/manifest.json','Packages/packages-lock.json','Assets/RadiometryBaseline/Static.unity'}<=names
     for frame in [103,119]:
         check=load(output/f'source-check-{frame:04}.json')

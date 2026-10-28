@@ -14,7 +14,7 @@ def mesh(name,y,normal):
         vertices=[v(-10,y,-10),v(10,y,-10),v(10,y,10),v(-10,y,10)],normals=[v(0,normal,0)]*4,
         submeshes=[dict(index=0,material='white',topology='Triangles',indices=indices)],
         layer=0,renderingLayers=1,shadowCastingMode=2,receiveShadows=True)
-source=dict(linear=True,skybox=False,fog=False,lightLayers=False,materials=[material],meshes=[mesh('floor',0,1),mesh('ceiling',3,-1)],
+source=dict(linear=True,lightsUseLinearIntensity=True,skybox=False,fog=False,lightLayers=False,materials=[material],meshes=[mesh('floor',0,1),mesh('ceiling',3,-1)],
     lights=[dict(enabled=True,type='Point',cookie='none',bakeType='Realtime',useTemperature=False,position=v(0,2,0),color={'srgb':color(1)},intensity=8,range=10,cullingMask=-1,renderingLayers=1,shadowLayers=1,shadows=2,shadowStrength=1)])
 scene=r.Scene(source)
 assert np.allclose(scene.rhos[0],.20547949486294326,rtol=0,atol=2e-15),scene.rhos[0]
