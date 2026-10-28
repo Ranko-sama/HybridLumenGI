@@ -41,6 +41,8 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             #pragma multi_compile_fragment _ _METALLICSPECGLOSSMAP
             #pragma multi_compile_fragment _ _EMISSION
             #pragma multi_compile_fragment _ _OCCLUSIONMAP
+            #pragma multi_compile_local_fragment _ _ALPHATEST_ON
+            #pragma multi_compile_local_fragment _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
             #pragma multi_compile_local_fragment _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma multi_compile_local_fragment _ _RECEIVE_SHADOWS_OFF
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -101,10 +103,16 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 clip(0.5h - _Surface);
                 half4 baseSample = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
-                // URP treats base-map alpha as smoothness rather than coverage
-                // when the material selects the albedo alpha smoothness channel.
-                half coverage = _SmoothnessTextureChannel > 0.5h ? _BaseColor.a : baseSample.a * _BaseColor.a;
-                if (_AlphaClip > 0.5h) clip(coverage - _Cutoff);
+                // Lit's compiled keywords determine coverage; numeric uniforms
+                // (including MPB overrides) do not switch shader variants.
+                #if defined(_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A)
+                    half coverage = _BaseColor.a;
+                #else
+                    half coverage = baseSample.a * _BaseColor.a;
+                #endif
+                #if defined(_ALPHATEST_ON)
+                    clip(coverage - _Cutoff);
+                #endif
 
                 half3 albedo = baseSample.rgb * _BaseColor.rgb;
                 #if defined(_DETAIL_MULX2) || defined(_DETAIL_SCALED)

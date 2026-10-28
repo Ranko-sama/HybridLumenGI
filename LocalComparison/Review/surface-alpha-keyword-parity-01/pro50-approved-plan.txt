@@ -1,0 +1,68 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 50
+DECISION: ACCEPT_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: surface-alpha-keyword-parity-01
+
+一、批准三份入口文档提交，结束支持范围整理
+
+当前修改可以本地提交。没有发现入口、产品来源或验收承诺方面的阻断；不再追加状态整理包。
+
+已确认 HybridLumenGI / workspace:/ / main@4f10de5，README标题为HybridLumenGI。我已列出并读取最新执行输出238，核对全部工作区diff及49轮原始构建、运行和来源收据。当前仅三份指定文档发生变化；本层没有修改文件、执行核验命令或重新计算哈希。
+
+入口现在明确区分了文档HEAD与Release49的产品来源31c9415。构建收据支持Release / None、0 errors／23 warnings；运行收据支持同一EXE的120帧分支，而不是另一次默认常驻运行。输出238记录了启动器／EXE与冻结产物清单匹配的离线检查。〔README.md:3–11；49包build-report.json:1–23、native-window/run/release-result.json；执行输出238〕
+
+本轮没有降低G0交付要求或G1–G5关卡，没有把未采集字段的默认零值当作资源归零，也没有将44轮300秒记录升级为49轮稳态证据。新列出的平台／相机限制与当前Feature准入代码一致。〔本轮git diff；HybridLumenGIRendererFeature.cs:185–198〕
+
+这关闭了“当前可用产物与主入口说明不一致”的问题，不增加新的渲染能力或生产通过项。 原计划、旧失败和冻结产物保持原样。
+
+二、唯一下一步：修普通Surface的alpha覆盖判定
+
+下一优先选择原目标1／4、工作流7的一个具体源码差异：普通屏幕捕获使用数值属性决定是否裁剪，而stock Lit及精确命中材质使用keyword决定。
+
+当前普通Surface：
+
+hlsl
+half coverage = _SmoothnessTextureChannel > 0.5h
+    ? _BaseColor.a : baseSample.a * _BaseColor.a;
+if (_AlphaClip > 0.5h) clip(coverage - _Cutoff);
+
+但命中材质的AlphaTest和SmoothnessFromBaseAlpha来自_ALPHATEST_ON与_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A；归档URP的Alpha/AlphaDiscard也按这些keyword决定覆盖语义。〔HybridLumenGISurface.shader:103–107；HybridLumenGIHitMaterialLayout.cs:40–47；归档URP SurfaceInput.hlsl:21–32、ShaderVariablesFunctions.hlsl:228–237〕
+
+**P2条件性源码不一致：**当实际keyword与有效数值属性不同步时，普通捕获可能错误丢弃有效接收面，或保留原材质应裁剪的片元。这不是已归因的画面故障，下一包必须先执行反例；不能仅凭代码差异宣称已有场景受影响。
+
+其价值在于统一“这个表面是否存在”的合同，而非微调亮度。此次不同时处理已注意到的工作流数值／keyword差异，也不扩法线、parallax或材质矩阵。
+
+三、最小产品范围
+
+优先仅修改 Runtime/Resources/HybridLumenGI/HybridLumenGISurface.shader：
+
+补齐两个必要的本地片元变体；按smoothness keyword选择覆盖alpha，再调用当前URP的AlphaDiscard(coverage, _Cutoff)或其直接对应的最小keyword分支。保留现有属性声明以兼容材质，不再把_AlphaClip数值当成启用裁剪的权威。
+
+不修改源材质或MPB，不替用户切换keyword；不改Cull、深度、透明资格、输出格式、颜色、Receive Shadows、detail、身份buffer或历史。 世界命中和原生捕获作为已有语义对照，不顺手重构。
+
+执行前核对当前安装的URP相关函数与采用的参考来源；历史归档只能提供定位依据，不能无检查地冒充当前依赖。
+
+四、验证必须决定留用或撤回
+
+复用现有WARP宿主和Surface函数提取入口。需要特别纠正一个测试边界：旧detail测试将clip定义为空，因此原样重用不能验证覆盖判定。〔run-surface-detail-source.py:20–21〕
+
+本包允许一个窄适配：执行原Frag，记录实际到达的clip参数是否要求丢弃；被要求丢弃的调用，其后算出的颜色不得作为有效输出。完整片元编译则必须保留真正的clip。这只证明源码裁剪决策，不冒充原生光栅丢弃。
+
+固定BaseMap alpha＝0.25、BaseColor alpha＝1、Cutoff＝0.5，冻结下列必要输入：
+
+具体不确定性	最小判定	改变的决定
+裁剪开关是否错误受数值属性控制？	keyword关闭、_AlphaClip=1应保留；keyword开启、_AlphaClip=0应裁剪。	旧实际函数产生差异才实施修复；候选仍错就拒绝。
+base alpha是否按正确语义使用？	开启alpha test后，smoothness keyword开启时只用颜色alpha；关闭时使用贴图alpha。令数值通道属性与keyword相反，确保没有继续走旧判断。	任一错误意味着覆盖合同未统一，不能调整Cutoff掩盖。
+是否影响原本正确的捕获？	keyword与属性一致的控制保持原覆盖决策；仍有效的片元保持原颜色／有效性／层策略输出；编译直接受影响的完整片元变体。	无关输出改变或编译失败均阻断，不扩为材质修复项目。
+
+期望值来自明确的覆盖规则，不从候选输出反推。裁剪决策是布尔合同，不引入可调误差容限。
+
+额度：一次冻结基线判定、一次同输入候选判定；零Unity、Player构建／运行或新增场景采集。 不重跑detail、Receive Shadows或完整材质套件。Unity真实keyword传递和光栅覆盖继续标为尚未由本包验证。
+
+退出条件
+
+反例成立、候选覆盖决策与当前URP合同一致、原正确控制不退化、受影响完整入口编译通过，即交独立复核并结束。没有反例就停止修改；首次候选失败，或必须扩大到捕获框架／源材质改写才能继续，保存具体阻断，不自动重试或放宽规则。
+
+现在提交第50轮三份文档，随后执行 surface-alpha-keyword-parity-01。 四项目标、十条工作流继续有效；生产预算保持待答。已关闭的形变、Release、场景和源码检查不扩展，暗区、MC、曝光与计时调查继续关闭。

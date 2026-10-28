@@ -1,0 +1,104 @@
+[
+  {
+    "name": "off-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSSurfaceAlpha",
+      "-D",
+      "_EMISSION=1",
+      "-D",
+      "_OCCLUSIONMAP=1",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\off.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\actual-surface.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "off-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\off.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\off-inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\off.bin"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "test-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSSurfaceAlpha",
+      "-D",
+      "_EMISSION=1",
+      "-D",
+      "_OCCLUSIONMAP=1",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\test.dxil",
+      "-D",
+      "_ALPHATEST_ON=1",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\actual-surface.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "test-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\test.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\test-inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\test.bin"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "smooth-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSSurfaceAlpha",
+      "-D",
+      "_EMISSION=1",
+      "-D",
+      "_OCCLUSIONMAP=1",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\smooth.dxil",
+      "-D",
+      "_ALPHATEST_ON=1",
+      "-D",
+      "_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A=1",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\actual-surface.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "smooth-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\smooth.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\smooth-inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\baseline\\smooth.bin"
+    ],
+    "exitCode": 0
+  }
+]

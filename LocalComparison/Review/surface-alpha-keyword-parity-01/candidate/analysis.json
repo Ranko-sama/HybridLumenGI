@@ -1,0 +1,479 @@
+{
+  "passed": true,
+  "stage": "candidate",
+  "oldCounterexamplesEstablished": false,
+  "failures": [],
+  "rows": [
+    {
+      "case": "clip-off-property-on",
+      "variant": "off",
+      "keep": true,
+      "expectedKeep": true,
+      "minimumClip": 0.5,
+      "clipCalls": 1,
+      "diffuse": [
+        0.23999999463558197,
+        0.26999998092651367,
+        0.05999999865889549,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "policy": [
+        1,
+        1
+      ],
+      "checks": {
+        "coverage": true,
+        "payload": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "opaque-control",
+      "variant": "off",
+      "keep": true,
+      "expectedKeep": true,
+      "minimumClip": 0.5,
+      "clipCalls": 1,
+      "diffuse": [
+        0.23999999463558197,
+        0.26999998092651367,
+        0.05999999865889549,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "policy": [
+        1,
+        1
+      ],
+      "checks": {
+        "coverage": true,
+        "payload": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "clip-on-property-off",
+      "variant": "test",
+      "keep": false,
+      "expectedKeep": false,
+      "minimumClip": -0.25,
+      "clipCalls": 2,
+      "diffuse": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "emission": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "policy": [
+        0,
+        0
+      ],
+      "checks": {
+        "coverage": true,
+        "payload": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "smooth-off-property-on",
+      "variant": "test",
+      "keep": false,
+      "expectedKeep": false,
+      "minimumClip": -0.25,
+      "clipCalls": 2,
+      "diffuse": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "emission": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "policy": [
+        0,
+        0
+      ],
+      "checks": {
+        "coverage": true,
+        "payload": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "cutout-control",
+      "variant": "test",
+      "keep": false,
+      "expectedKeep": false,
+      "minimumClip": -0.25,
+      "clipCalls": 2,
+      "diffuse": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "emission": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "policy": [
+        0,
+        0
+      ],
+      "checks": {
+        "coverage": true,
+        "payload": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "smooth-on-property-off",
+      "variant": "smooth",
+      "keep": true,
+      "expectedKeep": true,
+      "minimumClip": 0.5,
+      "clipCalls": 2,
+      "diffuse": [
+        0.23999999463558197,
+        0.26999998092651367,
+        0.05999999865889549,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "policy": [
+        1,
+        1
+      ],
+      "checks": {
+        "coverage": true,
+        "payload": true,
+        "consistentControlUnchanged": true
+      }
+    },
+    {
+      "case": "smooth-control",
+      "variant": "smooth",
+      "keep": true,
+      "expectedKeep": true,
+      "minimumClip": 0.5,
+      "clipCalls": 2,
+      "diffuse": [
+        0.23999999463558197,
+        0.26999998092651367,
+        0.05999999865889549,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "policy": [
+        1,
+        1
+      ],
+      "checks": {
+        "coverage": true,
+        "payload": true,
+        "consistentControlUnchanged": true
+      }
+    }
+  ],
+  "commands": [
+    {
+      "name": "off-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceAlpha",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\off.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\actual-surface.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "off-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\off.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\off-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\off.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceAlpha",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\test.dxil",
+        "-D",
+        "_ALPHATEST_ON=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\actual-surface.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\test.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\test-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\test.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "smooth-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceAlpha",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\smooth.dxil",
+        "-D",
+        "_ALPHATEST_ON=1",
+        "-D",
+        "_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\actual-surface.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "smooth-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\smooth.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\smooth-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\smooth.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-off-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\full-off.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-test-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\full-test.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "_ALPHATEST_ON=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-smooth-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\full-smooth.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "_ALPHATEST_ON=1",
+        "-D",
+        "_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-smooth-without-test-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\full-smooth-without-test.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-alpha-keyword-parity-01\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "runner": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+  "runnerSha256": "8dc02bf76d564dba07b117af905335c1281377e8d7fd9e5853e6cd1a07324cb4",
+  "sources": [
+    {
+      "path": "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\ShaderLibrary\\SurfaceInput.hlsl",
+      "sha256": "245362e43921bbd9bb8a346f88636c8d93e1f3e0e2322082247543edd38c12ef"
+    },
+    {
+      "path": "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\ShaderLibrary\\ShaderVariablesFunctions.hlsl",
+      "sha256": "b76aff0ed3773c02c824c35527156c630097747bc5784731473cbf2d8f8ce25f"
+    },
+    {
+      "path": "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\Shaders\\Lit.shader",
+      "sha256": "dd9a625d92079fb8f923f4085747f5de524cdf1dd6fe52767aee0bbbac5792fc"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGISurface.shader",
+      "sha256": "0f992ac66d01829ca13785822fe6d1ca69ac1b54d91a409a97e71192f23aacf6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIScreenMaterial.hlsl",
+      "sha256": "757f6f0b32397cc2c2c928e7e394c7dd0dc29d3e840c8433286f4118509e879e"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverPolicyCapture.hlsl",
+      "sha256": "5772f5cfc8dd7fb3eaaa59f6e7a5c65bf10cd2d0a16fd6671d0a6b7278440845"
+    }
+  ],
+  "compiledSourceSha256": "725b56d5bbaa3495a592c112021f34ab4d5d04fec4aff8a537425282736379ed",
+  "inputs": {
+    "off": "91ccf9daec8d4f15d73a7f1cc4b56600d578013244f0c7c33b35b1fe85128706",
+    "test": "aec5d94e72b88fb8b3b8fb22db7378c499483fc67b3dcd06fe31012d51e3b660",
+    "smooth": "c0a90480aa4e7cb1e36b1c8d84aa011fb66d0cc1123f741c456ec97b12f257ee"
+  },
+  "colorAbsoluteBound": 2e-06,
+  "scope": "Actual Vert/Frag source decisions on WARP; clip predicate adapter masks discarded payload. Fixed textures/transforms and layer adapter. Full fragment compilation has real clip. No Unity keyword transfer, raster coverage, AlphaToCoverage or native image qualification."
+}

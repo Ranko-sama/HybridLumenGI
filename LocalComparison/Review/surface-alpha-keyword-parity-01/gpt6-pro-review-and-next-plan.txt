@@ -1,0 +1,186 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 51
+DECISION: ACCEPT_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: surface-workflow-keyword-parity-01
+
+一、接受alpha覆盖修复，结束本轮检查
+
+允许执行层本地提交当前单shader修改及证据，未发现本范围的提交阻断。不追加alpha病例、AlphaToCoverage或原生运行。
+
+已确认 HybridLumenGI / workspace:/ / main@2b2b36c。我已先列出再读取输出239、240，并检查产品diff、冻结输入与执行脚本、完整结果、生成的片元源码及参考来源摘要；没有修改、重跑或重新计算二进制哈希。
+
+修复与证据相互对应
+
+产品只增加两个本地片元变体，将覆盖判定从数值属性改为实际keyword。属性声明、原标量clip、透明资格、Cull、深度及颜色计算均保留。四项反例分别覆盖裁剪开关和base-alpha用途的两种反向不一致，不是四个重复样本。〔HybridLumenGISurface.shader:44–45、103–115；两侧analysis.json〕
+
+discard适配器没有把继续计算的颜色冒充有效捕获。 它记录实际到达的负clip参数，并屏蔽被丢弃调用的diffuse、emission有效性与receiver policy；三个一致控制比较的是完整输出记录字节。2e-6仅用于保留片元的颜色，不参与是否裁剪的判断。〔run-surface-alpha-source.py:28–50、115–132〕
+
+完整片元编译另外保留真实clip，四个受影响keyword组合均exit0。两侧记录的宿主、三组输入及URP参考摘要一致；执行脚本要求安装的两个shader-library文件与include cache相同。这支持源码覆盖决策及完整入口编译，不支持Unity实际keyword传递、栅格丢弃或AlphaToCoverage行为。〔同脚本:65–74、100–143；candidate/surface-full-pass.hlsl:68–82；两侧analysis.json尾部〕
+
+基线passed=true表示成功建立预定反例；候选oldCounterexamplesEstablished=false表示它不是基线阶段。没有需要重新解释的失败记录。
+
+本轮新增一次基线、一次候选源码批次，零Unity／Player。它继续计入既有Receive Shadows、detail albedo和覆盖一致性的累计投入，不以新包名重置成本；既有Surface专项已有三次构建／三次64帧运行。Release49仍冻结于31c9415，不能因本次提交自动升级。
+
+二、下一价值：纠正漫反射工作流选择，而不是继续扩大覆盖测试
+
+我独立核对当前源码后，认可Astra最新选择，暂缓CDF复用。
+
+普通Surface仍用：
+
+hlsl
+_WorkflowMode < 0.5h ? specularDiffuse : metallicDiffuse
+
+但精确命中记录由_SPECULAR_SETUP产生工作流标志，实际命中求值按该标志选择漫反射比例；归档URP InitializeBRDFData同样以keyword分支。〔HybridLumenGISurface.shader:131–141；HybridLumenGIHitMaterialLayout.cs:40–46；HybridLumenGIHitMaterials.hlsl:123–126、209–213；归档URP BRDF.hlsl:81–98〕
+
+这是独立的P2条件性源码分歧，尚待执行反例，不是本轮alpha修复的回归。 当keyword关闭、Metallic=1，而有效数值_WorkflowMode=0时，普通捕获可能给出非零漫反射；同一材质的金属工作流应为零。这直接影响反射率与反弹能量，优先于尚未量化收益的CDF复用优化。
+
+下一包只解决这一选择错误，不宣称已有截图存在金属漏光，也不扩展为整个Lit材质审计。
+
+三、最小产品方案
+
+优先仍只修改 Runtime/Resources/HybridLumenGI/HybridLumenGISurface.shader：
+
+增加保留的本地片元变体_SPECULAR_SETUP，把diffuseFraction的数值分支改为keyword分支。继续使用现有metallic／specular值和贴图路径；保留_WorkflowMode属性及常量布局供材质兼容，不修改源Material或MPB来“同步”属性。
+
+对本次合法范围内的输入，参考关系为：
+
+𝜌
+𝑑
+=
+{
+𝐴
+ 
+[
+1
+−
+max
+⁡
+(
+𝑆
+𝑟
+,
+𝑆
+𝑔
+,
+𝑆
+𝑏
+)
+]
+,
+	
+_
+𝑆
+𝑃
+𝐸
+𝐶
+𝑈
+𝐿
+𝐴
+𝑅
+_
+𝑆
+𝐸
+𝑇
+𝑈
+𝑃
+
+
+𝐴
+ 
+0.96
+(
+1
+−
+𝑀
+)
+,
+	
+否则
+ρ
+d
+	​
+
+={
+A[1−max(S
+r
+	​
+
+,S
+g
+	​
+
+,S
+b
+	​
+
+)],
+A0.96(1−M),
+	​
+
+_SPECULAR_SETUP
+否则
+	​
+
+
+这里的 
+𝐴
+,
+𝑀
+,
+𝑆
+A,M,S 是shader空间的实际输入。不把Material作者颜色直接当线性值，也不重复做颜色转换。
+
+保持原albedo限幅、AO、发光、Receive Shadows、detail、刚完成的覆盖分支和输出格式不变。不要同时修改世界命中、原生捕获、贴图上传依赖或材质身份协议。
+
+执行前核对并归档当前安装的LitInput/BRDF相关函数与variant声明。归档URP源码用于定位，不能不核对便当成当前依赖。
+
+四、有限验证、决策与停止条件
+
+复用现有WARP宿主和实际Vert/Frag提取，不新建测试框架。冻结一次小输入集：无贴图的两项反例、两项一致控制，再为两种工作流各保留一个有区分力的贴图输入；不展开与alpha、detail或阴影keyword的组合矩阵。
+
+具体不确定性	最小验证	改变的决定
+数值属性是否确实覆盖了正确工作流？	固定 
+𝐴
+=
+(
+0.25
+,
+0.5
+,
+0.75
+)
+A=(0.25,0.5,0.75)、
+𝑀
+=
+1
+M=1、
+𝑆
+=
+(
+0.125
+,
+0.25
+,
+0.5
+)
+S=(0.125,0.25,0.5)。keyword关闭而数值为0时应输出零；keyword开启而数值为1时应输出
+(
+0.125
+,
+0.25
+,
+0.375
+)
+(0.125,0.25,0.375)。另保留属性／keyword一致的两项控制。	旧实际函数确实分歧才实施修复；一致控制必须保持原输出。
+贴图开启时是否使用正确的BRDF来源？	两张合法贴图提供不同的metallic红通道与specular RGB，分别检查实际捕获输出；期望值独立按上式计算。	选错map或仍受数值工作流支配，则候选未完成，不调强度补偿。
+是否引入无关输出变化？	检查同一输入的覆盖判定、AO、发光、有效性及policy保持；编译工作流×金属／镜面贴图开关的四个直接相关完整片元入口。	无关回归或编译失败阻断候选；不重跑已关闭的七项alpha矩阵。
+
+颜色误差沿用预先冻结的2e-6，一致控制要求字节不变；反例与参考值不能由候选输出生成。纹理、变换和层适配边界继续明示，完整片元编译不替代Unity运行时variant资格。
+
+额度：一次冻结基线命令、一次同输入候选命令；零Unity、Player构建／运行、图像或计时采集。 原始输入、首次输出和任何失败均保留。
+
+**退出条件：**实际反例成立，候选按keyword选择正确漫反射比例，贴图来源正确且一致控制不退化，即交复核并结束这项修复。无反例则不改产品；首次候选失败或需要扩大到材质框架／其他渲染路径时，保存具体分歧并停止，不自动补跑或放宽规则。
+
+现在提交第51轮有限修复，随后执行 surface-workflow-keyword-parity-01。 四项目标、十条工作流继续有效；预算保持待答。CDF复用暂缓，已关闭的形变、Release、场景、alpha及其他Surface检查不重新展开，暗区、MC、曝光与计时调查继续关闭。

@@ -1,0 +1,14 @@
+Independent direction before reading the new Pro50 plan:
+【转向】50的实际增益是统一当前入口与支持边界，没有增加渲染能力。下一步建议推进目标3／4、工作流6／8的稳定发光三角面积分布复用。
+源码存在明确重复工作：Feature:1016每帧调用AreaEmission.TryBuild，重新遍历三角、计算世界面积并构建CDF；静态来源也走同一路径。优先只复用CPU几何／CDF，不引入GPU资源池或修改MIS。
+最大风险是复用陈旧身份：HitMaterialBatch每次创建都会分配新materialGeneration，因此不能直接沿用旧GPU记录。几何、发光候选集合或容量变化也必须重建。
+唯一下一步：用实际builder固定连续输入确认哪些工作重复，再尝试有限复用；验证区分“仅批次代次变化”与“实际几何／候选变化”，决定能否安全采用。相同来源确实避免重复三角求值、输出除当前代次外一致，变化来源仍重建，即结束；无法小范围保证失效则撤回，不建立通用缓存框架，不宣称帧率收益。
+
+Comparison after Pro50 selected alpha coverage:
+【继续】优先51修覆盖，暂缓CDF复用。当前Surface按数值属性判断，而URP Alpha／精确hit按keyword判断；这会改变表面是否存在，价值高于尚未量化成本的重复构建优化。
+最大风险是clip适配器继续执行后，把无效颜色当作有效捕获。唯一下一步按冻结输入执行实际Frag反例，再作单shader修复；候选discard结论与当前URP一致、一致输入控制保持、真实clip入口编译通过即结束。首次失败停止，不扩AlphaToCoverage或材质矩阵。
+
+Independent closure and next direction before Pro51:
+【转向】51可有限结项：实际Frag纠正四个覆盖反例；discard后颜色、有效性和policy均清零，三个一致控制逐字节保持，完整入口保留真实clip。未见本范围阻断。
+下一步优先关闭同一普通Surface合同中已见的BRDF工作流分歧，暂缓CDF复用：Surface:139仍按数值_WorkflowMode选择漫反射比例，当前URP BRDF及精确hit却按_SPECULAR_SETUP。keyword关闭、Metallic=1而数值工作流为0时，普通捕获可能给金属错误的非零漫反射，直接涉及目标1／4、工作流2／7。
+唯一下一步是实际Frag同输入反例成立后，仅统一该工作流选择及必要变体；结果决定是否采用修复。与URP一致、原颜色／覆盖控制保持即结束，无反例或首个候选失败即停。最大风险是继续扩成材质矩阵；此项仍累计计入Surface一致性投入，不新增原生运行或宣称图像故障。
