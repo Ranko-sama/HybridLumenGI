@@ -1,0 +1,16 @@
+# Screen-excluded area contribution is known zero
+
+Base862b93c. Original goals1/2, workstreams2/6. Astra independently selected this source issue before Pro57 agreed; see saved actual Pro plan. Product is unchanged until the first baseline establishes the counterexample. Only the winning-screen area suppression assignment/comment may change; preserve exact winner conditions, unresolved strict bound, independent area draw, sample count, confidence, PDF/MIS and public validity predicates.
+
+Use the existing source-matched RadianceValidity WARP executable without rebuilding it. Extract actual TraceScreen verbatim and the complete CSTrace estimator loop/final validity expression; only adapt final texture-store destination to a function return. Actual Hit, RayFootprint, ScreenMaterial and RadianceValidity helpers are included. Receiver/camera setup, textures, ScreenPoint, world queries, DirectIrradiance, cache dependencies and sampler outputs are explicit adapters; this is not Unity/depth reconstruction/occlusion/PDF execution. In particular do not replace TraceScreen with a preset hit/known result: its actual directKnown=false exit must run.
+
+Freeze four inputs before execution. Receiver p=0, Ns=normalize(1,0,1), Ng=(0,0,1), ray bias1/32, direction draw(0,0,1), independent area draw(1,0,0), both weights precomputed1. Two requested ray pairs, environment D=(1/8,1/4,1/2), area contribution L=(1,2,3), direction environment confidence1/4. A screen plane is exactly one unit along the queried ray; depth/material capture match, front normal opposes the ray, no world-cache match. The fixed DirectIrradiance adapter supplies known/unknown to the actual TraceScreen exit. An independent direct TraceScreen probe records hit/known/distance before resetting counters for the estimator.
+
+1. Known direction, screen area endpoint at1 beats world hit at2, screen lighting unknown: baseline unknown(0,0,0,-1), candidate(D,1/4), exact zero area increment.
+2. Actual direction screen hit lighting unknown: unchanged unknown; no area draw reached.
+3. Area remains unknown; screen endpoint1 equals unresolved world lower bound1: strict comparison must not win, unchanged unknown.
+4. No screen area endpoint, known nonzero area: unchanged(D+L,1/4).
+
+Boolean validity, zero increments, control bytes and draw counts are exact. General RGB error bound1e-6 is fixed beforehand, with all outputs finite. Known cases complete both requested pairs; unknown cases stop at their original first rejection. No accepted-sample renormalization or test-input/threshold correction after observing results.
+
+One frozen baseline command and one identical-input candidate command. Candidate also compiles only directly affected software/DXR CSTrace entries. Update the existing obsolete source-wiring assertion for the intentional new assignment; no broad emissive/CDF numeric rerun. Preserve first failures and stop on no counterexample/candidate failure/algorithm scope expansion. Zero Unity, Player, physical GPU, new host or framework; no new static Release or image-quality claim. Exit when excluded zero preserves the known direction while actual unknowns and nonexcluded contribution remain unchanged; then review and close.

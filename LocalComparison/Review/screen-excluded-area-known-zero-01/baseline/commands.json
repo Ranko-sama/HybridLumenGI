@@ -1,0 +1,30 @@
+[
+  {
+    "name": "compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSScreenExcludedArea",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\baseline\\test.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\baseline\\actual-estimator.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\baseline\\test.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\baseline\\inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\baseline\\outputs.bin"
+    ],
+    "exitCode": 0
+  }
+]

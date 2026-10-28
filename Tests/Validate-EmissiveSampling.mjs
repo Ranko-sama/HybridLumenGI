@@ -55,8 +55,8 @@ assert(cacheBody.includes('HLGIAreaMatchedDirectionWeight(origin,n,e.guide,direc
   'Area MIS must use the complete actual direction PDF rather than the legacy grazing denominator floor.');
 assert(cacheBody.includes('HLGIAreaDirectionEmissionWeight(origin,n,e.guide,direction,hit,emissionWeight)')&&
   traceBody.includes('HLGIAreaDirectionEmissionWeight(origin,n,receiverCache.guide,dir,hit,emissionWeight)')&&
-  traceBody.includes('lightValue=0;lightKnown=lightScreenKnown;'),
-  'World-hit emission needs a paired weight, while a winning screen endpoint suppresses the area term.');
+  traceBody.includes('lightValue=0;lightKnown=true;'),
+  'World-hit emission needs a paired weight; a winning screen endpoint excludes the area term as known zero.');
 assert(commit.includes('float3estimate=sum/rayCount;')&&
   cacheBody.includes('HLGICommitCacheEstimate(estimateKnown,sum,guide,guidePower,_HLGI_CacheRays,n,e.irradiance,e.guide)')&&
   cacheBody.includes('for(intr=0;r<_HLGI_CacheRays;r++)')&&traceBody.includes('for(intr=0;r<_HLGI_Rays;r++)')&&

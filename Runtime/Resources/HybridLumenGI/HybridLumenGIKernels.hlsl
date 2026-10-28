@@ -326,7 +326,8 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
             {
                 // The matching direction estimator uses the screen endpoint at
                 // weight one. Suppress area NEE on exactly that same support.
-                lightValue=0;lightKnown=lightScreenKnown;
+                // The excluded contribution is known zero regardless of endpoint radiance.
+                lightValue=0;lightKnown=true;
             }
             if(!lightKnown || !HLGIAccumulateRadianceSample(lightValue,1,1,sum)) { estimateKnown=false;break; }
         }

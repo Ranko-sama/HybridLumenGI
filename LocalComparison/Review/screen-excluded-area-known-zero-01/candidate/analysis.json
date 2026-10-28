@@ -1,0 +1,147 @@
+{
+  "stage": "candidate",
+  "passed": true,
+  "counterexampleEstablished": false,
+  "rows": [
+    {
+      "case": "excluded-area-unknown",
+      "result": [
+        0.125,
+        0.25,
+        0.5,
+        0.25
+      ],
+      "expected": [
+        0.125,
+        0.25,
+        0.5,
+        0.25
+      ],
+      "counts": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "probe": [
+        1,
+        0
+      ],
+      "probeDistance": 1.0,
+      "checks": {
+        "expected": true,
+        "counts": true,
+        "actualScreenHitUnknown": true,
+        "screenDistance": true,
+        "unchangedControl": true
+      }
+    },
+    {
+      "case": "participating-direction-unknown",
+      "result": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        -1
+      ],
+      "counts": [
+        1,
+        0,
+        1,
+        1
+      ],
+      "probe": [
+        0,
+        1
+      ],
+      "probeDistance": 2.0,
+      "checks": {
+        "expected": true,
+        "counts": true,
+        "actualScreenHitUnknown": true,
+        "screenDistance": true,
+        "unchangedControl": true
+      }
+    },
+    {
+      "case": "area-unknown-unresolved-equal-bound",
+      "result": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        -1
+      ],
+      "counts": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "probe": [
+        1,
+        0
+      ],
+      "probeDistance": 1.0,
+      "checks": {
+        "expected": true,
+        "counts": true,
+        "actualScreenHitUnknown": true,
+        "screenDistance": true,
+        "unchangedControl": true
+      }
+    },
+    {
+      "case": "participating-area-known",
+      "result": [
+        1.125,
+        2.25,
+        3.5,
+        0.25
+      ],
+      "expected": [
+        1.125,
+        2.25,
+        3.5,
+        0.25
+      ],
+      "counts": [
+        2,
+        2,
+        0,
+        0
+      ],
+      "probe": [
+        0,
+        1
+      ],
+      "probeDistance": 2.0,
+      "checks": {
+        "expected": true,
+        "counts": true,
+        "actualScreenHitUnknown": true,
+        "screenDistance": true,
+        "unchangedControl": true
+      }
+    }
+  ],
+  "failures": [],
+  "host": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+  "hostSha256": "8dc02bf76d564dba07b117af905335c1281377e8d7fd9e5853e6cd1a07324cb4",
+  "inputSha256": "fd31ec597f022898acf3bac9977c206cc05f127fee8e41adfddf8dd8026d08a7",
+  "sourceSha256": "4fdd9d854a101aab02d8d241868840c114ef7eac986e46c05af3e6beb3d1a6a7",
+  "absoluteErrorBound": 1e-06,
+  "comparison": "All four representable outputs matched exactly; zero area increment and unchanged controls exact.",
+  "scope": "Actual TraceScreen unknown exit and complete estimator loop/final expression; fixed dependency inputs; no Unity, real scene/PDF or physical GPU."
+}

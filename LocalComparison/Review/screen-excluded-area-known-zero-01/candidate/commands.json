@@ -1,0 +1,100 @@
+[
+  {
+    "name": "compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSScreenExcludedArea",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\candidate",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\candidate\\test.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\candidate\\actual-estimator.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\candidate\\test.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\candidate\\inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\candidate\\outputs.bin"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "software-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSTrace",
+      "-I",
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+      "-I",
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\candidate\\software.dxil",
+      "-D",
+      "SHADER_API_D3D11=1",
+      "-D",
+      "SHADER_STAGE_COMPUTE=1",
+      "-D",
+      "UNITY_COMPILER_DXC=1",
+      "-D",
+      "UNITY_VERSION=600000",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGI.compute"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "hardware-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_5",
+      "-E",
+      "CSTrace",
+      "-I",
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+      "-I",
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\screen-excluded-area-known-zero-01\\candidate\\hardware.dxil",
+      "-D",
+      "SHADER_API_D3D11=1",
+      "-D",
+      "SHADER_STAGE_COMPUTE=1",
+      "-D",
+      "UNITY_COMPILER_DXC=1",
+      "-D",
+      "UNITY_VERSION=600000",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHardware.compute"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "existing-source-wiring",
+    "arguments": [
+      "node",
+      "--input-type=module",
+      "-e",
+      "import assert from 'node:assert/strict';\nimport fs from 'node:fs';\nimport path from 'node:path';\nimport {fileURLToPath} from 'node:url';\n\n// Independent directional-radiance integrals plus float32 edge cases and live source\n// contracts. No Unity/HLSL execution, rasterization or GPU timing is performed here.\nconst root=path.resolve(path.dirname(\"C:\\\\Users\\\\Administrator\\\\Desktop\\\\test\\\\HybridLumenGI\\\\Tests\\\\Validate-EmissiveSampling.mjs\"),'..');\nconst read=file=>fs.readFileSync(path.join(root,'Runtime/Resources/HybridLumenGI',file),'utf8');\nconst source=read('HybridLumenGIEmissiveSampling.hlsl'),transport=read('HybridLumenGITransport.hlsl'),kernels=read('HybridLumenGIKernels.hlsl');\nconst compact=source.replace(/\\/\\/[^\\n]*/g,'').replace(/\\s+/g,'');\nassert(compact.includes('floatpmf=record.data.y-record.data.x;'),'Selection and PDF must use represented CDF intervals.');\nassert(compact.includes('pdf+=pmf*HLGIEmissiveVmfPdf(origin,record.sphere,direction);'),'PDF must sum every candidate, including overlaps.');\nassert(compact.includes('selector>=interval.x&&selector<interval.y'),'Zero-width CDF intervals must never be selected.');\nassert(compact.includes('axis=float3(0,0,1);sharpness=0;')&&compact.includes('if(sharpness<=0)return1/(4*PI);'),'Inside/degenerate lobes must retain normalized sphere density.');\nassert.equal((compact.match(/HLGIEmissiveLobe\\(origin,sphere,axis,sharpness\\)/g)||[]).length,2,'Sample and PDF share the same lobe construction.');\nassert(compact.includes('delta=sinSquared/(1+sqrt(max(0,1-sinSquared)))')&&compact.includes('sharpness=1/max(delta,1e-4);'),'Stable angular scale and bounded vMF concentration contract.');\nassert(compact.includes('float3chord=direction-axis;')&&compact.includes('exp(-0.5*sharpness*dot(chord,chord))'),'Smooth vMF PDF must avoid a hard support edge and dot-minus-one cancellation.');\nassert(compact.includes('log((1-xi.x)+xi.x*tail)')&&compact.includes('sqrt(max(0,-r*(r+2)))'),'Inverse CDF preserves endpoint complements and angular spread.');\nassert(!compact.includes('dot(axis,direction)>='),'The removed hard-cone support test must not return.');\nassert(compact.includes('!isfinite(distanceSquared)')&&compact.includes('!isfinite(radiusSquared)')&&compact.includes('!all(isfinite(offset))'),'Float32 overflow must use the same normalized fallback.');\nassert(compact.includes('floatguided=(1-emissive)*guideFraction;')&&compact.includes('floatcosineFraction=(1-emissive)*(1-guideFraction);'),'Mixture branch probabilities must leave cosine support.');\nassert(compact.includes('(cosineFraction*receiverCosine+guided*guideCosine)/PI+emissive*HLGIEmissiveDirectionalPdf(origin,direction,count);'),'Complete direction PDF includes all three strategies.');\nassert(compact.includes('receiverCosine/(PI*pdf)'),'D=E/pi estimator must use full solid-angle PDF.');\nassert(compact.includes('if(emissive<=0)returnHLGISampleDirection(normal,guide,rng,weight);'),'Empty/disabled table must retain exact old random sequence.');\nconst sampler=compact.slice(compact.indexOf('float3HLGISampleTransportDirection('));\nassert(!/\\bwhile\\b/.test(sampler)&&!sampler.includes('for('),'No conditional hemisphere/hit rejection in the transport sampler.');\nassert(transport.includes('HLGISampleTransportDirection(origin,n,e.guide,rng,weight)')&&kernels.includes('HLGISampleTransportDirection(origin,n,receiverCache.guide,rng,sampleWeight)'),'Both paths must pass the actual biased origin.');\n// The weighting/commit operations now live in the shared validity helpers.\n// These are bounded source-wiring checks; the independent integrals below stay\n// unchanged, and actual helper execution belongs to RadianceValidity's WARP test.\nfunction body(text,declaration) {\n  text=text.replace(/\\/\\*[\\s\\S]*?\\*\\//g,'').replace(/\\/\\/[^\\n]*/g,'').replace(/\\s+/g,'');\n  const start=text.indexOf(declaration);assert(start>=0,`Missing declaration ${declaration}`);\n  const open=text.indexOf('{',start);assert(open>=0,`Missing body ${declaration}`);\n  let depth=1,end=open+1;\n  for(;end<text.length&&depth;end++)depth+=(text[end]==='{')-(text[end]==='}');\n  assert.equal(depth,0,`Unterminated body ${declaration}`);return text.slice(open+1,end-1);\n}\nconst validity=read('HybridLumenGIRadianceValidity.hlsl');\nconst accumulate=body(validity,'boolHLGIAccumulateRadianceSample('),commit=body(validity,'boolHLGICommitCacheEstimate(');\nconst cacheBody=body(transport,'voidCSUpdateCache('),traceBody=body(kernels,'voidCSTrace(');\nassert(accumulate.includes('float3next=sum+incoming*weight;')&&accumulate.includes('sum=next;returntrue;')&&\n  (accumulate.match(/incoming\\*weight/g)||[]).length===1&&\n  cacheBody.includes('HLGIAccumulateRadianceSample(incoming,materialConfidence,weight,sum)')&&\n  traceBody.includes('HLGIAccumulateRadianceSample(_HLGI_AreaEmitterCount>0?incoming:LimitRadiance(incoming),sampleConfidence,sampleWeight,sum)')&&\n  cacheBody.includes('HLGIAccumulateRadianceSample(lightValue,1,1,sum)')&&\n  traceBody.includes('HLGIAccumulateRadianceSample(lightValue,1,1,sum)')&&\n  (cacheBody.match(/HLGIAccumulateRadianceSample\\(/g)||[]).length===2&&\n  (traceBody.match(/HLGIAccumulateRadianceSample\\(/g)||[]).length===2&&\n  !/sum(?:\\+=|-=|\\*=|\\/=)/.test(cacheBody+traceBody),\n  'Direction Li is weighted once; its paired area term already contains cos/(pi*(pB+pL)) and is accumulated once at unit weight, without a separate nonlinear clamp.');\nassert(cacheBody.includes('HLGIAreaMatchedDirectionWeight(origin,n,e.guide,direction,weight)')&&\n  traceBody.includes('HLGIAreaMatchedDirectionWeight(origin,n,receiverCache.guide,dir,sampleWeight)'),\n  'Area MIS must use the complete actual direction PDF rather than the legacy grazing denominator floor.');\nassert(cacheBody.includes('HLGIAreaDirectionEmissionWeight(origin,n,e.guide,direction,hit,emissionWeight)')&&\n  traceBody.includes('HLGIAreaDirectionEmissionWeight(origin,n,receiverCache.guide,dir,hit,emissionWeight)')&&\n  traceBody.includes('lightValue=0;lightKnown=true;'),\n  'World-hit emission needs a paired weight; a winning screen endpoint excludes the area term as known zero.');\nassert(commit.includes('float3estimate=sum/rayCount;')&&\n  cacheBody.includes('HLGICommitCacheEstimate(estimateKnown,sum,guide,guidePower,_HLGI_CacheRays,n,e.irradiance,e.guide)')&&\n  cacheBody.includes('for(intr=0;r<_HLGI_CacheRays;r++)')&&traceBody.includes('for(intr=0;r<_HLGI_Rays;r++)')&&\n  traceBody.includes('sum/max(_HLGI_Rays,1)'),'Normalize by all requested draws, not accepted hits.');\nassert(!/ProxyRadiance|TraceScene|DirectIrradiance|\\.emission|\\.rgb/.test(source.replace(/\\/\\/[^\\n]*/g,'')),'Proposal header cannot add emitted radiance or replace tracing.');\n\n"
+    ],
+    "exitCode": 0
+  }
+]
