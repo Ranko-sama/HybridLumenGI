@@ -1,0 +1,49 @@
+Initial DXC CSUpdateCache preflight failed before Unity. Native DXC exit code: 2147500037
+In file included from C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source\HybridLumenGIExactSoftware.compute:9:
+In file included from C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/HybridLumenGIKernels.hlsl:1:
+In file included from C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/HybridLumenGITransport.hlsl:37:
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:9:21: error: expected member name or ';' after declaration specifiers
+    float4 prepared,point,change,estimate,guideEstimate,direct,status,sourceParameters;
+    ~~~~~~          ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:24:14: error: no member named 'sourceParameters' in 'LOCacheRecord'
+    loRecord.sourceParameters=float4(_HLGI_LightCount,_HLGI_Epoch,_HLGI_BounceFeedback,_HLGI_CacheRays);
+    ~~~~~~~~ ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:29:52: error: expected unqualified-id
+    loRecord.prepared=prepared.irradiance;loRecord.point=float4(surface.position,surface.confidence);
+                                                   ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:30:14: error: no member named 'change' in 'LOCacheRecord'
+    loRecord.change=float4(change,mask,mask!=0);loRecord.status.x=1;
+    ~~~~~~~~ ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:30:58: error: no member named 'status' in 'LOCacheRecord'
+    loRecord.change=float4(change,mask,mask!=0);loRecord.status.x=1;
+                                                ~~~~~~~~ ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:36:24: error: no member named 'direct' in 'LOCacheRecord'
+    if(known){loRecord.direct.xyz=max(loRecord.direct.xyz,abs(direct));loRecord.direct.w++;}
+              ~~~~~~~~ ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:36:48: error: no member named 'direct' in 'LOCacheRecord'
+    if(known){loRecord.direct.xyz=max(loRecord.direct.xyz,abs(direct));loRecord.direct.w++;}
+                                      ~~~~~~~~ ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:36:81: error: no member named 'direct' in 'LOCacheRecord'
+    if(known){loRecord.direct.xyz=max(loRecord.direct.xyz,abs(direct));loRecord.direct.w++;}
+                                                                       ~~~~~~~~ ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:37:19: error: no member named 'status' in 'LOCacheRecord'
+    else loRecord.status.w++;
+         ~~~~~~~~ ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:42:14: error: no member named 'estimate' in 'LOCacheRecord'
+    loRecord.estimate=float4(sum,known);loRecord.guideEstimate=float4(guide,power);
+    ~~~~~~~~ ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:42:50: error: no member named 'guideEstimate' in 'LOCacheRecord'
+    loRecord.estimate=float4(sum,known);loRecord.guideEstimate=float4(guide,power);
+                                        ~~~~~~~~ ^
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:47:35: error: no member named 'status' in 'LOCacheRecord'
+    loRecord.after=value;loRecord.status.z=HLGIHasCacheMeasurement(value.irradiance,value.guide);
+                         ~~~~~~~~ ^
+In file included from C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source\HybridLumenGIExactSoftware.compute:9:
+In file included from C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/HybridLumenGIKernels.hlsl:1:
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/HybridLumenGITransport.hlsl:576:9: error: no member named 'status' in 'LOCacheRecord'
+        LO_COMMIT(loCommitted);
+        ^~~~~~~~~~~~~~~~~~~~~~
+C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\scene-lightoff-chain-01\compile\source/LightOffCacheWriter.hlsl:54:48: note: expanded from macro 'LO_COMMIT'
+#define LO_COMMIT(value) if(loLane>=0)loRecord.status.y=value
+                                      ~~~~~~~~ ^
+

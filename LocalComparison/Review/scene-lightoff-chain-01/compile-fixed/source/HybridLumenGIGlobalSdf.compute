@@ -1,0 +1,96 @@
+#pragma kernel CSMergeBricks
+#pragma kernel CSPublishBricks
+#pragma target 5.0
+#pragma use_dxc
+
+struct HLGIProxy { float4 centerShape, extentsRoughness, albedo, emission, identity; };
+StructuredBuffer<HLGIProxy> _HLGI_Proxies;
+int _HLGI_ProxyCount;
+#include "HybridLumenGISdfTrace.hlsl"
+#include "HybridLumenGIGlobalSdf.hlsl"
+struct HLGIGlobalSdfJob { int3 key; int page; uint generation, level, reserved0, reserved1; };
+struct HLGIGlobalSdfObjectBounds { float4 minimum, maximum; };
+StructuredBuffer<HLGIGlobalSdfJob> _HLGI_GlobalSdfJobs;
+StructuredBuffer<HLGIGlobalSdfObjectBounds> _HLGI_GlobalSdfObjectBounds;
+RWStructuredBuffer<HLGIGlobalSdfPage> _HLGI_GlobalSdfPagesWrite;
+RWStructuredBuffer<float> _HLGI_GlobalSdfDistancesWrite;
+int _HLGI_GlobalSdfJobCount;
+
+float HLGIGlobalSdfBoxLower(float3 position, float3 minimum, float3 maximum)
+{
+    return length(max(max(minimum - position, position - maximum), 0));
+}
+float HLGIGlobalSdfObjectLower(float3 position, int slot)
+{
+    if (HLGIHasMeshSdf(slot))
+    {
+        HLGISdfMetadata metadata = _HLGI_SdfMetadata[slot];
+        float3 local = mul(metadata.worldToLocal, float4(position, 1)).xyz;
+        float3 lo = metadata.boundsMinResolution.xyz;
+        float3 hi = lo + metadata.boundsSizeMinScale.xyz;
+        float boxDistance = HLGIGlobalSdfBoxLower(local, lo, hi);
+        // Outside the bounded volume, its enclosing box is a lower bound to all its surfaces.
+        if (boxDistance > 0) return boxDistance * metadata.boundsSizeMinScale.w;
+        float sample = HLGISdfSample(metadata, local);
+        if (!isfinite(sample)) return 0;
+        // The bake bounds trilinear error; a second error allowance also covers the sampled
+        // zero surface used by the final object-SDF refiner. Never treat its uncertainty as air.
+        return max(0, abs(sample) - 2 * metadata.voxelSizeError.w) * metadata.boundsSizeMinScale.w;
+    }
+    HLGIProxy proxy = _HLGI_Proxies[slot];
+    float3 relative = position - proxy.centerShape.xyz;
+    if (proxy.centerShape.w > 0.5)
+    {
+        float radius = max(proxy.extentsRoughness.x, max(proxy.extentsRoughness.y, proxy.extentsRoughness.z));
+        return abs(length(relative) - radius);
+    }
+    float3 q = abs(relative) - proxy.extentsRoughness.xyz;
+    return abs(length(max(q, 0)) + min(max(q.x, max(q.y, q.z)), 0));
+}
+
+[numthreads(4,4,4)]
+void CSMergeBricks(uint3 group : SV_GroupID, uint3 thread : SV_GroupThreadID)
+{
+    if (group.x >= (uint)_HLGI_GlobalSdfJobCount) return;
+    HLGIGlobalSdfJob job = _HLGI_GlobalSdfJobs[group.x];
+    HLGIGlobalSdfPage page = _HLGI_GlobalSdfPagesWrite[job.page];
+    if (page.generation != job.generation || any(page.key != job.key)) return;
+    HLGIGlobalSdfLevel level = _HLGI_GlobalSdfLevels[job.level];
+    float3 position = (float3)job.key * level.metric.y + ((float3)thread + 0.5) * level.metric.x;
+    float distance = level.metric.z;
+    [loop] for (int slot = 0; slot < _HLGI_ProxyCount; slot++)
+    {
+        HLGIProxy proxy = _HLGI_Proxies[slot];
+        if (proxy.identity.w <= 0.5 || proxy.identity.w >= 1.5) continue;
+        HLGIGlobalSdfObjectBounds bounds = _HLGI_GlobalSdfObjectBounds[slot];
+        if (bounds.maximum.w < 0.5 || !all(isfinite(bounds.minimum.xyz)) || !all(isfinite(bounds.maximum.xyz))) { distance = 0; break; }
+        float enclosingLower = HLGIGlobalSdfBoxLower(position, bounds.minimum.xyz, bounds.maximum.xyz);
+        if (enclosingLower >= distance) continue;
+        if (bounds.minimum.w > 0.5 && enclosingLower <= 0) { distance = 0; break; }
+        float candidate = HLGIGlobalSdfObjectLower(position, slot);
+        // Real triangle backends need this clamp even when their analytic/SDF approximation
+        // misses an interior feature. This sacrifices acceleration within renderer bounds.
+        if (bounds.minimum.w > 0.5) candidate = min(candidate, enclosingLower);
+        // An enormous primitive may have a surface near the world origin. Position-only
+        // roundoff would miss cancellation between its large center/extent values.
+        float3 magnitude = max(abs(bounds.minimum.xyz), abs(bounds.maximum.xyz));
+        float geometryRoundoff = max(1e-5, max(magnitude.x, max(magnitude.y, magnitude.z)) * 2e-6);
+        candidate = max(0, candidate - geometryRoundoff);
+        distance = min(distance, candidate);
+        if (distance <= 0) break;
+    }
+    uint address = job.page * HLGI_GLOBAL_SDF_BRICK_STORAGE + thread.x + 4 * (thread.y + 4 * thread.z);
+    _HLGI_GlobalSdfDistancesWrite[address] = max(0, distance - HLGIGlobalSdfRoundoff(position, level.metric.x));
+}
+
+[numthreads(64,1,1)]
+void CSPublishBricks(uint3 thread : SV_DispatchThreadID)
+{
+    if (thread.x >= (uint)_HLGI_GlobalSdfJobCount) return;
+    HLGIGlobalSdfJob job = _HLGI_GlobalSdfJobs[thread.x];
+    HLGIGlobalSdfPage page = _HLGI_GlobalSdfPagesWrite[job.page];
+    if (page.generation != job.generation || any(page.key != job.key)) return;
+    _HLGI_GlobalSdfDistancesWrite[job.page * HLGI_GLOBAL_SDF_BRICK_STORAGE + HLGI_GLOBAL_SDF_BRICK_VOXELS] = asfloat(job.generation);
+    page.ready = 1;
+    _HLGI_GlobalSdfPagesWrite[job.page] = page;
+}

@@ -1,0 +1,137 @@
+{
+  "passed": false,
+  "exception": "IndexError('list index out of range')",
+  "failures": [
+    {
+      "check": "360 rendered without errors"
+    },
+    {
+      "check": "render sequence"
+    },
+    {
+      "check": "controller sequence"
+    },
+    {
+      "check": "cache observation complete"
+    },
+    {
+      "check": "gather observation complete"
+    },
+    {
+      "check": "unique phase/binding coverage"
+    },
+    {
+      "check": "private/actual new cache bytes",
+      "frame": 0,
+      "lane": 0
+    },
+    {
+      "check": "actual cache header",
+      "frame": 0,
+      "lane": 0
+    },
+    {
+      "check": "cache product Light count",
+      "frame": 0,
+      "lane": 0
+    },
+    {
+      "check": "private/actual new cache bytes",
+      "frame": 0,
+      "lane": 2
+    },
+    {
+      "check": "actual cache header",
+      "frame": 0,
+      "lane": 2
+    },
+    {
+      "check": "cache product Light count",
+      "frame": 0,
+      "lane": 2
+    }
+  ],
+  "coverage": {
+    "uncovered": 2,
+    "committed": 2,
+    "valid-nonblack": 1,
+    "valid-black": 1
+  },
+  "cache": [
+    {
+      "frame": 0,
+      "lane": 1,
+      "entry": 21,
+      "covered": true,
+      "scheduled": true,
+      "known": true,
+      "committed": true,
+      "valid": true,
+      "old": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "prepared": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "estimateSum": [
+        0.00046707919682376087,
+        0.06407742947340012,
+        0.0009849187918007374
+      ],
+      "new": [
+        5.838489960297011e-05,
+        0.008009678684175014,
+        0.00012311484897509217,
+        1.0
+      ],
+      "change": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "frame": 0,
+      "lane": 3,
+      "entry": 26,
+      "covered": true,
+      "scheduled": true,
+      "known": true,
+      "committed": true,
+      "valid": true,
+      "old": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "prepared": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "estimateSum": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "change": [
+        1.0,
+        1.0
+      ]
+    }
+  ],
+  "pixels": []
+}

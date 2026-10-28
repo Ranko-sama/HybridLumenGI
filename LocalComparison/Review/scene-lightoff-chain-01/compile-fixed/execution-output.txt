@@ -1,0 +1,62 @@
+{
+  "command": "python LocalComparison/Harness/compile-scene-lightoff.py compile-fixed",
+  "wrapperExit": 0,
+  "execChunk": "3beb46",
+  "passed": true,
+  "entries": [
+    {
+      "entry": "CSUpdateCache",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSUpdateCache",
+        "-D",
+        "HLGI_LIGHTOFF_AUDIT=1",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\scene-lightoff-chain-01\\compile-fixed\\CSUpdateCache.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\scene-lightoff-chain-01\\compile-fixed\\source\\HybridLumenGIExactSoftware.compute"
+      ],
+      "exitCode": 0,
+      "dxilSha256": "c7e54071c2dfa60be103faac122095b180af38c0246abc773a90464172e6afe8"
+    },
+    {
+      "entry": "CSTrace",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSTrace",
+        "-D",
+        "HLGI_GATHER_AUDIT=1",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\scene-lightoff-chain-01\\compile-fixed\\CSTrace.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\scene-lightoff-chain-01\\compile-fixed\\source\\HybridLumenGIExactSoftware.compute"
+      ],
+      "exitCode": 0,
+      "dxilSha256": "568a88cc34092a27225e22e7135dfa5e720e583e694b7a8ff62021a4f0392336"
+    }
+  ]
+}

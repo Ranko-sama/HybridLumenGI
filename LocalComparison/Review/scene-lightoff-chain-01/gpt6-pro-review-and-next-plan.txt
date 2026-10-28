@@ -1,0 +1,130 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 11
+REVIEW_DECISION: REVISE — 保留失败证据，不批准场景链结项或直接重跑360帧
+NEXT_PACKAGE: early-exit-retirement-01 + 观察器别名修正
+
+一、总体判断
+
+本轮有两个必须分开处理的问题：确定的观察器重复映射缺陷，以及真实发生、但尚未完成逐票据归因的提前退出资源失败。 修好前者不能关闭后者；后者也不能反向证明首帧cache计算错误。
+
+已确认 HybridLumenGI / workspace:/ / main@3093a22。当前Runtime diff为空，暂存内容为本包辅助代码、合同及失败证据。已先列出再读取iteration 11执行输出46–50，并检查暂存diff、冻结／执行版本、原始日志、首帧选择记录及恢复清单。本层没有修改或执行测试。
+
+原始运行明确为：1个渲染帧、0张截图、3项观察器错误、退出码1。119帧覆盖检查和120帧关灯均未发生，不能形成关灯、衰减或gather消费结论。〔本包 run/.../run.json:2–26；执行输出48–50〕
+
+允许将当前内容保存为失败实验检查点，但提交说明不得标为实现完成或回归通过。此前已批准的Runtime修复无需整体回退。
+
+二、优先发现
+F1 — P2，确定：四个世界点只有两个唯一patch，观察器只写了最后一个别名
+
+原始调度记录显示：
+
+世界点规则	实际映射	GPU观察记录
+P0、P1	同一card 1、cell (1,1)、entry 21	只写lane 1
+P2、P3	同一card 1、cell (2,2)、entry 26	只写lane 3
+
+四点的owner、chart和代次也一致。这是实际card投影得到的重复映射，不是产品把不同cache条目错误合并。〔run/.../lightoff-schedule-0000.json:9560–9665〕
+
+执行版 LOBegin()遍历所有匹配项并反复赋值 loLane，只保留最后一个匹配；LOEnd()只写该lane。因此lane 0、2保留初始化的零记录，随后被header检查拒绝。〔instrumentation/LightOffCacheWriter.hlsl.executed.txt:17–24、44–48〕
+
+不是加一个 break 就修好了。 那只会改成前一个别名有记录，另一个仍缺失；而119帧“必须四个不同entry”的条件依然不可能通过。
+
+首帧两个已写记录具有正确的LightCount 1、epoch 4及实际采样帧0。entry 21有有效非黑结果，entry 26是有效已测黑色；它们不支持关灯后的任何判断。缺失lane中的零值更不能解释成产品无光、未知值处理或epoch错误。〔first-frame-forensics.json:49–178〕
+
+F2 — P1，确定症状、归因未完成：提前退出留下待提交退休项及原生资源
+
+原始日志在 ComparisonCapture.Finish → EditorApplication.Exit → DrainShutdown 中记录：
+
+纯文本
+owned=7, pending=7, unknownSubmission=0, failed=0,
+failedWithdrawals=0, outsideRenderLoop=True
+
+随后是8项Persistent分配和9条D3D未释放资源，其中含一个scratch buffer。这不是通用内存汇总，资源退出本轮确实失败。 但日志没有分配堆栈及票据身份，不能把所有原生分配一一归给这七张票据，也不能断言scratch buffer由GI直接持有。〔Unity.log:682–716〕
+
+它与先前01c问题不同：01c是已提交且刚完成的owner仍未销毁；本轮还有七项留在待提交队列，不能只重用“第二次fence查询”解释。
+
+当前源码给出一个明确待核实的停滞路径：Retire()入队时固定 requiresContext；后来即使进入outside边界，SubmitImmediate()仍排除这些票据。若它们错过最后一次可覆盖其读者的context提交，就不会仅靠等待自动完成。〔Runtime/HybridLumenGIResourceRetirement.cs:167–169、195–216〕
+
+尚缺的是：七项何时入队、来自哪些owner、为何未被提交、最后读者究竟由哪个提交覆盖。 outsideRenderLoop=True本身不是它们已安全完成的证明。现有测试还特意要求“尾部监听器中的不确定退休不得被idle随意授权”，不能删除该守卫来消除告警。〔Tests/StandaloneDeformedMesh/Program.cs.txt:206–212〕
+
+F3 — P2，确定：分析器把未写观察槽继续解释成产品数据，并在缺帧处异常退出
+
+分析器先发现运行不完整，却继续按360帧索引，最终在缺失frame 1处触发 IndexError；对lane 0、2还产生了“Light count／cache bytes不匹配”等派生失败。这些是无效观察记录的连锁结果，不是额外产品反例。〔LocalComparison/Harness/analyze-scene-lightoff.py:27–38、82–96；执行输出50〕
+
+初始HLSL保留字编译错误已在原生运行前修正，两入口预检成功；它不是此次首帧退出的原因。应保留初次失败，不必再为它运行测试。
+
+三、下一最小包：先闭合提前退出，再恢复场景实验
+A. 先做离线观察器修正，不启动完整场景
+
+保留四个世界点，不挪点、不按亮度挑patch。 将数据模型改为：
+
+四条世界点规则 → 唯一patch表 → 点到patch的别名映射。
+
+按完整身份键去重，包括owner身份、revision、layout、chart、generation及cell；entry只作为当前buffer地址。当前保存数据应得到两个唯一patch，以及 P0/P1、P2/P3两组别名。
+
+文件级最小修改：
+
+文件	修改
+SceneLightoffTap.cs	建立唯一patch表和alias表；每个唯一entry只绑定、读回和验证一次；未映射点单独记录。
+LightOffCacheWriter.hlsl	只接收无重复的有效entry列表；保留固定小容量和320字节ABI，不增加产品查询。
+analyze-scene-lightoff.py	先验证header和记录覆盖，再解释数值；按实际帧键读取，不把缺帧补零，也不索引不存在的帧。
+新版本合同	明确“四个空间规则、当前冻结几何对应两个唯一patch”；不再声称四个独立patch样本。
+
+原“四个不同patch”合同已经失败，不改写它为通过。 新版本119门槛仍要求全部原空间规则映射存在、全部唯一patch有效且就绪、实际写入字节一致；120以后身份冻结。两个原C阴影控制点落入同一cell，也说明它们在这里不能充当两个独立的cache空间样本。
+
+用保存的映射离线验证 [21,21,26,26] → [21,26] + aliases，再检查无重复、未映射和身份变化三类输入即可。原始GPU数据不得伪装成新观察器已经执行；修正后的离线报告另存，不覆盖原 analysis.json。
+
+B. 对提前退出做一次有目的的原生归因
+
+复用01c的 RetirementProgressTrace，不要使用会额外读取fence的旧trace。新增记录限于：
+
+票据的owner／资源名称、逻辑字节和入队调用位置；
+BeginContext、EndContext、idle、关闭及父项销毁的顺序；
+每次提交批次包含哪些票据、哪些被排除及原因；
+产品实际读取的完成／prerequisite结果、drain停止原因和期限状态。
+
+记录现有结果，不额外查询fence，不代替产品poll、submit或Dispose。首次分配启用堆栈记录，区分产品buffer、观察器私有buffer与引擎scratch。
+
+最多一次基线归因运行，复用原首帧失败触发，停在首次目标帧后的同一退出路径。 这是为获取缺失票据时序，不是再次尝试360帧。保留原观察器错误及退出码1；若本次没有重现资源症状，就报告未复现，不能继续循环重试。
+
+C. 归因后才做一处产品修复
+
+把原生发现的顺序转成现有实际源码退休测试中的一个定向病例。重点重放“最后context／尾部入队／idle／关闭”，而不是再加数学或渲染矩阵。
+
+修复优先顺序是：
+
+先修已定位owner的撤销、最后消费者提交或所有权交接位置。 若是已完成父项销毁时生成子项，要明确父项完成证明覆盖哪些资源，以及子项为何还需要或不需要新的提交；不能把任意父fence泛化成所有子资源的豁免。
+
+仅在证据证明通用gate错误分类了一个已知可安全提交的票据时，才改退休gate。保持以下底线：
+
+不把所有 requiresContext改成false；不把outside、已读回或经过一帧当作GPU完成；不强制插入新渲染帧掩盖尾部缺口；不重启五秒期限、清空队列或提前清零计账。
+
+允许修改的产品文件优先是 HybridLumenGIResourceRetirement.cs，以及证据定位到的Feature／backend owner接线。若需要跨多个资源系统重构，或无法证明最后读者已被覆盖，停止并返回最小时间线，不批准猜测式释放。
+
+定向测试只覆盖新顺序、父子恰好一次释放，以及已有未知提交／未满足prerequisite守卫。正常情况下应能完成；无完成证明时必须保留，不能为了“无泄漏”制造提前释放。
+
+D. 最多一次修复后的同触发确认
+
+产品候选通过定向测试后，最多再做一次相同首帧失败退出确认，不加12帧预热或其他矩阵。
+
+应用仍可因刻意保留的观察器失败返回1。分别报告：
+
+纯文本
+expectedObserverFailure
+retirementProofPassed
+nativeAttributedLeaks
+lightoffCompleted = false
+
+资源通过必须依赖旧域票据中完整的提交—完成—销毁链、恰好一次释放和归属资源计账，不只依赖退出码或静态列表归零。scratch等剩余告警若不能归属，就明确保持开放。
+
+本轮新增原生运行上限为两次：一次归因、一次有证据修复后的确认。 首次无法建立归因、候选无安全证明或确认仍失败时，不补跑到偶然成功。
+
+四、何时恢复真实关灯链
+
+提前退出问题经复核关闭、唯一patch观察器的离线检查完成后，再以新版本合同恢复同一C配置、同一360帧上限、120帧关灯及原九个采样时点。不扩灯光、后端、预算或像素矩阵。
+
+另有一处文档语义要在新合同中修正：原合同写“材质发光保持启用”，但执行清单显示该材质虽有非零发光颜色，_EMISSION未启用且无property block覆盖。非零属性不等于实际发光源，缺少keyword也不能单凭CPU清单替代GPU源核验。 后续仍检查实际材质／提议来源，不预设零平衡。本轮没有到关灯阶段，无需据首帧亮度判断残留源。
+
+源文件及八项资产的恢复记录与当前空Runtime diff一致；保留这些清单和原始失败，不用修订后的helper覆盖历史执行版本。〔instrumentation/restoration.json:2–18；product-restored.json:1–12〕
+
+下一步的开发目标仍是真实灯光发现、变更域、调度、cache和gather链。 此次先修观察与异常退出，是移除阻断，不是把完整任务缩成资源测试。四项目标、十条工作流继续有效；整场景参考、动态质量、当前Player/DXR、性能与长时验收均未关闭。

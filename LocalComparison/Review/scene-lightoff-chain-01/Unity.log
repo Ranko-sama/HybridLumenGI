@@ -1,0 +1,720 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.0/staging' branch; Version is '6000.0.85f1 (ee7790f1426a) revision 15628176'; Using compiler version '193933523'; Build Type 'Release'
+[Licensing::IpcConnector] Channel LicenseClient-Administrator doesn't exist
+OS: 'Windows 11  (10.0.26200) ProfessionalWorkstation' Language: 'zh' Physical Memory: 32691 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-10-28T02:50:32Z
+[Licensing::Module] Successfully launched the LicensingClient (PId: 35368)
+
+COMMAND LINE ARGUMENTS:
+I:\Unity test\Editor\6000.0.85f1\Editor\Unity.exe
+-projectPath
+I:\Unity test\Project
+-force-d3d12
+-logFile
+I:\Unity test\Logs\SceneLightoff01.log
+-upmLogFile
+I:\Unity test\Logs\SceneLightoff01-upm.log
+-batchmode
+-executeMethod
+SceneLightoffEditor.Play
+-thinWallConfig
+C
+-comparisonMode
+final
+-comparisonFrames
+360
+-comparisonOutput
+I:/Unity test/Comparison/Evidence/SceneLightoff01
+-sceneLightoffProbe
+-gatherCacheProbe
+Successfully changed project path to: I:\Unity test\Project
+I:/Unity test/Project
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-remapper-allocator-initial-capacity=32768"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+Player connection [27152]  Target information:
+
+Player connection [27152]  * "[IP] 10.0.0.10 [Port] 55504 [Flags] 2 [Guid] 2106755426 [EditorId] 2106755426 [Version] 1048832 [Id] WindowsEditor(7,ZhiwenYyn-PC) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [27152]  * "[IP] 192.168.125.1 [Port] 55504 [Flags] 2 [Guid] 2106755426 [EditorId] 2106755426 [Version] 1048832 [Id] WindowsEditor(7,ZhiwenYyn-PC) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [27152]  * "[IP] 192.168.150.1 [Port] 55504 [Flags] 2 [Guid] 2106755426 [EditorId] 2106755426 [Version] 1048832 [Id] WindowsEditor(7,ZhiwenYyn-PC) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [27152]  * "[IP] 100.80.0.10 [Port] 55504 [Flags] 2 [Guid] 2106755426 [EditorId] 2106755426 [Version] 1048832 [Id] WindowsEditor(7,ZhiwenYyn-PC) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [27152] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [27152] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-33648" after 0.3 seconds.
+Library Redirect Path: Library/
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Administrator" at "2026-10-28T02:50:32.4381736Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 35368, path: "I:/Unity test/Editor/6000.0.85f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.3+d7ffd15
+  Session Id:              88615bc7b9c74855bad053e1959567fc
+  Correlation Id:          f75190a2cdaa8e6445fc7d85377a3653
+  External correlation Id: 2042904667134553920
+  Machine Id:              5uRpnfKA2OXu3n/DfKNxbJ3AjtE=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-Administrator" (connect: 0.37s, validation: 0.10s, handshake: 0.03s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Administrator-notifications" at "2026-10-28T02:50:32.5748923Z"
+[Licensing::Module] Connected to LicensingClient (PId: 35368, launch time: 0.01, total connection time: 0.51s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: ewogICJzdWJzR3JvdXAiIDogInVuaXR5IGVkaXRvciIsCiAgIm5hbWVzcGFjZSIgOiAidW5pdHlfZWRpdG9yIiwKICAidHlwZSIgOiAiRURJVE9SIiwKICAidGFnIiA6ICJVbml0eVBlcnNvbmFsXXXX
+  Product: Unity Personal Version
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 0.55s
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Refreshing native plugins compatible for Editor in 0.00 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.0.85f1 (ee7790f1426a)
+[Subsystems] Discovering subsystems at path I:/Unity test/Editor/6000.0.85f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path I:/Unity test/Project/Assets
+Forcing GfxDevice: Direct3D 12
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+d3d12: failed to query info queue interface (0x80004002).
+Direct3D:
+    Version:         Direct3D 12 [level 12.1]
+    Renderer:        NVIDIA GeForce RTX 2080 Ti (ID=0x1e07)
+    Vendor:          NVIDIA
+    VRAM:            22230 MB
+    App VRAM Budget: 21462 MB
+    Driver:          32.0.15.9636
+Initialize mono
+Mono path[0] = 'I:/Unity test/Editor/6000.0.85f1/Editor/Data/Managed'
+Mono path[1] = 'I:/Unity test/Editor/6000.0.85f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'I:/Unity test/Editor/6000.0.85f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56648
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: I:/Unity test/Editor/6000.0.85f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.003161 seconds.
+- Loaded All Assemblies, in  0.285 seconds
+Native extension for WindowsStandalone target not found
+Package Manager log level set to [2]
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.241 seconds
+Domain Reload Profiling: 524ms
+	BeginReloadAssembly (96ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (1ms)
+	RebuildCommonClasses (29ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (37ms)
+	LoadAllAssembliesAndSetupDomain (113ms)
+		LoadAssemblies (93ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (111ms)
+			TypeCache.Refresh (109ms)
+				TypeCache.ScanAssembly (100ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (241ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (214ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (15ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (43ms)
+			ProcessInitializeOnLoadAttributes (109ms)
+			ProcessInitializeOnLoadMethodAttributes (43ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 21 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.searcher@4.9.3 (location: I:\Unity test\Project\Library\PackageCache\com.unity.searcher@1e17ce91558d)
+    com.unity.burst@1.8.30 (location: I:\Unity test\Project\Library\PackageCache\com.unity.burst@2f3d916873ea)
+    com.unity.mathematics@1.3.2 (location: I:\Unity test\Project\Library\PackageCache\com.unity.mathematics@8017b507cc74)
+    com.unity.collections@2.7.1 (location: I:\Unity test\Project\Library\PackageCache\com.unity.collections@88d5bf65ce66)
+    com.unity.nuget.mono-cecil@1.11.6 (location: I:\Unity test\Project\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.test-framework.performance@3.5.0 (location: I:\Unity test\Project\Library\PackageCache\com.unity.test-framework.performance@8b56083ec0f0)
+  Built-in packages:
+    com.unity.render-pipelines.universal@17.0.4 (location: I:\Unity test\Project\Library\PackageCache\com.unity.render-pipelines.universal@947f725e83ac)
+    com.unity.modules.assetbundle@1.0.0 (location: I:\Unity test\Project\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.imageconversion@1.0.0 (location: I:\Unity test\Project\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.render-pipelines.core@17.0.4 (location: I:\Unity test\Project\Library\PackageCache\com.unity.render-pipelines.core@8d821d79e4bc)
+    com.unity.shadergraph@17.0.4 (location: I:\Unity test\Project\Library\PackageCache\com.unity.shadergraph@f269a003577c)
+    com.unity.render-pipelines.universal-config@17.0.3 (location: I:\Unity test\Project\Library\PackageCache\com.unity.render-pipelines.universal-config@dd206bf35d04)
+    com.unity.ugui@2.0.0 (location: I:\Unity test\Project\Library\PackageCache\com.unity.ugui@cd4936b8279f)
+    com.unity.modules.physics@1.0.0 (location: I:\Unity test\Project\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.terrain@1.0.0 (location: I:\Unity test\Project\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.jsonserialize@1.0.0 (location: I:\Unity test\Project\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.rendering.light-transport@1.0.1 (location: I:\Unity test\Project\Library\PackageCache\com.unity.rendering.light-transport@9bd588f963c0)
+    com.unity.test-framework@1.6.0 (location: I:\Unity test\Project\Library\PackageCache\com.unity.test-framework@082c24152fd4)
+    com.unity.modules.ui@1.0.0 (location: I:\Unity test\Project\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.imgui@1.0.0 (location: I:\Unity test\Project\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.ext.nunit@2.0.5 (location: I:\Unity test\Project\Library\PackageCache\com.unity.ext.nunit@031a54704bff)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.01 seconds
+A meta data file (.meta) exists but its folder 'Assets/HybridLumenGI/Runtime/Native~' can't be found, and has been created. Empty directories cannot be stored in version control, so it's assumed that the meta data file is for an empty directory in version control. When moving or deleting folders outside of Unity, please ensure that the corresponding .meta file is moved or deleted along with it.
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+Starting: I:\Unity test\Editor\6000.0.85f1\Editor\Data\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: I:/Unity test/Project
+DisplayProgressbar: Compiling Scripts
+ExitCode: 4 Duration: 1s47ms
+Rebuilding DAG because FileSignature timestamp changed: Library/Bee/1900b0aE-inputdata.json
+[433/538    0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+*** Tundra requires additional run (1.02 seconds), 2 items updated, 432 evaluated
+Starting: I:\Unity test\Editor\6000.0.85f1\Editor\Data\Tools\netcorerun\netcorerun.exe "I:\Unity test\Editor\6000.0.85f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aE.dag.json" "Library/Bee/1900b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+WorkingDir: I:/Unity test/Project
+ExitCode: 0 Duration: 0s347ms
+Starting: I:\Unity test\Editor\6000.0.85f1\Editor\Data\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --dagfilejson="Library\Bee\1900b0aE.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssemblies
+WorkingDir: I:/Unity test/Project
+ExitCode: 0 Duration: 1s255ms
+Finished compiling graph: 541 nodes, 7675 flattened edges (6247 ToBuild, 76 ToUse), maximum node priority 590
+[319/538    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.rsp
+[320/538    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.rsp
+[433/538    0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[530/538    0s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll (+2 others)
+Assets\ComparisonHarness\ComparisonCapture.cs(15,19): warning CS0108: 'ComparisonCapture.camera' hides inherited member 'Component.camera'. Use the new keyword if hiding was intended.
+
+Assets\HybridLumenGI\Runtime\HybridLumenGIValidationSequence.cs(116,87): warning CS0618: 'FormatUsage' is obsolete: 'Use GraphicsFormatUsage instead'
+
+Assets\HybridLumenGI\Runtime\HybridLumenGIValidationSequence.cs(116,22): warning CS0618: 'SystemInfo.IsFormatSupported(GraphicsFormat, FormatUsage)' is obsolete: 'Use overload with a GraphicsFormatUsage parameter instead'
+
+Assets\HybridLumenGI\Runtime\HybridLumenGIValidationSequence.cs(117,87): warning CS0618: 'FormatUsage' is obsolete: 'Use GraphicsFormatUsage instead'
+
+Assets\HybridLumenGI\Runtime\HybridLumenGIValidationSequence.cs(117,22): warning CS0618: 'SystemInfo.IsFormatSupported(GraphicsFormat, FormatUsage)' is obsolete: 'Use overload with a GraphicsFormatUsage parameter instead'
+[531/538    0s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+Assets\HybridLumenGI\Editor\HybridLumenGIAssetPageBuilder.cs(79,94): warning CS0618: 'BuildAssetBundleOptions.DeterministicAssetBundle' is obsolete: 'This has been made obsolete. It is always enabled in the new AssetBundle build system introduced in 5.0.'
+[532/538    0s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Assembly-CSharp-Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll, with 129 defines and 285 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[533/538    0s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Assembly-CSharp.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll, with 131 defines and 247 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[534/538    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+[535/538    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[536/538    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb
+[537/538    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll
+*** Tundra build success (1.23 seconds), 11 items updated, 538 evaluated
+Assets\ComparisonHarness\ComparisonCapture.cs(15,19): warning CS0108: 'ComparisonCapture.camera' hides inherited member 'Component.camera'. Use the new keyword if hiding was intended.
+Assets\HybridLumenGI\Runtime\HybridLumenGIValidationSequence.cs(116,87): warning CS0618: 'FormatUsage' is obsolete: 'Use GraphicsFormatUsage instead'
+Assets\HybridLumenGI\Runtime\HybridLumenGIValidationSequence.cs(116,22): warning CS0618: 'SystemInfo.IsFormatSupported(GraphicsFormat, FormatUsage)' is obsolete: 'Use overload with a GraphicsFormatUsage parameter instead'
+Assets\HybridLumenGI\Runtime\HybridLumenGIValidationSequence.cs(117,87): warning CS0618: 'FormatUsage' is obsolete: 'Use GraphicsFormatUsage instead'
+Assets\HybridLumenGI\Runtime\HybridLumenGIValidationSequence.cs(117,22): warning CS0618: 'SystemInfo.IsFormatSupported(GraphicsFormat, FormatUsage)' is obsolete: 'Use overload with a GraphicsFormatUsage parameter instead'
+Assets\HybridLumenGI\Editor\HybridLumenGIAssetPageBuilder.cs(79,94): warning CS0618: 'BuildAssetBundleOptions.DeterministicAssetBundle' is obsolete: 'This has been made obsolete. It is always enabled in the new AssetBundle build system introduced in 5.0.'
+AssetDatabase: script compilation time: 3.011669s
+Begin MonoManager ReloadAssembly
+Total cache size 65679392
+Total cache size after purge 65679392, took 00:00:00.0456993
+- Loaded All Assemblies, in  0.408 seconds
+Refreshing native plugins compatible for Editor in 0.00 ms, found 0 plugins.
+Native extension for WindowsStandalone target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.797 seconds
+Domain Reload Profiling: 2202ms
+	BeginReloadAssembly (141ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (9ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (26ms)
+	RebuildCommonClasses (27ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (22ms)
+	LoadAllAssembliesAndSetupDomain (205ms)
+		LoadAssemblies (192ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (87ms)
+			TypeCache.Refresh (62ms)
+				TypeCache.ScanAssembly (57ms)
+			BuildScriptInfoCaches (17ms)
+			ResolveRequiredComponents (7ms)
+	FinalizeReload (1797ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1674ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (11ms)
+			SetLoadedEditorAssemblies (2ms)
+			BeforeProcessingInitializeOnLoad (88ms)
+			ProcessInitializeOnLoadAttributes (1462ms)
+			ProcessInitializeOnLoadMethodAttributes (107ms)
+			AfterProcessingInitializeOnLoad (4ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (9ms)
+Start importing Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl using Guid(7415a92f0f69479ca7aa5f46f69c9928) (ShaderIncludeImporter) -> (artifact id: '4c982d28bf7b8007bb940c24b732caac') in 0.0100829 seconds
+Start importing Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl using Guid(7418e0aa605d4fff8cca21cf84c610a0) (ShaderIncludeImporter) -> (artifact id: '73632c4a3fa263c3cf33d76324ba2613') in 0.0016535 seconds
+Start importing Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/LightOffCacheWriter.hlsl using Guid(d9144f86545e6ea428dabfdc138aa6bf) (ShaderIncludeImporter) -> (artifact id: '1334c0a2fead501ce49f91d0a11749b1') in 0.0153313 seconds
+Start importing Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardware.compute using Guid(61e7e26f5dc94dc79d0150838ae7b6eb) (ComputeShaderImporter)Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+ -> (artifact id: 'ec6a28f606f7da082ffc23bd62f00672') in 0.0651947 seconds
+Start importing Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIExactSoftware.compute using Guid(d5dc2efd0e734d8383a7cfe25dbf6ff6) (ComputeShaderImporter) -> (artifact id: 'edc8ce5087d8ac3acaab21c2d47a5fba') in 0.0087634 seconds
+Start importing Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGI.compute using Guid(dcb6336b4c169ee42bbee660a9d1ec58) (ComputeShaderImporter) -> (artifact id: '91a6357bb9e46c178cfe37b1484bff97') in 0.0090039 seconds
+Refreshing native plugins compatible for Editor in 0.00 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=e65ca1e5df11e184595d5d123cd53697): Total: 5.720 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=3 (actual=3, local cache=0, cache server=0)
+		Asset DB Process Time: managed=2 ms, native=2156 ms
+		Asset DB Callback time: managed=96 ms, native=20 ms
+		Scripting: domain reloads=1, domain reload time=408 ms, compile time=3013 ms, other=23 ms
+		Project Asset Count: scripts=734, non-scripts=1708
+		Asset File Changes: new=3, changed=9, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 12.665ms
+	ApplyChangesToAssetFolders: 0.317ms
+	Scan: 59.912ms
+	OnSourceAssetsModified: 0.643ms
+	CategorizeAssetsWithTransientArtifact: 18.154ms
+	ProcessAssetsWithTransientArtifactChanges: 29.493ms
+	CategorizeAssets: 29.289ms
+	ImportOutOfDateAssets: 1914.029ms (-1213.037ms without children)
+		ImportManagerImport: 112.865ms (1.278ms without children)
+			ImportInProcess: 111.344ms
+			UpdateCategorizedAssets: 0.243ms
+		CompileScripts: 3012.713ms
+		ReloadNativeAssets: 0.034ms
+		UnloadImportedAssets: 0.842ms
+		ReloadImportedAssets: 0.001ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.394ms
+		InitializingProgressBar: 0.013ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.001ms
+		OnDemandSchedulerStart: 0.204ms
+	PostProcessAllAssets: 103.355ms
+	Hotreload: 1.344ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.002ms
+	UnloadStreamsBegin: 1.219ms
+	PersistCurrentRevisions: 0.119ms
+	UnloadStreamsEnd: 0.001ms
+	GenerateScriptTypeHashes: 6.283ms
+	Untracked: 3549.815ms
+
+Application.AssetDatabase Initial Refresh End
+Scanning for USB devices : 7.989ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-HLGI-Comparison
+Unloading 28 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 3164 unused Assets / (5.2 MB). Loaded Objects now: 3878.
+Memory consumption went from 154.4 MB to 149.3 MB.
+Total: 6.952500 ms (FindLiveObjects: 0.376900 ms CreateObjectMapping: 0.155900 ms MarkObjects: 4.379600 ms  DeleteObjects: 2.039400 ms)
+
+Asset Pipeline Refresh (id=add9e033d1ab3d845b2a7c10d446c056): Total: 0.030 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Asset Pipeline Refresh (id=d9f9dd00b059c344b848343ebc0dfc54): Total: 0.030 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Asset Pipeline Refresh (id=5f83f2ca9af489b41a3588a8181d9798): Total: 0.017 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Asset Pipeline Refresh (id=1a835625ed30cee4394444e446d33088): Total: 0.023 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Start importing ProjectSettings/ProjectSettings.asset using Guid(00000000000000004000000000000000) (LibraryAssetImporter) -> (artifact id: '9af94824fc9f4aaa764de2d7d470b2f4') in 0.0050078 seconds
+Start importing ProjectSettings/GraphicsSettings.asset using Guid(00000000000000006100000000000000) (LibraryAssetImporter) -> (artifact id: 'c6f762556d073d36832ea975844538fb') in 0.0012825 seconds
+Start importing Assets/Comparison/Renderer.asset using Guid(1346d23e59037cd489d53c8e5b594ba4) (NativeFormatImporter) -> (artifact id: 'b5cfdc2fc15e0d5b4d22eeee1cf58354') in 0.0015418 seconds
+Start importing Assets/Comparison/Pipeline.asset using Guid(c4904ab5031e93c4a8f8e6ca539e4152) (NativeFormatImporter) -> (artifact id: 'bb98fe770944e293ed6c55d2d48ebb5c') in 0.0012298 seconds
+Refreshing native plugins compatible for Editor in 0.00 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=31f78bc5453f61742a24de740260ce1b): Total: 0.022 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Opening scene 'Assets/ComparisonScene/Run/Validation.unity'
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/ComparisonScene/Run/Validation.unity'
+	Deserialize:            6.377 ms
+	Integration:            148.743 ms
+	Integration of assets:  1.255 ms
+	Thread Wait Time:       0.007 ms
+	Total Operation Time:   156.382 ms
+Unloading 3 unused Assets / (13.4 KB). Loaded Objects now: 4059.
+Memory consumption went from 144.9 MB to 144.9 MB.
+Total: 4.169100 ms (FindLiveObjects: 0.189600 ms CreateObjectMapping: 0.062400 ms MarkObjects: 3.897800 ms  DeleteObjects: 0.019000 ms)
+
+Start importing Assets/ComparisonScene/Run/Validation.unity using Guid(0b691e4d338852f418d3167f99232bd4) (DefaultImporter) -> (artifact id: '2cd0d62eccb1d630fb73ab2e9284f226') in 0.0009583 seconds
+Refreshing native plugins compatible for Editor in 0.00 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=cc982e54aaf25c5448c4cca7f2043978): Total: 0.018 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+COMPARISON_PREPARED integration15-local-compat-final Unity=6000.0.85f1 GPU=NVIDIA GeForce RTX 2080 Ti API=Direct3D12
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ComparisonRunnerEditor:Prepare () (at Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs:109)
+ThinWallEditor:Prepare () (at Assets/ComparisonHarness/Editor/ThinWallEditor.cs:19)
+SceneLightoffEditor:Play () (at Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs:20)
+
+(Filename: Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs Line: 109)
+
+COMPARISON_FORMAT R16G16B16A16_SFloat Render=True Sample=True LoadStore=True
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ComparisonRunnerEditor:Prepare () (at Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs:111)
+ThinWallEditor:Prepare () (at Assets/ComparisonHarness/Editor/ThinWallEditor.cs:19)
+SceneLightoffEditor:Play () (at Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs:20)
+
+(Filename: Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs Line: 111)
+
+COMPARISON_FORMAT R32G32B32A32_SFloat Render=True Sample=True LoadStore=True
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ComparisonRunnerEditor:Prepare () (at Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs:111)
+ThinWallEditor:Prepare () (at Assets/ComparisonHarness/Editor/ThinWallEditor.cs:19)
+SceneLightoffEditor:Play () (at Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs:20)
+
+(Filename: Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs Line: 111)
+
+COMPARISON_FORMAT R8G8B8A8_UNorm Render=True Sample=True LoadStore=True
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ComparisonRunnerEditor:Prepare () (at Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs:111)
+ThinWallEditor:Prepare () (at Assets/ComparisonHarness/Editor/ThinWallEditor.cs:19)
+SceneLightoffEditor:Play () (at Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs:20)
+
+(Filename: Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs Line: 111)
+
+COMPARISON_FORMAT R32G32_UInt Render=True Sample=False LoadStore=True
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ComparisonRunnerEditor:Prepare () (at Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs:111)
+ThinWallEditor:Prepare () (at Assets/ComparisonHarness/Editor/ThinWallEditor.cs:19)
+SceneLightoffEditor:Play () (at Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs:20)
+
+(Filename: Assets/ComparisonHarness/Editor/ComparisonRunnerEditor.cs Line: 111)
+
+Start importing Assets/Comparison/Renderer.asset using Guid(1346d23e59037cd489d53c8e5b594ba4) (NativeFormatImporter) -> (artifact id: 'b5cfdc2fc15e0d5b4d22eeee1cf58354') in 0.0013209 seconds
+Refreshing native plugins compatible for Editor in 0.00 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=0be74395a3b37b546b40ef9a658dcb00): Total: 0.009 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Start importing Assets/ThinWallProbe/Static.unity using Guid(f1fff3dbf82b98a4e908554d09ee2497) (DefaultImporter) -> (artifact id: '64ce4dfcd353cd00ffd0d7b3094c1a8c') in 0.0010774 seconds
+Refreshing native plugins compatible for Editor in 0.00 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=9ab91007631748b4ca400cb10db7cace): Total: 0.017 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+THIN_WALL_PREPARED config=C frames=120 static thinView exact-software requested; real readiness still required
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ThinWallEditor:Prepare () (at Assets/ComparisonHarness/Editor/ThinWallEditor.cs:48)
+SceneLightoffEditor:Play () (at Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs:20)
+
+(Filename: Assets/ComparisonHarness/Editor/ThinWallEditor.cs Line: 48)
+
+Start importing Assets/ThinWallProbe/Static.unity using Guid(f1fff3dbf82b98a4e908554d09ee2497) (DefaultImporter) -> (artifact id: '744ebf269c70f4b2b85375d97e2f941a') in 0.0006463 seconds
+Refreshing native plugins compatible for Editor in 0.00 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=85be195ec41240248a377f832fcc9772): Total: 0.016 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+SCENE_LIGHTOFF_PREPARED C / 360 logical frames / real Light off at120 / source and executed assets archived
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+SceneLightoffEditor:Play () (at Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs:43)
+
+(Filename: Assets/ComparisonHarness/Editor/SceneLightoffEditor.cs Line: 43)
+
+Unity is not designed to run with Administrator privileges.
+
+With elevated access, scripts in your project can modify system files, registry settings, or protected areas, even accidentally.
+This could make your system unstable or unbootable.
+
+Restart as a standard user for the safest experience.
+[Project] Loading completed in 8.248 seconds
+	Project init time: 				7.531 seconds
+		Template init time: 		0.000 seconds
+		Package Manager init time: 		0.290 seconds
+		Asset Database init time: 		0.290 seconds
+		Global illumination init time: 	0.002 seconds
+		Assemblies load time: 			0.542 seconds
+		Unity extensions init time: 	0.003 seconds
+		Asset Database refresh time: 	5.720 seconds
+	Scene opening time: 			0.672 seconds
+##utp:{"type":"ProjectInfo","version":2,"phase":"Immediate","time":1793155840298,"processId":33648,"projectLoad":8.2477614,"projectInit":7.5305291,"templateInit":0.0,"packageManagerInit":0.290123,"assetDatabaseInit":0.2895164,"globalIlluminationInit":0.001832,"assembliesLoad":0.5424755,"unityExtensionsInit":0.003457,"assetDatabaseRefresh":5.7204428,"sceneOpening":0.6724323}
+##utp:{"type":"EditorInfo","version":2,"phase":"Immediate","time":1793155840298,"processId":33648,"editorVersion":"6000.0.85f1 (ee7790f1426a)","branch":"6000.0/staging","buildType":"Release","platform":"Windows"}
+Reloading assemblies for play mode.
+Reloading assemblies after forced synchronous recompile.
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.408 seconds
+Refreshing native plugins compatible for Editor in 0.00 ms, found 0 plugins.
+Native extension for WindowsStandalone target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.465 seconds
+Domain Reload Profiling: 872ms
+	BeginReloadAssembly (275ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (17ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (162ms)
+	RebuildCommonClasses (26ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (19ms)
+	LoadAllAssembliesAndSetupDomain (76ms)
+		LoadAssemblies (87ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (61ms)
+			TypeCache.Refresh (3ms)
+				TypeCache.ScanAssembly (0ms)
+			BuildScriptInfoCaches (48ms)
+			ResolveRequiredComponents (7ms)
+	FinalizeReload (466ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (277ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (10ms)
+			SetLoadedEditorAssemblies (2ms)
+			BeforeProcessingInitializeOnLoad (85ms)
+			ProcessInitializeOnLoadAttributes (131ms)
+			ProcessInitializeOnLoadMethodAttributes (45ms)
+			AfterProcessingInitializeOnLoad (4ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (23ms)
+Asset Pipeline Refresh (id=b8b8e677aed6cc1478f5120d7587fd09): Total: 0.947 seconds - Initiated by StopAssetImportingV2(ForceSynchronousImport | ForceDomainReload)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=514 ms
+		Asset DB Callback time: managed=15 ms, native=0 ms
+		Scripting: domain reloads=1, domain reload time=415 ms, compile time=1 ms, other=0 ms
+		Project Asset Count: scripts=734, non-scripts=1708
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 1.389ms
+	ApplyChangesToAssetFolders: 0.103ms
+	Scan: 0.001ms
+	OnSourceAssetsModified: 0.001ms
+	CategorizeAssetsWithTransientArtifact: 0.004ms
+	ProcessAssetsWithTransientArtifactChanges: 1.549ms
+	CategorizeAssets: 24.201ms
+	ImportOutOfDateAssets: 468.204ms (464.933ms without children)
+		CompileScripts: 0.890ms
+		CollectScriptTypesHashes: 1.254ms
+		ReloadNativeAssets: 0.672ms
+		UnloadImportedAssets: 0.052ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.244ms
+		InitializingProgressBar: 0.000ms
+		OnDemandSchedulerStart: 0.159ms
+	PostProcessAllAssets: 15.814ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.066ms
+	UnloadStreamsBegin: 0.039ms
+	PersistCurrentRevisions: 0.053ms
+	UnloadStreamsEnd: 0.001ms
+	GenerateScriptTypeHashes: 2.933ms
+	Untracked: 435.978ms
+
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            1.212 ms
+	Integration:            145.731 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       13.696 ms
+	Total Operation Time:   160.640 ms
+Reduced additional punctual light shadows resolution by 2 to make 6 shadow maps fit in the 2048x2048 shadow atlas. To avoid this, increase shadow atlas size, decrease big shadow resolutions, or reduce the number of shadow maps active in the same frame
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityEngine.Rendering.Universal.Internal.AdditionalLightsShadowCasterPass:Setup (UnityEngine.Rendering.Universal.UniversalRenderingData,UnityEngine.Rendering.Universal.UniversalCameraData,UnityEngine.Rendering.Universal.UniversalLightData,UnityEngine.Rendering.Universal.UniversalShadowData) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Passes/AdditionalLightsShadowCasterPass.cs:428)
+UnityEngine.Rendering.Universal.UniversalRenderer:OnBeforeRendering (UnityEngine.Rendering.RenderGraphModule.RenderGraph) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:916)
+UnityEngine.Rendering.Universal.UniversalRenderer:OnRecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererRenderGraph.cs:824)
+UnityEngine.Rendering.Universal.ScriptableRenderer:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/ScriptableRenderer.cs:1214)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RecordRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Rendering.Universal.ScriptableRenderer) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRenderPipelineRenderGraph.cs:10)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RecordAndExecuteRenderGraph (UnityEngine.Rendering.RenderGraphModule.RenderGraph,UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Rendering.Universal.ScriptableRenderer,UnityEngine.Rendering.CommandBuffer,UnityEngine.Camera,string) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRenderPipelineRenderGraph.cs:24)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderSingleCamera (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Rendering.Universal.UniversalCameraData) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRenderPipeline.cs:863)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderCameraStack (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Camera,bool) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRenderPipeline.cs:1088)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:Render (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRenderPipeline.cs:475)
+UnityEngine.Rendering.RenderPipeline:InternalRender (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>)
+UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal (UnityEngine.Rendering.RenderPipelineAsset,intptr,UnityEngine.Object,Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle)
+
+(Filename: ./Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Passes/AdditionalLightsShadowCasterPass.cs Line: 428)
+
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+Asset Pipeline Refresh (id=dcb2949b0aa3f104e8830cea967a69ee): Total: 0.031 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+SCENE_LIGHTOFF_OBSERVER_FAILED: System.Exception: Actual cache observer entry/frame/epoch mismatch
+  at SceneLightoffTap.Validate (System.Int32 logical, System.Int32 lane) [0x000ae] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:241 
+  at SceneLightoffTap+<>c__DisplayClass53_0.<AfterCache>b__0 (UnityEngine.Rendering.AsyncGPUReadbackRequest request) [0x00081] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:216 
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+SceneLightoffTap:Failure (System.Exception) (at Assets/ComparisonHarness/SceneLightoffTap.cs:78)
+SceneLightoffTap/<>c__DisplayClass53_0:<AfterCache>b__0 (UnityEngine.Rendering.AsyncGPUReadbackRequest) (at Assets/ComparisonHarness/SceneLightoffTap.cs:217)
+UnityEngine.Rendering.AsyncGPUReadbackRequest:InvokeCallback (System.Action`1<UnityEngine.Rendering.AsyncGPUReadbackRequest>,UnityEngine.Rendering.AsyncGPUReadbackRequest)
+
+(Filename: Assets/ComparisonHarness/SceneLightoffTap.cs Line: 78)
+
+SCENE_LIGHTOFF_OBSERVER_FAILED: System.Exception: Actual cache observer entry/frame/epoch mismatch
+  at SceneLightoffTap.Validate (System.Int32 logical, System.Int32 lane) [0x000ae] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:241 
+  at SceneLightoffTap+<>c__DisplayClass53_1.<AfterCache>b__1 (System.Byte[] data) [0x00030] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:220 
+  at SceneLightoffTap+<>c__DisplayClass51_0.<Buffer>b__0 (UnityEngine.Rendering.AsyncGPUReadbackRequest request) [0x00058] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:187 
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+SceneLightoffTap:Failure (System.Exception) (at Assets/ComparisonHarness/SceneLightoffTap.cs:78)
+SceneLightoffTap/<>c__DisplayClass51_0:<Buffer>b__0 (UnityEngine.Rendering.AsyncGPUReadbackRequest) (at Assets/ComparisonHarness/SceneLightoffTap.cs:188)
+UnityEngine.Rendering.AsyncGPUReadbackRequest:InvokeCallback (System.Action`1<UnityEngine.Rendering.AsyncGPUReadbackRequest>,UnityEngine.Rendering.AsyncGPUReadbackRequest)
+
+(Filename: Assets/ComparisonHarness/SceneLightoffTap.cs Line: 78)
+
+SCENE_LIGHTOFF_OBSERVER_FAILED: System.Exception: Actual cache observer entry/frame/epoch mismatch
+  at SceneLightoffTap.Validate (System.Int32 logical, System.Int32 lane) [0x000ae] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:241 
+  at SceneLightoffTap+<>c__DisplayClass53_1.<AfterCache>b__1 (System.Byte[] data) [0x00030] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:220 
+  at SceneLightoffTap+<>c__DisplayClass51_0.<Buffer>b__0 (UnityEngine.Rendering.AsyncGPUReadbackRequest request) [0x00058] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:187 
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+SceneLightoffTap:Failure (System.Exception) (at Assets/ComparisonHarness/SceneLightoffTap.cs:78)
+SceneLightoffTap/<>c__DisplayClass51_0:<Buffer>b__0 (UnityEngine.Rendering.AsyncGPUReadbackRequest) (at Assets/ComparisonHarness/SceneLightoffTap.cs:188)
+UnityEngine.Rendering.AsyncGPUReadbackRequest:InvokeCallback (System.Action`1<UnityEngine.Rendering.AsyncGPUReadbackRequest>,UnityEngine.Rendering.AsyncGPUReadbackRequest)
+
+(Filename: Assets/ComparisonHarness/SceneLightoffTap.cs Line: 78)
+
+Comparison failed: Unity Error: SCENE_LIGHTOFF_OBSERVER_FAILED: System.Exception: Actual cache observer entry/frame/epoch mismatch
+  at SceneLightoffTap.Validate (System.Int32 logical, System.Int32 lane) [0x000ae] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:241 
+  at SceneLightoffTap+<>c__DisplayClass53_1.<AfterCache>b__1 (System.Byte[] data) [0x00030] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:220 
+  at SceneLightoffTap+<>c__DisplayClass51_0.<Buffer>b__0 (UnityEngine.Rendering.AsyncGPUReadbackRequest request) [0x00058] in I:\Unity test\Project\Assets\ComparisonHarness\SceneLightoffTap.cs:187 
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+ComparisonCapture:Finish (bool) (at Assets/ComparisonHarness/ComparisonCapture.cs:218)
+ComparisonCapture:Update () (at Assets/ComparisonHarness/ComparisonCapture.cs:98)
+
+(Filename: Assets/ComparisonHarness/ComparisonCapture.cs Line: 218)
+
+HybridLumenGI retained unresolved retirement resources: owned=7, pending=7, unknownSubmission=0, failed=0, failedWithdrawals=0, outsideRenderLoop=True. No completion was assumed.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogWarning (object)
+HybridLumenGI.HybridLumenGIResourceRetirement:DrainShutdown () (at Assets/HybridLumenGI/Runtime/HybridLumenGIResourceRetirement.cs:124)
+HybridLumenGI.HybridLumenGIResourceRetirement:BeginShutdown () (at Assets/HybridLumenGI/Runtime/HybridLumenGIResourceRetirement.cs:109)
+UnityEditor.EditorApplication:Internal_EditorApplicationQuit ()
+ComparisonCapture:Finish (bool) (at Assets/ComparisonHarness/ComparisonCapture.cs:221)
+ComparisonCapture:Update () (at Assets/ComparisonHarness/ComparisonCapture.cs:98)
+
+(Filename: Assets/HybridLumenGI/Runtime/HybridLumenGIResourceRetirement.cs Line: 124)
+
+[Physics::Module] Cleanup current backned.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-Administrator-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-Administrator channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+Leak Detected : Persistent allocates 8 individual allocations. To find out more please enable 'Preferences > Jobs > Leak Detection Level > Enabled With Stack Trace' and reproduce the leak again.
+There are unreleased allocations left in a heap that is released!
+[d3d12] Unreleased non-evictable resource 00000286EB377A10 (size 65536 B, lastUsedFence 34) 'Buffer-16-3072'
+[d3d12] Unreleased non-evictable resource 00000286EB37C290 (size 65536 B, lastUsedFence 34) 'Buffer-16-12256'
+[d3d12] Unreleased non-evictable resource 00000286EB380200 (size 65536 B, lastUsedFence 34) 'Buffer-16-12288'
+[d3d12] Unreleased non-evictable resource 00000286EB379540 (size 65536 B, lastUsedFence 34) 'Buffer-16-15360'
+[d3d12] Unreleased non-evictable resource 00000286EB379E50 (size 65536 B, lastUsedFence 34) 'Buffer-16-128'
+[d3d12] Unreleased non-evictable resource 00000286EB37A760 (size 65536 B, lastUsedFence 34) 'Buffer-16-2048'
+[d3d12] Unreleased non-evictable resource 000002862F819670 (size 1048576 B, lastUsedFence 17) 'D3D12ScratchBufferInternal::D3D12ScratchBufferInternal() ScratchBuffer (tag:1)'
+[d3d12] Unreleased non-evictable resource 00000286EB377100 (size 65536 B, lastUsedFence 34) 'Buffer-16-18432'
+[d3d12] Unreleased non-evictable resource 00000286EB378320 (size 65536 B, lastUsedFence 34) 'Buffer-16-1024'
+Checking for leaked weakptr:
+  Found no leaked weakptrs.
+[Package Manager] Server process was shutdown
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1793156053276,"processId":33648,"allocatedMemory":13076549,"memoryLabels":[{"Default":28597},{"Permanent":15356},{"NewDelete":71617},{"Thread":4237320},{"Manager":815962},{"VertexData":8},{"Geometry":816},{"VFX":-104},{"Texture":296},{"Shader":84401},{"Material":24},{"GfxDevice":62984},{"GfxThread":192},{"Animation":392},{"Audio":4040},{"FontEngine":256},{"Physics":2081},{"Serialization":816},{"Input":14824},{"JobScheduler":33024},{"TextLib":160},{"Mono":32},{"MonoCode":64},{"ScriptingNativeRuntime":155060},{"BaseObject":1620112},{"Resource":1304},{"Renderer":2928},{"Transform":4646},{"File":9783},{"WebCam":616},{"Culling":32},{"Terrain":11394},{"Wind":24},{"STL":40},{"String":19516},{"DynamicArray":93105},{"HashMap":70354},{"Utility":2660078},{"Curl":48},{"PoolAlloc":1960},{"AI":104},{"TypeTree":5005},{"ScriptManager":512},{"RuntimeInitializeOnLoadManager":64},{"SpriteAtlas":112},{"GI":7888},{"Director":8240},{"CloudService":7480},{"WebRequest":552},{"VR":45969},{"SceneManager":496},{"Video":208},{"LazyScriptCache":32},{"Camera":17},{"Secure":265},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":464},{"Hierarchy":272},{"CoreStats":12536},{"Identifiers":6192},{"Gui":80},{"EditorUtility":57186},{"VersionControl":4},{"Undo":947},{"AssetDatabase":2507713},{"EditorGi":328},{"UnityConnect":24208},{"Upm":2036},{"DrivenProperties":72},{"LocalIPC":219},{"ProfilerEditor":9746},{"CoreBusinessMetrics":3468},{"Licensing":1264},{"AssetReference":32},{"IPCStream":32}]}
