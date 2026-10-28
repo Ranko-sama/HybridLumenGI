@@ -1,0 +1,296 @@
+{
+  "passed": true,
+  "oldCounterexampleEstablished": true,
+  "detailOffBitwiseUnchanged": true,
+  "floatSourceBound": 2e-06,
+  "runner": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+  "runnerSha256": "8dc02bf76d564dba07b117af905335c1281377e8d7fd9e5853e6cd1a07324cb4",
+  "inputSha256": "5a24a699ac8a024e87981faa1a4551f79ebb26f520df8ab8e0d2633bd5f2c381",
+  "scope": "Actual unchanged Vert/Frag function bodies on WARP; fixed point-texture and raster adapters, not Unity keyword transfer",
+  "rows": [
+    {
+      "stage": "baseline",
+      "variant": "off",
+      "diffuse": [
+        0.23999999463558197,
+        0.26999998092651367,
+        0.05999999865889549,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "mappedUv": [
+        0.3499999940395355,
+        0.42500001192092896
+      ],
+      "expected": [
+        0.24,
+        0.27,
+        0.06
+      ],
+      "matchesReference": true,
+      "shaderSha256": "2ebfd5bad90b4c7bdf3c8e0eed3101b2734503914e790412cc31461dda13d487",
+      "compiledSourceSha256": "277841facbf2213e8e9aeee31c3b834e8a0275e553ed1ee05d8f455d5a9c7335",
+      "command": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceDetail",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\baseline-off.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\baseline.hlsl"
+      ]
+    },
+    {
+      "stage": "baseline",
+      "variant": "mulx2",
+      "diffuse": [
+        0.23999999463558197,
+        0.26999998092651367,
+        0.05999999865889549,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "mappedUv": [
+        0.3499999940395355,
+        0.42500001192092896
+      ],
+      "expected": [
+        0.32999999999999996,
+        0.16874999999999998,
+        0.07125
+      ],
+      "matchesReference": false,
+      "shaderSha256": "2ebfd5bad90b4c7bdf3c8e0eed3101b2734503914e790412cc31461dda13d487",
+      "compiledSourceSha256": "277841facbf2213e8e9aeee31c3b834e8a0275e553ed1ee05d8f455d5a9c7335",
+      "command": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceDetail",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\baseline-mulx2.dxil",
+        "-D",
+        "_DETAIL_MULX2=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\baseline.hlsl"
+      ]
+    },
+    {
+      "stage": "baseline",
+      "variant": "scaled",
+      "diffuse": [
+        0.23999999463558197,
+        0.26999998092651367,
+        0.05999999865889549,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "mappedUv": [
+        0.3499999940395355,
+        0.42500001192092896
+      ],
+      "expected": [
+        0.285,
+        0.219375,
+        0.065625
+      ],
+      "matchesReference": false,
+      "shaderSha256": "2ebfd5bad90b4c7bdf3c8e0eed3101b2734503914e790412cc31461dda13d487",
+      "compiledSourceSha256": "277841facbf2213e8e9aeee31c3b834e8a0275e553ed1ee05d8f455d5a9c7335",
+      "command": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceDetail",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\baseline-scaled.dxil",
+        "-D",
+        "_DETAIL_SCALED=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\baseline.hlsl"
+      ]
+    },
+    {
+      "stage": "candidate",
+      "variant": "off",
+      "diffuse": [
+        0.23999999463558197,
+        0.26999998092651367,
+        0.05999999865889549,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "mappedUv": [
+        0.3499999940395355,
+        0.42500001192092896
+      ],
+      "expected": [
+        0.24,
+        0.27,
+        0.06
+      ],
+      "matchesReference": true,
+      "shaderSha256": "92dd14c536c1a71d51d83a698d857b6b52abae9f3173c6818949995540e88430",
+      "compiledSourceSha256": "983aa8891e53566d94baa5a95f2f6673daeaf75a911e2226905fbce84fe69e60",
+      "command": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceDetail",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\candidate-off.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\candidate.hlsl"
+      ]
+    },
+    {
+      "stage": "candidate",
+      "variant": "mulx2",
+      "diffuse": [
+        0.32999998331069946,
+        0.16875000298023224,
+        0.07124999910593033,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "mappedUv": [
+        0.3499999940395355,
+        0.42500001192092896
+      ],
+      "expected": [
+        0.32999999999999996,
+        0.16874999999999998,
+        0.07125
+      ],
+      "matchesReference": true,
+      "shaderSha256": "92dd14c536c1a71d51d83a698d857b6b52abae9f3173c6818949995540e88430",
+      "compiledSourceSha256": "983aa8891e53566d94baa5a95f2f6673daeaf75a911e2226905fbce84fe69e60",
+      "command": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceDetail",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\candidate-mulx2.dxil",
+        "-D",
+        "_DETAIL_MULX2=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\candidate.hlsl"
+      ]
+    },
+    {
+      "stage": "candidate",
+      "variant": "scaled",
+      "diffuse": [
+        0.2849999964237213,
+        0.21937499940395355,
+        0.06562499701976776,
+        1.0
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "mappedUv": [
+        0.3499999940395355,
+        0.42500001192092896
+      ],
+      "expected": [
+        0.285,
+        0.219375,
+        0.065625
+      ],
+      "matchesReference": true,
+      "shaderSha256": "92dd14c536c1a71d51d83a698d857b6b52abae9f3173c6818949995540e88430",
+      "compiledSourceSha256": "983aa8891e53566d94baa5a95f2f6673daeaf75a911e2226905fbce84fe69e60",
+      "command": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceDetail",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\candidate-scaled.dxil",
+        "-D",
+        "_DETAIL_SCALED=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-detail-albedo-01\\source\\candidate.hlsl"
+      ]
+    }
+  ]
+}

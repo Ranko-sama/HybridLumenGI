@@ -12,6 +12,9 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
         _OcclusionStrength("Occlusion Strength", Range(0,1)) = 1
         _EmissionMap("Emission", 2D) = "white" {}
         [HDR] _EmissionColor("Emission", Color) = (0,0,0,1)
+        _DetailMask("Detail Mask", 2D) = "white" {}
+        _DetailAlbedoMap("Detail Albedo", 2D) = "linearGrey" {}
+        _DetailAlbedoMapScale("Detail Albedo Scale", Float) = 1
         _WorkflowMode("Workflow Mode", Float) = 1
         _SmoothnessTextureChannel("Smoothness Texture Channel", Float) = 0
         _AlphaClip("Alpha Clip", Float) = 0
@@ -38,6 +41,7 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             #pragma multi_compile_fragment _ _METALLICSPECGLOSSMAP
             #pragma multi_compile_fragment _ _EMISSION
             #pragma multi_compile_fragment _ _OCCLUSIONMAP
+            #pragma multi_compile_local_fragment _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma multi_compile_local_fragment _ _RECEIVE_SHADOWS_OFF
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "HybridLumenGIReceiverPolicyCapture.hlsl"
@@ -48,11 +52,15 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             TEXTURE2D(_SpecGlossMap); SAMPLER(sampler_SpecGlossMap);
             TEXTURE2D(_OcclusionMap); SAMPLER(sampler_OcclusionMap);
             TEXTURE2D(_EmissionMap); SAMPLER(sampler_EmissionMap);
+            TEXTURE2D(_DetailMask); SAMPLER(sampler_DetailMask);
+            TEXTURE2D(_DetailAlbedoMap); SAMPLER(sampler_DetailAlbedoMap);
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
+                float4 _DetailAlbedoMap_ST;
                 half4 _BaseColor, _SpecColor, _EmissionColor;
                 half _Metallic, _OcclusionStrength, _WorkflowMode;
                 half _AlphaClip, _Cutoff, _Surface, _SmoothnessTextureChannel;
+                half _DetailAlbedoMapScale;
             CBUFFER_END
 
             struct Attributes
@@ -98,6 +106,20 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                 half coverage = _SmoothnessTextureChannel > 0.5h ? _BaseColor.a : baseSample.a * _BaseColor.a;
                 if (_AlphaClip > 0.5h) clip(coverage - _Cutoff);
 
+                half3 albedo = baseSample.rgb * _BaseColor.rgb;
+                #if defined(_DETAIL_MULX2) || defined(_DETAIL_SCALED)
+                    // Lit applies detail ST to the already transformed base UV.
+                    half mask = SAMPLE_TEXTURE2D(_DetailMask, sampler_DetailMask, input.uv).a;
+                    float2 detailUV = input.uv * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw;
+                    half3 detail = SAMPLE_TEXTURE2D(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV).rgb;
+                    #if defined(_DETAIL_SCALED)
+                        detail = 2.0h * detail * _DetailAlbedoMapScale - _DetailAlbedoMapScale + 1.0h;
+                    #else
+                        detail *= 2.0h;
+                    #endif
+                    albedo *= 1.0h + mask * (detail - 1.0h);
+                #endif
+
                 half metallic = saturate(_Metallic);
                 half3 specular = saturate(_SpecColor.rgb);
                 #if defined(_METALLICSPECGLOSSMAP)
@@ -119,7 +141,7 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                     emission = max(0.0h, _EmissionColor.rgb * SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, input.uv).rgb);
                 #endif
                 SurfaceOutput output;
-                output.diffuseOcclusion = half4(saturate(baseSample.rgb * _BaseColor.rgb) * diffuseFraction, saturate(occlusion));
+                output.diffuseOcclusion = half4(saturate(albedo) * diffuseFraction, saturate(occlusion));
                 output.emissionValidity = half4(emission, HLGIEncodeScreenMaterial(1.0h, HLGICaptureReceivesShadows()));
                 output.receiverPolicy = HLGICaptureReceiverPolicy();
                 return output;

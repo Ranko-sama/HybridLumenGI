@@ -1,0 +1,11 @@
+#pragma kernel CSUpdateCache
+#pragma kernel CSTrace
+#pragma kernel CSTemporal
+#pragma kernel CSTemporalIdentity HLGI_RECEIVER_IDENTITY
+#pragma kernel CSFilter
+#pragma target 5.0
+#pragma use_dxc
+#pragma only_renderers d3d11
+#pragma require inlineraytracing
+#define HLGI_INLINE_RT 1
+#include "C:/Users/Administrator/Desktop/test/HybridLumenGI/LocalComparison/Review/surface-detail-albedo-01/instrumentation/prepared/Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl"
