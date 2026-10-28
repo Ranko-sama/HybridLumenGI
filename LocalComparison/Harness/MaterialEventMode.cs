@@ -51,7 +51,7 @@ public static class MaterialEventMode
         settings.preferHardwareTracing=true;settings.exactSoftwareTracing=true;
         settings.measureGpuCost=false;settings.adaptiveGpuBudget=false;settings.targetGpuMilliseconds=0;
         feature.SetActive(true);capture.featureOff=false;capture.indirectOnly=false;capture.totalFrames=256;capture.quitWhenComplete=true;
-        capture.label="material-mpb-propagation-01";
+        capture.label="material-mpb-propagation-02";
         if(SystemInfo.graphicsDeviceType!=GraphicsDeviceType.Direct3D12 || !SystemInfo.supportsInlineRayTracing)
             throw new Exception("DX12 inline tracing is required");
         // Preserve only the original probe's initial deformation snapshot, never its later events.

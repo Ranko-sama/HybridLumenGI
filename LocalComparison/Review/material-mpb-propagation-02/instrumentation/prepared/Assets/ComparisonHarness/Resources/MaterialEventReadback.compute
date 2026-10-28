@@ -1,0 +1,53 @@
+// Test-only copies of actual transport inputs/outputs. No new transport queries.
+#pragma kernel CopyIdentity
+#pragma kernel CopySamples
+#pragma target 5.0
+#pragma use_dxc
+#include "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl"
+#include "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIScreenSampling.hlsl"
+#include "MaterialEventIdentity.hlsl"
+Texture2D<uint4> _Identity, _IdentityNow, _IdentityThen;
+Texture2D<float4> _Raw, _Material, _Geometry, _History, _Moments;
+Texture2D<float4> _PreviousHistory, _PreviousMoments, _ReceiverDiffuse;
+StructuredBuffer<uint3> _Candidates;
+StructuredBuffer<HLGIReceiverIdentityObject> _Objects;
+RWStructuredBuffer<uint4> _IdentityCopy;
+struct MESample
+{
+    uint4 pixel,identityNow,identityThen,candidate;
+    float4 raw,material,geometry,history,moments,previousHistory,previousMoments,receiverDiffuse;
+    HLGIReceiverIdentityObject objectRow;
+};
+RWStructuredBuffer<MESample> _Samples;
+int2 _Size,_FullSize;
+uint _ObjectCount,_Logical,_GiFrame,_ActiveScreenMask;
+float4 _Pixels[3];
+[numthreads(8,8,1)]
+void CopyIdentity(uint3 id:SV_DispatchThreadID)
+{
+    if(any(id.xy>=(uint2)_Size))return;
+    _IdentityCopy[id.y*_Size.x+id.x]=_Identity.Load(int3(id.xy,0));
+}
+[numthreads(3,1,1)]
+void CopySamples(uint3 id:SV_DispatchThreadID)
+{
+    if(id.x>=3)return;
+    MESample s=(MESample)0;
+    if((_ActiveScreenMask&(1u<<id.x))==0u){_Samples[id.x]=s;return;}
+    uint2 p=(uint2)_Pixels[id.x].xy;
+    uint2 full=HLGIFullPixelForGiPixel(p,(uint2)_Size,(uint2)_FullSize);
+    s.pixel=uint4(p,_Logical,_GiFrame);
+    s.identityNow=_IdentityNow.Load(int3(p,0));s.identityThen=_IdentityThen.Load(int3(p,0));
+    s.candidate=uint4(_Candidates[full.y*_FullSize.x+full.x],0);
+    uint objectIndex,status;
+    if(MEObjectIndex(s.identityNow,s.candidate.xyz,_ObjectCount,objectIndex,status))
+    {
+        s.objectRow=_Objects[objectIndex];
+        status=MEObjectLoadedStatus(status,s.identityNow.xy,s.objectRow.key);
+    }
+    s.candidate.w=status; // Loaded row with flags=0 remains an observed, nonreusable row.
+    s.raw=_Raw.Load(int3(p,0));s.material=_Material.Load(int3(p,0));s.geometry=_Geometry.Load(int3(p,0));
+    s.history=_History.Load(int3(p,0));s.moments=_Moments.Load(int3(p,0));
+    s.previousHistory=_PreviousHistory.Load(int3(p,0));s.previousMoments=_PreviousMoments.Load(int3(p,0));
+    s.receiverDiffuse=_ReceiverDiffuse.Load(int3(full,0));_Samples[id.x]=s;
+}

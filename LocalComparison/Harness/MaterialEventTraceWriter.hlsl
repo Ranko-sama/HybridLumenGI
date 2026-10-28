@@ -5,7 +5,7 @@
 #include "HybridLumenGIHit.hlsl"
 struct GCRecord { uint4 meta; float4 a,b,c,d,e,f,g; };
 RWStructuredBuffer<GCRecord> _GC_Records;
-int _GC_Enabled, _GC_Logical, _GC_GiFrame, _GC_CacheIndex;
+int _GC_Enabled, _GC_Logical, _GC_GiFrame, _GC_CacheIndex, _GC_ActiveMask;
 float4 _GC_Pixels[3];
 static uint gcLane=0xffffffffu,gcCursor=1u,gcContext=0u,gcCall=0u,gcOverflow=0u;
 void GCWrite(uint code,float4 a,float4 b,float4 c,float4 d,float4 e,float4 f,float4 g)
@@ -19,15 +19,15 @@ void GCStart(uint2 p)
 {
     gcLane=0xffffffffu;gcCursor=1u;gcContext=0u;gcCall=0u;gcOverflow=0u;
     if(_GC_Enabled==0)return;
-    if(all(p==(uint2)_GC_Pixels[0].xy))gcLane=0u;
-    else if(all(p==(uint2)_GC_Pixels[1].xy))gcLane=1u;
-    else if(all(p==(uint2)_GC_Pixels[2].xy))gcLane=2u;
+    if((_GC_ActiveMask&1)!=0 && all(p==(uint2)_GC_Pixels[0].xy))gcLane=0u;
+    else if((_GC_ActiveMask&2)!=0 && all(p==(uint2)_GC_Pixels[1].xy))gcLane=1u;
+    else if((_GC_ActiveMask&4)!=0 && all(p==(uint2)_GC_Pixels[2].xy))gcLane=2u;
     if(gcLane!=0xffffffffu){GCRecord v=(GCRecord)0;v.meta=uint4(0,0,0,0);_GC_Records[gcLane*256u]=v;}
 }
 void GCStartCache(uint index)
 {
     gcLane=0xffffffffu;gcCursor=1u;gcContext=0u;gcCall=0u;gcOverflow=0u;
-    if(_GC_Enabled==0 || index!=(uint)_GC_CacheIndex)return;
+    if(_GC_Enabled==0 || (_GC_ActiveMask&8)==0 || index!=(uint)_GC_CacheIndex)return;
     gcLane=3u;GCRecord v=(GCRecord)0;_GC_Records[3u*256u]=v;
 }
 void GCFinish(float4 raw,uint reason)

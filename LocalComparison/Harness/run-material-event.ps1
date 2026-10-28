@@ -1,9 +1,9 @@
 $ErrorActionPreference='Stop'
 $taskRootPath='C:/Users/Administrator/Desktop/test/HybridLumenGI'
-$taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/material-mpb-propagation-01'
+$taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/material-mpb-propagation-02'
 $taskRunPath=Join-Path $taskPackagePath 'native-window'
 $taskPython='C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
-$taskPlayer='I:/Unity test/Comparison/Builds/MaterialEvent24/HybridLumenGITest.exe'
+$taskPlayer='I:/Unity test/Comparison/Builds/MaterialEvent25/HybridLumenGITest.exe'
 if(!(Get-Content -LiteralPath (Join-Path $taskPackagePath 'build-analysis.json') -Raw | ConvertFrom-Json).currentSourceBuildVerified){throw 'Build not accepted.'}
 if(Test-Path -LiteralPath (Join-Path $taskRunPath 'attempt.json')){throw 'The unique material-event Player attempt already exists.'}
 & $taskPython (Join-Path $taskRootPath 'LocalComparison/Harness/analyze-material-event.py') products

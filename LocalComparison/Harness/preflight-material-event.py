@@ -2,7 +2,7 @@
 import json,subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];PROJECT=Path('I:/Unity test/Project');EDITOR=Path('I:/Unity test/Editor/6000.0.85f1/Editor/Data')
-PACKAGE=ROOT/'LocalComparison/Review/material-mpb-propagation-01';OUT=PACKAGE/'preflight';STAGE=PACKAGE/'instrumentation'
+PACKAGE=ROOT/'LocalComparison/Review/material-mpb-propagation-02';OUT=PACKAGE/'preflight';STAGE=PACKAGE/'instrumentation'
 manifest=json.loads((STAGE/'manifest.json').read_text(encoding='utf-8'))
 sources={f['path']:(STAGE/f['prepared']).as_posix() for f in manifest['files'] if f['path'].endswith('.cs') and '/Editor/' not in f['path']}
 original=(PROJECT/'Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.rsp').read_text(encoding='utf-8-sig');lines=[];seen=set();removed=[]

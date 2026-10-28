@@ -1,0 +1,29 @@
+[
+  {
+    "name": "mapper-compile",
+    "arguments": [
+      "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxc.exe",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSObserverContract",
+      "-O3",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Harness",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\material-mpb-propagation-02\\preflight\\mapper.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\material-mpb-propagation-02\\preflight\\ObserverIdentityContract.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "mapper-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\transport-hotspot-and-reuse-01\\receiver-contract\\RayFootprintWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\material-mpb-propagation-02\\preflight\\mapper.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\material-mpb-propagation-02\\preflight\\mapper-inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\material-mpb-propagation-02\\preflight\\mapper-outputs.bin"
+    ],
+    "exitCode": 0
+  }
+]

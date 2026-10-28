@@ -1,0 +1,208 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "different-row-and-primitive",
+      "actual": [
+        2,
+        127,
+        3,
+        9,
+        33,
+        0,
+        1,
+        0,
+        33,
+        0,
+        9,
+        1
+      ],
+      "expectedIndex": 2,
+      "expectedStatus": 127,
+      "passed": true
+    },
+    {
+      "case": "valid-nonreusable-row",
+      "actual": [
+        2,
+        127,
+        3,
+        9,
+        33,
+        0,
+        0,
+        0,
+        33,
+        0,
+        9,
+        1
+      ],
+      "expectedIndex": 2,
+      "expectedStatus": 127,
+      "passed": true
+    },
+    {
+      "case": "zero-candidate",
+      "actual": [
+        4294967295,
+        27,
+        0,
+        9,
+        0,
+        0,
+        0,
+        0,
+        33,
+        0,
+        9,
+        1
+      ],
+      "expectedIndex": 4294967295,
+      "expectedStatus": 27,
+      "passed": true
+    },
+    {
+      "case": "out-of-range",
+      "actual": [
+        4294967295,
+        27,
+        4,
+        9,
+        0,
+        0,
+        0,
+        0,
+        33,
+        0,
+        9,
+        1
+      ],
+      "expectedIndex": 4294967295,
+      "expectedStatus": 27,
+      "passed": true
+    },
+    {
+      "case": "ambiguous",
+      "actual": [
+        2,
+        119,
+        3,
+        9,
+        33,
+        0,
+        0,
+        0,
+        33,
+        0,
+        9,
+        1
+      ],
+      "expectedIndex": 2,
+      "expectedStatus": 119,
+      "passed": true
+    },
+    {
+      "case": "key-mismatch",
+      "actual": [
+        2,
+        63,
+        3,
+        9,
+        33,
+        0,
+        0,
+        0,
+        77,
+        0,
+        9,
+        1
+      ],
+      "expectedIndex": 2,
+      "expectedStatus": 63,
+      "passed": true
+    },
+    {
+      "case": "primitive-mismatch",
+      "actual": [
+        2,
+        111,
+        3,
+        8,
+        33,
+        0,
+        0,
+        0,
+        33,
+        0,
+        9,
+        1
+      ],
+      "expectedIndex": 2,
+      "expectedStatus": 111,
+      "passed": true
+    },
+    {
+      "case": "unknown-identity-row-present",
+      "actual": [
+        2,
+        45,
+        3,
+        9,
+        33,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedIndex": 2,
+      "expectedStatus": 45,
+      "passed": true
+    },
+    {
+      "case": "unknown-no-row",
+      "actual": [
+        4294967295,
+        9,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedIndex": 4294967295,
+      "expectedStatus": 9,
+      "passed": true
+    },
+    {
+      "case": "inactive",
+      "actual": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedIndex": 0,
+      "expectedStatus": 0,
+      "passed": true
+    }
+  ],
+  "sourceSha256": "29f6523c6ac3ab0e6aafbdd491a5c3ea1562feaf780b47b4fde0a0829cd7bab9",
+  "runnerSha256": "aeb2117fa97584e0b747dfeb1c8c8e8a648002c3777d28d66687c642e26c4424",
+  "scope": "Actual observer index/status helper on existing WARP runner; distinct object index and primitive, bounds/unknown/key/ambiguity and reusable0. No Unity event or new IO runner."
+}

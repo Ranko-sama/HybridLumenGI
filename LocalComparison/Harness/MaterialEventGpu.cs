@@ -16,10 +16,12 @@ namespace HybridLumenGI
         static Vector4[] pixels=new Vector4[3];
         static Selection selection;
         static readonly Dictionary<string,byte[]> received=new Dictionary<string,byte[]>();
-        [Serializable] sealed class Point { public string role;public int x,y;public uint keyLow,keyHigh,row; }
+        [Serializable] sealed class Point { public string role;public int x,y,interiorCandidates;public uint keyLow,keyHigh,row,primitivePlusOne; }
         [Serializable] sealed class Selection
         {
             public int logical=158,cacheIndex,cell,grid;
+            public int screenMask=MaterialEventSelection.ScreenMask,traceMask=MaterialEventSelection.TraceMask;
+            public bool slot1ScreenHistoryCovered=false;
             public uint ownerSlot,ownerId,ownerRevision,layout,chartId,generation;
             public Point[] points;
             public string rule="3x3 identity interior, nearest projected mesh bounds center; raster tie-break; no radiance selection. Cache sorted by full identity and cell, valid prior measurement.";
@@ -83,6 +85,7 @@ namespace HybridLumenGI
                 current.selectedCacheMask=selectedCache>=0?(int)scheduler.Mask[selectedCache]:-1;
                 bool enabled=Detailed && selection!=null;
                 cmd.SetComputeIntParam(shader,"_GC_Enabled",enabled?1:0);
+                cmd.SetComputeIntParam(shader,"_GC_ActiveMask",MaterialEventSelection.TraceMask);
                 cmd.SetComputeIntParam(shader,"_GC_Logical",logical);cmd.SetComputeIntParam(shader,"_GC_GiFrame",current.gi);
                 cmd.SetComputeIntParam(shader,"_GC_CacheIndex",selectedCache);cmd.SetComputeVectorArrayParam(shader,"_GC_Pixels",pixels);
                 cmd.SetComputeBufferParam(shader,update,"_GC_Records",trace);cmd.SetComputeBufferParam(shader,gather,"_GC_Records",trace);
@@ -96,6 +99,7 @@ namespace HybridLumenGI
             Observe(()=>
             {
                 if(!current.hardware || !current.useIdentity || !current.identityRecorded)throw new Exception("Required GPU consumer unavailable");
+                current.objectCount=objectCount;
                 cmd.SetComputeIntParams(copy,"_Size",width,height);
                 cmd.SetComputeIntParams(copy,"_FullSize",receiverDiffuse.rt.width,receiverDiffuse.rt.height);
                 if(logical==158)
@@ -115,6 +119,7 @@ namespace HybridLumenGI
                     if(selection==null)throw new Exception("Selection was not frozen before event");
                     int k=copy.FindKernel("CopySamples");
                     cmd.SetComputeIntParam(copy,"_ObjectCount",objectCount);cmd.SetComputeIntParam(copy,"_Logical",logical);cmd.SetComputeIntParam(copy,"_GiFrame",current.gi);
+                    cmd.SetComputeIntParam(copy,"_ActiveScreenMask",MaterialEventSelection.ScreenMask);
                     cmd.SetComputeVectorArrayParam(copy,"_Pixels",pixels);
                     cmd.SetComputeBufferParam(copy,k,"_Candidates",candidates);cmd.SetComputeBufferParam(copy,k,"_Objects",objects);
                     cmd.SetComputeBufferParam(copy,k,"_Samples",samples);
@@ -129,28 +134,19 @@ namespace HybridLumenGI
         static uint U(byte[] b,int offset)=>BitConverter.ToUInt32(b,offset);
         static float F(byte[] b,int offset)=>BitConverter.ToSingle(b,offset);
         static bool Finite(float v)=>!float.IsNaN(v)&&!float.IsInfinity(v);
-        static bool SameIdentity(byte[] b,int offset,Source s)=>U(b,offset)==s.keyLow&&U(b,offset+4)==s.keyHigh&&U(b,offset+8)==s.row+1&&U(b,offset+12)!=0;
+        static bool SameIdentity(byte[] b,int offset,Source s)=>MaterialEventSelection.MatchesSource(b,offset,s.keyLow,s.keyHigh);
         static void Select()
         {
             byte[] ids=received["158/identity-current"],geometry=received["158/geometry"],cache=received["158/cache-current"];
             var points=new List<Point>();
-            foreach(string role in new[]{"target-slot0","target-slot1","control"})
+            foreach(string role in MaterialEventSelection.ScreenRoles)
             {
-                var source=current.sources.Single(s=>s.role==role);int best=-1;double distance=double.PositiveInfinity;
-                for(int y=1;y<height-1;y++)for(int x=1;x<width-1;x++)
-                {
-                    bool valid=true;
-                    for(int dy=-1;dy<=1;dy++)for(int dx=-1;dx<=1;dx++)
-                    {
-                        int p=((y+dy)*width+x+dx)*16;
-                        if(!SameIdentity(ids,p,source)||!Finite(F(geometry,p+12))||F(geometry,p+12)<=1e-6||F(geometry,p+8)<1)valid=false;
-                    }
-                    if(!valid)continue;
-                    double distance2=Math.Pow((x+.5)/width-source.projectedCenter.x,2)+Math.Pow((y+.5)/height-source.projectedCenter.y,2);
-                    if(distance2>=distance)continue;distance=distance2;best=y*width+x;
-                }
+                var source=current.sources.Single(s=>s.role==role);
+                int best=MaterialEventSelection.FindInterior(ids,geometry,width,height,source.keyLow,source.keyHigh,
+                    source.projectedCenter.x,source.projectedCenter.y,out int candidates);
                 if(best<0)throw new Exception("UNCOVERED: no stable geometric interior for "+role);
-                points.Add(new Point{role=role,x=best%width,y=best/width,keyLow=source.keyLow,keyHigh=source.keyHigh,row=(uint)source.row+1});
+                points.Add(new Point{role=role,x=best%width,y=best/width,keyLow=source.keyLow,keyHigh=source.keyHigh,row=(uint)source.row+1,
+                    primitivePlusOne=U(ids,best*16+8),interiorCandidates=candidates});
             }
             Card chosen=null;int cell=-1;
             foreach(var card in current.cardsAfter.Where(c=>c.submesh==0&&c.ready!=0&&!c.dirty).OrderBy(c=>c.ownerId).ThenBy(c=>c.ownerRevision).ThenBy(c=>c.layout).ThenBy(c=>c.chartId))
@@ -168,7 +164,7 @@ namespace HybridLumenGI
             if(chosen==null)throw new Exception("UNCOVERED: target slot0 lacks a valid cache measurement at selection");
             selection=new Selection{points=points.ToArray(),cacheIndex=selectedCache,cell=cell,grid=grid,ownerSlot=chosen.ownerSlot,
                 ownerId=chosen.ownerId,ownerRevision=chosen.ownerRevision,layout=chosen.layout,chartId=chosen.chartId,generation=chosen.generation};
-            for(int i=0;i<3;i++)pixels[i]=new Vector4(points[i].x,points[i].y,0,0);
+            for(int i=0;i<points.Count;i++)pixels[i]=new Vector4(points[i].x,points[i].y,0,0);
             SaveJson("selection.json",selection);
         }
         static string StableSource(Source s)=>s.role+"/"+s.submesh+"/"+s.mesh+"/"+s.token+"/"+s.geometryGeneration+"/"+s.materialGeneration+"/"+s.origin+"/"+JsonUtility.ToJson(s.baseColor)+"/"+JsonUtility.ToJson(s.matrix);
@@ -189,11 +185,14 @@ namespace HybridLumenGI
                 byte[] data=received[logical+"/samples"],path=received[logical+"/actual-paths"];
                 for(int i=0;i<3;i++)
                 {
+                    if((MaterialEventSelection.ScreenMask&(1<<i))==0)
+                    {if(U(data,i*272+60)!=0)throw new Exception("Inactive sample lane was populated");continue;}
                     int p=i*272;if(U(data,p+8)!=logical||U(data,p+12)!=current.gi)throw new Exception("Sample receipt label mismatch");
                     for(int n=64;n<192;n+=4)if(!Finite(F(data,p+n)))throw new Exception("Nonfinite selected transport data");
                 }
                 for(int lane=0;lane<4;lane++)
                 {
+                    if((MaterialEventSelection.TraceMask&(1<<lane))==0)continue;
                     int p=lane*256*128;uint count=U(path,p+4);
                     if(U(path,p+8)!=1||U(path,p+12)!=0||U(path,p+16)!=logical||U(path,p+20)!=current.gi||U(path,p+24)!=lane||count<2||count>256||U(path,p+(int)(count-1)*128)!=1)
                         throw new Exception("Actual path stream missing, stale, overflowed or unterminated");
@@ -211,12 +210,23 @@ namespace HybridLumenGI
                 if(!sources.SequenceEqual(f.sources.OrderBy(s=>s.role).Select(StableSource))||cards!=StableCards(f)||!f.historyAllowed||
                     f.sources.Any(s=>(s.reusable&1)==0)||f.cardsAfter.Count==0||f.cardsAfter.Any(c=>c.ready==0||c.dirty))
                     throw new Exception("UNCOVERED: last sixteen frames lack stable source/material/necessary cache readiness");
+                foreach(var upload in f.uploads)
+                {
+                    var source=f.sources.Single(s=>s.role==upload.role);
+                    if(upload.record240.Length!=240||upload.binding32.Length!=32||U(upload.record240,0)!=upload.batchGeneration||
+                        U(upload.binding32,0)!=upload.index||U(upload.binding32,4)!=upload.batchGeneration||U(upload.binding32,16)==0||
+                        U(upload.binding32,28)!=upload.submesh||upload.frozenBaseColor!=source.baseColor||upload.origin!=source.origin)
+                        throw new Exception("UNCOVERED: selected actual upload is missing, unknown or does not match frozen source");
+                }
             }
             byte[] sample=received["159/samples"],cache=received["159/cache-current"];
-            for(int i=0;i<3;i++)
+            for(int i=0;i<selection.points.Length;i++)
             {
                 Source source=frames[159].sources.Single(s=>s.role==selection.points[i].role);int p=i*272;
-                if(!SameIdentity(sample,p+16,source)||!SameIdentity(sample,p+32,source)||F(sample,p+64+12)<=0||F(sample,p+96+8)<1||F(sample,p+96+12)<=1e-6||F(sample,p+128+8)<=0)
+                if(!SameIdentity(sample,p+16,source)||!SameIdentity(sample,p+32,source)||U(sample,p+24)!=U(sample,p+40)||
+                    U(sample,p+48)!=source.row+1||U(sample,p+52)!=0||U(sample,p+56)!=U(sample,p+24)||U(sample,p+60)!=127||
+                    U(sample,p+256)!=source.keyLow||U(sample,p+260)!=source.keyHigh||U(sample,p+264)!=source.reusable||
+                    F(sample,p+64+12)<=0||F(sample,p+96+8)<1||F(sample,p+96+12)<=1e-6||F(sample,p+128+8)<=0)
                     throw new Exception("UNCOVERED: selected receiver identity/material/measurement is not ready at 159");
             }
             int c=selectedCache*80;

@@ -2,7 +2,7 @@
 import argparse, ast, hashlib, importlib.util, json, subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]; H=ROOT/'LocalComparison/Harness';PROJECT=Path('I:/Unity test/Project')
-PACKAGE=ROOT/'LocalComparison/Review/material-mpb-propagation-01';OUT=PACKAGE/'instrumentation'
+PACKAGE=ROOT/'LocalComparison/Review/material-mpb-propagation-02';OUT=PACKAGE/'instrumentation'
 spec=importlib.util.spec_from_file_location('base',H/'prepare-player-smoke.py');base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
 base.PACKAGE=PACKAGE;base.OUT=OUT;replace=base.replace;sha=base.sha
 
@@ -118,6 +118,7 @@ def prepare():
     wrapper=wrapper.replace('#pragma kernel CSUpdateCache','#pragma kernel CSUpdateCache HLGI_MATERIAL_EVENT').replace('#pragma kernel CSTrace','#pragma kernel CSTrace HLGI_MATERIAL_EVENT')
     put('HybridLumenGI/'+shaders+'HybridLumenGIHardware.compute',wrapper)
     for name,dest in [('MaterialEventTap.cs','HybridLumenGI/Runtime/MaterialEventTap.cs'),('MaterialEventGpu.cs','HybridLumenGI/Runtime/MaterialEventGpu.cs'),
+        ('MaterialEventSelection.cs','HybridLumenGI/Runtime/MaterialEventSelection.cs'),('MaterialEventIdentity.hlsl','ComparisonHarness/Resources/MaterialEventIdentity.hlsl'),
         ('MaterialEventTraceWriter.hlsl','HybridLumenGI/'+shaders+'MaterialEventTraceWriter.hlsl'),('MaterialEventMode.cs','ComparisonHarness/MaterialEventMode.cs'),
         ('MaterialEventReadback.compute','ComparisonHarness/Resources/MaterialEventReadback.compute'),('CurrentPlayerBuild.cs','ComparisonHarness/Editor/CurrentPlayerBuild.cs')]:
         data=(H/name).read_text(encoding='utf-8')

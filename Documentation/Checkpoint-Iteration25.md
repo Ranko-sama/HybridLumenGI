@@ -1,0 +1,11 @@
+# Iteration25 checkpoint: MPB propagation02
+
+Original local architecture development continues from306255b. Actual Pro24 authorized the new02 observer contract; old01 failure remains immutable. Observer selection/object indexing and active-lane masks were corrected; saved-input selector, ten actual mapper cases, copy kernels and C# compilation passed. Astra's implementation gate approved the limited execution.
+
+One new build and one visible DXR Player completed. Build sources/products and project restoration are verified. Logical0–255 includes actual159 admission and ordinary160 MPB event,92 complete payloads and four HDR/PNG captures; PID2308 native exit0, no watchdog, final resource accounting zero. There was no Runtime change or extra run.
+
+Layered analysis verifies actual mapping, source/upload and target history reset/recovery. One positive nonzero original winning path at172 consumes the changed target material. Other evaluated target paths with zero weight do not count. Slot1 has CPU/upload/card coverage only; its screen history and full production acceptance remain false. Generic inherited mixed-motion status/labels are not relabeled as complete.
+
+See ReviewBrief-MaterialMpbPropagation02.md and the package's native-window/analysis.json. Astra's final results review found no blocker and is saved as astra-results-review.md. Actual web GPT-6 Pro25 approved the limited evidence commit; its complete reply is saved as gpt6-pro-review-and-next-plan.txt. It accessed execution outputs134–136 and separately reviewed build/source/restoration artifacts. It did not rerun the analyzer or recalculate binary hashes. Frame172 is an observed positive path, not a measured12-frame product latency.
+
+Next: deformation-snapshot-propagation-01, one existing readable-mesh event at160, one new build and one256-frame visible DXR Player. Distinguish source edit, actual CPU snapshot publication and completed new-geometry consumer evidence. PublishedFrame is capture time, not publication time. Freeze all other scene actions/budgets; no extra rays or rerun. Save the actual source arrays, coherent mesh/SDF/charts publication, receiver geometry identity, bounded consumer/hit evidence and retirement. If uncovered or failed, preserve the first outcome and return to Pro. Do not relaunch the completed material02 Player.

@@ -63,6 +63,8 @@ namespace HybridLumenGI
         [Serializable] sealed class Frame
         {
             public int logical,engine,gi,sourceCalls,transportCalls,read,cacheRead,epoch;
+            public int screenMask=MaterialEventSelection.ScreenMask,traceMask=MaterialEventSelection.TraceMask;
+            public int objectCount;
             public uint expectedMaterialBatch;
             public ulong historySequence;
             public int historyEngineFrame;
@@ -79,6 +81,7 @@ namespace HybridLumenGI
         [Serializable] sealed class Receipt
         {
             public int logical,engine,gi,read,cacheRead,width,height,stride,count,bytes;
+            public int screenMask=MaterialEventSelection.ScreenMask,traceMask=MaterialEventSelection.TraceMask;
             public string stage,file,sha256;
         }
         static string Role(Renderer renderer,int submesh)

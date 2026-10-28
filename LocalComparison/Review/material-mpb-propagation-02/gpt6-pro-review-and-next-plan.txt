@@ -1,0 +1,145 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 25
+REVIEW_DECISION: RETAIN — APPROVE_LOCAL_EVIDENCE_COMMIT
+PACKAGE_STATUS: 本次材质事件的有限传播／历史合同通过；不扩展验收范围
+NEXT_PACKAGE: deformation-snapshot-propagation-01
+
+一、提交决定
+
+允许提交本轮观察器修正、分析代码及事件证据。未发现需要修改产品Runtime的反例；不再扩展这个材质事件的像素、射线、视角或运行次数。
+
+已确认 HybridLumenGI / workspace:/ / main@306255b。当前差异限于辅助代码、文档与新证据，没有Runtime修改。我已列出并读取可访问的第25轮执行输出134–136；构建记录未在本轮输出列表中单独暴露，因此通过包内构建分析、来源和恢复记录核对。构建报告绑定110份产品源码、15项临时接线和284份产物，恢复清单全部为true。
+
+本层检查了实际映射实现、执行版shader插桩、路径解码器、保存的样本与原生日志；没有重新运行分析、计算二进制哈希或启动测试。〔本包 build-analysis.json、instrumentation/restoration.json；执行输出134–136〕
+
+可关闭的表述是：
+
+在固定Functional场景的一次普通槽0 MPB变化中，自动来源发现、实际上传／绑定、选定接收点旧历史拒绝与恢复，以及一条被记录的正权重材质消费路径得到验证。
+
+第24轮原失败、槽1屏幕历史未覆盖和完整生产验收false均保持原样。
+
+二、证据边界复核
+1. 身份映射修复没有把“不可复用”当成无效观察
+
+当前copy使用实际 candidate.x检查范围并读取对象行，另外记录primitive、key、歧义及加载状态；对象行的历史可复用flag不参与“是否允许观察”的判定。这样160帧的合法、但不可复用对象行可以被完整保存。未使用的屏幕lane仍为零／inactive，没有冒充第三个测量。〔MaterialEventIdentity.hlsl:6–19；当前 MaterialEventReadback.compute差异〕
+
+159准入回执确认，在事件前已有160个完整帧收据、16份payload且无未完成请求。不是事后根据160帧的成功响应追认准入。〔本次运行 event-admission.json:1–10〕
+
+2. 来源变化与历史响应相互对应
+检查	本轮实际证据	解释
+目标槽0	key／MaterialGeneration 30→39，origin 1→3，上传BaseColor为蓝色	自动识别普通逐槽MPB变化，而非依赖手动dirty
+目标160帧	当前key39、上一帧key30；GPU对象行flag为0；已知raw与新history相同，count为1	旧材质历史被拒绝
+后续目标历史	161帧count2，175帧count16，255帧count32	有效新来源重新累积
+槽1／Green wall来源	保持原来源值及代次	不构成槽间来源污染
+Green wall历史	key36和可复用flag保持，count在160帧从32降到2	不是“对照完全不受影响”；应与照明reactive响应区别解释
+
+我核对的160帧保存样本明确给出目标 candidate=(15,0,6,127)、objectKey=(39,0)、objectFlags=(0,15)，与修正后的ABI一致。〔native-window/analysis.json:12523–12694〕
+
+本包没有证明所有材质、所有接收像素或所有历史拒绝分支都正确。尤其槽1仍只是实际CPU来源／上传及owner-card对照，不是槽1屏幕历史验收。
+
+3. 一条实际正贡献成立，但不是整图传播时延
+
+执行版插桩把代码23放在原获选分支，把24／25放在原累加前后；没有另外发射查询或用重放公式代替原gather。解码器要求同一context／call、原world winner、正权重、有效incoming及已知终值，零权重求值被排除。〔执行版 HybridLumenGIKernels.hlsl:295–323；material_event_paths.py:35–72〕
+
+172帧Green wall所选像素的路径关联目标绑定 [18,3,3,0]，记录蓝色辐射亮度约0.004768542、权重约0.06810857。Astra保存的独立原始字节核验进一步检查了累加增量、除以两条射线及最终half量化；与本层检查的插桩位置和解码条件一致。〔本包 astra-results-review.md:13–25〕
+
+因此可以接受这一条实际正贡献。但不能将“第一次在这些有限记录中看到它是172帧”写成“产品传播延迟为12帧”；采样命中与观测范围也影响何时看到该路径。
+
+radianceEvaluationCompleted的更名正确：到达代码202不等于直接观测了局部 materialResolved布尔值。旧派生报告保留即可，无需重新跑GPU。
+
+4. 本次退出通过仍是有限结论
+
+原生日志记录了合法边界、owner撤销、分批提交及最终已记录owner归零；exit0且没有watchdog或相关资源错误。第319行UTP汇总继续保留。〔native-window/player.log:79–180、300–319〕
+
+通用 incomplete-probe和旧混合动作阶段名没有被改写。专用事件回执证明本包完成，不证明旧720帧混合序列完成。无需为了这些继承标签重新采集。
+
+三、下一包：一次正常形变快照更新
+目标与选择理由
+
+选择现有 Audit deforming occluder，执行一次可读网格形变，检查：
+
+可见网格内容变化 → 正常RequestCapture → 不可变mesh／SDF／charts发布 → 实际几何消费者更新 → 不合格旧来源历史被拒绝并恢复。
+
+这是原计划中动态几何、局部失效、缓存和历史响应的独立缺口，不是扩大刚完成的材质测试。
+
+当前组件已经明确规定：可读网格生产者调用 RequestCapture()；后台只处理复制数组；完整快照发布后，GPU驻留／捕获仍另行推进。它不承诺形变当帧完成全部重建。〔Documentation/DeformedGeometry.md:3–11；HybridLumenGIDeformedMesh.cs:145–151、186–208〕
+
+本包不测试连续动画、取消覆盖、拓扑变化、SkinnedMeshRenderer、流式或多相机。也不回到性能计时。
+
+A. 单一输入变化，复用原场景
+
+先提交第25轮证据，冻结新基线。直接打开已有Functional场景，恢复原材质；禁用旧混合事件、计时和反馈，固定相机、门、灯、材质及实例变换。
+
+复用已有初始动态mesh建立方式。在160帧相机准备之前，对同一个可读mesh做一次既有夹具使用过的形变：
+
+纯文本
+局部 y > 0 的顶点，x 增加0.8；
+更新bounds和normals；
+调用一次 deformation.RequestCapture(dynamicMesh)。
+
+顶点数、索引、submesh、UV、材质和对象变换保持不变；完成写入后直到关闭都不再次修改该mesh。保存事件前后的真实数组与哈希，不能只保存“顶点数未变”或一个bounds。
+
+这里调用 RequestCapture是产品公开的生产者合同，不是测试绕过自动检测。但测试不得再额外调用 Proxy.MarkDirty、直接发布快照、强制RTAS重建、写变化域或清cache／history。产品发布过程中自身的dirty通知正常保留。〔旧执行版 RuntimeAuditProbe.cs:37–41；HybridLumenGIDeformedMesh.cs:145–150、202–205〕
+
+B. 三个时点必须分别记录
+时点	要证明什么	不能代替什么
+可见源编辑／捕获请求	原始mesh内容确实改变，正常请求被受理	不是新GI快照已发布
+CPU快照实际切换	mesh、SDF、capture mesh、charts来自同一完整新快照	不是GPU atlas或RTAS已完成
+新几何实际消费	当前dispatch绑定／使用新来源，并有完成读回支持	不能仅靠“build recorded”状态文字
+
+特别注意：PublishedFrame当前赋值为 job.frame，即捕获帧，不是实际执行发布的帧。 保留原字段，测试另记实际发布转移发生的引擎／逻辑帧，不能拿它计算错误的零延迟。〔HybridLumenGIDeformedMesh.cs:202–205〕
+
+四、最小实现范围
+
+复用现有采集生命周期、唯一payload、身份mapper与安全关闭机制。增加一个窄范围形变事件模式及相应分析，不把材质观察器扩成通用调试平台。
+
+1. 记录实际来源，而不是帧尾猜测
+
+测试侧只在原处理位置记录必要状态：
+
+RequestCapture代次、实际捕获帧、worker状态与发布转移。
+可见mesh和当前GI snapshot的独立身份／内容摘要；mesh、SDF及charts的关联。
+Scene／SurfaceCache／Hardware实际准备与绑定使用的几何版本。
+接收器registry的几何／材质代次、当前与上一帧身份、历史资格。
+旧snapshot的撤销和退休状态、逻辑预留及正常退出。
+
+需要临时hook时保持只读，保存实际执行字节并恢复；不要在每帧另烘焙一个SDF来“验证”产品结果。mesh数组可在初始捕获、事件输入和发布时保存，轻量版本收据逐帧保存即可。
+
+2. 历史判定必须跟随实际可见表面
+
+当前receiver discovery读取可见 MeshFilter.sharedMesh，registry对受支持可读mesh做内容指纹；几何改变会推进GeometryGeneration。GI几何消费者则使用 HybridLumenGIDeformedMesh.GetSourceMesh()的已发布快照。这两个来源在后台处理期间可能处于不同时间点，本包就是要记录这段差异。〔HybridLumenGIReceiverDiscovery.cs:184–194；HybridLumenGIReceiverRegistry.cs:201–217〕
+
+不能要求请求当帧所有系统立即同步，也不能将旧snapshot的暂时保留自动判为错误。需要检查的是：是否出现不匹配版本被当成新鲜数据、不同代快照混用，或旧可见几何历史被不当地重用。
+
+屏幕观察只使用形变对象和一个既有静态对照，不继承材质事件的槽0／槽1点位。按事件前后的身份和深度分类目标持续覆盖、显露／离开和静态对照；不要假设一个固定像素在形变后仍属于同一表面，也不要为了凑有效历史而重新挑点。
+
+在当前几何／测量均已知、旧来源确实被拒绝的情况下，历史从count1开始；未知测量保持未知规则。非刚性形变不能仅凭对象矩阵没变，就被当作可复用的刚体运动历史。 具体检查应落到实际GeometryGeneration和GPU对象行，而不是看一张是否拖影的截图。
+
+3. GPU消费者证据保持有限
+
+DXR准备代码会检查snapshot mesh、owner、几何revision及surface几何版本的一致性；RecordBuild()的成功只表示构建被录制，不等于GPU完成。〔HybridLumenGIHardwareBackend.cs:193–215、610–637〕
+
+复用现有绑定收据和有限实际命中记录，检查发生覆盖的命中是否具有新geometryRevision、primitive和对应位置。不增加射线来强制命中新几何。 若固定实际路径没有命中目标，就把该命中分支标为未覆盖；不能只凭CPU表更新宣布实际射线验证完成。
+
+五、一次有界执行及停止规则
+
+授权一次构建、一次普通可见DXR Player，最多256个目标相机逻辑帧。无第二次原生尝试额度。
+
+0–159预热，159门槛确认初始快照、必要来源及目标覆盖；160执行唯一形变，观察到255。预热不足就停，不延长，不换对象或视角。
+
+轻量生命周期／版本记录覆盖全程。GPU详细记录限定为固定帧159、160、161、162、175、191、223、255，以及实际CPU发布后的最多4帧、首次新几何dispatch录制后的最多4帧；重叠去重，全部在255以内。这样可以捕捉异步阶段，而不靠事后增加帧数追事件。最终图像只保留159、160、175、255四组。
+
+不等待worker来强行同步，不提高捕获／上传／RTAS预算，不把采集造成的等待当作可信性能数据。若发布或新消费者在上限内没有完成，保存状态并报告未覆盖／延迟未闭合，不自动扩大运行。
+
+本包成功至少要求：
+
+事件来源明确，快照切换没有混代，已覆盖消费者使用正确版本，历史资格和未知语义正确，有限恢复及退出可追溯。
+
+若发现明确产品反例，保存最早输入、来源版本及消费证据，再提交最小修复方案；不先改Runtime来“保证测试通过”。若只有未覆盖或异步延迟，不能将其直接认定为算法缺陷。读回、来源、观察器或退出故障同样停止，不原地重跑。
+
+六、继续执行
+
+现在提交 material-mpb-propagation-02 的有限成功证据，随后执行 deformation-snapshot-propagation-01。 不追加本次材质事件矩阵，不恢复暗区、Monte Carlo或计时拆分。
+
+四项目标、十条工作流继续约束开发。本轮没有关闭槽1屏幕历史、全部材质一致性、动态画质、流式、Release、峰值显存及长时验收；下一包只推进一次正常形变的实际发布与历史响应，不宣称整个动态几何系统完成。
