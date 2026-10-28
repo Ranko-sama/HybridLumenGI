@@ -1,0 +1,31 @@
+{
+  "baseline": "1647a887a445fb9a0712f3e950fd4dd1f3394347",
+  "pid": 1356,
+  "exitCode": 0,
+  "execSession": 58520,
+  "finalExecChunk": "061f9d",
+  "singleRun": true,
+  "command": "Start-Unity.ps1 -Batch -KeepRunning -LogName GatherCache01-A -ExecuteMethod GatherCacheEditor.Play -ExtraArguments '-comparisonFrames','120','-comparisonOutput','I:/Unity test/Comparison/Evidence/GatherCache01-A','-thinWallConfig','A','-gatherCacheProbe'",
+  "nativeLogSha256": "fa688492236109f0a0a8f5049630aff1371d64642d8f1ae3a877e7bee6c66936",
+  "frameChecks": {
+    "exactly120": true,
+    "logicalSequence": true,
+    "allReportedExact": true
+  },
+  "sceneChecksAgainstPriorA": {
+    "config": true,
+    "cameraPosition": true,
+    "cameraRotation": true,
+    "fov": true,
+    "aspect": true,
+    "ambientLight": true,
+    "ambientIntensity": true,
+    "ambientMode": true,
+    "skybox": true,
+    "settings": true,
+    "lights": true,
+    "objects": true
+  },
+  "nativeFailureSignatures": [],
+  "nativeScanScope": "No matching product allocation/shader/readback/backend/shutdown signatures. General Unity MemoryLeaks aggregate and licensing/info-queue startup warnings remain in full log; not whole-process leak acceptance."
+}

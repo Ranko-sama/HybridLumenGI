@@ -1,0 +1,10 @@
+Independent GPT-6 Astra Max, existing /root/astra_guard, before the single A execution.
+
+Scope matches GPT-6 Pro iteration 7. Required interpretation safeguards incorporated:
+1. Final consumption requires terminal valid pixel, positive sample weight and nonzero cache coefficient; later unknown samples can discard prior sums. Known black still counts as consumption.
+2. Preserve actual false-return partial structures in HLGICachedSurface. ProxyRadiance and receiver guiding currently ignore that boolean.
+3. Exact identity/tag/generation/flags/count/stamp comparisons; no arithmetic tolerance on identities.
+
+Generated HLSL/Feature review: no additional Random/TraceScene/cache calls; original accumulation ordering and partial failure results retained. Static event maximum for two heaviest rays remains below 256 records (approximately 208 events plus header). Byte layout, kernel isolation, binding and dispatch-ordered readbacks match. Finish closes admission and waits; its error does not bypass original capture cleanup. Lifecycle conclusion is limited to the present direct-exit flow.
+
+Only requested startup change: check !exact for every target-camera frame, not merely the nine sample frames. Applied in GatherCacheTap.Begin before launch. No additional import run or matrix requested. Run once; retain failures and return to Pro.
