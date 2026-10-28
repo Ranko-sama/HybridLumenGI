@@ -1,0 +1,7 @@
+Initial read-only status query, before first target-camera receipt:
+Frozen executed helpers/analyzer and scene/settings hashes unchanged
+Traceback (most recent call last):
+  File "<stdin>", line 10, in <module>
+IndexError: list index out of range
+
+The ad-hoc console query indexed an empty diagnostics.jsonl array during startup. It was not the Player observer, runtime, frozen analyzer, build or test command. Later read-only queries handle an empty array. No executed source was changed and the one running Player was not restarted. This note retains the tool failure without classifying it as a product defect or a failed 300-second result.

@@ -1,17 +1,25 @@
+param([switch]$SteadyUse)
 $ErrorActionPreference='Stop'
 $taskRootPath='C:/Users/Administrator/Desktop/test/HybridLumenGI'
 $taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/local-release-baseline-01'
 $taskRunPath=Join-Path $taskPackagePath 'native-window'
 $taskPython='C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
 $taskPlayer='I:/Unity test/Comparison/Builds/LocalRelease40/HybridLumenGITest.exe'
+$taskAnalyzer='LocalComparison/Harness/analyze-local-release.py';$taskMode='-localReleaseVerify120'
+if($SteadyUse){
+    $taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/local-release-steady-use-01'
+    $taskRunPath=Join-Path $taskPackagePath 'native-window'
+    $taskPlayer='I:/Unity test/Comparison/Builds/LocalRelease44/HybridLumenGITest.exe'
+    $taskAnalyzer='LocalComparison/Harness/analyze-release-steady.py';$taskMode='-localReleaseSteady300'
+}
 if(!(Get-Content -LiteralPath (Join-Path $taskPackagePath 'build-analysis.json') -Raw | ConvertFrom-Json).currentSourceBuildVerified){throw 'Build not accepted.'}
 if(Test-Path -LiteralPath (Join-Path $taskRunPath 'attempt.json')){throw 'The unique local Release Player attempt already exists.'}
-& $taskPython (Join-Path $taskRootPath 'LocalComparison/Harness/analyze-local-release.py') products
+& $taskPython (Join-Path $taskRootPath $taskAnalyzer) products
 if($LASTEXITCODE -ne 0){throw 'Player products changed.'}
 New-Item -ItemType Directory -Path $taskRunPath -Force | Out-Null
 $taskArgs=@('-force-d3d12','-screen-fullscreen','0','-screen-width','640','-screen-height','360',
-    '-localReleaseVerify120','-localReleaseOutput',(Join-Path $taskRunPath 'run'),'-logFile',(Join-Path $taskRunPath 'player.log'))
-@{attempt=1;executable=$taskPlayer;arguments=$taskArgs;startedUtc=[DateTime]::UtcNow.ToString('o');maximumLogicalFrames=120;watchdogSeconds=1200} |
+    $taskMode,'-localReleaseOutput',(Join-Path $taskRunPath 'run'),'-logFile',(Join-Path $taskRunPath 'player.log'))
+@{attempt=1;executable=$taskPlayer;arguments=$taskArgs;startedUtc=[DateTime]::UtcNow.ToString('o');maximumLogicalFrames=$(if($SteadyUse){0}else{120});fixedSeconds=$(if($SteadyUse){300}else{0});initializationSeconds=$(if($SteadyUse){60}else{0});watchdogSeconds=1200} |
     ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $taskRunPath 'attempt.json') -Encoding utf8
 $taskInfo=New-Object System.Diagnostics.ProcessStartInfo
 $taskInfo.FileName=$taskPlayer;$taskInfo.WorkingDirectory=Split-Path -Parent $taskPlayer;$taskInfo.UseShellExecute=$false

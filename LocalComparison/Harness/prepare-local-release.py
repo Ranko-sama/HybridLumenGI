@@ -5,6 +5,11 @@ ROOT=Path(__file__).resolve().parents[2];H=ROOT/'LocalComparison/Harness';PROJEC
 PACKAGE=ROOT/'LocalComparison/Review/local-release-baseline-01';OUT=PACKAGE/'instrumentation'
 spec=importlib.util.spec_from_file_location('base',H/'prepare-player-smoke.py');base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
 base.PACKAGE=PACKAGE;base.OUT=OUT;sha=base.sha;replace=base.replace
+
+def configure_steady():
+    global PACKAGE,OUT
+    PACKAGE=ROOT/'LocalComparison/Review/local-release-steady-use-01';OUT=PACKAGE/'instrumentation'
+    base.PACKAGE=PACKAGE;base.OUT=OUT
 def prepare():
     assert not OUT.exists(),'Unique Release preparation already exists'
     product={p.relative_to(ROOT).as_posix():sha(p) for top in ['Runtime','Editor'] for p in (ROOT/top).rglob('*') if p.is_file() and p.suffix!='.meta'}
@@ -48,4 +53,6 @@ def restore():
         path=exclusion_path(row);assert not path.exists(),'Do not overwrite a changed historical include';data=(OUT/row['original']).read_bytes();assert hashlib.sha256(data).hexdigest()==row['sha256'];path.write_bytes(data)
     (OUT/'excluded-restoration.json').write_text(json.dumps({'allRestored':all(sha(exclusion_path(row))==row['sha256'] for row in m['excluded']),'files':m['excluded']},indent=2))
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','install','restore']);a=p.parse_args();globals()[a.action]()
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','install','restore']);p.add_argument('--steady',action='store_true');a=p.parse_args()
+    if a.steady:configure_steady()
+    globals()[a.action]()

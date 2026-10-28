@@ -8,16 +8,21 @@ using UnityEngine.Rendering;
 using HybridLumenGI;
 public sealed class LocalReleaseBootstrap : MonoBehaviour
 {
-    Camera target;HybridLumenGIRendererFeature feature;bool verify,finished,quitPending;int frames,lastEngine=-1,startEngine,errors;double started;string folder,firstError;
+    Camera target;HybridLumenGIRendererFeature feature;bool verify,steady,finished,quitPending;int frames,lastEngine=-1,startEngine,errors,lastSlot=-1;double started,firstRendered;string folder,firstError;
     [Serializable] sealed class Receipt
     {
         public int actualCameraFrames,engine,giFrame,publishedInstances,readyCards,hardwareMeshes,hardwareFallbacks,hardwareMaterialUnknownRecords;
         public string camera,hardwareMaterialStatus;public bool featureEnabled,hardwareBackend;
+        public int sampleSlot;public double elapsedSeconds;
+        public HybridLumenGIRendererFeature.CameraDiagnostics diagnostics;
+        public int retirementPending,retirementOwned,retirementFailed,retirementUnknown,retirementFailedWithdrawals,deformationWorkers,deformationSnapshots,deformationFailed;
+        public bool retirementAdmissionClosed,retirementSubmissionUncertain;public long deformationReservedBytes;
     }
     [Serializable] sealed class Result
     {
-        public string mode,scene,unity,api,gpu,status,error;public bool debugBuild,verify120,featureEnabled,testCaptureDisabled,auditProbeDisabled;
+        public string mode,scene,unity,api,gpu,status,error;public bool debugBuild,verify120,verifySteady300,featureEnabled,testCaptureDisabled,auditProbeDisabled;
         public int requestedFrames,actualCameraFrames,startEngine,firstRenderEngine=-1,lastEngine=-1,errors,width,height;public double firstRenderWaitSeconds;
+        public int requestedSeconds,initializationSeconds,sampleIntervalSeconds;public double elapsedSeconds;
     }
     Result result;Receipt previousQualified;StreamWriter receipts;
     static string Arg(string name){var args=Environment.GetCommandLineArgs();int i=Array.IndexOf(args,name);return i>=0&&i+1<args.Length?args[i+1]:null;}
@@ -37,6 +42,9 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
             mode.feature.SetActive(true);mode.target.targetTexture=null;mode.target.enabled=true;
             mode.target.transform.SetPositionAndRotation(capture.colorView.position,capture.colorView.rotation);
             mode.verify=Array.IndexOf(Environment.GetCommandLineArgs(),"-localReleaseVerify120")>=0;
+            mode.steady=Array.IndexOf(Environment.GetCommandLineArgs(),"-localReleaseSteady300")>=0;
+            Require(!(mode.verify&&mode.steady),"Select only one finite Release mode");
+            mode.verify|=mode.steady;
             mode.Initialize(capture);
         }
         catch(Exception e){Debug.LogError("LOCAL_RELEASE_START_FAILED "+e);Application.Quit(1);}
@@ -46,7 +54,8 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
     {
         started=Time.realtimeSinceStartupAsDouble;startEngine=Time.frameCount;
         result=new Result{mode="ordinary-local-release",scene=gameObject.scene.path,unity=Application.unityVersion,api=SystemInfo.graphicsDeviceType.ToString(),gpu=SystemInfo.graphicsDeviceName,
-            status="running",debugBuild=Debug.isDebugBuild,verify120=verify,requestedFrames=verify?120:0,featureEnabled=feature.isActive,testCaptureDisabled=!capture.enabled,
+            status="running",debugBuild=Debug.isDebugBuild,verify120=verify&&!steady,verifySteady300=steady,requestedFrames=verify&&!steady?120:0,
+            requestedSeconds=steady?300:0,initializationSeconds=steady?60:0,sampleIntervalSeconds=steady?5:0,featureEnabled=feature.isActive,testCaptureDisabled=!capture.enabled,
             auditProbeDisabled=!UnityEngine.Object.FindObjectsByType<RuntimeAuditProbe>(FindObjectsInactive.Include,FindObjectsSortMode.None).Any(p=>p.enabled),startEngine=startEngine,width=Screen.width,height=Screen.height};
         Require(!result.debugBuild&&result.testCaptureDisabled&&result.auditProbeDisabled,"Ordinary Release isolation failed");
         Debug.Log("LOCAL_RELEASE_START "+JsonUtility.ToJson(result));
@@ -74,30 +83,44 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
             Require(lastEngine<0||Time.frameCount==lastEngine+1,"Duplicate/skipped target-camera receipt");
             Require(feature.isActive,"Feature disabled during ordinary Release run");
             frames++;lastEngine=Time.frameCount;
-            if(frames==1){result.firstRenderEngine=lastEngine;result.firstRenderWaitSeconds=Time.realtimeSinceStartupAsDouble-started;Require(lastEngine-startEngine<=120&&result.firstRenderWaitSeconds<=900,"First render exceeded existing startup limit");}
-            if(frames==1||frames==60||frames==120)
+            if(frames==1){firstRendered=Time.realtimeSinceStartupAsDouble;result.firstRenderEngine=lastEngine;result.firstRenderWaitSeconds=firstRendered-started;Require(lastEngine-startEngine<=120&&result.firstRenderWaitSeconds<=900,"First render exceeded existing startup limit");}
+            double elapsed=Time.realtimeSinceStartupAsDouble-firstRendered;
+            int slot=steady?Math.Min(60,(int)(elapsed/5)):-1;
+            if(steady?slot!=lastSlot:frames==1||frames==60||frames==120)
             {
                 var d=feature.GetDiagnostics().SingleOrDefault(x=>x.camera==target.name);
                 var row=new Receipt{actualCameraFrames=frames,engine=lastEngine,camera=target.name,featureEnabled=feature.isActive,giFrame=d?.frame??-1,
                     publishedInstances=d?.publishedInstances??0,readyCards=d?.readyCards??0,hardwareBackend=d?.hardwareBackend??false,hardwareMeshes=d?.hardwareMeshes??0,
                     hardwareFallbacks=d?.hardwareFallbacks??0,hardwareMaterialUnknownRecords=d?.hardwareMaterialUnknownRecords??-1,hardwareMaterialStatus=d?.hardwareMaterialStatus};
+                if(steady)
+                {
+                    row.sampleSlot=slot;row.elapsedSeconds=elapsed;row.diagnostics=d;
+                    row.retirementPending=HybridLumenGIResourceRetirement.PendingCount;row.retirementOwned=HybridLumenGIResourceRetirement.OwnedCount;
+                    row.retirementFailed=HybridLumenGIResourceRetirement.FailedCount;row.retirementUnknown=HybridLumenGIResourceRetirement.UnknownSubmissionCount;
+                    row.retirementFailedWithdrawals=HybridLumenGIResourceRetirement.FailedWithdrawalCount;
+                    row.retirementAdmissionClosed=HybridLumenGIResourceRetirement.AdmissionClosed;row.retirementSubmissionUncertain=HybridLumenGIResourceRetirement.SubmissionUncertain;
+                    row.deformationReservedBytes=HybridLumenGIDeformedMesh.ReservedBytes;row.deformationWorkers=HybridLumenGIDeformedMesh.PendingWorkerCount;
+                    row.deformationSnapshots=HybridLumenGIDeformedMesh.PublishedSnapshotCount;row.deformationFailed=HybridLumenGIDeformedMesh.FailedCleanupCount;
+                    lastSlot=slot;result.elapsedSeconds=elapsed;
+                }
                 receipts.WriteLine(JsonUtility.ToJson(row));
-                if(frames>=60)
+                if(steady?elapsed>=60:frames>=60)
                 {
                     Require(d!=null&&row.giFrame>0&&row.hardwareBackend&&row.hardwareMeshes>0&&row.readyCards>0&&row.publishedInstances>0&&row.hardwareMaterialUnknownRecords==0&&
                         row.hardwareMaterialStatus=="Uploads and both consumers bound; GPU completion unproven","Ordinary Release GI preparation/binding did not become ready");
                     Require(previousQualified==null||row.giFrame>previousQualified.giFrame,"GI execution frame did not progress");previousQualified=row;
                 }
             }
-            if(frames==120)quitPending=true;
+            if(steady?elapsed>=300:frames==120)quitPending=true;
         }
         catch(Exception e){errors++;firstError=firstError??e.ToString();}
     }
     void Save(){if(folder!=null&&Directory.Exists(folder))File.WriteAllText(Path.Combine(folder,"release-result.json"),JsonUtility.ToJson(result,true));}
     void Finish(bool complete)
     {
-        if(finished)return;finished=true;RenderPipelineManager.endCameraRendering-=Rendered;Application.logMessageReceived-=OnLog;receipts?.Dispose();receipts=null;target.enabled=false;
-        result.actualCameraFrames=frames;result.lastEngine=lastEngine;result.errors=errors;result.error=firstError;result.status=complete&&frames==120&&errors==0?"completed-finite-release-check":"failed";
+        if(finished)return;finished=true;RenderPipelineManager.endCameraRendering-=Rendered;Application.logMessageReceived-=OnLog;receipts?.Dispose();receipts=null;
+        result.actualCameraFrames=frames;result.lastEngine=lastEngine;result.errors=errors;result.error=firstError;
+        result.status=complete&&(steady?result.elapsedSeconds>=300:frames==120)&&errors==0?"completed-finite-release-check":"failed";
         Save();Debug.Log("LOCAL_RELEASE_RESULT "+JsonUtility.ToJson(result));Application.Quit(result.status=="completed-finite-release-check"?0:1);
     }
     void OnApplicationQuit()

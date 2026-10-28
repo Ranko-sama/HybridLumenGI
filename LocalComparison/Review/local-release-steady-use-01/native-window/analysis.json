@@ -1,0 +1,692 @@
+{
+  "status": "finite-sustained-use-established",
+  "finiteSustainedUseAccepted": true,
+  "fullProductionAccepted": false,
+  "totalVramStableProven": false,
+  "trackedOwnerZeroProven": false,
+  "newApiNativeCoverageProven": false,
+  "windowContract": {
+    "totalSeconds": 300,
+    "initializationSeconds": 60,
+    "sampleSeconds": 5,
+    "comparisonSeconds": [
+      180,
+      240
+    ],
+    "finalSeconds": [
+      240,
+      300
+    ]
+  },
+  "unresolved": [],
+  "buildProductsManifestSha256": "0177ada877e28fb3460d8341936a7d0a253eaa99319723122b97d1f33d862c02",
+  "nativeExit": {
+    "processId": 2644,
+    "exitCode": 0,
+    "watchdogTerminated": false,
+    "completedUtc": "2026-10-28T20:09:40.5142061Z"
+  },
+  "runtime": {
+    "mode": "ordinary-local-release",
+    "scene": "Assets/RuntimeAudit/Functional.unity",
+    "unity": "6000.0.85f1",
+    "api": "Direct3D12",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "status": "completed-finite-release-check",
+    "error": "",
+    "debugBuild": false,
+    "verify120": false,
+    "verifySteady300": true,
+    "featureEnabled": true,
+    "testCaptureDisabled": true,
+    "auditProbeDisabled": true,
+    "requestedFrames": 0,
+    "actualCameraFrames": 15173,
+    "startEngine": 0,
+    "firstRenderEngine": 1,
+    "lastEngine": 15173,
+    "errors": 0,
+    "width": 640,
+    "height": 360,
+    "firstRenderWaitSeconds": 99.0150651,
+    "requestedSeconds": 300,
+    "initializationSeconds": 60,
+    "sampleIntervalSeconds": 5,
+    "elapsedSeconds": 300.0130317
+  },
+  "nativeLogHits": [],
+  "sampleCount": 61,
+  "scene": {
+    "publishedInstances": {
+      "min": 22,
+      "max": 22,
+      "first": 22,
+      "last": 22,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "readyCards": {
+      "min": 132,
+      "max": 132,
+      "first": 132,
+      "last": 132,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "hardwareMeshes": {
+      "min": 22,
+      "max": 22,
+      "first": 22,
+      "last": 22,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "hardwareFallbacks": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "chartedOwners": {
+      "min": 22,
+      "max": 22,
+      "first": 22,
+      "last": 22,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "approximateOwners": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "requiredSurfaceCards": {
+      "min": 132,
+      "max": 132,
+      "first": 132,
+      "last": 132,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    }
+  },
+  "fixedStorage": {
+    "hardwareMaterialFrameBytes": {
+      "min": 83600,
+      "max": 83600,
+      "first": 83600,
+      "last": 83600,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "screenTextureEstimateBytes": {
+      "min": 14745600,
+      "max": 14745600,
+      "first": 14745600,
+      "last": 14745600,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "worldMaterialBytes": {
+      "min": 16496640,
+      "max": 16496640,
+      "first": 16496640,
+      "last": 16496640,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "objectSdfBytes": {
+      "min": 8392704,
+      "max": 8392704,
+      "first": 8392704,
+      "last": 8392704,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "globalSdfBytes": {
+      "min": 664704,
+      "max": 664704,
+      "first": 664704,
+      "last": 664704,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "worldCacheBytes": {
+      "min": 983040,
+      "max": 983040,
+      "first": 983040,
+      "last": 983040,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "hardwareAttributeBytes": {
+      "min": 55232,
+      "max": 55232,
+      "first": 55232,
+      "last": 55232,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "proposalBufferBytes": {
+      "min": 1056,
+      "max": 1056,
+      "first": 1056,
+      "last": 1056,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "softwareGeometryBytes": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "areaEmitterBytes": {
+      "min": 1152,
+      "max": 1152,
+      "first": 1152,
+      "last": 1152,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "surfaceTriangleMappingCpuBytes": {
+      "min": 1240,
+      "max": 1240,
+      "first": 1240,
+      "last": 1240,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "receiverIdentityBufferBytes": {
+      "min": 2766320,
+      "max": 2766320,
+      "first": 2766320,
+      "last": 2766320,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    },
+    "sceneLightingPolicyBytes": {
+      "min": 512,
+      "max": 512,
+      "first": 512,
+      "last": 512,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    }
+  },
+  "transientAccounting": {
+    "hardwareMaterialGlobalAllocatedBytes": {
+      "observed": {
+        "min": 89856,
+        "max": 89856,
+        "first": 89856,
+        "last": 89856,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "prior": {
+        "min": 89856,
+        "max": 89856,
+        "first": 89856,
+        "last": 89856,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 89856,
+        "max": 89856,
+        "first": 89856,
+        "last": 89856,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "rtasGlobalAccountedBytes": {
+      "observed": {
+        "min": 139776,
+        "max": 139776,
+        "first": 139776,
+        "last": 139776,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "prior": {
+        "min": 139776,
+        "max": 139776,
+        "first": 139776,
+        "last": 139776,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 139776,
+        "max": 139776,
+        "first": 139776,
+        "last": 139776,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "rtasGlobalEstimatedBytes": {
+      "observed": {
+        "min": 139776,
+        "max": 139776,
+        "first": 139776,
+        "last": 139776,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "prior": {
+        "min": 139776,
+        "max": 139776,
+        "first": 139776,
+        "last": 139776,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 139776,
+        "max": 139776,
+        "first": 139776,
+        "last": 139776,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "rtasGlobalRetiredBytes": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "prior": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "retirementPending": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "prior": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "retirementOwned": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "prior": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "deformationReservedBytes": {
+      "observed": {
+        "min": 53760,
+        "max": 53760,
+        "first": 53760,
+        "last": 53760,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "prior": {
+        "min": 53760,
+        "max": 53760,
+        "first": 53760,
+        "last": 53760,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 53760,
+        "max": 53760,
+        "first": 53760,
+        "last": 53760,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "deformationWorkers": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "prior": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "deformationSnapshots": {
+      "observed": {
+        "min": 1,
+        "max": 1,
+        "first": 1,
+        "last": 1,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "prior": {
+        "min": 1,
+        "max": 1,
+        "first": 1,
+        "last": 1,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 1,
+        "max": 1,
+        "first": 1,
+        "last": 1,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    }
+  },
+  "activity": {
+    "warmingInstances": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "pendingCapacity": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "pendingCards": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "warmupBudgetBlockedCards": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "globalPendingBricks": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "globalUpdatedBricks": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "materialUploadBytesUsed": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "hardwareSceneRebuilds": {
+      "observed": {
+        "min": 2,
+        "max": 2,
+        "first": 2,
+        "last": 2,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 2,
+        "max": 2,
+        "first": 2,
+        "last": 2,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "hardwareTransformUpdates": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "hardwareTriangleUploads": {
+      "observed": {
+        "min": 2,
+        "max": 2,
+        "first": 2,
+        "last": 2,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 2,
+        "max": 2,
+        "first": 2,
+        "last": 2,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "rtasBuildsThisFrame": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    },
+    "rtasPendingDemands": {
+      "observed": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      },
+      "final": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0,
+        "distinct": 1,
+        "nondecreasingWithIncrease": false
+      }
+    }
+  },
+  "rtasMeasuredHighWater": {
+    "meaning": "High-water estimate/measurement, not current active bytes",
+    "observed": {
+      "min": 78592,
+      "max": 78592,
+      "first": 78592,
+      "last": 78592,
+      "distinct": 1,
+      "nondecreasingWithIncrease": false
+    }
+  },
+  "giFrames": {
+    "firstObserved": 2674,
+    "last": 15173
+  }
+}

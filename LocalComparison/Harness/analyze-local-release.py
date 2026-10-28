@@ -5,6 +5,11 @@ ROOT=Path(__file__).resolve().parents[2];H=ROOT/'LocalComparison/Harness';PACKAG
 spec=importlib.util.spec_from_file_location('existing',H/'analyze-material-event.py');existing=importlib.util.module_from_spec(spec);spec.loader.exec_module(existing)
 existing.PACKAGE=PACKAGE;existing.BUILD=BUILD;existing.smoke.PACKAGE=PACKAGE;existing.smoke.BUILD=BUILD
 load=existing.load;save=existing.save
+
+def configure_steady():
+    global PACKAGE,BUILD
+    PACKAGE=ROOT/'LocalComparison/Review/local-release-steady-use-01';BUILD=Path('I:/Unity test/Comparison/Builds/LocalRelease44')
+    existing.PACKAGE=PACKAGE;existing.BUILD=BUILD;existing.smoke.PACKAGE=PACKAGE;existing.smoke.BUILD=BUILD
 def build():
     report=load(PACKAGE/'build-report.json');assert report['configuration']=='Release' and report['requestedOptions']==report['actualOptions']=='None','Actual Release build options differ'
     assert load(PACKAGE/'instrumentation/excluded-restoration.json')['allRestored'],'Historical includes not restored'
