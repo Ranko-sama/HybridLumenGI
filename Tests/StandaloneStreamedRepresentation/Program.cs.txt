@@ -1,0 +1,89 @@
+using System.Collections;
+using System.Reflection;
+using HybridLumenGI;
+using UnityEngine;
+using Stream=HybridLumenGI.HybridLumenGIAssetPageStreaming;
+static void Check(bool value,string reason){if(!value)throw new Exception(reason);}
+var configure=typeof(HybridLumenGIStreamedRepresentation).GetMethod("SetAdditionalObservers");
+void Additional(Fixture f,params Transform[] views){Check(configure!=null,"Additional-view capability missing");configure.Invoke(f.representation,new object[]{views});}
+var cold=new Fixture();
+if(args.Contains("--expect-single-observer"))
+{
+    Check(configure==null,"Baseline expected original single-view source");cold.Update();cold.Drive();
+    Check(cold.RequestCount==0 && cold.provider.operations.Count==0 && !cold.representation.HasBoundAssets,"Legacy primary-far cold control changed");
+    Console.WriteLine("CONFIRMED LEGACY LIMIT: primary far / secondary near, actual Update submits0 groups; secondary has no distance-demand input. This is a missing capability, not a single-view-design failure.");return;
+}
+Additional(cold,cold.near);cold.Update();
+Check(cold.RequestCount==1&&cold.CompleteDirectGroup,"Auxiliary view did not submit this requester and its complete geometry/material group");
+Additional(cold);cold.Update();Check(cold.RequestCount==0,"Cleared additions failed to restore far-primary no-demand control");
+Additional(cold,cold.near);cold.Update();cold.near.position=new Vector3(116,0,0);cold.Update();Check(cold.RequestCount==1,"Existing group dropped inside unload hysteresis");
+cold.near.position=new Vector3(122,0,0);cold.Update();Check(cold.RequestCount==0,"All-far unbound demand was retained beyond unload distance");
+cold.near.position=new Vector3(116,0,0);cold.Update();Check(cold.RequestCount==0,"Cold group started inside unload-only band");
+cold.near.position=new Vector3(100,0,0);cold.Update();Check(cold.RequestCount==1,"Re-entering load range did not restore demand");
+Console.WriteLine("PASS actual demand: main-far/aux-near cold request, clear control and group load/unload hysteresis.");
+
+var duplicate=new Fixture();var supplied=new[]{duplicate.near,duplicate.near,duplicate.far};Additional(duplicate,supplied);supplied[0]=duplicate.far;supplied[1]=duplicate.far;
+duplicate.Update();Check(duplicate.RequestCount==1,"Configuration did not retain copied view references");duplicate.Drive();int operations=duplicate.provider.operations.Count;
+Additional(duplicate,duplicate.far,duplicate.near,duplicate.near);duplicate.Update();duplicate.Drive();
+Check(duplicate.RequestCount==1&&duplicate.CompleteDirectGroup&&duplicate.RequestSequence==1&&duplicate.provider.operations.Count==operations,"Duplicate/reordered views multiplied group identity, IO or request age");
+Check(duplicate.state.IoBytesInFlight<=duplicate.budget.maxIoBytesInFlight&&duplicate.state.ActiveOperations<=duplicate.budget.concurrentOperations,"Multiview exceeded original global IO limits");
+Console.WriteLine("PASS actual driver: duplicate/reordered views retain one requester/group and existing IO limits.");
+
+var legacy=new Fixture();Fixture.Set(legacy.representation,"observer",legacy.near);legacy.Update();Check(legacy.RequestCount==1,"Explicit legacy observer lost precedence over far main camera");
+Fixture.Set(legacy.representation,"observer",null);Camera.main=null;Additional(legacy,new Transform{destroyed=true},null);legacy.Update();Check(legacy.RequestCount==1,"No live observer changed legacy retained demand");
+Camera.main=new Camera{transform=legacy.far};legacy.Update();Check(legacy.RequestCount==0,"Restored far legacy observer failed to withdraw");
+Additional(legacy,legacy.near);legacy.representation.SetWanted(false);legacy.Update();Check(legacy.RequestCount==0,"Additional view overrode manual false");
+legacy.representation.SetWanted(true);legacy.near.position=legacy.far.position;legacy.Update();Check(legacy.RequestCount==1,"Distance overrode manual true");
+legacy.representation.UseDistanceRequests();legacy.Update();Check(legacy.RequestCount==0,"UseDistanceRequests did not resume all-far evaluation");
+Camera.main.transform=legacy.near;legacy.near.position=new Vector3(100,0,0);Additional(legacy);legacy.Update();Check(legacy.RequestCount==1,"Main-camera legacy fallback changed");
+Console.WriteLine("PASS compatibility: legacy observer/main fallback, null/destroyed view retention and manual-mode priority.");
+
+var capped=new Fixture();Additional(capped,capped.near,capped.near);capped.budget.maxResidentBytes=59;capped.ApplyBudget();capped.Update();capped.Drive();
+Check(capped.RequestCount==1&&capped.driver.BudgetBlockedGroups==1&&capped.provider.operations.Count==0&&capped.state.ResidentBytes==0,"Demand bypassed complete-group dependency capacity");
+capped.budget.maxResidentBytes=60;capped.ApplyBudget();capped.Drive();
+Check(capped.driver.BudgetBlockedGroups==0&&capped.state.IoBytesStarted==20&&capped.state.ActiveOperations==2,"Admissible full group bypassed or stalled original IO budget");
+for(int i=0;i<16&&!capped.representation.HasBoundAssets;i++){capped.provider.CompleteAll();capped.Drive();capped.Update();}
+Check(capped.representation.HasBoundAssets&&capped.filter.sharedMesh!=null&&capped.renderer.sharedMaterials.Length==1&&capped.state.ResidentBytes==60,"Actual full-ready group did not bind");
+int geometryRefs=capped.state.GetState("geometry").ConsumerReferences,materialRefs=capped.state.GetState("material").ConsumerReferences;
+capped.near.position=new Vector3(122,0,0);capped.Update();capped.Drive();
+Check(capped.representation.WantsUnload&&capped.representation.HasBoundAssets&&capped.filter.sharedMesh!=null&&capped.renderer.enabled&&capped.proxy.enabled,"All-far demand detached a bound representation without safe-unload permission");
+Check(capped.state.GetState("geometry").ConsumerReferences==geometryRefs&&capped.state.GetState("material").ConsumerReferences==materialRefs&&capped.state.RetiringLeases==0&&capped.state.ResidentBytes==60&&!capped.provider.operations.Any(o=>o.phase=="release"),"Distance change released leases or reservations before original retirement gate");
+Console.WriteLine("PASS actual budget/ownership boundary: complete dependency group blocked at59/admitted at60; all-far bound group only requests unload, retaining bindings/leases/reservations.");
+Console.WriteLine("PASS multiview cold-demand capability; actual C# representation/driver/scheduler, adapted Unity objects and IO. No Unity/AssetBundle/GPU/HLOD native-chain acceptance.");
+
+sealed class Fixture
+{
+    const BindingFlags Hidden=BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance|BindingFlags.Static;
+    public static void Set(object value,string name,object field)=>value.GetType().GetField(name,Hidden).SetValue(value,field);
+    public static object Get(object value,string name)=>value.GetType().GetField(name,Hidden).GetValue(value);
+    static void Call(object value,string name){try{value.GetType().GetMethod(name,Hidden).Invoke(value,null);}catch(TargetInvocationException e){throw e.InnerException;}}
+    public readonly HybridLumenGIStreamedRepresentation representation=new();public readonly HybridLumenGIAssetPageStreamer driver=new();
+    public readonly HybridLumenGIProxy proxy=new();public readonly MeshFilter filter=new();public readonly MeshRenderer renderer=new();
+    public readonly Transform near=new(){position=new Vector3(100,0,0)},far=new(){position=new Vector3(200,0,0)};
+    public readonly Provider provider=new();public readonly Stream state;
+    public Stream.Budgets budget=new(){ioBytesPerStep=20,maxIoBytesInFlight=20,maxBundleBytes=100,maxResidentBytes=60,uploadBytesPerStep=8,concurrentOperations=2,startsPerStep=2};
+    public Fixture()
+    {
+        var defs=new[]{Page("geometry",Stream.Kind.Geometry),Page("material",Stream.Kind.Material,"texture"),Page("texture",Stream.Kind.Texture)};state=new Stream(defs,provider);
+        Set(driver,"<State>k__BackingField",state);typeof(HybridLumenGIAssetPageStreamer).GetField("owner",Hidden).SetValue(null,driver);ApplyBudget();
+        filter.gameObject=renderer.gameObject;proxy.gameObject=renderer.gameObject;representation.gameObject=renderer.gameObject;representation.transform.position=new Vector3(100,0,0);
+        representation.Configure(driver,proxy,filter,renderer,"geometry",null,null,new[]{"material"},new Bounds(Vector3.zero,new Vector3(2,2,2)));representation.ConfigureDistances(10,20);
+        Camera.main=new Camera{transform=far};
+    }
+    static Stream.Definition Page(string id,Stream.Kind kind,params string[] dependencies)=>new(){id=id,bundlePath=id+".bundle",assetName=id,kind=kind,fileBytes=10,residentBytes=20,uploadBytes=8,dependencies=dependencies};
+    public void ApplyBudget()=>driver.SetBudgets(budget);
+    public void Update()=>Call(representation,"Update");public void Drive()=>Call(driver,"Drive");
+    IDictionary Requests=>(IDictionary)Get(driver,"requests");public int RequestCount=>Requests.Count;
+    public long RequestSequence=>(long)Get(driver,"nextRequest");
+    public bool CompleteDirectGroup=>Requests.Contains(representation)&&((string[])Get(Requests[representation],"ids")).OrderBy(x=>x).SequenceEqual(new[]{"geometry","material"});
+}
+sealed class Provider:Stream.IProvider
+{
+    public sealed class Op:Stream.IOperation{public string phase;public bool done;public object value;public bool IsDone=>done;public string Error=>null;public object Result=>value;}
+    public readonly List<Op> operations=new();
+    Op Add(string phase,object value){var op=new Op{phase=phase,value=value};operations.Add(op);return op;}
+    public Stream.IOperation LoadBundle(Stream.Definition definition)=>Add("bundle",new object());
+    public Stream.IOperation LoadAsset(Stream.Definition definition,object bundle)=>Add("asset",definition.kind==Stream.Kind.Geometry?new Mesh():definition.kind==Stream.Kind.Material?new Material():new Texture());
+    public Stream.IOperation Release(Stream.Definition definition,object bundle,object asset)=>Add("release",null);
+    public void CompleteAll(){foreach(var op in operations)op.done=true;}
+}

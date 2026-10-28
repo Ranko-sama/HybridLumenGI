@@ -1,0 +1,72 @@
+// Unity object/native-IO boundaries only. Actual representation, request driver and page scheduler are compiled.
+using System;
+namespace UnityEngine
+{
+    [AttributeUsage(AttributeTargets.Class)] public sealed class DisallowMultipleComponent:Attribute{}
+    [AttributeUsage(AttributeTargets.Field)] public sealed class SerializeField:Attribute{}
+    [AttributeUsage(AttributeTargets.Field)] public sealed class MinAttribute:Attribute{public MinAttribute(float value){}}
+    [AttributeUsage(AttributeTargets.Field)] public sealed class TooltipAttribute:Attribute{public TooltipAttribute(string value){}}
+    public class Object
+    {
+        public bool destroyed;
+        static bool Dead(Object value)=>ReferenceEquals(value,null)||value.destroyed;
+        public static bool operator ==(Object a,Object b)=>Dead(a)?Dead(b):!Dead(b)&&ReferenceEquals(a,b);
+        public static bool operator !=(Object a,Object b)=>!(a==b);
+        public static implicit operator bool(Object value)=>!Dead(value);
+        public override bool Equals(object other)=>ReferenceEquals(this,other);
+        public override int GetHashCode()=>System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this);
+    }
+    public class GameObject:Object{public Transform transform=new();}
+    public class MonoBehaviour:Object{public GameObject gameObject=new();public Transform transform=>gameObject.transform;public bool enabled=true;public bool isActiveAndEnabled=>enabled&&!destroyed;}
+    public class Transform:Object{public Matrix4x4 localToWorldMatrix=new(){scale=Vector3.one};public Vector3 position{get=>localToWorldMatrix.translation;set=>localToWorldMatrix.translation=value;}}
+    public struct Matrix4x4
+    {
+        public Vector3 translation,scale;
+        public Vector3 MultiplyVector(Vector3 v)=>new(v.x*scale.x,v.y*scale.y,v.z*scale.z);
+        public Vector3 MultiplyPoint3x4(Vector3 v)=>MultiplyVector(v)+translation;
+    }
+    public partial struct Bounds
+    {
+        public float SqrDistance(Vector3 p)
+        {Vector3 a=min,b=max;float x=MathF.Max(MathF.Max(a.x-p.x,p.x-b.x),0),y=MathF.Max(MathF.Max(a.y-p.y,p.y-b.y),0),z=MathF.Max(MathF.Max(a.z-p.z,p.z-b.z),0);return x*x+y*y+z*z;}
+    }
+    public class Camera:Object{public static Camera main;public Transform transform=new();}
+    public class Mesh:Object{public int subMeshCount=1;}
+    public class Material:Object{}
+    public class Texture:Object{}
+    public class Collider:Object{}
+    public class MeshFilter:Object{public GameObject gameObject=new();public Mesh sharedMesh;}
+    public class Renderer:Object{public GameObject gameObject=new();public bool enabled;public Material[] sharedMaterials=Array.Empty<Material>();}
+    public class MeshRenderer:Renderer{}
+    public static class Application{public static bool isPlaying=true;public static string streamingAssetsPath=System.IO.Path.GetTempPath();}
+    public static class Debug{public static void LogError(string text,Object context)=>throw new Exception(text);public static void LogException(Exception error,Object context)=>throw error;}
+    public class AsyncOperation{public bool isDone;}
+    public class AssetBundleCreateRequest:AsyncOperation{public AssetBundle assetBundle;}
+    public class AssetBundleRequest:AsyncOperation{public Object asset;}
+    public class AssetBundle:Object
+    {
+        public static AssetBundleCreateRequest LoadFromFileAsync(string path,uint crc)=>throw new NotSupportedException("Native IO is not executed by this source test");
+        public AssetBundleRequest LoadAssetAsync(string name,Type type)=>throw new NotSupportedException();
+        public AsyncOperation UnloadAsync(bool all)=>throw new NotSupportedException();
+    }
+    public static class Resources{public static void UnloadAsset(Object value)=>throw new NotSupportedException();}
+}
+namespace HybridLumenGI
+{
+    using UnityEngine;
+    public class HybridLumenGIMeshSdf:UnityEngine.Object{public Mesh SourceMesh;}
+    public class HybridLumenGISurfaceCharts:UnityEngine.Object{public Mesh SourceMesh;}
+    public class HybridLumenGIProxy:MonoBehaviour
+    {
+        public HybridLumenGIMeshSdf MeshSdf;public HybridLumenGISurfaceCharts SurfaceCharts;public Renderer SourceRenderer;
+        public void SetSources(Renderer renderer,Collider collider){SourceRenderer=renderer;}
+        public void SetMeshSdf(HybridLumenGIMeshSdf value){MeshSdf=value;}
+        public void SetSurfaceCharts(HybridLumenGISurfaceCharts value){SurfaceCharts=value;}
+        public void MarkDirty(){}
+    }
+    public class HybridLumenGIAssetPageManifest:UnityEngine.Object{public string RelativeRoot;public HybridLumenGIAssetPageStreaming.Definition[] Pages;}
+    public static class HybridLumenGIAssetPageRetirementPump{public static void EnsureExists(){}}
+    public static class HybridLumenGIResourceRetirement{public static void EnsureRegistered(){}}
+    public static class HybridLumenGIRayTexturePool
+    {public static void PollRetired(){}public static void InvalidateSource(Texture value)=>throw new NotSupportedException();public static bool IsSourceReferenced(Texture value)=>throw new NotSupportedException();}
+}

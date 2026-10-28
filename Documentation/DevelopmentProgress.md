@@ -106,3 +106,7 @@ iteration39：原工作流3/4、G2内部多层缓存链完成一次有限真实�
 iteration40：工作流10/G5新增普通本机Release可运行基线，Runtime/Editor112源未改。CurrentPlayerBuild显式None分支、薄普通启动绕过旧自动入口并停用测试组件，默认常驻窗口，参数分支才计120目标帧。唯一build和唯一可见进程均通过，实际debugBuildfalse、GI1/60/120、末段22硬件mesh/132readycards/材质双方绑定、native0/零错误、未触发watchdog。4启动/构建覆盖及历史孤立include已恢复；189产物保存在I:/Unity test/Comparison/Builds/LocalRelease40，含启动器说明。公开诊断不升级逐射线或逐owner清零，Release条件详细日志缺失正常，无性能/整体验收声明。39/40两节点后回完整计划复评，见StageReassessment-LocalRelease.md；Astra先独立选择下一实际问题，再比较实际Pro40计划，不以观察器/日志/包数作为总体进展。
 
 实际Pro40读取211–213批准本地Release结项和提交，并认同Astra独立提出的多视点冷加载能力。下一包streamed-representation-multiview-demand-01优先只改StreamedRepresentation：默认空的附加观察点集合，与原observer/Camera.main共同取最小world-bounds距离，复用原load/unload滞回；手动优先，无有效视点时保留原wanted语义，不直接退休/解绑，不扫描全部Camera或扩ChunkStreamer。真实Update生成一个this完整组请求，显式Unity/IO适配器加原预算入口有限验证；0新增Unity/Player/GPU。Release40产物仍对应原112源，不能标为含下一候选。
+
+iteration41：目标3/工作流8新增附加视点的冷加载需求输入，只改StreamedRepresentation产品源。原单视点控制主远辅近0请求，候选实际Update提交一个this完整组；清除附加视点、原滞回、重复重排、legacy/manual、整组预算59阻/60准入和allfar后已绑定资源保留均首轮通过。实际driver/scheduler参与，Unity对象/原生IO为明确适配边界，没有复制需求或预算算法。既有chunk/page源检查同命令通过，7份冻结源哈希未变。0Unity/Player/GPU，无本轮失败，不升级原生多相机/IO/HLOD/退休验收。现有Unity部署及Release40仍旧源。候选待Astra独立审查和实际Pro41复审，再提交并沿完整计划选择下一步；详见ReviewBrief-StreamedRepresentationMultiviewDemand01.md。
+
+实际Pro41读取214/215及完整原始日志，批准本地提交并结束CPU多视点需求功能。派生复审文本误把UTF-8当UTF-16的问题已修正并重新释出；原始字节未改，未重跑。Astra先独立选择SDF有限步数耗尽被当作确定miss的语义缺口，Pro核对源码后同意。下一包sdf-query-completion-01只允许实际HLSL冻结基线反例和同输入候选判定，合法8–128steps且独立几何/区间判断；成立才最小贯通unknown，确定hit/miss及近远/直接消费者不退化，不调整追踪参数/持久GPU ABI，不运行Unity/Player。此前DXR画面漏光未被证明，原计划继续。

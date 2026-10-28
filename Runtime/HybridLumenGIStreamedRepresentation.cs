@@ -20,6 +20,8 @@ namespace HybridLumenGI
         [SerializeField] private string[] materialPages=Array.Empty<string>();
         [SerializeField] private Bounds localBounds=new Bounds(Vector3.zero,Vector3.one);
         [SerializeField] private Transform observer;
+        [SerializeField,Tooltip("Explicit additional distance-demand viewpoints. The legacy observer or main camera remains included; camera eligibility is controlled by the application.")]
+        private Transform[] additionalObservers=Array.Empty<Transform>();
         [SerializeField,Min(0f)] private float loadDistance=60f,unloadDistance=90f;
         [SerializeField] private int priority;
         private static readonly List<HybridLumenGIStreamedRepresentation> active=new List<HybridLumenGIStreamedRepresentation>();
@@ -49,6 +51,10 @@ namespace HybridLumenGI
         }
         public void SetWanted(bool value){manualMode=true;manualWanted=value;}
         public void UseDistanceRequests(){manualMode=false;}
+        /// <summary>Copies additional viewpoints without changing manual-mode priority.
+        /// Null/empty removes the additions, retaining the legacy observer/main-camera behavior.</summary>
+        public void SetAdditionalObservers(params Transform[] value)
+        {additionalObservers=value==null || value.Length==0?Array.Empty<Transform>():(Transform[])value.Clone();}
         public void ConfigureDistances(float load,float unload)
         {loadDistance=Mathf.Max(0f,load);unloadDistance=Mathf.Max(loadDistance,unload);}
         private void OnEnable(){if(!Application.isPlaying)return;unavailable=false;if(!active.Contains(this))active.Add(this);HybridLumenGIResourceRetirement.EnsureRegistered();}
@@ -75,7 +81,8 @@ namespace HybridLumenGI
             else
             {
                 Transform target=observer!=null?observer:Camera.main!=null?Camera.main.transform:null;
-                if(target!=null)
+                int count=additionalObservers?.Length??0;
+                if(target!=null || count>0)
                 {
                     Matrix4x4 matrix=transform.localToWorldMatrix;
                     Vector3 x=matrix.MultiplyVector(new Vector3(localBounds.extents.x,0,0));
@@ -83,8 +90,19 @@ namespace HybridLumenGI
                     Vector3 z=matrix.MultiplyVector(new Vector3(0,0,localBounds.extents.z));
                     var extents=new Vector3(Mathf.Abs(x.x)+Mathf.Abs(y.x)+Mathf.Abs(z.x),Mathf.Abs(x.y)+Mathf.Abs(y.y)+Mathf.Abs(z.y),Mathf.Abs(x.z)+Mathf.Abs(y.z)+Mathf.Abs(z.z));
                     var bounds=new Bounds(matrix.MultiplyPoint3x4(localBounds.center),extents*2f);
-                    float distance=wanted?Mathf.Max(loadDistance,unloadDistance):loadDistance;
-                    wanted=bounds.SqrDistance(target.position)<=distance*distance;
+                    bool hasObserver=false;float nearestSquared=float.PositiveInfinity;
+                    for(int i=-1;i<count;i++)
+                    {
+                        Transform current=i<0?target:additionalObservers[i];
+                        if(current==null)continue;
+                        hasObserver=true;nearestSquared=Mathf.Min(nearestSquared,bounds.SqrDistance(current.position));
+                    }
+                    // No live viewpoint retains the existing state, as in legacy single-view mode.
+                    if(hasObserver)
+                    {
+                        float distance=wanted?Mathf.Max(loadDistance,unloadDistance):loadDistance;
+                        wanted=nearestSquared<=distance*distance;
+                    }
                 }
             }
             if(!wanted){if(!bound)RemoveRequests();return;}
