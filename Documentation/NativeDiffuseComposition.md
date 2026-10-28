@@ -4,6 +4,8 @@ The default additive mode adds HLGI to the native URP result. It can double-coun
 
 ## Lighting contract
 
+The final Additive increment is also attenuated by fog: `cameraColor += HLGI_D * rho * materialAO * indirectIntensity * T`. Composite reconstructs the full-resolution receiver position and uses the current URP `InitializeInputDataFog` / `MixFogColor(1,0)` functions. This adds no second fog source color, and does not fog the world cache or its feedback. Debug displays keep their existing unattenuated semantics. Iteration47 established the old missing-attenuation counterexample and the corrected actual HLSL output on WARP for one linear-fog configuration plus no fog; current installed URP dependencies match the pinned include cache. Unity runtime variant selection and arbitrary cameras are outside that finite source result; Release44 still predates this change.
+
 For opaque `Universal Render Pipeline/Lit` in the supported Forward paths, define `rho = BRDFData.diffuse`, `a = min(materialOcclusion, screenSpaceIndirectAO)`, `B = inputData.bakedGI` after `MixRealtimeAndBakedGI`, and `T = MixFogColor(1, 0, inputData.fogCoord)`. The native diffuse contribution is `N = B * rho * a`. HLGI stores `D = E/pi`, so the replacement is:
 
 ```text

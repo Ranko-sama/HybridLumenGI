@@ -1,0 +1,596 @@
+{
+  "passed": true,
+  "oldCounterexampleEstablished": true,
+  "stage": "baseline",
+  "failures": [],
+  "rows": [
+    {
+      "variant": "linear",
+      "case": "additive-clear",
+      "color": [
+        1.0,
+        0.25,
+        0.0625,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        4.0,
+        1.0
+      ],
+      "transmission": 1.0,
+      "expected": [
+        1.0,
+        0.25,
+        0.0625,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "linear",
+      "case": "additive-half",
+      "color": [
+        1.0,
+        0.25,
+        0.0625,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.5
+      ],
+      "transmission": 0.5,
+      "expected": [
+        1.0,
+        0.25,
+        0.0625,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "linear",
+      "case": "additive-opaque",
+      "color": [
+        1.0,
+        0.25,
+        0.0625,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        -4.0,
+        0.0
+      ],
+      "transmission": 0.0,
+      "expected": [
+        1.0,
+        0.25,
+        0.0625,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "linear",
+      "case": "replace-signed",
+      "color": [
+        0.25,
+        -0.125,
+        -0.03125,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.5
+      ],
+      "transmission": 0.5,
+      "expected": [
+        0.25,
+        -0.125,
+        -0.03125,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "linear",
+      "case": "replace-measured-black",
+      "color": [
+        -0.25,
+        -0.25,
+        -0.0625,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.5
+      ],
+      "transmission": 0.5,
+      "expected": [
+        -0.25,
+        -0.25,
+        -0.0625,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "linear",
+      "case": "debug-indirect",
+      "color": [
+        1.0,
+        0.25,
+        0.0625,
+        1.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.5
+      ],
+      "transmission": 0.5,
+      "expected": [
+        1.0,
+        0.25,
+        0.0625,
+        1
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "linear",
+      "case": "unknown-gi",
+      "color": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.5
+      ],
+      "transmission": 0.5,
+      "expected": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "linear",
+      "case": "invalid-material",
+      "color": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.5
+      ],
+      "transmission": 0.5,
+      "expected": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "linear",
+      "case": "capture-depth-mismatch",
+      "color": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.5
+      ],
+      "transmission": 0.5,
+      "expected": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "off",
+      "case": "additive-clear",
+      "color": [
+        1.0,
+        0.25,
+        0.0625,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        4.0,
+        0.0
+      ],
+      "transmission": 1.0,
+      "expected": [
+        1.0,
+        0.25,
+        0.0625,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "off",
+      "case": "additive-half",
+      "color": [
+        1.0,
+        0.25,
+        0.0625,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "transmission": 1.0,
+      "expected": [
+        1.0,
+        0.25,
+        0.0625,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "off",
+      "case": "additive-opaque",
+      "color": [
+        1.0,
+        0.25,
+        0.0625,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        -4.0,
+        0.0
+      ],
+      "transmission": 1.0,
+      "expected": [
+        1.0,
+        0.25,
+        0.0625,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "off",
+      "case": "replace-signed",
+      "color": [
+        0.25,
+        -0.125,
+        -0.03125,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "transmission": 1.0,
+      "expected": [
+        0.25,
+        -0.125,
+        -0.03125,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "off",
+      "case": "replace-measured-black",
+      "color": [
+        -0.25,
+        -0.25,
+        -0.0625,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "transmission": 1.0,
+      "expected": [
+        -0.25,
+        -0.25,
+        -0.0625,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "off",
+      "case": "debug-indirect",
+      "color": [
+        1.0,
+        0.25,
+        0.0625,
+        1.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "transmission": 1.0,
+      "expected": [
+        1.0,
+        0.25,
+        0.0625,
+        1
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "off",
+      "case": "unknown-gi",
+      "color": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "transmission": 1.0,
+      "expected": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "off",
+      "case": "invalid-material",
+      "color": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "transmission": 1.0,
+      "expected": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    },
+    {
+      "variant": "off",
+      "case": "capture-depth-mismatch",
+      "color": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "worldAndFog": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "transmission": 1.0,
+      "expected": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "checks": {
+        "color": true,
+        "worldAndFog": true,
+        "transmission": true,
+        "unchanged": true
+      }
+    }
+  ],
+  "absoluteErrorBound": 2e-06,
+  "runner": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+  "runnerSha256": "8dc02bf76d564dba07b117af905335c1281377e8d7fd9e5853e6cd1a07324cb4",
+  "inputSha256": "a76421448380b35bcdfd4b97e0c0bbf68d93cd83cd75d27f880ad5f7469c3ca6",
+  "compiledSourceSha256": "2441a64c00afad7c36bb874c667da34ba53ce86ee7d25194f970000b82015dc0",
+  "commands": [
+    {
+      "name": "linear-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSCompositeFog",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\linear.dxil",
+        "-D",
+        "FOG_LINEAR=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\actual-composite.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "linear-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\linear.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\linear.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "off-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSCompositeFog",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\off.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\actual-composite.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "off-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\off.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\off.bin"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "scope": "Actual Frag/Reconstruct plus current URP helpers on WARP; explicit texture loads/resolved GI and camera inputs. No Unity/raster/RenderGraph/runtime variant qualification."
+}

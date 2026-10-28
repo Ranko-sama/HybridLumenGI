@@ -1,0 +1,60 @@
+[
+  {
+    "name": "linear-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSCompositeFog",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\linear.dxil",
+      "-D",
+      "FOG_LINEAR=1",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\actual-composite.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "linear-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\linear.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\linear.bin"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "off-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSCompositeFog",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\off.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\actual-composite.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "off-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\off.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\baseline\\off.bin"
+    ],
+    "exitCode": 0
+  }
+]

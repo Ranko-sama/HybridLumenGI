@@ -126,3 +126,7 @@ iteration44已提交2007409。iteration45固定实际组件基线确认相同自
 iteration45已提交65e2a11。iteration46一次真实Unity Editor批次/PID21608、三次独立BakeMesh(false)完成，A1/A2全内容指纹一致，B上方骨骼X+.25产生预期顶点且指纹改变；位置/未变法线/切线/UV误差全0≤预声明1e-6，精确索引/拓扑/计数与有限/可读门槛成立。真实布局2条stream160/32B、stride40/8，原始字节/描述/bounds均未改；源网格指纹前后一致。首managed预检/原生/冻结分析均0，无失败/补跑；临时preview scene与Editor脚本恢复，112部署源/场景/设置不变。仅验证简单骨架原生捕获依赖，未部署候选组件、无Player/GI渲染/新GPU查询/性能声明。结合45可有限支持复用采用，不外推任意动画或全G5。Astra与实际Pro46正在按完整计划做形变累计阶段复评。
 
 实际Pro46读取229/230批准有限原生捕获依据和本地证据提交，形变链停止扩展。Astra先从完整原计划独立选出默认Additive未衰减雾的源码缺口；Pro复核后同意优先目标4/工作流7。下一步additive-fog-composition-01先以实际Frag和当前URP依赖建立反例，成立才单shader最小修复；G*T、无雾、Replace有符号差值、Debug和未知保护为退出条件。一次基线/候选源码判定，零Unity/Player，不把先前截图归因为此缺口。
+
+iteration47：目标4/工作流7修复默认Additive最终雾衰减缺口，产品仅Composite增加8行。实际Frag旧反例在T=.5/0仍加完整G；候选正确为T*G，实际Reconstruct与当前URP雾函数执行，无雾及Replace有符号差值/Debug/unknown等控制逐字节保持。当前URP3依赖与固定cache一致，首轮基线/候选通过、受影响pass编译通过，无失败/重试/Unity/部署；不是此前截图归因或运行时变体选择验收。形变累计检查结束，本项按有限源码结果交独立Astra和实际Pro47，不扩雾类型矩阵。
+
+实际Pro47读取231/232批准Additive雾衰减的有限源码修复和本地提交，不扩雾/材质/原生矩阵。同意Astra独立下一方向：local-light-scheduling-priority-01，只在原全局照明脏标记和全部候选基础上，对局部灯光旧/新范围增加调度优先权，保留公平配额及预算；不把范围用作光传输硬截止，不宣称性能/画质收益。

@@ -108,6 +108,13 @@ Shader "Hidden/HybridLumenGI/Composite"
                 // Fog's source color remains untouched; only replace its attenuated diffuse contribution.
                 outgoing=(outgoing-nativeDiffuseFog.rgb)*nativeDiffuseFog.a;
             }
+            else if(_HLGI_Debug==0)
+            {
+                // Camera color already contains Lit's fog. Attenuate only the
+                // added light; adding the fog color again would double count it.
+                half fogCoord=InitializeInputDataFog(float4(Reconstruct(uv,depth),1),0);
+                outgoing*=MixFogColor(half3(1,1,1),half3(0,0,0),fogCoord).r;
+            }
             if(_HLGI_Debug==2) return float4(gi.aaa,1);
             if(_HLGI_Debug==3)
             {
@@ -128,6 +135,7 @@ Shader "Hidden/HybridLumenGI/Composite"
             #pragma target 4.5
             #pragma vertex Vert
             #pragma fragment Frag
+            #pragma multi_compile_fog
             ENDHLSL
         }
         Pass

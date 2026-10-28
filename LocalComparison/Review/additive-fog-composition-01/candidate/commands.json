@@ -1,0 +1,146 @@
+[
+  {
+    "name": "linear-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSCompositeFog",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\linear.dxil",
+      "-D",
+      "FOG_LINEAR=1",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\actual-composite.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "linear-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\linear.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\linear.bin"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "off-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSCompositeFog",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\off.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\actual-composite.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "off-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\off.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\off.bin"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "vertex-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-E",
+      "Vert",
+      "-T",
+      "vs_6_0",
+      "-I",
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\vertex.dxil",
+      "-D",
+      "SHADER_API_D3D11=1",
+      "-D",
+      "SHADER_STAGE_VERTEX=1",
+      "-D",
+      "UNITY_COMPILER_DXC=1",
+      "-D",
+      "UNITY_VERSION=600000",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\composite-pass.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "fragment-off-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-E",
+      "Frag",
+      "-T",
+      "ps_6_0",
+      "-I",
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\fragment-off.dxil",
+      "-D",
+      "SHADER_API_D3D11=1",
+      "-D",
+      "SHADER_STAGE_FRAGMENT=1",
+      "-D",
+      "UNITY_COMPILER_DXC=1",
+      "-D",
+      "UNITY_VERSION=600000",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\composite-pass.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "fragment-linear-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-E",
+      "Frag",
+      "-T",
+      "ps_6_0",
+      "-I",
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\fragment-linear.dxil",
+      "-D",
+      "SHADER_API_D3D11=1",
+      "-D",
+      "SHADER_STAGE_FRAGMENT=1",
+      "-D",
+      "UNITY_COMPILER_DXC=1",
+      "-D",
+      "FOG_LINEAR=1",
+      "-D",
+      "UNITY_VERSION=600000",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\additive-fog-composition-01\\candidate\\composite-pass.hlsl"
+    ],
+    "exitCode": 0
+  }
+]
