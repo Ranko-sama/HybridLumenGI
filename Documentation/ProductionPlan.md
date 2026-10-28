@@ -121,7 +121,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
-| G0：基线锁定 | Unity/URP 精确版本、设备矩阵、目标分辨率/FPS、GI GPU/显存预算、参考场景与图 | 本机导入/Player build及来源一致基线；当前已验证候选3088d41的Windows/Mono/DX12构建与有限软件运行，硬件Player和生产预算仍开放 |
+| G0：基线锁定 | Unity/URP 精确版本、设备矩阵、目标分辨率/FPS、GI GPU/显存预算、参考场景与图 | 本机导入/Player build及来源一致基线；当前已验证候选3088d41的Windows/Mono/DX12构建与有限软件/DXR运行，完整配置/性能预算仍开放 |
 | G1：传输正确性 | 灯光单位/阴影/材质合约、真实 hit 材质、白炉/黑室/金属/色墙对照 | 线性 HDR 与匹配参考比对；无重复环境/烘焙贡献；能量/关灯衰减通过 |
 | G2：世界表面与几何 | cards/atlas、mesh SDF 资产管线、实例空间加速、global SDF clipmaps、dirty bricks | 复杂多房间、薄壁、凹物体、离屏纹理与材质正确；覆盖 debug 可解释 |
 | G3：动态稳定性 | 局部失效、运动/形变一致性、可见性缓存、引导/MIS、时域重建 | 规定 camera/light/door 序列通过；误差、拖影、收敛时间量化 |

@@ -52,7 +52,7 @@ def verify_products():
 def run(mode):
     package=PACKAGE/(mode+'-windowed')
     report={'mode':mode,'playerSmokeVerified':False,'fullProductionAccepted':False,'failures':{},
-            'scope':'Current Development/Mono/DX12 software120frame capture and natural exit; no image/performance acceptance'}
+            'scope':f'Current Development/Mono/DX12 {mode}120frame capture and natural exit; no image/performance acceptance'}
     data={}
     def check(name,fn):
         report[name]=False
@@ -79,6 +79,7 @@ def run(mode):
         coverage=[d['hardwareFallbacks'] for d in stable]
         report['stableUnrepresentedInstanceGauge']={'minimum':min(coverage),'maximum':max(coverage),'meaning':'Instance coverage gauge, not event counter'}
         assert min(coverage)==max(coverage),'Unexplained stable coverage change'
+        if mode=='hardware':assert max(coverage)==0,'Hardware stable-window instances remain unrepresented'
     def gi():
         folder=data['folder'];rows=lines(folder/'functional.jsonl');frames=data['frames']
         assert [r['frame'] for r in rows]==list(range(120)),'Missing/duplicate functional receipt'

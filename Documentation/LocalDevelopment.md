@@ -10,7 +10,7 @@
 
 唯一新软件 Player 在 Unity6000.0.85f1／Windows／Development Mono／DX12 完成120帧、5份有效HDR、零采集错误。第119帧原始moments与统计／哈希／帧身份一致，历史上限32；原生日志确认两父票及七子票分别提交并完成，全部项目owner计账归零，没有旧回收／GC buffer／D3D未释放告警。Astra结果审查无阻断，实际GPT6 Pro已接受较小修复及本次有限验收，并给出同构建单次DXR计划。详见[本轮结果](../LocalComparison/Review/current-player-shutdown-01/result.md)与[Pro复审](../LocalComparison/Review/current-player-shutdown-01/gpt6-pro-review-and-next-plan.txt)。
 
-这只关闭候选当前软件Player的有限正常退出缺口。硬件Player尚未运行；任意外部Quit／关窗、异常scratch、长时增长、总显存、完整画质与性能仍未验收。Unity原生退出汇总保留，不归因GI或冒称总内存零泄漏。后续复用同一283份构建产物，避免为硬件验证重建或重跑软件。
+随后current-player-dxr-smoke-01复用同一283份产物，唯一DXR Player同样通过120帧、实际22硬件mesh/零覆盖缺口、GI读回/5份HDR和正常退出。Pro21接受该有限证据，下一包为gpu-cost-baseline-01，分离只测量与预算反馈后取得固定工作量成本。任意外部Quit／关窗、异常scratch、长时增长、总显存、完整画质与性能仍未验收。Unity原生退出汇总保留，不归因GI或冒称总内存零泄漏。
 
 ## cache-failed-result-01（2026-10-28）
 
