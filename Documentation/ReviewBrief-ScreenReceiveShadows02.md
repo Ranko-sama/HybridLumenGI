@@ -1,0 +1,13 @@
+# Receive Shadows — bounded supplement, iteration33
+
+This completes the finite material-policy correction in original goals1/4, workstreams2/7 and G1. Runtime remains exactly candidate69ef642. The original failed01 run remains FAILED; only this new source-matched supplement supplies native-replacement acceptance.
+
+One fixture correction: explicit opaque, nonclipped, nonemissive stock URP Lit on the existing blocker, with an assignment check in Configure. `LocalComparison/Review/screen-receive-shadows-02/preflight.json` confirms all112 product sources and five other staged source files are byte-identical to01. `fixture-change.patch` isolates the contiguous material assignment/check. Geometry, receiver materials, light, camera, shader instrumentation and sample oracle stay unchanged. No source matrix was rerun.
+
+The new build passed with exact source matching and full restoration. One visible DX12/RTX2080Ti Player completed64 consecutive target-camera frames, zero images/errors, and exited automatically with code0, no manual window close or watchdog. Run: `20261028-160737-1b3f06825ffd46e19a7f372deac64169`. See `build-analysis.json`, `native-window/native-exit.json`, raw binding/payload receipts and `native-window/analysis.json`.
+
+Both fixed capture entries now have actual deterministic TraceScreen evidence: ordinary frame31 emission alpha +1/-1; native frame63 +2/-2. Each On lane has direct0 and positive own unshadowed baseline. Each Off lane has direct equal to its own unshadowed baseline (.1561566889 in this fixture). Validity, full integer policy, AO1, emission and actual radiance accumulation pass the unchanged assertions. This proves the specified keyword/capture/consumption contract; it is not random-gather coverage, a pure-DXR occlusion-hit proof, full material-matrix acceptance or complete production readiness.
+
+Cumulative investment for this function is two builds/two64-frame runs, including the original fixture failure. Its finite exit condition is met; no third attempt or extension is needed. Fresh Astra xhigh is asked to independently judge closure and the one highest-value next step against the complete original plan before seeing a new parent/Pro proposal. New validation must distinguish a concrete product uncertainty and change a decision. Dark-area, MC, exposure, timing and light-selection expansions remain closed.
+
+Request actual Pro33 review of the source boundary, actual receipts and functional closure, then one minimal development step that advances the remaining original plan. Do not infer overall progress from test counts or review rounds.

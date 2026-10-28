@@ -1,0 +1,18 @@
+--- original01
++++ supplement02
+@@ -34,6 +34,15 @@
+             g.GetComponent<Renderer>().sharedMaterial=m;g.AddComponent<HybridLumenGIProxy>().SetSources(g.GetComponent<Renderer>(),g.GetComponent<Collider>());
+         }
+         var blocker=GameObject.CreatePrimitive(PrimitiveType.Cube);blocker.name="Single shadow connection blocker";
++        var blockerMaterial=new Material(shader);blockerMaterial.SetFloat("_Surface",0);blockerMaterial.SetFloat("_AlphaClip",0);
++        blockerMaterial.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");blockerMaterial.DisableKeyword("_ALPHATEST_ON");blockerMaterial.DisableKeyword("_EMISSION");
++        blockerMaterial.SetColor("_EmissionColor",Color.black);blockerMaterial.renderQueue=2000;
++        var blockerRenderer=blocker.GetComponent<Renderer>();blockerRenderer.sharedMaterial=blockerMaterial;
++        Require(blockerRenderer.sharedMaterial==blockerMaterial && blockerMaterial.shader==shader &&
++            blockerMaterial.GetFloat("_Surface")==0 && blockerMaterial.GetFloat("_AlphaClip")==0 &&
++            !blockerMaterial.IsKeywordEnabled("_SURFACE_TYPE_TRANSPARENT") && !blockerMaterial.IsKeywordEnabled("_ALPHATEST_ON") &&
++            !blockerMaterial.IsKeywordEnabled("_EMISSION") && blockerMaterial.GetColor("_EmissionColor")==Color.black && blockerMaterial.renderQueue==2000,
++            "Blocker must be explicitly assigned opaque, non-clipped, non-emissive stock Lit");
+         blocker.transform.position=new Vector3(102,0,-1);blocker.transform.localScale=new Vector3(1.4f,2,.2f);blocker.AddComponent<HybridLumenGIProxy>().SetSources(blocker.GetComponent<Renderer>(),blocker.GetComponent<Collider>());
+         var light=new GameObject("Single policy light").AddComponent<Light>();light.type=LightType.Point;light.range=10;light.intensity=5;light.color=Color.white;
+         light.shadows=LightShadows.Hard;light.shadowStrength=1;light.transform.position=new Vector3(104,0,-2);capture.lights=new[]{light};
