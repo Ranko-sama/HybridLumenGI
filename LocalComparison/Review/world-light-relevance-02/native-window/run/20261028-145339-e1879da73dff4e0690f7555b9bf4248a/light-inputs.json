@@ -1,0 +1,67 @@
+{
+    "maximumFrames": 64,
+    "capacity": 2,
+    "spatialSelection": true,
+    "target": "Green wall, local X-minus face center",
+    "featureJson": "{\n    \"m_Active\": true,\n    \"settings\": {\n        \"resolutionScale\": 0.5,\n        \"raysPerPixel\": 2,\n        \"screenSteps\": 24,\n        \"traceDistance\": 18.0,\n        \"shadowDistance\": 200.0,\n        \"rayBias\": 0.05999999865889549,\n        \"screenThickness\": 0.18000000715255738,\n        \"residentProxies\": 32,\n        \"nearDistance\": 8.0,\n        \"globalSdfEnabled\": true,\n        \"globalSdfLevels\": 4,\n        \"globalSdfBricksPerAxis\": 8,\n        \"globalSdfBaseVoxelSize\": 1.0,\n        \"globalSdfBricksPerFrame\": 16,\n        \"farDistance\": 150.0,\n        \"chunkSize\": 16.0,\n        \"proxyUploadsPerFrame\": 16,\n        \"cachePatchesPerFrame\": 256,\n        \"cachePatchGrid\": 4,\n        \"cacheRaysPerFace\": 8,\n        \"guidedSamplingWeight\": 0.3499999940395355,\n        \"emissiveSamplingWeight\": 0.5,\n        \"maxEmissiveProposals\": 16,\n        \"maxAreaEmitterTriangles\": 16384,\n        \"surfaceTileResolution\": 32,\n        \"residentSurfaceCards\": 384,\n        \"surfaceCapturesPerFrame\": 24,\n        \"surfaceDrawsPerFrame\": 256,\n        \"surfaceAtlasBudgetMiB\": 64,\n        \"bounceFeedback\": 1.0,\n        \"maxLights\": 2,\n        \"spatialLightSelection\": true,\n        \"environmentRadiance\": {\n            \"r\": 0.0,\n            \"g\": 0.0,\n            \"b\": 0.0,\n            \"a\": 1.0\n        },\n        \"indirectIntensity\": 1.0,\n        \"radianceClamp\": 0.0,\n        \"temporalAccumulation\": true,\n        \"receiverSourceTracking\": true,\n        \"receiverObjectHistory\": true,\n        \"receiverSourceCapacity\": 1024,\n        \"receiverFingerprintBudgetMiB\": 16,\n        \"temporalCurrentWeight\": 0.25,\n        \"maxHistory\": 32,\n        \"relativeDepthThreshold\": 0.014999999664723874,\n        \"normalThreshold\": 0.8999999761581421,\n        \"filterIterations\": 3,\n        \"normalsOctEncoded\": false,\n        \"includeSceneView\": false,\n        \"preferHardwareTracing\": true,\n        \"exactSoftwareTracing\": true,\n        \"meshTriangleBudget\": 250000,\n        \"softwareGeometryBudgetMiB\": 128,\n        \"hardwareGeometryBudgetMiB\": 128,\n        \"rtasMemoryBudgetMiB\": 256,\n        \"rtasBuildsPerFrame\": 4,\n        \"rtasTriangleWorkPerFrame\": 250000,\n        \"rtasInstanceWorkPerFrame\": 4096,\n        \"rtasTriangleBurstCapacity\": 1000000,\n        \"rtasInstanceBurstCapacity\": 16384,\n        \"hardwareMaterialBudgetMiB\": 256,\n        \"materialTextureUploadMiBPerFrame\": 16,\n        \"composition\": 0,\n        \"materialLayers\": {\n            \"serializedVersion\": \"2\",\n            \"m_Bits\": 4294967295\n        },\n        \"textureBudgetMiB\": 128,\n        \"maxCameras\": 2,\n        \"adaptiveGpuBudget\": false,\n        \"measureGpuCost\": false,\n        \"preferNativeGpuTiming\": true,\n        \"targetGpuMilliseconds\": 0.0,\n        \"minimumGpuWorkFraction\": 0.125,\n        \"debugView\": 0\n    },\n    \"traceCompute\": {\n        \"instanceID\": 0\n    },\n    \"compositeShader\": {\n        \"instanceID\": 0\n    },\n    \"surfaceShader\": {\n        \"instanceID\": 0\n    },\n    \"nativeDiffuseShader\": {\n        \"instanceID\": 0\n    }\n}",
+    "targetPoint": {
+        "x": 3.8499999046325685,
+        "y": 2.0,
+        "z": 0.0
+    },
+    "cameraPosition": {
+        "x": 0.0,
+        "y": 2.5,
+        "z": -7.5
+    },
+    "doorPosition": {
+        "x": -1.100000023841858,
+        "y": 1.399999976158142,
+        "z": -0.800000011920929
+    },
+    "cameraRotation": {
+        "x": 0.05151798576116562,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.9986720681190491
+    },
+    "near": 0.10000000149011612,
+    "far": 100.0,
+    "fov": 60.0,
+    "aspect": 1.7777777910232545,
+    "lights": [
+        {
+            "id": -110,
+            "role": "outside-0",
+            "position": {
+                "x": 10000000.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "range": 10.0,
+            "packedBase64": "gJYYSwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAIEEAAIA/AACAPwAAgD8AAIA/AAAAAAAAgD8AAAAAAAAAAP///////////////wAAAAA="
+        },
+        {
+            "id": -104,
+            "role": "outside-1",
+            "position": {
+                "x": 20000000.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "range": 10.0,
+            "packedBase64": "gJaYSwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAIEEAAIA/AACAPwAAgD8AAIA/AAAAAAAAgD8AAAAAAAAAAP///////////////wAAAAA="
+        },
+        {
+            "id": -98,
+            "role": "relevant",
+            "position": {
+                "x": 2.8499999046325685,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "range": 10.0,
+            "packedBase64": "ZmY2QAAAAEAAAAAAAACAPwAAAAAAAAAAAACAPwAAIEEAAIA/AACAPwAAgD8AAIA/AAAAAAAAgD8AAAAAAAAAAP///////////////wAAAAA="
+        }
+    ]
+}

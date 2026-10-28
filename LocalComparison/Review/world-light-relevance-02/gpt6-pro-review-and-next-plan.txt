@@ -1,0 +1,54 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 31
+DECISION: REDIRECT — 收束选灯功能，转向明确的材质语义缺陷
+COMMIT: APPROVE_LOCAL_EVIDENCE_COMMIT
+NEXT_PACKAGE: screen-receive-shadows-01
+
+1. 价值判断：接受本轮，结束空间选灯工作
+
+允许提交本轮证据及辅助代码，关闭这个固定输入下的准入／上传关卡。 默认关闭不变；不继续增加相机、排名或灯数场景。
+
+已确认 HybridLumenGI / workspace:/ / main@12e5047，本轮Runtime无差异。我已先列出再读取execution output 163–168，包括失败164，检查来源预检、实际分析入口、上传回执及原生日志；没有重跑测试或重新计算buffer哈希。
+
+01／02应合并计算投入：同一空间选灯功能累计两次构建、两次64帧Player运行，以及一次别名修复。 实际收益是：在确定域外灯占满容量时，相关灯现在能进入真实GPU灯表。继续完善观察器的边际价值已经不足。
+
+本轮没有放宽原验收：02分析入口只改目录，仍复用01的条件；末帧域有效、3/2/1/0、绑定count1、完成读回的有效80字节匹配第三盏灯。首次预检失败是外部Python无法直接打开Unity包别名，修正后仍要求唯一锁定版本和精确字节匹配，不是豁免来源漂移。〔preflight.py:17–36；analyze-world-light-relevance-02.py:1–15；本次 upload.json:1–26、653–658〕
+
+只关闭有限准入／上传。 count是C#绑定收据，80字节是GPU读回；两者不等于辐射消费或画质／性能证明。原01 FAILED保留，正常退出的零计账也不升级为总VRAM验收。〔本次 analysis.json:62–70；player.log:249、268〕
+
+2. 唯一下步：贯通屏幕命中的Receive Shadows材质位
+
+独立源码核验支持Astra提出的方向：
+
+TraceScreen调用 DirectIrradiance(..., true, ...)，强制接收阴影。〔HybridLumenGIKernels.hlsl:224〕
+真实三角命中读取 materialReceivesShadows，再传给同一直接光函数。〔HybridLumenGITransport.hlsl:407–426〕
+世界材质位来自 _RECEIVE_SHADOWS_OFF；两个屏幕捕获输出都没有传递它。〔HybridLumenGIHitMaterialLayout.cs:54；HybridLumenGISurface.shader:120–122；HybridLumenGINativeDiffuseCapture.shader:147–153〕
+
+这是一个P2条件性语义缺陷：材质关闭Receive Shadows、光源开启阴影且连接受遮挡时，屏幕与真实三角路径会采用不同的直接光可见性规则。尚未据此证明某张既有图片有问题。
+
+最小方案
+
+只传递并消费这一位，不改阴影算法、光强、偏移、采样或历史。
+
+首选复用现有屏幕 emissionValidity.a：以符号承载是否接收阴影，绝对值保留原有效性／原生模式材质AO编码，零仍表示无效。集中提供小型编码／解码helper，同时更新：
+
+Surface.shader、NativeDiffuseCapture.shader、Kernels.hlsl、Composite.shader中的对应写入、有效性检查及AO解码。
+
+这避免新增RenderTexture或扩大整数策略buffer。不能占用已有完整32位层掩码，不能修改world-card alpha中的几何法线编码，也不能只把调用处的true换掉而遗漏其他alpha消费者。
+
+材质语义继续以实际keyword为准；仅设置数值 _ReceiveShadows=0不能代替shader变体。普通Surface捕获须补相应变体，原生捕获已有该变体。若引擎没有正确传递源keyword，应在这一传递环节解决，不能借用偶然存在的world match掩盖问题。
+
+3. 必要验证：每项都对应一个决策
+不确定性	最小验证	改变的决策
+硬编码是否确实造成路径差异？	复用实际HLSL执行设施，固定相同位置、法线、层和footprint，在单灯受遮挡输入下比较screen／triangle的On、Off直接项；保留旧代码失败与候选同输入结果。	反例成立才修；若差异来自输入或命中不对应，停止归因，不调亮度。
+新编码是否破坏有效性或AO？	同一入口检查实际半精度往返：无效零、有效黑色、AO端点和一个中间值；编译受影响的两个捕获变体及消费入口。	编码／解码损失或负alpha被当无效，拒绝候选；不能靠放宽容差接受。
+Unity实际捕获是否传达源材质keyword？	至多一次构建、一次可见DXR进程，最多64个目标帧。固定单灯、遮挡物和表面，在同进程核对两个捕获入口必要的On／Off输出，以及实际消费的布尔值／直接项。复用已有读回，不等待随机gather偶然命中。	位错误就修捕获传递；位正确但直接项错误就修消费；两者正确即结束，不扩整材质矩阵。
+
+原生验证只解决真实变体／捕获接线，不再执行软件对照、收敛、截图亮度或性能实验。两种捕获入口都写入该通道，检查它们不是扩展到无关材质组合。
+
+**退出条件：**受遮挡时Off路径保留未遮挡直接项，On路径按原阴影规则衰减；screen与真实三角输入对应时一致；有效性、AO、层掩码和发光不退化；实际捕获位得到验证。达到这些条件就提交并结束此项。
+
+若需新增材质框架、修改阴影查询或以曝光／反馈补偿，停止并返回具体阻断；唯一原生尝试失败也不自动重跑。
+
+现在提交31轮有限成功证据，执行 screen-receive-shadows-01。 这是原目标1及工作流7的具体产品修复。四项目标、十条工作流继续有效；暗区、MC、曝光、计时调查和空间选灯扩展均保持关闭。

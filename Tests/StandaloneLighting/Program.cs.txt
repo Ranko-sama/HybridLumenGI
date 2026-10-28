@@ -16,6 +16,8 @@ static class Program
     static L.Data Pack(Light light,bool layers=true){Check(L.TryPack(light,layers,out var d),"pack accepted");return d;}
     static void Main()
     {
+        string replay=Environment.GetEnvironmentVariable("HLGI_LIGHT_NATIVE_REPLAY");
+        if(!string.IsNullOrEmpty(replay)){ReplayNativeInputs(replay);return;}
         if(Environment.GetEnvironmentVariable("HLGI_LIGHT_RELEVANCE_BASELINE")=="1")
         {RelevanceBaseline();return;}
         Check(Marshal.SizeOf<L.Data>()==80 && L.Stride==80,"80B ABI");
@@ -96,6 +98,62 @@ static class Program
         Console.WriteLine($"PASS {checks} actual light-collector checks; native Unity discovery/API/rendering remain unexecuted.");
     }
     static Light Point(float x){var light=new Light();light.transform.position=new(x,0,0);return light;}
+    static Vector3 ReadVector(System.Text.Json.JsonElement value)=>new(value.GetProperty("x").GetSingle(),value.GetProperty("y").GetSingle(),value.GetProperty("z").GetSingle());
+    static void Contains(R.Domain domain,Vector3 point,string message)
+    {for(int axis=0;axis<3;axis++)Check(domain.Minimum[axis]<=point[axis]&&point[axis]<=domain.Maximum[axis],message);}
+    static void ReplayNativeInputs(string path)
+    {
+        byte[] input=System.IO.File.ReadAllBytes(path);
+        using var document=System.Text.Json.JsonDocument.Parse(input);var root=document.RootElement;
+        Check(!root.GetProperty("useRenderingLayers").GetBoolean(),"Saved fixture light policy changed");
+        Check(root.GetProperty("extents").GetArrayLength()==22 && root.GetProperty("sources").GetArrayLength()==3,"Saved fixture cardinality changed");
+        var matrix=new Matrix4x4();var jsonMatrix=root.GetProperty("inverseGpuVP");
+        for(int row=0;row<4;row++)for(int column=0;column<4;column++)matrix[row,column]=jsonMatrix.GetProperty($"e{row}{column}").GetSingle();
+        Check(R.TryScreenDomain(matrix,out var combined),"Saved screen domain failed");
+        // Independent double reconstruction corroborates the saved matrix's bounds.
+        foreach(double x in new[]{-1d,0d,1d})foreach(double y in new[]{-1d,0d,1d})foreach(double z in new[]{0d,.5d,1d})
+        {
+            double w=matrix[3,0]*x+matrix[3,1]*y+matrix[3,2]*z+matrix[3,3];Check(w>0,"Saved inverse denominator");
+            for(int row=0;row<3;row++)
+            {double p=(matrix[row,0]*x+matrix[row,1]*y+matrix[row,2]*z+matrix[row,3])/w;Check(combined.Minimum[row]<=p&&p<=combined.Maximum[row],"Saved screen position outside domain");}
+        }
+        var required=new List<Vector3>();int unions=0;
+        foreach(var extent in root.GetProperty("extents").EnumerateArray())
+        {
+            Check(extent.GetProperty("published").GetBoolean()||extent.GetProperty("warming").GetBoolean(),"Saved nonresident extent");
+            var lo=ReadVector(extent.GetProperty("traversalMin"));var hi=ReadVector(extent.GetProperty("traversalMax"));
+            Check(combined.TryInclude(lo,hi,out combined),"Saved traversal in-place union failed");unions++;required.Add(lo);required.Add(hi);
+            if(extent.GetProperty("cards").GetInt32()>0)
+            {
+                lo=ReadVector(extent.GetProperty("captureMin"));hi=ReadVector(extent.GetProperty("captureMax"));
+                Check(combined.TryInclude(lo,hi,out combined),"Saved capture in-place union failed");unions++;required.Add(lo);required.Add(hi);
+            }
+        }
+        foreach(var point in required)Contains(combined,point,"Final domain omitted saved extent");
+        var expected=new L.Data[3];var lights=new Light[3];int i=0;
+        foreach(var source in root.GetProperty("sources").EnumerateArray())
+        {
+            byte[] bytes=Convert.FromBase64String(source.GetProperty("packedBase64").GetString());Check(bytes.Length==80,"Saved packed record size");
+            var data=MemoryMarshal.Read<L.Data>(bytes);expected[i]=data;
+            Check(data.positionType.w==1 && data.color.Equals(new Vector4(1,1,1,1)),"Expected fixed white point fixture");
+            var light=new Light{type=LightType.Point,range=data.directionRange.w,intensity=1,color=Color.white,shadows=LightShadows.None,cullingMask=unchecked((int)data.cullingMask)};
+            light.transform.position=new(data.positionType.x,data.positionType.y,data.positionType.z);light.transform.forward=new(data.directionRange.x,data.directionRange.y,data.directionRange.z);lights[i]=light;
+            Check(L.TryPack(light,false,out var packed) && packed.Equals(data),"Native record not reconstructed exactly by actual packer");
+            double distance=DistanceToBox(data,combined),scale=Math.Max(1,data.directionRange.w);
+            for(int axis=0;axis<3;axis++)scale=Math.Max(scale,Math.Max(Math.Abs((double)light.transform.position[axis]),Math.Max(Math.Abs((double)combined.Minimum[axis]),Math.Abs((double)combined.Maximum[axis]))));
+            if(i<2)Check(distance>data.directionRange.w+64*(1d/16777216)*scale,"Independent saved remote-light distance proof failed");
+            else Check(distance<=data.directionRange.w,"Independent saved relevant-light intersection failed");
+            i++;
+        }
+        UO.Found=lights;var collector=new L();var table=new L.Data[32];var changes=new List<L.Data>();
+        int count=collector.Update(root.GetProperty("engine").GetInt32(),false,table,2,0,changes,out int hash,true,combined,out var stats);
+        Check(count==1 && table[0].Equals(expected[2]),"Saved actual collector did not admit exact relevant record");
+        Check(stats.ValidCandidates==3&&stats.OutsideDomain==2&&stats.Selected==1&&stats.CapacityOmitted==0,"Saved admission diagnostics mismatch");
+        TraceTable("saved-native-input",table,count,hash,changes);
+        Console.WriteLine($"PASS saved native input: {checks} checks; {unions} sequential in-place traversal/capture unions; 22 extents; native packed records preserved; 3/2/1/0 admission.");
+        Console.WriteLine("Input SHA256: "+Convert.ToHexString(SHA256.HashData(input)));
+        Console.WriteLine($"Domain minimum=({combined.Minimum.x:R},{combined.Minimum.y:R},{combined.Minimum.z:R}); maximum=({combined.Maximum.x:R},{combined.Maximum.y:R},{combined.Maximum.z:R}). Actual-source replay only; no native Feature/GPU claim.");
+    }
     static void RelevanceBaseline()
     {
         // Declared evaluation domain [-2,2]^3; each ordinary point has range10.

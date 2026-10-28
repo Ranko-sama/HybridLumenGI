@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\world-light-relevance-02\preflight.py", line 17, in <module>
+    assert all(sha(PROJECT/i['path'])==i['sha256'] for i in dependencies),'Scene/dependency/settings input drift'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\world-light-relevance-02\preflight.py", line 17, in <genexpr>
+    assert all(sha(PROJECT/i['path'])==i['sha256'] for i in dependencies),'Scene/dependency/settings input drift'
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\world-light-relevance-02\preflight.py", line 6, in <lambda>
+    sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+                                ^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'I:\\Unity test\\Project\\Packages\\com.unity.render-pipelines.core\\Editor\\Lighting\\ProbeVolume\\DynamicGI\\DynamicGISkyOcclusion.urtshader'
