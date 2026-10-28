@@ -15,6 +15,10 @@ def configure_integration():
     global PACKAGE,OUT
     PACKAGE=ROOT/'LocalComparison/Review/current-release-integration-01';OUT=PACKAGE/'instrumentation'
     base.PACKAGE=PACKAGE;base.OUT=OUT
+def configure_final_image():
+    global PACKAGE,OUT
+    PACKAGE=ROOT/'LocalComparison/Review/current-representative-final-image-01';OUT=PACKAGE/'instrumentation'
+    base.PACKAGE=PACKAGE;base.OUT=OUT
 def prepare():
     assert not OUT.exists(),'Unique Release preparation already exists'
     product={p.relative_to(ROOT).as_posix():sha(p) for top in ['Runtime','Editor'] for p in (ROOT/top).rglob('*') if p.is_file() and p.suffix!='.meta'}
@@ -26,6 +30,8 @@ def prepare():
     changed[trace]=replace(trace.read_text(),'    static void RuntimeStart(){Install();Mark("runtime-before-scene");}',
         '    static void RuntimeStart(){if(!Application.isEditor&&!Debug.isDebugBuild)return;Install();Mark("runtime-before-scene");}').encode()
     changed[PROJECT/'Assets/ComparisonHarness/LocalReleaseBootstrap.cs']=(H/'LocalReleaseBootstrap.cs').read_bytes()
+    capture=PROJECT/'Assets/ComparisonHarness/ComparisonCapture.cs'
+    changed[capture]=replace(capture.read_text(),'    void Start()\n', (H/'SingleFinalCaptureMethods.cs.txt').read_text()+'\n    void Start()\n').encode()
     changed[PROJECT/'Assets/ComparisonHarness/Editor/CurrentPlayerBuild.cs']=(H/'CurrentPlayerBuild.cs').read_bytes()
     OUT.mkdir(parents=True)
     m={'baseline':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'productSourceSha256':product,'files':[],'newMetadata':[],'excluded':[],
@@ -58,7 +64,8 @@ def restore():
         path=exclusion_path(row);assert not path.exists(),'Do not overwrite a changed historical include';data=(OUT/row['original']).read_bytes();assert hashlib.sha256(data).hexdigest()==row['sha256'];path.write_bytes(data)
     (OUT/'excluded-restoration.json').write_text(json.dumps({'allRestored':all(sha(exclusion_path(row))==row['sha256'] for row in m['excluded']),'files':m['excluded']},indent=2))
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','install','restore']);mode=p.add_mutually_exclusive_group();mode.add_argument('--steady',action='store_true');mode.add_argument('--integration',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','install','restore']);mode=p.add_mutually_exclusive_group();mode.add_argument('--steady',action='store_true');mode.add_argument('--integration',action='store_true');mode.add_argument('--final-image',action='store_true');a=p.parse_args()
     if a.steady:configure_steady()
     if a.integration:configure_integration()
+    if a.final_image:configure_final_image()
     globals()[a.action]()

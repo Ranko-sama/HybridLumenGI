@@ -1,14 +1,14 @@
 # HybridLumenGI
 
-**当前本机基线：Release49；已验证产品来源为 `31c941589b53a6065b9191fac6d6b984124968c0`。** 后续文档提交的 HEAD 不自动成为该 EXE 的产品来源。当前继续本机开发，不需要朋友交付；四项目标与十条工作流仍以[完整原计划](Documentation/OriginalDevelopmentPlan.md)为准。
+**当前本机图像基线：Release54；已验证产品来源为 `a9292cb8c3c1bd86b64fdcb7888565bd7c957ec4`。** 后续提交的 HEAD 不自动成为该 EXE 的产品来源。当前继续本机开发，不需要朋友交付；四项目标与十条工作流仍以[完整原计划](Documentation/OriginalDevelopmentPlan.md)为准。
 
-本机入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease49/Start-LocalRelease.cmd>)（`I:\Unity test\Comparison\Builds\LocalRelease49\Start-LocalRelease.cmd`）。默认窗口常驻，可正常关闭。本轮实际运行的是同一 EXE 的 `-localReleaseVerify120` 分支，默认模式未另跑一次。640×360 是本次运行配置，不是生产分辨率目标。
+本机入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease54/Start-LocalRelease.cmd>)（`I:\Unity test\Comparison\Builds\LocalRelease54\Start-LocalRelease.cmd`）。默认窗口常驻，可正常关闭。本轮实际运行的是同一 EXE 的 `-localReleaseFinalImage120` 分支，默认模式未另跑一次。640×360 是本次运行配置，不是生产分辨率目标。
 
-Release49 已在 Unity 6000.0.85f1 / URP17.0.4 / Windows x64 / Mono / DX12 / Linear / RTX2080Ti 完成普通 Release（BuildOptions.None）构建与静态120个真实相机/GI帧、正常退出；112份产品来源与189项产物有清单。23条构建警告保留，不能写为无警告。见[当前整合结果与边界](Documentation/ReviewBrief-CurrentReleaseIntegration01.md)、[实际构建清单](LocalComparison/Review/current-release-integration-01/build-report.json)和[实际运行收据](LocalComparison/Review/current-release-integration-01/native-window/analysis.json)。120帧模式未采集的嵌套资源/退休字段，其默认零值不代表资源归零。
+Release54 已在 Unity6000.0.85f1 / URP17.0.4 / Windows x64 / Mono / DX12 / Linear / RTX2080Ti 完成普通 Release（BuildOptions.None）构建、静态120个真实相机/GI帧、一次末帧HDR采集及正常退出；112份产品来源与189项产物有清单，23条构建警告保留。见[当前图像结果与边界](Documentation/ReviewBrief-CurrentRepresentativeFinalImage01.md)、[实际预览图](LocalComparison/Review/current-representative-final-image-01/native-window/run/frame-0119.png)和[原始运行收据](LocalComparison/Review/current-representative-final-image-01/native-window/analysis.json)。该图来自首帧固定的HDR相机目标及既有预览映射，不是普通backbuffer像素证明。未采集的嵌套资源/退休字段默认零值不代表资源归零。
 
-**已实现与已验证需要分开。** 当前产品包括不变Skinned快照复用、Additive雾衰减和局部灯光更新优先权，各有有限专项证据；49的静态整合不补齐这些条件各自的原生全链，也不认证整体画质、性能、总显存或G0–G5。代码明确跳过非DX12/非Linear、非Base及立体相机；原生漫反射替换还有[限定条件](Documentation/NativeDiffuseComposition.md)。明确拒绝的配置与尚未验证的配置见[当前支持范围](Documentation/ProductionPlan.md#当前支持范围与证据层级)。目标分辨率/FPS、GI毫秒与显存预算仍待确定。
+**已实现与已验证需要分开。** 当前产品还包括普通Surface的alpha/BRDF keyword一致性修复和稳定CPU发光面积/CDF复用；54的单张静态Additive图不补齐各功能的原生条件，也不认证整体画质、物理光照、性能、总显存或G0–G5。代码明确跳过非DX12/非Linear、非Base及立体相机；原生漫反射替换还有[限定条件](Documentation/NativeDiffuseComposition.md)。明确拒绝的配置与尚未验证的配置见[当前支持范围](Documentation/ProductionPlan.md#当前支持范围与证据层级)。目标分辨率/FPS、GI毫秒与显存预算仍待确定。
 
-**历史证据保留各自来源。** Release44的300秒公开计账窗口对应5120a8c，见[旧版持续使用结果](Documentation/ReviewBrief-LocalReleaseSteadyUse01.md)，不升级为Release49稳态验收。更早的runtime-candidate-16功能/流式Player及后续软件/DXR图像、动态和资源专项仍可追溯，见[历史功能检查](Documentation/LocalRuntimeFunctionalAudit.md)与[完整推进表](Documentation/DevelopmentProgress.md)。旧失败、归档包和报告继续保留；朋友交付资料属于历史流程，不是当前使用前提。有限记录不代表UE5 Lumen等价或生产认证。
+**历史证据保留各自来源。** Release44的300秒公开计账窗口对应5120a8c，见[旧版持续使用结果](Documentation/ReviewBrief-LocalReleaseSteadyUse01.md)，不升级为Release54稳态验收。更早的runtime-candidate-16功能/流式Player及后续软件/DXR图像、动态和资源专项仍可追溯，见[历史功能检查](Documentation/LocalRuntimeFunctionalAudit.md)与[完整推进表](Documentation/DevelopmentProgress.md)。旧失败、归档包和报告继续保留；朋友交付资料属于历史流程，不是当前使用前提。有限记录不代表UE5 Lumen等价或生产认证。
 
 Experimental Unity 6 / URP 17 diffuse light transport. The source includes baked triangle surface charts with a variable card pool, mesh SDF baking and residency, a stackless instance BVH, a global distance-field empty-space accelerator, patch irradiance caching, guided sampling, temporal reconstruction, and optional triangle DXR queries. Independent of VXGI.
 

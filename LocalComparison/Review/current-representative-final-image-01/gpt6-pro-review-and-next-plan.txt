@@ -1,0 +1,79 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 54
+DECISION: ADOPT_FINITE_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: global-sdf-nongeometric-dirty-01
+
+一、接受当前最终HDR图像链，结束本轮整合
+
+允许提交本轮采集接线与证据，保留Release54作为当前产品a9292cb的有限图像基线。未发现需要补跑或修改产品的阻断。
+
+已确认 HybridLumenGI / workspace:/ / main@a9292cb，README标题为HybridLumenGI。我已先列出再读取输出245–247，检查工作区diff、实际采集方法、构建／运行／恢复记录，并通过连接器实际打开了frame-0119.png；没有修改、重跑或重新计算文件哈希。
+
+采用依据与边界
+
+本轮不是只取得GI计数。唯一末帧对应实际相机帧120、逻辑帧119；采集目标从启动起固定为线性RGBA32F，原Capture完成读回后检查尺寸和有限值，再保存HDR与固定映射预览。旧720帧驱动没有启用，新增入口只负责准备、调用一次原Capture及清理。〔SingleFinalCaptureMethods.cs.txt:2–30；native-window/run/frame-0119.json:1–10；本轮bootstrap diff〕
+
+实际PNG呈现了红／青色墙面、条纹物体、前景灰色遮挡物、地面及明暗区域。我没有从该图建立具体集成故障；这不等于物理光照或整体画质通过。 单张Additive预览不能分离原生光照与新增GI，也不能证明51–53的所有条件分支被触发。黑暗区域不据此归为缺陷。
+
+BuildReport为Release / None、0 errors／23 warnings；运行记录为120帧、自动退出0、无watchdog。原日志仍保留阴影图集降分辨率警告。图像检查与自动数据检查分开是正确的：后者验证数据取得、格式和有限值，不替代视觉判断。〔build-report.json:1–23；player.log:32–40；analyze-local-release.py本轮diff〕
+
+来源核验脚本检查了当前与部署的112份产品源码、场景／设置、冻结辅助代码和189项产物；恢复针对本次产品基线，未回退到Release49。采集清理在读回完成后恢复目标并释放私有RT，未改产品退休协议。〔verify-sources.py:7–16；source-verification.json；SingleFinalCaptureMethods.cs.txt:24–30〕
+
+接受的范围仅是当前来源的最终HDR相机目标输出。 默认常驻backbuffer模式未另测；未采集的资源／退休字段默认零值、单张图像和exit0都不能证明逐owner清零、总VRAM或性能。Release44的300秒证据继续只属于5120a8c。
+
+本轮与40／44／49累计属于同一Release采用过程，目前共四次构建／运行，解决的是不同限定问题，不作为四项算法进展。到此收束，不再追加冒烟、截图或CDF／Surface矩阵。
+
+二、下一价值：纯材质变化不应使global SDF几何砖失效
+
+下一步选择原目标3／4、工作流4／5：消除正常材质／照明策略编辑造成的无效global SDF重建。 Astra的本轮独立建议已读；我核对实际Scene、SdfAtlas、GlobalSdf及merge shader后认可。
+
+当前源码存在明确的不一致：
+
+Scene将纯Material/Lighting变化保留为几何不变；SdfAtlas比较表示时也刻意排除仅由材质变化引起的revision差异。但GlobalSdf.Prepare()仍无条件收集每条Scene DirtyRegion的旧／新bounds，使附近已就绪砖失效并重新占用更新额度。〔HybridLumenGIScene.cs:216–235；HybridLumenGISdfAtlas.cs:397–404；HybridLumenGIGlobalSdf.cs:119–126、146–165〕
+
+这里的ChangeKind.Lighting指对象层、rendering layer、shadow-casting策略，不是48轮的点光移动事件。global SDF存储的是几何距离下界，其merge不使用albedo、emission或这些照明策略。〔HybridLumenGIScene.cs:519–537；HybridLumenGIGlobalSdf.compute:23–78〕
+
+这是P2级条件性冗余失效的源码依据，尚未执行本包反例，也没有证明现有画面或帧时间因此异常。其价值在于让有限几何更新预算用于真正需要更新的内容，而不是继续观察已成功的静态片段。
+
+三、最小产品修改
+
+优先只改 Runtime/HybridLumenGIGlobalSdf.cs 的Scene事件收集处。
+
+仅跳过满足以下条件的事件：
+
+C#
+kind != 0 &&
+(kind & ~(ChangeKind.Material | ChangeKind.Lighting)) == 0
+
+也就是明确、非零且仅含Material／Lighting的事件。零类型、未知位、Manual、Transform、Topology、Added／Removed、Representation及任何混合几何事件均保持原处理。
+
+这项筛选只作用于global SDF的几何失效输入，不能删除共享scene.DirtyRegions，也不能抑制材质页重捕获、照明缓存、局部调度或屏幕历史需要的响应。
+
+以下独立失效来源全部保留：
+
+RequiresFullInvalidation、clipmap换位／配置变化、SdfAtlas.RepresentationChangedBounds、UpdateObjectBounds()检测到的真实边界变化。 即使同时存在纯材质事件，真实SDF或边界变化仍须失效。不要改shader、距离下界、膨胀量、代次、预算或ready发布顺序。
+
+不加入新的缓存、统计平台或生命周期架构。
+
+四、验证只回答是否可以采用这项筛选
+
+复用现有StandaloneGlobalSdf的实际Prepare/RecordUpdate及命令记录器。当前适配器的DirtyRegion尚无Kind；只补齐对应输入，使用生产枚举定义，不另写Scene分类算法。Scene／SdfAtlas和GPU调用仍明确属于适配边界。〔Tests/StandaloneGlobalSdf/UnityStubs.cs.txt:68–86〕
+
+先从原有限夹具的稳定就绪状态出发，保存一次基线判定，再执行同输入候选：
+
+决策不确定性	必要验证	改变的决定
+纯非几何事件是否确实导致无效重建？	固定同bounds、同SDF输入的Material、Lighting及二者组合；基线应产生失效／更新工作，候选应保持原页代次与ready状态，不生成新的merge／publish工作。	没有基线差异就停止产品修改；候选仍重建则未交付收益。
+筛选是否误吞真实或未知几何变化？	一个混合几何事件，以及零／未知类型控制，继续触发原失效；沿用已有真实几何、换位和全失效守卫。	任一错误保留旧几何页即阻断，不能缩小反例范围或放宽判定。
+独立失效和既有积压是否被保留？	在纯材质事件同时，分别提供SDF表示变化或真实renderer bounds变化；另确认原本待更新的页不被“跳过材质”清掉。	只有这些来源仍正确驱动原预算更新，才接受筛选。
+
+使用既有TryGetPage、pending／updated字段及命令事件即可，不增加产品诊断。“没有新几何dispatch”是有限调用证据，不是GPU毫秒收益；CPU ready也不升级为实体GPU距离值证明。
+
+额度为一次冻结基线命令、一次候选命令，零Unity／Player／GPU运行。保留相关原守卫，不重跑完整场景、SDF数值、材质或调度矩阵。
+
+退出条件
+
+纯非几何变化不再制造global SDF更新，真实／未知几何变化和独立失效仍按原合同处理，即交复核并结束。无反例、首次候选失败，或需要修改Scene分类、SDF表示协议及全局失效架构时，保存具体分歧并停止自动扩展。
+
+现在提交第54轮有限图像证据，随后执行global-sdf-nongeometric-dirty-01。 四项目标、十条工作流继续有效；生产预算保持待答。已关闭的Release、图像、CDF与Surface检查不重开，暗区、MC、曝光和计时调查继续关闭。

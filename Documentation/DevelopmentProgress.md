@@ -2,9 +2,9 @@
 
 更新：2026-10-29。本表按 OriginalDevelopmentPlan.md 的十项工作流区分实现、当前来源实测和生产验收。旧版报告保留来源，不重新标为当前版本通过。当前先处理已证实的阻断和可复现缺陷，再补缺失验收；不因新增局部测试而重跑无关矩阵。
 
-最新本机基线：Release49，已验证产品来源31c941589b53a6065b9191fac6d6b984124968c0；文档HEAD不自动替换该EXE来源。本机入口[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease49/Start-LocalRelease.cmd>)默认常驻，本轮实际为同EXE的120帧分支。Unity6000.0.85f1/URP17.0.4、Windows x64/Mono/DX12/Linear、RTX2080Ti，640×360仅为本次配置；一普通Release构建、一静态120相机/GI帧及正常退出已获Astra和实际Pro49采用复核，112源/189产物一致。
+最新本机基线：Release54，已验证产品来源a9292cb8c3c1bd86b64fdcb7888565bd7c957ec4；文档HEAD不自动替换该EXE来源。本机入口[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease54/Start-LocalRelease.cmd>)默认常驻，本轮实际为同EXE的120帧末帧HDR采集分支，不是默认backbuffer像素证明。Unity6000.0.85f1/URP17.0.4、Windows x64/Mono/DX12/Linear、RTX2080Ti，640×360仅为本次配置；一普通Release构建、一静态120相机/GI帧、一组最终HDR/预览图及正常退出已获Astra和实际Pro54采用复核，112源/189产物一致。
 
-45快照复用、47雾衰减、48局部灯调度是已实现且有各自有限专项证据的能力，49不补齐它们未触发的原生条件。Release44的300秒公开计账仍对应5120a8c；旧图像和专项结果保留来源。明确拒绝的配置与待验收配置分列于[当前支持范围](ProductionPlan.md#当前支持范围与证据层级)，实际本轮边界见[Release49结果](ReviewBrief-CurrentReleaseIntegration01.md)。整体画质、性能、总显存、预算目标与G0–G5继续开放；原始四项目标和十条工作流不改、不标为完成。
+45快照复用、47雾衰减、48局部灯调度是已实现且有各自有限专项证据的能力，54不补齐它们未触发的原生条件。Release44的300秒公开计账仍对应5120a8c；旧图像和专项结果保留来源。明确拒绝的配置与待验收配置分列于[当前支持范围](ProductionPlan.md#当前支持范围与证据层级)，实际本轮边界见[Release54结果](ReviewBrief-CurrentRepresentativeFinalImage01.md)。整体画质、性能、总显存、预算目标与G0–G5继续开放；原始四项目标和十条工作流不改、不标为完成。
 
 | 工作流 | 已有实现/审查依据 | 当前版本新增或复用证据的边界 | 剩余验收与下一问题 |
 | --- | --- | --- | --- |
@@ -17,7 +17,7 @@
 | 7 URP Lit / DXR | 源 UV/多材质、alpha/Cull、native diffuse规则 | 3088d41同构建软件/DXR各120帧证据获Pro20/21有限接受；iteration25单槽MPB自动发现、实际上传、目标历史重建及一条实际正权重消费链已获Pro25有限接受 | 槽1屏幕历史仍未覆盖；形变、全场景材质一致性、软件差异解释与动态质量 |
 | 8 流式与预算 | 异步AssetBundle、完整组准入、HLOD原子切换、独立额度；显式附加视点冷加载需求；默认关闭的计时/完成记录导出 | 41实际representation/driver/scheduler验证附加视点冷需求、滞回和预算/退休权限；原生IO为适配边界。e1aa6356的512源帧NativeDX12有限成本基线保留来源，23轮复用优化收益未超过波动而撤回 | 多视点新需求的原生综合使用、冷暖/高速移动/总VRAM与生产预算仍开放；不重跑已完成在途撤回和正常退出矩阵 |
 | 9 可重复回归 | 离线入口、固定场景、HDR和来源清单 | denoise-03有限场景；gather真实消费/偏移可见性；失败cache反例；理想能量及实际关灯链；新增固定源帧GPU成本基线；均保留来源和失败记录 | 按具体热点或动态/材质反例增加最小验证；不重复已完成关灯链、Player冒烟或同类函数夹具 |
-| 10 工程验收 | Unity环境、普通Release默认常驻入口、当前Player与来源清单 | Release49以31c9415/112产品源/189产物完成当前整合，一build/一visible DX12 120相机/GI帧，原验收通过。旧Release44/5120a8c的300秒窗口及历史软件/DXR图像、GPU成本保留各自来源 | 整应用/动态/Release尾延迟、参考图/动态质量、总显存与生产长测、G0–G5支持范围仍开放；不把300秒公开计账变成整体生产放行 |
+| 10 工程验收 | Unity环境、普通Release默认常驻入口、当前Player与来源清单 | Release54以a9292cb/112产品源/189产物完成当前最终图像检查，一build/一visible DX12 120相机/GI帧及一组末帧HDR/PNG，有限图像链获接受。旧Release44/5120a8c的300秒窗口及历史软件/DXR图像、GPU成本保留各自来源 | 整应用/动态/Release尾延迟、参考图/动态质量、总显存与生产长测、G0–G5支持范围仍开放；不把300秒公开计账变成整体生产放行 |
 
 实际环境已知：Unity6000.0.85f1 / URP17.0.4 / Windows DX12 / RTX2080Ti。目标FPS、GI GPU预算和总显存验收阈值尚未确定，不伪造。可继续正确性开发和测量，不能据此宣布生产完成。朋友交付不再是依赖或停点。
 
@@ -146,3 +146,5 @@ iteration48：目标2/3、工作流5/8增加局部灯变化的更新优先权，
 iteration49：工作流10当前本机整合成立，恰四处已接受源部署到Unity，112产品与31c9415一致。一managed预检0，一Unity Release None build成功（0errors/23warnings保留），一visible DX12 Player PID13396正常120帧/exit0，无watchdog。1/60/120实际GI同步推进，末段22实例/mesh、132readycards、0未知材料；首原条件分析通过，4覆盖+6历史include恢复，场景设置和189产物hash一致。LocalReleaseBootstrap字节与120判据未变；无新增截图/查询/事件/300秒。新入口LocalRelease49，旧40/44原证据不升级；三功能分别原生全链和生产验收仍开放。独立Astra先从完整计划选择下一步，再比较Pro49方案。
 
 实际Pro49读取235–237批准本地整合记录并采用Release49。120模式嵌套资源/退休字段未采集，默认零值不能当资源归零；当前采用依据只含原顶层运行字段。下一步按Astra独立建议统一README、ProductionPlan与本表摘要的当前入口及支持边界，零新运行/源码测试，不改冻结产物或原计划关卡。
+
+iteration54：当前最终HDR图像链有限成立，产品a9292cb，恰三处已接受修改相对Release49。一Release None构建0errors/23warnings，一DX12进程PID21956完成120真实相机/GI帧、单次末帧RGBA32F/EXR/PNG和exit0。原Capture/Finish保留、720帧事件驱动禁用，5临时接线和6历史include恢复，112来源/189产物及场景设置一致。Codex、Astra和实际Pro54均查看PNG，未建立具体集成故障；不把暗部、未采集零值、单张Additive图转为物理、owner-zero、性能或全面功能验收。更新当前入口与证据说明并随本轮提交，不另开状态包。

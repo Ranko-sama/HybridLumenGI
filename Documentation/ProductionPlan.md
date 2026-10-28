@@ -1,13 +1,13 @@
 # 实时光传输架构与生产交付计划
 
-状态：**持续本机开发；当前可运行基线为Release49，产品来源31c941589b53a6065b9191fac6d6b984124968c0，已获实际GPT-6 Pro采用复核；完整生产验收尚未完成。** 更新：2026-10-29。用户不需要朋友交付，也不等待朋友反馈。当前入口见[README](../README.md)，当前来源与有限整合见[Release49结果](ReviewBrief-CurrentReleaseIntegration01.md)，完整目标仍由[原始计划](OriginalDevelopmentPlan.md)约束；后续文档HEAD不改变已构建产品来源。
+状态：**持续本机开发；当前本机图像基线为Release54，产品来源a9292cb8c3c1bd86b64fdcb7888565bd7c957ec4，已获实际GPT-6 Pro采用复核；完整生产验收尚未完成。** 更新：2026-10-29。用户不需要朋友交付，也不等待朋友反馈。当前入口见[README](../README.md)，当前来源与有限整合见[Release54图像结果](ReviewBrief-CurrentRepresentativeFinalImage01.md)，完整目标仍由[原始计划](OriginalDevelopmentPlan.md)约束；后续文档HEAD不改变已构建产品来源。
 
 ## 当前支持范围与证据层级
 
 | 类别 | 当前合同 | 证据与边界 |
 | --- | --- | --- |
-| 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；普通Release None、Functional静态120相机/GI帧、正常退出 | [Release49](ReviewBrief-CurrentReleaseIntegration01.md)，产品31c9415；640×360只是本次配置。默认常驻入口沿用原实现，实际使用同EXE的120帧分支；没有新增动态事件或性能测量 |
-| 已实现、有限验证 | 不变Skinned快照复用、Additive雾衰减、局部灯变化优先调度及现有架构能力 | 分别见[复用](ReviewBrief-SkinnedUnchangedSnapshotReuse01.md)、[原生捕获依赖](ReviewBrief-SkinnedNativeCaptureBoundary01.md)、[雾合成](ReviewBrief-AdditiveFogComposition01.md)、[调度](ReviewBrief-LocalLightSchedulingPriority01.md)；源码适配器、原生依赖与完整功能验收分开，49不补齐未触发条件 |
+| 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；普通Release None、Functional静态120相机/GI帧、正常退出 | [Release54](ReviewBrief-CurrentRepresentativeFinalImage01.md)，产品a9292cb；640×360只是本次配置。默认常驻入口沿用原实现，实际使用同EXE的120帧末帧HDR目标采集分支，不是backbuffer像素证明；没有新增动态事件或性能测量 |
+| 已实现、有限验证 | 不变Skinned快照复用、Additive雾衰减、局部灯变化优先调度及现有架构能力 | 分别见[复用](ReviewBrief-SkinnedUnchangedSnapshotReuse01.md)、[原生捕获依赖](ReviewBrief-SkinnedNativeCaptureBoundary01.md)、[雾合成](ReviewBrief-AdditiveFogComposition01.md)、[调度](ReviewBrief-LocalLightSchedulingPriority01.md)；源码适配器、原生依赖与完整功能验收分开，54不补齐未触发条件 |
 | 历史证据 | Release44稳态、早期软件/DXR图像、流式及动态专项 | [44的300秒窗口](ReviewBrief-LocalReleaseSteadyUse01.md)属于5120a8c；其他见[推进表](DevelopmentProgress.md)各自来源，不改旧FAIL、不改标为当前通过 |
 | 代码明确限制/拒绝 | Feature跳过非DX12、非Linear、非Base或立体相机，以及无compute/必要资源的路径；仅Game及显式允许的SceneView、Tex2D目标可进入 | [实际准入代码](../Runtime/HybridLumenGIRendererFeature.cs)；替换原生漫反射还要求普通URP Lit、Forward/Forward+、有符号HDR及MSAA关闭等，失败保留原照明，见[完整替换合同](NativeDiffuseComposition.md)。这些限制不是单纯“尚未测试” |
 | 尚未完成的验收 | 整体图像质量/动态收敛、各功能未覆盖的原生条件、目标规模、总VRAM、GPU p95/p99、完整G0–G5 | 生产分辨率/FPS、GI时间和显存预算仍待确定。未采集的资源/退休字段默认值不能当清零；首帧等待不是受控性能改善；不由120帧静态运行推导生产放行 |
@@ -35,7 +35,7 @@ integration-14及更早归档保持不变，只代表当时来源。[早期独�
 
 Ng/Ns 分别用于几何与着色，屏幕历史要求成功记录的f-1来源。主线程相机边界刷新和共享Mesh版本触发局部失效。新形变组件捕获Skinned或显式可读网格，在后台生成同一快照的SDF/charts，完成后一起切换；旧资源在最终context fence后回收。见 [形变流程](DeformedGeometry.md) 与 [历史合同](GeometryHistoryContracts.md)。动态物体的整体URP运动/光栅/历史质量仍待本机验收；已有有限事件结果见推进表，不能扩写为整体动态质量通过。
 
-命中链保留局部 `HLGIHit` 的source submesh、primitive、重心、UV、Ng/Ns和版本，并通过精确绑定查询对应chart。硬件三角命中的反射率/发光/法线来自新UV材质求值，card只提供缓存入射光；失效材质保留遮挡并拒绝未知辐射度，不再由常量近似变成已知。候选在提交前按来源Cull和覆盖筛选，保留后方合法命中。卡捕获不使用顶点Ns推断几何面向；屏幕历史的朝相机Ng与采样偏移独立。SDF/解析形状仍保留明确的近似路径。早期源码阶段尚未进行该链路的原生验收；后来已有各自来源的有限Unity/实体GPU记录。当前Release49只证明静态整合，完整链路质量和配置矩阵仍未验收，见上表与推进表。
+命中链保留局部 `HLGIHit` 的source submesh、primitive、重心、UV、Ng/Ns和版本，并通过精确绑定查询对应chart。硬件三角命中的反射率/发光/法线来自新UV材质求值，card只提供缓存入射光；失效材质保留遮挡并拒绝未知辐射度，不再由常量近似变成已知。候选在提交前按来源Cull和覆盖筛选，保留后方合法命中。卡捕获不使用顶点Ns推断几何面向；屏幕历史的朝相机Ng与采样偏移独立。SDF/解析形状仍保留明确的近似路径。早期源码阶段尚未进行该链路的原生验收；后来已有各自来源的有限Unity/实体GPU记录。当前Release54只证明静态最终HDR目标图像链，完整链路质量和配置矩阵仍未验收，见上表与推进表。
 
 共享 `MeshSource`、普通 Renderer `Discovery`、`Registry` 与每相机 `ReceiverHistory` CPU 来源快照已接入实际 Feature。新选项 `receiverObjectHistory=false` 默认关闭，开启会同时启用来源核验、像素身份/UAV冲突解析、GPU receiver表和独立 `CSTemporalIdentity` kernel。材质捕获、身份resolve和同相机f-1票据共同控制复用；未知覆盖或记录失败保留当前GI。支持范围及未验证边界见 [GeometryHistoryContracts.md](GeometryHistoryContracts.md)；不能据此宣称Unity中的移动物体历史已经验收通过。
 

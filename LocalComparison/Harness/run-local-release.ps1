@@ -1,6 +1,6 @@
-param([switch]$SteadyUse,[switch]$Integration)
+param([switch]$SteadyUse,[switch]$Integration,[switch]$FinalImage)
 $ErrorActionPreference='Stop'
-if($SteadyUse -and $Integration){throw 'Select one Release destination.'}
+if(([int]$SteadyUse.IsPresent+[int]$Integration.IsPresent+[int]$FinalImage.IsPresent) -gt 1){throw 'Select one Release destination.'}
 $taskRootPath='C:/Users/Administrator/Desktop/test/HybridLumenGI'
 $taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/local-release-baseline-01'
 $taskRunPath=Join-Path $taskPackagePath 'native-window'
@@ -19,6 +19,12 @@ if($Integration){
     $taskRunPath=Join-Path $taskPackagePath 'native-window'
     $taskPlayer='I:/Unity test/Comparison/Builds/LocalRelease49/HybridLumenGITest.exe'
     $taskAnalyzerArgs=@('--integration')
+}
+if($FinalImage){
+    $taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/current-representative-final-image-01'
+    $taskRunPath=Join-Path $taskPackagePath 'native-window'
+    $taskPlayer='I:/Unity test/Comparison/Builds/LocalRelease54/HybridLumenGITest.exe'
+    $taskMode='-localReleaseFinalImage120';$taskAnalyzerArgs=@('--final-image')
 }
 if(!(Get-Content -LiteralPath (Join-Path $taskPackagePath 'build-analysis.json') -Raw | ConvertFrom-Json).currentSourceBuildVerified){throw 'Build not accepted.'}
 if(Test-Path -LiteralPath (Join-Path $taskRunPath 'attempt.json')){throw 'The unique local Release Player attempt already exists.'}

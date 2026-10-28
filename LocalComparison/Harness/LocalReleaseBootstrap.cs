@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 using HybridLumenGI;
 public sealed class LocalReleaseBootstrap : MonoBehaviour
 {
-    Camera target;HybridLumenGIRendererFeature feature;bool verify,steady,finished,quitPending;int frames,lastEngine=-1,startEngine,errors,lastSlot=-1;double started,firstRendered;string folder,firstError;
+    Camera target;HybridLumenGIRendererFeature feature;ComparisonCapture finalCapture;bool verify,steady,finalImage,finished,quitPending;int frames,lastEngine=-1,startEngine,errors,lastSlot=-1;double started,firstRendered;string folder,firstError;
     [Serializable] sealed class Receipt
     {
         public int actualCameraFrames,engine,giFrame,publishedInstances,readyCards,hardwareMeshes,hardwareFallbacks,hardwareMaterialUnknownRecords;
@@ -23,6 +23,7 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
         public string mode,scene,unity,api,gpu,status,error;public bool debugBuild,verify120,verifySteady300,featureEnabled,testCaptureDisabled,auditProbeDisabled;
         public int requestedFrames,actualCameraFrames,startEngine,firstRenderEngine=-1,lastEngine=-1,errors,width,height;public double firstRenderWaitSeconds;
         public int requestedSeconds,initializationSeconds,sampleIntervalSeconds;public double elapsedSeconds;
+        public bool finalImageMode,finalImageCaptured;public string actualViewMode,composition,imageScope;
     }
     Result result;Receipt previousQualified;StreamWriter receipts;
     static string Arg(string name){var args=Environment.GetCommandLineArgs();int i=Array.IndexOf(args,name);return i>=0&&i+1<args.Length?args[i+1]:null;}
@@ -43,8 +44,9 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
             mode.target.transform.SetPositionAndRotation(capture.colorView.position,capture.colorView.rotation);
             mode.verify=Array.IndexOf(Environment.GetCommandLineArgs(),"-localReleaseVerify120")>=0;
             mode.steady=Array.IndexOf(Environment.GetCommandLineArgs(),"-localReleaseSteady300")>=0;
-            Require(!(mode.verify&&mode.steady),"Select only one finite Release mode");
-            mode.verify|=mode.steady;
+            mode.finalImage=Array.IndexOf(Environment.GetCommandLineArgs(),"-localReleaseFinalImage120")>=0;
+            Require((mode.verify?1:0)+(mode.steady?1:0)+(mode.finalImage?1:0)<=1,"Select only one finite Release mode");
+            mode.verify|=mode.steady||mode.finalImage;
             mode.Initialize(capture);
         }
         catch(Exception e){Debug.LogError("LOCAL_RELEASE_START_FAILED "+e);Application.Quit(1);}
@@ -62,6 +64,17 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
         if(!verify)return; // Normal local use has no frame counter, diagnostics polling, file capture or automatic quit.
         folder=Arg("-localReleaseOutput");Require(!string.IsNullOrEmpty(folder)&&Path.IsPathRooted(folder)&&!Directory.Exists(folder),"New absolute Release verification directory required");
         Directory.CreateDirectory(folder);receipts=new StreamWriter(Path.Combine(folder,"diagnostics.jsonl")){AutoFlush=true};Save();
+        if(finalImage)
+        {
+            finalCapture=capture;result.finalImageMode=true;
+            var settings=typeof(HybridLumenGIRendererFeature).GetField("settings",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(feature);
+            result.actualViewMode=settings.GetType().GetField("debugView").GetValue(settings).ToString();
+            result.composition=settings.GetType().GetField("composition").GetValue(settings).ToString();
+            result.imageScope="Final linear HDR camera target from startup; not ordinary backbuffer pixels. Existing fixed-mapping PNG is preview only.";
+            Require(result.actualViewMode=="Final","Final image mode requires existing Final settings");
+            try{capture.BeginSingleFinalCapture(folder);}catch{capture.EndSingleFinalCapture();throw;}
+            Save();
+        }
         Application.runInBackground=true;Application.logMessageReceived+=OnLog;RenderPipelineManager.endCameraRendering+=Rendered;
     }
     void OnLog(string message,string stack,LogType type)
@@ -111,7 +124,11 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
                     Require(previousQualified==null||row.giFrame>previousQualified.giFrame,"GI execution frame did not progress");previousQualified=row;
                 }
             }
-            if(steady?elapsed>=300:frames==120)quitPending=true;
+            if(steady?elapsed>=300:frames==120)
+            {
+                if(finalImage){finalCapture.CaptureSingleFinalFrame(frames);result.finalImageCaptured=true;}
+                quitPending=true;
+            }
         }
         catch(Exception e){errors++;firstError=firstError??e.ToString();}
     }
@@ -119,13 +136,15 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
     void Finish(bool complete)
     {
         if(finished)return;finished=true;RenderPipelineManager.endCameraRendering-=Rendered;Application.logMessageReceived-=OnLog;receipts?.Dispose();receipts=null;
+        try{finalCapture?.EndSingleFinalCapture();}catch(Exception e){errors++;firstError=firstError??("Final target cleanup: "+e);}
         result.actualCameraFrames=frames;result.lastEngine=lastEngine;result.errors=errors;result.error=firstError;
-        result.status=complete&&(steady?result.elapsedSeconds>=300:frames==120)&&errors==0?"completed-finite-release-check":"failed";
+        result.status=complete&&(steady?result.elapsedSeconds>=300:frames==120)&&errors==0&&(!finalImage||result.finalImageCaptured)?"completed-finite-release-check":"failed";
         Save();Debug.Log("LOCAL_RELEASE_RESULT "+JsonUtility.ToJson(result));Application.Quit(result.status=="completed-finite-release-check"?0:1);
     }
     void OnApplicationQuit()
     {
         if(!verify||finished)return;
+        try{finalCapture?.EndSingleFinalCapture();}catch(Exception e){errors++;firstError=firstError??("Final target cleanup: "+e);}
         result.actualCameraFrames=frames;result.lastEngine=lastEngine;result.errors=errors;result.error=firstError;result.status="closed-before-finite-check";Save();receipts?.Dispose();
     }
 }
