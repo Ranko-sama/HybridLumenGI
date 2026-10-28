@@ -1,0 +1,53 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 55
+DECISION: ACCEPT_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: global-sdf-nongeometric-dirty-01
+
+一、接受有限恢复修复，结束55轮
+
+允许本地提交，未发现本范围的阻断。不再追加恢复夹具或原生故障矩阵。
+
+已确认 HybridLumenGI / workspace:/ / main@8135d5a。已先列取再读取249／250，并核对实际Runtime diff、冻结夹具、提取方法及来源核验记录；没有重跑或重新计算哈希。
+
+修正后的前提成立：实际2层、128页，初始全部ready且pending0；快照覆盖两层、128个唯一物理槽。旧失败出口留下ready／retry0；候选撤销ready，随后重排并录制128页、推进全部代次，保持原上传→merge→publish顺序，再下一帧归于零更新。成功控制保持相同，buffer身份及原失败动作不变。〔candidate/sources/FailureRecovery.cs:23–53；输出249／250〕
+
+产品确实只有一处接线：
+
+C#
+uploadedSoftwareVersion=0;
+globalSdf.InvalidateAll();
+InvalidateScreenHistory();
+InvalidateGpuFeedback();
+
+它在history／timing清理前恢复GlobalSdf自身已有的重试合同，没有修改shader、catch、预算或退休。这是CPU恢复缺口的关闭，不是实际GPU命令丢弃或RenderGraph异常恢复验收。 完整Feature除提取方法外未由该夹具执行，命令shim只记录dispatch。
+
+累计为一个失败基线、一个授权修正基线、一个候选。原FAIL248及原合同保留；Release54仍只对应a9292cb，不继承本修复的原生资格。
+
+二、唯一下一步：恢复延期的非几何失效筛选
+
+继续原目标3／4、工作流4／5。当前Scene已将纯Material／Lighting变化保留为几何不变，但GlobalSdf仍无条件收集其bounds，可能让正常材质编辑占用几何砖更新额度。先建立实际反例，再优化；这不属于55轮恢复测试扩展。〔HybridLumenGIScene.cs:216–235；HybridLumenGIGlobalSdf.cs:119–127〕
+
+产品范围优先仅HybridLumenGIGlobalSdf.cs。 在收集Scene脏bounds时，只跳过：
+
+C#
+kind != 0 &&
+(kind & ~(ChangeKind.Material | ChangeKind.Lighting)) == 0
+
+零类型、未知位、混合几何事件继续保守失效。不得修改共享DirtyRegions、材质／照明更新、RepresentationChangedBounds、真实bounds检测、全失效、clipmap换位或55轮恢复接线。
+
+必要验证与决定
+
+复用实际GlobalSdf入口，从合法2层、axis4、已核实128页就绪且pending0的状态开始；补齐适配器Kind输入，采用生产枚举，不复制Scene分类算法。
+
+不确定性	限定验证与采用条件
+是否确有多余几何工作？	纯Material、Lighting及二者组合：旧源码产生失效；候选保持页代次／ready，不产生新merge／publish。无反例则不改产品。
+是否误吞真实变化？	混合几何、零／未知类型仍按原规则失效；纯材质事件伴随SDF表示或renderer bounds变化时，独立失效仍生效。任一漏更新阻断。
+是否破坏已有更新需求？	已有pending页仍按原预算继续处理；不能把“无需新增失效”实现为清空积压。
+
+一次冻结基线命令、一次同输入候选命令；零Unity／Player／GPU运行。 复用相关原守卫，不重跑55轮双分支或其他已关闭矩阵。收益只表述为减少不必要的失效与调度工作，不声称GPU毫秒或FPS改善。
+
+**退出条件：**反例成立、纯非几何事件不再制造重建，而真实／未知变化及已有积压不退化，即交复核并结束。无反例、首次候选失败或需要扩大到Scene／SDF协议改造时，保留首次分歧并停止自动扩展。
+
+四项目标、十条工作流继续有效；生产预算保持待答，已关闭的恢复、Surface、CDF、Release与场景检查不重开。

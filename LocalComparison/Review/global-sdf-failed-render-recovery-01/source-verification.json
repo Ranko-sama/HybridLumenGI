@@ -1,0 +1,72 @@
+{
+  "identicalCompilerInputs": [
+    "GlobalSdf.cs",
+    "UnityStubs.cs",
+    "Program.cs",
+    "FailureRecovery.cs",
+    "Check.csproj",
+    "Validate-GlobalSdf.ps1.txt",
+    "contract.md",
+    "contract-correction.md"
+  ],
+  "onlyFeatureAndExtractedHelperDifference": "one existing globalSdf.InvalidateAll call before history/timing",
+  "currentFeatureMatchesExecutedSnapshot": true,
+  "currentGlobalSdfUnchanged": true,
+  "originalContractAndFailedBaselinePreserved": true,
+  "successfulControlIdentical": true,
+  "baseline": [
+    {
+      "path": "successful-recording/control",
+      "readyAfterExit": true,
+      "retryPending": 0,
+      "retryUpdated": 0,
+      "allGenerationsAdvanced": false,
+      "stableFollowingUpdates": 0,
+      "uploadedSoftwareVersion": 9,
+      "historyCalls": 0,
+      "timingCalls": 0,
+      "actualGpuExecution": false
+    },
+    {
+      "path": "discarded-recording/common-failure-exit",
+      "readyAfterExit": true,
+      "retryPending": 0,
+      "retryUpdated": 0,
+      "allGenerationsAdvanced": false,
+      "stableFollowingUpdates": 0,
+      "uploadedSoftwareVersion": 0,
+      "historyCalls": 1,
+      "timingCalls": 1,
+      "actualGpuExecution": false
+    }
+  ],
+  "candidate": [
+    {
+      "path": "successful-recording/control",
+      "readyAfterExit": true,
+      "retryPending": 0,
+      "retryUpdated": 0,
+      "allGenerationsAdvanced": false,
+      "stableFollowingUpdates": 0,
+      "uploadedSoftwareVersion": 9,
+      "historyCalls": 0,
+      "timingCalls": 0,
+      "actualGpuExecution": false
+    },
+    {
+      "path": "discarded-recording/common-failure-exit",
+      "readyAfterExit": false,
+      "retryPending": 128,
+      "retryUpdated": 128,
+      "allGenerationsAdvanced": true,
+      "stableFollowingUpdates": 0,
+      "uploadedSoftwareVersion": 0,
+      "historyCalls": 1,
+      "timingCalls": 1,
+      "actualGpuExecution": false
+    }
+  ],
+  "candidateFeatureSha256": "7b042b083b67d8c3459490b2dfc60b7656126223ef27017b09f383bc318bc589",
+  "globalSdfSha256": "9dd2f78cabf90d2c9edfad464d3042487aaaff50e8933fd948f0b8b5c1952033",
+  "nativeGpuExecution": false
+}

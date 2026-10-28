@@ -148,3 +148,5 @@ iteration49：工作流10当前本机整合成立，恰四处已接受源部署�
 实际Pro49读取235–237批准本地整合记录并采用Release49。120模式嵌套资源/退休字段未采集，默认零值不能当资源归零；当前采用依据只含原顶层运行字段。下一步按Astra独立建议统一README、ProductionPlan与本表摘要的当前入口及支持边界，零新运行/源码测试，不改冻结产物或原计划关卡。
 
 iteration54：当前最终HDR图像链有限成立，产品a9292cb，恰三处已接受修改相对Release49。一Release None构建0errors/23warnings，一DX12进程PID21956完成120真实相机/GI帧、单次末帧RGBA32F/EXR/PNG和exit0。原Capture/Finish保留、720帧事件驱动禁用，5临时接线和6历史include恢复，112来源/189产物及场景设置一致。Codex、Astra和实际Pro54均查看PNG，未建立具体集成故障；不把暗部、未采集零值、单张Additive图转为物理、owner-zero、性能或全面功能验收。更新当前入口与证据说明并随本轮提交，不另开状态包。
+
+iteration55已获Astra和实际Pro有限结项：共用渲染失败出口补现有globalSdf.InvalidateAll，避免已录制但丢弃的页永久保留CPU-ready而不重排。首基线因测试错误请求1级被产品钳为2级而失败，原FAIL保留；经Astra/Pro允许，唯一合法128页更正基线建立反例、唯一候选使128页重排/代次推进并回到稳定0更新，成功控制与原失败动作不变。只执行实际CPU类和逐字提取的失败方法，非原生GPU丢弃验收；Release54仍为a9292cb。见[恢复结果与首失败](ReviewBrief-GlobalSdfFailedRenderRecovery01.md)。

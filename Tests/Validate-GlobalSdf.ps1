@@ -1,4 +1,5 @@
-param([string] $SourceRoot = (Split-Path -Parent $PSScriptRoot), [string] $CompilerPath = "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxc.exe", [string] $ReportPath = "")
+param([string] $SourceRoot = (Split-Path -Parent $PSScriptRoot), [string] $CompilerPath = "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxc.exe", [string] $ReportPath = "",
+    [switch]$CpuOnly,[switch]$FailureRecovery,[switch]$ExpectRecovery,[string]$SourceArchive)
 $ErrorActionPreference = "Stop"
 $SourceRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
 $runDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("hlgi-global-sdf-" + [Guid]::NewGuid().ToString("N"))
@@ -8,8 +9,34 @@ foreach ($file in @("UnityStubs", "Program")) {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot "StandaloneGlobalSdf/$file.cs.txt") -Destination (Join-Path $runDirectory "$file.cs")
 }
 Set-Content -LiteralPath (Join-Path $runDirectory "Check.csproj") -Encoding utf8 -Value '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable></PropertyGroup></Project>'
-& dotnet run --project (Join-Path $runDirectory "Check.csproj") --configuration Release --verbosity quiet
+if($ExpectRecovery -and !$FailureRecovery){throw 'ExpectRecovery requires FailureRecovery.'}
+$taskArguments=@()
+if($FailureRecovery){
+    $taskFeaturePath=Join-Path $SourceRoot 'Runtime/HybridLumenGIRendererFeature.cs'
+    $taskFeatureSource=Get-Content -LiteralPath $taskFeaturePath -Raw
+    $taskMethods=[regex]::Matches($taskFeatureSource,'internal void InvalidateFailedRender\(\)\s*\{[^{}]*\}')
+    if($taskMethods.Count -ne 1){throw 'Unique complete failure method extraction required.'}
+    $taskHost=(Get-Content -LiteralPath (Join-Path $PSScriptRoot 'StandaloneGlobalSdf/FailureState.cs.txt') -Raw).Replace('// ACTUAL_FAILURE_EXIT',$taskMethods[0].Value)
+    Set-Content -LiteralPath (Join-Path $runDirectory 'FailureState.cs') -Value $taskHost -Encoding utf8
+    Copy-Item -LiteralPath $taskFeaturePath -Destination (Join-Path $runDirectory 'Feature.source-only.cs.txt')
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'StandaloneGlobalSdf/FailureRecovery.cs.txt') -Destination (Join-Path $runDirectory 'FailureRecovery.cs')
+    Add-Content -LiteralPath (Join-Path $runDirectory 'Program.cs') -Value 'FailureRecovery.Check(args.Contains("--expect-recovery"));' -Encoding utf8
+    if($ExpectRecovery){$taskArguments=@('--expect-recovery')}
+}
+if($SourceArchive){
+    if(Test-Path -LiteralPath $SourceArchive){throw 'Preserve existing frozen compiler sources.'}
+    New-Item -ItemType Directory -Path $SourceArchive | Out-Null
+    Get-ChildItem -LiteralPath $runDirectory -File | Copy-Item -Destination $SourceArchive
+    Copy-Item -LiteralPath $PSCommandPath -Destination (Join-Path $SourceArchive 'Validate-GlobalSdf.ps1.txt')
+    if($FailureRecovery){
+        Copy-Item -LiteralPath (Join-Path $SourceRoot 'Documentation/Checkpoint-Iteration55.md') -Destination (Join-Path $SourceArchive 'contract.md')
+        Copy-Item -LiteralPath (Join-Path $SourceRoot 'Documentation/Checkpoint-Iteration55-Correction.md') -Destination (Join-Path $SourceArchive 'contract-correction.md')
+    }
+    Write-Output ('Frozen compiler sources: '+$SourceArchive)
+}
+& dotnet run --project (Join-Path $runDirectory "Check.csproj") --configuration Release --verbosity quiet -- @taskArguments
 if ($LASTEXITCODE -ne 0) { throw "Actual-source global SDF scheduler validation failed." }
+if($CpuOnly){Write-Output 'CPU-only actual-source run completed; no DXC/Unity/GPU execution.';exit 0}
 
 if (-not (Test-Path -LiteralPath $CompilerPath)) { throw "DXC not found; pass -CompilerPath." }
 $shaderRoot = Join-Path $SourceRoot "Runtime/Resources/HybridLumenGI"
