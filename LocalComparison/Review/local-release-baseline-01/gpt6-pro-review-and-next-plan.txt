@@ -1,0 +1,67 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 40
+DECISION: CLOSE_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: streamed-representation-multiview-demand-01
+
+一、接受Release基线，结束本包
+
+允许提交本轮构建／启动代码和证据。普通本地Release已达到约定的有限退出条件，不需要第二次运行。
+
+已确认 HybridLumenGI / workspace:/ / main@d55a23d。我已先列出再读取iteration40输出211–213，核对实际构建分支、启动隔离、来源／产物清单、原始公开诊断和完整Player日志；没有修改、重跑或重新计算哈希。
+
+关键证据相互吻合：
+
+构建请求和实际BuildReport均为BuildOptions.None，运行时Debug.isDebugBuild=false，不是只把目录命名为Release。〔CurrentPlayerBuild.cs本轮diff；build-report.json:5–9〕
+实际入口在旧720帧启动逻辑之前调用普通bootstrap；它停用测试组件，而默认模式在订阅帧回调／诊断之前返回。默认常驻行为有源码依据，实测的是同一EXE的120帧验证分支，不能说两个模式都分别运行过。〔执行版 RuntimeAuditEntry.cs:12–20；LocalReleaseBootstrap.cs:23–55〕
+原始公开诊断记录GI帧1／60／120，末段硬件网格22、ready cards132、未知材质记录0。它证明准备、绑定及帧推进，不提供新的逐射线消费证明。原生日志正常结束，URP阴影图集降分辨率警告仍保留。〔native-window/run/diagnostics.jsonl:1–3；player.log:32–40〕
+
+来源清单区分了未变产品源码、四项启动／构建覆盖及临时排除的历史include；输出清单包含程序集、Data、启动器与说明，不只绑定EXE。没有详细Release退休日志，就不补写owner归零；退出0也不是显存、画质或性能验收。
+
+本轮的实际增量是可直接运行的本地Release产物，不是新的光传输算法。此项到此收束。
+
+二、下一价值判断：补上多视点的冷加载需求
+
+选择原目标3、工作流8：让辅助视点能够主动请求尚未加载的资源页表示。
+
+当前 HybridLumenGIStreamedRepresentation.Update()只使用单一observer或Camera.main计算距离；退休端则汇总所有已注册相机消费者。因此，“主视点远离、辅助视点靠近一个尚未加载的表示”没有自动距离需求来源。已有双相机保留证据不能解决这个问题：阻止已加载资源卸载，不等于能够发起冷加载。〔HybridLumenGIStreamedRepresentation.cs:74–90；HybridLumenGIResourceRetirement.cs:206–223〕
+
+这与Astra的独立建议一致，但属于现有单视点能力的扩展，不把原本明确的单视点设计追认为已验证的产品故障。它比继续增加成功链探针更直接服务分块场景和多相机使用。
+
+三、最小实现：只扩资源页表示的需求输入
+
+优先只改 Runtime/HybridLumenGIStreamedRepresentation.cs，加少量使用说明及直接相关测试。
+
+保留现有单一observer字段和Camera.main回退，新增默认空的显式附加视点集合及必要的配置入口。旧场景不配置集合时行为不变；不扫描所有Camera，不把SceneView、反射相机或临时捕获相机自动加入需求。
+
+以现有变换后的world bounds计算各有效视点距离，取最小值应用原来的load／unload滞回：
+
+任一有效视点进入加载距离即可产生需求；已经需要的表示，只在所有有效视点都离开卸载距离后撤回需求。
+
+保持一个表示、一个this请求者、一个完整页组。重复视点不得产生重复请求、lease或预算；多视点不会增加全局IO并发、驻留或上传额度。实际驱动已经统一管理这些请求，继续复用。〔HybridLumenGIAssetPageStreamer.cs:28–30、57–88〕
+
+其他边界不改：
+
+SetWanted()手动模式优先级、UseDistanceRequests()、完整组ready后绑定、HLOD发布及ReportUnloadSafe()全部保留。 没有任何有效视点时，保留既有“没有observer”的语义，不能悄悄解释成安全卸载；显式集合由应用负责维护相机资格。
+
+本包不同时扩展Additive Scene的ChunkStreamer，不建立相机注册服务或新调度框架。特别是“全部离开”只能使WantsUnload成立，不能直接解绑或释放；实际消费者和完成票据仍决定退休。
+
+四、验证只回答三个会改变提交决定的问题
+
+复用现有流式源码测试入口，补入实际representation需求路径；Unity对象／IO采用明确适配器，不能复制一份距离算法作为被测实现，也不能由测试手动SetWanted(true)代替辅助视点触发。
+
+不确定性	最小验证	改变的决定
+辅助视点是否真正产生冷加载需求？	空表示、主视点远、辅助视点近；实际Update向streamer提交一次完整页组。关闭附加集合时恢复原无请求行为。	新路径没有产生请求，就不接受这项能力。
+合并与滞回是否正确，是否越过退休权限？	辅助视点在滞回带内仍保持需求；全部有效视点远离后撤需。已绑定表示仍等待原安全卸载入口，不直接释放。	提前撤需、解绑或归还预留均阻断候选，不能修改退休规则补救。
+是否破坏旧用法或放大预算？	旧单视点和手动模式保持原结果；重复／重排视点不增加请求；完整组仍经过原预算准入。	兼容性或预算语义改变则缩回本次diff，不扩成新调度器。
+
+本包零新增Unity／Player／GPU运行。 先完成这项CPU需求能力及实际源码证据；不重跑已经覆盖的真实页IO、取消、HLOD或正常退出矩阵。测试结果只能支持需求生成与兼容性，不能提前声称多相机原生流式全链验收。
+
+退出条件
+
+实际需求路径在“主远／辅近”的冷状态下提交正确完整组；全部视点离开时按原滞回撤需；单视点／手动用法和预算／退休权限不退化，即交独立复核并结束本包。
+
+若必须修改页生命周期、HLOD事务、GPU完成条件或建立通用相机服务才能继续，停止并返回具体阻断，不扩大实现。Release产物继续保留其原来源，不冒称已经包含下一候选。
+
+现在提交第40轮本地Release基线，随后执行 streamed-representation-multiview-demand-01。 四项目标、十条工作流继续有效；预算问题保持待答，不重复询问或虚构限额。门、内部层、材质、时域及已关闭的暗区／MC／曝光／计时调查均不恢复。

@@ -17,7 +17,7 @@ public static class CurrentPlayerBuild
     [Serializable] class Input {public string path,sha256;public long bytes;}
     [Serializable] class Receipt
     {
-        public string scene=ScenePath,unity,output,result,executableSha256;
+        public string scene=ScenePath,unity,output,result,executableSha256,configuration,requestedOptions,actualOptions;
         public string inputScope="Existing readable project dependencies, Runtime and harness sources plus project settings/package lock; not a physical radiometry source archive";
         public string[] dependencyRoots,dependenciesWithoutProjectFile;
         public ulong totalBytes;public int errors,warnings;public Input[] inputs;
@@ -28,7 +28,10 @@ public static class CurrentPlayerBuild
     {using(var h=SHA256.Create())return BitConverter.ToString(h.ComputeHash(bytes)).Replace("-","").ToLowerInvariant();}
     public static void Build()
     {
-        string output=Arg("-currentPlayerOutput"),receipt=Arg("-currentPlayerReceipt");
+        string output=Arg("-currentPlayerOutput"),receipt=Arg("-currentPlayerReceipt"),configuration=Arg("-currentPlayerConfiguration");
+        if(string.IsNullOrEmpty(configuration))configuration="Development";
+        if(configuration!="Development"&&configuration!="Release")throw new Exception("Explicit Development or Release configuration required");
+        BuildOptions options=configuration=="Release"?BuildOptions.None:BuildOptions.Development;
         if(!Path.IsPathRooted(output)||!Path.IsPathRooted(receipt)||File.Exists(output)||File.Exists(receipt))throw new Exception("New explicit build output and receipt required");
         if(PlayerSettings.colorSpace!=ColorSpace.Linear||PlayerSettings.GetScriptingBackend(NamedBuildTarget.Standalone)!=ScriptingImplementation.Mono2x||
             !PlayerSettings.GetGraphicsAPIs(BuildTarget.StandaloneWindows64).SequenceEqual(new[]{GraphicsDeviceType.Direct3D12}))
@@ -52,16 +55,17 @@ public static class CurrentPlayerBuild
             .Select(p=>p.Replace('\\','/')).Distinct().OrderBy(p=>p,StringComparer.Ordinal).ToArray();
         var inputs=paths.Select(p=>{var bytes=File.ReadAllBytes(p);return new Input{path=p,sha256=Hash(bytes),bytes=bytes.LongLength};}).ToArray();
         Directory.CreateDirectory(Path.GetDirectoryName(output));Directory.CreateDirectory(Path.GetDirectoryName(receipt));
-        var r=new Receipt{unity=Application.unityVersion,output=output,result="started",inputs=inputs,
+        var r=new Receipt{unity=Application.unityVersion,output=output,result="started",inputs=inputs,configuration=configuration,requestedOptions=options.ToString(),
             dependencyRoots=roots,dependenciesWithoutProjectFile=dependencies.Where(p=>!File.Exists(p)).ToArray()};
         File.WriteAllText(receipt,JsonUtility.ToJson(r,true));
         var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{ScenePath},locationPathName=output,
-            target=BuildTarget.StandaloneWindows64,options=BuildOptions.Development});
+            target=BuildTarget.StandaloneWindows64,options=options});
+        r.actualOptions=report.summary.options.ToString();
         r.result=report.summary.result.ToString();r.errors=(int)report.summary.totalErrors;r.warnings=(int)report.summary.totalWarnings;
         r.totalBytes=report.summary.totalSize;r.executableSha256=File.Exists(output)?Hash(File.ReadAllBytes(output)):null;
         File.WriteAllText(receipt,JsonUtility.ToJson(r,true));
         if(inputs.Any(i=>!File.Exists(i.path)||Hash(File.ReadAllBytes(i.path))!=i.sha256))throw new Exception("Build source changed; retain result but reject source matching");
-        if(report.summary.result!=BuildResult.Succeeded||report.summary.totalErrors!=0)throw new Exception("Current-source Player build failed");
+        if(report.summary.result!=BuildResult.Succeeded||report.summary.totalErrors!=0||report.summary.options!=options)throw new Exception("Current-source Player build failed or options changed");
         Debug.Log("CURRENT_PLAYER_BUILD_SUCCEEDED "+output);
     }
 }

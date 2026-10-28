@@ -1,0 +1,80 @@
+{
+  "ordinaryReleaseVerified": true,
+  "fullProductionAccepted": false,
+  "perRayGpuConsumptionProven": false,
+  "trackedOwnerZeroProven": false,
+  "nativeExit": {
+    "processId": 33776,
+    "exitCode": 0,
+    "watchdogTerminated": false,
+    "completedUtc": "2026-10-28T18:49:21.0416985Z"
+  },
+  "runtime": {
+    "mode": "ordinary-local-release",
+    "scene": "Assets/RuntimeAudit/Functional.unity",
+    "unity": "6000.0.85f1",
+    "api": "Direct3D12",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "status": "completed-finite-release-check",
+    "error": "",
+    "debugBuild": false,
+    "verify120": true,
+    "featureEnabled": true,
+    "testCaptureDisabled": true,
+    "auditProbeDisabled": true,
+    "requestedFrames": 120,
+    "actualCameraFrames": 120,
+    "startEngine": 0,
+    "firstRenderEngine": 1,
+    "lastEngine": 120,
+    "errors": 0,
+    "width": 640,
+    "height": 360,
+    "firstRenderWaitSeconds": 2.9888665999999997
+  },
+  "diagnostics": [
+    {
+      "actualCameraFrames": 1,
+      "engine": 1,
+      "giFrame": 1,
+      "publishedInstances": 16,
+      "readyCards": 24,
+      "hardwareMeshes": 16,
+      "hardwareFallbacks": 0,
+      "hardwareMaterialUnknownRecords": 0,
+      "camera": "Validation Camera",
+      "hardwareMaterialStatus": "Uploads and both consumers bound; GPU completion unproven",
+      "featureEnabled": true,
+      "hardwareBackend": true
+    },
+    {
+      "actualCameraFrames": 60,
+      "engine": 60,
+      "giFrame": 60,
+      "publishedInstances": 22,
+      "readyCards": 132,
+      "hardwareMeshes": 22,
+      "hardwareFallbacks": 0,
+      "hardwareMaterialUnknownRecords": 0,
+      "camera": "Validation Camera",
+      "hardwareMaterialStatus": "Uploads and both consumers bound; GPU completion unproven",
+      "featureEnabled": true,
+      "hardwareBackend": true
+    },
+    {
+      "actualCameraFrames": 120,
+      "engine": 120,
+      "giFrame": 120,
+      "publishedInstances": 22,
+      "readyCards": 132,
+      "hardwareMeshes": 22,
+      "hardwareFallbacks": 0,
+      "hardwareMaterialUnknownRecords": 0,
+      "camera": "Validation Camera",
+      "hardwareMaterialStatus": "Uploads and both consumers bound; GPU completion unproven",
+      "featureEnabled": true,
+      "hardwareBackend": true
+    }
+  ],
+  "nativeLogHits": []
+}

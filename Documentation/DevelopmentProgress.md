@@ -102,3 +102,7 @@ iteration38：当前8a5f17b一次构建/可见DXR198帧正常自动exit0，29组
 iteration39：原工作流3/4、G2内部多层缓存链完成一次有限真实验证，Runtime未变。复用同一owner的既有16三角房间+两层平面，一次build/120帧DXR正常退出，零错误/截图、pending0、来源恢复。四条原TraceSceneQuery命中12–15，实际材料捕获和原HLGICachedSample分别使用card6/7及各自层上的实际anchor，返回有效已测量黑色[0,0,0,14]；冻结首分析通过。初次离线DXC引用路径失败保留，只修编译mirror后通过，未追加Unity运行。此项结束，不扩凹面矩阵、不算G2整体完成；等待计划知情Astra独立下一方向及实际Pro39复核。见ReviewBrief-InteriorSurfaceCacheChain01.md。
 
 实际Pro39读取205–210并批准内部层有限链及本地提交，同意Astra独立方向：local-release-baseline-01。下一轮复用Functional和现有配置，显式BuildOptions.None，正常启动停用旧测试自动入口/序列/探针，默认保持可见可关闭，另120实际目标帧验证模式正常Quit。仅公开GetDiagnostics验证实际进度/后端/准备状态；无新GPU查询或图像读回，一次build/一次Player，任一失败保留后停止。Release详细逐owner日志可能按条件不编译，不据日志安静声称清零。Full plan仍开放。
+
+iteration40：工作流10/G5新增普通本机Release可运行基线，Runtime/Editor112源未改。CurrentPlayerBuild显式None分支、薄普通启动绕过旧自动入口并停用测试组件，默认常驻窗口，参数分支才计120目标帧。唯一build和唯一可见进程均通过，实际debugBuildfalse、GI1/60/120、末段22硬件mesh/132readycards/材质双方绑定、native0/零错误、未触发watchdog。4启动/构建覆盖及历史孤立include已恢复；189产物保存在I:/Unity test/Comparison/Builds/LocalRelease40，含启动器说明。公开诊断不升级逐射线或逐owner清零，Release条件详细日志缺失正常，无性能/整体验收声明。39/40两节点后回完整计划复评，见StageReassessment-LocalRelease.md；Astra先独立选择下一实际问题，再比较实际Pro40计划，不以观察器/日志/包数作为总体进展。
+
+实际Pro40读取211–213批准本地Release结项和提交，并认同Astra独立提出的多视点冷加载能力。下一包streamed-representation-multiview-demand-01优先只改StreamedRepresentation：默认空的附加观察点集合，与原observer/Camera.main共同取最小world-bounds距离，复用原load/unload滞回；手动优先，无有效视点时保留原wanted语义，不直接退休/解绑，不扫描全部Camera或扩ChunkStreamer。真实Update生成一个this完整组请求，显式Unity/IO适配器加原预算入口有限验证；0新增Unity/Player/GPU。Release40产物仍对应原112源，不能标为含下一候选。
