@@ -1,0 +1,36 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 56
+DECISION: RETAIN_PRODUCT — REVISE_TEST_ENTRY
+COMMIT: 暂缓整包提交；修正下述入口兼容性后可提交
+NEXT_ACTION: 同包修复公共适配输入，随后收束本段global SDF工作
+
+一、产品改动及有限结果可以接受
+
+已确认 HybridLumenGI / workspace:/ / main@0198092。已先列取再读取251／252，核对实际diff、定向夹具及来源记录；没有重跑或重新计算哈希。
+
+单点筛选符合原范围：仅跳过非零且只含Material／Lighting的事件；共享事件、独立表示／bounds失效及原调度流程均未修改。三项纯事件不再使已就绪页失效，五项保守／独立控制保持原结果。积压病例也不是清空队列取得“零工作”：它保留原7页，再处理7页，达到14 ready／114 pending。〔Runtime/HybridLumenGIGlobalSdf.cs:121–129；NonGeometricDirty.cs.txt:44–67；输出251–252〕
+
+这些证据支持减少冗余失效并保留CPU调度进展，不支持GPU时间、真实Scene分类或原生距离值验收。 生产枚举确实参与了专项输入，但Scene／SdfAtlas和命令执行仍有明确适配边界。
+
+二、发现一个提交前应修复的验证入口回归
+
+P2：默认GlobalSdf检查及55轮入口将缺少编译依赖。
+
+新增产品代码无条件引用HybridLumenGIScene.ChangeKind和region.Kind，但runner只在if($NonGeometricDirty)内向stub注入该枚举和字段；原UnityStubs.cs.txt仍没有它们。默认入口和-FailureRecovery不会进入这个分支，却都会编译当前GlobalSdf。常规Validate-Offline.ps1也正是无专项开关调用该入口。〔Tests/Validate-GlobalSdf.ps1:8–11、29–41、55；Tests/StandaloneGlobalSdf/UnityStubs.cs.txt:73–75；Tests/Validate-Offline.ps1:75〕
+
+这是由当前源码生成路径确定的缺失类型／字段问题，不是已执行的新编译失败日志，也不是产品运行时缺陷。56专项成功，是因为它恰好补齐了依赖；其中原77项守卫通过不能证明其他入口仍可构建。
+
+三、唯一下一动作：把公共类型适配移出专项开关
+
+不改Runtime，不新建工具包。 只调整Tests/Validate-GlobalSdf.ps1：
+
+将生产枚举的逐字提取、DirtyRegion.Kind注入及对应来源保存移到公共源码准备阶段。-NonGeometricDirty仅控制专项测试文件、调用及期望值，不再控制当前产品编译必需的类型定义。旧用例未指定Kind时保持默认0，继续按保守路径处理；不能批量改写旧输入来迎合筛选。
+
+保留251／252、冻结来源与原判据。将runner修正明确记为行为验证之后的测试入口修复，不覆盖执行版脚本或宣称其重新运行。
+
+仅允许一次有限编译核对批次：编译修正后入口实际生成的默认输入与FailureRecovery输入，不执行Program.Main，不运行55／56行为分支，不调用DXC、Unity或GPU。它只解决“公共依赖是否完整、旧入口是否仍可构建”，并决定能否提交；不是新增覆盖矩阵。
+
+**退出条件：**两个入口可编译，公共生成的枚举／Kind与56已执行输入一致，产品字节不变，即可本地提交并结束。编译仍失败则保存首个诊断并停止，不自动扩展或重试。
+
+55–56这段global SDF工作已累计五次CPU命令，包含55的首次夹具失败。修好这个实际引入的入口回归后，停止继续补SDF边角检查，也不因此再做静态Release。完整四项目标、十条工作流仍未完成；Release54的原生来源及待定生产预算均保持原边界。

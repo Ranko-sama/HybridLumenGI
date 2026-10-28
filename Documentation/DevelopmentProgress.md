@@ -150,3 +150,5 @@ iteration49：工作流10当前本机整合成立，恰四处已接受源部署�
 iteration54：当前最终HDR图像链有限成立，产品a9292cb，恰三处已接受修改相对Release49。一Release None构建0errors/23warnings，一DX12进程PID21956完成120真实相机/GI帧、单次末帧RGBA32F/EXR/PNG和exit0。原Capture/Finish保留、720帧事件驱动禁用，5临时接线和6历史include恢复，112来源/189产物及场景设置一致。Codex、Astra和实际Pro54均查看PNG，未建立具体集成故障；不把暗部、未采集零值、单张Additive图转为物理、owner-zero、性能或全面功能验收。更新当前入口与证据说明并随本轮提交，不另开状态包。
 
 iteration55已获Astra和实际Pro有限结项：共用渲染失败出口补现有globalSdf.InvalidateAll，避免已录制但丢弃的页永久保留CPU-ready而不重排。首基线因测试错误请求1级被产品钳为2级而失败，原FAIL保留；经Astra/Pro允许，唯一合法128页更正基线建立反例、唯一候选使128页重排/代次推进并回到稳定0更新，成功控制与原失败动作不变。只执行实际CPU类和逐字提取的失败方法，非原生GPU丢弃验收；Release54仍为a9292cb。见[恢复结果与首失败](ReviewBrief-GlobalSdfFailedRenderRecovery01.md)。
+
+iteration56有限结项：GlobalSdf只排除明确非零且仅Material/Lighting的几何失效输入，共享事件仍保留。首基线/首候选确认三类纯事件从128页失效/更新降到0并保持页代次；混合/零/未知与表示/bounds独立失效的完整记录不变。已有积压在budget7下由7ready推进到14，避免反复撤销进度。生产枚举逐字进入适配器，真实Scene分类/原生GPU仍未执行；55恢复不变，未重跑其双分支。Astra及实际Pro接受产品有限结果；Pro发现专项模式外缺少Kind依赖，将同一类型适配移到公共准备后，唯一默认/恢复入口编译批次通过。两者stub与56执行输入逐字相同，产品字节未变，旧执行脚本/结果保留；未执行Main或追加行为测试，满足Pro有条件提交与结束标准。55/56累计五次行为命令加一次编译批次，本段SDF工作停止扩展。见[结果与边界](ReviewBrief-GlobalSdfNongeometricDirty01.md)。

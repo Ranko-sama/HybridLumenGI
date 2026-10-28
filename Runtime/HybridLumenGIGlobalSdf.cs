@@ -118,8 +118,11 @@ namespace HybridLumenGI
             prepared = true; recorded = false;
             jobCount = ReadyBrickCount = PendingBrickCount = UpdatedBrickCount = InvalidatedBrickCount = 0;
             dirtyBounds.Clear(); pending.Clear();
+            const HybridLumenGIScene.ChangeKind nonGeometric=HybridLumenGIScene.ChangeKind.Material|HybridLumenGIScene.ChangeKind.Lighting;
             foreach (var region in scene.DirtyRegions)
             {
+                // Shared transport events remain intact; this field stores geometry only.
+                if(region.Kind!=0 && (region.Kind&~nonGeometric)==0) continue;
                 if (region.HasPrevious) dirtyBounds.Add(region.PreviousBounds);
                 if (region.HasCurrent) dirtyBounds.Add(region.CurrentBounds);
             }

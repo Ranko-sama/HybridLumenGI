@@ -1,5 +1,6 @@
 param([string] $SourceRoot = (Split-Path -Parent $PSScriptRoot), [string] $CompilerPath = "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxc.exe", [string] $ReportPath = "",
-    [switch]$CpuOnly,[switch]$FailureRecovery,[switch]$ExpectRecovery,[string]$SourceArchive)
+    [switch]$CpuOnly,[switch]$FailureRecovery,[switch]$ExpectRecovery,[string]$SourceArchive,
+    [switch]$NonGeometricDirty,[switch]$ExpectNonGeometricReuse,[switch]$CompileOnly)
 $ErrorActionPreference = "Stop"
 $SourceRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
 $runDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("hlgi-global-sdf-" + [Guid]::NewGuid().ToString("N"))
@@ -10,7 +11,19 @@ foreach ($file in @("UnityStubs", "Program")) {
 }
 Set-Content -LiteralPath (Join-Path $runDirectory "Check.csproj") -Encoding utf8 -Value '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable></PropertyGroup></Project>'
 if($ExpectRecovery -and !$FailureRecovery){throw 'ExpectRecovery requires FailureRecovery.'}
+if($ExpectNonGeometricReuse -and !$NonGeometricDirty){throw 'ExpectNonGeometricReuse requires NonGeometricDirty.'}
+if($FailureRecovery -and $NonGeometricDirty){throw 'Select one directed scope.'}
 $taskArguments=@()
+# All entry modes compile the current production DirtyRegion API.
+$taskScenePath=Join-Path $SourceRoot 'Runtime/HybridLumenGIScene.cs'
+$taskKinds=[regex]::Matches((Get-Content -LiteralPath $taskScenePath -Raw),'(?:\[Flags\]\s*)?public enum ChangeKind \{[^{}]*\}')
+if($taskKinds.Count -ne 1){throw 'Unique production ChangeKind enum required.'}
+$taskStubsPath=Join-Path $runDirectory 'UnityStubs.cs'
+$taskStubs=Get-Content -LiteralPath $taskStubsPath -Raw
+if([regex]::Matches($taskStubs,'public struct DirtyRegion \{').Count -ne 1){throw 'Unique adapter DirtyRegion required.'}
+$taskStubs=$taskStubs.Replace('public struct DirtyRegion {',$taskKinds[0].Value+"`n        public struct DirtyRegion { public ChangeKind Kind;")
+Set-Content -LiteralPath $taskStubsPath -Value $taskStubs -Encoding utf8
+Copy-Item -LiteralPath $taskScenePath -Destination (Join-Path $runDirectory 'Scene.enum-source-only.cs.txt')
 if($FailureRecovery){
     $taskFeaturePath=Join-Path $SourceRoot 'Runtime/HybridLumenGIRendererFeature.cs'
     $taskFeatureSource=Get-Content -LiteralPath $taskFeaturePath -Raw
@@ -23,6 +36,11 @@ if($FailureRecovery){
     Add-Content -LiteralPath (Join-Path $runDirectory 'Program.cs') -Value 'FailureRecovery.Check(args.Contains("--expect-recovery"));' -Encoding utf8
     if($ExpectRecovery){$taskArguments=@('--expect-recovery')}
 }
+if($NonGeometricDirty){
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'StandaloneGlobalSdf/NonGeometricDirty.cs.txt') -Destination (Join-Path $runDirectory 'NonGeometricDirty.cs')
+    Add-Content -LiteralPath (Join-Path $runDirectory 'Program.cs') -Value 'NonGeometricDirty.Check(args.Contains("--expect-nongeometric-reuse"));' -Encoding utf8
+    if($ExpectNonGeometricReuse){$taskArguments=@('--expect-nongeometric-reuse')}
+}
 if($SourceArchive){
     if(Test-Path -LiteralPath $SourceArchive){throw 'Preserve existing frozen compiler sources.'}
     New-Item -ItemType Directory -Path $SourceArchive | Out-Null
@@ -32,7 +50,14 @@ if($SourceArchive){
         Copy-Item -LiteralPath (Join-Path $SourceRoot 'Documentation/Checkpoint-Iteration55.md') -Destination (Join-Path $SourceArchive 'contract.md')
         Copy-Item -LiteralPath (Join-Path $SourceRoot 'Documentation/Checkpoint-Iteration55-Correction.md') -Destination (Join-Path $SourceArchive 'contract-correction.md')
     }
+    if($NonGeometricDirty){Copy-Item -LiteralPath (Join-Path $SourceRoot 'Documentation/Checkpoint-Iteration56.md') -Destination (Join-Path $SourceArchive 'contract.md')}
     Write-Output ('Frozen compiler sources: '+$SourceArchive)
+}
+if($CompileOnly){
+    & dotnet build (Join-Path $runDirectory 'Check.csproj') --configuration Release --verbosity quiet
+    if($LASTEXITCODE -ne 0){throw 'Generated entry compilation failed.'}
+    Write-Output 'Compiled generated entry only; Program.Main, DXC, Unity and GPU were not executed.'
+    exit 0
 }
 & dotnet run --project (Join-Path $runDirectory "Check.csproj") --configuration Release --verbosity quiet -- @taskArguments
 if ($LASTEXITCODE -ne 0) { throw "Actual-source global SDF scheduler validation failed." }

@@ -1,0 +1,40 @@
+{
+  "kind": "one compile-only compatibility batch",
+  "default": {
+    "chunk_id": "a6a6c2",
+    "wall_time_seconds": 2.7120524,
+    "exit_code": 0,
+    "original_token_count": 72,
+    "output": "Frozen compiler sources: LocalComparison/Review/global-sdf-nongeometric-dirty-01/entry-compatibility/default/sources\r\n\r\n已成功生成。\r\n    0 个警告\r\n    0 个错误\r\n\r\n已用时间 00:00:00.73\r\nCompiled generated entry only; Program.Main, DXC, Unity and GPU were not executed.\r\n"
+  },
+  "recovery": {
+    "chunk_id": "ee3900",
+    "wall_time_seconds": 2.6098963,
+    "exit_code": 0,
+    "original_token_count": 72,
+    "output": "Frozen compiler sources: LocalComparison/Review/global-sdf-nongeometric-dirty-01/entry-compatibility/recovery/sources\r\n\r\n已成功生成。\r\n    0 个警告\r\n    0 个错误\r\n\r\n已用时间 00:00:00.74\r\nCompiled generated entry only; Program.Main, DXC, Unity and GPU were not executed.\r\n"
+  },
+  "verification": {
+    "sourceOnlyEntryRegressionFixed": true,
+    "rows": [
+      {
+        "mode": "default",
+        "compileExitCode": 0,
+        "programMainExecuted": false,
+        "stubMatchesExecuted56Input": true,
+        "globalSdfMatchesExecutedCandidate": true
+      },
+      {
+        "mode": "recovery",
+        "compileExitCode": 0,
+        "programMainExecuted": false,
+        "stubMatchesExecuted56Input": true,
+        "globalSdfMatchesExecutedCandidate": true
+      }
+    ],
+    "revisedRunnerSha256": "46454fd68fcb260aeb89b009886585fe5f9a87e4d79028062ec44512fc1c3225",
+    "priorBehaviorReceiptsAndFrozenRunnerUntouched": true,
+    "newBehaviorRuns": 0,
+    "nativeOrDxcRuns": 0
+  }
+}
