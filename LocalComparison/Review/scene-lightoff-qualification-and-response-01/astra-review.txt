@@ -1,0 +1,24 @@
+GPT-6 Astra Max independent guard / iteration14 / read-only review, no repeated runs
+
+Qualification conclusion:
+未见把不足证据判成通过的问题，可以进入响应归因。
+初始化标签同时依赖空快照、相同灯内容、计数器／读索引和完整旧缓存；没有 frame==1 豁免，连续阶段也不会重新开放。
+120帧移除、局部域、后续无重复事件及就绪后的身份／缓存连续性仍被检查。
+六个负例均命中预期语义错误，并非仅靠哈希不符拒绝；三个冻结工件当前哈希仍匹配。
+报告正确限定为119–359区间合格，同时保留 originalFrozenPass=false、exactLifecycleCauseProven=false、overallAccepted=false。
+它适用于这份冻结运行，不代表启动生命周期已获普遍验证。无需追加同类测试。
+
+Response review finding:
+directSum=v[15,:3] 实际来自 LODirect 的 max(previous, abs(direct))，是已知 direct 调用的逐通道最大绝对值，不是 sum。
+关灯后为零的判断不受影响，但建议改成 knownDirectMaxAbs，避免把它当能量输入总量。
+Codex applied that name correction to script and derived report, preserving values and original execution log; no rerun.
+
+Final response conclusion:
+无剩余阻断，可以提交 Pro14；不需要追加运行。
+递推独立使用实测估计输入计算 B，误差跨提交传播；未提交帧保持状态，身份/覆盖失效结束区间。
+抽查最大误差2.54e-10，最大占界约1.16%。
+knownDirectMaxAbs 更名已核实，原来的求和语义误导已消除。
+6 tick首次提交延迟、7 tick最大间隔和各206未提交帧，支持这两个patch在本次运行中的调度结论。
+B包含回流的旧缓存能量，不能解释为新光源贡献；A也不是全场景旧能量剩余比例。
+原冻结FAIL、资格限定及 overallAccepted=false 均保留，没有把响应自洽扩大为物理正确或收敛验收。
+本类数值归因已经足够。下一步应进入独立实际场景HDR参考；当前证据不支持修改Runtime参数。
