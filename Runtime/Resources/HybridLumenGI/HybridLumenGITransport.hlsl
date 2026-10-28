@@ -151,7 +151,7 @@ bool TraceSceneDetailQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool re
             // Carry that owner's current surface geometry version if resident;
             // this version is not a primitive/front-face/material identity.
             uint4 surfaceRange;
-            if(HLGISurfaceOwnerRange(i,surfaceRange)) candidate.geometryRevision=surfaceRange.w;
+            if(!HLGIHitQueryUnresolved(candidate) && HLGISurfaceOwnerRange(i,surfaceRange)) candidate.geometryRevision=surfaceRange.w;
             result=candidate;
         }
     }
@@ -170,7 +170,7 @@ bool TraceSceneQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool resolveM
     {
         float limit=segment==0?detailLimit:maxT-advance;
         if(TraceSceneDetailQuery(o+d*advance,d,limit,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,queryFootprint,materialView,result))
-        { result.t+=advance;result.position=o+d*result.t;return true; }
+        { result.t+=advance;if(!HLGIHitQueryUnresolved(result))result.position=o+d*result.t;return true; }
         if(segment==1 || detailLimit>=maxT) break;
         // Retain the near/far overlap and conservative empty-space guards.
         advance=max(0,detailLimit-0.001);
@@ -246,8 +246,9 @@ bool HLGIHitOwnerCurrent(HLGIHit hit)
         hit.stableId==(uint)proxy.identity.x && hit.ownerRevision==(uint)proxy.identity.y;
 }
 bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 shadingNormal,
-    HLGISurfaceSample surface,out HLGICacheEntry result)
+    HLGISurfaceSample surface,out HLGICacheEntry result,out bool known)
 {
+    known=true;
     result=(HLGICacheEntry)0;
     HLGIProxy p=_HLGI_Proxies[index];
     float2 uv;
@@ -273,6 +274,8 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
         // actual layer. A normal map must not tilt this plane test into the surface.
         if(dot(shadingNormal,e.normal.xyz)<0.85 || dot(geometricNormal,anchorGeometricNormal)<0.85 ||
             abs(dot(delta,anchorGeometricNormal))>max(_HLGI_RayBias*2,0.03)) continue;
+        float weight=(x==0?1-fraction.x:fraction.x)*(y==0?1-fraction.y:fraction.y);
+        if(weight<=0)continue;
         // Isolated card captures can contain anchors buried in intersecting
         // geometry. Start visibility at the queried surface, not at the anchor:
         // an anchor inside another opaque object would otherwise leave through
@@ -287,9 +290,14 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
         {
             HLGIHit blocker;
             if(TraceSceneVisibilityHit(visibilityOrigin,connection/separation,separation-0.0001,
-                HLGIPointQueryFootprint(),float4(position,1),blocker)) continue;
+                HLGIPointQueryFootprint(),float4(position,1),blocker))
+            {
+                // An unfinished connection is not a proven occluded tap. Do
+                // not discard it and renormalize the remaining interpolation.
+                if(HLGIHitQueryUnresolved(blocker)) { known=false;result=(HLGICacheEntry)0;return false; }
+                continue;
+            }
         }
-        float weight=(x==0?1-fraction.x:fraction.x)*(y==0?1-fraction.y:fraction.y);
         totalWeight+=weight;result.irradiance+=e.irradiance*weight;result.guide+=e.guide*weight;
     }
     if(totalWeight<=1e-5) { result=(HLGICacheEntry)0;return false; }
@@ -297,8 +305,9 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
     if(dot(result.guide.xyz,result.guide.xyz)>1e-6) result.guide.xyz=normalize(result.guide.xyz);
     return true;
 }
-bool HLGICachedSample(HLGIHit hit,float3 shadingNormal,out HLGICacheEntry result)
+bool HLGICachedSample(HLGIHit hit,float3 shadingNormal,out HLGICacheEntry result,out bool known)
 {
+    known=!HLGIHitQueryUnresolved(hit);
     result=(HLGICacheEntry)0;
     if(!HLGIHitOwnerCurrent(hit) || !HLGIHitMaterialKnown(hit)) return false;
     HLGISurfaceSample surface;
@@ -306,12 +315,15 @@ bool HLGICachedSample(HLGIHit hit,float3 shadingNormal,out HLGICacheEntry result
     // Unsigned SDF gradients have no stable source orientation. Once material is
     // approximately resolved, use that sample's recorded Ng for its cache plane.
     float3 geometricNormal=HLGIHitHas(hit.flags,HLGI_HIT_ORIENTED_NG)?hit.rawNg:surface.geometricNormal;
-    return HLGICachedSurface((int)hit.ownerSlot,hit.position,geometricNormal,shadingNormal,surface,result);
+    return HLGICachedSurface((int)hit.ownerSlot,hit.position,geometricNormal,shadingNormal,surface,result,known);
 }
-float3 CachedIrradiance(HLGIHit hit,float3 shadingNormal)
+// Guide-only use: unknown connections produce no guide, never a numeric light value.
+bool HLGICachedSample(HLGIHit hit,float3 shadingNormal,out HLGICacheEntry result)
+{ bool known;return HLGICachedSample(hit,shadingNormal,result,known); }
+float3 CachedIrradiance(HLGIHit hit,float3 shadingNormal,out bool known)
 {
     HLGICacheEntry entry;
-    return HLGICachedSample(hit,shadingNormal,entry)?max(entry.irradiance.rgb,0):0;
+    return HLGICachedSample(hit,shadingNormal,entry,known)?max(entry.irradiance.rgb,0):0;
 }
 float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,bool receivesShadows,
     float3 footprintDirection,HLGIRayFootprint footprint,out bool known)
@@ -416,10 +428,12 @@ float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFo
     }
     else confidence=0.1; // Uncharted analytic/SDF owner-level approximation.
     HLGICacheEntry cached=(HLGICacheEntry)0;
-    if(materialResolved)
+    if(materialResolved && _HLGI_BounceFeedback>0)
     {
         float3 queryNg=HLGIHitHas(hit.flags,HLGI_HIT_ORIENTED_NG)?hit.rawNg:surface.geometricNormal;
-        HLGICachedSurface((int)hit.ownerSlot,hit.position,queryNg,shadingNormal,surface,cached);
+        bool cacheKnown;
+        HLGICachedSurface((int)hit.ownerSlot,hit.position,queryNg,shadingNormal,surface,cached,cacheKnown);
+        if(!cacheKnown) { confidence=0;return 0; }
     }
     bool directKnown;
     float3 direct=DirectIrradiance(hit.position,shadingNormal,biasNormal,_HLGI_LightingPolicies[hit.ownerSlot].xy,

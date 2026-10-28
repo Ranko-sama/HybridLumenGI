@@ -229,10 +229,12 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                     if(!directKnown) { known=false;return true; }
                     radiance=emission.rgb+diffuse.rgb*direct;
                     // Only registered spatially matching surfaces can contribute higher-order cache light.
-                    if(worldMatch)
+                    if(worldMatch && _HLGI_BounceFeedback>0)
                     {
                         float materialAO=HLGIScreenMaterialAO(emission.a,_HLGI_NativeComposition!=0,diffuse.a);
-                        radiance+=diffuse.rgb*materialAO*_HLGI_BounceFeedback*CachedIrradiance(match,n);
+                        bool cacheKnown;float3 cached=CachedIrradiance(match,n,cacheKnown);
+                        if(!cacheKnown) { known=false;return true; }
+                        radiance+=diffuse.rgb*materialAO*_HLGI_BounceFeedback*cached;
                     }
                     known=all(isfinite(radiance));return true;
                 }
@@ -290,7 +292,8 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
         float3 incoming=0; float screenT;bool screenKnown;
         // World occluders bound the screen ray, so a visible hit behind an off-screen wall cannot win.
         float sampleConfidence=1;
-        if(sampleWeight>0 && TraceScreen(origin,dir,worldHit?hit.t:_HLGI_MaxDistance,incoming,screenT,screenKnown) && (!worldHit || screenT<=hit.t))
+        if(sampleWeight>0 && TraceScreen(origin,dir,worldHit?hit.t:_HLGI_MaxDistance,incoming,screenT,screenKnown) &&
+            (!worldHit || (HLGIHitQueryUnresolved(hit)?screenT<hit.t:screenT<=hit.t)))
             sampleConfidence=screenKnown?1:0;
         else if(worldHit)
         {
@@ -318,7 +321,8 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
             bool lightKnown=HLGIAreaLightContribution(origin,n,receiverCache.guide,lightSample,footprint,float4(p,1),lightValue,lightWorldHit,lightHit);
             float3 screenValue;float lightScreenT;bool lightScreenKnown;
             if(TraceScreen(origin,lightSample.direction,lightWorldHit?lightHit.t:lightSample.distance,
-                screenValue,lightScreenT,lightScreenKnown) && (!lightWorldHit || lightScreenT<=lightHit.t))
+                screenValue,lightScreenT,lightScreenKnown) &&
+                (!lightWorldHit || (HLGIHitQueryUnresolved(lightHit)?lightScreenT<lightHit.t:lightScreenT<=lightHit.t)))
             {
                 // The matching direction estimator uses the screen endpoint at
                 // weight one. Suppress area NEE on exactly that same support.

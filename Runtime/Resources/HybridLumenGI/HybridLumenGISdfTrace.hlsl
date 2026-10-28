@@ -86,11 +86,12 @@ float3 HLGISdfNormal(HLGISdfMetadata m, float3 p, float3 fallback,out bool valid
     return valid ? worldNormal * rsqrt(lengthSquared) : fallback;
 }
 
-bool HLGITraceMeshSdf(float3 origin, float3 direction, float maxT, int slot, out float t, out float3 normal,out bool validGradient)
+bool HLGITraceMeshSdf(float3 origin, float3 direction, float maxT, int slot, out float t, out float3 normal,out bool validGradient,out bool unresolved)
 {
     t = maxT;
     normal = 0;
     validGradient=false;
+    unresolved=false;
     if (!HLGIHasMeshSdf(slot) || maxT <= 1e-4) return false;
     HLGISdfMetadata m = _HLGI_SdfMetadata[slot];
     float3 localOrigin = mul(m.worldToLocal,float4(origin,1)).xyz;
@@ -112,7 +113,7 @@ bool HLGITraceMeshSdf(float3 origin, float3 direction, float maxT, int slot, out
     [loop] for (int step = 0; step < min(_HLGI_SdfTraceSteps,128) && currentT <= end; step++)
     {
         float distance = HLGISdfSample(m, localOrigin + localDirection * currentT);
-        if (!isfinite(distance)) return false;
+        if (!isfinite(distance)) { t=begin;unresolved=true;return false; }
         if (abs(distance) <= epsilon)
         {
             hit = true;
@@ -138,12 +139,17 @@ bool HLGITraceMeshSdf(float3 origin, float3 direction, float maxT, int slot, out
         previousT = currentT;
         previousDistance = distance;
         // Error-subtracted empty-space steps are conservative. In the remaining
-        // uncertainty region use bounded voxel-scale refinement; unresolved thin
-        // features and step exhaustion still require offline validation at this grid.
+        // uncertainty region use bounded voxel-scale refinement. Exhaustion is
+        // not proof of an empty interval; the query wrapper preserves uncertainty.
         float emptyStep = max(0, abs(distance) - m.voxelSizeError.w) * m.boundsSizeMinScale.w;
         currentT += max(emptyStep, refinementStep);
     }
-    if (!hit || currentT >= maxT) return false;
+    if (!hit)
+    {
+        if(currentT<=end && currentT<maxT) { t=begin;unresolved=true; }
+        return false;
+    }
+    if(currentT >= maxT) return false;
     t = currentT;
     normal = HLGISdfNormal(m, localOrigin + localDirection * t, -direction,validGradient);
     return true;
@@ -152,8 +158,15 @@ bool HLGITraceMeshSdf(float3 origin, float3 direction, float maxT, int slot, out
 bool HLGITraceMeshSdfHit(float3 origin,float3 direction,float maxT,int slot,out HLGIHit result)
 {
     result=HLGIEmptyHit(maxT);
-    float t;float3 normal;bool validGradient;
-    if(!HLGITraceMeshSdf(origin,direction,maxT,slot,t,normal,validGradient)) return false;
+    float t;float3 normal;bool validGradient,unresolved;
+    if(!HLGITraceMeshSdf(origin,direction,maxT,slot,t,normal,validGradient,unresolved))
+    {
+        if(!unresolved)return false;
+        // The clipped domain start is conservative. The last march location
+        // cannot certify the skipped prefix, and must not become a fake hit.
+        result.t=t;result.flags=HLGI_HIT_VALID|HLGI_HIT_MATERIAL_UNKNOWN|HLGI_HIT_QUERY_UNRESOLVED;
+        return true;
+    }
     bool signedField=(_HLGI_SdfMetadata[slot].valid&2u)!=0u;
     result.t=t;result.position=origin+direction*t;
     result.rawNg=result.shadingNormal=normal;

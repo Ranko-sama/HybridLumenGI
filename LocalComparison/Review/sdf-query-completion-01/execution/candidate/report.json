@@ -1,0 +1,96 @@
+{
+  "stage": "candidate",
+  "status": "failed",
+  "unityExecuted": false,
+  "physicalGpuExecuted": false,
+  "warpExecuted": true,
+  "commands": [
+    {
+      "name": "dxc",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSdfQueryCompletion",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\candidate\\shader",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\candidate\\query.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\candidate\\query.ll",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\candidate\\shader\\Harness.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "vswhere",
+      "arguments": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe",
+        "-latest",
+        "-products",
+        "*",
+        "-version",
+        "[17.0,18.0)",
+        "-requires",
+        "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+        "-format",
+        "json",
+        "-utf8"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "configure",
+      "arguments": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "-S",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\candidate\\host",
+        "-B",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\candidate\\build",
+        "-G",
+        "Visual Studio 17 2022",
+        "-A",
+        "x64"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "arguments": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "--build",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\candidate\\build",
+        "--config",
+        "Release"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\candidate\\build\\Release\\SdfQuery.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\candidate\\query.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\candidate\\outputs.bin"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "sources": {
+    "Runtime/Resources/HybridLumenGI/HybridLumenGISdfTrace.hlsl": "d231416b92fe8146d209b5594e3b7f31175478b5a80e9d86be0e12ab81d9429f",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl": "7f251d8c95aa66dca1958aff4c4face153df9ebc54f94640653ca73ca4d23df6",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIRayFootprint.hlsl": "6ea7286e57abde318f1e318e17cec6ed1e1c0e8451dd7e3546fb62977741b1ac",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl": "c86a90bb01da33d26d06d2f34686ac24ed5d0086f7202e79846abb25ca17637e",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGISceneBvh.hlsl": "7b39ffaf26f71045a192e614b7b5d9793993c0c4051af6172b564efcdd7b0d51",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl": "3d33bb36ba945ed89c2521e877e0c8f0cde5485209cefd490f2cecbcbd5a8710",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl": "ce1b05f08d24858c5a3e07f89c1d18560fcf789a6bf0818c014e7589b7c9c8dd",
+    "Tests/StandaloneSdfQueryCompletion/SdfQueryCompletionHarness.hlsl": "0b8597b3900c9b1608f140e61c630053a8e0e2facde2be9424fbff21d7296aee",
+    "Tests/StandaloneRayQueryPropagation/RayQueryPropagationWarp.cpp.txt": "3c4c870a20bd53f0356a2fdeb2f48b9168d117343aaafa8e1f20acd53c1330fa",
+    "Tests/Validate-SdfQueryCompletion.py": "d3917f573994ed7359b24b2aea2dc3e9b1c02b96d8c67a6a530489355575d08d"
+  },
+  "inputSha256": "862b29aa559c722baaf3736ba29e13f37dec64e5cd2e702b33ae7439f7c6ad73",
+  "error": "nearer_known_after_sdf changed proven control extra"
+}

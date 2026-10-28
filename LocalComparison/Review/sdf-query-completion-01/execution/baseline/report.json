@@ -1,0 +1,565 @@
+{
+  "stage": "baseline",
+  "status": "counterexample_confirmed",
+  "unityExecuted": false,
+  "physicalGpuExecuted": false,
+  "warpExecuted": true,
+  "commands": [
+    {
+      "name": "dxc",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSdfQueryCompletion",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\baseline\\shader",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\baseline\\query.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\baseline\\query.ll",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\baseline\\shader\\Harness.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "vswhere",
+      "arguments": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe",
+        "-latest",
+        "-products",
+        "*",
+        "-version",
+        "[17.0,18.0)",
+        "-requires",
+        "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+        "-format",
+        "json",
+        "-utf8"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "configure",
+      "arguments": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "-S",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\baseline\\host",
+        "-B",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\baseline\\build",
+        "-G",
+        "Visual Studio 17 2022",
+        "-A",
+        "x64"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "arguments": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "--build",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\baseline\\build",
+        "--config",
+        "Release"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\baseline\\build\\Release\\SdfQuery.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\baseline\\query.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\sdf-query-completion-01\\execution\\baseline\\outputs.bin"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "sources": {
+    "Runtime/Resources/HybridLumenGI/HybridLumenGISdfTrace.hlsl": "dd94feb356d7add0197029f0921b0c61a885d88560fe25fccbd13e0e8ea73e89",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl": "c9bc5a9089102de5d70814e077c7e3394013b8542bd14cade7f9c1dffe37b284",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIRayFootprint.hlsl": "6ea7286e57abde318f1e318e17cec6ed1e1c0e8451dd7e3546fb62977741b1ac",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl": "c86a90bb01da33d26d06d2f34686ac24ed5d0086f7202e79846abb25ca17637e",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGISceneBvh.hlsl": "7b39ffaf26f71045a192e614b7b5d9793993c0c4051af6172b564efcdd7b0d51",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl": "5a101905cabdcdd43e458a34fbc0e45c18d42e7fa9557106bfb9766fcd858afb",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl": "3613d765b3a58d3af3d33bbbbab8658a4a0ee399de409a3f8f11a61d83bae2d5",
+    "Tests/StandaloneSdfQueryCompletion/SdfQueryCompletionHarness.hlsl": "0b8597b3900c9b1608f140e61c630053a8e0e2facde2be9424fbff21d7296aee",
+    "Tests/StandaloneRayQueryPropagation/RayQueryPropagationWarp.cpp.txt": "3c4c870a20bd53f0356a2fdeb2f48b9168d117343aaafa8e1f20acd53c1330fa",
+    "Tests/Validate-SdfQueryCompletion.py": "d3917f573994ed7359b24b2aea2dc3e9b1c02b96d8c67a6a530489355575d08d"
+  },
+  "inputSha256": "862b29aa559c722baaf3736ba29e13f37dec64e5cd2e702b33ae7439f7c6ad73",
+  "rows": [
+    {
+      "name": "exhausted",
+      "query": [
+        0,
+        0,
+        4294967295,
+        1
+      ],
+      "distancePosition": [
+        4.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "consumers": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "radiance": [
+        2.0,
+        3.0,
+        4.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "cache": [
+        1.0,
+        1.0,
+        1.0,
+        4.0
+      ]
+    },
+    {
+      "name": "definite_hit",
+      "query": [
+        1,
+        259,
+        0,
+        1
+      ],
+      "distancePosition": [
+        0.6501451134681702,
+        2.0,
+        0.0,
+        0.24985486268997192
+      ],
+      "consumers": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "radiance": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "extra": [
+        1,
+        259,
+        2,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "complete_interval_miss",
+      "query": [
+        0,
+        0,
+        4294967295,
+        1
+      ],
+      "distancePosition": [
+        4.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "consumers": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "radiance": [
+        2.0,
+        3.0,
+        4.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "nearer_known_after_sdf",
+      "query": [
+        1,
+        271,
+        1,
+        1
+      ],
+      "distancePosition": [
+        0.45005059242248535,
+        0.44999998807907104,
+        0.0,
+        0.273250013589859
+      ],
+      "consumers": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "radiance": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        4,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "farther_known_after_sdf",
+      "query": [
+        1,
+        271,
+        2,
+        1
+      ],
+      "distancePosition": [
+        3.450388193130493,
+        3.450000047683716,
+        0.0,
+        0.22824999690055847
+      ],
+      "consumers": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "radiance": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        4,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "nearer_known_before_sdf",
+      "query": [
+        1,
+        271,
+        1,
+        1
+      ],
+      "distancePosition": [
+        0.45005059242248535,
+        0.44999998807907104,
+        0.0,
+        0.273250013589859
+      ],
+      "consumers": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "radiance": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        4,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "farther_known_before_sdf",
+      "query": [
+        1,
+        271,
+        2,
+        1
+      ],
+      "distancePosition": [
+        3.450388193130493,
+        3.450000047683716,
+        0.0,
+        0.22824999690055847
+      ],
+      "consumers": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "radiance": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        4,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "near_segment_unresolved",
+      "query": [
+        0,
+        0,
+        4294967295,
+        1
+      ],
+      "distancePosition": [
+        4.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "consumers": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "radiance": [
+        2.0,
+        3.0,
+        4.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "far_segment_unresolved",
+      "query": [
+        0,
+        0,
+        4294967295,
+        1
+      ],
+      "distancePosition": [
+        4.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "consumers": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "radiance": [
+        2.0,
+        3.0,
+        4.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "screen_before_interval",
+      "query": [
+        0,
+        0,
+        4294967295,
+        1
+      ],
+      "distancePosition": [
+        4.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "consumers": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "radiance": [
+        7.0,
+        8.0,
+        9.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "screen_after_interval",
+      "query": [
+        0,
+        0,
+        4294967295,
+        1
+      ],
+      "distancePosition": [
+        4.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "consumers": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "radiance": [
+        7.0,
+        8.0,
+        9.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "screen_at_interval_bound",
+      "query": [
+        0,
+        0,
+        4294967295,
+        1
+      ],
+      "distancePosition": [
+        4.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "consumers": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "radiance": [
+        7.0,
+        8.0,
+        9.0,
+        1.0
+      ],
+      "extra": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

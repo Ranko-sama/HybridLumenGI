@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.20)
+project(SdfQuery LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+add_executable(SdfQuery SdfQuery.cpp)
+target_link_libraries(SdfQuery PRIVATE d3d12 dxgi)
+target_compile_options(SdfQuery PRIVATE /W4 /WX /permissive- /utf-8)

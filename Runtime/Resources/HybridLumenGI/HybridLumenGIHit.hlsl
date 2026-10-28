@@ -14,6 +14,7 @@
 #define HLGI_HIT_GEOMETRIC_NORMAL   256u
 #define HLGI_HIT_MATERIAL_UNKNOWN   512u
 #define HLGI_HIT_UV_MATERIAL       1024u
+#define HLGI_HIT_QUERY_UNRESOLVED  2048u
 #define HLGI_REPRESENTATION_NONE      0u
 #define HLGI_REPRESENTATION_TRIANGLE  1u
 #define HLGI_REPRESENTATION_SIGNED_SDF 2u
@@ -22,6 +23,8 @@
 
 struct HLGIHit
 {
+    // For QUERY_UNRESOLVED, t is a conservative interval lower bound, not an
+    // intersection. No position/normal/primitive/material identity is supplied.
     float t;
     float3 position;
     float3 rawNg;
@@ -57,7 +60,8 @@ float3 HLGIOffsetNormal(float3 rawNg,float3 toward)
 
 bool HLGIHitHas(uint flags,uint required) { return (flags&required)==required; }
 // Unknown coverage/material is still a valid nearest occluder, never a miss.
-bool HLGIHitMaterialKnown(HLGIHit hit) { return (hit.flags&HLGI_HIT_MATERIAL_UNKNOWN)==0u; }
+bool HLGIHitQueryUnresolved(HLGIHit hit) { return (hit.flags&HLGI_HIT_QUERY_UNRESOLVED)!=0u; }
+bool HLGIHitMaterialKnown(HLGIHit hit) { return (hit.flags&(HLGI_HIT_MATERIAL_UNKNOWN|HLGI_HIT_QUERY_UNRESOLVED))==0u; }
 // Unknown coverage preserves the nearest occluder. Only proven transparent
 // candidates may be skipped; two-sided shadow casting never bypasses alpha.
 bool HLGIHitCoverageBlocks(bool known,bool covered) { return !known || covered; }

@@ -1,0 +1,229 @@
+{
+  "cases": [
+    {
+      "name": "exhausted",
+      "values": [
+        0,
+        0,
+        0.28,
+        4,
+        0.9998875189808163,
+        0,
+        -0.014998312784712245,
+        4,
+        8,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "definite_hit",
+      "values": [
+        2,
+        0,
+        0.9,
+        2,
+        0,
+        0,
+        -1,
+        4,
+        128,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "complete_interval_miss",
+      "values": [
+        0,
+        0.8,
+        0.8,
+        4,
+        1,
+        0,
+        0,
+        4,
+        8,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "nearer_known_after_sdf",
+      "values": [
+        0,
+        0,
+        0.28,
+        4,
+        0.9998875189808163,
+        0,
+        -0.014998312784712245,
+        4,
+        8,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "farther_known_after_sdf",
+      "values": [
+        0,
+        0,
+        0.28,
+        4,
+        0.9998875189808163,
+        0,
+        -0.014998312784712245,
+        4,
+        8,
+        2,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "nearer_known_before_sdf",
+      "values": [
+        0,
+        0,
+        0.28,
+        4,
+        0.9998875189808163,
+        0,
+        -0.014998312784712245,
+        4,
+        8,
+        3,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "farther_known_before_sdf",
+      "values": [
+        0,
+        0,
+        0.28,
+        4,
+        0.9998875189808163,
+        0,
+        -0.014998312784712245,
+        4,
+        8,
+        4,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "near_segment_unresolved",
+      "values": [
+        0,
+        0,
+        0.28,
+        4,
+        0.9998875189808163,
+        0,
+        -0.014998312784712245,
+        1.4,
+        8,
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "name": "far_segment_unresolved",
+      "values": [
+        0,
+        0,
+        0.28,
+        4,
+        0.9998875189808163,
+        0,
+        -0.014998312784712245,
+        0.5,
+        8,
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "name": "screen_before_interval",
+      "values": [
+        0,
+        0,
+        0.28,
+        4,
+        0.9998875189808163,
+        0,
+        -0.014998312784712245,
+        4,
+        8,
+        0,
+        0,
+        1056964608
+      ]
+    },
+    {
+      "name": "screen_after_interval",
+      "values": [
+        0,
+        0,
+        0.28,
+        4,
+        0.9998875189808163,
+        0,
+        -0.014998312784712245,
+        4,
+        8,
+        0,
+        0,
+        1073741824
+      ]
+    },
+    {
+      "name": "screen_at_interval_bound",
+      "values": [
+        0,
+        0,
+        0.28,
+        4,
+        0.9998875189808163,
+        0,
+        -0.014998312784712245,
+        4,
+        8,
+        0,
+        0,
+        4294967295
+      ]
+    }
+  ],
+  "geometry": {
+    "center": [
+      2,
+      0,
+      0
+    ],
+    "halfExtents": [
+      0.8,
+      0.5,
+      0.25
+    ]
+  },
+  "domainInterval": [
+    1.0001124936725867,
+    3.00033748101776
+  ],
+  "geometricFirstIntersection": 2.000224987345175,
+  "firstEightAdvanceUpperBound": 0.5,
+  "corridorMaximumAbsoluteSample": 0.1510380746699321,
+  "geometryTruth": "Analytic closed-box SDF sampled at voxel centers; independent ray/slab intersection. Not a high-step oracle.",
+  "scope": "Actual SDF sampler/loop, detail and near/far query, shadow/visibility, ProxyRadiance, cache interpolation and original screen/world gather decision. Controlled scene list/material/screen adapters; no Unity or physical GPU."
+}
