@@ -183,6 +183,13 @@ namespace HybridLumenGI
         public IList<Bounds> ChangedBounds => changedBounds;
         public long AllocatedBytes => (long)AtlasWidth * AtlasHeight * BytesPerAtlasPixel + (long)CardCount * (MetadataStride + 4 + patchGrid * patchGrid * 8 + EmittersStride) + (long)owners.Length * 16;
         public int GetCardCount(int slot) => slot >= 0 && slot < owners.Length && owners[slot] != null ? owners[slot].cardIndices.Length : 0;
+        /// <summary>Frozen explicit capture bounds, including disabled/hidden warming sources.</summary>
+        public bool TryGetPreparedCaptureBounds(int slot,out Bounds bounds)
+        {
+            bounds=default;
+            if(slot<0 || slot>=owners.Length || owners[slot]==null) return false;
+            bounds=owners[slot].bounds;return true;
+        }
         public int GetCardIndex(int slot,int ordinal) => ordinal >= 0 && ordinal < GetCardCount(slot) ? owners[slot].cardIndices[ordinal] : -1;
         public uint GetLayoutGeneration(int slot) => slot >= 0 && slot < owners.Length && owners[slot] != null ? owners[slot].layoutGeneration : 0;
         public bool RequiresCardCoverage(int slot) => slot >= 0 && slot < owners.Length && owners[slot] != null && owners[slot].charts != null;

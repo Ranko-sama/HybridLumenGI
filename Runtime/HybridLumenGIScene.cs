@@ -115,6 +115,13 @@ namespace HybridLumenGI
         public Renderer GetRenderer(int slot) => GetProxy(slot) != null ? GetProxy(slot).SourceRenderer : null;
         public bool IsPublished(int slot) => slot >= 0 && slot < Capacity && Data[slot].identity.w == 1f;
         public bool IsWarming(int slot) => slot >= 0 && slot < Capacity && Data[slot].identity.w == 2f;
+        /// <summary>Frozen bounds from the latest Prepare, including warming representations.</summary>
+        public bool TryGetPreparedTraversalBounds(int slot,out Bounds bounds)
+        {
+            bounds=default;
+            if(!IsPublished(slot) && !IsWarming(slot)) return false;
+            bounds=traversalBounds[slot];return true;
+        }
         public void InvalidateReadiness() => readiness.Clear();
 
         /// <summary>

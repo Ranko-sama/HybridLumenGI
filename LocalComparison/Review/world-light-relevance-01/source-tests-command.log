@@ -1,0 +1,12 @@
+TABLE front-before: count=2; hash=1993486355; sha256=9437F3FA4E2C9863547626EAD3597759F91C38D297F2B81647BE46397C07F25F
+CHANGES front-before: count=2; types=local,directional
+TABLE front-after: count=1; hash=1803522448; sha256=61CA164923BC81050839D2535AC2DB2C93676BC91BC3CE344362A5F912C99570
+CHANGES front-after: count=1; types=local
+PASS compaction, multiplicity, exact changes, capacity and interleaved camera histories; current GPU table order retained.
+TABLE relevance-enabled: count=1; hash=589271440; sha256=99CED9BFABB9D8A2AF829E432CF6C477367A524A3C802BAA5920C4B20A8307D4
+CHANGES relevance-enabled: count=1; types=local
+RELEVANCE valid=3; outside=2; selected=1; omitted=0
+Unhandled exception. System.Exception: camera domains shared selection history
+   at Program.Check(Boolean b, String message) in C:\Users\Administrator\AppData\Local\Temp\hlgi-lighting-13d628e4538e4c34b5c864c32a1372c1\Program.cs:line 15
+   at Program.RelevanceSelection() in C:\Users\Administrator\AppData\Local\Temp\hlgi-lighting-13d628e4538e4c34b5c864c32a1372c1\Program.cs:line 207
+   at Program.Main() in C:\Users\Administrator\AppData\Local\Temp\hlgi-lighting-13d628e4538e4c34b5c864c32a1372c1\Program.cs:line 95

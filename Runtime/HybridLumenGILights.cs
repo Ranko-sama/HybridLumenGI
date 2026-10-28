@@ -36,6 +36,7 @@ namespace HybridLumenGI
         // Scratch only: each camera supplies its own prior effective table to Update.
         private Data[] previousData = Array.Empty<Data>();
         private bool[] currentMatched = Array.Empty<bool>();
+        private Data[] relevantData = Array.Empty<Data>();
         private int snapshotFrame;
         private bool hasSnapshot;
 
@@ -54,20 +55,48 @@ namespace HybridLumenGI
 
         public int Update(int engineFrame, bool useRenderingLayers, Data[] destination, int maxLights,
             int previousCount, List<Data> changes, out int hash)
+            => Update(engineFrame,useRenderingLayers,destination,maxLights,previousCount,changes,out hash,false,default,out _);
+
+        public readonly struct SelectionDiagnostics
+        {
+            // -1 means not counted in disabled legacy mode, whose early exit is preserved.
+            public readonly int ValidCandidates, OutsideDomain, Selected, CapacityOmitted;
+            public readonly bool DomainValid;
+            public readonly string Status;
+            public SelectionDiagnostics(int valid,int outside,int selected,int omitted,bool domainValid,string status)
+            { ValidCandidates=valid;OutsideDomain=outside;Selected=selected;CapacityOmitted=omitted;DomainValid=domainValid;Status=status; }
+        }
+
+        public int Update(int engineFrame,bool useRenderingLayers,Data[] destination,int maxLights,
+            int previousCount,List<Data> changes,out int hash,bool spatialSelection,
+            HybridLumenGILightRelevance.Domain domain,out SelectionDiagnostics diagnostics)
         {
             changes.Clear(); hash = 17;
             int count = 0, limit = Math.Min(destination.Length, Math.Max(0, maxLights));
             if (previousData.Length < previousCount) previousData = new Data[previousCount];
             Array.Copy(destination, previousData, previousCount);
             uint definedLayers = GetDefinedLayers(useRenderingLayers);
+            bool canFilter=spatialSelection && domain.IsValid;
+            if(canFilter && relevantData.Length<limit) relevantData=new Data[limit];
+            int valid=0,outside=0,relevant=0;
             foreach (var light in Snapshot(engineFrame))
             {
                 if (!TryPack(light, useRenderingLayers, definedLayers, out Data value)) continue;
-                if (count >= limit) break;
-                destination[count++] = value;
-                unchecked { hash = hash * 31 + value.GetHashCode(); }
+                if (!spatialSelection && count >= limit) break;
+                valid++;
+                if(count<limit) destination[count++]=value;
+                if(canFilter)
+                {
+                    if(HybridLumenGILightRelevance.DefinitelyOutside(value,domain)) outside++;
+                    else if(relevant<limit) relevantData[relevant++]=value;
+                }
             }
-            for (int i = count; i < previousCount; i++) destination[i] = default;
+            int written=count;
+            bool filtered=canFilter && valid>limit;
+            if(filtered) { count=relevant;Array.Copy(relevantData,destination,count); }
+            else outside=0;
+            for(int i=0;i<count;i++) unchecked { hash=hash*31+destination[i].GetHashCode(); }
+            for (int i = count; i < Math.Max(previousCount,written); i++) destination[i] = default;
             // Table compaction is not a lighting change. Match each occurrence once:
             // numerically identical lights still contribute independently.
             if (currentMatched.Length < count) currentMatched = new bool[count];
@@ -84,6 +113,9 @@ namespace HybridLumenGI
             for (int current = 0; current < count; current++)
                 if (!currentMatched[current]) changes.Add(destination[current]);
             hash ^= count;
+            diagnostics=new SelectionDiagnostics(spatialSelection?valid:-1,outside,count,
+                spatialSelection?Math.Max(0,valid-outside-count):-1,domain.IsValid,
+                !spatialSelection?"Disabled":!domain.IsValid?"Unknown domain; legacy admission":filtered?"Conservative spatial admission":"Within capacity; legacy admission");
             return count;
         }
 

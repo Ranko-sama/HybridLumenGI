@@ -151,7 +151,14 @@ static class Program
     {
         scenarios++;var scene=new HybridLumenGIScene(1);var proxy=Proxy(41,3);scene.Set(0,proxy);var config=Config(3,2);
         proxy.SourceRenderer.enabled=false;proxy.SourceRenderer.forceRenderingOff=true;
-        using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,config);var first=Capture(cache);
+        proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(50,0,0));
+        using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,config);
+        Check(cache.TryGetPreparedCaptureBounds(0,out var frozenBounds)&&frozenBounds.center.x==50&&proxy.SourceRenderer.bounds.center.x==0,"prepared hidden capture extent must include explicit mesh transform, not stale Renderer.bounds");
+        proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(80,0,0));
+        Check(cache.TryGetPreparedCaptureBounds(0,out var unchangedBounds)&&unchangedBounds.center.x==50,"capture bounds getter must return frozen preparation without live recomputation");
+        proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(50,0,0));
+        Check(!cache.TryGetPreparedCaptureBounds(-1,out _)&&!cache.TryGetPreparedCaptureBounds(1,out _),"missing capture owner has no invented bounds");
+        var first=Capture(cache);
         Check(cache.ReadyCards==2&&cache.PendingCards==1&&!cache.IsSlotReady(0,41,1),"partial capture never satisfies whole required set");
         Check(first.Entries.Count(e=>e.Kind=="DrawMesh")==2,"hidden static HLOD capture uses explicit mesh");
         cache.Prepare(scene,config);Capture(cache);Check(cache.IsSlotReady(0,41,1)&&cache.ReadyCards==3,"remaining chart completes owner");

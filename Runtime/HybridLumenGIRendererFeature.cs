@@ -30,6 +30,9 @@ namespace HybridLumenGI
             public int receiverIdentityDraws,receiverUnknownRectangles;
             public long receiverIdentityBufferBytes;
             public long changeRegionBytes;
+            public int lightCandidates,lightOutsideDomain,lightSelected,lightCapacityOmitted;
+            public bool lightDomainValid;
+            public string lightSelectionStatus;
             // Effective configured proposal budget, not a readback of the GPU-selected count.
             public int proposalCapacity,proposalBudget;
             public int globalReadyBricks,globalPendingBricks,globalUpdatedBricks;
@@ -101,6 +104,8 @@ namespace HybridLumenGI
             [Min(1)] public int surfaceAtlasBudgetMiB=64;
             [Range(0,1)] public float bounceFeedback=1;
             [Range(1,32)] public int maxLights=16;
+            [Tooltip("Experimental: only when capacity overflows, exclude local lights proven outside the complete finite screen/world transport domain. Unknown coverage retains legacy admission.")]
+            public bool spatialLightSelection;
             [ColorUsage(false,true)] public Color environmentRadiance=Color.black;
             [Min(0)] public float indirectIntensity=1;
             [Tooltip("Biased luminance clamp. Zero disables it.")][Min(0)] public float radianceClamp=0;
@@ -257,6 +262,9 @@ namespace HybridLumenGI
             internal ComputeBuffer lights;
             internal readonly HybridLumenGILights.Data[] lightData=new HybridLumenGILights.Data[32];
             internal readonly List<HybridLumenGILights.Data> lightChanges=new List<HybridLumenGILights.Data>(64);
+            internal HybridLumenGILights.SelectionDiagnostics lightSelection;
+            internal HybridLumenGILightRelevance.Domain lightDomain;
+            internal string lightDomainReason;
             internal int width,height,capacity,readIndex,cacheRead,frame,epoch=1,cacheCursor,lastUsed,lastLightHash,lastSettingsHash;
             internal int patchGrid,cacheEntryCount,previousLightCount;
             internal int fullWidth,fullHeight,fullPixelBytes;
@@ -667,7 +675,11 @@ namespace HybridLumenGI
                     patchGrid=Mathf.Clamp(s.cachePatchGrid,1,4)
                 });
                 state.EnsureCache(slots,Mathf.Clamp(s.cachePatchGrid,1,4),state.surfaceCache.CardCount);
-                int lightCount=UpdateLights(state,lightData.supportsLightLayers);
+                // Freeze exactly the matrices later uploaded to transport. Relevance
+                // must cover its reconstruction, including the current URP jitter.
+                Matrix4x4 view=cameraData.GetViewMatrix(),vp=GL.GetGPUProjectionMatrix(cameraData.GetProjectionMatrix(),true)*view;
+                Matrix4x4 invVP=vp.inverse;
+                int lightCount=UpdateLights(state,lightData.supportsLightLayers,cameraData,view,invVP);
                 foreach(Bounds bounds in state.surfaceCache.ChangedBounds)
                     state.changes.Add(bounds,false,Mathf.Max(1,s.traceDistance));
                 state.lightingChanged|=state.surfaceCache.ChangedBounds.Count>0 || state.sdf.RepresentationChangedBounds.Count>0;
@@ -697,9 +709,6 @@ namespace HybridLumenGI
                     state.InvalidateScreenHistory();state.epoch=state.epoch%8000000+1;state.lastHardware=hardware;
                     state.scene.InvalidateReadiness();state.readiness.Invalidate();
                 }
-                // RenderGraph has no compatibility cameraColorTargetHandle. This pass already
-                // rejects the backbuffer, so use URP's explicit render-into-texture conversion.
-                Matrix4x4 view=cameraData.GetViewMatrix(),vp=GL.GetGPUProjectionMatrix(cameraData.GetProjectionMatrix(),true)*view;
                 // Freeze the observer with this graph's camera matrices. In view
                 // space +Z points toward the viewer; orthographic rays share it.
                 Vector4 materialView=view.inverse.GetColumn(camera.orthographic?2:3);
@@ -835,7 +844,7 @@ namespace HybridLumenGI
                         (!s.receiverObjectHistory || (identityEnabled && identity.IsValid)),
                     useIdentity=identityEnabled && identity.IsValid,identity=identity,identityRead=identityRead,identityWrite=identityWrite,
                     receiverReceipt=receiverReceipt,
-                    historyToken=historyToken,view=view,vp=vp,invVP=vp.inverse,materialView=materialView,
+                    historyToken=historyToken,view=view,vp=vp,invVP=invVP,materialView=materialView,
                     previousVP=state.previousVP,previousInvVP=state.previousInvVP,jitterDelta=state.previousJitter-jitter
                     ,viewport=new Rect(0,0,fullW,fullH),frameTiming=frameTiming,
                     cachePatchBudget=state.effectiveBudget.CachePatches
@@ -1157,16 +1166,63 @@ namespace HybridLumenGI
             { RTHandle rt=handle;cmd.SetComputeTextureParam(c,kernel,name,rt.nameID); }
             private static void Dispatch(CommandBuffer cmd,ComputeShader c,int k,CameraState state)
             { cmd.DispatchCompute(c,k,(state.width+7)/8,(state.height+7)/8,1); }
-            private int UpdateLights(CameraState state,bool useRenderingLayers)
+            private int UpdateLights(CameraState state,bool useRenderingLayers,UniversalCameraData cameraData,Matrix4x4 view,Matrix4x4 invVP)
             {
+                state.lightDomain=default;state.lightDomainReason="Disabled";
+                if(s.spatialLightSelection) TryLightDomain(state,cameraData,view,invVP,out state.lightDomain,out state.lightDomainReason);
                 int count=worldLights.Update(Time.frameCount,useRenderingLayers,state.lightData,Mathf.Clamp(s.maxLights,1,32),
-                    state.previousLightCount,state.lightChanges,out int hash);
+                    state.previousLightCount,state.lightChanges,out int hash,s.spatialLightSelection,state.lightDomain,out state.lightSelection);
                 state.lightingChanged=state.lightChanges.Count>0;
                 foreach(var changed in state.lightChanges) AddLightChange(state,changed);
                 state.previousLightCount=count;state.lastLightHash=hash;
                 if(count>0) state.lights.SetData(state.lightData,0,0,count);
                 return count;
             }
+            private static bool TryLightDomain(CameraState state,UniversalCameraData data,Matrix4x4 view,Matrix4x4 invVP,
+                out HybridLumenGILightRelevance.Domain domain,out string reason)
+            {
+                domain=default;reason="Unsupported camera projection/view";
+                Camera camera=data.camera;
+                float near=camera.nearClipPlane,far=camera.farClipPlane,aspect=camera.aspect;
+                if(SystemInfo.graphicsDeviceType!=GraphicsDeviceType.Direct3D12 || camera.stereoEnabled || camera.usePhysicalProperties ||
+                    camera.lensShift!=Vector2.zero || camera.rect!=new Rect(0,0,1,1) ||
+                    !Finite(near) || !Finite(far) || !Finite(aspect) || !(near>0 && far>near && aspect>0)) return false;
+                Matrix4x4 expected;
+                if(camera.orthographic)
+                {
+                    float height=camera.orthographicSize;
+                    if(!Finite(height) || height<=0 || !Finite(height*aspect)) return false;
+                    expected=Matrix4x4.Ortho(-height*aspect,height*aspect,-height,height,near,far);
+                }
+                else
+                {
+                    float fov=camera.fieldOfView;
+                    if(!Finite(fov) || fov<=0 || fov>=180) return false;
+                    expected=Matrix4x4.Perspective(fov,aspect,near,far);
+                }
+                Matrix4x4 expectedView=Matrix4x4.Scale(new Vector3(1,1,-1))*camera.transform.worldToLocalMatrix;
+                if(!HybridLumenGILightRelevance.StandardMatrixMatches(camera.projectionMatrix,expected) ||
+                    !HybridLumenGILightRelevance.StandardMatrixMatches(view,expectedView)) return false;
+                reason="Screen homogeneous interval is unknown";
+                if(!HybridLumenGILightRelevance.TryScreenDomain(invVP,out var combined)) return false;
+                for(int slot=0;slot<state.scene.Capacity;slot++)
+                {
+                    if(!state.scene.IsPublished(slot) && !state.scene.IsWarming(slot)) continue;
+                    reason="Prepared world traversal bounds are unknown";
+                    if(!state.scene.TryGetPreparedTraversalBounds(slot,out Bounds bounds) ||
+                        !combined.TryInclude(bounds.min,bounds.max,out combined)) return false;
+                    // DrawMesh warming captures may outgrow stale Renderer.bounds.
+                    // Include the already-prepared capture extent, not just BVH bounds.
+                    if(state.surfaceCache.GetCardCount(slot)>0)
+                    {
+                        reason="Prepared surface capture bounds are unknown";
+                        if(!state.surfaceCache.TryGetPreparedCaptureBounds(slot,out Bounds captureBounds) ||
+                            !combined.TryInclude(captureBounds.min,captureBounds.max,out combined)) return false;
+                    }
+                }
+                domain=combined;reason="Finite screen and prepared traversal/capture domain";return true;
+            }
+            private static bool Finite(float value)=>!float.IsNaN(value)&&!float.IsInfinity(value);
             private void AddLightChange(CameraState state,HybridLumenGILights.Data light)
             {
                 if(light.positionType.w<0.5f) state.changes.MarkGlobalLightingChange();
@@ -1215,6 +1271,10 @@ namespace HybridLumenGI
                         receiverIdentityDraws=c.receiverIdentityDraws,receiverUnknownRectangles=c.receiverUnknownRectangles,
                         receiverIdentityBufferBytes=c.receiverIdentityBufferBytes,
                         changeRegionBytes=c.changes.AllocatedBytes,
+                        lightCandidates=c.lightSelection.ValidCandidates,lightOutsideDomain=c.lightSelection.OutsideDomain,
+                        lightSelected=c.lightSelection.Selected,lightCapacityOmitted=c.lightSelection.CapacityOmitted,
+                        lightDomainValid=c.lightSelection.DomainValid,
+                        lightSelectionStatus=c.lightSelection.Status+"; "+c.lightDomainReason,
                         proposalCapacity=HybridLumenGIEmissiveSampling.ProposalCapacity,proposalBudget=EffectiveEmissiveBudget,
                         cachePatchesScheduled=c.scheduler.SelectedCount,globalReadyBricks=c.globalSdf.ReadyBrickCount,globalPendingBricks=c.globalSdf.PendingBrickCount,globalUpdatedBricks=c.globalSdf.UpdatedBrickCount,
                         completedHlodReadbacks=c.readiness.CompletedReadbacks,failedHlodReadbacks=c.readiness.FailedReadbacks,acceptedInitializationTickets=c.readiness.AcceptedTickets,hlodReadbackPending=c.readiness.Pending,

@@ -8,6 +8,7 @@ using UnityEngine.Rendering.Universal;
 using HybridLumenGI;
 using L=HybridLumenGI.HybridLumenGILights;
 using UO=UnityEngine.Object;
+using R=HybridLumenGI.HybridLumenGILightRelevance;
 static class Program
 {
     static int checks;
@@ -15,6 +16,8 @@ static class Program
     static L.Data Pack(Light light,bool layers=true){Check(L.TryPack(light,layers,out var d),"pack accepted");return d;}
     static void Main()
     {
+        if(Environment.GetEnvironmentVariable("HLGI_LIGHT_RELEVANCE_BASELINE")=="1")
+        {RelevanceBaseline();return;}
         Check(Marshal.SizeOf<L.Data>()==80 && L.Stride==80,"80B ABI");
         Check(Marshal.OffsetOf<L.Data>("cullingMask").ToInt32()==64,"integer masks begin at byte64");
         var light=new Light(); var extra=new UniversalAdditionalLightData(); light.additional=extra;
@@ -89,9 +92,21 @@ static class Program
         light.lightmapBakeType=LightmapBakeType.Mixed;Check(L.TryPack(light,true,out _),"mixed current realtime approximation");
         light.range=float.NaN;Check(!L.TryPack(light,true,out _),"invalid range");
         CompactionChanges();
+        RelevanceSelection();RelevanceNumerics();
         Console.WriteLine($"PASS {checks} actual light-collector checks; native Unity discovery/API/rendering remain unexecuted.");
     }
     static Light Point(float x){var light=new Light();light.transform.position=new(x,0,0);return light;}
+    static void RelevanceBaseline()
+    {
+        // Declared evaluation domain [-2,2]^3; each ordinary point has range10.
+        var farA=Point(1000000);var farB=Point(2000000);var relevant=Point(0);
+        UO.Found=new[]{farA,farB,relevant};var collector=new L();var table=new L.Data[2];var changes=new List<L.Data>();
+        int count=collector.Update(300,true,table,2,0,changes,out int hash);
+        TraceTable("relevance-legacy",table,count,hash,changes);
+        Check(count==2&&table[0].Equals(Pack(farA))&&table[1].Equals(Pack(farB)),"unexpected legacy admission");
+        Check(!table[0].Equals(Pack(relevant))&&!table[1].Equals(Pack(relevant)),"baseline already admitted relevant third light");
+        Console.WriteLine("CAPABILITY GAP: domain=[-2,2]^3; range=10; input x=[1000000,2000000,0]; capacity=2; admitted x=[1000000,2000000]; relevant third light omitted. Legacy policy is preserved, not classified as an existing image defect.");
+    }
     static void TraceTable(string label,L.Data[] table,int count,int hash,List<L.Data> changes)
     {
         string digest=Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(table.AsSpan(0,count))));
@@ -153,5 +168,103 @@ static class Program
         ac=shared.Update(200,true,a,2,ac,changes,out hash);
         Check(changes.Count==0&&hash==stableHash,"stable table retained stale match bits or changed hash");
         Console.WriteLine("PASS compaction, multiplicity, exact changes, capacity and interleaved camera histories; current GPU table order retained.");
+    }
+    static R.Domain Box(float minimum,float maximum)
+    {Check(R.Domain.TryCreate(new(minimum,minimum,minimum),new(maximum,maximum,maximum),out var domain),"finite domain");return domain;}
+    static void RelevanceSelection()
+    {
+        var domain=Box(-2,2);var farA=Point(1000000);var farB=Point(2000000);var near=Point(0);
+        UO.Found=new[]{farA,farB,near};var collector=new L();var table=new L.Data[3];var changes=new List<L.Data>();
+        int count=collector.Update(400,true,table,2,0,changes,out int hash,true,domain,out var stats);
+        Check(count==1&&table[0].Equals(Pack(near))&&table[1].Equals(default),"new mode failed to admit relevant third light or clear unused prefix");
+        Check(stats.ValidCandidates==3&&stats.OutsideDomain==2&&stats.Selected==1&&stats.CapacityOmitted==0&&stats.DomainValid,"relevance diagnostics");
+        TraceTable("relevance-enabled",table,count,hash,changes);
+        Console.WriteLine($"RELEVANCE valid={stats.ValidCandidates}; outside={stats.OutsideDomain}; selected={stats.Selected}; omitted={stats.CapacityOmitted}");
+        var legacy=new L.Data[3];var disabled=new L.Data[3];var noOverflow=new L.Data[3];
+        int lc=collector.Update(400,true,legacy,2,0,changes,out int lh);
+        int dc=collector.Update(400,true,disabled,2,0,changes,out int dh,false,domain,out stats);
+        Check(lc==dc&&lh==dh&&legacy[0].Equals(disabled[0])&&legacy[1].Equals(disabled[1]),"disabled mode changed table/hash");
+        Check(stats.ValidCandidates==-1&&stats.CapacityOmitted==-1&&stats.Status=="Disabled","disabled early-exit counts must be explicitly unknown");
+        int nc=collector.Update(400,true,noOverflow,3,0,changes,out int nh,true,domain,out stats);
+        lc=collector.Update(400,true,legacy,3,lc,changes,out lh);
+        Check(nc==3&&nh==lh&&noOverflow[0].Equals(legacy[0])&&noOverflow[1].Equals(legacy[1])&&noOverflow[2].Equals(legacy[2])&&stats.OutsideDomain==0,"nonoverflow mode changed original table/hash");
+        dc=collector.Update(400,true,disabled,2,dc,changes,out dh,true,default,out stats);
+        Check(dc==2&&disabled[0].Equals(Pack(farA))&&disabled[1].Equals(Pack(farB))&&!stats.DomainValid&&stats.OutsideDomain==0&&stats.CapacityOmitted==1,"unknown domain failed legacy fallback");
+
+        // Offscreen published and warming bounds expand the evaluation domain.
+        Check(domain.TryInclude(new(90,-2,-2),new(110,2,2),out var published),"published domain union");
+        Check(published.TryInclude(new(190,-2,-2),new(210,2,2),out var warming),"warming domain union");
+        var inPlace=domain;
+        Check(inPlace.TryInclude(new(90,-2,-2),new(110,2,2),out inPlace),"Feature in-place domain union must preserve the receiver before writing out");
+        Check(inPlace.Minimum.x==-2 && inPlace.Maximum.x==110 && inPlace.Minimum.y==-2 && inPlace.Maximum.y==2,"in-place union lost old/new extent");
+        var offscreen=Point(100);var warm=Point(200);var directional=new Light{type=LightType.Directional};
+        UO.Found=new[]{farA,offscreen,warm,directional};count=collector.Update(401,true,table,3,count,changes,out hash,true,warming,out stats);
+        Check(count==3&&table[0].Equals(Pack(offscreen))&&table[1].Equals(Pack(warm))&&table[2].Equals(Pack(directional))&&stats.OutsideDomain==1,"offscreen/warming/directional admission");
+        UO.Found=new[]{farA,near,Point(0),Point(1),directional};count=collector.Update(402,true,table,2,count,changes,out hash,true,domain,out stats);
+        Check(count==2&&table[0].Equals(Pack(near))&&table[1].Equals(Pack(near))&&stats.ValidCandidates==5&&stats.OutsideDomain==1&&stats.CapacityOmitted==2,"duplicate contributions/order/residual overflow");
+
+        // Two camera domains share only a collector; old tables remain per-camera.
+        Check(R.Domain.TryCreate(new(98,-2,-2),new(102,2,2),out var otherDomain),"camera B finite domain");
+        Check(DistanceToBox(Pack(offscreen),otherDomain)==0,"camera B fixture must contain its intended light");
+        UO.Found=new[]{near,offscreen,farA};
+        var a=new L.Data[1];var b=new L.Data[1];int ac=collector.Update(403,true,a,1,0,changes,out hash,true,domain,out stats);
+        int bc=collector.Update(403,true,b,1,0,changes,out hash,true,otherDomain,out stats);
+        Check(ac==1&&a[0].Equals(Pack(near))&&bc==1&&b[0].Equals(Pack(offscreen)),"camera domains shared selection history");
+        ac=collector.Update(403,true,a,1,ac,changes,out hash,true,otherDomain,out stats);
+        Check(changes.Count==2&&changes[0].Equals(Pack(near))&&changes[1].Equals(Pack(offscreen)),"domain movement lost old/new changes");
+        bc=collector.Update(403,true,b,1,bc,changes,out hash,true,otherDomain,out stats);
+        Check(changes.Count==0&&b[0].Equals(Pack(offscreen)),"other camera consumed foreign transition");
+        Console.WriteLine("PASS overflow-only spatial admission; offscreen/warming union; stable order/multiplicity; disabled/unknown/within-capacity compatibility; per-camera domain transitions.");
+    }
+    // Independent double point-to-box oracle: clamp the closest point explicitly.
+    static double DistanceToBox(L.Data light,R.Domain box)
+    {
+        double sum=0;
+        for(int axis=0;axis<3;axis++)
+        {
+            double p=axis==0?light.positionType.x:axis==1?light.positionType.y:light.positionType.z;
+            double q=p;if(q<box.Minimum[axis])q=box.Minimum[axis];else if(q>box.Maximum[axis])q=box.Maximum[axis];
+            double delta=p-q;sum+=delta*delta;
+        }
+        return Math.Sqrt(sum);
+    }
+    static void RelevanceNumerics()
+    {
+        var domain=Box(-2,2);
+        foreach(float x in new[]{0f,2f,11f,12f,12.00001f,12.1f,100f,-12f,-100f})
+        {
+            var light=Pack(Point(x));bool outside=R.DefinitelyOutside(light,domain);double distance=DistanceToBox(light,domain);
+            if(distance<=10) Check(!outside,"independent distance oracle: intersecting sphere excluded");
+            if(distance>10.01) Check(outside,"independent distance oracle: well separated sphere retained");
+            if(outside)
+                foreach(float y in new[]{-2f,0f,2f})foreach(float z in new[]{-2f,0f,2f})foreach(float px in new[]{-2f,0f,2f})
+                {float dx=x-px,d2=MathF.Max(dx*dx+y*y+z*z,.0001f),factor=d2/100f,smooth=Math.Clamp(1-factor*factor,0,1);Check(smooth==0,"excluded light retained nonzero float attenuation at domain point");}
+        }
+        Check(!R.DefinitelyOutside(Pack(Point(12.00001f)),domain),"numerical boundary band must remain");
+        var spot=Point(12);spot.type=LightType.Spot;Check(!R.DefinitelyOutside(Pack(spot),domain),"spot boundary sphere excluded");
+        var overflow=Pack(Point(100));overflow.directionRange.w=1e30f;Check(!R.DefinitelyOutside(overflow,domain),"range-square overflow excluded");
+        overflow=Pack(Point(1e30f));Check(!R.DefinitelyOutside(overflow,domain),"shader offset/dot overflow excluded");
+        overflow.positionType.x=float.NaN;Check(!R.DefinitelyOutside(overflow,domain),"nonfinite source excluded");
+        Check(!R.Domain.TryCreate(new(float.NaN,0,0),new(1,1,1),out _)&&!R.Domain.TryCreate(new(2,0,0),new(1,1,1),out _),"invalid domain admitted");
+        Check(!domain.TryInclude(new(0,0,0),new(float.PositiveInfinity,1,1),out _),"unknown world bounds silently omitted");
+
+        // Fixed inverse-projection fixtures, independent direct float homogeneous evaluation.
+        var perspective=new Matrix4x4{m00=1,m11=1,m23=-1,m32=9.999f,m33=.001f};
+        var translated=perspective;translated.m02=49.995f;translated.m03=.005f;translated.m13=.03f;
+        foreach(var matrix in new[]{Matrix4x4.identity,perspective,translated})
+        {
+            Check(R.TryScreenDomain(matrix,out var screen),"finite screen interval rejected");
+            foreach(float x in new[]{-1f,0f,1f})foreach(float y in new[]{-1f,0f,1f})foreach(float z in new[]{0f,.5f,1f})
+            {
+                float w=matrix[3,0]*x+matrix[3,1]*y+matrix[3,2]*z+matrix[3,3];
+                for(int row=0;row<3;row++)
+                {float value=(matrix[row,0]*x+matrix[row,1]*y+matrix[row,2]*z+matrix[row,3])/w;Check(value>=screen.Minimum[row]&&value<=screen.Maximum[row],"screen domain missed float reconstructed point");}
+            }
+        }
+        var bad=perspective;bad.m33=0;Check(!R.TryScreenDomain(bad,out _),"unbounded w accepted");
+        bad=perspective;bad.m00=float.NaN;Check(!R.TryScreenDomain(bad,out _),"nonfinite inverse accepted");
+        Check(R.StandardMatrixMatches(perspective,perspective),"equivalent standard matrix rejected");
+        bad=perspective;bad.m01=.25f;Check(!R.StandardMatrixMatches(bad,perspective),"custom projection accepted as equivalent");
+        Console.WriteLine("PASS independent double distance cases, conservative float attenuation boundaries/overflow, finite screen interval and unknown-domain rejection. CPU adapter evidence only.");
     }
 }
