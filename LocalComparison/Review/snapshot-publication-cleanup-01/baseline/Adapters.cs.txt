@@ -1,0 +1,230 @@
+// Recording adapters for the actual DeformedMesh + ResourceRetirement sources.
+// SDF/chart numeric kernels and Unity/GPU execution are deliberately not simulated.
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+namespace UnityEngine
+{
+    [AttributeUsage(AttributeTargets.Class)] public sealed class DisallowMultipleComponent:Attribute { }
+    [AttributeUsage(AttributeTargets.Class)] public sealed class DefaultExecutionOrder:Attribute {public DefaultExecutionOrder(int order){}}
+    [AttributeUsage(AttributeTargets.Class)] public sealed class RequireComponent:Attribute { public RequireComponent(Type type){ } }
+    [AttributeUsage(AttributeTargets.Field)] public sealed class RangeAttribute:Attribute { public RangeAttribute(float a,float b){ } }
+    [AttributeUsage(AttributeTargets.Field)] public sealed class MinAttribute:Attribute { public MinAttribute(float value){ } }
+    public enum RuntimeInitializeLoadType {BeforeSceneLoad}
+    [AttributeUsage(AttributeTargets.Method)] public sealed class RuntimeInitializeOnLoadMethodAttribute:Attribute {public RuntimeInitializeOnLoadMethodAttribute(RuntimeInitializeLoadType type){}}
+    public static class Application {public static event Action quitting;public static int LastExitCode;public static void Quit(int code=0){LastExitCode=code;quitting?.Invoke();}}
+    public static class Graphics
+    {
+        public static void ExecuteCommandBuffer(Rendering.CommandBuffer command)
+        {
+            if(Rendering.RecordedGpu.FailImmediate)throw new InvalidOperationException("Immediate submission failed");
+            command.fence.Submitted=true;command.fence.Immediate=true;
+            command.fence.Readers=Rendering.RecordedGpu.SubmittedReaders.ToArray();
+            Rendering.RecordedGpu.SubmittedReaders.Clear();
+            if(Rendering.RecordedGpu.AutoCompleteImmediate)command.fence.Completed=true;
+        }
+    }
+    public enum HideFlags {HideAndDontSave}
+    public class Object {public string name;public HideFlags hideFlags;public bool Destroyed;public static void DontDestroyOnLoad(Object value){}}
+    public class GameObject:Object
+    {
+        readonly List<Component> components=new List<Component>();
+        public GameObject(){}public GameObject(string name){this.name=name;}
+        public T AddComponent<T>() where T:Component,new()=>Add<T>();
+        public T Add<T>() where T:Component,new(){var value=new T{gameObject=this};components.Add(value);return value;}
+        public T GetComponent<T>() where T:Component {foreach(var value in components)if(value is T typed)return typed;return null;}
+    }
+    public class Component:Object {public GameObject gameObject;public T GetComponent<T>()where T:Component=>gameObject.GetComponent<T>();}
+    public class MonoBehaviour:Component {public bool enabled=true;public bool isActiveAndEnabled=>enabled && !Destroyed;}
+    public class ScriptableObject:Object {public static T CreateInstance<T>()where T:ScriptableObject,new()=>new T();}
+    public class Camera:MonoBehaviour { }
+    public struct Vector2 {public float x,y;public Vector2(float x,float y){this.x=x;this.y=y;}}
+    public struct Vector3
+    {
+        public float x,y,z;public Vector3(float x,float y,float z){this.x=x;this.y=y;this.z=z;}
+        public static Vector3 operator*(Vector3 v,float s)=>new Vector3(v.x*s,v.y*s,v.z*s);
+    }
+    public struct Vector4 {public float x,y,z,w;public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}}
+    public struct Bounds {public Vector3 center,size;public Vector3 extents=>size*.5f;public Bounds(Vector3 center,Vector3 size){this.center=center;this.size=size;}}
+    public struct Matrix4x4 {public Vector3 MultiplyVector(Vector3 v)=>v;public Vector3 MultiplyPoint3x4(Vector3 v)=>v;}
+    public static class Mathf {public static float Abs(float value)=>Math.Abs(value);public static int Clamp(int x,int a,int b)=>Math.Min(Math.Max(x,a),b);}
+    public static class Time {public static int frameCount;}
+    public static class SystemInfo {public static bool supportsGraphicsFence=true;}
+    public static class Debug
+    {
+        public static readonly List<Exception> Exceptions=new List<Exception>();public static readonly List<string> Warnings=new List<string>();
+        public static void LogException(Exception ex)=>Exceptions.Add(ex);
+        public static void LogWarning(object value)=>Warnings.Add(value.ToString());
+        public static void Log(object value){}
+    }
+    public enum MeshTopology {Triangles,Lines}
+    public class Mesh:Object
+    {
+        private Vector3[] positions=Array.Empty<Vector3>();
+        private readonly List<int[]> indices=new List<int[]>();
+        private readonly List<MeshTopology> topology=new List<MeshTopology>();
+        public bool isReadable=true;
+        public Rendering.IndexFormat indexFormat;
+        public Bounds bounds;
+        public Vector3[] vertices {get=>(Vector3[])positions.Clone();set=>positions=(Vector3[])value.Clone();}
+        public Vector3[] normals=Array.Empty<Vector3>();public Vector4[] tangents=Array.Empty<Vector4>();public Vector2[] uv=Array.Empty<Vector2>();
+        public int vertexCount=>positions.Length;public int vertexBufferCount=>1;public int GetVertexBufferStride(int stream)=>48;
+        public int subMeshCount
+        {
+            get=>indices.Count;
+            set{while(indices.Count<value){indices.Add(Array.Empty<int>());topology.Add(MeshTopology.Triangles);}while(indices.Count>value){indices.RemoveAt(indices.Count-1);topology.RemoveAt(topology.Count-1);}}
+        }
+        public uint GetIndexCount(int sub)=>(uint)indices[sub].Length;
+        public int[] GetIndices(int sub,bool applyBaseVertex)=>(int[])indices[sub].Clone();
+        public MeshTopology GetTopology(int sub)=>topology[sub];
+        public void SetIndices(int[] values,MeshTopology kind,int sub,bool recalculateBounds)
+        {if(sub>=subMeshCount)subMeshCount=sub+1;indices[sub]=(int[])values.Clone();topology[sub]=kind;}
+    }
+    public class MeshFilter:Component {public Mesh sharedMesh;}
+    public class Renderer:MonoBehaviour {public Bounds bounds;public Matrix4x4 localToWorldMatrix;}
+    public class MeshRenderer:Renderer { }
+    public class SkinnedMeshRenderer:Renderer
+    {
+        public Mesh sharedMesh;public bool FailBake;public int BakeCount;
+        public void BakeMesh(Mesh destination,bool useScale)
+        {
+            BakeCount++;if(FailBake)throw new InvalidOperationException("Controlled capture failure");
+            destination.vertices=sharedMesh.vertices;destination.normals=sharedMesh.normals;destination.tangents=sharedMesh.tangents;destination.uv=sharedMesh.uv;
+            destination.subMeshCount=sharedMesh.subMeshCount;
+            for(int i=0;i<sharedMesh.subMeshCount;i++)destination.SetIndices(sharedMesh.GetIndices(i,true),sharedMesh.GetTopology(i),i,false);
+            destination.bounds=sharedMesh.bounds;
+        }
+    }
+    public enum TextureFormat {RFloat}
+    public enum TextureWrapMode {Clamp}
+    public enum FilterMode {Bilinear}
+    public class Texture3D:Object
+    {
+        public static int Created,Applied;public TextureWrapMode wrapMode;public FilterMode filterMode;public float[] Data;
+        public Texture3D(int x,int y,int z,TextureFormat format,bool mipmaps){Created++;}
+        public void SetPixelData(float[] data,int mip){Data=(float[])data.Clone();}
+        public void Apply(bool updateMipmaps,bool makeNoLongerReadable){Applied++;}
+    }
+}
+
+namespace UnityEngine.Rendering
+{
+    public enum IndexFormat {UInt16,UInt32}
+    public enum GraphicsFenceType {AsyncQueueSynchronisation}
+    public enum SynchronisationStageFlags {AllGPUOperations}
+    public sealed class FenceRecord {public bool Enqueued,Submitted,Completed,Immediate,FailQuery;public int Context,QueryCount,CompleteOnQuery;public Action[] Readers=Array.Empty<Action>();}
+    public struct GraphicsFence
+    {
+        internal FenceRecord record;
+        public bool passed {get{if(record?.FailQuery==true)throw new InvalidOperationException("Fence query failed");if(record!=null && record.Submitted){record.QueryCount++;if(record.CompleteOnQuery>0 && record.QueryCount>=record.CompleteOnQuery)record.Completed=true;}return record!=null && record.Submitted && record.Completed;}}
+    }
+    public static class RecordedGpu
+    {
+        public static readonly List<FenceRecord> Fences=new List<FenceRecord>();
+        public static int Submits,CompleteNewFenceOnQuery;
+        public static bool FailSubmit,FailImmediate,AutoCompleteImmediate;
+        internal static readonly Dictionary<int,List<Action>> Readers=new Dictionary<int,List<Action>>();
+        internal static readonly List<Action> SubmittedReaders=new List<Action>();
+        public static void CompleteSubmitted(){foreach(var fence in Fences)if(fence.Submitted&&!fence.Completed){foreach(var reader in fence.Readers)reader();fence.Completed=true;}}
+    }
+    public sealed class CommandBuffer
+    {
+        internal FenceRecord fence;
+        public GraphicsFence CreateGraphicsFence(GraphicsFenceType type,SynchronisationStageFlags stage)
+        {fence=new FenceRecord{CompleteOnQuery=RecordedGpu.CompleteNewFenceOnQuery};RecordedGpu.Fences.Add(fence);return new GraphicsFence{record=fence};}
+    }
+    public static class CommandBufferPool {public static CommandBuffer Get(string name)=>new CommandBuffer();public static void Release(CommandBuffer command){ }}
+    public struct ScriptableRenderContext
+    {
+        internal int Id;
+        public void ExecuteCommandBuffer(CommandBuffer command){if(command.fence!=null){command.fence.Enqueued=true;command.fence.Context=Id;if(RecordedGpu.Readers.TryGetValue(Id,out var readers)){command.fence.Readers=readers.ToArray();readers.Clear();}}}
+        public void Submit(){if(RecordedGpu.FailSubmit)throw new InvalidOperationException("Context submission failed");RecordedGpu.Submits++;foreach(var fence in RecordedGpu.Fences)if(fence.Enqueued&&fence.Context==Id)fence.Submitted=true;}
+    }
+    public static class RenderPipelineManager
+    {
+        public static event Action<ScriptableRenderContext,List<UnityEngine.Camera>> beginContextRendering,endContextRendering;
+        static int context;
+        public static void Begin()=>beginContextRendering?.Invoke(new ScriptableRenderContext{Id=++context},new List<UnityEngine.Camera>());
+        public static void End()=>endContextRendering?.Invoke(new ScriptableRenderContext{Id=context},new List<UnityEngine.Camera>());
+        public static void Reader(Action read){if(!RecordedGpu.Readers.TryGetValue(context,out var readers))RecordedGpu.Readers.Add(context,readers=new List<Action>());readers.Add(read);}
+        // Explicit test-driver model of URP's successful context submission before EndContext.
+        // End() itself does not submit, complete or transfer an unknown context's readers.
+        public static void SubmitReadersBeforeEnd()
+        {if(RecordedGpu.Readers.TryGetValue(context,out var readers)){RecordedGpu.SubmittedReaders.AddRange(readers);readers.Clear();}}
+    }
+    public static class CoreUtils
+    {
+        public static readonly List<UnityEngine.Object> Destroyed=new List<UnityEngine.Object>();
+        public static UnityEngine.Object FailDestroy;public static int FailedDestroyAttempts;public static Exception LastDestroyFailure;
+        public static void Destroy(UnityEngine.Object value)
+        {if(value==null)return;if(ReferenceEquals(value,FailDestroy)){FailedDestroyAttempts++;LastDestroyFailure=new InvalidOperationException("Controlled native destruction failure");throw LastDestroyFailure;}if(value.Destroyed)throw new InvalidOperationException("Owned object destroyed twice");value.Destroyed=true;Destroyed.Add(value);}
+    }
+}
+
+namespace UnityEngine.LowLevel
+{
+    public struct PlayerLoopSystem {public Type type;public Action updateDelegate;public PlayerLoopSystem[] subSystemList;}
+    public static class PlayerLoop
+    {
+        private static PlayerLoopSystem current;
+        public static PlayerLoopSystem GetCurrentPlayerLoop()=>current;
+        public static void SetPlayerLoop(PlayerLoopSystem value)=>current=value;
+    }
+}
+
+namespace HybridLumenGI
+{
+    using UnityEngine;
+    public static class HybridLumenGIHitMaterialPass {public static void PollRetired(){}}
+    public static class HybridLumenGIHitMaterialBatch {public static long TotalAllocatedBytes=>0;}
+    public static class HybridLumenGIRayTexturePool {public static long TotalAllocatedBytes=>0;public static void ClearReusable(){}}
+    public sealed class HybridLumenGIProxy:MonoBehaviour
+    {
+        public Renderer SourceRenderer;
+        public Action OnDirty;
+        public void MarkDirty()=>OnDirty?.Invoke();
+    }
+    public sealed class HybridLumenGIMeshSdf:ScriptableObject
+    {
+        public Mesh SourceMesh;public Texture3D Texture;public static Action BeforeSet;
+        public void SetBakedData(Mesh mesh,Texture3D texture,Bounds bounds,int size,bool closed)
+        {BeforeSet?.Invoke();SourceMesh=mesh;Texture=texture;}
+    }
+    public static class ControlledBake
+    {
+        public sealed class Gate {public readonly ManualResetEventSlim Started=new ManualResetEventSlim(false),Release=new ManualResetEventSlim(false);}
+        private static readonly Dictionary<int,Gate> gates=new Dictionary<int,Gate>();
+        public static Gate For(int marker){lock(gates){if(!gates.TryGetValue(marker,out var gate))gates.Add(marker,gate=new Gate());return gate;}}
+    }
+    public static class HybridLumenGIMeshSdfBake
+    {
+        public static float[] Bake(Vector3[] vertices,int[] triangles,int size,Func<int,int,bool> progress,out Bounds bounds,out bool closed)
+        {
+            // Deterministic barriers control real Task.Run work. Returning even after cancellation
+            // exercises the component's own generation/cancellation checks, not a fake scheduler.
+            var gate=ControlledBake.For((int)vertices[0].x);gate.Started.Set();
+            if(!gate.Release.Wait(5000))throw new TimeoutException("Test did not release worker barrier");
+            bounds=new Bounds(new Vector3(0,0,0),new Vector3(1,1,1));closed=true;return new float[size*size*size];
+        }
+    }
+    public sealed class HybridLumenGISurfaceCharts:ScriptableObject
+    {
+        public sealed class Chart { }
+        public sealed class BakeSettings {public float maxNormalAngleDegrees,paddingFraction,minimumPadding;public int maxTrianglesPerChart,chartBudget;}
+        public Mesh SourceMesh,CaptureMesh;public static Action BeforeSet;public static bool FailSet;public static Exception LastSetFailure;public static Mesh LastPublishingMesh;
+        public static Chart[] BakeTriangles(Vector3[] vertices,int[][] triangles,BakeSettings settings,out int report,Func<int,int,bool> progress)
+        {report=0;return new[]{new Chart()};}
+        public static Mesh CreateCaptureMesh(Mesh source,Chart[] charts)
+        {return new Mesh{vertices=source.vertices,normals=source.normals,tangents=source.tangents,uv=source.uv,bounds=source.bounds};}
+        public void SetBakedData(Mesh source,Mesh capture,Chart[] charts)
+        {LastPublishingMesh=source;BeforeSet?.Invoke();if(FailSet){LastSetFailure=new InvalidOperationException("Controlled chart publication failure");throw LastSetFailure;}SourceMesh=source;CaptureMesh=capture;}
+    }
+    public static class HybridLumenGIAssetPageStreaming {public interface ICompletion {bool IsComplete {get;}}}
+    public sealed class HybridLumenGIStreamedRepresentation
+    {
+        public static readonly List<HybridLumenGIStreamedRepresentation> Active=new List<HybridLumenGIStreamedRepresentation>();
+        public bool WantsUnload,IsUnavailable;public HybridLumenGIProxy Proxy;public uint Generation;
+        public bool ReportUnloadSafe(uint generation,HybridLumenGIAssetPageStreaming.ICompletion completion)=>false;
+    }
+}

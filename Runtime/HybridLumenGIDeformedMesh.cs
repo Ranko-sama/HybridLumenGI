@@ -182,7 +182,6 @@ namespace HybridLumenGI
                     catch(Exception error){job.cleanupFailed=true;Debug.LogException(error);}
                     continue;
                 }
-                Jobs.RemoveAt(i);job.cancellation.Dispose();
                 Snapshot old=null;
                 try
                 {
@@ -208,8 +207,18 @@ namespace HybridLumenGI
                     // Never leave a published reference to an object being destroyed.
                     if(Published.TryGetValue(job.source,out var live) && ReferenceEquals(live,job.snapshot))
                     { if(old!=null)Published[job.source]=old;else Published.Remove(job.source); }
-                    job.owner.Status="Snapshot publication failed: "+ex.GetType().Name;job.snapshot.Destroy();
+                    job.owner.Status="Snapshot publication failed: "+ex.GetType().Name;
+                    try{job.snapshot.Destroy();}
+                    catch(Exception cleanupError)
+                    {
+                        // Destruction may be partial. Keep the private owner and reservation,
+                        // including its live cancellation source, without automatically retrying.
+                        job.cleanupFailed=true;job.owner.Status+="; cleanup failed; snapshot retained";
+                        Debug.LogException(ex);Debug.LogException(cleanupError);continue;
+                    }
                 }
+                // Ownership is now transferred to Published or private cleanup succeeded.
+                job.cancellation.Dispose();Jobs.RemoveAt(i);
             }
             int verticesLeft=Math.Max(0,VertexBudgetPerFrame),visits=Active.Count;
             while(visits-->0 && Active.Count>0 && Jobs.Count<Math.Max(0,MaximumWorkers))

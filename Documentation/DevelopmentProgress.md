@@ -60,3 +60,7 @@ iteration26：唯一构建和DXR Player完成256帧、70完整数据、4组HDR/P
 iteration27：既有6页/4直接ID冻结后，唯一真实构建通过、7处临时接线恢复、110产品源码一致。唯一可见DX12 Player共12个实际pump tick/188条记录，tick2真实AssetBundleRequest未完成时普通RemoveRequests撤回，tick3原Poll收到迟到asset，tick5原UnloadAsync完成及Resources.UnloadAsset返回后才归还4190/4304字节预留，连续8tick全空、native0。仅首个无依赖geometry页加载，父子依赖释放顺序明确未覆盖，不补运行；没有消费lease、GPU退休/HLOD/画质/性能验收，Runtime未改，完整生产仍false。交Astra与实际Pro27复审并继续原计划。详见ReviewBrief-AssetPageInflightWithdrawal01.md。
 
 实际Pro27已批准本轮有限证据提交。下一包snapshot-publication-cleanup-01转向已定位的条件性产品缺口：当前有效形变任务在发布异常后若Destroy又失败，提前RemoveAt/Dispose使私有快照失去可追踪owner。先在既有实际C#组件适配测试中组合FailSet/FailDestroy复现，再仅修任务终态/取消源/失败保留责任；无新Unity/Player/GPU运行，不扩撤回或形变矩阵。旧原生结果不追认为候选新源码通过。
+
+iteration28：既有实际源码适配测试确定复现双失败，基线清理异常穿透、Job丢失、154368字节预留保留但FailedCleanupCount0，并跳过另一已完成任务。最小候选仅后移成功终态的CTS/Job清理，失败时保留原Job/snapshot/预留、设置cleanupFailed并记录两个异常，继续其他任务；相同输入通过，后续请求/context/idle/关闭/禁用/新会话无重复销毁或已DisposeCTS异常，最终仅38592字节失败预留。既有完整相关守卫通过。0新Unity/Player/GPU运行；仓库候选比上次实际部署多一个Runtime文件改动，旧原生证据不升级。待Astra与实际Pro28复核后提交。详见ReviewBrief-SnapshotPublicationCleanup01.md。
+
+实际Pro28已读取执行输出149–151并批准局部修复提交，Astra无阻断。下一包light-change-compaction-01处理按下标比较灯表导致的局部失效误报：关闭前置点光后，未变方向光被压缩到前一槽而进入changes，触发全局照明reactive。先实际源码反例，再以完整Data精确、保留重数的差分修复；GPU灯表/ABI/准入/hash与相机独立性保持，0新增Unity/Player/GPU。

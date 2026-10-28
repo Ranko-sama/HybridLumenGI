@@ -1,0 +1,9 @@
+# Iteration28: snapshot publication cleanup
+
+Pro27 approved iteration27, committed1d1f18f, and selected snapshot-publication-cleanup-01. It identified early Jobs.RemoveAt/CTS.Dispose before publication, followed by an unguarded Destroy in rollback. A second failure can leave resources/reservation without an enumerable job owner. Zero native runs are authorized/needed for this package.
+
+The existing actual-source deformation harness now has an isolated HLGI_PUBLICATION_CLEANUP_CASE=1 case; no job-list mutation or recovery is injected. Baseline source and exact test/adapter bytes were saved before modifying Runtime. Baseline failed at the intended ownership assertion: cleanup exception escaped, job lost, failedCleanup0,154368 held, healthy completed job skipped. Candidate changes only the completed valid-job publication branch, postpones CTS/job termination, and retains/logs cleanupFailed without retry.
+
+The same isolated case passes. Existing full deformation/retirement guards also pass. Source identity proves baseline matches1d1f18f and test inputs stayed identical. Candidate source archive includes7 files. No Unity, Player or GPU execution. Unity deployment remains the previous source, while repository has one pending Runtime change; prior native evidence is not upgraded.
+
+Astra completed the candidate/source/log review with no blocking finding. Actual Pro28 read execution outputs149–151, accepted the bounded repair and approved its local commit. Its full response is saved in the package. No new Unity/Player run is needed; old native evidence remains tied to old sources. Next: commit this repair and execute light-change-compaction-01, first establishing the actual-source counterexample for an unchanged directional light incorrectly entering changes after a preceding point light is disabled. Preserve the original GPU table, exact Data equality, multiplicity, capacity rules and per-camera history. No lifecycle expansion or native replay.

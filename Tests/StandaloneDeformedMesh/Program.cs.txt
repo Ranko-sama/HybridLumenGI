@@ -125,12 +125,57 @@ static class Program
     public static void Main()
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
+        // The failed snapshot is intentionally retained: isolate this case from success-suite accounting.
+        if(Environment.GetEnvironmentVariable("HLGI_PUBLICATION_CLEANUP_CASE")=="1")
+        {PublicationCleanupFailure();return;}
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();
         ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
         Console.WriteLine("Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.");
     }
     static void OpenNewSession()=>typeof(HybridLumenGIResourceRetirement).GetMethod("InitializeRuntime",PrivateStatic).Invoke(null,null);
+    static void PublicationCleanupFailure()
+    {
+        Defaults();var healthy=Add(410);Frame();Started(410);Finish(healthy,410);Frame();
+        var owner=Add(420);Frame();Started(420);Finish(owner,420);Frame();
+        Mesh old=HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer);
+        var oldSdf=HybridLumenGIDeformedMesh.GetSdf(owner.renderer,null);var oldCharts=HybridLumenGIDeformedMesh.GetCharts(owner.renderer,null);
+        healthy.component.RequestCapture(Mesh(411));Frame();Started(411);
+        owner.component.RequestCapture(Mesh(421));Frame();Started(421);
+        var failedJob=Job(owner);Mesh rejected=PendingMesh(owner);var failedSnapshot=failedJob.GetType().GetField("snapshot",PrivateInstance).GetValue(failedJob);
+        long failedReservation=(long)failedSnapshot.GetType().GetField("reservation",PrivateInstance).GetValue(failedSnapshot);
+        long held=HybridLumenGIDeformedMesh.ReservedBytes;
+        // Complete the healthy job too; process the failed publication first in the reverse loop.
+        Finish(healthy,411);Finish(owner,421);
+        HybridLumenGISurfaceCharts.BeforeSet=()=>HybridLumenGISurfaceCharts.FailSet=ReferenceEquals(HybridLumenGISurfaceCharts.LastPublishingMesh,rejected);
+        CoreUtils.FailDestroy=rejected;Exception escaped=null;
+        try{Frame();}catch(Exception e){escaped=e;}
+        finally{HybridLumenGISurfaceCharts.FailSet=false;HybridLumenGISurfaceCharts.BeforeSet=null;CoreUtils.FailDestroy=null;}
+        var retained=Job(owner);bool oldKept=ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer),old) &&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetSdf(owner.renderer,null),oldSdf) && ReferenceEquals(HybridLumenGIDeformedMesh.GetCharts(owner.renderer,null),oldCharts);
+        Console.WriteLine("Publication+cleanup baseline/candidate observation: escaped="+(escaped?.Message??"none")+"; publication="+
+            HybridLumenGISurfaceCharts.LastSetFailure?.Message+"; cleanup="+CoreUtils.LastDestroyFailure?.Message+
+            "; retainedJob="+(retained!=null)+"; sameJob="+ReferenceEquals(retained,failedJob)+"; oldPublished="+oldKept+
+            "; reserved="+HybridLumenGIDeformedMesh.ReservedBytes+"; before="+held+"; failedCleanup="+HybridLumenGIDeformedMesh.FailedCleanupCount+
+            "; destroyAttempts="+CoreUtils.FailedDestroyAttempts+"; healthyJobPending="+(Job(healthy)!=null));
+        Require(HybridLumenGISurfaceCharts.LastSetFailure!=null && CoreUtils.LastDestroyFailure!=null,"Did not execute both independent failure adapters");
+        Require(oldKept && !rejected.Destroyed && HybridLumenGIDeformedMesh.ReservedBytes==held,"Rollback changed old publication or falsely returned failed reservation");
+        Require(escaped==null && ReferenceEquals(retained,failedJob) && HybridLumenGIDeformedMesh.FailedCleanupCount==1,
+            "Publication cleanup failure escaped or lost its original tracked job owner");
+        Require(ReferenceEquals(retained.GetType().GetField("snapshot",PrivateInstance).GetValue(retained),failedSnapshot),"Failed snapshot identity was replaced");
+        Require(Job(healthy)==null && HybridLumenGIDeformedMesh.GetSourceMesh(healthy.renderer).vertices[0].x==411,"Failed owner prevented the other completed owner publication");
+        Require(Debug.Exceptions.Contains(CoreUtils.LastDestroyFailure),"Cleanup failure diagnostic is missing");
+        int destroyed=CoreUtils.Destroyed.Count;
+        owner.component.RequestCapture(Mesh(422));Frame();HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(ReferenceEquals(Job(owner),failedJob) && CoreUtils.FailedDestroyAttempts==1 && CoreUtils.Destroyed.Count==destroyed,
+            "Later request/context/idle retried the partly destroyed snapshot or lost the owner");
+        Application.Quit();Disable(owner);Disable(healthy);RenderPipelineManager.End();RecordedGpu.CompleteSubmitted();HybridLumenGIResourceRetirement.IdleUpdate();
+        OpenNewSession();Frame();HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(ReferenceEquals(Job(owner),failedJob) && HybridLumenGIDeformedMesh.FailedCleanupCount==1 && CoreUtils.FailedDestroyAttempts==1 &&
+            !rejected.Destroyed && failedReservation>0 && HybridLumenGIDeformedMesh.ReservedBytes==failedReservation && HybridLumenGIDeformedMesh.PublishedSnapshotCount==0,
+            "Disable/shutdown/new-session lost failed ownership, retried destruction or used a disposed cancellation source");
+        Console.WriteLine("PASS: actual completed-current-job publication+cleanup failure retains original job/snapshot/reservation, isolates other owners, and survives request/context/idle/disable/shutdown without retry or disposed CTS.");
+    }
     static void RootTailBeforeNativeQuit()
     {
         int foreignCalls=0,parent=0,child=0,withdrawals=0;

@@ -156,9 +156,9 @@ namespace UnityEngine.Rendering
     public static class CoreUtils
     {
         public static readonly List<UnityEngine.Object> Destroyed=new List<UnityEngine.Object>();
-        public static UnityEngine.Object FailDestroy;public static int FailedDestroyAttempts;
+        public static UnityEngine.Object FailDestroy;public static int FailedDestroyAttempts;public static Exception LastDestroyFailure;
         public static void Destroy(UnityEngine.Object value)
-        {if(value==null)return;if(ReferenceEquals(value,FailDestroy)){FailedDestroyAttempts++;throw new InvalidOperationException("Controlled native destruction failure");}if(value.Destroyed)throw new InvalidOperationException("Owned object destroyed twice");value.Destroyed=true;Destroyed.Add(value);}
+        {if(value==null)return;if(ReferenceEquals(value,FailDestroy)){FailedDestroyAttempts++;LastDestroyFailure=new InvalidOperationException("Controlled native destruction failure");throw LastDestroyFailure;}if(value.Destroyed)throw new InvalidOperationException("Owned object destroyed twice");value.Destroyed=true;Destroyed.Add(value);}
     }
 }
 
@@ -212,13 +212,13 @@ namespace HybridLumenGI
     {
         public sealed class Chart { }
         public sealed class BakeSettings {public float maxNormalAngleDegrees,paddingFraction,minimumPadding;public int maxTrianglesPerChart,chartBudget;}
-        public Mesh SourceMesh,CaptureMesh;public static Action BeforeSet;public static bool FailSet;
+        public Mesh SourceMesh,CaptureMesh;public static Action BeforeSet;public static bool FailSet;public static Exception LastSetFailure;public static Mesh LastPublishingMesh;
         public static Chart[] BakeTriangles(Vector3[] vertices,int[][] triangles,BakeSettings settings,out int report,Func<int,int,bool> progress)
         {report=0;return new[]{new Chart()};}
         public static Mesh CreateCaptureMesh(Mesh source,Chart[] charts)
         {return new Mesh{vertices=source.vertices,normals=source.normals,tangents=source.tangents,uv=source.uv,bounds=source.bounds};}
         public void SetBakedData(Mesh source,Mesh capture,Chart[] charts)
-        {BeforeSet?.Invoke();if(FailSet)throw new InvalidOperationException("Controlled chart publication failure");SourceMesh=source;CaptureMesh=capture;}
+        {LastPublishingMesh=source;BeforeSet?.Invoke();if(FailSet){LastSetFailure=new InvalidOperationException("Controlled chart publication failure");throw LastSetFailure;}SourceMesh=source;CaptureMesh=capture;}
     }
     public static class HybridLumenGIAssetPageStreaming {public interface ICompletion {bool IsComplete {get;}}}
     public sealed class HybridLumenGIStreamedRepresentation
