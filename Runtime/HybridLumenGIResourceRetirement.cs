@@ -24,7 +24,7 @@ namespace HybridLumenGI
         private sealed class Ticket : HybridLumenGIAssetPageStreaming.ICompletion
         {
             internal GraphicsFence fence;
-            internal bool submitted, requiresContext, submissionUnknown;
+            internal bool submitted, requiresContext, submissionUnknown, awaitDetachedPassIdle;
             public bool IsComplete
             {
                 get{if(!submitted || submissionUnknown)return false;try{return fence.passed;}catch(Exception){return false;}}
@@ -85,6 +85,10 @@ namespace HybridLumenGI
             EnsureRegistered();
             // EndContext alone is not an outside certificate: other listeners may still run.
             if(contextEnded && !submissionUncertain)outsideRenderLoop=true;
+            if(outsideRenderLoop)
+                foreach(var ticket in pending)
+                    if(ticket.awaitDetachedPassIdle && !ticket.submissionUnknown)
+                    {ticket.awaitDetachedPassIdle=false;ticket.requiresContext=false;}
             PollOwned();
             if(outsideRenderLoop)SubmitImmediate();
             PollOwned();
@@ -162,9 +166,20 @@ namespace HybridLumenGI
         }
         /// <summary>Call after atomically replacing/detaching the owned object from all new readers.</summary>
         public static void Retire(Action destroyOwned,HybridLumenGIAssetPageStreaming.ICompletion prerequisite=null)
+            =>Enqueue(destroyOwned,prerequisite,false);
+        /// <summary>
+        /// Only for an entire renderer pass atomically detached with StopAdmission. Recorded
+        /// URP graph callbacks execute synchronously within their context; retaining the pass
+        /// through a subsequent real idle boundary covers their final submission. This boundary
+        /// authorizes a fresh fence, never destruction or promotion of ordinary tail tickets.
+        /// </summary>
+        internal static void RetireDetachedPass(Action destroyOwned)
+            =>Enqueue(destroyOwned,null,true);
+        private static void Enqueue(Action destroyOwned,HybridLumenGIAssetPageStreaming.ICompletion prerequisite,bool detachedPass)
         {
             if(destroyOwned==null)throw new ArgumentNullException(nameof(destroyOwned));
             EnsureRegistered();var ticket=new Ticket{requiresContext=!outsideRenderLoop,submissionUnknown=submissionUncertain};
+            ticket.awaitDetachedPassIdle=detachedPass && !outsideRenderLoop;
             pending.Add(ticket);owned.Add(new Owned{destroy=destroyOwned,ticket=ticket,prerequisite=prerequisite});
             if(shuttingDown)DrainShutdown();
         }
@@ -192,7 +207,7 @@ namespace HybridLumenGI
                 if(representation.ReportUnloadSafe(representation.Generation,ticket))pending.Add(ticket);
             }
             if(pending.Count==0 || !SystemInfo.supportsGraphicsFence || submissionUncertain)return;
-            var batch=new List<Ticket>();foreach(var ticket in pending)if(!ticket.submissionUnknown)batch.Add(ticket);
+            var batch=new List<Ticket>();foreach(var ticket in pending)if(!ticket.submissionUnknown && !ticket.awaitDetachedPassIdle)batch.Add(ticket);
             if(batch.Count==0)return;
             var command=CommandBufferPool.Get("HybridLumenGI final-context resource retirement");
             try

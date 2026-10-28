@@ -19,6 +19,8 @@ namespace UnityEngine
         {
             if(Rendering.RecordedGpu.FailImmediate)throw new InvalidOperationException("Immediate submission failed");
             command.fence.Submitted=true;command.fence.Immediate=true;
+            command.fence.Readers=Rendering.RecordedGpu.SubmittedReaders.ToArray();
+            Rendering.RecordedGpu.SubmittedReaders.Clear();
             if(Rendering.RecordedGpu.AutoCompleteImmediate)command.fence.Completed=true;
         }
     }
@@ -119,6 +121,7 @@ namespace UnityEngine.Rendering
         public static int Submits,CompleteNewFenceOnQuery;
         public static bool FailSubmit,FailImmediate,AutoCompleteImmediate;
         internal static readonly Dictionary<int,List<Action>> Readers=new Dictionary<int,List<Action>>();
+        internal static readonly List<Action> SubmittedReaders=new List<Action>();
         public static void CompleteSubmitted(){foreach(var fence in Fences)if(fence.Submitted&&!fence.Completed){foreach(var reader in fence.Readers)reader();fence.Completed=true;}}
     }
     public sealed class CommandBuffer
@@ -141,6 +144,10 @@ namespace UnityEngine.Rendering
         public static void Begin()=>beginContextRendering?.Invoke(new ScriptableRenderContext{Id=++context},new List<UnityEngine.Camera>());
         public static void End()=>endContextRendering?.Invoke(new ScriptableRenderContext{Id=context},new List<UnityEngine.Camera>());
         public static void Reader(Action read){if(!RecordedGpu.Readers.TryGetValue(context,out var readers))RecordedGpu.Readers.Add(context,readers=new List<Action>());readers.Add(read);}
+        // Explicit test-driver model of URP's successful context submission before EndContext.
+        // End() itself does not submit, complete or transfer an unknown context's readers.
+        public static void SubmitReadersBeforeEnd()
+        {if(RecordedGpu.Readers.TryGetValue(context,out var readers)){RecordedGpu.SubmittedReaders.AddRange(readers);readers.Clear();}}
     }
     public static class CoreUtils
     {

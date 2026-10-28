@@ -1,0 +1,51 @@
+using System;
+using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.Rendering;
+using HybridLumenGI;
+
+public static class ThinWallEditor
+{
+    static string Arg(string key,string fallback){var a=Environment.GetCommandLineArgs();int i=Array.IndexOf(a,key);return i>=0&&i+1<a.Length?a[i+1]:fallback;}
+    [Serializable] class ObjectRow {public string name,mesh,material,shader,charts;public Vector3 position,scale,boundsCenter,boundsSize;public Quaternion rotation;public Matrix4x4 matrix;public int layer,cull;public uint renderingLayer;public string shadows;}
+    [Serializable] class LightRow {public string name,type,shadows;public bool enabled;public Vector3 position;public Quaternion rotation;public Color color;public float intensity,range,strength;public int mask;public uint renderingMask;}
+    [Serializable] class Manifest {public string config,scope,unity,featureJson;public ObjectRow[] objects;public LightRow[] lights;public Vector3 cameraPosition;public Quaternion cameraRotation;public float fov,aspect,ambientIntensity;public Color ambientLight;public string ambientMode;public bool skybox;}
+    public static void Prepare()
+    {
+        string config=Arg("-thinWallConfig","A");if(config!="A"&&config!="B"&&config!="C")throw new Exception("Invalid fixed config");
+        ComparisonRunnerEditor.Prepare();var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        var capture=UnityEngine.Object.FindFirstObjectByType<ComparisonCapture>();var feature=(HybridLumenGIRendererFeature)capture.feature;
+        var settings=new SerializedObject(feature);settings.FindProperty("settings.bounceFeedback").floatValue=config=="B"?0:1;
+        settings.FindProperty("settings.preferHardwareTracing").boolValue=false;settings.FindProperty("settings.exactSoftwareTracing").boolValue=true;
+        settings.FindProperty("settings.radianceClamp").floatValue=0;settings.ApplyModifiedPropertiesWithoutUndo();EditorUtility.SetDirty(feature);
+        capture.totalFrames=120;capture.quitWhenComplete=true;capture.label="thin-wall-static-"+config;
+        capture.colorView=capture.thinView;capture.camera.transform.SetPositionAndRotation(capture.thinView.position,capture.thinView.rotation);
+        foreach(var light in capture.lights)light.enabled=config!="C"||light.name=="Behind thin wall";
+        var wall=GameObject.Find("Thin wall 3cm").GetComponent<Renderer>();var floor=GameObject.Find("Thin-wall floor").GetComponent<Renderer>();
+        var thinLight=GameObject.Find("Behind thin wall").GetComponent<Light>();
+        if(Vector3.Distance(wall.bounds.center,new Vector3(8,1.5f,.5f))>1e-5f||Vector3.Distance(wall.bounds.size,new Vector3(6,3,.03f))>1e-4f)throw new Exception("Thin-wall asset contract changed");
+        if(floor.gameObject.layer!=0||floor.renderingLayerMask!=1||Vector3.Distance(thinLight.transform.position,new Vector3(8,2,2))>1e-5f)throw new Exception("C receiver/lamp contract changed");
+        var manifest=new Manifest{config=config,scope="120-frame static probe; not a 720-frame sequence or physical whole-image reference",unity=Application.unityVersion,
+            featureJson=JsonUtility.ToJson(feature,true),cameraPosition=capture.camera.transform.position,cameraRotation=capture.camera.transform.rotation,
+            fov=capture.camera.fieldOfView,aspect=640f/360,ambientLight=RenderSettings.ambientLight,ambientIntensity=RenderSettings.ambientIntensity,
+            ambientMode=RenderSettings.ambientMode.ToString(),skybox=RenderSettings.skybox!=null,
+            objects=UnityEngine.Object.FindObjectsByType<HybridLumenGIProxy>(FindObjectsSortMode.InstanceID).Select(proxy=>
+            {
+                var renderer=proxy.SourceRenderer;var material=renderer.sharedMaterial;return new ObjectRow{name=proxy.name,
+                    mesh=renderer.GetComponent<MeshFilter>().sharedMesh.name,material=material.name,shader=material.shader.name,
+                    charts=proxy.SurfaceCharts?proxy.SurfaceCharts.name:"none",position=renderer.transform.position,rotation=renderer.transform.rotation,
+                    scale=renderer.transform.lossyScale,matrix=renderer.localToWorldMatrix,boundsCenter=renderer.bounds.center,boundsSize=renderer.bounds.size,
+                    layer=renderer.gameObject.layer,renderingLayer=renderer.renderingLayerMask,shadows=renderer.shadowCastingMode.ToString(),cull=(int)material.GetFloat("_Cull")};
+            }).ToArray(),
+            lights=capture.lights.Select(l=>new LightRow{name=l.name,type=l.type.ToString(),enabled=l.enabled,position=l.transform.position,rotation=l.transform.rotation,
+                color=l.color,intensity=l.intensity,range=l.range,shadows=l.shadows.ToString(),strength=l.shadowStrength,mask=l.cullingMask,renderingMask=unchecked((uint)l.renderingLayerMask)}).ToArray()};
+        string output=Arg("-comparisonOutput","");Directory.CreateDirectory(output);File.WriteAllText(Path.Combine(output,"scene-contract.json"),JsonUtility.ToJson(manifest,true));
+        Directory.CreateDirectory("Assets/ThinWallProbe");EditorUtility.SetDirty(capture);EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene,"Assets/ThinWallProbe/Static.unity");AssetDatabase.SaveAssets();
+        Debug.Log("THIN_WALL_PREPARED config="+config+" frames=120 static thinView exact-software requested; real readiness still required");
+    }
+    public static void Play(){Prepare();EditorApplication.EnterPlaymode();}
+}

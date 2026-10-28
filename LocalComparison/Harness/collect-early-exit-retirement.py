@@ -1,0 +1,27 @@
+"""Archive expected first-frame failure before restoration. No native rerun."""
+import argparse,hashlib,json,shutil
+from pathlib import Path
+from native_log_check import scan
+p=argparse.ArgumentParser();p.add_argument('--pid',required=True,type=int);p.add_argument('--exit-code',required=True,type=int);p.add_argument('--exec-chunk',required=True);p.add_argument('--variant',choices=['baseline','fixed'],default='baseline');a=p.parse_args()
+root=Path(__file__).resolve().parents[2];out=root/f'LocalComparison/Review/early-exit-retirement-01/{a.variant}';name='EarlyExit01-'+a.variant
+assert not (out/'run').exists(),'Cannot overwrite original physical attribution'
+source=Path('I:/Unity test/Comparison/Evidence')/name
+if source.exists():shutil.copytree(source,out/'run')
+else:(out/'run').mkdir()
+log=out/'Unity.log';shutil.copy2(Path('I:/Unity test/Logs')/(name+'.log'),log)
+upm=Path('I:/Unity test/Logs')/(name+'-upm.log')
+if upm.exists():shutil.copy2(upm,out/'Unity-upm.log')
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+m=json.loads((out/'instrumentation/manifest.json').read_text(encoding='utf-8'));checks={}
+for key,item in m['files'].items():checks[key]=sha(Path(item['path']))==item['instrumentedSha256']
+for key,item in m['helpers'].items():checks[key]=sha(Path(item['path']))==item['sha256']
+for relative,expected in m['productSourceSha256'].items():checks['workspace/'+relative]=sha(root/relative)==expected
+hits=scan(log)
+for number,line in enumerate(log.read_text(encoding='utf-8').splitlines(),1):
+ if 'EARLY_EXIT_TRACE_FAILED' in line:hits.append({'category':'trace-failure','line':number,'text':line})
+execution={'pid':a.pid,'exitCode':a.exit_code,'execChunk':a.exec_chunk,'sourceChecks':checks,'nativeFailureSignatures':hits,
+ 'scope':'Single '+a.variant+' attribution; expected original observer failure retained. Exit1 is not resource acceptance.',
+ 'nativeLogSha256':sha(log),'outputSha256':{str(p.relative_to(out/'run')):sha(p) for p in sorted((out/'run').rglob('*')) if p.is_file()}}
+(out/'execution.json').write_text(json.dumps(execution,indent=2),encoding='utf-8')
+print(json.dumps({'archivePassed':all(checks.values()),'nativeExit':a.exit_code,'nativeFailureSignatures':hits}))
+assert all(checks.values()),'Source provenance mismatch; evidence retained'

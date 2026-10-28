@@ -17,7 +17,8 @@ static LOCacheRecord loRecord;
 void LOBegin(uint entry)
 {
     loLane=-1;loRecord=(LOCacheRecord)0;
-    for(int lane=0;lane<4;lane++)if(_LO_Entries[lane]==(int)entry)loLane=lane;
+    // CPU supplies unique identities/addresses; unused capacity is -1.
+    for(int lane=0;lane<4;lane++)if(_LO_Entries[lane]==(int)entry){loLane=lane;break;}
     if(loLane<0)return;
     loRecord.before=_HLGI_CacheRead[entry];
     loRecord.meta=uint4(entry,_LO_Logical,_LO_GiFrame,0x4C4F3031u);loRecord.patch.w=(uint)_HLGI_FrameIndex;

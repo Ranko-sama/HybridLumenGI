@@ -167,7 +167,7 @@ namespace HybridLumenGI
         {
             HybridLumenGIResourceRetirement.RegisterShutdownOwner(WithdrawForShutdown);
             if(HybridLumenGIResourceRetirement.AdmissionClosed){WithdrawForShutdown();return;}
-            pass?.Dispose(); CoreUtils.Destroy(composite);
+            WithdrawForShutdown();
             traceCompute=traceCompute!=null?traceCompute:Resources.Load<ComputeShader>("HybridLumenGI/HybridLumenGI");
             compositeShader=compositeShader!=null?compositeShader:Resources.Load<Shader>("HybridLumenGI/HybridLumenGIComposite");
             surfaceShader=surfaceShader!=null?surfaceShader:Resources.Load<Shader>("HybridLumenGI/HybridLumenGISurface");
@@ -197,13 +197,12 @@ namespace HybridLumenGI
             if(oldPass==null && oldComposite==null)return;
             // Already recorded graph callbacks retain the entire pass/state. Direct texture
             // and cache destruction inside Dispose is deferred until those readers finish.
-            HybridLumenGIResourceRetirement.Retire(()=>{oldPass?.Dispose();CoreUtils.Destroy(oldComposite);});
+            HybridLumenGIResourceRetirement.RetireDetachedPass(()=>{oldPass?.Dispose();CoreUtils.Destroy(oldComposite);});
         }
         protected override void Dispose(bool disposing)
         {
             HybridLumenGIResourceRetirement.UnregisterShutdownOwner(WithdrawForShutdown);
-            if(HybridLumenGIResourceRetirement.AdmissionClosed){WithdrawForShutdown();return;}
-            pass?.Dispose();pass=null;CoreUtils.Destroy(composite);composite=null;
+            WithdrawForShutdown();
         }
 
         [StructLayout(LayoutKind.Sequential)] private struct CacheData

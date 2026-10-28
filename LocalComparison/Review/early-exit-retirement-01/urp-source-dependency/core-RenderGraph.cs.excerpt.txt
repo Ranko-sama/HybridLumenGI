@@ -1,0 +1,105 @@
+// Reference excerpt only; Unity Companion License, see adjacent license file.
+// Original Runtime/RenderGraph/RenderGraph.cs lines 1228-1305
+        public void EndRecordingAndExecute()
+        {
+            Execute();
+        }
+
+        /// <summary>
+        /// Execute the Render Graph in its current state.
+        /// </summary>
+        internal void Execute()
+        {
+            m_ExecutionExceptionWasRaised = false;
+
+            try
+            {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+                if (m_RenderGraphContext.cmd == null)
+                    throw new InvalidOperationException("RenderGraph.BeginRecording was not called before executing the render graph.");
+#endif
+                if (!m_DebugParameters.immediateMode)
+                {
+                    LogFrameInformation();
+
+                    int graphHash = 0;
+                    if (m_EnableCompilationCaching)
+                        graphHash = ComputeGraphHash();
+
+                    if (nativeRenderPassesEnabled)
+                        CompileNativeRenderGraph(graphHash);
+                    else
+                        CompileRenderGraph(graphHash);
+
+                    m_Resources.BeginExecute(m_CurrentFrameIndex);
+
+#if UNITY_EDITOR
+                    // Feeding Render Graph Viewer before resource deallocation at pass execution
+                    GenerateDebugData();
+#endif
+
+                    if (nativeRenderPassesEnabled)
+                        ExecuteNativeRenderGraph();
+                    else
+                        ExecuteRenderGraph();
+
+                    // Clear the shader bindings for all global textures to make sure bindings don't leak outside the graph
+                    ClearGlobalBindings();
+                }
+            }
+            catch (Exception e)
+            {
+                if (m_RenderGraphContext.contextlessTesting)
+                {
+                    // Throw it for the tests to handle
+                    throw;
+                }
+                else
+                {
+                    // If we're not testing log the exception and swallow it.
+                    // TODO: Do we really want to swallow exceptions here? Not a very c# thing to do.
+                    Debug.LogError("Render Graph Execution error");
+                    if (!m_ExecutionExceptionWasRaised) // Already logged. TODO: There is probably a better way in C# to handle that.
+                        Debug.LogException(e);
+                    m_ExecutionExceptionWasRaised = true;
+                }
+            }
+            finally
+            {
+                if (m_DebugParameters.immediateMode)
+                    ReleaseImmediateModeResources();
+
+                ClearCompiledGraph(m_CurrentCompiledGraph, m_EnableCompilationCaching);
+
+                m_Resources.EndExecute();
+
+                InvalidateContext();
+
+                m_HasRenderGraphBegun = false;
+            }
+        }
+
+// Original Runtime/RenderGraph/RenderGraph.cs lines 1376-1398
+
+        void ClearCompiledGraph(CompiledGraph compiledGraph, bool useCompilationCaching)
+        {
+            ClearRenderPasses();
+            m_Resources.Clear(m_ExecutionExceptionWasRaised);
+            m_RendererLists.Clear();
+            registeredGlobals.Clear();
+
+            // When using compilation caching, we need to keep alive the result of the compiled graph.
+            if (!useCompilationCaching)
+            {
+                if (!nativeRenderPassesEnabled)
+                    compiledGraph?.Clear();
+            }
+        }
+
+        void InvalidateContext()
+        {
+            m_RenderGraphContext.cmd = null;
+            m_RenderGraphContext.renderGraphPool = null;
+            m_RenderGraphContext.defaultResources = null;
+        }
+

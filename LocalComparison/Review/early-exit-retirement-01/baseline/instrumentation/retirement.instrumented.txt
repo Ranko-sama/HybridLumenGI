@@ -1,0 +1,258 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Rendering;
+using Stopwatch = System.Diagnostics.Stopwatch;
+
+namespace HybridLumenGI
+{
+    /// <summary>
+    /// All-camera retirement gate. Mesh/material resources may be read by ordinary URP rendering
+    /// after GI. Detachment is followed by a final-context fence, or by an immediate queue
+    /// fence at a proven idle boundary. Unknown submission is retained; time is never proof.
+    /// </summary>
+    public static class HybridLumenGIResourceRetirement
+    {
+        private static readonly HashSet<Func<HybridLumenGIProxy,bool>> consumers=new HashSet<Func<HybridLumenGIProxy,bool>>();
+        private static readonly List<Ticket> pending=new List<Ticket>();
+        private static readonly List<Owned> owned=new List<Owned>();
+        private static readonly HashSet<Action> shutdownOwners=new HashSet<Action>();
+        private static bool registered, outsideRenderLoop, contextEnded=true, shuttingDown, withdrawing, draining, polling, submissionUncertain;
+        private static long shutdownDeadline;
+        private static int failedWithdrawals;
+        private const int ShutdownMilliseconds=5000;
+        private sealed class Ticket : HybridLumenGIAssetPageStreaming.ICompletion
+        {
+            internal GraphicsFence fence;
+            internal bool submitted, requiresContext, submissionUnknown;
+            public bool IsComplete
+            {
+                get{if(!submitted || submissionUnknown){global::EarlyExitRetirementTrace.Record("fence-ineligible",this);return false;}try{bool value=fence.passed;global::EarlyExitRetirementTrace.Record("fence-read",this,value?"passed":"not-passed");return value;}catch(Exception error){global::EarlyExitRetirementTrace.Record("fence-query-error",this,"unknown",error.GetType().Name);return false;}}
+            }
+        }
+        private sealed class Owned
+        {internal Action destroy;internal Ticket ticket;internal HybridLumenGIAssetPageStreaming.ICompletion prerequisite;internal bool failed;}
+        public static void Register(Func<HybridLumenGIProxy,bool> requiresRepresentation)
+        {if(requiresRepresentation==null)throw new ArgumentNullException(nameof(requiresRepresentation));consumers.Add(requiresRepresentation);EnsureRegistered();}
+        public static void Unregister(Func<HybridLumenGIProxy,bool> requiresRepresentation)
+        {if(requiresRepresentation!=null)consumers.Remove(requiresRepresentation);}
+        public static int PendingCount=>pending.Count;
+        public static int OwnedCount=>owned.Count;
+        public static bool AdmissionClosed=>shuttingDown;
+        public static int FailedWithdrawalCount=>failedWithdrawals;
+        internal static void RegisterShutdownOwner(Action withdraw)
+        {if(withdraw==null)throw new ArgumentNullException(nameof(withdraw));shutdownOwners.Add(withdraw);EnsureRegistered();}
+        internal static void UnregisterShutdownOwner(Action withdraw){if(withdraw!=null)shutdownOwners.Remove(withdraw);}
+        public static int FailedCount {get{int n=0;foreach(var item in owned)if(item.failed)n++;return n;}}
+        public static bool SubmissionUncertain=>submissionUncertain;
+        public static int UnknownSubmissionCount {get{int n=0;foreach(var ticket in pending)if(ticket.submissionUnknown)n++;return n;}}
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void InitializeRuntime()
+        {
+            // No list/accounting reset: disabled domain reload may retain genuine owners.
+            shuttingDown=false;shutdownDeadline=0;EnsureRegistered();
+            HybridLumenGIResourceRetirementPump.EnsureExists();
+        }
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+        private static void InitializeEditor()=>EnsureRegistered();
+        private static void PlayModeChanged(UnityEditor.PlayModeStateChange state)
+        {
+            if(state==UnityEditor.PlayModeStateChange.ExitingPlayMode)BeginShutdown();
+            // EnteredEditMode is still old-session teardown. Only new Play initialization
+            // reopens admission; it does not discard old ownership or submission uncertainty.
+        }
+#endif
+        public static void EnsureRegistered()
+        {
+            if(registered)return;registered=true;
+            // Installed before the first context, not lazily at the first retirement.
+            RenderPipelineManager.beginContextRendering+=BeginContext;
+            RenderPipelineManager.endContextRendering+=EndContext;
+            Application.quitting+=BeginShutdown;
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.update+=IdleUpdate;
+            UnityEditor.EditorApplication.quitting+=BeginShutdown;
+            UnityEditor.EditorApplication.playModeStateChanged+=PlayModeChanged;
+            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload+=BeginShutdown;
+#endif
+        }
+        private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
+        {outsideRenderLoop=false;contextEnded=false;global::EarlyExitRetirementTrace.Record("begin-context");}
+        /// <summary>Only the early MonoBehaviour/Editor update boundary may call this.</summary>
+        internal static void IdleUpdate()
+        {
+            global::EarlyExitRetirementTrace.Record("idle-enter");
+            EnsureRegistered();
+            // EndContext alone is not an outside certificate: other listeners may still run.
+            if(contextEnded && !submissionUncertain)outsideRenderLoop=true;
+            global::EarlyExitRetirementTrace.Record("idle-certified-state");
+            PollOwned();
+            if(outsideRenderLoop)SubmitImmediate();
+            PollOwned();
+            PollOtherOwners();
+        }
+        private static void BeginShutdown()
+        {
+            if(!shuttingDown)
+            {
+                shuttingDown=true;shutdownDeadline=Stopwatch.GetTimestamp()+Stopwatch.Frequency*ShutdownMilliseconds/1000;
+                global::EarlyExitRetirementTrace.Record("shutdown-closed");
+                // Close admission before withdrawing any owner. Each callback detaches and
+                // hands off storage; actual destruction still requires its own completion.
+                withdrawing=true;
+                try
+                {
+                    foreach(var withdraw in new List<Action>(shutdownOwners))
+                    {try{global::EarlyExitRetirementTrace.Record("withdraw-begin",destroy:withdraw);withdraw();global::EarlyExitRetirementTrace.Record("withdraw-returned",destroy:withdraw);}catch(Exception error){failedWithdrawals++;Debug.LogException(error);}}
+                    HybridLumenGIRayTexturePool.ClearReusable();
+                }
+                finally{withdrawing=false;}
+            }
+            DrainShutdown();
+        }
+        private static void DrainShutdown()
+        {
+            if(draining || polling || withdrawing)return;draining=true;
+            try
+            {
+                do
+                {
+                    PollOwned();if(outsideRenderLoop)SubmitImmediate();PollOwned();PollOtherOwners();
+                    if(owned.Count==0 && pending.Count==0){global::EarlyExitRetirementTrace.Record("drain-empty");ReportOtherOwners();return;}
+                    if(!outsideRenderLoop){global::EarlyExitRetirementTrace.Record("drain-stop-outside");break;}
+                    if(UnknownSubmissionCount!=0){global::EarlyExitRetirementTrace.Record("drain-stop-unknown");break;}
+                    if(FailedCount!=0){global::EarlyExitRetirementTrace.Record("drain-stop-failed");break;}
+                    if(!CanProgressWithoutMainLoop()){global::EarlyExitRetirementTrace.Record("drain-stop-no-progress");break;}
+                    if(!global::EarlyExitRetirementTrace.FenceSupport(SystemInfo.supportsGraphicsFence,"actual-product-guard")){global::EarlyExitRetirementTrace.Record("drain-stop-no-fence-support");break;}
+                    if(Stopwatch.GetTimestamp()>=shutdownDeadline){global::EarlyExitRetirementTrace.Record("drain-stop-deadline");break;}
+                    System.Threading.Thread.Sleep(1); // Time limits waiting; it never proves completion.
+                }while(true);
+                Debug.LogWarning("HybridLumenGI retained unresolved retirement resources: owned="+owned.Count+
+                    ", pending="+pending.Count+", unknownSubmission="+UnknownSubmissionCount+", failed="+FailedCount+
+                    ", failedWithdrawals="+failedWithdrawals+", outsideRenderLoop="+outsideRenderLoop+". No completion was assumed.");
+                ReportOtherOwners();
+            }
+            finally{draining=false;}
+        }
+        private static bool CanProgressWithoutMainLoop()
+        {
+            // Both waiting for a submitted fence and destroying a newly completed owner
+            // can progress. Do not reread the fence here: it may complete after PollOwned,
+            // and that transition must not strand its still-queued destroy callback.
+            // Callback-dependent prerequisites remain nonblocking and retain ownership.
+            foreach(var item in owned)
+            {
+                if(item.failed || !item.ticket.submitted || item.ticket.submissionUnknown){global::EarlyExitRetirementTrace.Record("progress-ineligible",item.ticket,detail:item.failed?"destroy failed":!item.ticket.submitted?"not submitted":"unknown submission");continue;}
+                try{bool ready=item.prerequisite==null || item.prerequisite.IsComplete;global::EarlyExitRetirementTrace.Record("progress-prerequisite",item.ticket,ready?"ready":"not-ready",null,null,item.prerequisite);if(ready)return true;}
+                catch(Exception error){global::EarlyExitRetirementTrace.Record("progress-prerequisite-error",item.ticket,"unknown",error.GetType().Name,null,item.prerequisite);}
+            }
+            // A completed parent can enqueue children during PollOwned. They still need
+            // their own fence, and an eligible idle submission can make real progress.
+            foreach(var ticket in pending){global::EarlyExitRetirementTrace.Record("progress-pending",ticket,detail:ticket.requiresContext?"requiresContext":ticket.submissionUnknown?"unknown submission":"eligible");if(!ticket.requiresContext && !ticket.submissionUnknown)return true;}
+            return false;
+        }
+        private static void PollOtherOwners()
+        {
+            HybridLumenGIHitMaterialPass.PollRetired();
+            // Cancelled jobs from an older session remain owned across a new Play session.
+            HybridLumenGIDeformedMesh.PollShutdownWork();
+        }
+        private static void ReportOtherOwners()
+        {
+            if(HybridLumenGIHitMaterialBatch.TotalAllocatedBytes==0 && HybridLumenGIDeformedMesh.ReservedBytes==0 && failedWithdrawals==0)return;
+            Debug.LogWarning("HybridLumenGI separate owners remain after generic drain: materialAndArenaBytes="+
+                HybridLumenGIHitMaterialBatch.TotalAllocatedBytes+", arenaBytes="+HybridLumenGIRayTexturePool.TotalAllocatedBytes+
+                ", deformationBytes="+HybridLumenGIDeformedMesh.ReservedBytes+", deformationJobs="+HybridLumenGIDeformedMesh.PendingWorkerCount+
+                ", deformationCleanupFailed="+HybridLumenGIDeformedMesh.FailedCleanupCount+", failedWithdrawals="+failedWithdrawals+". Callback-dependent work was not waited on synchronously.");
+        }
+        /// <summary>Call after atomically replacing/detaching the owned object from all new readers.</summary>
+        public static void Retire(Action destroyOwned,HybridLumenGIAssetPageStreaming.ICompletion prerequisite=null)
+        {
+            if(destroyOwned==null)throw new ArgumentNullException(nameof(destroyOwned));
+            EnsureRegistered();var ticket=new Ticket{requiresContext=!outsideRenderLoop,submissionUnknown=submissionUncertain};
+            pending.Add(ticket);owned.Add(new Owned{destroy=destroyOwned,ticket=ticket,prerequisite=prerequisite});
+            global::EarlyExitRetirementTrace.Record("enqueue",ticket,null,null,destroyOwned,prerequisite);
+            if(shuttingDown)DrainShutdown();
+        }
+        private static void EndContext(ScriptableRenderContext context,List<Camera> cameras)
+        {
+            global::EarlyExitRetirementTrace.Record("end-context-enter");
+            try {
+            contextEnded=true; // Only a subsequent IdleUpdate may certify outside this event.
+            PollOwned();
+            var representations=HybridLumenGIStreamedRepresentation.Active;
+            for(int i=0;i<representations.Count;i++)
+            {
+                var representation=representations[i];
+                if(ReferenceEquals(representation,null) || !representation.WantsUnload)continue;
+                var proxy=representation.Proxy;
+                bool required=false;
+                if(!representation.IsUnavailable && proxy!=null && proxy.isActiveAndEnabled)
+                {
+                    foreach(var query in consumers)
+                    {
+                        try{if(query(proxy)){required=true;break;}}
+                        catch(Exception){required=true;break;}
+                    }
+                }
+                if(required)continue;
+                var ticket=new Ticket{requiresContext=true};
+                if(representation.ReportUnloadSafe(representation.Generation,ticket))pending.Add(ticket);
+            }
+            if(pending.Count==0 || !global::EarlyExitRetirementTrace.FenceSupport(SystemInfo.supportsGraphicsFence,"actual-product-guard") || submissionUncertain)return;
+            var batch=new List<Ticket>();foreach(var ticket in pending){global::EarlyExitRetirementTrace.Record(ticket.submissionUnknown?"context-excluded":"context-batch",ticket,detail:ticket.submissionUnknown?"unknown submission":"known context candidate");if(!ticket.submissionUnknown)batch.Add(ticket);}
+            if(batch.Count==0)return;
+            var command=CommandBufferPool.Get("HybridLumenGI final-context resource retirement");
+            try
+            {
+                GraphicsFence fence=command.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation,SynchronisationStageFlags.AllGPUOperations);
+                context.ExecuteCommandBuffer(command);context.Submit();
+                // Another context's later fence cannot repair an unknown earlier submission.
+                foreach(var ticket in batch){ticket.fence=fence;ticket.submitted=true;pending.Remove(ticket);global::EarlyExitRetirementTrace.Record("submitted",ticket,detail:"context");}
+            }
+            catch(Exception error){global::EarlyExitRetirementTrace.Record("submit-exception",detail:error.GetType().Name);MarkSubmissionUnknown();}
+            finally{CommandBufferPool.Release(command);}
+            }finally{global::EarlyExitRetirementTrace.Record("end-context-return");}
+        }
+        private static void SubmitImmediate()
+        {
+            global::EarlyExitRetirementTrace.Record("idle-submit-enter");
+            if(!outsideRenderLoop || pending.Count==0 || !global::EarlyExitRetirementTrace.FenceSupport(SystemInfo.supportsGraphicsFence,"actual-product-guard") || submissionUncertain)return;
+            var batch=new List<Ticket>();foreach(var ticket in pending){global::EarlyExitRetirementTrace.Record(ticket.requiresContext?"idle-excluded":"idle-batch",ticket,detail:ticket.requiresContext?"requiresContext":"eligible idle candidate");if(!ticket.requiresContext)batch.Add(ticket);}
+            if(batch.Count==0)return;
+            var command=CommandBufferPool.Get("HybridLumenGI idle resource retirement");
+            try
+            {
+                var fence=command.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation,SynchronisationStageFlags.AllGPUOperations);
+                Graphics.ExecuteCommandBuffer(command);
+                foreach(var ticket in batch){ticket.fence=fence;ticket.submitted=true;pending.Remove(ticket);global::EarlyExitRetirementTrace.Record("submitted",ticket,detail:"idle");}
+            }
+            catch(Exception error){global::EarlyExitRetirementTrace.Record("submit-exception",detail:error.GetType().Name);MarkSubmissionUnknown();}
+            finally{CommandBufferPool.Release(command);}
+        }
+        private static void MarkSubmissionUnknown()
+        {
+            // The failed context may also have read still-live resources retired later.
+            // Without per-reader provenance, neither a new context nor an idle fence repairs it.
+            submissionUncertain=true;outsideRenderLoop=false;
+            foreach(var ticket in pending)ticket.submissionUnknown=true;
+        }
+        private static void PollOwned()
+        {
+            if(polling)return;polling=true;
+            try
+            {
+                for(int i=owned.Count-1;i>=0;i--)
+                {
+                    var item=owned[i];if(item.failed || !item.ticket.IsComplete)continue;
+                    bool ready=false;try{ready=item.prerequisite==null || item.prerequisite.IsComplete;global::EarlyExitRetirementTrace.Record("destroy-prerequisite",item.ticket,ready?"ready":"not-ready",null,null,item.prerequisite);}catch(Exception error){global::EarlyExitRetirementTrace.Record("destroy-prerequisite-error",item.ticket,"unknown",error.GetType().Name,null,item.prerequisite);}
+                    if(!ready)continue;
+                    try{global::EarlyExitRetirementTrace.Record("destroy-begin",item.ticket,null,null,item.destroy,item.prerequisite);item.destroy();owned.RemoveAt(i);global::EarlyExitRetirementTrace.Record("destroy-returned",item.ticket);}
+                    catch(Exception error){item.failed=true;global::EarlyExitRetirementTrace.Record("destroy-failed",item.ticket);Debug.LogException(error);}
+                }
+            }
+            finally{polling=false;}
+        }
+    }
+}

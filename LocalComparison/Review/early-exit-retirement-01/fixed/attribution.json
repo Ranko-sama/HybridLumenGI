@@ -1,0 +1,527 @@
+{
+  "expectedObserverFailure": true,
+  "lightoffCompleted": false,
+  "retirementProofPassed": false,
+  "scopedGIOwnerProofPassed": true,
+  "nativeAttributedLeaks": 0,
+  "nativeAttributionScope": "No remaining stack/named-buffer signature for the eight baseline-attributed GI allocations; not an assertion of all-process zero leaks.",
+  "engineScratchUnresolved": [
+    {
+      "category": "d3d-unreleased",
+      "line": 672,
+      "text": "[d3d12] Unreleased non-evictable resource 000001A51F422780 (size 1048576 B, lastUsedFence 13) 'D3D12ScratchBufferInternal::D3D12ScratchBufferInternal() ScratchBuffer (tag:1)'"
+    }
+  ],
+  "domain": "2320249b989346a2a73e3b1e4142f79f",
+  "completeTicketCount": 9,
+  "parent": {
+    "id": 1472973220,
+    "enqueue": 15,
+    "idleEligible": 18,
+    "submitted": 27,
+    "destroyBegin": 33,
+    "destroyReturned": 41
+  },
+  "children": [
+    {
+      "id": 820830156,
+      "owner": "CameraState.RetireSoftwareBuffers/nodes+leaves",
+      "logicalBytes": 24544,
+      "parent": 1472973220,
+      "events": [
+        {
+          "sequence": 34,
+          "stage": "enqueue",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 1472973220
+        },
+        {
+          "sequence": 44,
+          "stage": "idle-batch",
+          "phase": "idle",
+          "observed": "",
+          "detail": "eligible idle candidate",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 51,
+          "stage": "submitted",
+          "phase": "idle",
+          "observed": "",
+          "detail": "idle",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 82,
+          "stage": "fence-read",
+          "phase": "idle",
+          "observed": "passed",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 83,
+          "stage": "destroy-prerequisite",
+          "phase": "idle",
+          "observed": "ready",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 84,
+          "stage": "destroy-begin",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 85,
+          "stage": "destroy-returned",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 820830156
+        }
+      ]
+    },
+    {
+      "id": 312306234,
+      "owner": "HardwareBackend/software/Flags",
+      "logicalBytes": 128,
+      "parent": 1472973220,
+      "events": [
+        {
+          "sequence": 35,
+          "stage": "enqueue",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 1472973220
+        },
+        {
+          "sequence": 45,
+          "stage": "idle-batch",
+          "phase": "idle",
+          "observed": "",
+          "detail": "eligible idle candidate",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 52,
+          "stage": "submitted",
+          "phase": "idle",
+          "observed": "",
+          "detail": "idle",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 78,
+          "stage": "fence-read",
+          "phase": "idle",
+          "observed": "passed",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 79,
+          "stage": "destroy-prerequisite",
+          "phase": "idle",
+          "observed": "ready",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 80,
+          "stage": "destroy-begin",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 81,
+          "stage": "destroy-returned",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 312306234
+        }
+      ]
+    },
+    {
+      "id": 194026368,
+      "owner": "HardwareBackend/software/Instances",
+      "logicalBytes": 2048,
+      "parent": 1472973220,
+      "events": [
+        {
+          "sequence": 36,
+          "stage": "enqueue",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 1472973220
+        },
+        {
+          "sequence": 46,
+          "stage": "idle-batch",
+          "phase": "idle",
+          "observed": "",
+          "detail": "eligible idle candidate",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 53,
+          "stage": "submitted",
+          "phase": "idle",
+          "observed": "",
+          "detail": "idle",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 74,
+          "stage": "fence-read",
+          "phase": "idle",
+          "observed": "passed",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 75,
+          "stage": "destroy-prerequisite",
+          "phase": "idle",
+          "observed": "ready",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 76,
+          "stage": "destroy-begin",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 77,
+          "stage": "destroy-returned",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 194026368
+        }
+      ]
+    },
+    {
+      "id": -144989580,
+      "owner": "HardwareBackend/software/Normals",
+      "logicalBytes": 15360,
+      "parent": 1472973220,
+      "events": [
+        {
+          "sequence": 37,
+          "stage": "enqueue",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 1472973220
+        },
+        {
+          "sequence": 47,
+          "stage": "idle-batch",
+          "phase": "idle",
+          "observed": "",
+          "detail": "eligible idle candidate",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 54,
+          "stage": "submitted",
+          "phase": "idle",
+          "observed": "",
+          "detail": "idle",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 70,
+          "stage": "fence-read",
+          "phase": "idle",
+          "observed": "passed",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 71,
+          "stage": "destroy-prerequisite",
+          "phase": "idle",
+          "observed": "ready",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 72,
+          "stage": "destroy-begin",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 73,
+          "stage": "destroy-returned",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": -144989580
+        }
+      ]
+    },
+    {
+      "id": -810430458,
+      "owner": "HardwareBackend/software/Surface",
+      "logicalBytes": 18432,
+      "parent": 1472973220,
+      "events": [
+        {
+          "sequence": 38,
+          "stage": "enqueue",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 1472973220
+        },
+        {
+          "sequence": 48,
+          "stage": "idle-batch",
+          "phase": "idle",
+          "observed": "",
+          "detail": "eligible idle candidate",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 55,
+          "stage": "submitted",
+          "phase": "idle",
+          "observed": "",
+          "detail": "idle",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 66,
+          "stage": "fence-read",
+          "phase": "idle",
+          "observed": "passed",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 67,
+          "stage": "destroy-prerequisite",
+          "phase": "idle",
+          "observed": "ready",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 68,
+          "stage": "destroy-begin",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 69,
+          "stage": "destroy-returned",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": -810430458
+        }
+      ]
+    },
+    {
+      "id": -418055470,
+      "owner": "HardwareBackend/software/Bindings",
+      "logicalBytes": 3072,
+      "parent": 1472973220,
+      "events": [
+        {
+          "sequence": 39,
+          "stage": "enqueue",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 1472973220
+        },
+        {
+          "sequence": 49,
+          "stage": "idle-batch",
+          "phase": "idle",
+          "observed": "",
+          "detail": "eligible idle candidate",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 56,
+          "stage": "submitted",
+          "phase": "idle",
+          "observed": "",
+          "detail": "idle",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 62,
+          "stage": "fence-read",
+          "phase": "idle",
+          "observed": "passed",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 63,
+          "stage": "destroy-prerequisite",
+          "phase": "idle",
+          "observed": "ready",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 64,
+          "stage": "destroy-begin",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 65,
+          "stage": "destroy-returned",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": -418055470
+        }
+      ]
+    },
+    {
+      "id": 2097119332,
+      "owner": "HardwareBackend/software/Matrices",
+      "logicalBytes": 1024,
+      "parent": 1472973220,
+      "events": [
+        {
+          "sequence": 40,
+          "stage": "enqueue",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 1472973220
+        },
+        {
+          "sequence": 50,
+          "stage": "idle-batch",
+          "phase": "idle",
+          "observed": "",
+          "detail": "eligible idle candidate",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 57,
+          "stage": "submitted",
+          "phase": "idle",
+          "observed": "",
+          "detail": "idle",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 58,
+          "stage": "fence-read",
+          "phase": "idle",
+          "observed": "passed",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 59,
+          "stage": "destroy-prerequisite",
+          "phase": "idle",
+          "observed": "ready",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 60,
+          "stage": "destroy-begin",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 0
+        },
+        {
+          "sequence": 61,
+          "stage": "destroy-returned",
+          "phase": "idle",
+          "observed": "",
+          "detail": "",
+          "outside": true,
+          "parent": 2097119332
+        }
+      ]
+    }
+  ],
+  "releasedLogicalChildBytes": 64608,
+  "sourceAndRestorationVerified": true,
+  "note": "Frozen analysis.json remains conservative false because engine scratch is unresolved. This supplemental scoped reconciliation does not overwrite that contract or claim light-off acceptance."
+}

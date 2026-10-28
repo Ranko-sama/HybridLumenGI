@@ -36,9 +36,16 @@ class Analysis:
   lights={(r['logicalFrame'],r['phase']):r for r in lines(self.d/'lightoff-lights.jsonl')}
   bindings={r['logicalFrame']:r for r in lines(self.d/'lightoff-bindings.jsonl')}
   self.check(len(lights)==1080 and len(bindings)==360,'unique phase/binding coverage')
-  previous=None;fixed=None;segment=None;segment_start=None;queue_frames=0
-  for frame in range(360):
-   where={'frame':frame};f=frames[frame];cmd=commands[frame];s=read(self.d/f'lightoff-schedule-{frame:04d}.json');binding=bindings[frame]
+  frame_map={f['logicalFrame']:f for f in frames};command_map={c['logicalFrame']:c for c in commands}
+  previous={};fixed=None;fixed_aliases=None;segment=None;segment_start=None;queue_frames=0
+  for frame in sorted(frame_map):
+   where={'frame':frame};f=frame_map[frame]
+   required=[(frame,phase) for phase in ['before-update','after-update','uploaded-domains']]
+   if frame not in command_map or frame not in bindings or any(key not in lights for key in required) or not (self.d/f'lightoff-schedule-{frame:04d}.json').exists():
+    self.check(False,'partial frame source coverage',**where);continue
+   cmd=command_map[frame];s=read(self.d/f'lightoff-schedule-{frame:04d}.json');binding=bindings[frame]
+   if any(not (self.d/f'lightoff-{frame:04d}-{stage}.bin').exists() for stage in ['gpu-mask','gpu-lights','gpu-changes','cache-observed']):
+    self.check(False,'partial GPU source coverage',**where);continue
    diag=json.loads(f['diagnosticsJson']);self.check(diag['exactSoftwareGeometry'] and not diag['hardwareBackend'],'actual software backend',**where)
    self.exact(cmd['enabled'],frame<120,'real source enabled',**where)
    self.exact(cmd['cameraPosition'],commands[0]['cameraPosition'],'static camera',**where);self.exact(cmd['doorPosition'],commands[0]['doorPosition'],'static door',**where)
@@ -82,17 +89,24 @@ class Analysis:
    if signature!=segment:segment=signature;segment_start=s['tick']
    if b<N:queue_frames+=1
    if q and s['tick']-segment_start>=math.ceil(N/q):self.check(s['maxAge']<=math.ceil(N/q),'stable identity service bound',**where)
-   if frame==119:fixed=[identity(p) for p in s['patches']]
-   if frame>=119:self.exact([identity(p) for p in s['patches']],fixed,'frozen patch identities',**where)
+   if frame==119:fixed=[identity(p) for p in s['patches']];fixed_aliases=s.get('aliases')
+   if frame>=119:
+    self.exact([identity(p) for p in s['patches']],fixed,'frozen patch identities',**where)
+    self.exact(s.get('aliases'),fixed_aliases,'frozen point aliases',**where)
    records=self.bin(frame,'cache-observed').reshape(4,20,4).astype(float);uint=self.bin(frame,'cache-observed','<u4').reshape(4,20,4)
+   next_previous={}
    for lane,p in enumerate(s['patches']):
     loc={**where,'lane':lane};v=records[lane];u=uint[lane];old=v[:5];new=v[5:10];prepared=v[10];change=v[12];estimate=v[13];status=v[16];params=v[17]
     if p['entry']<0:self.count['unmapped']+=1;continue
+    header_valid=np.array_equal(u[18],[p['entry'],frame,s['giFrame'],0x4c4f3031])
+    self.check(header_valid,'actual cache observation header',**loc)
+    if not header_valid:self.count['missing-observer-record']+=1;continue
+    if not (self.d/f'lightoff-{frame:04d}-cache-actual-{lane}.bin').exists():self.check(False,'actual patch readback missing',**loc);continue
     actual=self.bin(frame,'cache-actual-'+str(lane)).reshape(5,4).astype(float)
     self.exact(new,actual,'private/actual new cache bytes',**loc)
-    self.exact(u[18],[p['entry'],frame,s['giFrame'],0x4c4f3031],'actual cache header',**loc)
     self.exact(u[19,3],s['giFrame'],'product sampling frame',**loc);self.exact(params[0],expected_count,'cache product Light count',**loc)
-    if previous is not None and identity(p)==identity(previous['patches'][lane]):self.exact(old,previous['records'][lane,5:10],'next read is previous write',**loc)
+    if identity(p) in previous:self.exact(old,previous[identity(p)],'next read is previous write',**loc)
+    next_previous[identity(p)]=new
     if not status[0]:
      self.count['uncovered']+=1;self.exact(new,np.zeros((5,4)),'uncovered writes zero',**loc);continue
     self.exact(u[19,:3],[p['card'],p['generation'],p['slot']],'covered patch identity',**loc)
@@ -120,10 +134,13 @@ class Analysis:
     if valid:self.count['valid-black' if np.all(new[0,:3]==0) else 'valid-nonblack']+=1
     if frame>=120 and v[15,3]>0:self.exact(v[15,:3],[0,0,0],'known direct terms after removal',**loc);self.count['off-known-direct-calls']+=int(v[15,3])
     self.cache.append({**loc,'entry':p['entry'],'covered':bool(status[0]),'scheduled':bool(change[3]),'known':bool(estimate[3]),'committed':bool(status[1]),'valid':valid,'old':old[0].tolist(),'prepared':prepared.tolist(),'estimateSum':estimate[:3].tolist(),'new':new[0].tolist(),'change':change[:2].tolist()})
-   previous={'patches':s['patches'],'records':records}
-   if frame in SAMPLES:self.gather(frame,s)
+   previous=next_previous
+   if frame in SAMPLES:
+    if (self.d/f'gather-{frame:04d}-events.bin').exists() and (self.d/f'frame-{frame:04d}.rgba32f').exists():self.gather(frame,s)
+    else:self.check(False,'partial gather/image coverage',**where)
   return {'passed':not self.fail,'failures':self.fail,'coverage':dict(self.count),'queueFrames':queue_frames,'fairnessQueueCovered':queue_frames>0,
-   'maxAbsoluteErrors':dict(self.maxerr),'cache':self.cache,'pixels':self.pixels,'scope':'One source-removal scene only. Remaining emission and histories prevent a zero-equilibrium claim; no performance, general convergence, DXR or full-plan acceptance.'}
+   'observedFrames':sorted(frame_map),'missingFrames':sorted(set(range(360))-set(frame_map)),
+   'maxAbsoluteErrors':dict(self.maxerr),'cache':self.cache,'pixels':self.pixels,'scope':'One source-removal scene only. Effective sources require actual inventory; no assumed zero-equilibrium, performance, general convergence, DXR or full-plan acceptance.'}
  def gather(self,frame,s):
   data=np.fromfile(self.d/f'gather-{frame:04d}-events.bin',dtype='<u4').reshape(4,256,32);floats=data.view('<f4').astype(float)
   stages={stage:self.bin(frame,stage).reshape(4,4).astype(float) for stage in ['raw','history','filtered']}

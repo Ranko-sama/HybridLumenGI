@@ -21,6 +21,8 @@ public static class SceneLightoffTap
     static bool finished,warmupPassed;static int pending,errors;
     static readonly HashSet<string> completed=new HashSet<string>();
     static readonly Dictionary<int,Selection[]> selections=new Dictionary<int,Selection[]>();
+    static readonly Dictionary<int,Selection[]> pointRules=new Dictionary<int,Selection[]>();
+    static readonly Dictionary<int,int[]> pointAliases=new Dictionary<int,int[]>();
     static readonly Dictionary<int,byte[]> observedCache=new Dictionary<int,byte[]>();
     static readonly Dictionary<string,byte[]> actualCache=new Dictionary<string,byte[]>();
     static readonly Dictionary<int,int> workFrames=new Dictionary<int,int>(),epochs=new Dictionary<int,int>();
@@ -35,6 +37,9 @@ public static class SceneLightoffTap
         public uint generation,layout,chart;
         public bool ready,published;
         public Vector3 point,projected;
+        public Selection Copy()=>(Selection)MemberwiseClone();
+        public LightoffPatchMap.Identity Identity()=>new LightoffPatchMap.Identity{entry=entry,card=card,slot=slot,stableId=stableId,revision=revision,
+            layout=layout,chart=chart,generation=generation,cellX=cellX,cellY=cellY};
     }
     [Serializable] class Command {public int logicalFrame,engineFrame,lampInstance;public bool enabled;public Vector3 lampPosition,doorPosition,cameraPosition;}
     [Serializable] class ChangeRow {public Vector4 minimum,maximum,receiver;}
@@ -53,7 +58,7 @@ public static class SceneLightoffTap
     {
         public int logicalFrame,engineFrame,giFrame,readBuffer,writeBuffer,epoch,patchGrid,requestedBudget,effectiveBudget,valid,selected,fairness,unscheduled;
         public long tick,maxAge;public bool lightingChanged;public uint[] cpuMask;
-        public Owner[] owners;public Candidate[] candidates;public Selection[] patches;public ChangeSnapshot domains;
+        public Owner[] owners;public Candidate[] candidates;public Selection[] patches,points;public int[] aliases;public ChangeSnapshot domains;
         public bool[] readyCards;public int[] cardOwners;public uint[] cardGenerations;public RegionSource[] regionSources;
         public int dirtyScene,changedSurface,changedRepresentation,changedGeometry;
     }
@@ -143,10 +148,13 @@ public static class SceneLightoffTap
             owners.Add(new Owner{slot=slot,name=proxy.name,stableId=(int)id.x,revision=(int)id.y,active=id.w>.5f,published=scene.IsPublished(slot),
                 ready=surface.IsSlotReady(slot,(int)id.x,(int)id.y),emission=proxy.GetEmissionLinear(),layout=surface.GetLayoutGeneration(slot)});
         }
-        var patches=Select(state);selections.Add(logical,patches);workFrames.Add(logical,giFrame);epochs.Add(logical,(int)Field(state,"epoch"));
-        if(logical>119)for(int lane=0;lane<4;lane++){
-            var a=selections[119][lane];var b=patches[lane];
-            if(a.entry!=b.entry||a.card!=b.card||a.slot!=b.slot||a.stableId!=b.stableId||a.revision!=b.revision||a.generation!=b.generation||a.layout!=b.layout||a.chart!=b.chart||!b.ready||!b.published)
+        var points=Select(state);var mapping=LightoffPatchMap.Build(points.Select(p=>p.Identity()).ToArray());
+        var patches=mapping.representatives.Select((point,lane)=>{var p=points[point].Copy();p.lane=lane;return p;}).ToArray();
+        pointRules.Add(logical,points);pointAliases.Add(logical,mapping.aliases);
+        selections.Add(logical,patches);workFrames.Add(logical,giFrame);epochs.Add(logical,(int)Field(state,"epoch"));
+        if(logical>119)for(int point=0;point<4;point++){
+            var a=pointRules[119][point];var b=points[point];
+            if(pointAliases[119][point]!=mapping.aliases[point]||a.entry!=b.entry||a.card!=b.card||!LightoffPatchMap.Same(a.Identity(),b.Identity())||!b.ready||!b.published)
                 throw new Exception("Fixed patch mapping/identity changed after119");
         }
         var sdf=(HybridLumenGISdfAtlas)Field(state,"sdf");var regionSources=new List<RegionSource>();
@@ -162,7 +170,7 @@ public static class SceneLightoffTap
             epoch=(int)Field(state,"epoch"),patchGrid=(int)Field(state,"patchGrid"),requestedBudget=requestedBudget,effectiveBudget=Mathf.Clamp(requestedBudget,0,scheduler.ValidEntryCount),
             valid=scheduler.ValidEntryCount,selected=scheduler.SelectedCount,fairness=scheduler.FairnessSelectedCount,unscheduled=scheduler.UnscheduledEntryCount,
             tick=(long)Field(scheduler,"tick"),maxAge=scheduler.MaxFramesSinceUpdate,lightingChanged=(bool)Field(state,"lightingChanged"),
-            cpuMask=(uint[])scheduler.Mask.Clone(),owners=owners.ToArray(),candidates=rows,patches=patches,domains=Changes(state),
+            cpuMask=(uint[])scheduler.Mask.Clone(),owners=owners.ToArray(),candidates=rows,patches=patches,points=points,aliases=mapping.aliases,domains=Changes(state),
             readyCards=(bool[])surface.ReadyMask.Clone(),cardOwners=(int[])surface.CardOwners.Clone(),
             cardGenerations=Enumerable.Range(0,surface.CardCount).Select(surface.GetGeneration).ToArray(),regionSources=regionSources.ToArray(),
             dirtyScene=scene.DirtyRegions.Count,changedSurface=surface.ChangedBounds.Count,
@@ -197,7 +205,8 @@ public static class SceneLightoffTap
             lightCount=lightCount,areaCount=areaCount,exact=exact,distinct=true},true);
         if(!observationReserved.Add(logical))throw new Exception("Duplicate private observation admission");
         pending++; // Own completion before the first recorded use, including a later recording exception.
-        cmd.SetBufferData(Records,new Seed[4]);cmd.SetComputeIntParams(shader,"_LO_Entries",entries.Select(p=>p.entry).ToArray());
+        var addresses=new[]{-1,-1,-1,-1};for(int i=0;i<entries.Length;i++)addresses[i]=entries[i].entry;
+        cmd.SetBufferData(Records,new Seed[4]);cmd.SetComputeIntParams(shader,"_LO_Entries",addresses);
         cmd.SetComputeIntParam(shader,"_LO_Logical",logical);cmd.SetComputeIntParam(shader,"_LO_GiFrame",giFrame);cmd.SetComputeBufferParam(shader,kernel,"_LO_Records",Records);
         var scheduler=(HybridLumenGICacheScheduler)Field(state,"scheduler");var changes=Field(state,"changes");
         Buffer(cmd,scheduler.UpdateMask,"gpu-mask",logical,giFrame,directory);
@@ -208,7 +217,7 @@ public static class SceneLightoffTap
     public static void AfterCache(CommandBuffer cmd,object state,int giFrame,int written)
     {
         if(!Target((Camera)Field(state,"camera"),out int logical,out string directory))return;
-        var receipt=new Receipt{logicalFrame=logical,engineFrame=Time.frameCount,giFrame=giFrame,stage="cache-observed",stride=320,count=4,activeCount=4};
+        var receipt=new Receipt{logicalFrame=logical,engineFrame=Time.frameCount,giFrame=giFrame,stage="cache-observed",stride=320,count=4,activeCount=selections[logical].Length};
         if(!observationReserved.Contains(logical))throw new Exception("Missing private observation reservation");
         cmd.RequestAsyncReadback(Records,request=>{try{
             if(request.hasError)throw new Exception("Light-off cache observation readback failed");var bytes=request.GetData<byte>().ToArray();Save(directory,receipt,bytes);
@@ -251,8 +260,9 @@ public static class SceneLightoffTap
     {
         AsyncGPUReadback.WaitAllRequests();
         if(pending!=0||errors!=0||!selections.TryGetValue(119,out var selected)||!observedCache.TryGetValue(119,out var bytes))throw new Exception("119 readiness is unproven; stop before disabling light");
-        if(selected.Select(p=>p.entry).Distinct().Count()!=4)throw new Exception("Predeclared points did not select four distinct patches");
-        for(int lane=0;lane<4;lane++)
+        if(pointAliases[119].Any(alias=>alias<0)||selected.Length!=2||selected.Select(p=>p.entry).Distinct().Count()!=2)
+            throw new Exception("All four fixed rules must map to the two frozen unique patches");
+        for(int lane=0;lane<selected.Length;lane++)
         {
             var p=selected[lane];int start=lane*320;
             if(p.entry<0||!p.ready||!p.published||p.generation==0||!actualCache.TryGetValue("119/"+lane,out var value))throw new Exception("119 owner/card/write coverage missing");

@@ -1,0 +1,128 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 12
+REVIEW_DECISION: RETAIN — APPROVE_LOCAL_COMMIT（限定于已证明的GI owner修复）
+NEXT_PACKAGE: scene-lightoff-chain-02
+
+一、提交决定与范围
+
+允许本地提交两处Runtime修复、对应定向测试、观察器别名修正及证据。 本轮已证明的GI资源所有权交接缺口可以关闭；未归属的scratch告警、整体退出验收和真实关灯场景验收继续开放。
+
+连接器确认 HybridLumenGI / workspace:/ / main@3241b50，候选尚未提交。当前Runtime差异只涉及 HybridLumenGIRendererFeature.cs 与 HybridLumenGIResourceRetirement.cs；没有光传输或画质算法修改。我已先列出再读取iteration 12执行输出51–60，检查候选diff、合同、定向测试、基线与修复后的原始票据／日志，以及观察器修改。本层没有修改、执行测试或提交。
+
+状态应分别记录：
+
+项目	本次判断
+常规Feature清理造成的GI退休停滞	对应缺陷可局部关闭
+八个基线已归属GI buffer	修复运行中有释放链，未再出现同类原生泄漏签名
+D3D12ScratchBufferInternal 1 MiB告警	未归属、未解决，不能称为无害或确定的引擎缺陷
+冻结的 retirementProofPassed	保持false，不改写为总体通过
+新别名观察器	离线映射／部分运行分析通过；尚未Unity执行
+真实关灯链	未完成，两次原生运行均保留原观察器错误、exit 1和零截图
+二、为什么批准这项GI修复
+1. 归因已经从“可能的尾部票据”收敛到常规Dispose路径
+
+基线原始时间线显示，自己的EndContext回调返回后，URP清理调用：
+
+CleanupRenderPipeline → ScriptableRenderer.Dispose → Feature.Dispose → TransportPass.Dispose → CameraState.Dispose
+
+随后产生七张 requiresContext=true、尚未提交的票据，没有整份pass的父退休项。实际idle和fence支持检查均发生，但普通尾部票据仍被排除，最终因无法推进而退出，而非五秒超时。〔baseline/run/early-exit-timeline.jsonl:12–15及后续同域票据；baseline/analysis.json，均位于 LocalComparison/Review/early-exit-retirement-01/〕
+
+原生分配堆栈进一步对应到两个BVH GraphicsBuffer与六个软件属性ComputeBuffer，不再只是按告警数量猜owner。〔baseline/Unity.log:696–809〕
+
+这次修的是常规Feature销毁／重建绕过完整pass交接的问题，不是再次修改01c的完成状态竞争处理。
+
+2. 新路径保留完成证明，没有普遍放宽尾部保护
+
+Create、普通 Dispose和关闭撤销现在统一先摘下旧pass/composite、停止新任务准入，再转交完整父owner。只有这类专用父票据可以在后续真实idle获得新fence的提交资格；等待idle期间，它不能被普通EndContext批次提前提交。〔Runtime/HybridLumenGIRendererFeature.cs:165–205；当前Runtime diff〕
+
+IdleUpdate改变的是提交资格，不是完成状态。销毁仍检查真实fence；普通 Retire、未知提交、未完成prerequisite、共享期限及父子分别完成的要求保持不变。〔Runtime/HybridLumenGIResourceRetirement.cs:83–97、168–184、207–216〕
+
+定向测试明确建模了已提交的最后读者，覆盖没有idle时保留、不能借context提前提升父票据、父子分开完成、已知idle关闭，以及原有未知提交／尾部歧义守卫。它执行实际退休源码，但不等于实际执行全部Feature生命周期；实际Feature路径由本轮原生记录补充。〔Tests/StandaloneDeformedMesh/Program.cs.txt:188–217、278–284；执行输出56〕
+
+3. 修复运行不是只靠“计数归零”通过
+
+原始时间线可核对到以下顺序：
+
+相关父项enqueue 15 → idle资格18 → 提交27 → fence通过31 → 销毁33–41 → 七个子项另行提交51–57 → 各自完成并销毁 → 85时队列清空。
+
+父项首次提交后的完成查询还记录了 not-passed，并未把提交直接当完成。最后关闭前，通用、材质、arena和形变计账均为零。〔fixed/run/early-exit-timeline.jsonl:18–36、54–62、85–92〕
+
+九张完成票据包含一个初始空pass父项、相关旧pass父项及七个子项，不是九个泄漏buffer。七个子项的逻辑字节合计64,608；这也不是驱动总VRAM回落量。原生日志不再出现基线归属的八项GI buffer泄漏，但保留了scratch告警。〔fixed/attribution.json:15–33；fixed/Unity.log:648–676〕
+
+4. 仍需保留的适用条件
+
+该专用路径依赖“完整pass已停止新记录、已有URP图回调在其context内完成提交”的受限合同，不应扩成任意owner的通用idle释放许可。
+
+工作区中我读到了这项URP 17.0.4依赖说明、实际调用栈及受控测试，没有找到对应本地URP实现片段的归档。随本次提交补入所依据的最小函数片段、包版本和哈希即可，不需新运行；不能写成跨URP版本或任意异步队列都已证明。〔Documentation/EarlyExitRetirement01-TestContract.md:21–25〕
+
+三、别名修正可以保留，但不能追认GPU通过
+
+LightoffPatchMap按完整几何身份去重，同时检查entry/card地址一致性；四个世界点仍保留，映射为两个唯一patch及 [0,0,1,1]别名。GPU入口现在接收唯一地址和未用槽位的 -1，不再只是单独修改循环的 break。〔LocalComparison/Harness/LightoffPatchMap.cs:12–34；SceneLightoffTap.cs当前diff〕
+
+部分运行分析先验证header，再解释数值；重分析旧失败数据仍返回失败，明确报告两个缺失观察记录，没有把初始化零槽当作产品黑色或无覆盖，也没有再因不存在的frame 1产生IndexError。〔执行输出51–52〕
+
+这关闭了离线映射和失败报告的问题。新C#映射器、HLSL写入与readback的完整接线尚待下一次原生运行验证。 原chain01失败结果保持原样。
+
+四、下一最小包：scene-lightoff-chain-02
+
+现在恢复真实关灯链，不再重复提前退出实验，也不把scratch归因扩大成无界旁支。 本包不再修改退休或光照算法，目标仍是：
+
+Light.enabled → UpdateLights → change域 → scheduler → 实际cache → 实际gather／屏幕历史
+
+A. 先完成来源与安装衔接，不增加原生试跑
+
+本次实验“恢复成功”指恢复到实验前部署字节；当前工作区候选仍待提交。下一次不能因此假定Unity工程已部署新修复。先提交、部署新基线，再逐项核对工作区与部署来源。〔fixed/instrumentation/restoration.json:2–25〕
+
+为chain02建立独立输出与安装清单，必须明确：
+
+安装新增的 LightoffPatchMap.cs及修正helper；旧chain01安装器不包含该依赖，不能直接沿用。
+从当前已提交源码生成插桩，不重新套入旧Feature／Retirement字节。
+去除提前退出实验的首帧上限和专用失败触发；恢复正常360帧控制流程。
+原始资产与实际执行资产分别归档，结束后还原到这次新基线。
+
+已有离线别名和部分分析结果直接复用；只做新增安装／编译接线的预检。变动的shader入口重新编译，未变的等价编译矩阵不重复。新观察器的第一次GPU验证放在下面唯一一次场景运行中，不另开预热场景。
+
+B. 一次固定C序列，最多360个目标相机逻辑帧
+
+保持既定thinView、几何、分辨率、预算、射线数、feedback和滤波设置。0–119帧开灯，119帧完成真实覆盖检查后，在120帧目标相机准备前关闭原 Behind thin wall Light，保持关闭至359。
+
+四个世界规则、两个唯一patch、原四个gather像素及九个采样时点都不变。 不增加点位、光源、种子、后端或参数组合。
+
+首帧即验证唯一entry地址、有效记录数、header、实际cache-write对应关系及别名表；未使用的观察槽不能进入产品数值分析。119门槛仍要求全部原规则有映射、两个唯一patch就绪／有效且读回一致，120以后完整身份与别名冻结。覆盖不足即结束，不延长预热或把两个patch改称四个独立样本。
+
+C. 只回答三个真实集成问题
+问题	必需证据
+灯变化是否到达shader？	同一Light实例的关闭时点、旧记录移除、实际有效灯数、上传的局部照明域及shader直接项。灯数为0时，buffer未用区域保留旧字节不是失败。
+调度是否形成有效更新？	真实候选、预算、mask、服务年龄与选定patch的更新／提交结果；区分未就绪、未调度、尝试未知、有效残留与已测黑色。
+残留位于哪一层？	选定cache旧／新值，实际获选screen/world消费及raw、history、filtered、最终HDR的关联。不能仅凭调度选中或非零alpha宣布更新成功。
+
+仍使用真实 UpdateLights和scheduler；控制器不得写变更buffer、更新mask或缓存。局部点光域与全局调度优先级提升的现有区别继续保留，不能把域外patch被调度自动判成错误。
+
+材质发光、环境和实际proposal来源照常记录。非零 _EmissionColor不等于有效发光源，零Light count也不独立证明零传输源。 本轮不预设最终必须全黑，不套用理想两节点的512轮衰减答案，不要求每个像素单调下降。
+
+D. 保留scratch失败，不让它覆盖数据或被数据覆盖
+
+下一包分开报告：
+
+observationComplete、lightChangeChainPassed、scopedGIOwnerProof、nativeResourceAccepted、overallAccepted。
+
+共享日志扫描器继续识别全部原生资源告警，不得把scratch加入忽略名单。若场景链数据完整而退出仍出现同一scratch告警，可以保留有效的灯光／调度诊断，但 nativeResourceAccepted和总体接受状态仍为false。
+
+目前的scratch名称只提供待归属线索，不能据此免责。它不阻止这一次有明确目标的场景诊断授权；也不因此获得额外重跑额度。
+
+成功与停止标准
+
+成功是建立真实事件传播、预算服务、有效缓存更新及gather消费之间的可复核关系，不是得到一张足够暗的截图。
+
+观察器错误、帧／来源不匹配、意外几何变化、有效输出非有限、后端回退、未完成读回或新的资源故障，停止并保存最早证据。360帧内未覆盖或残留未解释，保持开放；不追加运行、改预算或顺手调整反馈／失效策略。整个包只授权一个原生进程、最多360帧。
+
+五、结项措辞与完整计划
+
+本次提交应描述为：
+
+修复常规Feature清理时完整GI pass的退休交接；限定原生证据关闭基线已归属GI buffer停滞。引擎命名scratch仍未归属，整体退出及关灯场景未通过。
+
+保留冻结的false结果和补充的局部归属结论，不以补充报告覆盖原合同。下一次回传新基线、执行与恢复清单、119/120事件证据、实际调度／cache／gather结果及完整退出日志。
+
+本轮关闭的是一个具体GI owner缺口，下一轮回到真实场景关灯链。四项目标、十条工作流继续约束开发；当前Player/DXR、整图参考、动态质量、性能、峰值显存与长时验收均未因此完成。

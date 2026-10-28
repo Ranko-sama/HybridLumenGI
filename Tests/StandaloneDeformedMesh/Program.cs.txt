@@ -126,7 +126,7 @@ static class Program
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();
-        ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
+        ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
         Console.WriteLine("Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.");
     }
@@ -184,6 +184,36 @@ static class Program
         }
         RecordedGpu.AutoCompleteImmediate=false;OpenNewSession();
         Console.WriteLine("PASS: deterministic submitted fence false-to-true transition completes parent and separately fenced child in one shutdown; unready/throwing prerequisites retain ownership without busy waiting.");
+    }
+    static void DetachedPassRetirement()
+    {
+        OpenNewSession();HybridLumenGIResourceRetirement.IdleUpdate();
+        int parent=0,child=0,readers=0;long bytes=640;int firstFence=RecordedGpu.Fences.Count;
+        RenderPipelineManager.Begin();
+        RenderPipelineManager.Reader(()=>{Require(parent==0&&bytes==640,"Detached owner lost storage before last reader");readers++;});
+        RenderPipelineManager.SubmitReadersBeforeEnd();RenderPipelineManager.End();
+        HybridLumenGIResourceRetirement.RetireDetachedPass(()=>{
+            Require(readers==1,"Detached owner destroyed before submitted reader completed");parent++;
+            HybridLumenGIResourceRetirement.Retire(()=>{child++;bytes=0;});
+        });
+        // No idle certificate: shutdown retains ownership without manufacturing a context.
+        Application.Quit();Require(parent==0&&bytes==640&&RecordedGpu.Fences.Count==firstFence,"Shutdown bypassed detached-pass idle boundary");
+        // Even a genuine context alone cannot submit this dedicated parent ticket.
+        RenderPipelineManager.Begin();RenderPipelineManager.End();
+        Require(RecordedGpu.Fences.Count==firstFence,"Detached pass entered the generic context batch");
+        HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(parent==0&&child==0&&bytes==640&&RecordedGpu.Fences.Count==firstFence+1,"Idle was mistaken for parent completion");
+        RecordedGpu.CompleteSubmitted();HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(parent==1&&child==0&&bytes==640&&RecordedGpu.Fences.Count==firstFence+2,"Child lost its separate fence/accounting");
+        RecordedGpu.CompleteSubmitted();HybridLumenGIResourceRetirement.IdleUpdate();HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(parent==1&&child==1&&bytes==0&&HybridLumenGIResourceRetirement.OwnedCount==0&&HybridLumenGIResourceRetirement.PendingCount==0,"Detached parent/child not exact once");
+        // Already certified idle shutdown must finish without requiring another Update.
+        OpenNewSession();HybridLumenGIResourceRetirement.IdleUpdate();RecordedGpu.AutoCompleteImmediate=true;
+        Action withdraw=()=>HybridLumenGIResourceRetirement.RetireDetachedPass(()=>parent++);
+        HybridLumenGIResourceRetirement.RegisterShutdownOwner(withdraw);Application.Quit();
+        HybridLumenGIResourceRetirement.UnregisterShutdownOwner(withdraw);RecordedGpu.AutoCompleteImmediate=false;
+        Require(parent==2&&HybridLumenGIResourceRetirement.OwnedCount==0,"Known idle shutdown unnecessarily awaited a future Update");
+        OpenNewSession();Console.WriteLine("PASS: detached whole-pass owner waits for real idle and submitted last reader; parent and child complete separately/exactly once with retained bytes; no-idle shutdown retained, known-idle shutdown progresses.");
     }
     static void IdleAndShutdownRetirement()
     {
@@ -248,6 +278,9 @@ static class Program
         Require(freed==0&&HybridLumenGIResourceRetirement.SubmissionUncertain,"Failed context was washed into a successful idle fence.");
         HybridLumenGIResourceRetirement.Retire(()=>freed++);RenderPipelineManager.Begin();RenderPipelineManager.End();RecordedGpu.CompleteSubmitted();HybridLumenGIResourceRetirement.IdleUpdate();
         Require(freed==0&&HybridLumenGIResourceRetirement.UnknownSubmissionCount==2,"Later retirement/new context erased an old unknown reader.");
+        HybridLumenGIResourceRetirement.RetireDetachedPass(()=>freed++);RenderPipelineManager.Begin();RenderPipelineManager.End();
+        RecordedGpu.CompleteSubmitted();HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(freed==0&&HybridLumenGIResourceRetirement.UnknownSubmissionCount==3,"Detached pass washed an unknown submission through idle/new context.");
         Require(RecordedGpu.Fences.Exists(f=>f.Enqueued&&!f.Submitted),"Adapter accidentally submitted every context through the immediate queue.");
         Console.WriteLine("PASS: actual retirement source: idle completion, prerequisite/query failure, two-reader fence, ambiguous event tail, late/reentrant shutdown, shared deadline, failed destroy, and unknown context submission retained.");
     }
