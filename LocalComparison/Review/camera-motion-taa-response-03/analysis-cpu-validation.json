@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "testsRun": 12,
+  "failures": 0,
+  "errors": 0,
+  "command": "python -B LocalComparison/Review/camera-motion-taa-response-03/test_analyze.py",
+  "exitCode": 0,
+  "recordedUtc": "2026-10-29T13:11:19.674069+00:00",
+  "sourceSha256": {
+    "LocalComparison/Review/camera-motion-taa-response-03/analyze.py": "fa99cfa5b064e4766d1bc81d9a6db32576be854da9e055ed44c09e5bac146e09",
+    "LocalComparison/Review/camera-motion-taa-response-03/test_analyze.py": "9340f6f78aead7775488bad6b51265efa500eeb9e0b11456c247fb6f5dfd33d4",
+    "LocalComparison/Review/camera-motion-taa-response-03/input-model.txt": "bcb5390bc47fb66d78af871c12a0aeb6248f87b116f12474073f9d19363455c0",
+    "LocalComparison/Review/camera-motion-taa-response-03/analysis-dependencies.json": "499c4a08aa8224a33d2bde46fe0f3f63a040de19685bb40de54a8732aba80ca6"
+  },
+  "dependencySha256": {
+    "LocalComparison/Review/camera-motion-taa-response-02/qualification-ties/model.py": "086977019baa6a0e8f475182f1b0486894f1a2bbb67b320974bb9e444d13a26b",
+    "LocalComparison/Review/camera-motion-taa-response-02/qualification-ties/analyze.py": "232adf8da40cbdb444891c42706e54aaae46c7c1ac34989ccdbe0cee016ebf3d",
+    "LocalComparison/Review/camera-motion-taa-response-02/target-input-qualification/audit.py": "17c54dcd5d5d7acc63c2c77ac4cf83319ce43b4ec20a018897798203d7669f05",
+    "LocalComparison/Review/camera-motion-taa-response-02/initialization-source-qualification/audit.py": "be7df6e66fb9b7d07741f8e8b574172d693d9b2d262458616d204d2ec3617bbb",
+    "LocalComparison/Reference/ColorBounceRectangle/qualify_native_inputs.py": "6a2d2bff05edf128545a52d8508291f500349a3544382b3dee9ded57c3f1cc96",
+    "LocalComparison/Reference/ColorBounceRectangle/decode_sampler.py": "b451adc1b0f105a1a24a1a091e72adcba1fcaf0833da7b39a7b04cfd06fb01fe"
+  },
+  "scope": "Pure CPU generated inputs and exact unchanged-function/loop checks; no native capture or old RGB/result loaded",
+  "predicates": [
+    "unchanged decode/classify/current/output predicates and possible-nearest model",
+    "entire original 48-frame loop except integrated source-window gate",
+    "unchanged physical settings and projection predicates",
+    "sole typed source expression and exact index/cohort",
+    "invalid-history-only warmup generation changes",
+    "full metadata fixed from frame30 including failed baseline frames38/39/41/42/43",
+    "first exposure copies current exactly at age1",
+    "continued age1 or invalid confidence rejected",
+    "unknown cannot count and numeric signed-zero equality retained"
+  ]
+}

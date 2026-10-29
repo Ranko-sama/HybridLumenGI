@@ -1,0 +1,44 @@
+{
+  "scope": "Source and existing CPU-contract validation only; native 48-frame regression still required",
+  "changedProductFiles": [
+    {
+      "path": "Runtime/HybridLumenGIReceiverIdentityPass.cs",
+      "beforeSha256": "cfd2b3566a1acbe446c483689cc527ee65c41037f2d5fa9fa3c27e53d6fb56f9",
+      "afterSha256": "17c0aeab8a44b52e775de7ea68430f01da04153cb09265cf81a179504819a2fd"
+    },
+    {
+      "path": "Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader",
+      "beforeSha256": "2f3c467d36fbe63a6f9581a4517a24cba77f19d9b14510c6d5f7dc0dfa35480a",
+      "afterSha256": "f20d9d53e4c67b32e41055f094c64c58d19993d643d6ef51f91db65d24bb6f09"
+    }
+  ],
+  "unchangedProductFileCount": 110,
+  "fragmentAndCullPassesByteIdentical": true,
+  "recorderOnlyObsoleteMatrixUploadsRemoved": true,
+  "drawMeshFrozenLocalToWorldUnchanged": true,
+  "depthAndAlphaAcceptanceUnchanged": true,
+  "sourceDiscoveryAndIdentityFrameUnchanged": true,
+  "existingTestSourcesUnmodified": true,
+  "diagnosticReportSha256": "553e2fe4af3e6c1da22396b2b3ba102716fa715dc01a324e7bbb122c3de0216c",
+  "urpSources": {
+    "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\ShaderLibrary\\ShaderVariablesFunctions.hlsl": "b76aff0ed3773c02c824c35527156c630097747bc5784731473cbf2d8f8ce25f",
+    "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\Shaders\\LitForwardPass.hlsl": "8b6541beb61a81b516b09c7cc88a489299b70c32066904b29ef7b7caca28dd09",
+    "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\Shaders\\DepthOnlyPass.hlsl": "e85742944bcb2d9fdc03a742e70232021dde254338dca18020ea0c71b1a04826",
+    "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\Shaders\\LitDepthNormalsPass.hlsl": "ba0e567c9fd99c3e95554683aac94e68a84521c7370ea47b28e10fa5650ccd97",
+    "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.core@8d821d79e4bc\\ShaderLibrary\\SpaceTransforms.hlsl": "bd0c174c2300eec9baf99bddc5b003e34082766950d86e8d3746df7e8693acfa"
+  },
+  "testSources": {
+    "Tests/Validate-ReceiverIdentityPass.ps1": "25e309bd96afff9490877165f84bc564ec9a204f66894a6b44bd75f6edc8483e",
+    "Tests/Invoke-CSharpHarness.ps1": "461c0eda33ebd408d18a9fdc76e1c944cc7a80bc6d7f3420c59135e6db064ed7",
+    "Tests/StandaloneReceiverIdentityPass/Program.cs.txt": "51034cacbbaa3645e460aa4c335d5f46a5b3d510ce02e902e8ee113bd0eeafeb",
+    "Tests/StandaloneReceiverIdentityPass/UnityStubs.cs.txt": "701a37229a60dc71a410511472f3fb90c708c0815e9791103876bee675da45a6",
+    "Tests/Validate-ReceiverIdentity.mjs": "bb55658571a0dadb178a8f86848d4f6a624ecb42e5a22220e467ceda72e4fe4b"
+  },
+  "validationResultsSha256": "f40f950b70870963210c27bad01658a43b0d4ea5e942fde9d86ae8f9ec11b618",
+  "limitations": [
+    "The explicit per-object identity draw remains noninstanced; ordinary renderer support/exclusions are unchanged.",
+    "CPU VP is still used for bounds/finite validation. The identity raster vertex now reads URP draw/camera matrices through its existing helper.",
+    "This does not broaden support for static batching, non-MeshRenderer deformation, additional vertex streams, LOD or unsupported material coverage.",
+    "Native depth equality remains exact. No epsilon, geometry support gate, history threshold or sample selection was changed."
+  ]
+}

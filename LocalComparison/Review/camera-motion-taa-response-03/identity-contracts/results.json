@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "unityExecuted": false,
+  "gpuExecuted": false,
+  "checks": [
+    {
+      "name": "csharp",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Validate-ReceiverIdentityPass.ps1"
+      ],
+      "exitCode": 0,
+      "log": "LocalComparison/Review/camera-motion-taa-response-03/identity-contracts/csharp.log",
+      "logSha256": "402b023d17031b2f99826104eabff5d868d2beaf6b46692a6570d3a8f288d294"
+    },
+    {
+      "name": "cpu-contract",
+      "command": [
+        "C:/Program Files/nodejs/node.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\Validate-ReceiverIdentity.mjs"
+      ],
+      "exitCode": 0,
+      "log": "LocalComparison/Review/camera-motion-taa-response-03/identity-contracts/cpu-contract.log",
+      "logSha256": "61f881b77e4ff0d6286bf86ca50d7df47b09453026ad9a94968a99bff874d320"
+    }
+  ]
+}
