@@ -1,0 +1,1538 @@
+{
+  "downstream": "Independent per-pixel geometry, identity, material, previous support, motion/jitter, history confidence, and original output/coverage gates remain required. This audit does not execute them.",
+  "frozenSourcesChecked": 134,
+  "fullSourceRecordsActuallyStableFrom": 1,
+  "fullSourceRecordsStableRequiredFrames": [
+    30,
+    47
+  ],
+  "generationTransitions": [
+    {
+      "frame": 1,
+      "gpuControls0": [
+        0.0,
+        1.0,
+        0.0,
+        6.0
+      ],
+      "historyValid": false,
+      "new": [
+        {
+          "geometryRevision": 4,
+          "revision": 4
+        },
+        {
+          "geometryRevision": 4,
+          "revision": 4
+        },
+        {
+          "geometryRevision": 4,
+          "revision": 4
+        }
+      ],
+      "old": [
+        {
+          "geometryRevision": 3,
+          "revision": 3
+        },
+        {
+          "geometryRevision": 3,
+          "revision": 3
+        },
+        {
+          "geometryRevision": 3,
+          "revision": 3
+        }
+      ]
+    }
+  ],
+  "minimumGate": "All 48 physical source fields exact; full generation-bearing source records exact on 30..47; original 31..47 history/change/matrix gates unchanged. Early observed generation transitions must reject history.",
+  "newNativeExecution": false,
+  "observationFrames": [
+    31,
+    47
+  ],
+  "originalAnalysisAccepted": false,
+  "originalFailure": {
+    "context": {
+      "logicalFrame": 1
+    },
+    "executionOrSourceFailure": "Static geometry/material source changed",
+    "passed": false
+  },
+  "overallExecutionOrImageQualityAccepted": false,
+  "physicalSourceFieldsStableFrames": [
+    0,
+    47
+  ],
+  "postRunQualification": true,
+  "productChanged": false,
+  "productSourcesChecked": 112,
+  "radianceOrPerPixelRowsRead": false,
+  "receiptSha256": {
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-000.json": "f59996b28b04d0270f0c4f3be4ed11b472f0b274065db9995932e4abb6412918",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-001.json": "a65ed41b2cd440f828c9f2760e81156e9baf43f654a6ecf73978195b4241d4bd",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-002.json": "47fc8051ffce95a52faab09cdf2eb0eb948867478486e6dd03eb47e9654e3be0",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-003.json": "329b35fbe485bb3207a3e07d8ca562f660513f260fee69c1385f7e83fbcda7a7",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-004.json": "8a5e565ad20d69c9abfa61ee99c3b895ff1a2523dcc13fc91e8d16718bf2af10",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-005.json": "f3e4b0f07f306ae7e9532e8f04c6a02ff1acfd94a0472e10895d4c8a66b208dd",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-006.json": "34d74adfd5dba1f85b3cbf3615480e1d0bd0acd475b74cd964cc8f692ea18777",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-007.json": "783781f318b61fb7ba2023dfcb1f2d08261f60a2447129759dda45c1b46b6b9d",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-008.json": "d73a68fafa7792df634b9a2b61730c9c0f8e54f308c73021181663875b5e0fad",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-009.json": "b5b73b334a5f0b759c2e4c39477710b0963739a3a9835371d275d727088d3cc4",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-010.json": "fa658bf07d8174a43b8fa50f3689a0a1a05e812809df3d394eecfc7db1c1de5e",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-011.json": "ba92f4c1a43874f12561c33b7afbba59dba832f6f5766799ec919bc553842702",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-012.json": "a36248d304690806476dfc4e701776acd12d172460894d8058874f7638eda101",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-013.json": "72e74e1243d59e99b60bee89a8c109372bb8a0ac751da4172c444813ad3b1c21",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-014.json": "c42251731f107d167069eb82766af69d8a3cdaf02fdba170e9ea65d5be8af536",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-015.json": "e2618d603ccdbc469f45cc376227614c8eee6e0c8d028a4417116eafefcc546a",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-016.json": "9b15e102a38841a0a65bcd85d2f691e156e5aa4206b6a58c35c4878e2e946b35",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-017.json": "61f116ae0463d0e9580220e2420a80fb1adff7f2fe703a633b04d5436f7bb468",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-018.json": "57ead905260f63217f2fedc223901d6f2ad3c8764f787396ea65b930fb1e0218",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-019.json": "0ca3de972b94d78d5b4911789dc4dabc3b427107e36e911abb778263fc3006c9",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-020.json": "636c8906a703f0dc4149ba8b5cea71c435872bc98946a1e29d95f8c2f8fcb649",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-021.json": "91122bfafd369d1b4b28bb66745536a553855c806f7e65114778e2ed2a3f84bc",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-022.json": "d353edfc6e6feb542f8a96af435c5c4e3fbdbfef234577ef016318274c36573b",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-023.json": "47d44451388585762ec0cf30fc7621762c6c5816fd14d231bf3807159b9936f4",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-024.json": "24b9671b33740dc1ce9b2b9580f514556206ef492ccc237c012a90e59a71883e",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-025.json": "a45b50da6d07ca02486dc0e49619a6f8be4a24d73920fae0270e005cea48d448",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-026.json": "0c1146a41f91a789d7bb6d314400f3558fb9f09da3838fc8a48c1d44b73be81e",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-027.json": "7a0616f3d9a1d8cf03685cbdc7e5667c372f8c8f64689b56559aadfd21d4a66c",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-028.json": "dcbb170a4c566c38379ab87b28225de963fa1ca9af17ad2c24c8f7d15edac7ab",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-029.json": "eacd89540a5476e055a1d2266b324d5775d364a0d4f097eef464100e3d09dfcb",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-030.json": "e06e0a0c32ea310cc327953d3125f557a2b9116aabe2f803e27ba6711de468da",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-031.json": "fda5ed37327a7fca8bff7ac48c7f199a01e8c9a3c3db9ca83be22066e8cc6e72",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-032.json": "00efdf4534d88ecb46ce29237ce6a8f028233aa7f0966a515d68b047f25a046a",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-033.json": "16f8007fcde73608db3487828f4e67bafe0fb841a7ebb8743322bdb1fd64d9fb",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-034.json": "946d81acd754a6dcb5805c8fd57045414acf80b895081cb4c7ef411061288745",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-035.json": "b75117407003f81efde7841e623be1443bb36d90015528cf999556900ffd1d2d",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-036.json": "2d82d748da77fd244590d97858c7a8dbee6aea5b9e36b26bfe79688c57e57e4d",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-037.json": "79a525b3af82288cc2390f1a78c048ae671ed6e1dbb9d68206ea32f70b4098a0",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-038.json": "7788d3f08124ed908ae947f36af007703bbcd5dfefe337b871a824546256eab3",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-039.json": "e6ce74602aac77c2d2f41d2964aba77a012b3736334c526458145a1118cc0be0",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-040.json": "6cd173d7633ed04d99f39eba0fb4c69a4aaeba17d61a9e7c4d5211247b4e6777",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-041.json": "00189d08fe3c14dbdca04d67c33bb6d704fc2e312880b88e227f5daa62f57e21",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-042.json": "7a2878b7d175bfbc280d2a715adb34bd08c04e69498a3939d488aabf227be3bc",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-043.json": "2239ab8cc6b6fdccac8cdf5726e8e7d7f1fa50de5a1d050efcd04b94f9d881cf",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-044.json": "928d3b6fd49be6ab2fae34c8b5d29a081e814761dff8f00018f5f08f5972d70d",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-045.json": "af327d891ed6d08612e967a1eac6541f15e20a56b1640d829334b507c74d6288",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-046.json": "2ef2f560d91f996c6ee621f69f5cc03d31ca6340f44bccee3f484b35c7294b7b",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-047.json": "2bb1ea86d54c2b66d0f3f6ae14caf4b0fbee47304406df984b29d7908e889e1d"
+  },
+  "schema": "camera-motion-taa-initialization-source-audit-v1",
+  "sourceSha256": {
+    "LocalComparison/Harness/CameraMotionTaaScene.cs": "9d711b01c314bfc833afd5633ff93244266976c1a74b57da655f8bfce6c1b3fd",
+    "LocalComparison/Harness/CameraMotionTaaTap.cs": "99397a24e8ef2366a4265f2915034a2ea7bbf7212a2d0d96b110402a7761ffa8",
+    "LocalComparison/Review/camera-motion-taa-response-02/analysis-first.json": "50fffff61d28f66ab1da8da1d72d773da378bacad78a990e220dc3f788feda0a",
+    "LocalComparison/Review/camera-motion-taa-response-02/contract.txt": "3a0256cb0ecebc75d99108c3278cbbd5af906db554e7e87e7a47397428936090",
+    "LocalComparison/Review/camera-motion-taa-response-02/initialization-source-qualification/audit.py": "be7df6e66fb9b7d07741f8e8b574172d693d9b2d262458616d204d2ec3617bbb",
+    "LocalComparison/Review/camera-motion-taa-response-02/initialization-source-qualification/basis.txt": "60efea7b1b193d07d7751e6d20fa1e1e706ae6a2b6d62618a2c9f5a1b4dc3fba",
+    "LocalComparison/Review/camera-motion-taa-response-02/instrumentation/manifest.json": "beab6d56221f0b938a5ec917cc2f9a117f57ecf0432aef1c152c0da6bea010fa",
+    "LocalComparison/Review/camera-motion-taa-response-02/instrumentation/restoration.json": "7594dadca1009f4eef5e77778fe0df99c3284888ec5c61edcea5b51df2877b3b",
+    "LocalComparison/Review/camera-motion-taa-response-02/qualification-ties/analyze.py": "232adf8da40cbdb444891c42706e54aaae46c7c1ac34989ccdbe0cee016ebf3d",
+    "LocalComparison/Review/camera-motion-taa-response-02/qualification-ties/model.py": "086977019baa6a0e8f475182f1b0486894f1a2bbb67b320974bb9e444d13a26b",
+    "LocalComparison/Review/camera-motion-taa-response-02/qualification-ties/source-manifest.json": "c955643a30c029a4835619fdf11bea351326feb5b3c2038e94c8d161370b5491",
+    "LocalComparison/Review/camera-motion-taa-response-02/run-environment.json": "d0a942c4717b4f9d0770043ec17d39e61db4809c04363f833c5b3b5126519ec6",
+    "LocalComparison/Review/camera-motion-taa-response-02/source-freeze.json": "bede8fa6a018a203e6d8e2459c869508229a0b856edce95cc3f5eed27b2956a9",
+    "Runtime/HybridLumenGIProxy.cs": "81d6bedc2a371cf1ae763d21592742cc80e435d1f9e94d9f7c7c347b60980b04",
+    "Runtime/HybridLumenGIScene.cs": "55d412a36bb252957f892a71fd3b0cb6cf349a6ac10b198640bc3e3c93684cdf",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl": "68bdfe49b2c8b09a52722bc5ba7dcb7045be016359d6682e380269116df67455"
+  },
+  "sourceWindowQualified": true,
+  "timeline": [
+    {
+      "engineFrame": 1,
+      "frame": 0,
+      "generationPairs": [
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        0.0,
+        1.0,
+        0.0,
+        6.0
+      ],
+      "headerSha256": "cc1a957ad514c363d191dc56541d253413b6d882b1e4a4e9795726d539368ce7",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 0
+    },
+    {
+      "engineFrame": 2,
+      "frame": 1,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        0.0,
+        1.0,
+        0.0,
+        6.0
+      ],
+      "headerSha256": "cc1a957ad514c363d191dc56541d253413b6d882b1e4a4e9795726d539368ce7",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 0
+    },
+    {
+      "engineFrame": 3,
+      "frame": 2,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "a0a4a44dcca6f15b1264674d82cd00d0aa7e1dae745fdb75483a406a65f44669",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 1
+    },
+    {
+      "engineFrame": 4,
+      "frame": 3,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "d0a1ffc891e07b20dc2978a4f13e3c7ef4bfe1d2a282c3709258dd9bc8aaa09b",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 2
+    },
+    {
+      "engineFrame": 5,
+      "frame": 4,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "4e45145f9d30784bdf53a69cb4abfcd2743878d1b943d9ed864330322eb50807",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 3
+    },
+    {
+      "engineFrame": 6,
+      "frame": 5,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "ec671213c9577ecf24c70ab93bca91cb18a5d9cb7dccd5a66ef1717792870b3f",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 4
+    },
+    {
+      "engineFrame": 7,
+      "frame": 6,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "3941509a6e068b2066fe72af713677b0b671ae813c2321271e4855f9db90768e",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 5
+    },
+    {
+      "engineFrame": 8,
+      "frame": 7,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "2ab9cc352b90f3c62ff11d5f0dd6ef040651c2f803d82784c17e7b178bdfa099",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 6
+    },
+    {
+      "engineFrame": 9,
+      "frame": 8,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "c742266da94880bf74773dad6418ec768aa62ce0f43103ce14be68f87fa6695a",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 7
+    },
+    {
+      "engineFrame": 10,
+      "frame": 9,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "cead62bef7642e724ac591326f8c779b973b4f960424d3d05d5113e95957eb3c",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 8
+    },
+    {
+      "engineFrame": 11,
+      "frame": 10,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "d595b558e630d31284e8041675c94640379baa9b3d2749301f17d672a1811365",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 9
+    },
+    {
+      "engineFrame": 12,
+      "frame": 11,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "eaa4a0bc16cc065c998719a62b1db32673333f35a9c7976cdb75d86ad4b03eed",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 10
+    },
+    {
+      "engineFrame": 13,
+      "frame": 12,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "e3422558afeaf10defc4243e3a3805d4a08d52d4dc22365c7da501bedbf6b029",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 11
+    },
+    {
+      "engineFrame": 14,
+      "frame": 13,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "2d3dbf53ec3bdae8ba3481cbca7949703ae20c18a2e1ece88427ec7332d74fbb",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 12
+    },
+    {
+      "engineFrame": 15,
+      "frame": 14,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "160ee5b01171d2b703dc1d54ec7ee70aa2fdc92a61ca02314cff6997d3f706e6",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 13
+    },
+    {
+      "engineFrame": 16,
+      "frame": 15,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "69d698769363be8599b01bd4f5df059edfd8e48c651d653a7eefb590255719d4",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 14
+    },
+    {
+      "engineFrame": 17,
+      "frame": 16,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "40864be9e63df9015253132bae2938c11d07cbc332e415da859d8f36585be7cb",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 15
+    },
+    {
+      "engineFrame": 18,
+      "frame": 17,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "31b3ba7b2d9947910da932f81a2d73d2ab2069c48fa093a43b2af7ac296c0898",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 16
+    },
+    {
+      "engineFrame": 19,
+      "frame": 18,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "19efd1951de22d7eed67051548f828bbef47e3fa64f7db1fe5bb699f2322d955",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 17
+    },
+    {
+      "engineFrame": 20,
+      "frame": 19,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "759264e42a5a65a318524c43f497503264a1cf81a9edd7bbf2562ec3a8a3fa33",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 18
+    },
+    {
+      "engineFrame": 21,
+      "frame": 20,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "3abd6dcbf536ed5fda4860ec2fb33d5b2f03a63a6769ebf1ddaff66110978202",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 19
+    },
+    {
+      "engineFrame": 22,
+      "frame": 21,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "93510713cc0eaeb0786afcbbb9ba90df410b606309e13ddb66b3ff3d63a8a507",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 20
+    },
+    {
+      "engineFrame": 23,
+      "frame": 22,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "68a3a5a8e748d3cbd40ef45bccd5c3d1fd5799c4e5230c216b794a60c640a2d9",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 21
+    },
+    {
+      "engineFrame": 24,
+      "frame": 23,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "e6335f30bd85cf284d05f5e12cdec144d8e2024d4d73e0cfb040db7842c2934a",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 22
+    },
+    {
+      "engineFrame": 25,
+      "frame": 24,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "4c3f35baa6a058e66355a01164d82dead665d4e22784636cfd622797244d5d0a",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 23
+    },
+    {
+      "engineFrame": 26,
+      "frame": 25,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "c65a950d01398a038bc83bbc8ab9a2766ff9f06d44a7215133879c9e47c8a057",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 24
+    },
+    {
+      "engineFrame": 27,
+      "frame": 26,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "3df1e1a26d53a90b9830149cae28e7f7932894a23020ee59f78a4005b8ee6fc9",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 25
+    },
+    {
+      "engineFrame": 28,
+      "frame": 27,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "31c05fd27545aaa7133754bbc30e8755805ecf24e9bcb5de1360cd8aaa1f1828",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 26
+    },
+    {
+      "engineFrame": 29,
+      "frame": 28,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "82be5d61fb8e19088506ba3f1d19488366d888972f72c75d6208ce8940970f3c",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 27
+    },
+    {
+      "engineFrame": 30,
+      "frame": 29,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "3c334b8323b462041002d4b6cdb6f88ac5b8003d83d6e29f6a2a99a7c2e36f34",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 28
+    },
+    {
+      "engineFrame": 31,
+      "frame": 30,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "883a00ca6c8e2390e533f923d3315decaa7a7ab67bd8fb2b7096d00f0828a44a",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 29
+    },
+    {
+      "engineFrame": 32,
+      "frame": 31,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "27f9d46b7d3eff7c5f328dd90f07bf2fed903fb4fec813a3ad55db204fc81a95",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 30
+    },
+    {
+      "engineFrame": 33,
+      "frame": 32,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "ff33ff92ced33ab1aa3364129b90d65c0a83d332d70d1dc79749747a7af93a59",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 31
+    },
+    {
+      "engineFrame": 34,
+      "frame": 33,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "5536e596cbce7f9e4ac7d81d76fbbcc96959e58042caa5dcae00670ebc3d6317",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 32
+    },
+    {
+      "engineFrame": 35,
+      "frame": 34,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "bc1ab7e42707c8a1c11bf098694d553c49fa88458df581f67d0cca36ff943a09",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 33
+    },
+    {
+      "engineFrame": 36,
+      "frame": 35,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "ef076fa9ff52d092dfcf151068ba5105921a674ae4027dc233798d9ff6dd64dd",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 34
+    },
+    {
+      "engineFrame": 37,
+      "frame": 36,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "27880c8c3c262aa323831dea5267242517f4402de2fba5a0e4e624e42e65727c",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 35
+    },
+    {
+      "engineFrame": 38,
+      "frame": 37,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "75ddb36552a1a2a6e06201c1ba17dba49fe41fd7420bc0990ba7edfd19966a6c",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 36
+    },
+    {
+      "engineFrame": 39,
+      "frame": 38,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "dc0fa59ab9e1faef533b2b553bf3eadd4edd614afee089f85312c2b46bdf0ad9",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 37
+    },
+    {
+      "engineFrame": 40,
+      "frame": 39,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "f9c5fa615ad45fcda970de373b954bbc242ece8a59db2b5b134e406ed4f4b5ab",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 38
+    },
+    {
+      "engineFrame": 41,
+      "frame": 40,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "2447b0d706d119d08120fa915267d1734c2bb7b2a5de069f0d6498b7c53733c8",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 39
+    },
+    {
+      "engineFrame": 42,
+      "frame": 41,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "ed7fc49a0c5a0808bd60a1ef089d9680121ecc23a5ab2678fdb77137725adffd",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 40
+    },
+    {
+      "engineFrame": 43,
+      "frame": 42,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "153844c4103a4b16d45beaa9b29d188d9fd988e2409e2ce1ec06242ef45d71ca",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 41
+    },
+    {
+      "engineFrame": 44,
+      "frame": 43,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "14f868a9ed583d11f6fd066baa1bc1146c69e770a13f573be428613aad206870",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 42
+    },
+    {
+      "engineFrame": 45,
+      "frame": 44,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "66a03389bf86aeb0a3c5863648576539f65eb95d041523f5bc663b55e5965049",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 43
+    },
+    {
+      "engineFrame": 46,
+      "frame": 45,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "542d0bef36f57b65e3eef5dfee09c0601ad0ced34fe0e17986e8f3f8ae1f95f5",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 44
+    },
+    {
+      "engineFrame": 47,
+      "frame": 46,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "c2895484735a05e202488786ffd872a9185ae3a62cb2a57cf5c5f23aa3505d08",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 45
+    },
+    {
+      "engineFrame": 48,
+      "frame": 47,
+      "generationPairs": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "geometryVersion": 1,
+      "gpuControls0": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headerSha256": "5ff461209ba3501723677755647d8d8265b646ffe21513e27b4595d9a6e746d0",
+      "sceneRebuilds": 1,
+      "transformUpdates": 0,
+      "workFrame": 46
+    }
+  ],
+  "timing": "Concurrent GPU gaming load was user-reported; no duration regression/improvement attribution.",
+  "unobservedCaller": "Not identified: lifecycle notifications are source-consistent candidates, not a measured cause."
+}

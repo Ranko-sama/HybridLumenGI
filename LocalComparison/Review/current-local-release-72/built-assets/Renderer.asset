@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de640fe3d0db1804a85f9fc8f5cadab6, type: 3}
+  m_Name: Renderer
+  m_EditorClassIdentifier: 
+  debugShaders:
+    debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7, type: 3}
+    hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
+    probeVolumeSamplingDebugComputeShader: {fileID: 7200000, guid: 53626a513ea68ce47b59dc1299fe3959, type: 3}
+  probeVolumeResources:
+    probeVolumeDebugShader: {fileID: 0}
+    probeVolumeFragmentationDebugShader: {fileID: 0}
+    probeVolumeOffsetDebugShader: {fileID: 0}
+    probeVolumeSamplingDebugShader: {fileID: 0}
+    probeSamplingDebugMesh: {fileID: 0}
+    probeSamplingDebugTexture: {fileID: 0}
+    probeVolumeBlendStatesCS: {fileID: 0}
+  m_RendererFeatures:
+  - {fileID: 5043623260922118210}
+  m_RendererFeatureMap: 
+  m_UseNativeRenderPass: 0
+  postProcessData: {fileID: 0}
+  m_AssetVersion: 2
+  m_OpaqueLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_TransparentLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_DefaultStencilState:
+    overrideStencilState: 0
+    stencilReference: 0
+    stencilCompareFunction: 8
+    passOperation: 2
+    failOperation: 0
+    zFailOperation: 0
+  m_ShadowTransparentReceive: 1
+  m_RenderingMode: 0
+  m_DepthPrimingMode: 0
+  m_CopyDepthMode: 1
+  m_DepthAttachmentFormat: 0
+  m_DepthTextureFormat: 0
+  m_AccurateGbufferNormals: 0
+  m_IntermediateTextureMode: 1
+--- !u!114 &5043623260922118210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1eef2af1cfcf564da61c6bfc07acbc4, type: 3}
+  m_Name: Comparison GI
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    resolutionScale: 0.5
+    raysPerPixel: 2
+    screenSteps: 24
+    traceDistance: 18
+    shadowDistance: 200
+    rayBias: 0.06
+    screenThickness: 0.18
+    residentProxies: 32
+    nearDistance: 8
+    globalSdfEnabled: 1
+    globalSdfLevels: 4
+    globalSdfBricksPerAxis: 8
+    globalSdfBaseVoxelSize: 1
+    globalSdfBricksPerFrame: 16
+    farDistance: 150
+    chunkSize: 16
+    proxyUploadsPerFrame: 16
+    cachePatchesPerFrame: 256
+    cachePatchGrid: 4
+    cacheRaysPerFace: 8
+    guidedSamplingWeight: 0.35
+    emissiveSamplingWeight: 0.5
+    maxEmissiveProposals: 16
+    maxAreaEmitterTriangles: 16384
+    surfaceTileResolution: 32
+    residentSurfaceCards: 384
+    surfaceCapturesPerFrame: 24
+    surfaceDrawsPerFrame: 256
+    surfaceAtlasBudgetMiB: 64
+    bounceFeedback: 1
+    maxLights: 16
+    spatialLightSelection: 0
+    environmentRadiance: {r: 0, g: 0, b: 0, a: 1}
+    environmentCubemap: {fileID: 8900000, guid: 05263403c4dd7794d8c60a4076ff3388, type: 2}
+    indirectIntensity: 1
+    radianceClamp: 0
+    temporalAccumulation: 1
+    receiverSourceTracking: 1
+    receiverObjectHistory: 1
+    receiverSourceCapacity: 1024
+    receiverFingerprintBudgetMiB: 16
+    temporalCurrentWeight: 0.25
+    maxHistory: 32
+    relativeDepthThreshold: 0.015
+    normalThreshold: 0.9
+    filterIterations: 3
+    normalsOctEncoded: 0
+    includeSceneView: 0
+    preferHardwareTracing: 0
+    exactSoftwareTracing: 1
+    meshTriangleBudget: 250000
+    softwareGeometryBudgetMiB: 128
+    hardwareGeometryBudgetMiB: 128
+    rtasMemoryBudgetMiB: 256
+    rtasBuildsPerFrame: 4
+    rtasTriangleWorkPerFrame: 250000
+    rtasInstanceWorkPerFrame: 4096
+    rtasTriangleBurstCapacity: 1000000
+    rtasInstanceBurstCapacity: 16384
+    hardwareMaterialBudgetMiB: 256
+    materialTextureUploadMiBPerFrame: 16
+    composition: 0
+    materialLayers:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    textureBudgetMiB: 128
+    maxCameras: 2
+    adaptiveGpuBudget: 0
+    measureGpuCost: 0
+    preferNativeGpuTiming: 1
+    targetGpuMilliseconds: 0
+    minimumGpuWorkFraction: 0.125
+    debugView: 0
+  traceCompute: {fileID: 0}
+  compositeShader: {fileID: 0}
+  surfaceShader: {fileID: 0}
+  nativeDiffuseShader: {fileID: 0}

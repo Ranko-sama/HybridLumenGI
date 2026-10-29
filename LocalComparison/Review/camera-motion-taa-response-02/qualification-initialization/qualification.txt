@@ -1,0 +1,36 @@
+Separate initialization source qualification; original first failure retained.
+
+The written contract fixes source transforms/materials/light throughout all48
+frames, schedules32 warm frames, and requires complete source equality and zero
+change controls from frame31. The original verify_execution.py likewise anchors
+complete source equality at31. In contrast, the original analyzer's two-line
+gate anchored the full records, including two generation counters, at frame0.
+
+Input-only inspection found one full-record difference: all three proxies move
+revision/geometryRevision3->4 between logical0 and1. Name, stableId, matrix and
+shaderLinearColor are identical in all48 receipts. Complete source records are
+already identical from1 through47. Changes are zero from2 onward. The fixed
+engine-frame sequence is consecutive. These statements are metadata evidence,
+not color or history-output measurements.
+
+Proxy OnEnable, pending OnValidate and shared-mesh source notifications can
+advance the geometry and transport generations while refreshing signatures.
+No caller trace was captured, so this qualification does not claim a particular
+callback caused the observed initialization. Frozen host/source code contains
+no changing mesh, material, light or source transform during this experiment.
+
+The adapter replaces exactly the original two-line whole-record equality gate:
+1. Every physical/identity/material receipt field except revision and
+   geometryRevision must remain identical in all48 frames.
+2. The entire record, including both counters, is fixed from30 through47.
+   Frame30 is the f-1 owner for the first observed temporal frame31.
+
+The original sampler/mathematics, nearest candidate sets, identity and geometry
+gates, prior history qualification, raw/output equality, known/unknown handling,
+coverage budgets, camera path, frame count and selected pixels remain original
+function objects. No interval or output limit changes. No native execution or
+additional RGB reading was needed to prepare or test this adapter. Root runs
+the same captured data only after the independent input-only report and all
+original JSON/BIN files are frozen by source-manifest.json. The original
+analysis-first.json remains a failure, and a separate output records the new
+qualification. A source qualification does not itself pass temporal quality.

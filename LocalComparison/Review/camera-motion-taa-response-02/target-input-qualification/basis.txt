@@ -1,0 +1,44 @@
+Independent post-run audit of the authored target/path arithmetic. No native BIN,
+pixel output, RGB, EXR or preview is opened. The two prior analysis FAIL files and
+all original source/models/contracts/native data remain unchanged.
+
+CameraMotionTaaTap.cs:57..69 uses:
+  new Vector3(group==0?.8f+.05f*i:2f+.2f*i,0,.5f+.1f*j)
+The index/cohort loop and 264 authored targets remain the same. The source contains
+no explicit cast or forced storage of the intermediate multiplication. C# permits
+floating operations at greater precision than their result type; see official
+specification 8.3.7:
+https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/types#837-floating-point-types
+
+The frozen Python targets() instead rounds the product to binary32 before adding
+the binary32 base. This is an unnecessarily specific evaluation assumption for
+the authored C# expression. The expression's wider-precision outcome is derived
+independently from literal bits using exact rational arithmetic, followed by a
+single binary32 round-to-nearest/ties-to-even at stored Vector3 field precision.
+No tolerance or measured discrepancy is used to build the expected values.
+
+For sample3, the exact binary32-constant expression is 255013687/268435456,
+approximately .9500000141561031, whose stored binary32 is bits0x3f733333.
+Premature product rounding yields bits0x3f733334. Actual JSON records the first
+value exactly. A JSON-double-to-float32 normalization alone would not reconcile
+these distinct binary32 values. The report tests every coordinate in all48x264
+records, not only the first mismatch.
+
+CameraMotionTaaScene.cs:178..179 separately computes displacement from .075f and
+the fixed clamped frame index, then adds right*displacement to cameraPosition.
+For all48 authored path values, strict-per-operation and wider-expression RN32
+outcomes coincide. Actual cameraPosition JSON must equal those values exactly;
+the source of this separate check is this script, not an imported peer finding.
+
+The audit's integer rounding is self-checked against seven fixed bit results,
+including both ties-to-even directions. It does not rerun prior8/7 tests. Expected
+values are constructed before reading any native receipt. Every original receipt
+and both failure hashes are pinned in the separate report. Index/cohort must be
+exact; no selection point is altered. The report does not certify projected or
+uploaded pixels; original geometric projection and history/coverage predicates
+must still run on the same captured data under a separately recorded admission.
+
+No JIT, Mono instruction, FMA or particular high-precision implementation is
+claimed observed. The arithmetic result is compatible with the C# source and
+the language-permitted higher precision. This audit is limited to the finite
+authored expressions, not a general normalization of the entire JSON/GPU protocol.

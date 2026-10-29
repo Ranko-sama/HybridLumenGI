@@ -1,0 +1,62 @@
+Post-run initialization source qualification. No new native run; no frozen file edits.
+
+The original all-48 full-source-record failure remains a FAIL. This is a separate
+input admission finding, not a claim that the original analyzer or image-quality
+checks passed. No raw/history RGB, confidence, age or per-pixel data is decoded.
+
+Predeclared scope:
+- contract.txt: source transforms/materials/light fixed throughout; 0..31 warmup;
+  observed controls 31..47; source identity and zero actual changes from frame31.
+- CameraMotionTaaScene.cs:93..95 sets MPBs once in Start. Update:164..192 moves
+  only camera; static panel, camera rotation/TAA, engine sequence are checked.
+- CameraEnded:158 admits sources as Ready only from cameraEnds32 = logical31.
+- Frozen analyze.py:187..189 nevertheless compares the generation-bearing records
+  with frame0 on every frame, before its logical>=31 eligibility gate at line195.
+
+Why the failed comparison does not independently prove changed physical sources:
+- Proxy.cs:125..134 OnEnable calls MarkDirty and caches the signature.
+- Proxy.cs:142..161 OnValidate queues a main-thread invalidation, later consumed
+  by RefreshSignatureForRender. LateUpdate and Scene.cs:166 call that refresh.
+- Proxy.cs:180..185 can consume a shared mesh notification by bumping geometry
+  revision even if the source Mesh reference and bounds remain unchanged.
+- Proxy.cs:222..256 MarkDirty/BumpGeometryRevision advance geometry and transport
+  revisions and notify the shared mesh; callers include SetSources and
+  SetSurfaceCharts (:345..363), used by the Editor scene constructor.
+- These are possible source paths. The run did not instrument caller identity or
+  validationPending, so no particular callback or notification is claimed observed.
+- Scene.cs:217..236 invalidates readiness on revision mismatch. Its classifier
+  :527..546 treats geometry-generation change as Manual and may conservatively
+  invalidate without a changed matrix/material signature. Version counters are
+  invalidation metadata, not themselves a decoded vertex/material change.
+
+Minimum separate admission gate, defined without looking at per-pixel output:
+1. All 48 records have precisely the six captured fields. Name, stableId, matrix,
+   shaderLinearColor are exact for all 48. Exclude only the two named generation
+   counters from this all-frame physical-source comparison. This is not a general
+   assertion that arbitrary unrecorded mesh mutation is impossible: the frozen
+   static mesh/Host, per-pixel source geometry qualification, and unchanged source
+   hashes remain necessary parts of the later test.
+2. Full six-field records are exact from 30..47, including the predecessor of the
+   first observation at31. No generation exemption occurs inside this window.
+3. Keep the original controls and matrices at31..47: actual GPU HistoryValid1,
+   GlobalReactive0, GlobalGeometryChange0, ChangeCount0, CPU agreement and actual
+   previous matrices equal the preceding receipt. Require consecutive engine/work
+   frames in this window. No reset or reactivity is admitted as a motion success.
+4. As an additional conservative condition for this run, every observed earlier
+   generation transition has CPU and actual GPU HistoryValid0. Kernels.hlsl:448
+   makes temporal validity false in this case; :489 replaces rejected history
+   with current before accumulation. This source path does not prove an observed
+   output; the unchanged later output/coverage checks still must run.
+5. Preserve the original mathematical models, possible-nearest address set,
+   scene/path/48-frame budget, 264 points, selection, RGB/age equality and every
+   coverage threshold. Insufficient actual per-pixel support remains uncovered.
+
+Observed input-only findings are generated in result.json. A revision transition
+outside warmup, non-identity pose/material field change, valid temporal history
+at a generation transition, or window control/receipt mismatch rejects this narrow
+qualification. No native duration claim: user reported concurrent GPU game load.
+
+The independent execution/log scanner result is outside this source qualification.
+Neither native success nor this source finding substitutes for handling its first
+failure and performing the original per-pixel analysis with a separately pinned,
+explicitly scoped source-admission correction.

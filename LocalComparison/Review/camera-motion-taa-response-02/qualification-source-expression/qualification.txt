@@ -1,0 +1,33 @@
+Exact source-expression qualification; both earlier FAILs remain unchanged.
+
+The mismatch is a real binary32 difference, not JSON parsing:
+index3 actual target.x is0x3f733333 while the old per-operation-RN32 target is
+0x3f733334. Index/cohort and uploaded pixel338,174 are unchanged. The C# source
+uses .8f+.05f*i and .5f+.1f*j without intermediate precision-forcing casts.
+C# specification8.3.7 permits greater intermediate precision than the result
+type: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/types#837-floating-point-types
+
+This qualification admits one explicit source model only: decimal float literal
+-> integer binary32 RN-even -> exact rational multiply/add -> integer binary32
+RN-even at the stored Vector3 field. The independent audit constructs this from
+the frozen source before opening any native JSON. All48*264 recorded points are
+exactly equal, including binary32 bits. This is not a fitted ULP interval, a set
+of optional evaluation methods, or evidence of a particular JIT/FMA instruction.
+
+All captured camera path values match both old and wide computations; actual
+nonjittered GPU header matrices match JSON values, and the inspected JSON matrix,
+jitter and pose fields already represent binary32 exactly. Thus this adapter
+does not normalize arbitrary JSON inputs or change camera/matrix gates.
+
+The new adapter composes the already frozen initialization source gate with
+one replacement of the original selected_source function's first two lines.
+Index/cohort remain exact. The actual authored target must match the one exact
+source expression bit-for-bit, then that proven actual point is passed to the
+unchanged projection code. Actual pixels, fixed264 points, frames, mathematical
+model, nearest candidate proof, confidence/age/RGB output checks and every
+coverage requirement retain the original implementations.
+
+Four targeted controls cover the real index3/index5 examples, a wrong adjacent
+binary32 point, wrong index/cohort, and identity of unchanged mathematical and
+output functions. No native run or RGB decode was added to prepare these files.
+Root executes the same captured data after all evidence and data hashes freeze.

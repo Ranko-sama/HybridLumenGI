@@ -1,0 +1,79 @@
+Camera motion and real URP TAA: finite prospective contract, version 1.
+
+Purpose: independently test f-to-f-1 correspondence and first-exposure rejection
+under actual URP camera motion and nonzero jitter. This is not an integral/RGB
+reference, arbitrary camera-projection certificate, or overall image-quality test.
+No product shader arithmetic changes. No Unity execution until root schedules it.
+
+Frozen scene: finite wall x=0,y=[0,2],z=[-2,2], +X; floor y=0,x=[0,5],
+z=[-3,3], +Y; fixed black panel z=-.2,x=[.4,1.8],y=[0,1.8], -Z.
+Each is one charted opaque URP Lit rectangle (two triangles), metallic0/no maps.
+MPB shader-linear wall(.5,.25,.125,1), floor(1,1,1,1), panel(0,0,0,1).
+White directional toLight +X intensity1/shadowsNone; no other lights or environment.
+All three source transforms/materials/light remain fixed throughout the sequence.
+
+Exactly 48 consecutive full URP StandardRequest renders, disabled automatic camera;
+one request per consecutive engine frame. Deadline 300 seconds; no added warmups.
+Frames0..31 camera(3,3,-3), initial rotation LookAt(1,.4,0); frames32..39
+camera.x=3+.075*(logical-31), y=3,z=-3; frames40..47 x=3.6. Rotation remains
+the initial quaternion, FOV50, near.05/far30, aspect640/360, full GI640x360.
+Real URP camera TAA: post processing enabled, TemporalAntiAliasing/High,
+jitterScale1, no MSAA/dynamic resolution/stack. Observe actual jitter delta/motion;
+configured settings alone do not qualify TAA. GI temporal=true, maxHistory32,
+filter0, receiverSourceTracking=true, receiverObjectHistory=true. RPP8,bias.03,
+traceDistance20, guiding/feedback/screenSteps/emissive/area/environment all disabled.
+
+Selection is determined only by actual VP and fixed authored world points each frame:
+event grid x=.8+.05*i (i0..20), z=.5+.1*j(j0..10),y=0 (231 points);
+visible controls x in[2,2.2,2.4], same11 z values (33 points). Project using actual
+jittered GPU VP with DX12 UV convention; floor to full/GI pixel. Record all264 rows;
+invalid projected coordinates are explicit and duplicates cannot multiply coverage.
+Actual geometry qualifies the sampled surface; authored target is not a measured hit.
+No RGB, history length, or observed product validity result selects a pixel/cohort.
+
+Observation: twelve float4 controls;45 float4/sample, layout in CameraMotionTaaCopy.hlsl.
+Controls0..2 retain the prior ABI;3 contains actual bound depth/normal thresholds,
+rayBias/objectCount;4..7 and8..11 copy the actual global URP current/previous
+non-jittered VP rows. The CPU receipt also records its unjittered GPU VP and raw
+camera projection. Actual jitter must agree with these matrices, not just settings.
+Current inputs, identity/candidate/object row and five prior samples are preserved.
+Five prior samples are nearest and bilinear00/10/01/11 at observed motionUV. The
+copy shader computes addresses only; independent analysis reconstructs UV enclosures
+from actual matrices/depth/motion/jitter and verifies addresses and product branch.
+Static source currentToPrevious must be identity and source key/candidate valid.
+This contract qualifies the actual motionUV branch only: motionUV must provably
+agree with static-pose projection within the product's one-full-pixel branch gate.
+The pose fallback is not counted as motion-path coverage and is not certified here.
+Nearest and all positive-weight bilinear taps need explicit independent support proof
+for continued-history controls. Motion/projection disagreement or rounding-boundary
+ambiguity is uncovered, not a radiance failure. No unsupported generalization from
+the earlier fixed-camera helper. Use existing outward float32 interval primitives;
+retain one-ULP outward rounding, D3D rsq relative2^-21 and sqrt bounds. Half radiance
+is observed as stored values, never a newly fitted RGB tolerance.
+
+First-exposure cohort: during32..39, actual current floor geometry/material/identity
+is valid; independently projected previous ray and previous texture geometry establish
+the fixed panel as predecessor, with a different valid identity and established history.
+For known finite current raw, output history four components must equal current stored
+raw exactly (allow only IEEE +0/-0 numeric equivalence), and moments.z exactly1.
+Unknown raw is reported separately and never interpreted as known black or success.
+
+Continued-visible controls: actual current and all prospective prior support are the
+same valid floor primitive, with valid geometry/material/history alpha/moments;
+the global f-1 receipt is valid, and changeCount/globalReactive/globalHard are zero.
+Their output must retain valid confidence and age>1. This excludes global reset as
+an explanation of successful first-exposure rejection. No RGB stability threshold.
+
+Coverage acceptance: every movement frame32..39 supplies >=1 qualified known newly
+exposed pixel and the union has >=8 distinct (frame,pixel) events; every frame31..47
+supplies >=8 distinct qualified continued controls. At least8 observed frames31..47
+have nonzero jitter delta, and every movement frame has nonzero motion in qualified
+continued controls. All sources stay identical and all actual change controls are zero
+from frame31 onward. Any insufficient cohort or unsupported inputs is uncovered/failed
+coverage, never silently passed; no extra frames, pixels, or tolerance adjustment.
+Valid qualified reset/retention violations are product counterexamples. Native source,
+ABI or lifecycle corruption is an execution failure. Preserve first results unchanged.
+
+Save compact48 frames and representative final previews31/39/47 only. Images are
+context, not acceptance or pixel selection. Root owns install/run/restore and source
+hash reconciliation; no Unity/player build is needed for this Editor Play harness.

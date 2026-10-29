@@ -1,0 +1,6217 @@
+{
+  "additionalNativeExecution": false,
+  "cameraPathExpressions": [
+    "float displacement=.075f*Mathf.Clamp(result.cameraEnds-31,0,8);",
+    "targetCamera.transform.position=cameraPosition+Vector3.right*displacement;"
+  ],
+  "cameraPathInputsQualified": true,
+  "fixedRoundingSelfChecks": 7,
+  "frames": 48,
+  "implementationClaim": "All captured inputs match the exact rational wide-expression RN32 result; this does not identify JIT instructions, FMA use, or the execution mechanism.",
+  "independentExpectedTargets": [
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "1/2"
+      ],
+      "i": 0,
+      "index": 0,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "1/2"
+      ],
+      "i": 1,
+      "index": 1,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "1/2"
+      ],
+      "i": 2,
+      "index": 2,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "1/2"
+      ],
+      "i": 3,
+      "index": 3,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "1/2"
+      ],
+      "i": 4,
+      "index": 4,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "1/2"
+      ],
+      "i": 5,
+      "index": 5,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "1/2"
+      ],
+      "i": 6,
+      "index": 6,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "1/2"
+      ],
+      "i": 7,
+      "index": 7,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "1/2"
+      ],
+      "i": 8,
+      "index": 8,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "1/2"
+      ],
+      "i": 9,
+      "index": 9,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "1/2"
+      ],
+      "i": 10,
+      "index": 10,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "1/2"
+      ],
+      "i": 11,
+      "index": 11,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "1/2"
+      ],
+      "i": 12,
+      "index": 12,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "1/2"
+      ],
+      "i": 13,
+      "index": 13,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "1/2"
+      ],
+      "i": 14,
+      "index": 14,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "1/2"
+      ],
+      "i": 15,
+      "index": 15,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "1/2"
+      ],
+      "i": 16,
+      "index": 16,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "1/2"
+      ],
+      "i": 17,
+      "index": 17,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "1/2"
+      ],
+      "i": 18,
+      "index": 18,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "1/2"
+      ],
+      "i": 19,
+      "index": 19,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "1/2"
+      ],
+      "i": 20,
+      "index": 20,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 0,
+      "index": 21,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 1,
+      "index": 22,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 2,
+      "index": 23,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 3,
+      "index": 24,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 4,
+      "index": 25,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 5,
+      "index": 26,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 6,
+      "index": 27,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 7,
+      "index": 28,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 8,
+      "index": 29,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 9,
+      "index": 30,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 10,
+      "index": 31,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 11,
+      "index": 32,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 12,
+      "index": 33,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 13,
+      "index": 34,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 14,
+      "index": 35,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 15,
+      "index": 36,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 16,
+      "index": 37,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 17,
+      "index": 38,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 18,
+      "index": 39,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 19,
+      "index": 40,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 20,
+      "index": 41,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 0,
+      "index": 42,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 1,
+      "index": 43,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 2,
+      "index": 44,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 3,
+      "index": 45,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 4,
+      "index": 46,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 5,
+      "index": 47,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 6,
+      "index": 48,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 7,
+      "index": 49,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 8,
+      "index": 50,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 9,
+      "index": 51,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 10,
+      "index": 52,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 11,
+      "index": 53,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 12,
+      "index": 54,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 13,
+      "index": 55,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 14,
+      "index": 56,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 15,
+      "index": 57,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 16,
+      "index": 58,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 17,
+      "index": 59,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 18,
+      "index": 60,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 19,
+      "index": 61,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 20,
+      "index": 62,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 0,
+      "index": 63,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 1,
+      "index": 64,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 2,
+      "index": 65,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 3,
+      "index": 66,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 4,
+      "index": 67,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 5,
+      "index": 68,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 6,
+      "index": 69,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 7,
+      "index": 70,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 8,
+      "index": 71,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 9,
+      "index": 72,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 10,
+      "index": 73,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 11,
+      "index": 74,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 12,
+      "index": 75,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 13,
+      "index": 76,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 14,
+      "index": 77,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 15,
+      "index": 78,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 16,
+      "index": 79,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 17,
+      "index": 80,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 18,
+      "index": 81,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 19,
+      "index": 82,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 20,
+      "index": 83,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 0,
+      "index": 84,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 1,
+      "index": 85,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 2,
+      "index": 86,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 3,
+      "index": 87,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 4,
+      "index": 88,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 5,
+      "index": 89,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 6,
+      "index": 90,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 7,
+      "index": 91,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 8,
+      "index": 92,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 9,
+      "index": 93,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 10,
+      "index": 94,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 11,
+      "index": 95,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 12,
+      "index": 96,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 13,
+      "index": 97,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 14,
+      "index": 98,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 15,
+      "index": 99,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 16,
+      "index": 100,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 17,
+      "index": 101,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 18,
+      "index": 102,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 19,
+      "index": 103,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 20,
+      "index": 104,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 0,
+      "index": 105,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 1,
+      "index": 106,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 2,
+      "index": 107,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 3,
+      "index": 108,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 4,
+      "index": 109,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 5,
+      "index": 110,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 6,
+      "index": 111,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 7,
+      "index": 112,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 8,
+      "index": 113,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 9,
+      "index": 114,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 10,
+      "index": 115,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 11,
+      "index": 116,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 12,
+      "index": 117,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 13,
+      "index": 118,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 14,
+      "index": 119,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 15,
+      "index": 120,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 16,
+      "index": 121,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 17,
+      "index": 122,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 18,
+      "index": 123,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 19,
+      "index": 124,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 20,
+      "index": 125,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 0,
+      "index": 126,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 1,
+      "index": 127,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 2,
+      "index": 128,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 3,
+      "index": 129,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 4,
+      "index": 130,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 5,
+      "index": 131,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 6,
+      "index": 132,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 7,
+      "index": 133,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 8,
+      "index": 134,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 9,
+      "index": 135,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 10,
+      "index": 136,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 11,
+      "index": 137,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 12,
+      "index": 138,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 13,
+      "index": 139,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 14,
+      "index": 140,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 15,
+      "index": 141,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 16,
+      "index": 142,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 17,
+      "index": 143,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 18,
+      "index": 144,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 19,
+      "index": 145,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 20,
+      "index": 146,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 0,
+      "index": 147,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 1,
+      "index": 148,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 2,
+      "index": 149,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 3,
+      "index": 150,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 4,
+      "index": 151,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 5,
+      "index": 152,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 6,
+      "index": 153,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 7,
+      "index": 154,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 8,
+      "index": 155,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 9,
+      "index": 156,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 10,
+      "index": 157,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 11,
+      "index": 158,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 12,
+      "index": 159,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 13,
+      "index": 160,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 14,
+      "index": 161,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 15,
+      "index": 162,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 16,
+      "index": 163,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 17,
+      "index": 164,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 18,
+      "index": 165,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 19,
+      "index": 166,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 20,
+      "index": 167,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 0,
+      "index": 168,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 1,
+      "index": 169,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 2,
+      "index": 170,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 3,
+      "index": 171,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 4,
+      "index": 172,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 5,
+      "index": 173,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 6,
+      "index": 174,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 7,
+      "index": 175,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 8,
+      "index": 176,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 9,
+      "index": 177,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 10,
+      "index": 178,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 11,
+      "index": 179,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 12,
+      "index": 180,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 13,
+      "index": 181,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 14,
+      "index": 182,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 15,
+      "index": 183,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 16,
+      "index": 184,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 17,
+      "index": 185,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 18,
+      "index": 186,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 19,
+      "index": 187,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 20,
+      "index": 188,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 0,
+      "index": 189,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 1,
+      "index": 190,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 2,
+      "index": 191,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 3,
+      "index": 192,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 4,
+      "index": 193,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 5,
+      "index": 194,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 6,
+      "index": 195,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 7,
+      "index": 196,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 8,
+      "index": 197,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 9,
+      "index": 198,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 10,
+      "index": 199,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 11,
+      "index": 200,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 12,
+      "index": 201,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 13,
+      "index": 202,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 14,
+      "index": 203,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 15,
+      "index": 204,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 16,
+      "index": 205,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 17,
+      "index": 206,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 18,
+      "index": 207,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 19,
+      "index": 208,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 20,
+      "index": 209,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/16777216",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 0,
+      "index": 210,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3f4ccccd",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/268435456",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 1,
+      "index": 211,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3f59999a",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/134217728",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 2,
+      "index": 212,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3f666667",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "255013687/268435456",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 3,
+      "index": 213,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3f733334",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3f733333",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "67108865/67108864",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 4,
+      "index": 214,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3f800000",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "281857233/268435456",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 5,
+      "index": 215,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3f866666",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3f866667",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "147639503/134217728",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 6,
+      "index": 216,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3f8ccccd",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "308700779/268435456",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 7,
+      "index": 217,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3f933333",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "40265319/33554432",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 8,
+      "index": 218,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3f99999a",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "335544325/268435456",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 9,
+      "index": 219,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fa00000",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "174483049/134217728",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 10,
+      "index": 220,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fa66666",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fa66667",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "362387871/268435456",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 11,
+      "index": 221,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3faccccd",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "93952411/67108864",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 12,
+      "index": 222,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fb33334",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fb33333",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "389231417/268435456",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 13,
+      "index": 223,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fb9999a",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "201326595/134217728",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 14,
+      "index": 224,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fc00000",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "416074963/268435456",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 15,
+      "index": 225,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fc66666",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fc66667",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "13421773/8388608",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 16,
+      "index": 226,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fcccccd",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "442918509/268435456",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 17,
+      "index": 227,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fd33334",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fd33333",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "228170141/134217728",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 18,
+      "index": 228,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fd9999a",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "469762055/268435456",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 19,
+      "index": 229,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fe00000",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "event",
+      "exactWideExpression": [
+        "120795957/67108864",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 20,
+      "index": 230,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x3fe66666",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x3fe66667",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "1/2"
+      ],
+      "i": 0,
+      "index": 231,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "1/2"
+      ],
+      "i": 1,
+      "index": 232,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "1/2"
+      ],
+      "i": 2,
+      "index": 233,
+      "j": 0,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f000000"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f000000"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 0,
+      "index": 234,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 1,
+      "index": 235,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "80530637/134217728"
+      ],
+      "i": 2,
+      "index": 236,
+      "j": 1,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f19999a"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f19999a"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 0,
+      "index": 237,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 1,
+      "index": 238,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "46976205/67108864"
+      ],
+      "i": 2,
+      "index": 239,
+      "j": 2,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f333333"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f333333"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 0,
+      "index": 240,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 1,
+      "index": 241,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "107374183/134217728"
+      ],
+      "i": 2,
+      "index": 242,
+      "j": 3,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f4ccccd"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f4ccccd"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 0,
+      "index": 243,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 1,
+      "index": 244,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "30198989/33554432"
+      ],
+      "i": 2,
+      "index": 245,
+      "j": 4,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f666666"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f666666"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 0,
+      "index": 246,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 1,
+      "index": 247,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "134217729/134217728"
+      ],
+      "i": 2,
+      "index": 248,
+      "j": 5,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f800000"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 0,
+      "index": 249,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 1,
+      "index": 250,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "73819751/67108864"
+      ],
+      "i": 2,
+      "index": 251,
+      "j": 6,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f8ccccd"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f8ccccd"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 0,
+      "index": 252,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 1,
+      "index": 253,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "161061275/134217728"
+      ],
+      "i": 2,
+      "index": 254,
+      "j": 7,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f99999a"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3f99999a"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 0,
+      "index": 255,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 1,
+      "index": 256,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "21810381/16777216"
+      ],
+      "i": 2,
+      "index": 257,
+      "j": 8,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3fa66666"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3fa66666"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 0,
+      "index": 258,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 1,
+      "index": 259,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "187904821/134217728"
+      ],
+      "i": 2,
+      "index": 260,
+      "j": 9,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3fb33334"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3fb33333"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "2",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 0,
+      "index": 261,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x40000000",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "147639501/67108864",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 1,
+      "index": 262,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x400ccccd",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    },
+    {
+      "cohort": "continued",
+      "exactWideExpression": [
+        "80530637/33554432",
+        "0",
+        "100663297/67108864"
+      ],
+      "i": 2,
+      "index": 263,
+      "j": 10,
+      "strictIntermediateBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3fc00000"
+      ],
+      "wideBits": [
+        "0x4019999a",
+        "0x00000000",
+        "0x3fc00000"
+      ]
+    }
+  ],
+  "nativeBinsOpened": false,
+  "numericMethod": "Decimal float literals rounded by integer RN32; multiply/add performed as exact Fraction; final storage rounded by integer quotient/remainder ties-to-even. Strict-per-operation reference is retained separately.",
+  "originalFailuresAccepted": false,
+  "postRunQualification": true,
+  "rawOrHistoryRgbRead": false,
+  "receiptSha256": {
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-000.json": "f59996b28b04d0270f0c4f3be4ed11b472f0b274065db9995932e4abb6412918",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-001.json": "a65ed41b2cd440f828c9f2760e81156e9baf43f654a6ecf73978195b4241d4bd",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-002.json": "47fc8051ffce95a52faab09cdf2eb0eb948867478486e6dd03eb47e9654e3be0",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-003.json": "329b35fbe485bb3207a3e07d8ca562f660513f260fee69c1385f7e83fbcda7a7",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-004.json": "8a5e565ad20d69c9abfa61ee99c3b895ff1a2523dcc13fc91e8d16718bf2af10",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-005.json": "f3e4b0f07f306ae7e9532e8f04c6a02ff1acfd94a0472e10895d4c8a66b208dd",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-006.json": "34d74adfd5dba1f85b3cbf3615480e1d0bd0acd475b74cd964cc8f692ea18777",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-007.json": "783781f318b61fb7ba2023dfcb1f2d08261f60a2447129759dda45c1b46b6b9d",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-008.json": "d73a68fafa7792df634b9a2b61730c9c0f8e54f308c73021181663875b5e0fad",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-009.json": "b5b73b334a5f0b759c2e4c39477710b0963739a3a9835371d275d727088d3cc4",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-010.json": "fa658bf07d8174a43b8fa50f3689a0a1a05e812809df3d394eecfc7db1c1de5e",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-011.json": "ba92f4c1a43874f12561c33b7afbba59dba832f6f5766799ec919bc553842702",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-012.json": "a36248d304690806476dfc4e701776acd12d172460894d8058874f7638eda101",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-013.json": "72e74e1243d59e99b60bee89a8c109372bb8a0ac751da4172c444813ad3b1c21",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-014.json": "c42251731f107d167069eb82766af69d8a3cdaf02fdba170e9ea65d5be8af536",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-015.json": "e2618d603ccdbc469f45cc376227614c8eee6e0c8d028a4417116eafefcc546a",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-016.json": "9b15e102a38841a0a65bcd85d2f691e156e5aa4206b6a58c35c4878e2e946b35",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-017.json": "61f116ae0463d0e9580220e2420a80fb1adff7f2fe703a633b04d5436f7bb468",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-018.json": "57ead905260f63217f2fedc223901d6f2ad3c8764f787396ea65b930fb1e0218",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-019.json": "0ca3de972b94d78d5b4911789dc4dabc3b427107e36e911abb778263fc3006c9",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-020.json": "636c8906a703f0dc4149ba8b5cea71c435872bc98946a1e29d95f8c2f8fcb649",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-021.json": "91122bfafd369d1b4b28bb66745536a553855c806f7e65114778e2ed2a3f84bc",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-022.json": "d353edfc6e6feb542f8a96af435c5c4e3fbdbfef234577ef016318274c36573b",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-023.json": "47d44451388585762ec0cf30fc7621762c6c5816fd14d231bf3807159b9936f4",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-024.json": "24b9671b33740dc1ce9b2b9580f514556206ef492ccc237c012a90e59a71883e",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-025.json": "a45b50da6d07ca02486dc0e49619a6f8be4a24d73920fae0270e005cea48d448",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-026.json": "0c1146a41f91a789d7bb6d314400f3558fb9f09da3838fc8a48c1d44b73be81e",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-027.json": "7a0616f3d9a1d8cf03685cbdc7e5667c372f8c8f64689b56559aadfd21d4a66c",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-028.json": "dcbb170a4c566c38379ab87b28225de963fa1ca9af17ad2c24c8f7d15edac7ab",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-029.json": "eacd89540a5476e055a1d2266b324d5775d364a0d4f097eef464100e3d09dfcb",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-030.json": "e06e0a0c32ea310cc327953d3125f557a2b9116aabe2f803e27ba6711de468da",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-031.json": "fda5ed37327a7fca8bff7ac48c7f199a01e8c9a3c3db9ca83be22066e8cc6e72",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-032.json": "00efdf4534d88ecb46ce29237ce6a8f028233aa7f0966a515d68b047f25a046a",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-033.json": "16f8007fcde73608db3487828f4e67bafe0fb841a7ebb8743322bdb1fd64d9fb",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-034.json": "946d81acd754a6dcb5805c8fd57045414acf80b895081cb4c7ef411061288745",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-035.json": "b75117407003f81efde7841e623be1443bb36d90015528cf999556900ffd1d2d",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-036.json": "2d82d748da77fd244590d97858c7a8dbee6aea5b9e36b26bfe79688c57e57e4d",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-037.json": "79a525b3af82288cc2390f1a78c048ae671ed6e1dbb9d68206ea32f70b4098a0",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-038.json": "7788d3f08124ed908ae947f36af007703bbcd5dfefe337b871a824546256eab3",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-039.json": "e6ce74602aac77c2d2f41d2964aba77a012b3736334c526458145a1118cc0be0",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-040.json": "6cd173d7633ed04d99f39eba0fb4c69a4aaeba17d61a9e7c4d5211247b4e6777",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-041.json": "00189d08fe3c14dbdca04d67c33bb6d704fc2e312880b88e227f5daa62f57e21",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-042.json": "7a2878b7d175bfbc280d2a715adb34bd08c04e69498a3939d488aabf227be3bc",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-043.json": "2239ab8cc6b6fdccac8cdf5726e8e7d7f1fa50de5a1d050efcd04b94f9d881cf",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-044.json": "928d3b6fd49be6ab2fae34c8b5d29a081e814761dff8f00018f5f08f5972d70d",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-045.json": "af327d891ed6d08612e967a1eac6541f15e20a56b1640d829334b507c74d6288",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-046.json": "2ef2f560d91f996c6ee621f69f5cc03d31ca6340f44bccee3f484b35c7294b7b",
+    "LocalComparison/Review/camera-motion-taa-response-02/native/frame-047.json": "2bb1ea86d54c2b66d0f3f6ae14caf4b0fbee47304406df984b29d7908e889e1d"
+  },
+  "schema": "camera-motion-taa-exact-authored-input-audit-v1",
+  "scope": "Only exact authored target/path and JSON value representation. Uploaded/projected pixels and original geometric/history/output/coverage predicates remain unproven here.",
+  "sourceExpression": "new Vector3(group==0?.8f+.05f*i:2f+.2f*i,0,.5f+.1f*j)",
+  "sourceSha256": {
+    "LocalComparison/Harness/CameraMotionTaaScene.cs": "9d711b01c314bfc833afd5633ff93244266976c1a74b57da655f8bfce6c1b3fd",
+    "LocalComparison/Harness/CameraMotionTaaTap.cs": "99397a24e8ef2366a4265f2915034a2ea7bbf7212a2d0d96b110402a7761ffa8",
+    "LocalComparison/Review/camera-motion-taa-response-02/analysis-first.json": "50fffff61d28f66ab1da8da1d72d773da378bacad78a990e220dc3f788feda0a",
+    "LocalComparison/Review/camera-motion-taa-response-02/analysis-initialization-qualified.json": "19abacd2a0e7b25ef3e892c1d80dd8bc5cba41f5a412bcd51945f573e0fea831",
+    "LocalComparison/Review/camera-motion-taa-response-02/contract.txt": "3a0256cb0ecebc75d99108c3278cbbd5af906db554e7e87e7a47397428936090",
+    "LocalComparison/Review/camera-motion-taa-response-02/qualification-initialization/analyze.py": "72fe8936bd78b4797b40d0038818139e1d008c3b01414eeb6fba697122a5adec",
+    "LocalComparison/Review/camera-motion-taa-response-02/qualification-ties/analyze.py": "232adf8da40cbdb444891c42706e54aaae46c7c1ac34989ccdbe0cee016ebf3d",
+    "LocalComparison/Review/camera-motion-taa-response-02/source-freeze.json": "bede8fa6a018a203e6d8e2459c869508229a0b856edce95cc3f5eed27b2956a9",
+    "LocalComparison/Review/camera-motion-taa-response-02/target-input-qualification/audit.py": "17c54dcd5d5d7acc63c2c77ac4cf83319ce43b4ec20a018897798203d7669f05",
+    "LocalComparison/Review/camera-motion-taa-response-02/target-input-qualification/basis.txt": "d14de17b9af2ffba1782b6f839914752edb5f69cf6293b08631427be910c53a9"
+  },
+  "specification": {
+    "relevance": "C# permits floating-point operations at greater precision than the result type; the source has no explicit intermediate precision casts.",
+    "section": "8.3.7",
+    "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/types#837-floating-point-types"
+  },
+  "strictIntermediateTargetMismatchCountPerFrame": 94,
+  "targetChecks": 12672,
+  "targetInputsQualified": true,
+  "targetOrCameraJsonComponentsExactBinary32": 38160,
+  "targetsPerFrame": 264,
+  "temporalQualityAccepted": false,
+  "timeline": [
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 0,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 1,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 2,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 3,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 4,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 5,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 6,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 7,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 8,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 9,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 10,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 11,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 12,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 13,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 14,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 15,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 16,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 17,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 18,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 19,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 20,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 21,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 22,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 23,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 24,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 25,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 26,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 27,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 28,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 29,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 30,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40400000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 31,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x4044cccd",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 32,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x4049999a",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 33,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x404e6666",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 34,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40533333",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 35,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40580000",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 36,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x405ccccd",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 37,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x4061999a",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 38,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40666666",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 39,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40666666",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 40,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40666666",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 41,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40666666",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 42,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40666666",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 43,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40666666",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 44,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40666666",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 45,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40666666",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 46,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    },
+    {
+      "cameraPathStrictAndWideAgree": true,
+      "cameraPositionBits": [
+        "0x40666666",
+        "0x40400000",
+        "0xc0400000"
+      ],
+      "logicalFrame": 47,
+      "strictIntermediateMismatchCount": 94,
+      "targetChecks": 264,
+      "wideExpressionMismatches": 0
+    }
+  ],
+  "wideExpressionMismatches": 0
+}

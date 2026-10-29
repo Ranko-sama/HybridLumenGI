@@ -1,0 +1,32 @@
+{
+  "schema": "camera-taa-log-independent-source-report-v1",
+  "passed": true,
+  "scope": "One exact structured-summary regex false positive plus independent execution/source/restoration audit; no RGB, TAA quality acceptance, GPU work, or performance comparison.",
+  "originalFailurePreserved": {
+    "path": "LocalComparison/Review/camera-motion-taa-response-02/execution-receipt.json",
+    "sha256": "1597310b30d397e39381b46398d3ca74c62c2b1a0e3e32b160b777d84f0493de"
+  },
+  "filesSha256": {
+    "qualify_execution.py": "7c7c094f99b1862693951c8e0c9858a6e316e0db2869d19f57648bd1bcd8d491",
+    "test_qualify_execution.py": "9b00cc5517aa1a183391d4a3ed21af8da548ee2f5a5ac09986750950db07b724",
+    "result.json": "9b454d7fb351c586356a2586bfb234fc087938569fc723ceeaaa87292289b3bb"
+  },
+  "cpuValidation": {
+    "command": "python -B -m unittest test_qualify_execution.py -v",
+    "tests": 5,
+    "exitCode": 0,
+    "scope": "exact summary positive; separate shader error preserved; error-bearing collected summary rejected; atomic readback unproven rejected; changed same-prefix line rejected"
+  },
+  "observedFacts": {
+    "productFiles": 112,
+    "stagedFiles": 9,
+    "consecutiveEngineFrames": [
+      1,
+      48
+    ],
+    "previewsPresent": 3,
+    "otherOriginalScannerHits": 0,
+    "ownedRootAndMetaAbsent": true
+  },
+  "environment": "User reported concurrent gameplay occupying GPU; no performance conclusion."
+}
