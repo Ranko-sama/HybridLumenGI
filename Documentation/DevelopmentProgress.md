@@ -1,6 +1,6 @@
 # 完整原计划推进表
 
-当前增量：`95a3213` 已将接收面身份顶点改为 URP Lit 同源变换，删除自算 VP/M 上传；严格深度、alpha、Cull 和历史门保持。实际 [深度诊断](ReviewBrief-CameraIdentityDepthDiagnostic01.md) 已确认 275 个身份丢失均来自顶点深度不匹配，现有 CPU 合同、12 shader 入口与两程序集预编译通过，112 产品源已部署；[原 48 帧相机/TAA 验收](ReviewBrief-CameraMotionTaaResponse03.md)首次分析通过：57 显露事件、561 持续点，零输出违例和覆盖缺口。普通 Player 仍为下述 Release72 / 13f31ec，不混淆来源。
+当前增量：`95a3213` 已将接收面身份顶点改为 URP Lit 同源变换，删除自算 VP/M 上传；严格深度、alpha、Cull 和历史门保持。实际 [深度诊断](ReviewBrief-CameraIdentityDepthDiagnostic01.md) 已确认 275 个身份丢失均来自顶点深度不匹配，现有 CPU 合同、12 shader 入口与两程序集预编译通过，112 产品源已部署；[原 48 帧相机/TAA 验收](ReviewBrief-CameraMotionTaaResponse03.md)首次分析通过：57 显露事件、561 持续点，零输出违例和覆盖缺口。该修复已进入[Release73](ReviewBrief-CurrentLocalRelease73.md)，112产品源／189产物与真实120帧／Final HDR通过；旧Release72保持13f31ec来源。
 
 后续按原计划整体依赖推进五个交付节点，局部检查完成后继续下一项：
 

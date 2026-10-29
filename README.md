@@ -1,6 +1,6 @@
 # HybridLumenGI
 
-当前整合入口为[Release72](Documentation/ReviewBrief-CurrentLocalRelease72.md)，产品来源13f31ec，已加入引导权重与接收面几何解耦修复。真实Player完成一次120帧显式后台完整渲染与HDR读回，普通导航和形变Host与71字节一致，OS按键未重测。首帧等待121.38秒；用户同时游戏，本次耗时不作性能比较。下文71及更早版本保持各自历史范围。
+当前整合入口为[Release73](Documentation/ReviewBrief-CurrentLocalRelease73.md)，产品来源95a3213，已加入接收面身份与URP矩阵同源修复。原48帧相机/TAA回归通过：57显露事件、561持续点，无输出违例或覆盖缺口。Release73真实Player另完成120帧及Final HDR，普通导航与形变Host沿用72；OS按键未重测。用户同时游戏，本次耗时不作性能比较。后续开发转入同场景HDR参考与合成评估能力，下文72及更早版本保留各自历史范围。
 
 完整DXR Feature已有[有限色墙参考](Documentation/ReviewBrief-FiniteWallColorReference02.md)、[变色／关灯](Documentation/ReviewBrief-FiniteWallDynamicResponse01.md)、[有限缓存反馈](Documentation/ReviewBrief-CacheFeedbackFinite02.md)和[移动遮挡恢复](Documentation/ReviewBrief-FiniteWallOcclusionResponse01.md)的独立证据，分别保留固定场景、输入与来源边界；不扩大为默认多次反弹或整体动态画质验收。[真实相机／TAA](Documentation/ReviewBrief-CameraMotionTaaResponse02.md)已完成48帧；整体覆盖仍失败，正在定位身份捕获中断。
 
