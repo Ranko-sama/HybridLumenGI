@@ -2,9 +2,11 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release81](<I:/Unity test/Comparison/Builds/LocalRelease81/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；提供默认关闭的GPU计时、更新预算反馈和进程显存观察。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release82](<I:/Unity test/Comparison/Builds/LocalRelease82/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；提供默认关闭的GPU计时、更新预算反馈和进程显存观察。该路径属于当前开发机，其他工程请按下文集成或构建。
 
-Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review/gpu-budget-controls-01/result.md)，允许只测量或显式输入目标后启用已有控制器；关闭可恢复静态配额。同步整合零AO下不必要的缓存依赖修复。没有自动选择生产预算，也不保证达到输入目标。Release80 已修复[零漫反射表面的已知辐射丢失](LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)：有效自发光／黑色不再因无关的阴影或缓存查询未知而被丢弃，正漫反射和来源资格保持。它是局部能量资格修复，没有新增整景颜色、动态质量或性能结论。Release79 已为同一门物体增加[真实 Skinned 骨骼形变模式](LocalComparison/Review/skinned-unified-usage-01/result.md)，保留可读网格模式；沿用 Release78 的[按来源分离的缓存关灯响应](LocalComparison/Review/cache-source-separation-01/result.md)：当前上传的解析灯表为空时，移除其旧多跳贡献，保留自发光／环境贡献。沿用统一交互及默认关闭的[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)，保留此前屏幕历史、缓存首次可信更新和面积光冗余计算修复。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release81 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
+Release82 整合[严格静止样本的重建修复](LocalComparison/Review/stationary-history-01/result.md)：避免当前稀疏采样把已积累历史压暗。frame119固定Floor/White平均D偏差由−28.9%/−33.4%降至−5.84%/−3.36%，逐像素误差和色向也改善，未知不增。仅适用于成熟、相机/样本/几何/材质完全未变且无motion/jitter/reactive的条件；无标记真变暗32步仍保留约6.88%的残留，不能称动态不变。原D240采集缺口、运动颗粒和整体收敛限制保留。
+
+Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review/gpu-budget-controls-01/result.md)，允许只测量或显式输入目标后启用已有控制器；关闭可恢复静态配额。同步整合零AO下不必要的缓存依赖修复。没有自动选择生产预算，也不保证达到输入目标。Release80 已修复[零漫反射表面的已知辐射丢失](LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)：有效自发光／黑色不再因无关的阴影或缓存查询未知而被丢弃，正漫反射和来源资格保持。它是局部能量资格修复，没有新增整景颜色、动态质量或性能结论。Release79 已为同一门物体增加[真实 Skinned 骨骼形变模式](LocalComparison/Review/skinned-unified-usage-01/result.md)，保留可读网格模式；沿用 Release78 的[按来源分离的缓存关灯响应](LocalComparison/Review/cache-source-separation-01/result.md)：当前上传的解析灯表为空时，移除其旧多跳贡献，保留自发光／环境贡献。沿用统一交互及默认关闭的[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)，保留此前屏幕历史、缓存首次可信更新和面积光冗余计算修复。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release82 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
 
 ## 使用统一示例
 
@@ -30,16 +32,16 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 
 ## 当前画质结论
 
-[当前frame119独立颜色对照](LocalComparison/Review/current-color-frame119-01/result.md) · [既有动态对照图与曲线](LocalComparison/Review/dynamic-picture-comparison-01/index.html) · [阅读四项结论及适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md) · [Release76关灯基线](LocalComparison/Review/current-lightoff-prefix-01/result.md) · [Release78缓存改进对照](LocalComparison/Review/cache-source-separation-01/result.md)
+[Release82修复与独立对照](LocalComparison/Review/stationary-history-01/result.md) · [修复前frame119对照](LocalComparison/Review/current-color-frame119-01/result.md) · [既有动态对照图与曲线](LocalComparison/Review/dynamic-picture-comparison-01/index.html) · [阅读四项结论及适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md) · [Release76关灯基线](LocalComparison/Review/current-lightoff-prefix-01/result.md) · [Release78缓存改进对照](LocalComparison/Review/cache-source-separation-01/result.md)
 
 | 问题 | 当前结论 |
 | --- | --- |
-| 颜色误差 | 当前frame119的Floor／White平均D比既有独立参考低28.9%／33.4%，与旧记录一致；有效配对13328／86点，Floor另有2点未知。限定ROI、采样噪声和模型近似下的偏差估计，不是整景精确误差或稳态验收。 |
-| 换色／关灯残留 | 已修复全局换光后混入旧屏幕历史及缓存首次更新强制混入半份旧值的问题。新增灯表清空时移除旧解析灯缓存贡献；固定场景早期输出变化明显减少，局部换色及任意多跳响应仍未关闭。 |
+| 颜色误差 | Release82修复后frame119的Floor／White平均D偏差为−5.84%／−3.36%，MAE与色向均改善；固定配对13328／86点，未知不增。299仍为+0.144%／−18.06%。均为限定ROI/时点及近似参考，不是整景或稳态验收。 |
+| 换色／关灯残留 | 已修复全局换光后混入旧屏幕历史及缓存首次更新强制混入半份旧值的问题。新增灯表清空时移除旧解析灯缓存贡献；固定场景早期输出变化明显减少，局部换色及任意多跳响应仍未关闭。新的静止例外对无标记变暗消退更慢，有限32步后仍保留初始约6.88%。 |
 | 运动拖影 | 限定相机/TAA 场景验证了新显露处的旧历史拒绝；不能据此宣称任意运动、遮挡和空间滤波都无拖影。 |
 | 收敛时间 | 现有采样只能回答观测时点及区间，最后一帧不是收敛真值；尚不能给出整景达到正确颜色的统一帧数。 |
 
-首批候选图与动态曲线保持旧来源；当前frame119颜色对照来自一次新捕获，不外推换色、运动或精确收敛。当前关灯观察只运行原序列的 0–299 前缀，保存 239／240／270／299 四帧；其量为乘过反射率、AO 和强度的**间接漫反射出射贡献**，不是参考中的 D=E/π。原序列与 Editor 的 `failed`、native exit 1 因提前结束而保留，不记为 720 帧通过，也不与旧 D 图直接计算物理误差。
+首批候选图与动态曲线保持旧来源。Release82修复复用保存场景的一次0–299前缀，D119/239/270/299完整；D240触及已有Capture容量而缺失，原分析失败保留，普通240出射图不能替代D。没有补采，不外推局部换色、任意运动或精确收敛。此前Release76/78的关灯观察运行原序列的 0–299 前缀，保存 239／240／270／299 四帧；其量为乘过反射率、AO 和强度的**间接漫反射出射贡献**，不是参考中的 D=E/π。原序列与 Editor 的 `failed`、native exit 1 因提前结束而保留，不记为 720 帧通过，也不与旧 D 图直接计算物理误差。
 
 随后尝试的 32 次相机准备响应窗口未达到采用条件，已撤回 Runtime 修改，未成为当前功能，见[未采用候选结果](LocalComparison/Review/global-light-response-window-01/result.md)。Release78采用独立的来源分离实现：关灯首帧→第59帧的平均逐像素绝对Y变化降低92.2%，第30→59帧降低80.0%，同曝光接收面反弹保留。它们是快照变化而非物理误差或收敛速度；缓存存储增加20%，实际带宽/时间增量未测。触发条件是上传灯表为空，不等同于Unity场景中所有灯关闭。
 

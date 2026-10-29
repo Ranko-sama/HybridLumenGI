@@ -47,4 +47,4 @@
 
 阶段复核允许依据现有完整119数据及普通关灯图作有限产品取舍，不把自行安排的五张D完整性变成新验证系统的前置要求；原质量条件没有降低。[可用数据结果](available-comparison.json)、[有限消费者结果](finite/summary.json)与[执行前决定](decision.md)分开保留。原参考、原失败和未标记变化代价均不改写。
 
-下一步仅用公开入口整合一次Release82构建，不追加Player、画质或性能运行。本节点有限关闭严格静止条件下的历史重建偏暗缺口；完整G1/G3、局部换色、多跳传播、运动质量及生产预算仍开放。
+[Release82统一入口](<I:/Unity test/Comparison/Builds/LocalRelease82/Start-LocalRelease.cmd>)已整合源码5e714f6。公开入口复用原统一场景，Release/None、0错误/23条warning、native exit0，见[构建结果](<I:/Unity test/Comparison/Builds/LocalRelease82/build-result.json>)；临时设置与初始化脚本恢复。未追加Player、画质或性能运行。本节点有限关闭严格静止条件下的历史重建偏暗缺口；完整G1/G3、局部换色、多跳传播、运动质量及生产预算仍开放。
