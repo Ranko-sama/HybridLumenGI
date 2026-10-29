@@ -1,5 +1,9 @@
 # HybridLumenGI
 
+当前入口：[统一交互 Release74](Documentation/ReviewBrief-CurrentLocalRelease74.md)。同场景可操作导航、分页/HLOD、软件/DXR、换色、灯光、移动门与连续形变。已构建并完成必要运行检查，实际普通窗口可用；全局灯光变化后已知测量不再混入旧屏幕历史。首批[独立画面对照与四项结论](LocalComparison/Review/dynamic-picture-comparison-01/index.html)保留模型近似、采样噪声和修前来源，整体颜色、多跳收敛与生产验收仍未完成。
+
+以下 Release73 及更早条目为历史状态，保留各自来源。
+
 当前整合入口为[Release73](Documentation/ReviewBrief-CurrentLocalRelease73.md)，产品来源95a3213，已加入接收面身份与URP矩阵同源修复。原48帧相机/TAA回归通过：57显露事件、561持续点，无输出违例或覆盖缺口。Release73真实Player另完成120帧及Final HDR，普通导航与形变Host沿用72；OS按键未重测。用户同时游戏，本次耗时不作性能比较。后续开发转入同场景HDR参考与合成评估能力，下文72及更早版本保留各自历史范围。
 
 新增[同场景 HDR 来源包](Documentation/ReviewBrief-ValidationSourcePackageV2.md)与自动烘焙：真实720帧／32时点和来源完整性通过；独立参考与整体画质仍待，普通Player仍使用上文Release73。

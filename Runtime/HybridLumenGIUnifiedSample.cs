@@ -28,6 +28,7 @@ namespace HybridLumenGI
         private bool subscribed, detailsWanted, singleCameraSupported = true;
         private double nextOverlay;
         private string overlay;
+        public bool ShowControls { get => showControls; set => showControls = value; }
 
         public void Configure(Camera camera, HybridLumenGIRendererFeature rendererFeature,
             HybridLumenGIAssetPageStreamer pages, HybridLumenGIStreamedRepresentation root,
@@ -232,7 +233,7 @@ namespace HybridLumenGI
                     "\nRetirement pending/owned/failed/unknown: " + row.retirementPending + "/" + row.retirementOwned + "/" + row.retirementFailed + "/" + row.retirementUnknownSubmissions +
                     "\nNo total-VRAM or performance claim. Log includes GI/global account fields.";
             }
-            GUILayout.BeginArea(new Rect(12, 12, 680, 230), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(12, 12, Mathf.Min(680, Screen.width - 24), 230), GUI.skin.box);
             GUILayout.Label(overlay); GUILayout.BeginHorizontal();
             if (GUILayout.Button("Near / details")) GoNear();
             if (GUILayout.Button("Far / aggregate")) GoFar();

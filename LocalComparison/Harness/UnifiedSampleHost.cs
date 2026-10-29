@@ -109,6 +109,12 @@ public sealed class UnifiedSampleHost : MonoBehaviour
         targetCamera.enabled = false;
     }
     static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
+    public void PrepareRuntimeVerification(string directory)
+    {
+        Require(Application.isPlaying && !enabled && !started && !finished, "Only a dormant Player Host can enter finite verification.");
+        Require(Path.IsPathRooted(directory) && !Directory.Exists(directory) && !File.Exists(directory), "Fresh absolute verification output required.");
+        outputDirectory = directory; targetCamera.enabled = false; enabled = true;
+    }
     static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     static string Hash(byte[] bytes)
     { using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant(); }

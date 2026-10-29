@@ -1,0 +1,26 @@
+{
+  "schema": "validation-source-lighting-semantics-v1",
+  "scope": "Nominal constant metallic stock-Lit diffuse/emission and analytic direct lights, with source triangle hard visibility. Not a native renderer or certified floating-point interval.",
+  "stockSources": {
+    "Packages/com.unity.render-pipelines.universal/Runtime/UniversalRenderPipelineCore.cs": "eac8e4e2828f622411f54d4918f136d7f552f55b58157e668f531484485b6f51",
+    "Packages/com.unity.render-pipelines.universal/Runtime/UniversalAdditionalLightData.cs": "73e441bf435299c40cc8195df8adfa2283a8a4e0695eab604d2346039ada02b1",
+    "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RealtimeLights.hlsl": "de581ad5bea94c57e723cffa2c3b6d18bb79ac7b15889d7f325a32442b34d246",
+    "Packages/com.unity.render-pipelines.universal/ShaderLibrary/BRDF.hlsl": "1e8427056b0ab3046adf753d72fc3afee3d54c335e38a4d1069e6eedb0f78075",
+    "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl": "245362e43921bbd9bb8a346f88636c8d93e1f3e0e2322082247543edd38c12ef",
+    "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl": "4790ecd2f2c8093113b702fdc106486a63308754802c58995f2f0a8121b5b516",
+    "Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader": "dd9a625d92079fb8f923f4085747f5de524cdf1dd6fe52767aee0bbbac5792fc",
+    "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl": "21ec6ebfa1ae02cce8b4966e669ddd0d437dd4c89422712e6b48d1ee3cf18c3e",
+    "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl": "8b6541beb61a81b516b09c7cc88a489299b70c32066904b29ef7b7caca28dd09",
+    "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl": "bd0c174c2300eec9baf99bddc5b003e34082766950d86e8d3746df7e8693acfa"
+  },
+  "officialColorConvention": [
+    "https://docs.unity3d.com/cn/current/ScriptReference/Rendering.GraphicsSettings-lightsUseLinearIntensity.html",
+    "https://docs.unity3d.com/ja/current/ScriptReference/Rendering.GraphicsSettings-lightsUseColorTemperature.html"
+  ],
+  "existingMaterialInputProbe": {
+    "file": "I:/Unity test/Project/Logs/HybridLumenGI-color-contract.json",
+    "sha256": "1064425b733870c37447d3dc7d6e41bae44f1fd661634c295b3b47ddf1508129",
+    "scope": "Previously collected scalar property-upload evidence: ordinary Material colors undergo linear conversion; HDR EmissionColor is uploaded unchanged. This is not candidate radiance and supplies no fitted numerical error bound. The audit CLI does not read it."
+  },
+  "missingFutureExport": "When color temperature is active, export the source-side native correlated-color-temperature linear multiplier (or identity-bound VisibleLight.finalColor plus its active rendering flags). No guessed Kelvin conversion is used."
+}

@@ -137,6 +137,8 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
+2026-10-30 当前交付更新：[Release74](ReviewBrief-CurrentLocalRelease74.md)提供统一普通交互入口；[独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)已给出首批颜色/残留/拖影/收敛量化及模型不确定性，[全局灯变化屏幕历史](ReviewBrief-GlobalLightHistoryReset01.md)已作具体修复。以下表格的旧版本记录保留历史来源，G0–G5的完整放行条件不变。功能开发优先，不把新增证明系统或无关测试变成产品判断前置条件。
+
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
 | G0：基线锁定 | Unity/URP 精确版本、设备矩阵、目标分辨率/FPS、GI GPU/显存预算、参考场景与图 | 本机导入/Player build及来源一致基线；当前Release72/13f31ec完成Windows x64/Mono/DX12构建及显式后台120帧/HDR；普通Host与71一致且未重复OS按键。Release49/31c9415和3088d41的软件/DXR记录保持历史来源，完整配置/性能预算仍开放 |

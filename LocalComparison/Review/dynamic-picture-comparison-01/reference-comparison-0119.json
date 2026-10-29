@@ -1,0 +1,2150 @@
+{
+  "scope": "Independent approximate diffuse path tracing versus candidate filteredD. The reported discrepancy includes candidate error, Monte Carlo uncertainty and reference model bias; no certified quality PASS.",
+  "referenceDirectory": "I:\\Unity test\\Comparison\\ValidationPackageV209-reference-frame0119-01",
+  "referenceReportSha256": "8e549fae227411fc9a4caf14f745efad7a781815daca800d564ab30562f1ae3e",
+  "modelDifferences": [
+    "Authored Soft shadows use ideal source-triangle hard visibility, not URP PCF/bias/cascades.",
+    "Only metallic-Lit diffuse rho and source emission transport; metal/glossy specular paths are omitted. metalHitFraction is sampled evidence, zero does not prove no specular influence.",
+    "Finite path depth truncates remaining diffuse transport; maxDepthReachedFraction describes sampling, not a bias bound.",
+    "Black environment only; no baked GI, texture, transparency, participating medium, temporal filter or product cache.",
+    "Source float64 pinhole geometry with boundary exclusion; not GPU raster/depth-equivalent. Ray minimum 1e-6*max(1,maxAbsOrigin) metres; finite-precision/model bias is not in Monte Carlo standard error."
+  ],
+  "sameSourceReuseFrames": [
+    0,
+    30,
+    60,
+    90,
+    119,
+    120,
+    239,
+    300,
+    330,
+    359
+  ],
+  "rows": [
+    {
+      "frame": 0,
+      "referenceFrame": 119,
+      "sourcePixels": 43003,
+      "unknownCandidatePixels": 10,
+      "roi": {
+        "all-source-receivers": {
+          "sourcePixels": 43003,
+          "comparedPixels": 42993,
+          "unknownPixels": 10,
+          "candidateMeanRGB": [
+            0.1543000489473343,
+            0.10257469862699509,
+            0.08288257569074631
+          ],
+          "referenceMeanRGB": [
+            0.23709839582443237,
+            0.13525718450546265,
+            0.10304614901542664
+          ],
+          "meanBiasRGB": [
+            -0.08279836177825928,
+            -0.03268154338002205,
+            -0.020163225010037422
+          ],
+          "referenceMeanY": 0.15458250473942603,
+          "candidateMeanY": 0.11214983679860793,
+          "meanBiasY": -0.042432667940702495,
+          "meanAbsoluteY": 0.04486333611612333,
+          "relativeMeanBiasY": -0.274498514642583,
+          "meanPixelStandardErrorRGB": [
+            0.02493511725248788,
+            0.014194602730700386,
+            0.011140034446867205
+          ],
+          "meanPixelConservativeLumaSE": 0.016257496287939648,
+          "meanChromaL1": 0.08916978538036346,
+          "meanMetalHitFraction": 0.058980440856651085,
+          "meanMaxDepthFraction": 0.07029560044658432
+        },
+        "Floor": {
+          "sourcePixels": 13330,
+          "comparedPixels": 13327,
+          "unknownPixels": 3,
+          "candidateMeanRGB": [
+            0.07454539090394974,
+            0.034397415816783905,
+            0.021740730851888657
+          ],
+          "referenceMeanRGB": [
+            0.1336236596107483,
+            0.05683109164237976,
+            0.036523424088954926
+          ],
+          "meanBiasRGB": [
+            -0.05907834321260452,
+            -0.02243354730308056,
+            -0.014782756567001343
+          ],
+          "referenceMeanY": 0.07169093670031558,
+          "candidateMeanY": 0.04201909034424446,
+          "meanBiasY": -0.029671846356105883,
+          "meanAbsoluteY": 0.030044165967502656,
+          "relativeMeanBiasY": -0.41388560007439923,
+          "meanPixelStandardErrorRGB": [
+            0.01848167554676721,
+            0.009217557293107278,
+            0.006495227991050231
+          ],
+          "meanPixelConservativeLumaSE": 0.010990556658226836,
+          "meanChromaL1": 0.03656063973903656,
+          "meanMetalHitFraction": 0.03951652425527125,
+          "meanMaxDepthFraction": 0.047461215952577476
+        },
+        "White receiver": {
+          "sourcePixels": 86,
+          "comparedPixels": 86,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.35924583673477173,
+            0.21913820505142212,
+            0.1783865988254547
+          ],
+          "referenceMeanRGB": [
+            0.4155668318271637,
+            0.1798027902841568,
+            0.13868176937103271
+          ],
+          "meanBiasRGB": [
+            -0.05632100626826286,
+            0.03933539614081383,
+            0.0397048257291317
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "candidateMeanY": 0.2459828257006268,
+          "meanBiasY": 0.019025523059468627,
+          "meanAbsoluteY": 0.04284911866245227,
+          "relativeMeanBiasY": 0.08382864458673027,
+          "meanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "meanPixelConservativeLumaSE": 0.01763054075408338,
+          "meanChromaL1": 0.18283741176128387,
+          "meanMetalHitFraction": 0.08489280523255814,
+          "meanMaxDepthFraction": 0.1379451308139535
+        },
+        "Red wall": {
+          "sourcePixels": 11049,
+          "comparedPixels": 11049,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.204975888133049,
+            0.16425098478794098,
+            0.13475920259952545
+          ],
+          "referenceMeanRGB": [
+            0.30863434076309204,
+            0.20574870705604553,
+            0.15873262286186218
+          ],
+          "meanBiasRGB": [
+            -0.10365887731313705,
+            -0.04149794951081276,
+            -0.023973610252141953
+          ],
+          "referenceMeanY": 0.2242278435866012,
+          "candidateMeanY": 0.17077962222748808,
+          "meanBiasY": -0.05344822135911314,
+          "meanAbsoluteY": 0.05719079726168242,
+          "relativeMeanBiasY": -0.23836567530682418,
+          "meanPixelStandardErrorRGB": [
+            0.03176119566746063,
+            0.019692016357023206,
+            0.015115807920470929
+          ],
+          "meanPixelConservativeLumaSE": 0.02192752162930318,
+          "meanChromaL1": 0.10361325740814209,
+          "meanMetalHitFraction": 0.053161273079011674,
+          "meanMaxDepthFraction": 0.0754317415603222
+        },
+        "Green wall": {
+          "sourcePixels": 10592,
+          "comparedPixels": 10590,
+          "unknownPixels": 2,
+          "candidateMeanRGB": [
+            0.16299183666706085,
+            0.10769125819206238,
+            0.09691472351551056
+          ],
+          "referenceMeanRGB": [
+            0.2336932271718979,
+            0.13619256019592285,
+            0.11422155052423477
+          ],
+          "meanBiasRGB": [
+            -0.0707007572054863,
+            -0.0285011176019907,
+            -0.017306741327047348
+          ],
+          "referenceMeanY": 0.15533478593266864,
+          "candidateMeanY": 0.11867024997023168,
+          "meanBiasY": -0.03666453596188302,
+          "meanAbsoluteY": 0.040089664108627764,
+          "relativeMeanBiasY": -0.23603557787613405,
+          "meanPixelStandardErrorRGB": [
+            0.025112839923393252,
+            0.014109900114109331,
+            0.012127242449141363
+          ],
+          "meanPixelConservativeLumaSE": 0.016305977234152395,
+          "meanChromaL1": 0.07866598665714264,
+          "meanMetalHitFraction": 0.06087073595372993,
+          "meanMaxDepthFraction": 0.06443615734183192
+        },
+        "Moving occluder": {
+          "sourcePixels": 2250,
+          "comparedPixels": 2250,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.15067341923713684,
+            0.12346888333559036,
+            0.12105873227119446
+          ],
+          "referenceMeanRGB": [
+            0.18460771441459656,
+            0.14223669469356537,
+            0.13808797299861908
+          ],
+          "meanBiasRGB": [
+            -0.03393435850739479,
+            -0.018767792731523514,
+            -0.017029225826263428
+          ],
+          "referenceMeanY": 0.15094527813388506,
+          "candidateMeanY": 0.12907858446926537,
+          "meanBiasY": -0.021866693664739197,
+          "meanAbsoluteY": 0.026378978105141386,
+          "relativeMeanBiasY": -0.14486503940417356,
+          "meanPixelStandardErrorRGB": [
+            0.016290126413703185,
+            0.014063799171622999,
+            0.013734207377338822
+          ],
+          "meanPixelConservativeLumaSE": 0.014513319815741938,
+          "meanChromaL1": 0.031611889600753784,
+          "meanMetalHitFraction": 0.011684027777777778,
+          "meanMaxDepthFraction": 0.020984375
+        }
+      }
+    },
+    {
+      "frame": 30,
+      "referenceFrame": 119,
+      "sourcePixels": 43003,
+      "unknownCandidatePixels": 4,
+      "roi": {
+        "all-source-receivers": {
+          "sourcePixels": 43003,
+          "comparedPixels": 42999,
+          "unknownPixels": 4,
+          "candidateMeanRGB": [
+            0.1626759022474289,
+            0.09347349405288696,
+            0.06677749752998352
+          ],
+          "referenceMeanRGB": [
+            0.23709167540073395,
+            0.13525328040122986,
+            0.10304179042577744
+          ],
+          "meanBiasRGB": [
+            -0.0744146779179573,
+            -0.041779112070798874,
+            -0.036263830959796906
+          ],
+          "referenceMeanY": 0.15457797080424063,
+          "candidateMeanY": 0.10625866663711077,
+          "meanBiasY": -0.0483193041671371,
+          "meanAbsoluteY": 0.04878695805566437,
+          "relativeMeanBiasY": -0.3125885526620688,
+          "meanPixelStandardErrorRGB": [
+            0.02493466119222299,
+            0.014194286371827305,
+            0.011139667133957368
+          ],
+          "meanPixelConservativeLumaSE": 0.016257146549669213,
+          "meanChromaL1": 0.0199306458234787,
+          "meanMetalHitFraction": 0.05898302140747459,
+          "meanMaxDepthFraction": 0.07029923661015372
+        },
+        "Floor": {
+          "sourcePixels": 13330,
+          "comparedPixels": 13329,
+          "unknownPixels": 1,
+          "candidateMeanRGB": [
+            0.08885055035352707,
+            0.03902122378349304,
+            0.025698401033878326
+          ],
+          "referenceMeanRGB": [
+            0.1336120218038559,
+            0.056828368455171585,
+            0.03652157634496689
+          ],
+          "meanBiasRGB": [
+            -0.04476176202297211,
+            -0.017807090654969215,
+            -0.010823201388120651
+          ],
+          "referenceMeanY": 0.07168637590049826,
+          "candidateMeanY": 0.04865300418471116,
+          "meanBiasY": -0.023033371715820584,
+          "meanAbsoluteY": 0.023519578373937828,
+          "relativeMeanBiasY": -0.3213075208013199,
+          "meanPixelStandardErrorRGB": [
+            0.018480770129843723,
+            0.00921730948994697,
+            0.006495067200682623
+          ],
+          "meanPixelConservativeLumaSE": 0.01099017532870411,
+          "meanChromaL1": 0.02026282250881195,
+          "meanMetalHitFraction": 0.03951499080951309,
+          "meanMaxDepthFraction": 0.047459662671618275
+        },
+        "White receiver": {
+          "sourcePixels": 86,
+          "comparedPixels": 86,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.23260213434696198,
+            0.08988775312900543,
+            0.07293949276208878
+          ],
+          "referenceMeanRGB": [
+            0.4155668318271637,
+            0.1798027902841568,
+            0.13868176937103271
+          ],
+          "meanBiasRGB": [
+            -0.18296469748020172,
+            -0.08991505950689316,
+            -0.06574228405952454
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "candidateMeanY": 0.11900516719374546,
+          "meanBiasY": -0.10795213544741274,
+          "meanAbsoluteY": 0.10795213544741274,
+          "relativeMeanBiasY": -0.4756495349175685,
+          "meanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "meanPixelConservativeLumaSE": 0.01763054075408338,
+          "meanChromaL1": 0.04419802129268646,
+          "meanMetalHitFraction": 0.08489280523255814,
+          "meanMaxDepthFraction": 0.1379451308139535
+        },
+        "Red wall": {
+          "sourcePixels": 11049,
+          "comparedPixels": 11049,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.1889829784631729,
+            0.13749222457408905,
+            0.10012827813625336
+          ],
+          "referenceMeanRGB": [
+            0.30863434076309204,
+            0.20574870705604553,
+            0.15873262286186218
+          ],
+          "meanBiasRGB": [
+            -0.11965201795101166,
+            -0.06825660169124603,
+            -0.05860436335206032
+          ],
+          "referenceMeanY": 0.2242278435866012,
+          "candidateMeanY": 0.1457413848633895,
+          "meanBiasY": -0.07848645872321171,
+          "meanAbsoluteY": 0.07868064589972303,
+          "relativeMeanBiasY": -0.3500299403847172,
+          "meanPixelStandardErrorRGB": [
+            0.03176119566746063,
+            0.019692016357023206,
+            0.015115807920470929
+          ],
+          "meanPixelConservativeLumaSE": 0.02192752162930318,
+          "meanChromaL1": 0.03325784206390381,
+          "meanMetalHitFraction": 0.053161273079011674,
+          "meanMaxDepthFraction": 0.0754317415603222
+        },
+        "Green wall": {
+          "sourcePixels": 10592,
+          "comparedPixels": 10592,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.1808546483516693,
+            0.09792407602071762,
+            0.0752120167016983
+          ],
+          "referenceMeanRGB": [
+            0.233700230717659,
+            0.13619562983512878,
+            0.1142231673002243
+          ],
+          "meanBiasRGB": [
+            -0.052845001220703125,
+            -0.038271721452474594,
+            -0.03901093825697899
+          ],
+          "referenceMeanY": 0.1553385846077904,
+          "candidateMeanY": 0.11391524323898501,
+          "meanBiasY": -0.04142334136879272,
+          "meanAbsoluteY": 0.042164883002509916,
+          "relativeMeanBiasY": -0.2666648564706653,
+          "meanPixelStandardErrorRGB": [
+            0.02511319317544477,
+            0.014110162181376838,
+            0.01212735016764616
+          ],
+          "meanPixelConservativeLumaSE": 0.016306247543324316,
+          "meanChromaL1": 0.05633842945098877,
+          "meanMetalHitFraction": 0.06087620668901057,
+          "meanMaxDepthFraction": 0.06444243001793806
+        },
+        "Moving occluder": {
+          "sourcePixels": 2250,
+          "comparedPixels": 2250,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.09244369715452194,
+            0.06834006309509277,
+            0.06521286815404892
+          ],
+          "referenceMeanRGB": [
+            0.18460771441459656,
+            0.14223669469356537,
+            0.13808797299861908
+          ],
+          "meanBiasRGB": [
+            -0.09216416627168655,
+            -0.07389669865369797,
+            -0.07287509739398956
+          ],
+          "referenceMeanY": 0.15094527813388506,
+          "candidateMeanY": 0.07323871098497178,
+          "meanBiasY": -0.07770656714891329,
+          "meanAbsoluteY": 0.07770656714891329,
+          "relativeMeanBiasY": -0.5147995890271527,
+          "meanPixelStandardErrorRGB": [
+            0.016290126413703185,
+            0.014063799171622999,
+            0.013734207377338822
+          ],
+          "meanPixelConservativeLumaSE": 0.014513319815741938,
+          "meanChromaL1": 0.023970842361450195,
+          "meanMetalHitFraction": 0.011684027777777778,
+          "meanMaxDepthFraction": 0.020984375
+        }
+      }
+    },
+    {
+      "frame": 60,
+      "referenceFrame": 119,
+      "sourcePixels": 43003,
+      "unknownCandidatePixels": 6,
+      "roi": {
+        "all-source-receivers": {
+          "sourcePixels": 43003,
+          "comparedPixels": 42997,
+          "unknownPixels": 6,
+          "candidateMeanRGB": [
+            0.16676117479801178,
+            0.09513416141271591,
+            0.0678396224975586
+          ],
+          "referenceMeanRGB": [
+            0.237091526389122,
+            0.13525347411632538,
+            0.10304342210292816
+          ],
+          "meanBiasRGB": [
+            -0.07032931596040726,
+            -0.040118832141160965,
+            -0.03520355746150017
+          ],
+          "referenceMeanY": 0.15457820597654562,
+          "candidateMeanY": 0.10839140079123093,
+          "meanBiasY": -0.046186805185327376,
+          "meanAbsoluteY": 0.04678402715650592,
+          "relativeMeanBiasY": -0.29879247784991997,
+          "meanPixelStandardErrorRGB": [
+            0.02493463168152914,
+            0.014194355023931666,
+            0.011139841005061634
+          ],
+          "meanPixelConservativeLumaSE": 0.01625720192917447,
+          "meanChromaL1": 0.022032827138900757,
+          "meanMetalHitFraction": 0.05898049573226039,
+          "meanMaxDepthFraction": 0.07029532947066075
+        },
+        "Floor": {
+          "sourcePixels": 13330,
+          "comparedPixels": 13329,
+          "unknownPixels": 1,
+          "candidateMeanRGB": [
+            0.08944231271743774,
+            0.03919343650341034,
+            0.0259286817163229
+          ],
+          "referenceMeanRGB": [
+            0.1336120218038559,
+            0.056828368455171585,
+            0.03652157634496689
+          ],
+          "meanBiasRGB": [
+            -0.044170089066028595,
+            -0.017634883522987366,
+            -0.01059291698038578
+          ],
+          "referenceMeanY": 0.07168637590049826,
+          "candidateMeanY": 0.04891858596612868,
+          "meanBiasY": -0.022767789934400536,
+          "meanAbsoluteY": 0.02322629228341243,
+          "relativeMeanBiasY": -0.31760274736168226,
+          "meanPixelStandardErrorRGB": [
+            0.018480770129843723,
+            0.00921730948994697,
+            0.006495067200682623
+          ],
+          "meanPixelConservativeLumaSE": 0.01099017532870411,
+          "meanChromaL1": 0.020049050450325012,
+          "meanMetalHitFraction": 0.03951499080951309,
+          "meanMaxDepthFraction": 0.047459662671618275
+        },
+        "White receiver": {
+          "sourcePixels": 86,
+          "comparedPixels": 86,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.29193684458732605,
+            0.1079002171754837,
+            0.08061963319778442
+          ],
+          "referenceMeanRGB": [
+            0.4155668318271637,
+            0.1798027902841568,
+            0.13868176937103271
+          ],
+          "meanBiasRGB": [
+            -0.12363001704216003,
+            -0.07190258800983429,
+            -0.058062147349119186
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "candidateMeanY": 0.14505674523641898,
+          "meanBiasY": -0.08190055740473923,
+          "meanAbsoluteY": 0.08190055740473923,
+          "relativeMeanBiasY": -0.36086328332088113,
+          "meanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "meanPixelConservativeLumaSE": 0.01763054075408338,
+          "meanChromaL1": 0.08299185335636139,
+          "meanMetalHitFraction": 0.08489280523255814,
+          "meanMaxDepthFraction": 0.1379451308139535
+        },
+        "Red wall": {
+          "sourcePixels": 11049,
+          "comparedPixels": 11049,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.19785119593143463,
+            0.14177928864955902,
+            0.10257565230131149
+          ],
+          "referenceMeanRGB": [
+            0.30863434076309204,
+            0.20574870705604553,
+            0.15873262286186218
+          ],
+          "meanBiasRGB": [
+            -0.11078324168920517,
+            -0.06396949291229248,
+            -0.05615691840648651
+          ],
+          "referenceMeanY": 0.2242278435866012,
+          "candidateMeanY": 0.15086964761867103,
+          "meanBiasY": -0.0733581959679302,
+          "meanAbsoluteY": 0.07362316665068136,
+          "relativeMeanBiasY": -0.327159173430653,
+          "meanPixelStandardErrorRGB": [
+            0.03176119566746063,
+            0.019692016357023206,
+            0.015115807920470929
+          ],
+          "meanPixelConservativeLumaSE": 0.02192752162930318,
+          "meanChromaL1": 0.02990373969078064,
+          "meanMetalHitFraction": 0.053161273079011674,
+          "meanMaxDepthFraction": 0.0754317415603222
+        },
+        "Green wall": {
+          "sourcePixels": 10592,
+          "comparedPixels": 10592,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.18233776092529297,
+            0.09843822568655014,
+            0.07536239176988602
+          ],
+          "referenceMeanRGB": [
+            0.233700230717659,
+            0.13619562983512878,
+            0.1142231673002243
+          ],
+          "meanBiasRGB": [
+            -0.05136192589998245,
+            -0.03775745630264282,
+            -0.03886048123240471
+          ],
+          "referenceMeanY": 0.1553385846077904,
+          "candidateMeanY": 0.11460917646805685,
+          "meanBiasY": -0.04072940813973356,
+          "meanAbsoluteY": 0.041790187655901534,
+          "relativeMeanBiasY": -0.2621976261890758,
+          "meanPixelStandardErrorRGB": [
+            0.02511319317544477,
+            0.014110162181376838,
+            0.01212735016764616
+          ],
+          "meanPixelConservativeLumaSE": 0.016306247543324316,
+          "meanChromaL1": 0.058505430817604065,
+          "meanMetalHitFraction": 0.06087620668901057,
+          "meanMaxDepthFraction": 0.06444243001793806
+        },
+        "Moving occluder": {
+          "sourcePixels": 2250,
+          "comparedPixels": 2250,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.09449885040521622,
+            0.06664534658193588,
+            0.06335031986236572
+          ],
+          "referenceMeanRGB": [
+            0.18460771441459656,
+            0.14223669469356537,
+            0.13808797299861908
+          ],
+          "meanBiasRGB": [
+            -0.09010898321866989,
+            -0.07559142261743546,
+            -0.07473763823509216
+          ],
+          "referenceMeanY": 0.15094527813388506,
+          "candidateMeanY": 0.0723291003282335,
+          "meanBiasY": -0.07861617780565155,
+          "meanAbsoluteY": 0.07861617780565155,
+          "relativeMeanBiasY": -0.5208256844968729,
+          "meanPixelStandardErrorRGB": [
+            0.016290126413703185,
+            0.014063799171622999,
+            0.013734207377338822
+          ],
+          "meanPixelConservativeLumaSE": 0.014513319815741938,
+          "meanChromaL1": 0.047753989696502686,
+          "meanMetalHitFraction": 0.011684027777777778,
+          "meanMaxDepthFraction": 0.020984375
+        }
+      }
+    },
+    {
+      "frame": 90,
+      "referenceFrame": 119,
+      "sourcePixels": 43003,
+      "unknownCandidatePixels": 6,
+      "roi": {
+        "all-source-receivers": {
+          "sourcePixels": 43003,
+          "comparedPixels": 42997,
+          "unknownPixels": 6,
+          "candidateMeanRGB": [
+            0.16771136224269867,
+            0.09518957883119583,
+            0.06772572547197342
+          ],
+          "referenceMeanRGB": [
+            0.23709285259246826,
+            0.13525423407554626,
+            0.10304391384124756
+          ],
+          "meanBiasRGB": [
+            -0.0693807452917099,
+            -0.04006369784474373,
+            -0.03531773388385773
+          ],
+          "referenceMeanY": 0.15457906146535663,
+          "candidateMeanY": 0.10862518862570306,
+          "meanBiasY": -0.04595387283969603,
+          "meanAbsoluteY": 0.04665140537919426,
+          "relativeMeanBiasY": -0.2972839426250168,
+          "meanPixelStandardErrorRGB": [
+            0.024934702124564972,
+            0.01419438786106962,
+            0.011139848161497197
+          ],
+          "meanPixelConservativeLumaSE": 0.016257240907179598,
+          "meanChromaL1": 0.023831307888031006,
+          "meanMetalHitFraction": 0.05898294866502314,
+          "meanMaxDepthFraction": 0.07029823665023141
+        },
+        "Floor": {
+          "sourcePixels": 13330,
+          "comparedPixels": 13328,
+          "unknownPixels": 2,
+          "candidateMeanRGB": [
+            0.09123252332210541,
+            0.0401269756257534,
+            0.02637818083167076
+          ],
+          "referenceMeanRGB": [
+            0.13361860811710358,
+            0.0568295419216156,
+            0.03652317821979523
+          ],
+          "meanBiasRGB": [
+            -0.04238618537783623,
+            -0.016702523455023766,
+            -0.010145017877221107
+          ],
+          "referenceMeanY": 0.07168873592022638,
+          "candidateMeanY": 0.04999936977320072,
+          "meanBiasY": -0.02168936614704151,
+          "meanAbsoluteY": 0.022273376395823156,
+          "relativeMeanBiasY": -0.3025491504157215,
+          "meanPixelStandardErrorRGB": [
+            0.018481189138846013,
+            0.009217535186712622,
+            0.0064951781660416074
+          ],
+          "meanPixelConservativeLumaSE": 0.010990433840043713,
+          "meanChromaL1": 0.020642578601837158,
+          "meanMetalHitFraction": 0.039515904017857144,
+          "meanMaxDepthFraction": 0.04746117196878751
+        },
+        "White receiver": {
+          "sourcePixels": 86,
+          "comparedPixels": 86,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.3182657063007355,
+            0.11899016797542572,
+            0.090321384370327
+          ],
+          "referenceMeanRGB": [
+            0.4155668318271637,
+            0.1798027902841568,
+            0.13868176937103271
+          ],
+          "meanBiasRGB": [
+            -0.0973011702299118,
+            -0.06081264093518257,
+            -0.04836038500070572
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "candidateMeanY": 0.15928625729583035,
+          "meanBiasY": -0.06767104534532788,
+          "meanAbsoluteY": 0.06767104534532788,
+          "relativeMeanBiasY": -0.29816641525883153,
+          "meanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "meanPixelConservativeLumaSE": 0.01763054075408338,
+          "meanChromaL1": 0.07426252961158752,
+          "meanMetalHitFraction": 0.08489280523255814,
+          "meanMaxDepthFraction": 0.1379451308139535
+        },
+        "Red wall": {
+          "sourcePixels": 11049,
+          "comparedPixels": 11049,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.1958291083574295,
+            0.13975486159324646,
+            0.10062812268733978
+          ],
+          "referenceMeanRGB": [
+            0.30863434076309204,
+            0.20574870705604553,
+            0.15873262286186218
+          ],
+          "meanBiasRGB": [
+            -0.1128053069114685,
+            -0.06599400192499161,
+            -0.05810436233878136
+          ],
+          "referenceMeanY": 0.2242278435866012,
+          "candidateMeanY": 0.14885130671883443,
+          "meanBiasY": -0.07537653686776682,
+          "meanAbsoluteY": 0.07571188465547565,
+          "relativeMeanBiasY": -0.3361604681296189,
+          "meanPixelStandardErrorRGB": [
+            0.03176119566746063,
+            0.019692016357023206,
+            0.015115807920470929
+          ],
+          "meanPixelConservativeLumaSE": 0.02192752162930318,
+          "meanChromaL1": 0.029433220624923706,
+          "meanMetalHitFraction": 0.053161273079011674,
+          "meanMaxDepthFraction": 0.0754317415603222
+        },
+        "Green wall": {
+          "sourcePixels": 10592,
+          "comparedPixels": 10592,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.18487150967121124,
+            0.09974127262830734,
+            0.07657194882631302
+          ],
+          "referenceMeanRGB": [
+            0.233700230717659,
+            0.13619562983512878,
+            0.1142231673002243
+          ],
+          "meanBiasRGB": [
+            -0.0488281175494194,
+            -0.03645428270101547,
+            -0.03765104338526726
+          ],
+          "referenceMeanY": 0.1553385846077904,
+          "candidateMeanY": 0.1161672122782451,
+          "meanBiasY": -0.03917137232953264,
+          "meanAbsoluteY": 0.040317936489470706,
+          "relativeMeanBiasY": -0.2521676918097022,
+          "meanPixelStandardErrorRGB": [
+            0.02511319317544477,
+            0.014110162181376838,
+            0.01212735016764616
+          ],
+          "meanPixelConservativeLumaSE": 0.016306247543324316,
+          "meanChromaL1": 0.05822905898094177,
+          "meanMetalHitFraction": 0.06087620668901057,
+          "meanMaxDepthFraction": 0.06444243001793806
+        },
+        "Moving occluder": {
+          "sourcePixels": 2250,
+          "comparedPixels": 2250,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.0922241061925888,
+            0.06896184384822845,
+            0.06582826375961304
+          ],
+          "referenceMeanRGB": [
+            0.18460771441459656,
+            0.14223669469356537,
+            0.13808797299861908
+          ],
+          "meanBiasRGB": [
+            -0.09238374978303909,
+            -0.0732748955488205,
+            -0.07225970178842545
+          ],
+          "referenceMeanY": 0.15094527813388506,
+          "candidateMeanY": 0.07368115860324435,
+          "meanBiasY": -0.0772641195306407,
+          "meanAbsoluteY": 0.0772641195306407,
+          "relativeMeanBiasY": -0.5118684101009716,
+          "meanPixelStandardErrorRGB": [
+            0.016290126413703185,
+            0.014063799171622999,
+            0.013734207377338822
+          ],
+          "meanPixelConservativeLumaSE": 0.014513319815741938,
+          "meanChromaL1": 0.018369168043136597,
+          "meanMetalHitFraction": 0.011684027777777778,
+          "meanMaxDepthFraction": 0.020984375
+        }
+      }
+    },
+    {
+      "frame": 119,
+      "referenceFrame": 119,
+      "sourcePixels": 43003,
+      "unknownCandidatePixels": 7,
+      "roi": {
+        "all-source-receivers": {
+          "sourcePixels": 43003,
+          "comparedPixels": 42996,
+          "unknownPixels": 7,
+          "candidateMeanRGB": [
+            0.16678990423679352,
+            0.0945882573723793,
+            0.06678875535726547
+          ],
+          "referenceMeanRGB": [
+            0.23709598183631897,
+            0.13525566458702087,
+            0.10304545611143112
+          ],
+          "meanBiasRGB": [
+            -0.07030601799488068,
+            -0.04066701605916023,
+            -0.03625659644603729
+          ],
+          "referenceMeanY": 0.1545808654372632,
+          "candidateMeanY": 0.10793106371142916,
+          "meanBiasY": -0.04664980172583968,
+          "meanAbsoluteY": 0.047448583515382975,
+          "relativeMeanBiasY": -0.30178251101053993,
+          "meanPixelStandardErrorRGB": [
+            0.024934911670680092,
+            0.014194540741952567,
+            0.01113998343040606
+          ],
+          "meanPixelConservativeLumaSE": 0.016257404563506377,
+          "meanChromaL1": 0.026471808552742004,
+          "meanMetalHitFraction": 0.05898123153898037,
+          "meanMaxDepthFraction": 0.07029632843752907
+        },
+        "Floor": {
+          "sourcePixels": 13330,
+          "comparedPixels": 13328,
+          "unknownPixels": 2,
+          "candidateMeanRGB": [
+            0.09209449589252472,
+            0.041170913726091385,
+            0.026851912960410118
+          ],
+          "referenceMeanRGB": [
+            0.13361860811710358,
+            0.0568295419216156,
+            0.03652317821979523
+          ],
+          "meanBiasRGB": [
+            -0.04152422398328781,
+            -0.01565861515700817,
+            -0.009671324864029884
+          ],
+          "referenceMeanY": 0.07168873592022638,
+          "candidateMeanY": 0.05096342100610538,
+          "meanBiasY": -0.02072531491413685,
+          "meanAbsoluteY": 0.021369350227154468,
+          "relativeMeanBiasY": -0.2891014138845957,
+          "meanPixelStandardErrorRGB": [
+            0.018481189138846013,
+            0.009217535186712622,
+            0.0064951781660416074
+          ],
+          "meanPixelConservativeLumaSE": 0.010990433840043713,
+          "meanChromaL1": 0.0270673930644989,
+          "meanMetalHitFraction": 0.039515904017857144,
+          "meanMaxDepthFraction": 0.04746117196878751
+        },
+        "White receiver": {
+          "sourcePixels": 86,
+          "comparedPixels": 86,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.303466796875,
+            0.11215636134147644,
+            0.08937036991119385
+          ],
+          "referenceMeanRGB": [
+            0.4155668318271637,
+            0.1798027902841568,
+            0.13868176937103271
+          ],
+          "meanBiasRGB": [
+            -0.11210005730390549,
+            -0.06764645129442215,
+            -0.04931139945983887
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "candidateMeanY": 0.15118380907635354,
+          "meanBiasY": -0.07577349356480463,
+          "meanAbsoluteY": 0.07577349356480463,
+          "relativeMeanBiasY": -0.33386673476909434,
+          "meanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "meanPixelConservativeLumaSE": 0.01763054075408338,
+          "meanChromaL1": 0.0696086436510086,
+          "meanMetalHitFraction": 0.08489280523255814,
+          "meanMaxDepthFraction": 0.1379451308139535
+        },
+        "Red wall": {
+          "sourcePixels": 11049,
+          "comparedPixels": 11049,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.1905675232410431,
+            0.13714677095413208,
+            0.09795036166906357
+          ],
+          "referenceMeanRGB": [
+            0.30863434076309204,
+            0.20574870705604553,
+            0.15873262286186218
+          ],
+          "meanBiasRGB": [
+            -0.11806764453649521,
+            -0.06860186904668808,
+            -0.060782138258218765
+          ],
+          "referenceMeanY": 0.2242278435866012,
+          "candidateMeanY": 0.1456740876177704,
+          "meanBiasY": -0.07855375596883084,
+          "meanAbsoluteY": 0.078738809924745,
+          "relativeMeanBiasY": -0.35033006923822035,
+          "meanPixelStandardErrorRGB": [
+            0.03176119566746063,
+            0.019692016357023206,
+            0.015115807920470929
+          ],
+          "meanPixelConservativeLumaSE": 0.02192752162930318,
+          "meanChromaL1": 0.03305637836456299,
+          "meanMetalHitFraction": 0.053161273079011674,
+          "meanMaxDepthFraction": 0.0754317415603222
+        },
+        "Green wall": {
+          "sourcePixels": 10592,
+          "comparedPixels": 10592,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.18507762253284454,
+            0.09870712459087372,
+            0.07592751830816269
+          ],
+          "referenceMeanRGB": [
+            0.233700230717659,
+            0.13619562983512878,
+            0.1142231673002243
+          ],
+          "meanBiasRGB": [
+            -0.04862199351191521,
+            -0.03748856857419014,
+            -0.038295574486255646
+          ],
+          "referenceMeanY": 0.1553385846077904,
+          "candidateMeanY": 0.11542479035991195,
+          "meanBiasY": -0.03991379424786576,
+          "meanAbsoluteY": 0.041387829246917446,
+          "relativeMeanBiasY": -0.25694707048247456,
+          "meanPixelStandardErrorRGB": [
+            0.02511319317544477,
+            0.014110162181376838,
+            0.01212735016764616
+          ],
+          "meanPixelConservativeLumaSE": 0.016306247543324316,
+          "meanChromaL1": 0.06356550753116608,
+          "meanMetalHitFraction": 0.06087620668901057,
+          "meanMaxDepthFraction": 0.06444243001793806
+        },
+        "Moving occluder": {
+          "sourcePixels": 2250,
+          "comparedPixels": 2250,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.09159483015537262,
+            0.0651000514626503,
+            0.06120903789997101
+          ],
+          "referenceMeanRGB": [
+            0.18460771441459656,
+            0.14223669469356537,
+            0.13808797299861908
+          ],
+          "meanBiasRGB": [
+            -0.0930129811167717,
+            -0.07713670283555984,
+            -0.0768788605928421
+          ],
+          "referenceMeanY": 0.15094527813388506,
+          "candidateMeanY": 0.07045190897488063,
+          "meanBiasY": -0.08049336915900443,
+          "meanAbsoluteY": 0.08049336915900443,
+          "relativeMeanBiasY": -0.533261922162339,
+          "meanPixelStandardErrorRGB": [
+            0.016290126413703185,
+            0.014063799171622999,
+            0.013734207377338822
+          ],
+          "meanPixelConservativeLumaSE": 0.014513319815741938,
+          "meanChromaL1": 0.04656288027763367,
+          "meanMetalHitFraction": 0.011684027777777778,
+          "meanMaxDepthFraction": 0.020984375
+        }
+      }
+    },
+    {
+      "frame": 120,
+      "referenceFrame": 119,
+      "sourcePixels": 43003,
+      "unknownCandidatePixels": 6,
+      "roi": {
+        "all-source-receivers": {
+          "sourcePixels": 43003,
+          "comparedPixels": 42997,
+          "unknownPixels": 6,
+          "candidateMeanRGB": [
+            0.1667868047952652,
+            0.09450063854455948,
+            0.06675999611616135
+          ],
+          "referenceMeanRGB": [
+            0.23709285259246826,
+            0.13525423407554626,
+            0.10304391384124756
+          ],
+          "meanBiasRGB": [
+            -0.07030551880598068,
+            -0.04075339809060097,
+            -0.0362837091088295
+          ],
+          "referenceMeanY": 0.15457906146535663,
+          "candidateMeanY": 0.10786567939346461,
+          "meanBiasY": -0.046713382071935275,
+          "meanAbsoluteY": 0.04754563625706026,
+          "relativeMeanBiasY": -0.30219734567611156,
+          "meanPixelStandardErrorRGB": [
+            0.024934702124564972,
+            0.01419438786106962,
+            0.011139848161497197
+          ],
+          "meanPixelConservativeLumaSE": 0.016257240907179598,
+          "meanChromaL1": 0.026497960090637207,
+          "meanMetalHitFraction": 0.05898294866502314,
+          "meanMaxDepthFraction": 0.07029823665023141
+        },
+        "Floor": {
+          "sourcePixels": 13330,
+          "comparedPixels": 13328,
+          "unknownPixels": 2,
+          "candidateMeanRGB": [
+            0.09280126541852951,
+            0.04113058000802994,
+            0.026872675865888596
+          ],
+          "referenceMeanRGB": [
+            0.13361860811710358,
+            0.0568295419216156,
+            0.03652317821979523
+          ],
+          "meanBiasRGB": [
+            -0.04081759229302406,
+            -0.01569892093539238,
+            -0.009650505147874355
+          ],
+          "referenceMeanY": 0.07168873592022638,
+          "candidateMeanY": 0.051086333920431874,
+          "meanBiasY": -0.020602401999812878,
+          "meanAbsoluteY": 0.021290590807310637,
+          "relativeMeanBiasY": -0.2873868779432625,
+          "meanPixelStandardErrorRGB": [
+            0.018481189138846013,
+            0.009217535186712622,
+            0.0064951781660416074
+          ],
+          "meanPixelConservativeLumaSE": 0.010990433840043713,
+          "meanChromaL1": 0.023192986845970154,
+          "meanMetalHitFraction": 0.039515904017857144,
+          "meanMaxDepthFraction": 0.04746117196878751
+        },
+        "White receiver": {
+          "sourcePixels": 86,
+          "comparedPixels": 86,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.3026108741760254,
+            0.10978024452924728,
+            0.08587469160556793
+          ],
+          "referenceMeanRGB": [
+            0.4155668318271637,
+            0.1798027902841568,
+            0.13868176937103271
+          ],
+          "meanBiasRGB": [
+            -0.1129559725522995,
+            -0.07002256065607071,
+            -0.05280708894133568
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "candidateMeanY": 0.14905005812534067,
+          "meanBiasY": -0.07790724451581753,
+          "meanAbsoluteY": 0.07790724451581753,
+          "relativeMeanBiasY": -0.3432682870707031,
+          "meanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "meanPixelConservativeLumaSE": 0.01763054075408338,
+          "meanChromaL1": 0.08240091800689697,
+          "meanMetalHitFraction": 0.08489280523255814,
+          "meanMaxDepthFraction": 0.1379451308139535
+        },
+        "Red wall": {
+          "sourcePixels": 11049,
+          "comparedPixels": 11049,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.18932607769966125,
+            0.13633792102336884,
+            0.09718314558267593
+          ],
+          "referenceMeanRGB": [
+            0.30863434076309204,
+            0.20574870705604553,
+            0.15873262286186218
+          ],
+          "meanBiasRGB": [
+            -0.11930862069129944,
+            -0.06941065192222595,
+            -0.06154919043183327
+          ],
+          "referenceMeanY": 0.2242278435866012,
+          "candidateMeanY": 0.1447763004562263,
+          "meanBiasY": -0.0794515431303749,
+          "meanAbsoluteY": 0.07963744247144032,
+          "relativeMeanBiasY": -0.35433397502968517,
+          "meanPixelStandardErrorRGB": [
+            0.03176119566746063,
+            0.019692016357023206,
+            0.015115807920470929
+          ],
+          "meanPixelConservativeLumaSE": 0.02192752162930318,
+          "meanChromaL1": 0.033524289727211,
+          "meanMetalHitFraction": 0.053161273079011674,
+          "meanMaxDepthFraction": 0.0754317415603222
+        },
+        "Green wall": {
+          "sourcePixels": 10592,
+          "comparedPixels": 10592,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.18510763347148895,
+            0.0990496426820755,
+            0.07631169259548187
+          ],
+          "referenceMeanRGB": [
+            0.233700230717659,
+            0.13619562983512878,
+            0.1142231673002243
+          ],
+          "meanBiasRGB": [
+            -0.048592161387205124,
+            -0.03714596480131149,
+            -0.03791126608848572
+          ],
+          "referenceMeanY": 0.1553385846077904,
+          "candidateMeanY": 0.11570389727595348,
+          "meanBiasY": -0.03963468733182422,
+          "meanAbsoluteY": 0.04114622367183791,
+          "relativeMeanBiasY": -0.255150305585033,
+          "meanPixelStandardErrorRGB": [
+            0.02511319317544477,
+            0.014110162181376838,
+            0.01212735016764616
+          ],
+          "meanPixelConservativeLumaSE": 0.016306247543324316,
+          "meanChromaL1": 0.061571791768074036,
+          "meanMetalHitFraction": 0.06087620668901057,
+          "meanMaxDepthFraction": 0.06444243001793806
+        },
+        "Moving occluder": {
+          "sourcePixels": 2250,
+          "comparedPixels": 2250,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.0937587097287178,
+            0.06660929322242737,
+            0.06293975561857224
+          ],
+          "referenceMeanRGB": [
+            0.18460771441459656,
+            0.14223669469356537,
+            0.13808797299861908
+          ],
+          "meanBiasRGB": [
+            -0.0908491238951683,
+            -0.07562746852636337,
+            -0.07514818012714386
+          ],
+          "referenceMeanY": 0.15094527813388506,
+          "candidateMeanY": 0.07211631859944662,
+          "meanBiasY": -0.07882895953443846,
+          "meanAbsoluteY": 0.07882895953443846,
+          "relativeMeanBiasY": -0.5222353458749398,
+          "meanPixelStandardErrorRGB": [
+            0.016290126413703185,
+            0.014063799171622999,
+            0.013734207377338822
+          ],
+          "meanPixelConservativeLumaSE": 0.014513319815741938,
+          "meanChromaL1": 0.04559922218322754,
+          "meanMetalHitFraction": 0.011684027777777778,
+          "meanMaxDepthFraction": 0.020984375
+        }
+      }
+    },
+    {
+      "frame": 239,
+      "referenceFrame": 119,
+      "sourcePixels": 43003,
+      "unknownCandidatePixels": 6,
+      "roi": {
+        "all-source-receivers": {
+          "sourcePixels": 43003,
+          "comparedPixels": 42997,
+          "unknownPixels": 6,
+          "candidateMeanRGB": [
+            0.19403226673603058,
+            0.11263158917427063,
+            0.0838666707277298
+          ],
+          "referenceMeanRGB": [
+            0.23709285259246826,
+            0.13525423407554626,
+            0.10304391384124756
+          ],
+          "meanBiasRGB": [
+            -0.04305942356586456,
+            -0.022622060030698776,
+            -0.01917727291584015
+          ],
+          "referenceMeanY": 0.15457906146535663,
+          "candidateMeanY": 0.1278607652515534,
+          "meanBiasY": -0.026718296213766833,
+          "meanAbsoluteY": 0.03140379373710473,
+          "relativeMeanBiasY": -0.1728455067619542,
+          "meanPixelStandardErrorRGB": [
+            0.024934702124564972,
+            0.01419438786106962,
+            0.011139848161497197
+          ],
+          "meanPixelConservativeLumaSE": 0.016257240907179598,
+          "meanChromaL1": 0.007790088653564453,
+          "meanMetalHitFraction": 0.05898294866502314,
+          "meanMaxDepthFraction": 0.07029823665023141
+        },
+        "Floor": {
+          "sourcePixels": 13330,
+          "comparedPixels": 13328,
+          "unknownPixels": 2,
+          "candidateMeanRGB": [
+            0.10268896073102951,
+            0.04246854409575462,
+            0.026820307597517967
+          ],
+          "referenceMeanRGB": [
+            0.13361860811710358,
+            0.0568295419216156,
+            0.03652317821979523
+          ],
+          "meanBiasRGB": [
+            -0.03092968463897705,
+            -0.014360953122377396,
+            -0.009702888317406178
+          ],
+          "referenceMeanY": 0.07168873592022638,
+          "candidateMeanY": 0.05414161957183233,
+          "meanBiasY": -0.017547116348565518,
+          "meanAbsoluteY": 0.01907832260427831,
+          "relativeMeanBiasY": -0.2447681092897433,
+          "meanPixelStandardErrorRGB": [
+            0.018481189138846013,
+            0.009217535186712622,
+            0.0064951781660416074
+          ],
+          "meanPixelConservativeLumaSE": 0.010990433840043713,
+          "meanChromaL1": 0.01680663228034973,
+          "meanMetalHitFraction": 0.039515904017857144,
+          "meanMaxDepthFraction": 0.04746117196878751
+        },
+        "White receiver": {
+          "sourcePixels": 86,
+          "comparedPixels": 86,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.37501418590545654,
+            0.15747496485710144,
+            0.115966796875
+          ],
+          "referenceMeanRGB": [
+            0.4155668318271637,
+            0.1798027902841568,
+            0.13868176937103271
+          ],
+          "meanBiasRGB": [
+            -0.040552642196416855,
+            -0.02232784777879715,
+            -0.022714979946613312
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "candidateMeanY": 0.20072691281340846,
+          "meanBiasY": -0.026230389827749757,
+          "meanAbsoluteY": 0.035852964302048436,
+          "relativeMeanBiasY": -0.11557411690437026,
+          "meanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "meanPixelConservativeLumaSE": 0.01763054075408338,
+          "meanChromaL1": 0.024381905794143677,
+          "meanMetalHitFraction": 0.08489280523255814,
+          "meanMaxDepthFraction": 0.1379451308139535
+        },
+        "Red wall": {
+          "sourcePixels": 11049,
+          "comparedPixels": 11049,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.24655237793922424,
+            0.176603302359581,
+            0.13405200839042664
+          ],
+          "referenceMeanRGB": [
+            0.30863434076309204,
+            0.20574870705604553,
+            0.15873262286186218
+          ],
+          "meanBiasRGB": [
+            -0.06208338215947151,
+            -0.029145225882530212,
+            -0.024680785834789276
+          ],
+          "referenceMeanY": 0.2242278435866012,
+          "candidateMeanY": 0.18840229388363106,
+          "meanBiasY": -0.03582554970297021,
+          "meanAbsoluteY": 0.04179503943023193,
+          "relativeMeanBiasY": -0.15977297524664316,
+          "meanPixelStandardErrorRGB": [
+            0.03176119566746063,
+            0.019692016357023206,
+            0.015115807920470929
+          ],
+          "meanPixelConservativeLumaSE": 0.02192752162930318,
+          "meanChromaL1": 0.03207525610923767,
+          "meanMetalHitFraction": 0.053161273079011674,
+          "meanMaxDepthFraction": 0.0754317415603222
+        },
+        "Green wall": {
+          "sourcePixels": 10592,
+          "comparedPixels": 10592,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.20340555906295776,
+            0.11333957314491272,
+            0.0927458107471466
+          ],
+          "referenceMeanRGB": [
+            0.233700230717659,
+            0.13619562983512878,
+            0.1142231673002243
+          ],
+          "meanBiasRGB": [
+            -0.03029429353773594,
+            -0.022855939343571663,
+            -0.021477263420820236
+          ],
+          "referenceMeanY": 0.1553385846077904,
+          "candidateMeanY": 0.13100077413605057,
+          "meanBiasY": -0.024337810471828696,
+          "meanAbsoluteY": 0.029309799130341027,
+          "relativeMeanBiasY": -0.15667588663356552,
+          "meanPixelStandardErrorRGB": [
+            0.02511319317544477,
+            0.014110162181376838,
+            0.01212735016764616
+          ],
+          "meanPixelConservativeLumaSE": 0.016306247543324316,
+          "meanChromaL1": 0.027989700436592102,
+          "meanMetalHitFraction": 0.06087620668901057,
+          "meanMaxDepthFraction": 0.06444243001793806
+        },
+        "Moving occluder": {
+          "sourcePixels": 2250,
+          "comparedPixels": 2250,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.14334788918495178,
+            0.10902605205774307,
+            0.10586570203304291
+          ],
+          "referenceMeanRGB": [
+            0.18460771441459656,
+            0.14223669469356537,
+            0.13808797299861908
+          ],
+          "meanBiasRGB": [
+            -0.04125991463661194,
+            -0.03321067988872528,
+            -0.0322222001850605
+          ],
+          "referenceMeanY": 0.15094527813388506,
+          "candidateMeanY": 0.11609470820753308,
+          "meanBiasY": -0.03485056992422276,
+          "meanAbsoluteY": 0.04252393777228196,
+          "relativeMeanBiasY": -0.23088214719317746,
+          "meanPixelStandardErrorRGB": [
+            0.016290126413703185,
+            0.014063799171622999,
+            0.013734207377338822
+          ],
+          "meanPixelConservativeLumaSE": 0.014513319815741938,
+          "meanChromaL1": 0.0061633288860321045,
+          "meanMetalHitFraction": 0.011684027777777778,
+          "meanMaxDepthFraction": 0.020984375
+        }
+      }
+    },
+    {
+      "frame": 300,
+      "referenceFrame": 119,
+      "sourcePixels": 43003,
+      "unknownCandidatePixels": 6,
+      "roi": {
+        "all-source-receivers": {
+          "sourcePixels": 43003,
+          "comparedPixels": 42997,
+          "unknownPixels": 6,
+          "candidateMeanRGB": [
+            0.09982768446207047,
+            0.05720464512705803,
+            0.04254999756813049
+          ],
+          "referenceMeanRGB": [
+            0.23709343373775482,
+            0.13525426387786865,
+            0.10304385423660278
+          ],
+          "meanBiasRGB": [
+            -0.137265145778656,
+            -0.07804916054010391,
+            -0.06049376353621483
+          ],
+          "referenceMeanY": 0.15457920096257807,
+          "candidateMeanY": 0.0652082722438597,
+          "meanBiasY": -0.08937092871872303,
+          "meanAbsoluteY": 0.08941389473525038,
+          "relativeMeanBiasY": -0.5781562342294598,
+          "meanPixelStandardErrorRGB": [
+            0.024934720905551273,
+            0.014194378908004629,
+            0.011139832697955128
+          ],
+          "meanPixelConservativeLumaSE": 0.016257237380317466,
+          "meanChromaL1": 0.007121101021766663,
+          "meanMetalHitFraction": 0.058981131677791475,
+          "meanMaxDepthFraction": 0.07029787325278508
+        },
+        "Floor": {
+          "sourcePixels": 13330,
+          "comparedPixels": 13328,
+          "unknownPixels": 2,
+          "candidateMeanRGB": [
+            0.055136360228061676,
+            0.0216616652905941,
+            0.01352011039853096
+          ],
+          "referenceMeanRGB": [
+            0.13361860811710358,
+            0.0568295419216156,
+            0.03652317821979523
+          ],
+          "meanBiasRGB": [
+            -0.07848230749368668,
+            -0.03516773134469986,
+            -0.023003116250038147
+          ],
+          "referenceMeanY": 0.07168873592022638,
+          "candidateMeanY": 0.028190559493364836,
+          "meanBiasY": -0.04349817642686155,
+          "meanAbsoluteY": 0.04351459909876751,
+          "relativeMeanBiasY": -0.6067644500701664,
+          "meanPixelStandardErrorRGB": [
+            0.018481189138846013,
+            0.009217535186712622,
+            0.0064951781660416074
+          ],
+          "meanPixelConservativeLumaSE": 0.010990433840043713,
+          "meanChromaL1": 0.04353153705596924,
+          "meanMetalHitFraction": 0.039515904017857144,
+          "meanMaxDepthFraction": 0.04746117196878751
+        },
+        "White receiver": {
+          "sourcePixels": 86,
+          "comparedPixels": 86,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.13068975508213043,
+            0.059577587991952896,
+            0.04602716118097305
+          ],
+          "referenceMeanRGB": [
+            0.4155668318271637,
+            0.1798027902841568,
+            0.13868176937103271
+          ],
+          "meanBiasRGB": [
+            -0.28487706184387207,
+            -0.1202252209186554,
+            -0.09265463054180145
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "candidateMeanY": 0.0737176930094874,
+          "meanBiasY": -0.15323960963167077,
+          "meanAbsoluteY": 0.15323960963167077,
+          "relativeMeanBiasY": -0.6751913591163782,
+          "meanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "meanPixelConservativeLumaSE": 0.01763054075408338,
+          "meanChromaL1": 0.02609550952911377,
+          "meanMetalHitFraction": 0.08489280523255814,
+          "meanMaxDepthFraction": 0.1379451308139535
+        },
+        "Red wall": {
+          "sourcePixels": 11049,
+          "comparedPixels": 11049,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.11951060593128204,
+            0.08562517911195755,
+            0.06604496389627457
+          ],
+          "referenceMeanRGB": [
+            0.30863434076309204,
+            0.20574870705604553,
+            0.15873262286186218
+          ],
+          "meanBiasRGB": [
+            -0.1891246885061264,
+            -0.12012359499931335,
+            -0.09268730878829956
+          ],
+          "referenceMeanY": 0.2242278435866012,
+          "candidateMeanY": 0.0914154435853719,
+          "meanBiasY": -0.13281240000122932,
+          "meanAbsoluteY": 0.13291752440392235,
+          "relativeMeanBiasY": -0.5923100266088701,
+          "meanPixelStandardErrorRGB": [
+            0.03176119566746063,
+            0.019692016357023206,
+            0.015115807920470929
+          ],
+          "meanPixelConservativeLumaSE": 0.02192752162930318,
+          "meanChromaL1": 0.035622864961624146,
+          "meanMetalHitFraction": 0.053161273079011674,
+          "meanMaxDepthFraction": 0.0754317415603222
+        },
+        "Green wall": {
+          "sourcePixels": 10592,
+          "comparedPixels": 10592,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.1074134036898613,
+            0.060378093272447586,
+            0.04838038608431816
+          ],
+          "referenceMeanRGB": [
+            0.233700230717659,
+            0.13619562983512878,
+            0.1142231673002243
+          ],
+          "meanBiasRGB": [
+            -0.12628617882728577,
+            -0.07581766694784164,
+            -0.06584282964468002
+          ],
+          "referenceMeanY": 0.1553385846077904,
+          "candidateMeanY": 0.06951160526037936,
+          "meanBiasY": -0.08582697934741104,
+          "meanAbsoluteY": 0.0858625298895736,
+          "relativeMeanBiasY": -0.552515523198006,
+          "meanPixelStandardErrorRGB": [
+            0.02511319317544477,
+            0.014110162181376838,
+            0.01212735016764616
+          ],
+          "meanPixelConservativeLumaSE": 0.016306247543324316,
+          "meanChromaL1": 0.028311744332313538,
+          "meanMetalHitFraction": 0.06087620668901057,
+          "meanMaxDepthFraction": 0.06444243001793806
+        },
+        "Moving occluder": {
+          "sourcePixels": 2250,
+          "comparedPixels": 2250,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.07417818158864975,
+            0.055949561297893524,
+            0.05439405143260956
+          ],
+          "referenceMeanRGB": [
+            0.18460771441459656,
+            0.14223669469356537,
+            0.13808797299861908
+          ],
+          "meanBiasRGB": [
+            -0.11042969673871994,
+            -0.08628726750612259,
+            -0.08369392901659012
+          ],
+          "referenceMeanY": 0.15094527813388506,
+          "candidateMeanY": 0.05971265890943739,
+          "meanBiasY": -0.09123261922444767,
+          "meanAbsoluteY": 0.09123261922444767,
+          "relativeMeanBiasY": -0.604408566815362,
+          "meanPixelStandardErrorRGB": [
+            0.016290126413703185,
+            0.014063799171622999,
+            0.013734207377338822
+          ],
+          "meanPixelConservativeLumaSE": 0.014513319815741938,
+          "meanChromaL1": 0.009877383708953857,
+          "meanMetalHitFraction": 0.011684027777777778,
+          "meanMaxDepthFraction": 0.020984375
+        }
+      }
+    },
+    {
+      "frame": 330,
+      "referenceFrame": 119,
+      "sourcePixels": 43003,
+      "unknownCandidatePixels": 7,
+      "roi": {
+        "all-source-receivers": {
+          "sourcePixels": 43003,
+          "comparedPixels": 42996,
+          "unknownPixels": 7,
+          "candidateMeanRGB": [
+            0.16042976081371307,
+            0.09124067425727844,
+            0.06451604515314102
+          ],
+          "referenceMeanRGB": [
+            0.23709598183631897,
+            0.13525566458702087,
+            0.10304545611143112
+          ],
+          "meanBiasRGB": [
+            -0.07666600495576859,
+            -0.044014133512973785,
+            -0.038529444485902786
+          ],
+          "referenceMeanY": 0.1545808654372632,
+          "candidateMeanY": 0.10402093923653721,
+          "meanBiasY": -0.05055992620073946,
+          "meanAbsoluteY": 0.05075338630285776,
+          "relativeMeanBiasY": -0.3270775206085209,
+          "meanPixelStandardErrorRGB": [
+            0.024934911670680092,
+            0.014194540741952567,
+            0.01113998343040606
+          ],
+          "meanPixelConservativeLumaSE": 0.016257404563506377,
+          "meanChromaL1": 0.025424674153327942,
+          "meanMetalHitFraction": 0.05898123153898037,
+          "meanMaxDepthFraction": 0.07029632843752907
+        },
+        "Floor": {
+          "sourcePixels": 13330,
+          "comparedPixels": 13328,
+          "unknownPixels": 2,
+          "candidateMeanRGB": [
+            0.08762580901384354,
+            0.037753354758024216,
+            0.02479935809969902
+          ],
+          "referenceMeanRGB": [
+            0.13361860811710358,
+            0.0568295419216156,
+            0.03652317821979523
+          ],
+          "meanBiasRGB": [
+            -0.04599303379654884,
+            -0.019076138734817505,
+            -0.011723806150257587
+          ],
+          "referenceMeanY": 0.07168873592022638,
+          "candidateMeanY": 0.04742095038899424,
+          "meanBiasY": -0.02426778553126312,
+          "meanAbsoluteY": 0.024523413094678134,
+          "relativeMeanBiasY": -0.33851601956362803,
+          "meanPixelStandardErrorRGB": [
+            0.018481189138846013,
+            0.009217535186712622,
+            0.0064951781660416074
+          ],
+          "meanPixelConservativeLumaSE": 0.010990433840043713,
+          "meanChromaL1": 0.01044987142086029,
+          "meanMetalHitFraction": 0.039515904017857144,
+          "meanMaxDepthFraction": 0.04746117196878751
+        },
+        "White receiver": {
+          "sourcePixels": 86,
+          "comparedPixels": 86,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.2582184672355652,
+            0.1138206273317337,
+            0.08848323673009872
+          ],
+          "referenceMeanRGB": [
+            0.4155668318271637,
+            0.1798027902841568,
+            0.13868176937103271
+          ],
+          "meanBiasRGB": [
+            -0.1573483943939209,
+            -0.06598217785358429,
+            -0.050198543816804886
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "candidateMeanY": 0.14269024785951126,
+          "meanBiasY": -0.08426705478164692,
+          "meanAbsoluteY": 0.08426705478164692,
+          "relativeMeanBiasY": -0.37129034316591886,
+          "meanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "meanPixelConservativeLumaSE": 0.01763054075408338,
+          "meanChromaL1": 0.01083981990814209,
+          "meanMetalHitFraction": 0.08489280523255814,
+          "meanMaxDepthFraction": 0.1379451308139535
+        },
+        "Red wall": {
+          "sourcePixels": 11049,
+          "comparedPixels": 11049,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.18682527542114258,
+            0.13555769622325897,
+            0.09700833261013031
+          ],
+          "referenceMeanRGB": [
+            0.30863434076309204,
+            0.20574870705604553,
+            0.15873262286186218
+          ],
+          "meanBiasRGB": [
+            -0.12181003391742706,
+            -0.07019112259149551,
+            -0.061724286526441574
+          ],
+          "referenceMeanY": 0.2242278435866012,
+          "candidateMeanY": 0.14367371750105798,
+          "meanBiasY": -0.08055412608554327,
+          "meanAbsoluteY": 0.08062910477400638,
+          "relativeMeanBiasY": -0.3592512187472012,
+          "meanPixelStandardErrorRGB": [
+            0.03176119566746063,
+            0.019692016357023206,
+            0.015115807920470929
+          ],
+          "meanPixelConservativeLumaSE": 0.02192752162930318,
+          "meanChromaL1": 0.035117313265800476,
+          "meanMetalHitFraction": 0.053161273079011674,
+          "meanMaxDepthFraction": 0.0754317415603222
+        },
+        "Green wall": {
+          "sourcePixels": 10592,
+          "comparedPixels": 10592,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.17674441635608673,
+            0.09407424926757812,
+            0.07167809456586838
+          ],
+          "referenceMeanRGB": [
+            0.233700230717659,
+            0.13619562983512878,
+            0.1142231673002243
+          ],
+          "meanBiasRGB": [
+            -0.05695508420467377,
+            -0.04212141036987305,
+            -0.042544905096292496
+          ],
+          "referenceMeanY": 0.1553385846077904,
+          "candidateMeanY": 0.11003296843410619,
+          "meanBiasY": -0.04530561617368422,
+          "meanAbsoluteY": 0.04550545403836872,
+          "relativeMeanBiasY": -0.29165719700662246,
+          "meanPixelStandardErrorRGB": [
+            0.02511319317544477,
+            0.014110162181376838,
+            0.01212735016764616
+          ],
+          "meanPixelConservativeLumaSE": 0.016306247543324316,
+          "meanChromaL1": 0.06662797927856445,
+          "meanMetalHitFraction": 0.06087620668901057,
+          "meanMaxDepthFraction": 0.06444243001793806
+        },
+        "Moving occluder": {
+          "sourcePixels": 2250,
+          "comparedPixels": 2250,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.09169674664735794,
+            0.06850773841142654,
+            0.0655493438243866
+          ],
+          "referenceMeanRGB": [
+            0.18460771441459656,
+            0.14223669469356537,
+            0.13808797299861908
+          ],
+          "meanBiasRGB": [
+            -0.09291111677885056,
+            -0.0737290233373642,
+            -0.07253862917423248
+          ],
+          "referenceMeanY": 0.15094527813388506,
+          "candidateMeanY": 0.07322412440456814,
+          "meanBiasY": -0.07772115372931691,
+          "meanAbsoluteY": 0.07772115372931691,
+          "relativeMeanBiasY": -0.514896223917518,
+          "meanPixelStandardErrorRGB": [
+            0.016290126413703185,
+            0.014063799171622999,
+            0.013734207377338822
+          ],
+          "meanPixelConservativeLumaSE": 0.014513319815741938,
+          "meanChromaL1": 0.01823332905769348,
+          "meanMetalHitFraction": 0.011684027777777778,
+          "meanMaxDepthFraction": 0.020984375
+        }
+      }
+    },
+    {
+      "frame": 359,
+      "referenceFrame": 119,
+      "sourcePixels": 43003,
+      "unknownCandidatePixels": 6,
+      "roi": {
+        "all-source-receivers": {
+          "sourcePixels": 43003,
+          "comparedPixels": 42997,
+          "unknownPixels": 6,
+          "candidateMeanRGB": [
+            0.16405968368053436,
+            0.09316391497850418,
+            0.0657162144780159
+          ],
+          "referenceMeanRGB": [
+            0.23709926009178162,
+            0.13525688648223877,
+            0.10304538905620575
+          ],
+          "meanBiasRGB": [
+            -0.07303932309150696,
+            -0.04209267720580101,
+            -0.0373288057744503
+          ],
+          "referenceMeanY": 0.15458243410222128,
+          "candidateMeanY": 0.106254461887499,
+          "meanBiasY": -0.048327972214731105,
+          "meanAbsoluteY": 0.0488328287551855,
+          "relativeMeanBiasY": -0.31263560116263334,
+          "meanPixelStandardErrorRGB": [
+            0.02493515071583809,
+            0.014194624958899156,
+            0.011139944813498167
+          ],
+          "meanPixelConservativeLumaSE": 0.016257512828326416,
+          "meanChromaL1": 0.0265214741230011,
+          "meanMetalHitFraction": 0.058982040171407304,
+          "meanMaxDepthFraction": 0.070298327499593
+        },
+        "Floor": {
+          "sourcePixels": 13330,
+          "comparedPixels": 13328,
+          "unknownPixels": 2,
+          "candidateMeanRGB": [
+            0.08871553093194962,
+            0.03947034850716591,
+            0.025537962093949318
+          ],
+          "referenceMeanRGB": [
+            0.13361860811710358,
+            0.0568295419216156,
+            0.03652317821979523
+          ],
+          "meanBiasRGB": [
+            -0.0449032224714756,
+            -0.017359137535095215,
+            -0.010985239408910275
+          ],
+          "referenceMeanY": 0.07168873592022638,
+          "candidateMeanY": 0.04893397060253468,
+          "meanBiasY": -0.022754765317720166,
+          "meanAbsoluteY": 0.023195340517300714,
+          "relativeMeanBiasY": -0.31741060887223843,
+          "meanPixelStandardErrorRGB": [
+            0.018481189138846013,
+            0.009217535186712622,
+            0.0064951781660416074
+          ],
+          "meanPixelConservativeLumaSE": 0.010990433840043713,
+          "meanChromaL1": 0.023185566067695618,
+          "meanMetalHitFraction": 0.039515904017857144,
+          "meanMaxDepthFraction": 0.04746117196878751
+        },
+        "White receiver": {
+          "sourcePixels": 86,
+          "comparedPixels": 86,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.30004599690437317,
+            0.11059641093015671,
+            0.0817718505859375
+          ],
+          "referenceMeanRGB": [
+            0.4155668318271637,
+            0.1798027902841568,
+            0.13868176937103271
+          ],
+          "meanBiasRGB": [
+            -0.11552084237337112,
+            -0.06920640170574188,
+            -0.05690992623567581
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "candidateMeanY": 0.14879225939373636,
+          "meanBiasY": -0.07816504324742182,
+          "meanAbsoluteY": 0.0782355392411871,
+          "relativeMeanBiasY": -0.34440417795680467,
+          "meanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "meanPixelConservativeLumaSE": 0.01763054075408338,
+          "meanChromaL1": 0.08641758561134338,
+          "meanMetalHitFraction": 0.08489280523255814,
+          "meanMaxDepthFraction": 0.1379451308139535
+        },
+        "Red wall": {
+          "sourcePixels": 11049,
+          "comparedPixels": 11049,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.18926934897899628,
+            0.1379396915435791,
+            0.09871582686901093
+          ],
+          "referenceMeanRGB": [
+            0.30863434076309204,
+            0.20574870705604553,
+            0.15873262286186218
+          ],
+          "meanBiasRGB": [
+            -0.11936578154563904,
+            -0.06780914962291718,
+            -0.06001702696084976
+          ],
+          "referenceMeanY": 0.2242278435866012,
+          "candidateMeanY": 0.14602023784780038,
+          "meanBiasY": -0.07820760573880083,
+          "meanAbsoluteY": 0.07837646607732474,
+          "relativeMeanBiasY": -0.34878632594348397,
+          "meanPixelStandardErrorRGB": [
+            0.03176119566746063,
+            0.019692016357023206,
+            0.015115807920470929
+          ],
+          "meanPixelConservativeLumaSE": 0.02192752162930318,
+          "meanChromaL1": 0.036385998129844666,
+          "meanMetalHitFraction": 0.053161273079011674,
+          "meanMaxDepthFraction": 0.0754317415603222
+        },
+        "Green wall": {
+          "sourcePixels": 10592,
+          "comparedPixels": 10592,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.18067793548107147,
+            0.09547491371631622,
+            0.07327364385128021
+          ],
+          "referenceMeanRGB": [
+            0.233700230717659,
+            0.13619562983512878,
+            0.1142231673002243
+          ],
+          "meanBiasRGB": [
+            -0.05302184820175171,
+            -0.040720801800489426,
+            -0.04094933345913887
+          ],
+          "referenceMeanY": 0.1553385846077904,
+          "candidateMeanY": 0.11198611547637202,
+          "meanBiasY": -0.043352469131418395,
+          "meanAbsoluteY": 0.04392477266661467,
+          "relativeMeanBiasY": -0.2790837140745019,
+          "meanPixelStandardErrorRGB": [
+            0.02511319317544477,
+            0.014110162181376838,
+            0.01212735016764616
+          ],
+          "meanPixelConservativeLumaSE": 0.016306247543324316,
+          "meanChromaL1": 0.06867389380931854,
+          "meanMetalHitFraction": 0.06087620668901057,
+          "meanMaxDepthFraction": 0.06444243001793806
+        },
+        "Moving occluder": {
+          "sourcePixels": 2250,
+          "comparedPixels": 2250,
+          "unknownPixels": 0,
+          "candidateMeanRGB": [
+            0.08827754855155945,
+            0.06308263540267944,
+            0.05975697189569473
+          ],
+          "referenceMeanRGB": [
+            0.18460771441459656,
+            0.14223669469356537,
+            0.13808797299861908
+          ],
+          "meanBiasRGB": [
+            -0.09633029252290726,
+            -0.07915414869785309,
+            -0.07833098620176315
+          ],
+          "referenceMeanY": 0.15094527813388506,
+          "candidateMeanY": 0.06819896030544705,
+          "meanBiasY": -0.08274631782843803,
+          "meanAbsoluteY": 0.08274631782843803,
+          "relativeMeanBiasY": -0.5481875210103884,
+          "meanPixelStandardErrorRGB": [
+            0.016290126413703185,
+            0.014063799171622999,
+            0.013734207377338822
+          ],
+          "meanPixelConservativeLumaSE": 0.014513319815741938,
+          "meanChromaL1": 0.04216250777244568,
+          "meanMetalHitFraction": 0.011684027777777778,
+          "meanMaxDepthFraction": 0.020984375
+        }
+      }
+    }
+  ],
+  "sourceOnlyRois": true,
+  "unknownIsNotBlack": true,
+  "exposure": 1,
+  "displayTransform": "vertical flip only; all numerical comparisons use original aligned rows"
+}

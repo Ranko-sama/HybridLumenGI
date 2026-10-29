@@ -1,0 +1,53 @@
+{
+  "status": "running",
+  "scope": "Extracted actual CSTemporal legacy/identity; fixed resource/geometry/half conversion adapters, D3D12 software WARP. Not Unity texture binding, full scene or physical GPU proof.",
+  "cases": [
+    {
+      "name": "global-known-black",
+      "globalChange": 1,
+      "reactive": 1,
+      "current": 0,
+      "known": true
+    },
+    {
+      "name": "global-known-nonzero",
+      "globalChange": 1,
+      "reactive": 1,
+      "current": 1.03125,
+      "known": true
+    },
+    {
+      "name": "global-unknown",
+      "globalChange": 1,
+      "reactive": 1,
+      "current": 0,
+      "known": false
+    },
+    {
+      "name": "static-known",
+      "globalChange": 0,
+      "reactive": 0,
+      "current": 1.03125,
+      "known": true
+    },
+    {
+      "name": "local-motion-reactive-known",
+      "globalChange": 0,
+      "reactive": 1,
+      "current": 1.03125,
+      "known": true
+    },
+    {
+      "name": "static-known-black",
+      "globalChange": 0,
+      "reactive": 0,
+      "current": 0,
+      "known": true
+    }
+  ],
+  "expectation": "Only global known rows change: exact current RGB/confidence and age1. Unknown/static/local-reactive rows and their dependent recovery outputs must remain byte-identical. Both preprocessor entries must agree.",
+  "productSourceSha256": "68bdfe49b2c8b09a52722bc5ba7dcb7045be016359d6682e380269116df67455",
+  "hostSha256": "d6a8d0c6a0e881c2fece0af65dc9a9627ad5e54dc1f4d0af684300cb91bde270",
+  "commands": [],
+  "observations": []
+}

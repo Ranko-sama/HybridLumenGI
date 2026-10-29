@@ -1,0 +1,12 @@
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
+@@ -472,6 +472,9 @@
+         if(change.y>0.5) retainedMoments.z=min(retainedMoments.z,2);
+         _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
+     }
++    // A changed global light set makes old radiance obsolete. Unknown current
++    // measurements have already retained their qualified history above.
++    if(_HLGI_GlobalReactive>0.5) valid=false;
+     // Reconstruction may improve an already accepted known measurement only.
+     // Any incomplete support retains the exact original nearest history pair.
+     if(valid)

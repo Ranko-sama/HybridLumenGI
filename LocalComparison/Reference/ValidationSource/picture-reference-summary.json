@@ -1,0 +1,207 @@
+{
+  "schema": "source-picture-reference-delivery-v1",
+  "status": "two-approximate-independent-pictures-delivered",
+  "qualityVerdict": null,
+  "strictAbsoluteErrorCertificate": false,
+  "sourceSnapshot": {
+    "directory": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Reference\\ValidationSource\\picture-reference-v1-source",
+    "manifestSha256": "a3a2f95810ca596d98a3b15b3e158f6451e37e385871ec788d75c4e22895645b"
+  },
+  "cpuValidation": [
+    {
+      "directory": "lighting-cpu-01",
+      "passed": 13
+    },
+    {
+      "directory": "picture-cpu-01",
+      "passed": 15
+    },
+    {
+      "directory": "picture-cpu-02",
+      "passed": 3,
+      "note": "Targeted integration controls after HxW-to-flat CLI fix; unchanged earlier thirteen controls were not unnecessarily rerun."
+    }
+  ],
+  "firstFailure": {
+    "directory": "I:/Unity test/Comparison/ValidationPackageV209-reference-frame0299-01",
+    "reason": "CLI passed HxW primary arrays to flat CPU interface; Numba type failure before numerical sampling. Failure and pre-fix source snapshot retained. No numeric/sample/scene threshold changed."
+  },
+  "sourceEquivalence": {
+    "file": "I:\\Unity test\\Comparison\\ValidationPackageV209-reference-input-equivalence-01\\report.json",
+    "sha256": "40f8fca5d33def12387be8c5e2868afba38916915e6a63e515f8acca555efa07",
+    "groups": [
+      {
+        "fingerprint": "c765d6217298f68244a720b9e7ade34e5989164a729cdea5b53fb0fe7591c341",
+        "logicalFrames": [
+          0,
+          30,
+          60,
+          90,
+          119,
+          120,
+          239,
+          300,
+          330,
+          359
+        ]
+      },
+      {
+        "fingerprint": "46ee698087b8d5689c98391a2c0662db646de8b08fe15e17515046fe8e903049",
+        "logicalFrames": [
+          150
+        ]
+      },
+      {
+        "fingerprint": "1607ca114ccf535bf0ce176afb276a6403ee73a4115e176a43bd14c1376cc25d",
+        "logicalFrames": [
+          179,
+          180,
+          209,
+          210
+        ]
+      },
+      {
+        "fingerprint": "2aaca59bb952bf07e31d64cd19af3e71af23851385ff8d6f53ee4e9da39ff9dd",
+        "logicalFrames": [
+          240,
+          270,
+          299
+        ]
+      },
+      {
+        "fingerprint": "ef031658b3660fe56d9b616e6268720877307e9ec2f8307112dd79a5a162378a",
+        "logicalFrames": [
+          360,
+          390,
+          419
+        ]
+      },
+      {
+        "fingerprint": "e8b109e36166f51a32a84a4a1af4f0c8edc1863649b528f249f794eebdf48daf",
+        "logicalFrames": [
+          420,
+          450,
+          480,
+          510,
+          540,
+          570,
+          600,
+          630,
+          660,
+          690,
+          719
+        ]
+      }
+    ]
+  },
+  "pictures": [
+    {
+      "directory": "I:\\Unity test\\Comparison\\ValidationPackageV209-reference-frame0119-01",
+      "reportSha256": "8e549fae227411fc9a4caf14f745efad7a781815daca800d564ab30562f1ae3e",
+      "logicalFrame": 119,
+      "sourceSha256": "d57d519d8f205065de3c2e7d890cf73915d4b22c556071b36e2568eb20d52077",
+      "stateSha256": "68cf4374a78ad98c1605dc9ee8478e05f36a3d1629521038f5c1a0ad23b8c803",
+      "physicalStateFingerprint": "c765d6217298f68244a720b9e7ade34e5989164a729cdea5b53fb0fe7591c341",
+      "validPixels": 43003,
+      "domainCounts": {
+        "sky": 10338,
+        "receiver": 43003,
+        "boundary": 4259,
+        "unsupported": 0
+      },
+      "meanRgb": [
+        0.2370942519716667,
+        0.13524973208307323,
+        0.10303869811052956
+      ],
+      "meanStandardErrorRgb": [
+        0.024934296872065144,
+        0.01419405388895299,
+        0.011139435226470195
+      ],
+      "standardErrorQuantiles": {
+        "p50": [
+          0.021157035817599767,
+          0.013670746365793362,
+          0.011706028859350032
+        ],
+        "p90": [
+          0.03423647223205547,
+          0.01831194694929592,
+          0.014865988784914172
+        ],
+        "p99": [
+          0.06753233982926007,
+          0.02920849990226167,
+          0.018519393756861038
+        ]
+      },
+      "meanMetalHitFraction": 0.05899079715368695,
+      "meanMaxDepthReachedFraction": 0.07030232629118899,
+      "preview": "I:\\Unity test\\Comparison\\ValidationPackageV209-reference-frame0119-01\\preview-flipped-display.png"
+    },
+    {
+      "directory": "I:\\Unity test\\Comparison\\ValidationPackageV209-reference-frame0299-02",
+      "reportSha256": "ca05cc417446b616a71e4ecd64bf1aefec052d94b6398dff41316703b58024ae",
+      "logicalFrame": 299,
+      "sourceSha256": "d57d519d8f205065de3c2e7d890cf73915d4b22c556071b36e2568eb20d52077",
+      "stateSha256": "7304ee223628e4abfd07d5ae44b579cb2b11a19a37f1a2a3b1cf7aa1453c64ad",
+      "physicalStateFingerprint": "2aaca59bb952bf07e31d64cd19af3e71af23851385ff8d6f53ee4e9da39ff9dd",
+      "validPixels": 43003,
+      "domainCounts": {
+        "sky": 10338,
+        "receiver": 43003,
+        "boundary": 4259,
+        "unsupported": 0
+      },
+      "meanRgb": [
+        0.02174888480140365,
+        0.011292577015510626,
+        0.005405643863611172
+      ],
+      "meanStandardErrorRgb": [
+        0.005303678331801414,
+        0.0020912520050904524,
+        0.0010374251207322604
+      ],
+      "standardErrorQuantiles": {
+        "p50": [
+          0.0014553897764085094,
+          0.0007709730233889443,
+          0.00037894499475677997
+        ],
+        "p90": [
+          0.0051494937400912875,
+          0.00209240797590882,
+          0.001043823453731053
+        ],
+        "p99": [
+          0.052872465766421246,
+          0.011132491104457297,
+          0.005553254737814362
+        ]
+      },
+      "meanMetalHitFraction": 0.05899079715368695,
+      "meanMaxDepthReachedFraction": 0.07030232629118899,
+      "preview": "I:\\Unity test\\Comparison\\ValidationPackageV209-reference-frame0299-02\\preview-flipped-display.png"
+    }
+  ],
+  "directSourceAudit": {
+    "directory": "I:/Unity test/Comparison/ValidationPackageV209-direct-source-frame0119-01",
+    "reportSha256": "2c0db2402aed14ee0f02da52e916ca7ca3fb1a43c45ea00fd9bdcf4a9d40fb2b",
+    "triangles": 240,
+    "known": 240,
+    "lights": 5,
+    "materials": 20
+  },
+  "preservation": "Original six-test domain tool bytes and validation-summary preserved and hash-verified in source-domain-v1-original; old external119 report unchanged.",
+  "limitations": [
+    "Hard geometric shadows approximate native PCF/bias/cascades.",
+    "Metallic/specular transport omitted; sampled metal-hit fraction is not an exclusion proof.",
+    "Fixed depth8; sampled truncation is not a tail bound.",
+    "MC standard error is not model error or an absolute bound; rare near-field area-light events produce high-variance outliers.",
+    "Source sky/boundary remain uncovered and are not silently removed into quality PASS. Black lines in standalone preview are withheld source-edge domains; comparison view may show a checkerboard.",
+    "No candidate values enter source loading, domain, light/material constants, sampling seeds or expected radiance."
+  ],
+  "stoppedAfter": "Frame119 + frame299 only, with six exact source-equivalence groups. No extra states, extra samples, Unity/GPU runs or strict-proof expansion."
+}
