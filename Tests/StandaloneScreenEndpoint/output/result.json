@@ -1,0 +1,434 @@
+{
+  "status": "passed",
+  "scope": "Actual git-HEAD and current TraceScreen bodies, renamed only, in one D3D12 software WARP dispatch. ScreenPoint, texture values, depth/world reconstruction, normals and footprint are fixed dependency adapters; world-match/direct/cache calls are counted stubs. This proves conditional control/output equivalence, not real screen projection, lighting integration, Unity bindings or performance.",
+  "commands": [
+    {
+      "name": "read-head",
+      "arguments": [
+        "git",
+        "show",
+        "HEAD:Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-fixture",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSScreenEndpointTest",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneScreenEndpoint\\output\\fixture.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneScreenEndpoint\\output\\Fixture.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneScreenEndpoint\\output\\fixture.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneScreenEndpoint\\output\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneScreenEndpoint\\output\\outputs.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-software",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSTrace",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneScreenEndpoint\\output\\software.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGI.compute"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-exact-software",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSTrace",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneScreenEndpoint\\output\\exact-software.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIExactSoftware.compute"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-hardware",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-T",
+        "cs_6_5",
+        "-E",
+        "CSTrace",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneScreenEndpoint\\output\\hardware.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHardware.compute"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "observations": [
+    {
+      "name": "known-hit",
+      "actual": [
+        1.625,
+        1.75,
+        2.0,
+        1.0,
+        1.625,
+        1.75,
+        2.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        7.0,
+        65793.0,
+        65793.0,
+        0.0,
+        1.0
+      ],
+      "expected": [
+        1.625,
+        1.75,
+        2,
+        1,
+        1.625,
+        1.75,
+        2,
+        1,
+        1,
+        1,
+        1,
+        7,
+        65793,
+        65793,
+        0,
+        1
+      ],
+      "fullByteIdentical": true,
+      "passed": true
+    },
+    {
+      "name": "direct-unknown",
+      "actual": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        7.0,
+        257.0,
+        257.0,
+        0.0,
+        1.0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        7,
+        257,
+        257,
+        0,
+        1
+      ],
+      "fullByteIdentical": true,
+      "passed": true
+    },
+    {
+      "name": "cache-unknown",
+      "actual": [
+        1.125,
+        1.25,
+        1.5,
+        0.0,
+        1.125,
+        1.25,
+        1.5,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        7.0,
+        65793.0,
+        65793.0,
+        0.0,
+        1.0
+      ],
+      "expected": [
+        1.125,
+        1.25,
+        1.5,
+        0,
+        1.125,
+        1.25,
+        1.5,
+        0,
+        1,
+        1,
+        1,
+        7,
+        65793,
+        65793,
+        0,
+        1
+      ],
+      "fullByteIdentical": true,
+      "passed": true
+    },
+    {
+      "name": "no-screen-hit",
+      "actual": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        4.0,
+        4.0,
+        4.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        4,
+        4,
+        4,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "fullByteIdentical": true,
+      "passed": true
+    },
+    {
+      "name": "orientation-rejected",
+      "actual": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        4.0,
+        4.0,
+        4.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        4,
+        4,
+        4,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "fullByteIdentical": true,
+      "passed": true
+    }
+  ],
+  "expected": [
+    {
+      "name": "known-hit",
+      "control": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "fullResult": [
+        1.625,
+        1.75,
+        2,
+        1
+      ],
+      "distance": 1,
+      "hitBits": 7,
+      "fullDependencyCountsPacked": 65793,
+      "endpointDependencyCountsPacked": 0
+    },
+    {
+      "name": "direct-unknown",
+      "control": [
+        1,
+        1,
+        0,
+        1
+      ],
+      "fullResult": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "distance": 1,
+      "hitBits": 7,
+      "fullDependencyCountsPacked": 257,
+      "endpointDependencyCountsPacked": 0
+    },
+    {
+      "name": "cache-unknown",
+      "control": [
+        1,
+        1,
+        1,
+        0
+      ],
+      "fullResult": [
+        1.125,
+        1.25,
+        1.5,
+        0
+      ],
+      "distance": 1,
+      "hitBits": 7,
+      "fullDependencyCountsPacked": 65793,
+      "endpointDependencyCountsPacked": 0
+    },
+    {
+      "name": "no-screen-hit",
+      "control": [
+        0,
+        1,
+        1,
+        1
+      ],
+      "fullResult": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "distance": 4,
+      "hitBits": 0,
+      "fullDependencyCountsPacked": 0,
+      "endpointDependencyCountsPacked": 0
+    },
+    {
+      "name": "orientation-rejected",
+      "control": [
+        1,
+        0,
+        1,
+        1
+      ],
+      "fullResult": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "distance": 4,
+      "hitBits": 0,
+      "fullDependencyCountsPacked": 0,
+      "endpointDependencyCountsPacked": 0
+    }
+  ],
+  "expectation": "Old and candidate default/full float4 outputs and dependency counts are bit-identical; all three hit/distance pairs equal the explicit fixture expectation; endpoint world/direct/cache counters are zero. RGB/known in endpoint mode are unused by the product caller.",
+  "host": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+  "compileScope": "Only actual current CSTrace on software/exact-software/hardware using ValidateShaders include paths and native RayQuery adapter; no Unity import or physical GPU execution."
+}

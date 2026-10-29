@@ -1,5 +1,7 @@
 # 完整原计划推进表
 
+原计划目标4新增关闭一个具体成本缺口：面积光NEE只使用屏幕命中/距离，却继续计算并丢弃该端点的直接光、缓存和辐射；现已在原命中资格门控后提前返回。同配置有限窗口的三GI区间合计中位38.305→30.742 ms（约−19.7%），候选全部分块中位数低于基线全部分块，满足预定采用条件；没有追加窗口。[Release76](<I:/Unity test/Comparison/Builds/LocalRelease76/Start-LocalRelease.cmd>)已整合该改动，沿用统一普通交互入口。此项不改变图像算法合同，也不关闭颜色误差、默认多跳残留、总体帧率、显存或G5；详见[结果与适用范围](../LocalComparison/Review/screen-endpoint-only-01/result.md)。
+
 已关闭“当前普通Release源码缺少有限GPU成本依据”的缺口：[Release75测量配置](GpuBudget.md)复用保存统一场景、960×540/半分辨率GI、精确软件路径。三个现有GI区间合计中位38.305 ms、p95 39.451 ms、p99 39.749 ms，成本主要在Transport。固定窗口完整、native exit0，未加新查询/图像/哈希，测量已结束。资源账目不等于总VRAM；静态窗口不替代动态/长时/生产预算验收。普通Release75不因本轮测量改变。
 
 Release75后的一次有界源码判断已结束：SurfaceCache虽识别`materialsChanged`，但其`ChangedBounds`还合并运动、几何与重捕获；Feature/GPU局部域保留影响范围而不保留独立材质原因。因此不能把`change.y`直接当MPB辐射突变。材质变更已触发局部更新，这不是已证实的漏处理缺陷；经Astra审查，停止直接复用或增加专用字段来加速响应的候选，不为证明其必要性追加测试。原局部换色画质边界保留，未采用任何新产品修改。

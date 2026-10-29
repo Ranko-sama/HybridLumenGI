@@ -55,7 +55,7 @@ float3 DirectIrradiance(float3 p,float3 n,float3 bias,uint2 layers,bool receives
 #include "ActualProxyRadiance.hlsl"
 bool HLGIAreaDirectionEmissionWeight(float3 o,float3 n,float4 guide,float3 d,HLGIHit h,out float weight) { weight=1;return true; }
 void HLGITryScreenRayFootprint(float2 uv,float depth,float3 p,float3 d,out HLGIRayFootprint f) { HLGITryMakeRayFootprint(0,0,f); }
-bool TraceScreen(float3 o,float3 d,float limit,out float3 value,out float distance,out bool known)
+bool TraceScreen(float3 o,float3 d,float limit,out float3 value,out float distance,out bool known,bool resolveRadiance=true)
 {
     distance=asfloat(active.control.w);known=true;value=float3(7,8,9);
     if(active.control.w==0xffffffffu)

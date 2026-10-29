@@ -1,0 +1,20 @@
+{
+  "baselineResult": "I:/Unity test/Comparison/UnifiedRelease75Cost/result.json",
+  "baselineMedianMs": 38.305184,
+  "minimumRelativeReduction": 0.05,
+  "minimumAbsoluteReductionMs": 1.9152592,
+  "baseline64FrameBlockMediansMs": [
+    38.637119999999996,
+    38.590784,
+    33.630288,
+    33.50224,
+    37.50504,
+    38.940992,
+    35.941024,
+    38.574528
+  ],
+  "baselineMinimumBlockMedianMs": 33.50224,
+  "requires": "Candidate complete same-configuration 512-source-frame result; per-source sum median reduction >=5%; candidate maximum 64-source-frame block median < baseline minimum block median.",
+  "onFailure": "Revert candidate; no additional window or new probe.",
+  "scope": "Finite engineering adoption decision, not statistical significance, full image equivalence or production acceptance."
+}

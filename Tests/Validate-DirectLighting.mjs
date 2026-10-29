@@ -107,7 +107,7 @@ check(directBody.includes('float3connection=light.positionType.xyz-shadowOrigin;
 const directWrapper=functionBody(t,'float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,bool receivesShadows,out bool known)');
 check(directWrapper.includes('DirectIrradiance(p,n,biasNormal,receiverLayers,receivesShadows,biasNormal,HLGIPointQueryFootprint(),known)'),
   'Legacy direct wrapper delegates to the spatial primary without changing receiver shadow policy.');
-const screenBody=functionBody(k,'bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out float distanceHit,out bool known)');
+const screenBody=functionBody(k,'bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out float distanceHit,out bool known,bool resolveRadiance=true)');
 check(screenBody.includes('DirectIrradiance(p,n,biasNormal,receiverLayers,true,cameraRay,screenFootprint,directKnown)')&&
     screenBody.includes('float3cameraRay=p*_HLGI_MaterialView.w-_HLGI_MaterialView.xyz;')&&
     screenBody.includes('HLGITryScreenRayFootprint(uv,raw,p,cameraRay,screenFootprint)')&&

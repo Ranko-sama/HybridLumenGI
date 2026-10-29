@@ -1,5 +1,7 @@
 # GPU 时间反馈与更新预算
 
+Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过未被调用方消费的辐射求值。相同场景、设置和512源帧窗口中，每源帧三个GI范围之和的中位为30.742 ms、p95 31.581 ms、p99 31.819 ms；相对下文Release75基线，中位减少7.563 ms（19.7%），满足运行前固定的5%及64帧分块分离条件。只有这一个候选窗口；[完整对比和边界](../LocalComparison/Review/screen-endpoint-only-01/result.md)不宣称统计显著性、所有场景/DXR性能或生产达标。
+
 2026-10-30已补当前[Release75源码的有限成本结果](../LocalComparison/Review/unified-release75-cost-01/result.json)。使用保存的统一场景、960×540普通backbuffer、480×270 GI与默认精确软件路径，另建Release/None测量配置，只开启既有NativeDX12计时、关闭反馈及输入/UI。普通Release75 EXE未替换。固定相机、灯光和几何，源帧159–670的完成记录完整；进程正常退出。没有采图、哈希或新GPU查询。
 
 | 当前测量范围 | 中位 ms | 观察 p95 ms | 观察 p99 ms |

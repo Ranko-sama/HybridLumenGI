@@ -1,0 +1,134 @@
+{
+  "baseline": "I:\\Unity test\\Comparison\\UnifiedRelease75Cost\\result.json",
+  "candidate": "I:\\Unity test\\Comparison\\UnifiedRelease76Cost\\result.json",
+  "complete": true,
+  "settingsIdentical": true,
+  "baselineEnvironment": {
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "driver": "Direct3D 12 [level 12.1]",
+    "scene": "Assets/UnifiedRelease74/Generated/Variant/UnifiedSample.unity",
+    "scope": "Fixed authored UnifiedSample; 960x540 ordinary backbuffer; exact-software transport; existing native ReceiverCapture/Transport/Composite completions only. No image or per-frame file IO.",
+    "scopeExclusions": "CPU preparation, uploads outside scopes, query resolve, whole-app GPU time and total driver VRAM. Queue intervals can include barriers/waits. Ledger estimates are not additive or a total-VRAM measurement.",
+    "vSyncCount": 0,
+    "targetFrameRate": -1
+  },
+  "candidateEnvironment": {
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "driver": "Direct3D 12 [level 12.1]",
+    "scene": "Assets/UnifiedRelease74/Generated/Variant/UnifiedSample.unity",
+    "scope": "Fixed authored UnifiedSample; 960x540 ordinary backbuffer; exact-software transport; existing native ReceiverCapture/Transport/Composite completions only. No image or per-frame file IO.",
+    "scopeExclusions": "CPU preparation, uploads outside scopes, query resolve, whole-app GPU time and total driver VRAM. Queue intervals can include barriers/waits. Ledger estimates are not additive or a total-VRAM measurement.",
+    "vSyncCount": 0,
+    "targetFrameRate": -1
+  },
+  "baselineWindow": {
+    "sourceStart": 159,
+    "sourceEnd": 670,
+    "count": 512,
+    "fullWidth": 960,
+    "fullHeight": 540,
+    "giWidth": 480,
+    "giHeight": 270
+  },
+  "candidateWindow": {
+    "sourceStart": 159,
+    "sourceEnd": 670,
+    "count": 512,
+    "fullWidth": 960,
+    "fullHeight": 540,
+    "giWidth": 480,
+    "giHeight": 270
+  },
+  "baselineIntervals": {
+    "ReceiverCapture": {
+      "count": 512,
+      "medianMs": 0.15294400000000002,
+      "p95Ms": 0.1637872,
+      "p99Ms": 0.16975871999999997,
+      "maxMs": 0.17408
+    },
+    "Transport": {
+      "count": 512,
+      "medianMs": 38.088464,
+      "p95Ms": 39.239425600000004,
+      "p99Ms": 39.54431648,
+      "maxMs": 39.796096
+    },
+    "Composite": {
+      "count": 512,
+      "medianMs": 0.057824,
+      "p95Ms": 0.063488,
+      "p99Ms": 0.06562496,
+      "maxMs": 0.067584
+    },
+    "perSourceSum": {
+      "count": 512,
+      "medianMs": 38.305184,
+      "p95Ms": 39.4506304,
+      "p99Ms": 39.749279359999996,
+      "maxMs": 40.010752
+    }
+  },
+  "candidateIntervals": {
+    "ReceiverCapture": {
+      "count": 512,
+      "medianMs": 0.151776,
+      "p95Ms": 0.1606848,
+      "p99Ms": 0.16710495999999997,
+      "maxMs": 0.174528
+    },
+    "Transport": {
+      "count": 512,
+      "medianMs": 30.526336,
+      "p95Ms": 31.365632,
+      "p99Ms": 31.59656448,
+      "maxMs": 32.567808
+    },
+    "Composite": {
+      "count": 512,
+      "medianMs": 0.06340799999999999,
+      "p95Ms": 0.0655824,
+      "p99Ms": 0.06740992,
+      "maxMs": 0.068768
+    },
+    "perSourceSum": {
+      "count": 512,
+      "medianMs": 30.742288000000002,
+      "p95Ms": 31.5812848,
+      "p99Ms": 31.81896032,
+      "maxMs": 32.78592
+    }
+  },
+  "blockMediansMs": {
+    "baseline": [
+      38.637119999999996,
+      38.590784,
+      33.630288,
+      33.50224,
+      37.50504,
+      38.940992,
+      35.941024,
+      38.574528
+    ],
+    "candidate": [
+      30.531104,
+      30.788528,
+      30.347376,
+      30.770752,
+      28.84432,
+      30.985968,
+      29.175936,
+      31.0124
+    ]
+  },
+  "absoluteMedianReductionMs": 7.562895999999995,
+  "relativeMedianReduction": 0.19743792380686634,
+  "minimumRelativeReduction": 0.05,
+  "blockSeparationPassed": true,
+  "adopt": true,
+  "scope": "Finite engineering adoption decision, not statistical significance, full image equivalence or production acceptance."
+}

@@ -1,8 +1,8 @@
 # HybridLumenGI
 
-当前入口：[统一交互 Release75](<I:/Unity test/Comparison/Builds/LocalRelease75/Start-LocalRelease.cmd>)。复用Release74的统一场景、分页资源和设置，包含本轮全局换光后的世界缓存响应改进：首次可信更新直接替换旧时间平均，预算等待或unknown保留待替换状态，保持HLOD就绪规则。公开构建入口已实际构建成功；普通窗口呈现场景、L关灯和Esc正常退出已完成。首批[独立画面对照与四项结论](LocalComparison/Review/dynamic-picture-comparison-01/index.html)仍保留修前来源、模型近似和采样噪声，未用本次窗口检查推断整景改善程度。
+当前入口：[统一交互 Release76](<I:/Unity test/Comparison/Builds/LocalRelease76/Start-LocalRelease.cmd>)。复用保存的统一场景、分页资源和设置，保留Release75的全局换光缓存响应改进。本版跳过面积光遮挡判断中被丢弃的辐射计算；同配置精确软件窗口的三个GI区间合计中位38.305→30.742 ms，满足预定采用条件，见[结果与边界](LocalComparison/Review/screen-endpoint-only-01/result.md)。该EXE完成固定测量并正常退出；普通启动不启用测量观察器，本版未重复按键检查。首批[独立画面对照与四项结论](LocalComparison/Review/dynamic-picture-comparison-01/index.html)仍保留修前来源、模型近似和采样噪声。
 
-产品公开示例生成器也已接入普通交互；[批处理构建入口](Documentation/BatchPlayerBuild.md)已用于Release75，本地构建为Release/None、0错误、23条warning。公开生成器的新交互接线仍只有编译证据，本轮复用保存场景，没有重新生成；实际CI、生产性能和整体画质继续开放。
+产品公开示例生成器也已接入普通交互；[批处理构建入口](Documentation/BatchPlayerBuild.md)已用于Release76，本地构建为Release/None、0错误、19条warning。公开生成器的新交互接线仍只有编译证据，本轮复用保存场景，没有重新生成；实际CI、生产性能和整体画质继续开放。
 
 以下 Release73 及更早条目为历史状态，保留各自来源。
 

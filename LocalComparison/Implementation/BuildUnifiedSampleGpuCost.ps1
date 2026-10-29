@@ -1,6 +1,10 @@
+param(
+    [string]$Output = 'I:/Unity test/Comparison/Builds/UnifiedRelease75Cost',
+    [string]$LogName = 'UnifiedRelease75CostBuild'
+)
 $ErrorActionPreference = 'Stop'
 $project = 'I:/Unity test/Project'
-$output = 'I:/Unity test/Comparison/Builds/UnifiedRelease75Cost'
+$output = [IO.Path]::GetFullPath($Output)
 $observer = "$project/Assets/ComparisonHarness/UnifiedSampleGpuCost.cs"
 $observerSource = Join-Path $PSScriptRoot '../Harness/UnifiedSampleGpuCost.cs'
 if ((Test-Path -LiteralPath $output) -or (Test-Path -LiteralPath $observer) -or (Test-Path -LiteralPath "$observer.meta")) {
@@ -24,7 +28,7 @@ try {
     $quality = $quality.Replace($old, 'customRenderPipeline: {fileID: 11400000, guid: ca5b7ea101c75f645851495aea1b326c, type: 2}')
     [IO.File]::WriteAllText($qualityPath, $quality, [Text.UTF8Encoding]::new($false))
     Copy-Item -LiteralPath 'I:/Unity test/Comparison/Release74BuildArchive/Assets/ComparisonHarness/RuntimeAuditEntry.cs' -Destination $auditPath
-    & 'I:/Unity test/Start-Unity.ps1' -Batch -LogName 'UnifiedRelease75CostBuild' `
+    & 'I:/Unity test/Start-Unity.ps1' -Batch -LogName $LogName `
         -ExecuteMethod 'HybridLumenGI.Editor.HybridLumenGIPlayerBuild.Build' `
         -ExtraArguments @('-buildTarget', 'StandaloneWindows64',
             '-hlgiScene', 'Assets/UnifiedRelease74/Generated/Variant/UnifiedSample.unity',

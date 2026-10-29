@@ -171,7 +171,7 @@ bool ScreenPoint(float3 origin,float3 dir,float t,out float2 uv,out float delta,
     delta=mul(_HLGI_View,float4(p-q,0)).z;
     return true;
 }
-bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out float distanceHit,out bool known)
+bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out float distanceHit,out bool known,bool resolveRadiance=true)
 {
     radiance=0; distanceHit=maxT;known=true;
     float lastT=_HLGI_RayBias*2, lastDelta=-1e10;
@@ -206,6 +206,9 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                     // shading fallback, but never use Ns to locate a world-cache layer.
                     float3 biasNormal=hasGeometry?geometricNormal:n;
                     if(dot(biasNormal,-dir)<=0.05) { lastT=t;lastDelta=delta;continue; }
+                    // Area NEE only needs this same endpoint to exclude screen
+                    // support. Its radiance/known outputs are deliberately unused.
+                    if(!resolveRadiance) { distanceHit=surfaceT;return true; }
                     HLGIHit match;
                     bool worldMatch=false;
                     if(hasGeometry) worldMatch=HLGITryScreenWorldMatch(uv,raw,p,geometricNormal,match);
@@ -321,7 +324,7 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
             bool lightKnown=HLGIAreaLightContribution(origin,n,receiverCache.guide,lightSample,footprint,float4(p,1),lightValue,lightWorldHit,lightHit);
             float3 screenValue;float lightScreenT;bool lightScreenKnown;
             if(TraceScreen(origin,lightSample.direction,lightWorldHit?lightHit.t:lightSample.distance,
-                screenValue,lightScreenT,lightScreenKnown) &&
+                screenValue,lightScreenT,lightScreenKnown,false) &&
                 (!lightWorldHit || (HLGIHitQueryUnresolved(lightHit)?lightScreenT<lightHit.t:lightScreenT<=lightHit.t)))
             {
                 // The matching direction estimator uses the screen endpoint at
