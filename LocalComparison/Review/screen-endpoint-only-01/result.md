@@ -20,8 +20,10 @@
 
 ## 可运行版本与限制
 
-产品来源为d3b8ade之后本次Kernels改动。使用公开构建入口，Release/None，0错误、19条warning；[构建摘要](<I:/Unity test/Comparison/Builds/LocalRelease76/build-result.json>)。保存的Release74统一场景/资源未重生成；构建期间的工程设置和临时观察器已恢复。测量观察器仅在显式传入`-gpuCostOutput`时创建；普通启动器不传入该参数。沿用Release75的操作能力，本版未重复按键测试，也未再构建另一个EXE。
+产品来源为d3b8ade之后本次Kernels改动（已提交9657d98）。使用公开构建入口，Release/None，0错误、19条warning；[构建摘要](<I:/Unity test/Comparison/Builds/LocalRelease76/build-result.json>)。保存的Release74统一场景/资源未重生成；构建期间的工程设置和临时观察器已恢复。测量观察器仅在显式传入`-gpuCostOutput`时创建；普通启动器不传入该参数。沿用Release75的操作能力，成本阶段未重复按键测试，也未再构建另一个EXE。
 
 原始[候选分析](<I:/Unity test/Comparison/UnifiedRelease76Cost/result.json>)与[退出记录](<I:/Unity test/Comparison/UnifiedRelease76Cost/exit.json>)保留本机数据路径。比较只涉及ReceiverCapture、Transport、Composite的原生队列区间，可能包含范围内barrier/wait；不含CPU、全部上传/RenderGraph、query resolve或整应用GPU时间，不推导FPS或总VRAM。全机竞争负载未单独量测。这是有限工程采用依据，不是统计显著性或通用19.7%加速保证。
 
 无新图片或独立参考积分；已有颜色误差、换光残留、运动拖影、收敛结论仍保留各自旧来源。全局缓存/屏幕历史响应修复已保留，默认多跳残留和整景颜色准确度仍开放。停止本项成本测量，不追加DXR、动态、压力或细分kernel窗口。
+
+后续单独的普通窗口观察：现有EXE只执行一次L关灯，在工具返回约输入后2.7秒及17.2秒的两张画面间，未见明显持续衰减或旧色拖尾；发光区域仍存在。首次画面已晚于早期响应，工具墙钟也不是渲染帧或曝光时刻，不能据此量化残留、收敛或物理正确性。Esc正常退出，native exit0，日志为`I:/Unity test/Comparison/Release76LightObservation.log`。没有导出新HDR、重跑旧720序列或建立截图体系，该观察线已结束。

@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
@@ -26,12 +27,40 @@ public static class HybridLumenGIUnifiedSampleBuilder
         if (proxies.Length < 2) throw new InvalidOperationException("Select at least two static detail proxies in the saved authoring scene (for example its three receivers).");
         var scene = proxies[0].gameObject.scene;
         Camera[] cameras = scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<Camera>(true)).Where(c => c.enabled).ToArray();
-        var features = Resources.FindObjectsOfTypeAll<HybridLumenGIRendererFeature>().Where(f => f.isActive && EditorUtility.IsPersistent(f)).ToArray();
-        if (cameras.Length != 1 || features.Length != 1) throw new InvalidOperationException("The menu requires one enabled camera and one loaded active GI feature. Use CreateVariant with explicit inputs otherwise.");
+        if (cameras.Length != 1) throw new InvalidOperationException("The menu requires one enabled camera. Use CreateVariant with explicit inputs otherwise.");
+        var feature = CameraFeature(cameras[0]);
         string run = Guid.NewGuid().ToString("N");
-        Result result = CreateVariant(scene, cameras[0], features[0], proxies,
+        Result result = CreateVariant(scene, cameras[0], feature, proxies,
             "Assets/HybridLumenGIUnifiedSample/" + run, "Assets/StreamingAssets/HybridLumenGIUnifiedSample/" + run);
         Debug.Log("Unified sample saved: " + result.ScenePath + ". Open it separately; authoring bindings were retained.", result.Manifest);
+    }
+
+    private static HybridLumenGIRendererFeature CameraFeature(Camera camera)
+    {
+        var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+        if (pipeline == null) throw new InvalidOperationException("The camera requires an active URP pipeline.");
+        // Read authored selection without creating a runtime renderer. Unrelated loaded
+        // Renderer Data assets must not affect this camera's feature selection.
+        using var pipelineState = new SerializedObject(pipeline);
+        var renderers = pipelineState.FindProperty("m_RendererDataList");
+        int defaultIndex = pipelineState.FindProperty("m_DefaultRendererIndex").intValue;
+        int index = -1;
+        if (camera.TryGetComponent<UniversalAdditionalCameraData>(out var cameraData))
+        {
+            using var cameraState = new SerializedObject(cameraData);
+            index = cameraState.FindProperty("m_RendererIndex").intValue;
+        }
+        // URP uses the default for the default sentinel or a missing selected Data.
+        if (index < 0 || index >= renderers.arraySize || renderers.GetArrayElementAtIndex(index).objectReferenceValue == null)
+            index = defaultIndex;
+        if (index < 0 || index >= renderers.arraySize ||
+            !(renderers.GetArrayElementAtIndex(index).objectReferenceValue is UniversalRendererData renderer))
+            throw new InvalidOperationException("The camera requires valid Universal Renderer Data.");
+        var features = renderer.rendererFeatures.OfType<HybridLumenGIRendererFeature>()
+            .Where(f => f != null && f.isActive && EditorUtility.IsPersistent(f)).ToArray();
+        if (features.Length != 1)
+            throw new InvalidOperationException("The camera's Renderer Data must contain exactly one active GI feature. Use CreateVariant with explicit inputs otherwise.");
+        return features[0];
     }
 
     public static Result CreateVariant(Scene authoring, Camera camera, HybridLumenGIRendererFeature feature,

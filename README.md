@@ -1,8 +1,10 @@
 # HybridLumenGI
 
-当前入口：[统一交互 Release76](<I:/Unity test/Comparison/Builds/LocalRelease76/Start-LocalRelease.cmd>)。复用保存的统一场景、分页资源和设置，保留Release75的全局换光缓存响应改进。本版跳过面积光遮挡判断中被丢弃的辐射计算；同配置精确软件窗口的三个GI区间合计中位38.305→30.742 ms，满足预定采用条件，见[结果与边界](LocalComparison/Review/screen-endpoint-only-01/result.md)。该EXE完成固定测量并正常退出；普通启动不启用测量观察器，本版未重复按键检查。首批[独立画面对照与四项结论](LocalComparison/Review/dynamic-picture-comparison-01/index.html)仍保留修前来源、模型近似和采样噪声。
+当前入口：[统一交互 Release76](<I:/Unity test/Comparison/Builds/LocalRelease76/Start-LocalRelease.cmd>)。复用保存的统一场景、分页资源和设置，保留Release75的全局换光缓存响应改进。本版跳过面积光遮挡判断中被丢弃的辐射计算；同配置精确软件窗口的三个GI区间合计中位38.305→30.742 ms，满足预定采用条件，见[结果与边界](LocalComparison/Review/screen-endpoint-only-01/result.md)。该EXE完成固定测量并正常退出；普通启动不启用测量观察器。随后一次普通关灯观察未见明显持续衰减或旧色拖尾，但首次截图已在输入约2.7秒后，不据此判定早期残留或数值收敛。首批[独立画面对照与四项结论](LocalComparison/Review/dynamic-picture-comparison-01/index.html)仍保留修前来源、模型近似和采样噪声。
 
 产品公开示例生成器也已接入普通交互；[批处理构建入口](Documentation/BatchPlayerBuild.md)已用于Release76，本地构建为Release/None、0错误、19条warning。公开生成器的新交互接线仍只有编译证据，本轮复用保存场景，没有重新生成；实际CI、生产性能和整体画质继续开放。
+
+统一示例菜单现在按目标相机的实际Renderer选择GI Feature，避免其他已加载Renderer资产导致拒绝或误选。选择至少两个同场景静态Proxy，保存场景，使用`Tools > Hybrid Lumen GI > Create Unified Sample From Selected Static Proxies`；菜单要求一个启用相机，其Renderer中唯一启用的GI Feature。显式`CreateVariant`继续可用。本次Editor修复已编译并同步本机Unity工程，没有重新生成场景或重建Player。
 
 以下 Release73 及更早条目为历史状态，保留各自来源。
 
