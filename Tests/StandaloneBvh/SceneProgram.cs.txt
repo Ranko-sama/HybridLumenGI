@@ -57,9 +57,11 @@ first.bounds.center+=new Vector3(1,0,0);first.SourceRenderer.shadowCastingMode=S
 Prepare();
 var motion=scene.DirtyRegions.Single(x=>x.StableId==first.StableId);
 Require(motion.HasPrevious&&motion.HasCurrent&&(motion.Kind&HybridLumenGIScene.ChangeKind.Transform)!=0,"Move did not preserve old/new regions.");
-Require((motion.Kind&HybridLumenGIScene.ChangeKind.Lighting)!=0&&(motion.Kind&HybridLumenGIScene.ChangeKind.Manual)==0,"Policy+rigid motion became an unnecessary mesh-content rebuild.");
+Require(motion.Kind==(HybridLumenGIScene.ChangeKind.Transform|HybridLumenGIScene.ChangeKind.Lighting),"Same-frame rigid reupload must retain its pose event without Added or hard content flags.");
 Require(motion.PreviousBounds.center.x==0&&motion.CurrentBounds.center.x==1&&Slot(first.StableId)==firstSlot,"Move lost bounds/stable slot.");
 Require(!scene.RequiresFullInvalidation,"Local motion requested global reset.");
+first.bounds.center+=new Vector3(.01f,0,0);first.Revision++;Prepare();
+Require(scene.DirtyRegions.Single().Kind==HybridLumenGIScene.ChangeKind.Transform,"Pure rigid reupload became a new receiver.");
 first.diffuse=new Color(.2f,.4f,.8f);first.Revision++;Prepare();
 Require((scene.DirtyRegions.Single().Kind&HybridLumenGIScene.ChangeKind.Material)!=0,"Material delta not classified.");
 first.SourceRenderer.filter.sharedMesh=new Mesh();first.Revision++;Prepare();
@@ -95,6 +97,14 @@ for(int frame=0;frame<8;frame++)
     PoliciesMatch();
 }
 Require(serviced.Count==4,"Continuously moving near objects starved pending uploads.");
+var delayed=moving.Where(p=>Slot(p.StableId)<0).Select(p=>p.StableId).ToArray();
+Prepare(budget:32);
+foreach(int id in delayed)
+{
+    var addition=scene.DirtyRegions.Single(x=>x.StableId==id);
+    Require(addition.Kind==HybridLumenGIScene.ChangeKind.Added&&!addition.HasPrevious&&addition.HasCurrent,
+        "A later-frame upload incorrectly borrowed an earlier pose exemption.");
+}
 var oldPolicy=scene.LightingPolicyBuffer;Prepare(64,64);Require(scene.RequiresFullInvalidation,"Capacity reset must request global resource invalidation.");
 Require(oldPolicy.Released&&scene.LightingPolicyBuffer.count==64,"Capacity change leaked old policy allocation.");PoliciesMatch();
 Require(scene.ValidCount==47,"Capacity change lost active instances.");

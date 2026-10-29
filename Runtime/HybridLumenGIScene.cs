@@ -654,10 +654,18 @@ namespace HybridLumenGI
             {
                 DirtyRegion existing = dirtyRegions[i];
                 if (existing.Slot != slot || existing.StableId != id) continue;
+                // A published rigid receiver can be cleared and reuploaded in this
+                // Prepare. Its existing old/new pose event already describes that
+                // transition; adding Added would turn it into a hard geometry change.
+                // A later-frame upload has no such event and remains an addition.
+                const ChangeKind pose = ChangeKind.Transform | ChangeKind.Lighting;
+                bool sameFramePoseUpload = kind == ChangeKind.Added && !hasPrevious && hasCurrent &&
+                    existing.HasPrevious && existing.HasCurrent && existing.Revision == revision &&
+                    (existing.Kind & ChangeKind.Transform) != 0 && (existing.Kind & ~pose) == 0;
                 if (hasPrevious && !existing.HasPrevious)
                 { existing.PreviousBounds = previous; existing.PreviousRevision = previousRevision; existing.HasPrevious = true; }
                 if (hasCurrent) { existing.CurrentBounds = current; existing.Revision = revision; existing.HasCurrent = true; }
-                existing.Kind |= kind;
+                if (!sameFramePoseUpload) existing.Kind |= kind;
                 dirtyRegions[i] = existing;
                 return;
             }
