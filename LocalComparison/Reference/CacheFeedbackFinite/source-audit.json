@@ -1,0 +1,41 @@
+{
+  "status": "read-only current source audit; no native execution",
+  "sourceCommit": "5f951cd0e473c88fdd7c58a1c66745b6849d1895",
+  "sourceSha256": {
+    "Runtime/HybridLumenGIRendererFeature.cs": "5aac152af115ec29e96b53b61756f65fe6dd96ddabfa851a0bfd2f3d5d11fe2f",
+    "Runtime/HybridLumenGICacheScheduler.cs": "8beac343a86febde41e178cb6bc7e34fd5f79674c3affcd398043361de2d0d45",
+    "Runtime/HybridLumenGIChangeRegions.cs": "b003b71a0e82fdb89a21917c5429a383d640e0540033167fcce50c2b93e2ea18",
+    "Runtime/HybridLumenGISurfaceCache.cs": "2f5a2464847b1361eb2e2adbf04b303d34d800ae49ece94c0706117e51478397",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl": "1621a7688f9157c1169016d259168c4c7462c6695522bea1c9d0ba57b7fe2255",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl": "c86a90bb01da33d26d06d2f34686ac24ed5d0086f7202e79846abb25ca17637e",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGISurfaceCache.hlsl": "44ed0a0f51905578766824ec58d40f13e4976069fe12fd938924e8e4d87f1ae2",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl": "36f561edd634ddf3d629b06e847ead631ad6b44eaa6b2039ab658a4c422d1850",
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl": "36dd5c0ea5f29f4ae0a28a2363667c65a215d5fa5543e93b14112b7d96437720"
+  },
+  "existingEvidenceReviewed": [
+    "Documentation/OriginalDevelopmentPlan.md",
+    "Documentation/DevelopmentProgress.md",
+    "Documentation/ReviewBrief-CacheEnergyDecay01.md",
+    "Documentation/CacheEnergyDecay01-TestContract.md",
+    "LocalComparison/Review/cache-energy-decay-reference-01/reference-generator.executed.py.txt"
+  ],
+  "sourceFacts": {
+    "cacheQuantity": "Transport.hlsl:8, D=irradiance/pi",
+    "jacobiBufferBinding": "RendererFeature.cs:1140-1159: update reads old, writes alternate; gather reads alternate",
+    "historyRelaxation": "RadianceValidity.hlsl:28-47: valid sample counts, alpha >= .1; first invalid-to-known commit is unblended",
+    "receiverRhoPosition": "Transport.hlsl:453: rho multiplies direct plus feedback cached D at each hit",
+    "actualCacheKernel": "Transport.hlsl:513-579: actual anchor, separate cache RNG, current mask and geometry change before commit",
+    "initialZeroStorage": "RendererFeature.cs:371-379: allocated cache data is all-zero storage, not measured-black history",
+    "actualSurfaceInputs": "SurfaceCache.hlsl:48-74 and131-142: selected covered atlas texel, normalized Ns, 5-bit oct Ng",
+    "globalReactiveLifetime": "ChangeRegions.cs:24-27 and91: reset each Begin; actual directional event marks lighting-only reactive"
+  },
+  "nativeImplementationNeeded": [
+    "temporary before/after-update and after-gather tap",
+    "geometry-only anchor/direction sampler",
+    "independent atlas/card support qualification",
+    "known-black bootstrap observation separate from expected RGB",
+    "predeclared float32 cache and RGBAHalf gather comparison bounds"
+  ],
+  "nativeAccepted": false,
+  "runtimeModified": false
+}

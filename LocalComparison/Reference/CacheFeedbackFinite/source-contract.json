@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "status": "executable conditional finite geometry/cache recurrence; no native execution yet",
+  "signal": "CSUpdateCache D=E_indirect/pi and CSTrace raw D, before receiver reflectance/composite",
+  "walls": [
+    {"id":"A", "axis":0, "coordinate":0, "bounds":[[0,0],[0,1],[0,1]], "normal":[1,0,0], "shaderLinearBaseColor":[0.5,0.25,0.125]},
+    {"id":"B", "axis":2, "coordinate":0, "bounds":[[0,1],[0,1],[0,0]], "normal":[0,0,1], "shaderLinearBaseColor":[0.125,0.5,0.25]}
+  ],
+  "materials": {"shader":"Universal Render Pipeline/Lit", "workflow":"metallic", "metallic":0, "diffuseShare":0.96, "proxyTint":[1,1,1], "ao":1, "emission":[0,0,0], "cull":"Back", "maps":false},
+  "light": {"type":"Directional", "linearRgb":[1,1,1], "toLight":[1,0,0], "shadows":false, "warmupEnabled":false, "warmupIntensity":1, "positiveEnabled":true, "positiveIntensity":1},
+  "settings": {"cacheGrid":1, "cardsPerOwner":1, "cacheRays":16, "gatherRays":8, "cacheBudgetCoversBoth":true, "feedback":1, "guideWeight":0, "emissiveWeight":0, "areaEmitterCount":0, "screenSteps":0, "environment":[0,0,0], "radianceClamp":0, "rayBias":0.03, "maxDistance":20, "temporal":false, "filterIterations":0},
+  "initialization": {"mode":"measuredBlack", "rgb":[0,0,0], "samplesMinimum":1, "fixedWarmupFrames":32, "captureLogicalFrames":[31,32,33], "historyRule":"Warm up with source disabled and intensity one. If fixed frame 31 is not ready and measured black, fail collection; never extend adaptively. Validate initial cache RGB is exactly zero separately; never use measured RGB as an oracle operand."},
+  "positiveUpdates": [
+    {"ordinal":1, "globalReactive":1, "globalGeometryChange":0, "mask":"both", "expectedPreparedSamples":1, "expectedSamples":2, "expectedAlpha":0.5},
+    {"ordinal":2, "globalReactive":0, "globalGeometryChange":0, "mask":"both", "expectedPreparedSamples":2, "expectedSamples":3, "expectedAlpha":0.3333333333333333}
+  ],
+  "scope": [
+    "The two updates are relaxed Jacobi updates, not two pure transport bounces.",
+    "After update two, cache D can contain source paths with at most two diffuse scattering events; same-frame gather D can contain at most three; applying visible receiver rho adds a fourth event.",
+    "The reference accepts only geometric input rays and scalar history metadata. Product hit/PDF/weights and measured/cache RGB are forbidden oracle inputs.",
+    "The executable native comparator qualifies card/atlas geometry and buffer/identity/change closure before reading RGB. Hit localization is the predeclared conditional 64 binary32-epsilon source-consistency box, not a portable DXR RayT error theorem.",
+    "No default guide/MIS, steady-state energy, final-image or performance acceptance is implied."
+  ]
+}

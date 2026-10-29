@@ -1,0 +1,103 @@
+{
+  "audit": "post-run readiness-summary defect qualification; metadata/source only",
+  "passed": true,
+  "defect": {
+    "file": "LocalComparison/Harness/FiniteWallOcclusionScene.cs",
+    "line": 132,
+    "expression": "d.readyCards>=6",
+    "cause": "Harness author conflated six mesh triangles with six cards. Each pair of adjacent coplanar triangles bakes into one chart/card.",
+    "originalLoggedReady": false,
+    "originalLoggedFalseFrames": 56,
+    "originalValuesPreserved": true
+  },
+  "chartAssets": [
+    {
+      "name": "ReferenceWall",
+      "sha256": "68c53df08d0c321c3335f3507e9fa16343df379897f8e38095d69af9c6812669",
+      "charts": 1,
+      "triangleOrdinals": [
+        0,
+        1
+      ],
+      "captureSubmeshes": 1,
+      "captureIndices": 6
+    },
+    {
+      "name": "ReferenceFloor",
+      "sha256": "c1fc188c6bbb48f777ce6734fd099f33ea07c144459873396c9952ec76ca5f00",
+      "charts": 1,
+      "triangleOrdinals": [
+        0,
+        1
+      ],
+      "captureSubmeshes": 1,
+      "captureIndices": 6
+    },
+    {
+      "name": "MovingBlackPanel",
+      "sha256": "9fec1a13f9f7fb6044e27b2351f2353b4a02f549e040d901f355e7039935bfec",
+      "charts": 1,
+      "triangleOrdinals": [
+        0,
+        1
+      ],
+      "captureSubmeshes": 1,
+      "captureIndices": 6
+    }
+  ],
+  "totalActualCharts": 3,
+  "totalSourceTriangles": 6,
+  "productReason": "BakeTriangles merges adjacent same-submesh triangles within the seed normal cone when projected interiors do not overlap; SurfaceCache requests asset.Charts.Length cards.",
+  "actualAllFrameCounters": {
+    "hardwareBackend": true,
+    "hardwareMeshes": 3,
+    "hardwareFallbacks": 0,
+    "hardwareMaterialUnknownRecords": 0,
+    "hardwareMaterialStatus": "Uploads and both consumers bound; GPU completion unproven",
+    "publishedInstances": 3,
+    "warmingInstances": 0,
+    "pendingCapacity": 0,
+    "chartedOwners": 3,
+    "approximateOwners": 0,
+    "readyCards": 3,
+    "requiredSurfaceCards": 3,
+    "pendingCards": 0,
+    "lightSelected": 1,
+    "lightCapacityOmitted": -1
+  },
+  "all56FramesSatisfyRecordedCardCoverage": true,
+  "correctedInterpretation": "readyCards==requiredSurfaceCards==3 and pendingCards==0; CPU recorded readiness only, not a GPU fence or broad quality claim.",
+  "independence": {
+    "hostReadyOnlySerializedAtLines": [
+      151,
+      152
+    ],
+    "hostControlGate": "FixedScope(diagnostic)",
+    "analyzerReadsReadySummary": false,
+    "originalAcceptanceChanged": false,
+    "originalAnalysisPassed": true,
+    "physicalChecks": 1512,
+    "unknown": 0,
+    "uncovered": 0,
+    "sourcePoseCurrentAtEvents": [
+      32,
+      44
+    ]
+  },
+  "conclusion": "The summary boolean is wrong. The independent finite source/geometry/ray/history acceptance remains supported; do not reinterpret or overwrite original ready=false or allFramesSourceReady=false.",
+  "limits": "No GPU rerun, no original analyzer rerun, no radiance payload decoded by this audit, no claim that readiness counters themselves prove per-ray hits or whole-scene dynamic quality.",
+  "sources": {
+    "Runtime/HybridLumenGISurfaceCharts.cs": "04c1a2ec9468a3524deb845c06f5480346d25e7d97fa0b699422c6eabcdb2e92",
+    "Runtime/HybridLumenGISurfaceCache.cs": "2f5a2464847b1361eb2e2adbf04b303d34d800ae49ece94c0706117e51478397",
+    "Runtime/HybridLumenGIRendererFeature.cs": "5aac152af115ec29e96b53b61756f65fe6dd96ddabfa851a0bfd2f3d5d11fe2f"
+  },
+  "evidence": {
+    "source-freeze.json": "405f298c26f3986ccb3c2b85ea069d300f7e3a384e1f59a55b5559dd8fa69e40",
+    "native/frames.jsonl": "67e81a188ef197f5cf967c7f7f47543d826d66eb5d269091a7b2bd21ab8ac9ae",
+    "native/scene-result.json": "5eff4c14dfc6d1b44c9e23ddf7d12f9292288bf1d76f113a691b95442330641b",
+    "analysis-first.json": "25669288fa79587b5a8079b07c061204b83ce8b438f136e5203eb7dfde3dee77",
+    "execution-receipt.json": "098864090e83ecf598b8a2c06680ce64202a706d631fde221d84d1f72f2cd6de"
+  },
+  "frozenHostSha256": "26902214032de8e19586257c35de23d7cb8d36a31641e455677c3f2ff73d55e7",
+  "frozenAnalyzerSha256": "361cd105122fdd1111ea8b6a2bb0a4eceee1a14e82ecbd806206e011aa4a9493"
+}

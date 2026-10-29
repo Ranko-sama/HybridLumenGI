@@ -1,0 +1,1763 @@
+{
+  "status": "passed",
+  "passed": true,
+  "scope": "Conditional finite current-input cache feedback consistency. Assumes the predeclared DXR hit localization box and arithmetic implementation class. Not default multi-bounce, steady-state, final-composite or portable DXR precision certification.",
+  "warmupFrames": 32,
+  "positiveCacheUpdates": 2,
+  "maximumScatteringOrders": {
+    "cache": 2,
+    "rawGather": 3,
+    "includingVisibleReceiver": 4
+  },
+  "expectedSha256": "23fb8ccdfd07a67aafc3e8da48cb61ff0a1ae1600e6f6255d81d755656ce017f",
+  "sourceClosure": {
+    "actualGeometryMaterialsAndExactLight": true,
+    "fixedWarmupFrames": 32,
+    "positiveUpdates": 2,
+    "workFrames": [
+      30,
+      31,
+      32
+    ],
+    "missingRuntimeFields": "Workflow, smoothness, no extra maps/keywords and zero ambient are fixed by the hash-matched temporary Editor/Host source; actual submitted vertex normals/identity transform and capture sources justify finite constant material inputs."
+  },
+  "sourceProvenance": {
+    "productFileCount": 112,
+    "observerFileCount": 9,
+    "referenceSourceSha256": {
+      "LocalComparison/Reference/CacheFeedbackFinite02/atlas_support.py": "fbfb57a44f73d03b8401686a00086bde4dfdf1ce7ed952981717d4b04aa9827a",
+      "LocalComparison/Reference/CacheFeedbackFinite02/compare_native.py": "796f8e11ee57cc3cdf09a8e91261be90ca7c7546f000a6a73843dd973abcb157",
+      "LocalComparison/Reference/CacheFeedbackFinite02/finite_reference.py": "9276731c9aef6477872032adf76a1ad8664ffa26402947d4a4ffb52daa36b75d",
+      "LocalComparison/Reference/CacheFeedbackFinite02/generate_native_sampler.py": "8ac0708b7366c1f88ad00a3d4f95bc131a383f62f20d56d67a6d6be8092f48ba",
+      "LocalComparison/Reference/CacheFeedbackFinite02/generated/CacheFeedbackFiniteInputs.compute": "3ce29268a6ed8aff9e9dbc20d99e2b504e807113b5368129b8946270be67eefb",
+      "LocalComparison/Reference/CacheFeedbackFinite02/generated/manifest.json": "0dd1c7aaed3e0d4434b250f468b9c724b806cbf35d648a1119dfb44feaaab97b",
+      "LocalComparison/Reference/CacheFeedbackFinite02/generated/ReferenceHit.hlsl": "7f251d8c95aa66dca1958aff4c4face153df9ebc54f94640653ca73ca4d23df6",
+      "LocalComparison/Reference/CacheFeedbackFinite02/generated/ReferenceInputFunctions.hlsl": "ab0b080e067f9c21425e3e85642daacbd4de6b8273c72cf60e378d669566ded2",
+      "LocalComparison/Reference/CacheFeedbackFinite02/generated/ReferenceRecords.hlsl": "070782a5d537ea1a0541926145f53839650fdf907cc8b1167fa3c96c169a21f8",
+      "LocalComparison/Reference/CacheFeedbackFinite02/generated/ReferenceScreenSampling.hlsl": "25607ffeba963c9c7a2e1474f99337c3e4ac4079db5cc6ac54e6d1d3505f52cf",
+      "LocalComparison/Reference/CacheFeedbackFinite02/native_sampler.template.compute": "3ce29268a6ed8aff9e9dbc20d99e2b504e807113b5368129b8946270be67eefb",
+      "LocalComparison/Reference/CacheFeedbackFinite02/numeric-contract.json": "62eee092379e9dc733106fa0a6a5d2c8e23cc69dbd5d4455bd4668068fd9bdb1",
+      "LocalComparison/Reference/CacheFeedbackFinite02/numeric_reference.py": "38952b3c1ac781b77157e6195e4f8915d24e23e9f9c973b286ffc0dd8c4ffc23",
+      "LocalComparison/Reference/CacheFeedbackFinite02/preparation-summary.json": "87eb7d2c5d67b202d75039feffd5e455703df0f65e45087f3b6fbce950202d2e",
+      "LocalComparison/Reference/CacheFeedbackFinite02/README.md": "23d814e629611d31a6a14dfa08cd5db8f48ed5e0750b7254563cd9294bebc057",
+      "LocalComparison/Reference/CacheFeedbackFinite02/screen_input_qualification.py": "7849235ba3695ac1a879d203b44a76cd2015492d41bb0176f3c6ad4c5738ff7d",
+      "LocalComparison/Reference/CacheFeedbackFinite02/source-contract.json": "ecc2937babed3a02964ceb3b476384ebe0aac997fa45fef3b2bbdb6af720c91d",
+      "LocalComparison/Reference/CacheFeedbackFinite02/test_finite_reference.py": "f5fe10ba07057b3a27440caabf24de813caa7cda18798202c16f468473c02172",
+      "LocalComparison/Reference/CacheFeedbackFinite02/test_native_reference.py": "078a6121d59585c67211a554052dac070c955416a890e8215fda7205f8d14a14",
+      "LocalComparison/Reference/CacheFeedbackFinite02/test_screen_input_qualification.py": "97b25b1b26a714c66eb52386c0b53d6311d2d7bfd1e4009576e47a65703a7496",
+      "LocalComparison/Reference/ColorBounceRectangle/qualify_native_inputs.py": "6a2d2bff05edf128545a52d8508291f500349a3544382b3dee9ded57c3f1cc96",
+      "LocalComparison/Reference/ColorBounceRectangle/decode_sampler.py": "b451adc1b0f105a1a24a1a091e72adcba1fcaf0833da7b39a7b04cfd06fb01fe",
+      "LocalComparison/Reference/ColorBounceRectangle/generate_sampler.py": "4a8d4b407c44841444ddacb151073ae291c683c59f649a94bbe6285458ef5ef8"
+    },
+    "manifestSha256": "d5ef58c42f32fafdd7590a566717356eb34bb7b02540f4eed21ab5bc3633f4c4",
+    "samplerManifestSha256": "0dd1c7aaed3e0d4434b250f468b9c724b806cbf35d648a1119dfb44feaaab97b"
+  },
+  "negativeControls": {
+    "extraPiRejected": true,
+    "swappedChannelsRejected": true,
+    "unknownRejected": true,
+    "staleZeroCacheRejected": true
+  },
+  "observedSha256": {
+    "frame-031-cache-before.bin": "f60463ffb9d4255b1c66f8fbebe11d33faa5d4931511538aa3e9f014af203efa",
+    "frame-031-cache-old-after.bin": "f60463ffb9d4255b1c66f8fbebe11d33faa5d4931511538aa3e9f014af203efa",
+    "frame-031-cache-new-after.bin": "aa80183f074861ba2f065b400d39f996ade1564a5d57d647dcfb29004498d3ee",
+    "frame-031-raw.rgba32f": "461919b7de6b37c83bd10d8412f6b3b086bd5bbc5024b6df8afae1bdcd71fbe0",
+    "frame-031-geometry.rgba32f": "3346ee239d505ac2ecc3c532f634e28c4de1bf819fd313c603b31c4c50acd2e3",
+    "frame-031-material.rgba32f": "21cf7065ae2f5c1d095dfe5c4464364027367c1a6aa9279562901729b68e51cc",
+    "frame-032-cache-before.bin": "aa80183f074861ba2f065b400d39f996ade1564a5d57d647dcfb29004498d3ee",
+    "frame-032-cache-old-after.bin": "aa80183f074861ba2f065b400d39f996ade1564a5d57d647dcfb29004498d3ee",
+    "frame-032-cache-new-after.bin": "464929938648e95fd0f09a0bb3316aa2aa6efcc400f52f58a5463754e25996d1",
+    "frame-032-raw.rgba32f": "335bd452c69a4e759cb87c9f4efa540900995da2c473c8eb38ad6578743fbf58",
+    "frame-032-geometry.rgba32f": "3346ee239d505ac2ecc3c532f634e28c4de1bf819fd313c603b31c4c50acd2e3",
+    "frame-032-material.rgba32f": "21cf7065ae2f5c1d095dfe5c4464364027367c1a6aa9279562901729b68e51cc",
+    "frame-033-cache-before.bin": "464929938648e95fd0f09a0bb3316aa2aa6efcc400f52f58a5463754e25996d1",
+    "frame-033-cache-old-after.bin": "464929938648e95fd0f09a0bb3316aa2aa6efcc400f52f58a5463754e25996d1",
+    "frame-033-cache-new-after.bin": "da652d2fb90014fc00b7b0041e4f14beb5154f363709c5188ac24458b2e02021",
+    "frame-033-raw.rgba32f": "1553870ea66dd85822308a39b663a95015efa46e2acb0df2fbc128cba9f2f436",
+    "frame-033-geometry.rgba32f": "3346ee239d505ac2ecc3c532f634e28c4de1bf819fd313c603b31c4c50acd2e3",
+    "frame-033-material.rgba32f": "21cf7065ae2f5c1d095dfe5c4464364027367c1a6aa9279562901729b68e51cc"
+  },
+  "frames": [
+    {
+      "logicalFrame": 31,
+      "cache": [
+        {
+          "owner": "A",
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            31.0
+          ],
+          "expectedIntervals": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "owner": "B",
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            31.0
+          ],
+          "expectedIntervals": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "passed": true
+        }
+      ],
+      "gather": [
+        {
+          "id": "A_-2_-2",
+          "pixel": [
+            370,
+            184
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_0_-2",
+          "pixel": [
+            372,
+            184
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_2_-2",
+          "pixel": [
+            374,
+            184
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_-2_0",
+          "pixel": [
+            370,
+            186
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_0_0",
+          "pixel": [
+            372,
+            186
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_2_0",
+          "pixel": [
+            374,
+            186
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_-2_2",
+          "pixel": [
+            370,
+            188
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_0_2",
+          "pixel": [
+            372,
+            188
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_2_2",
+          "pixel": [
+            374,
+            188
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_-2_-2",
+          "pixel": [
+            265,
+            184
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_0_-2",
+          "pixel": [
+            267,
+            184
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_2_-2",
+          "pixel": [
+            269,
+            184
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_-2_0",
+          "pixel": [
+            265,
+            186
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_0_0",
+          "pixel": [
+            267,
+            186
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_2_0",
+          "pixel": [
+            269,
+            186
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_-2_2",
+          "pixel": [
+            265,
+            188
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_0_2",
+          "pixel": [
+            267,
+            188
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_2_2",
+          "pixel": [
+            269,
+            188
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.39990234375
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "logicalFrame": 32,
+      "cache": [
+        {
+          "owner": "A",
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            2.0
+          ],
+          "expectedIntervals": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "owner": "B",
+          "observed": [
+            0.044999998062849045,
+            0.022499999031424522,
+            0.011249999515712261,
+            2.0
+          ],
+          "expectedIntervals": [
+            [
+              0.04499972239136696,
+              0.0450001060962677
+            ],
+            [
+              0.02249986119568348,
+              0.02250005304813385
+            ],
+            [
+              0.01124993059784174,
+              0.011250026524066925
+            ]
+          ],
+          "passed": true
+        }
+      ],
+      "gather": [
+        {
+          "id": "A_-2_-2",
+          "pixel": [
+            370,
+            184
+          ],
+          "observed": [
+            0.0013494491577148438,
+            0.0026988983154296875,
+            0.0006747245788574219,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0.0013494491577148438,
+              0.00135040283203125
+            ],
+            [
+              0.0026988983154296875,
+              0.0027008056640625
+            ],
+            [
+              0.0006747245788574219,
+              0.000675201416015625
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_0_-2",
+          "pixel": [
+            372,
+            184
+          ],
+          "observed": [
+            0.0013494491577148438,
+            0.0026988983154296875,
+            0.0006747245788574219,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0.0013494491577148438,
+              0.00135040283203125
+            ],
+            [
+              0.0026988983154296875,
+              0.0027008056640625
+            ],
+            [
+              0.0006747245788574219,
+              0.000675201416015625
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_2_-2",
+          "pixel": [
+            374,
+            184
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_-2_0",
+          "pixel": [
+            370,
+            186
+          ],
+          "observed": [
+            0.0006747245788574219,
+            0.0013494491577148438,
+            0.00033736228942871094,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0.0006747245788574219,
+              0.000675201416015625
+            ],
+            [
+              0.0013494491577148438,
+              0.00135040283203125
+            ],
+            [
+              0.00033736228942871094,
+              0.0003376007080078125
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_0_0",
+          "pixel": [
+            372,
+            186
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_2_0",
+          "pixel": [
+            374,
+            186
+          ],
+          "observed": [
+            0.0020236968994140625,
+            0.004047393798828125,
+            0.0010118484497070312,
+            0.39990234375
+          ],
+          "storageIntervals": [
+            [
+              0.0020236968994140625,
+              0.002025604248046875
+            ],
+            [
+              0.004047393798828125,
+              0.00405120849609375
+            ],
+            [
+              0.0010118484497070312,
+              0.0010128021240234375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_-2_2",
+          "pixel": [
+            370,
+            188
+          ],
+          "observed": [
+            0.0013494491577148438,
+            0.0026988983154296875,
+            0.0006747245788574219,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0.0013494491577148438,
+              0.00135040283203125
+            ],
+            [
+              0.0026988983154296875,
+              0.0027008056640625
+            ],
+            [
+              0.0006747245788574219,
+              0.000675201416015625
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_0_2",
+          "pixel": [
+            372,
+            188
+          ],
+          "observed": [
+            0.0006747245788574219,
+            0.0013494491577148438,
+            0.00033736228942871094,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0.0006747245788574219,
+              0.000675201416015625
+            ],
+            [
+              0.0013494491577148438,
+              0.00135040283203125
+            ],
+            [
+              0.00033736228942871094,
+              0.0003376007080078125
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_2_2",
+          "pixel": [
+            374,
+            188
+          ],
+          "observed": [
+            0.0006747245788574219,
+            0.0013494491577148438,
+            0.00033736228942871094,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0.0006747245788574219,
+              0.000675201416015625
+            ],
+            [
+              0.0013494491577148438,
+              0.00135040283203125
+            ],
+            [
+              0.00033736228942871094,
+              0.0003376007080078125
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_-2_-2",
+          "pixel": [
+            265,
+            184
+          ],
+          "observed": [
+            0.1199951171875,
+            0.05999755859375,
+            0.029998779296875,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0.1199951171875,
+              0.1199951171875
+            ],
+            [
+              0.05999755859375,
+              0.05999755859375
+            ],
+            [
+              0.029998779296875,
+              0.029998779296875
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_0_-2",
+          "pixel": [
+            267,
+            184
+          ],
+          "observed": [
+            0.05999755859375,
+            0.029998779296875,
+            0.0149993896484375,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0.05999755859375,
+              0.05999755859375
+            ],
+            [
+              0.029998779296875,
+              0.029998779296875
+            ],
+            [
+              0.0149993896484375,
+              0.0149993896484375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_2_-2",
+          "pixel": [
+            269,
+            184
+          ],
+          "observed": [
+            0.05999755859375,
+            0.029998779296875,
+            0.0149993896484375,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0.05999755859375,
+              0.05999755859375
+            ],
+            [
+              0.029998779296875,
+              0.029998779296875
+            ],
+            [
+              0.0149993896484375,
+              0.0149993896484375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_-2_0",
+          "pixel": [
+            265,
+            186
+          ],
+          "observed": [
+            0.179931640625,
+            0.0899658203125,
+            0.04498291015625,
+            0.39990234375
+          ],
+          "storageIntervals": [
+            [
+              0.179931640625,
+              0.1800537109375
+            ],
+            [
+              0.0899658203125,
+              0.09002685546875
+            ],
+            [
+              0.04498291015625,
+              0.045013427734375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_0_0",
+          "pixel": [
+            267,
+            186
+          ],
+          "observed": [
+            0.1199951171875,
+            0.05999755859375,
+            0.029998779296875,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0.1199951171875,
+              0.1199951171875
+            ],
+            [
+              0.05999755859375,
+              0.05999755859375
+            ],
+            [
+              0.029998779296875,
+              0.029998779296875
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_2_0",
+          "pixel": [
+            269,
+            186
+          ],
+          "observed": [
+            0.05999755859375,
+            0.029998779296875,
+            0.0149993896484375,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0.05999755859375,
+              0.05999755859375
+            ],
+            [
+              0.029998779296875,
+              0.029998779296875
+            ],
+            [
+              0.0149993896484375,
+              0.0149993896484375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_-2_2",
+          "pixel": [
+            265,
+            188
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_0_2",
+          "pixel": [
+            267,
+            188
+          ],
+          "observed": [
+            0.05999755859375,
+            0.029998779296875,
+            0.0149993896484375,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0.05999755859375,
+              0.05999755859375
+            ],
+            [
+              0.029998779296875,
+              0.029998779296875
+            ],
+            [
+              0.0149993896484375,
+              0.0149993896484375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_2_2",
+          "pixel": [
+            269,
+            188
+          ],
+          "observed": [
+            0.2998046875,
+            0.14990234375,
+            0.074951171875,
+            0.5
+          ],
+          "storageIntervals": [
+            [
+              0.2998046875,
+              0.300048828125
+            ],
+            [
+              0.14990234375,
+              0.1500244140625
+            ],
+            [
+              0.074951171875,
+              0.07501220703125
+            ]
+          ],
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "logicalFrame": 33,
+      "cache": [
+        {
+          "owner": "A",
+          "observed": [
+            0.00022499999613501132,
+            0.00044999999227002263,
+            0.00011249999806750566,
+            3.0
+          ],
+          "expectedIntervals": [
+            [
+              0.0002249978278996423,
+              0.00022500130580738187
+            ],
+            [
+              0.0004499956557992846,
+              0.00045000261161476374
+            ],
+            [
+              0.00011249891394982114,
+              0.00011250065290369093
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "owner": "B",
+          "observed": [
+            0.04999999701976776,
+            0.02499999850988388,
+            0.01249999925494194,
+            3.0
+          ],
+          "expectedIntervals": [
+            [
+              0.04999956861138344,
+              0.05000023916363716
+            ],
+            [
+              0.02499978430569172,
+              0.02500011958181858
+            ],
+            [
+              0.01249989215284586,
+              0.01250005979090929
+            ]
+          ],
+          "passed": true
+        }
+      ],
+      "gather": [
+        {
+          "id": "A_-2_-2",
+          "pixel": [
+            370,
+            184
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_0_-2",
+          "pixel": [
+            372,
+            184
+          ],
+          "observed": [
+            0.0022487640380859375,
+            0.004497528076171875,
+            0.0011243820190429688,
+            0.39990234375
+          ],
+          "storageIntervals": [
+            [
+              0.0022487640380859375,
+              0.00225067138671875
+            ],
+            [
+              0.004497528076171875,
+              0.0045013427734375
+            ],
+            [
+              0.0011243820190429688,
+              0.001125335693359375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_2_-2",
+          "pixel": [
+            374,
+            184
+          ],
+          "observed": [
+            0.001499176025390625,
+            0.00299835205078125,
+            0.0007495880126953125,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0.001499176025390625,
+              0.0015001296997070312
+            ],
+            [
+              0.00299835205078125,
+              0.0030002593994140625
+            ],
+            [
+              0.0007495880126953125,
+              0.0007500648498535156
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_-2_0",
+          "pixel": [
+            370,
+            186
+          ],
+          "observed": [
+            0.0022487640380859375,
+            0.004497528076171875,
+            0.0011243820190429688,
+            0.39990234375
+          ],
+          "storageIntervals": [
+            [
+              0.0022487640380859375,
+              0.00225067138671875
+            ],
+            [
+              0.004497528076171875,
+              0.0045013427734375
+            ],
+            [
+              0.0011243820190429688,
+              0.001125335693359375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_0_0",
+          "pixel": [
+            372,
+            186
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_2_0",
+          "pixel": [
+            374,
+            186
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_-2_2",
+          "pixel": [
+            370,
+            188
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_0_2",
+          "pixel": [
+            372,
+            188
+          ],
+          "observed": [
+            0.0007495880126953125,
+            0.001499176025390625,
+            0.00037479400634765625,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0.0007495880126953125,
+              0.0007500648498535156
+            ],
+            [
+              0.001499176025390625,
+              0.0015001296997070312
+            ],
+            [
+              0.00037479400634765625,
+              0.0003750324249267578
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "A_2_2",
+          "pixel": [
+            374,
+            188
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_-2_-2",
+          "pixel": [
+            265,
+            184
+          ],
+          "observed": [
+            0.05999755859375,
+            0.029998779296875,
+            0.0149993896484375,
+            0.2998046875
+          ],
+          "storageIntervals": [
+            [
+              0.05999755859375,
+              0.060028076171875
+            ],
+            [
+              0.029998779296875,
+              0.0300140380859375
+            ],
+            [
+              0.0149993896484375,
+              0.0149993896484375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_0_-2",
+          "pixel": [
+            267,
+            184
+          ],
+          "observed": [
+            0.1199951171875,
+            0.05999755859375,
+            0.029998779296875,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0.1199951171875,
+              0.12005615234375
+            ],
+            [
+              0.05999755859375,
+              0.060028076171875
+            ],
+            [
+              0.029998779296875,
+              0.029998779296875
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_2_-2",
+          "pixel": [
+            269,
+            184
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_-2_0",
+          "pixel": [
+            265,
+            186
+          ],
+          "observed": [
+            0.179931640625,
+            0.09002685546875,
+            0.04498291015625,
+            0.39990234375
+          ],
+          "storageIntervals": [
+            [
+              0.179931640625,
+              0.1800537109375
+            ],
+            [
+              0.0899658203125,
+              0.09002685546875
+            ],
+            [
+              0.04498291015625,
+              0.045013427734375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_0_0",
+          "pixel": [
+            267,
+            186
+          ],
+          "observed": [
+            0.179931640625,
+            0.09002685546875,
+            0.04498291015625,
+            0.39990234375
+          ],
+          "storageIntervals": [
+            [
+              0.179931640625,
+              0.1800537109375
+            ],
+            [
+              0.09002685546875,
+              0.09002685546875
+            ],
+            [
+              0.04498291015625,
+              0.045013427734375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_2_0",
+          "pixel": [
+            269,
+            186
+          ],
+          "observed": [
+            0.239990234375,
+            0.1199951171875,
+            0.05999755859375,
+            0.449951171875
+          ],
+          "storageIntervals": [
+            [
+              0.239990234375,
+              0.2401123046875
+            ],
+            [
+              0.1199951171875,
+              0.12005615234375
+            ],
+            [
+              0.05999755859375,
+              0.05999755859375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_-2_2",
+          "pixel": [
+            265,
+            188
+          ],
+          "observed": [
+            0.179931640625,
+            0.09002685546875,
+            0.04498291015625,
+            0.39990234375
+          ],
+          "storageIntervals": [
+            [
+              0.179931640625,
+              0.1800537109375
+            ],
+            [
+              0.09002685546875,
+              0.09002685546875
+            ],
+            [
+              0.04498291015625,
+              0.045013427734375
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_0_2",
+          "pixel": [
+            267,
+            188
+          ],
+          "observed": [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "storageIntervals": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "passed": true
+        },
+        {
+          "id": "B_2_2",
+          "pixel": [
+            269,
+            188
+          ],
+          "observed": [
+            0.1199951171875,
+            0.05999755859375,
+            0.029998779296875,
+            0.349853515625
+          ],
+          "storageIntervals": [
+            [
+              0.1199951171875,
+              0.12005615234375
+            ],
+            [
+              0.05999755859375,
+              0.060028076171875
+            ],
+            [
+              0.029998779296875,
+              0.029998779296875
+            ]
+          ],
+          "passed": true
+        }
+      ],
+      "passed": true
+    }
+  ]
+}

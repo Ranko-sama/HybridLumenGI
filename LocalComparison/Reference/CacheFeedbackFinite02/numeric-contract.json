@@ -1,0 +1,20 @@
+{
+  "status": "prospective, frozen before native feedback RGB",
+  "binary32Epsilon": 1.1920928955078125e-7,
+  "basicOperations": "Outward adjacent float32 endpoints around RN values include one ULP for each nontrivial addition/multiplication. Constant zero-preserving operations remain exact zero. Normal finite values only; no overflow or FTZ path.",
+  "division": "Union of directly rounded division and reciprocal with relative error 2^-21 followed by separately rounded multiplication.",
+  "sourceReflectance": "float32 literal .96 times dyadic shader-linear MPB base color; unit base-map default, metallic0, unit tint, AO1, zero emission. The actual multiplication interval is propagated per channel.",
+  "axisNormal": "Identity transforms and equal unit axis vertex normals preserve transverse zero components. The final HLGIHardwareUnitNormal rescales the one positive component by itself, squares it, applies rsqrt and multiplies. gamma32 with epsilon2^-23 encloses final divide (rcp4eps+mul), square, rsqrt argument error plus rsqrt4eps, final multiply; prior positive magnitudes cancel in that final rescale. This is not a generic arbitrary-normal budget.",
+  "directLight": "Exact +x unit directional and unit white source. A direct saturates to [1-gamma32,1], B has an exact zero x normal component and thus exact zero direct. An epsilon-positive light z direction is rejected, not absorbed.",
+  "sampleWeight": "Actual cosine must exceed 1e-8. guide0, no emitters makes mathematical ratio cos/cos=1. gamma8 accounts for a reciprocal with 4eps relative error plus multiply and endpoint slack; no product weight is read.",
+  "singleCellLookup": "All potentially addressed atlas texels must produce the same independent support outcome. Grid1 surviving weight is >=.25, so e*w/w incurs first multiply, reciprocal4eps, final multiply; gamma8 covers their correlated ratio error. Weight never enters as a product answer.",
+  "recurrence": "16 sequential incoming*weight additions and division by16; count and source-event recurrence gives alpha1/2 then1/3; union both lerp forms and contracted-compatible interval; 8 gather additions and division by8. Histories are independently calculated expected intervals.",
+  "halfStorage": "For positive finite gather interval [a,b], accept [RTZ_binary16(a),RNE_binary16(b)]. Exact zero accepts only zero. Both documented/observed native narrowing modes are covered prospectively.",
+  "localization": "64*epsilon*max(1,idealRayT,abs(world)) per-axis is a conditional source-consistency hypothesis for ideal rectangle versus actual DXR hit position, NOT a cross-hardware precision theorem. Near-threshold/neighbor-disagreeing queries reject qualification.",
+  "scope": "Finite current-input source and arithmetic consistency; not universal forward-raster/DXR correctness, default feature validation, Monte Carlo convergence, steady-state or final composite color accuracy.",
+  "primarySources": [
+    "https://microsoft.github.io/DirectX-Specs/d3d/archive/D3D11_3_FunctionalSpec.htm#32-bit-Floating-Point-Rules(3.1.3)",
+    "https://microsoft.github.io/DirectX-Specs/d3d/archive/D3D11_3_FunctionalSpec.htm#rcp",
+    "https://microsoft.github.io/DirectX-Specs/d3d/Raytracing.html#fixed-function-ray-triangle-intersection-specification"
+  ]
+}

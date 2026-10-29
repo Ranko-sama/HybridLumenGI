@@ -1,0 +1,292 @@
+{
+  "status": "ready for one parent-owned native capture; no GPU execution by reference lane",
+  "cpuTests": 17,
+  "cpuTestsPassed": 17,
+  "testLog": "native-preparation-validation.log",
+  "observerCompileCount": 4,
+  "observerCompilePassed": 4,
+  "compileReceipt": "generated/manifest.json",
+  "generatedPreviousEvidence": [
+    "generated-compile-failed-01",
+    "generated-before-dxc-pragma"
+  ],
+  "negativeControls": {
+    "extraPiRejected": true,
+    "swappedChannelsRejected": true,
+    "unknownRejected": true,
+    "staleZeroCacheRejected": true
+  },
+  "sourceSha256": {
+    "source-contract.json": "ecc2937babed3a02964ceb3b476384ebe0aac997fa45fef3b2bbdb6af720c91d",
+    "numeric-contract.json": "62eee092379e9dc733106fa0a6a5d2c8e23cc69dbd5d4455bd4668068fd9bdb1",
+    "atlas_support.py": "fbfb57a44f73d03b8401686a00086bde4dfdf1ce7ed952981717d4b04aa9827a",
+    "numeric_reference.py": "38952b3c1ac781b77157e6195e4f8915d24e23e9f9c973b286ffc0dd8c4ffc23",
+    "compare_native.py": "990308eb46dd6c4216e4deb29df61be610012b62dce7a3b19f4e0512e4e18f1e",
+    "screen_input_qualification.py": "7849235ba3695ac1a879d203b44a76cd2015492d41bb0176f3c6ad4c5738ff7d",
+    "generate_native_sampler.py": "9ec03162da29b64aa82cbdf587ea7667ba47708164c96a839c3ba8fadf61a921",
+    "native_sampler.template.compute": "1deeb140bf268a5e1549f7b2a2fa4b979a5fc20282449c32459b69bb564f5195",
+    "test_native_reference.py": "078a6121d59585c67211a554052dac070c955416a890e8215fda7205f8d14a14",
+    "test_screen_input_qualification.py": "97b25b1b26a714c66eb52386c0b53d6311d2d7bfd1e4009576e47a65703a7496",
+    "native-preparation-validation.log": "01ae7b4617ba133a41e76b86c02d88cfe7abe611fd82cd669455b124db5ebbdf",
+    "generated/manifest.json": "f3487c1bbec080d6074918a7c664bcc67fbb3b42afc5dbf3d77a9c0db4234a70"
+  },
+  "numericSyntheticCacheAfterTwo": {
+    "A": {
+      "card": 0,
+      "oldSamples": 2,
+      "preparedSamples": 2,
+      "samples": 3,
+      "alphaInterval": [
+        0.3333331743876139,
+        0.33333349227905273
+      ],
+      "estimateIntervals": [
+        [
+          0.0071999323554337025,
+          0.007200039457529783
+        ],
+        [
+          0.014399864710867405,
+          0.014400078915059566
+        ],
+        [
+          0.0035999661777168512,
+          0.0036000197287648916
+        ]
+      ],
+      "rgbIntervals": [
+        [
+          0.002399976132437587,
+          0.0024000145494937897
+        ],
+        [
+          0.004799952264875174,
+          0.004800029098987579
+        ],
+        [
+          0.0011999880662187934,
+          0.0012000072747468948
+        ]
+      ],
+      "independentIntersections": [
+        {
+          "owner": "B",
+          "position": [
+            0.53,
+            0.5,
+            0.0
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "B",
+          "position": [
+            0.53,
+            0.5,
+            0.0
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "B",
+          "position": [
+            0.53,
+            0.5,
+            0.0
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "B",
+          "position": [
+            0.53,
+            0.5,
+            0.0
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "B",
+          "position": [
+            0.53,
+            0.5,
+            0.0
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "B",
+          "position": [
+            0.53,
+            0.5,
+            0.0
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "B",
+          "position": [
+            0.53,
+            0.5,
+            0.0
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "B",
+          "position": [
+            0.53,
+            0.5,
+            0.0
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null
+      ]
+    },
+    "B": {
+      "card": 1,
+      "oldSamples": 2,
+      "preparedSamples": 2,
+      "samples": 3,
+      "alphaInterval": [
+        0.3333331743876139,
+        0.33333349227905273
+      ],
+      "estimateIntervals": [
+        [
+          0.23999860882759094,
+          0.24000047147274017
+        ],
+        [
+          0.11999930441379547,
+          0.12000023573637009
+        ],
+        [
+          0.059999652206897736,
+          0.06000011786818504
+        ]
+      ],
+      "rgbIntervals": [
+        [
+          0.15999864041805267,
+          0.1600007563829422
+        ],
+        [
+          0.07999932020902634,
+          0.0800003781914711
+        ],
+        [
+          0.03999966010451317,
+          0.04000018909573555
+        ]
+      ],
+      "independentIntersections": [
+        {
+          "owner": "A",
+          "position": [
+            0.0,
+            0.5,
+            0.53
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "A",
+          "position": [
+            0.0,
+            0.5,
+            0.53
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "A",
+          "position": [
+            0.0,
+            0.5,
+            0.53
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "A",
+          "position": [
+            0.0,
+            0.5,
+            0.53
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "A",
+          "position": [
+            0.0,
+            0.5,
+            0.53
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "A",
+          "position": [
+            0.0,
+            0.5,
+            0.53
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "A",
+          "position": [
+            0.0,
+            0.5,
+            0.53
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null,
+        {
+          "owner": "A",
+          "position": [
+            0.0,
+            0.5,
+            0.53
+          ],
+          "distance": 0.7071067811865476,
+          "cacheSupported": true
+        },
+        null
+      ]
+    }
+  },
+  "nativeScope": "Conditional finite current-input cache feedback with predeclared DXR localization box; cache orders<=2/raw gather<=3/visible receiver<=4. No default multibounce or portable hardware precision claim."
+}

@@ -1,0 +1,32 @@
+{
+  "auditScope": "Source hashes and completed qualification metadata only; no native buffer/radiance decoding and no GPU execution in this audit",
+  "allFrozenSourcesUnchanged": true,
+  "sourceChecks": {
+    "LocalComparison/Review/finite-wall-dynamic-response-01/qualify_history_inputs.py": true,
+    "LocalComparison/Review/finite-wall-dynamic-response-01/test_qualify_history_inputs.py": true,
+    "LocalComparison/Review/finite-wall-dynamic-response-01/qualification/contract.txt": true,
+    "LocalComparison/Review/finite-wall-dynamic-response-01/analyze.py": true,
+    "LocalComparison/Review/finite-wall-dynamic-response-01/contract.txt": true,
+    "LocalComparison/Review/finite-wall-dynamic-response-01/instrumentation/analysis-source.json": true,
+    "LocalComparison/Reference/ColorBounceRectangle/qualify_native_inputs.py": true,
+    "LocalComparison/Reference/ColorBounceRectangle/decode_sampler.py": true
+  },
+  "qualificationResultSha256": "ce8a313ed0c6b8c8ae5a09288657d825844631c339f78df28a3e528b80f7538a",
+  "qualificationMeta": {
+    "qualified": true,
+    "combinedAccepted": true,
+    "qualifiedSamples": 891,
+    "uncoveredSamples": 0,
+    "radianceRGBDecoded": false,
+    "radianceRGBFiniteBitsChecked": true,
+    "originalPassed": true
+  },
+  "minimumProvenMargins": {
+    "distance": 0.042680004611611366,
+    "currentPlane": 0.0630066264720881,
+    "previousPlane": 0.0630066264720881,
+    "Ns": 0.09999722242355347,
+    "Ng": 0.14999032020568848,
+    "material": 0.10000000149011612
+  }
+}

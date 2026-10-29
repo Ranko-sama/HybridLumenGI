@@ -1,0 +1,344 @@
+{
+  "schemaVersion": 1,
+  "status": "conditional independent finite oracle; no native execution or source closure",
+  "signal": "CSUpdateCache D=E_indirect/pi and CSTrace raw D, before receiver reflectance/composite",
+  "initialState": "measuredBlack",
+  "frames": [
+    {
+      "positiveUpdate": 1,
+      "workFrame": 61,
+      "readBuffer": "cache0",
+      "writeBuffer": "cache1",
+      "patches": {
+        "A": {
+          "oldSamples": 7,
+          "preparedSamples": 1,
+          "samples": 2,
+          "alpha": 0.5,
+          "old": [
+            0,
+            0,
+            0
+          ],
+          "estimate": [
+            0,
+            0,
+            0
+          ],
+          "new": [
+            0,
+            0,
+            0
+          ],
+          "byScatteringOrder": {},
+          "independentIntersections": [
+            {
+              "owner": "B",
+              "position": [
+                0.53,
+                0.5,
+                0.0
+              ],
+              "distance": 0.7071067811865476
+            },
+            null,
+            {
+              "owner": "B",
+              "position": [
+                0.53,
+                0.5,
+                0.0
+              ],
+              "distance": 0.7071067811865476
+            },
+            null
+          ]
+        },
+        "B": {
+          "oldSamples": 9,
+          "preparedSamples": 1,
+          "samples": 2,
+          "alpha": 0.5,
+          "old": [
+            0,
+            0,
+            0
+          ],
+          "estimate": [
+            0.24,
+            0.12,
+            0.06
+          ],
+          "new": [
+            0.12,
+            0.06,
+            0.03
+          ],
+          "byScatteringOrder": {
+            "1": [
+              0.12,
+              0.06,
+              0.03
+            ]
+          },
+          "independentIntersections": [
+            {
+              "owner": "A",
+              "position": [
+                0.0,
+                0.5,
+                0.53
+              ],
+              "distance": 0.7071067811865476
+            },
+            null,
+            {
+              "owner": "A",
+              "position": [
+                0.0,
+                0.5,
+                0.53
+              ],
+              "distance": 0.7071067811865476
+            },
+            null
+          ]
+        }
+      }
+    },
+    {
+      "positiveUpdate": 2,
+      "workFrame": 62,
+      "readBuffer": "cache1",
+      "writeBuffer": "cache0",
+      "patches": {
+        "A": {
+          "oldSamples": 2,
+          "preparedSamples": 2,
+          "samples": 3,
+          "alpha": 0.3333333333333333,
+          "old": [
+            0,
+            0,
+            0
+          ],
+          "estimate": [
+            0.0072,
+            0.0144,
+            0.0036
+          ],
+          "new": [
+            0.0024,
+            0.0048,
+            0.0012
+          ],
+          "byScatteringOrder": {
+            "2": [
+              0.0024,
+              0.0048,
+              0.0012
+            ]
+          },
+          "independentIntersections": [
+            {
+              "owner": "B",
+              "position": [
+                0.53,
+                0.5,
+                0.0
+              ],
+              "distance": 0.7071067811865476
+            },
+            null,
+            {
+              "owner": "B",
+              "position": [
+                0.53,
+                0.5,
+                0.0
+              ],
+              "distance": 0.7071067811865476
+            },
+            null
+          ]
+        },
+        "B": {
+          "oldSamples": 2,
+          "preparedSamples": 2,
+          "samples": 3,
+          "alpha": 0.3333333333333333,
+          "old": [
+            0.12,
+            0.06,
+            0.03
+          ],
+          "estimate": [
+            0.24,
+            0.12,
+            0.06
+          ],
+          "new": [
+            0.15999999999999998,
+            0.07999999999999999,
+            0.039999999999999994
+          ],
+          "byScatteringOrder": {
+            "1": [
+              0.15999999999999998,
+              0.07999999999999999,
+              0.039999999999999994
+            ]
+          },
+          "independentIntersections": [
+            {
+              "owner": "A",
+              "position": [
+                0.0,
+                0.5,
+                0.53
+              ],
+              "distance": 0.7071067811865476
+            },
+            null,
+            {
+              "owner": "A",
+              "position": [
+                0.0,
+                0.5,
+                0.53
+              ],
+              "distance": 0.7071067811865476
+            },
+            null
+          ]
+        }
+      }
+    }
+  ],
+  "gather": [
+    {
+      "id": "visible-A",
+      "rawExpected": [
+        0.009599999999999997,
+        0.019199999999999995,
+        0.004799999999999999
+      ],
+      "rawByScatteringOrder": {
+        "2": [
+          0.009599999999999997,
+          0.019199999999999995,
+          0.004799999999999999
+        ]
+      },
+      "receiverDiffuseOnlyExpected": [
+        0.004607999999999998,
+        0.004607999999999998,
+        0.0005759999999999998
+      ],
+      "receiverDiffuseOnlyByScatteringOrder": {
+        "3": [
+          0.004607999999999998,
+          0.004607999999999998,
+          0.0005759999999999998
+        ]
+      },
+      "independentIntersections": [
+        {
+          "owner": "B",
+          "position": [
+            0.53,
+            0.5,
+            0.0
+          ],
+          "distance": 0.7071067811865476
+        },
+        null,
+        {
+          "owner": "B",
+          "position": [
+            0.53,
+            0.5,
+            0.0
+          ],
+          "distance": 0.7071067811865476
+        },
+        null
+      ]
+    },
+    {
+      "id": "visible-B",
+      "rawExpected": [
+        0.24057599999999998,
+        0.12057599999999999,
+        0.060072
+      ],
+      "rawByScatteringOrder": {
+        "1": [
+          0.24,
+          0.12,
+          0.06
+        ],
+        "3": [
+          0.0005759999999999999,
+          0.0005759999999999999,
+          7.199999999999999e-05
+        ]
+      },
+      "receiverDiffuseOnlyExpected": [
+        0.028869119999999998,
+        0.05787648,
+        0.01441728
+      ],
+      "receiverDiffuseOnlyByScatteringOrder": {
+        "2": [
+          0.0288,
+          0.0576,
+          0.0144
+        ],
+        "4": [
+          6.911999999999999e-05,
+          0.00027647999999999995,
+          1.7279999999999997e-05
+        ]
+      },
+      "independentIntersections": [
+        {
+          "owner": "A",
+          "position": [
+            0.0,
+            0.5,
+            0.53
+          ],
+          "distance": 0.7071067811865476
+        },
+        null,
+        {
+          "owner": "A",
+          "position": [
+            0.0,
+            0.5,
+            0.53
+          ],
+          "distance": 0.7071067811865476
+        },
+        null
+      ]
+    }
+  ],
+  "maximumPreReceiverScatteringOrders": {
+    "cacheAfterFirst": 1,
+    "cacheAfterSecond": 2,
+    "gatherAfterSecond": 3
+  },
+  "maximumIncludingVisibleReceiver": 4,
+  "pendingNativePrerequisites": [
+    "Source atlas geometric/card support independently certified",
+    "Initial measured RGB separately verified exactly black",
+    "actual masks, tags, generations, epoch, global changes and two-buffer order proven",
+    "floating-point/storage comparison bound frozen before native colors"
+  ],
+  "nativeAccepted": false,
+  "sourceSha256": "397596cad0585a4df78e955bb8aa0619e39bb5f1443be7b10f5546ea4e22261e",
+  "inputSha256": "838bef9b6c7bdba54b4f701482483dbd81649992ed63621faa5f0de66e2a87d3",
+  "referenceSha256": "9276731c9aef6477872032adf76a1ad8664ffa26402947d4a4ffb52daa36b75d"
+}

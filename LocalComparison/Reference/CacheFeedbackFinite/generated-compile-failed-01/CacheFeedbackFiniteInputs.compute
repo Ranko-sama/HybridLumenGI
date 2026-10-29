@@ -1,0 +1,156 @@
+// Pure input/geometry observer. No product hit, radiance, PDF or weight output.
+#pragma kernel CSReferenceMetadata
+#pragma kernel CSReferenceCacheInputs
+#pragma kernel CSReferenceAtlas
+#pragma kernel CSReferenceGatherInputs
+#pragma target 5.0
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "ReferenceRecords.hlsl"
+#include "ReferenceHit.hlsl"
+#include "ReferenceScreenSampling.hlsl"
+StructuredBuffer<HLGIProxy> _HLGI_Proxies;
+StructuredBuffer<HLGISurfaceCard> _HLGI_SurfaceCards;
+StructuredBuffer<uint4> _HLGI_SurfaceOwnerRanges;
+StructuredBuffer<uint> _HLGI_SurfaceCardIndices,_HLGI_CacheUpdateMask;
+StructuredBuffer<int2> _HLGI_SurfaceAnchors;
+StructuredBuffer<HLGIChangeRegion> _HLGI_ChangeRegions;
+Texture2D<float4> _HLGI_SurfacePosition,_HLGI_SurfaceNormal,_HLGI_SurfaceEmission,_HLGI_SurfaceDiffuse;
+float4 _HLGI_SurfaceAtlasSize;
+int _HLGI_ProxyCount,_HLGI_SurfaceCardCount,_HLGI_FrameIndex,_HLGI_Epoch,_HLGI_CacheGrid,_HLGI_CacheRays,_HLGI_LightCount,_HLGI_ChangeCount;
+float _HLGI_RayBias,_HLGI_BounceFeedback,_HLGI_GuideWeight,_HLGI_GlobalReactive,_HLGI_GlobalGeometryChange;
+StructuredBuffer<uint2> _ReferenceActiveCards;
+StructuredBuffer<HLGICacheEntry> _ReferenceCacheRead;
+int _ReferenceActiveCount,_ReferenceLogical,_ReferenceCacheReadIndex,_ReferenceTileCapacity,_ReferenceChangeCapacity;
+RWStructuredBuffer<HLGISurfaceCard> _ReferenceCards;
+RWStructuredBuffer<uint4> _ReferenceOwnerRanges;
+RWStructuredBuffer<uint> _ReferenceCardIndices,_ReferenceMask;
+RWStructuredBuffer<int2> _ReferenceAnchors;
+RWStructuredBuffer<float4> _ReferenceOwnerIdentities,_ReferenceCacheState,_ReferenceGlobals;
+RWStructuredBuffer<HLGIChangeRegion> _ReferenceChanges;
+RWStructuredBuffer<float4> _ReferenceCacheRows,_ReferenceAtlasRows;
+Texture2D<float> _HLGI_Depth;
+Texture2D<float4> _HLGI_Normals;
+float4 _HLGI_Size,_HLGI_FullSize;
+float4x4 _HLGI_InvVP,_HLGI_View;
+int _HLGI_NormalsOct,_HLGI_Rays;
+StructuredBuffer<uint2> _ReferencePixels;
+int _ReferencePixelCount;
+RWStructuredBuffer<float4> _ReferenceGatherRows;
+#include "ReferenceInputFunctions.hlsl"
+
+[numthreads(64,1,1)]
+void CSReferenceMetadata(uint3 id:SV_DispatchThreadID)
+{
+    uint i=id.x;
+    if(i<(uint)_HLGI_SurfaceCardCount)
+    {
+        _ReferenceCards[i]=_HLGI_SurfaceCards[i];
+        _ReferenceCardIndices[i]=_HLGI_SurfaceCardIndices[i];
+        _ReferenceAnchors[i]=_HLGI_SurfaceAnchors[i];
+        _ReferenceMask[i]=_HLGI_CacheUpdateMask[i];
+        HLGICacheEntry e=_ReferenceCacheRead[i];
+        _ReferenceCacheState[i*4]=float4(e.irradiance.a,0,0,0);
+        _ReferenceCacheState[i*4+1]=e.tag;
+        _ReferenceCacheState[i*4+2]=e.anchor;
+        _ReferenceCacheState[i*4+3]=e.normal;
+    }
+    if(i<(uint)_HLGI_ProxyCount)
+    {
+        _ReferenceOwnerRanges[i]=_HLGI_SurfaceOwnerRanges[i];
+        _ReferenceOwnerIdentities[i]=_HLGI_Proxies[i].identity;
+    }
+    if(i<(uint)_ReferenceChangeCapacity)
+        _ReferenceChanges[i]=i<(uint)_HLGI_ChangeCount?_HLGI_ChangeRegions[i]:(HLGIChangeRegion)0;
+    if(i==0)
+    {
+        _ReferenceGlobals[0]=asfloat(uint4(_HLGI_FrameIndex,_HLGI_Epoch,_ReferenceCacheReadIndex,_ReferenceLogical));
+        _ReferenceGlobals[1]=asfloat(uint4(_HLGI_ProxyCount,_HLGI_SurfaceCardCount,_HLGI_CacheGrid,_HLGI_CacheRays));
+        _ReferenceGlobals[2]=float4(_HLGI_RayBias,_HLGI_BounceFeedback,_HLGI_GlobalReactive,_HLGI_GlobalGeometryChange);
+        _ReferenceGlobals[3]=asfloat(uint4(_HLGI_ChangeCount,_HLGI_LightCount,_ReferenceActiveCount,_ReferenceTileCapacity));
+        _ReferenceGlobals[4]=float4(_HLGI_SurfaceAtlasSize.xy,0,0);
+    }
+}
+
+[numthreads(64,1,1)]
+void CSReferenceCacheInputs(uint3 id:SV_DispatchThreadID)
+{
+    if(id.x>=(uint)_ReferenceActiveCount)return;
+    uint active=id.x;uint2 mapping=_ReferenceActiveCards[active];uint card=mapping.x;
+    [loop]for(int clear=0;clear<_HLGI_CacheRays*8;clear++)_ReferenceCacheRows[active*_HLGI_CacheRays*8+clear]=0;
+    if(_HLGI_CacheGrid!=1||_HLGI_CacheRays<1||_HLGI_CacheRays>32||_HLGI_GuideWeight!=0||card>=(uint)_HLGI_SurfaceCardCount)return;
+    HLGISurfaceCard descriptor=_HLGI_SurfaceCards[card];
+    if(descriptor.ownerSlot!=mapping.y)return;
+    int2 minimum,count;
+    if(!HLGISurfaceAtlasRect(descriptor.atlasRect,minimum,count))return;
+    int2 pixel=_HLGI_SurfaceAnchors[card];
+    if(any(pixel<minimum)||any(pixel>=minimum+count))return;
+    float4 position=_HLGI_SurfacePosition.Load(int3(pixel,0));
+    float4 ns=_HLGI_SurfaceNormal.Load(int3(pixel,0));
+    float code=_HLGI_SurfaceEmission.Load(int3(pixel,0)).a;
+    float normalLength=dot(ns.xyz,ns.xyz);
+    if(!all(isfinite(position))||!all(isfinite(ns))||!isfinite(code)||code<1||code>1024||code!=round(code)||
+        normalLength<.25||position.w<0||position.w>1)return;
+    float3 normal=ns.xyz*rsqrt(normalLength),ng=HLGIDecodeSurfaceGeometricNormal(code);
+    float3 origin=position.xyz+HLGIOffsetNormal(ng,normal)*_HLGI_RayBias;
+    uint rng=HLGIHash((card+HLGIHash((uint)_HLGI_FrameIndex+1))^0xA511E9B3u);
+    [loop]for(int sample=0;sample<_HLGI_CacheRays;sample++)
+    {
+        float discardedWeight;float3 direction=HLGISampleDirection(normal,0,rng,discardedWeight);
+        uint offset=(active*_HLGI_CacheRays+sample)*8;
+        _ReferenceCacheRows[offset]=float4(origin,1);
+        _ReferenceCacheRows[offset+1]=float4(direction,0);
+        _ReferenceCacheRows[offset+2]=float4(position.xyz,0);
+        _ReferenceCacheRows[offset+3]=float4(normal,0);
+        _ReferenceCacheRows[offset+4]=float4(ng,0);
+        _ReferenceCacheRows[offset+5]=asfloat(uint4(card,card,0,0));
+        _ReferenceCacheRows[offset+6]=asfloat(uint4(mapping.y,_HLGI_FrameIndex,_HLGI_Epoch,sample));
+        _ReferenceCacheRows[offset+7]=asfloat(uint4(pixel,descriptor.generation,_HLGI_CacheUpdateMask[card]));
+    }
+}
+
+[numthreads(64,1,1)]
+void CSReferenceAtlas(uint3 id:SV_DispatchThreadID)
+{
+    if(id.x>=(uint)(_ReferenceActiveCount*_ReferenceTileCapacity))return;
+    uint active=id.x/(uint)_ReferenceTileCapacity,local=id.x%(uint)_ReferenceTileCapacity;
+    uint row=id.x*3;
+    _ReferenceAtlasRows[row]=0;_ReferenceAtlasRows[row+1]=0;_ReferenceAtlasRows[row+2]=0;
+    uint card=_ReferenceActiveCards[active].x;
+    if(card>=(uint)_HLGI_SurfaceCardCount)return;
+    int2 minimum,count;
+    if(!HLGISurfaceAtlasRect(_HLGI_SurfaceCards[card].atlasRect,minimum,count)||local>=(uint)(count.x*count.y))return;
+    int2 pixel=minimum+int2(local%(uint)count.x,local/(uint)count.x);
+    _ReferenceAtlasRows[row]=_HLGI_SurfacePosition.Load(int3(pixel,0));
+    _ReferenceAtlasRows[row+1]=_HLGI_SurfaceNormal.Load(int3(pixel,0));
+    _ReferenceAtlasRows[row+2]=float4(_HLGI_SurfaceEmission.Load(int3(pixel,0)).a,pixel,1);
+}
+
+[numthreads(64,1,1)]
+void CSReferenceGatherInputs(uint3 id:SV_DispatchThreadID)
+{
+    if(id.x>=(uint)_ReferencePixelCount)return;
+    uint group=id.x;
+    [unroll]for(uint clear=0;clear<48;clear++)_ReferenceGatherRows[group*48+clear]=0;
+    if(_HLGI_Rays!=8||_HLGI_GuideWeight!=0)return;
+    uint2 pixel=_ReferencePixels[group];
+    if(any(pixel>=(uint2)_HLGI_Size.xy))return;
+    uint2 fullPixel=HLGIFullPixelForGiPixel(pixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy);
+    float2 uv=HLGIFullPixelCenterUv(fullPixel,(uint2)_HLGI_FullSize.xy);
+    float depth=_HLGI_Depth.Load(int3(fullPixel,0));
+    if(!isfinite(depth)||!ValidDepth(depth))return;
+    float3 position=WorldPosition(uv,depth,_HLGI_InvVP),normal=NormalAt(uv),ng;
+    bool geometry=HLGITryScreenGeometricNormal(uv,depth,position,ng);
+    float3 origin=position+(geometry?HLGIOffsetNormal(ng,normal):normal)*_HLGI_RayBias;
+    uint rng=HLGIHash((pixel.x+pixel.y*(uint)_HLGI_Size.x+HLGIHash((uint)_HLGI_FrameIndex+1))^0x63D83595u);
+    [loop]for(int sample=0;sample<_HLGI_Rays;sample++)
+    {
+        float discardedWeight;float3 direction=HLGISampleDirection(normal,0,rng,discardedWeight);
+        uint offset=(group*8+sample)*6;
+        _ReferenceGatherRows[offset]=float4(origin,1);
+        _ReferenceGatherRows[offset+1]=float4(direction,0);
+        _ReferenceGatherRows[offset+2]=float4(position,depth);
+        _ReferenceGatherRows[offset+3]=float4(normal,1);
+        _ReferenceGatherRows[offset+4]=float4(ng,geometry?1:0);
+        _ReferenceGatherRows[offset+5]=asfloat(uint4(pixel,_HLGI_FrameIndex,sample));
+    }
+}
