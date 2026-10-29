@@ -1,5 +1,7 @@
 # 完整原计划推进表
 
+原目标2／工作流6新增关闭“受保护刚体在同帧更新后仍全部丢失历史”的功能缺口：[刚体历史恢复](../LocalComparison/Review/rigid-pose-history-01/result.md)修正Transform在清除／重传过程中被错误合并Added，保留真正新增、延迟及内容变化的拒绝。一次实际门控定位后停止诊断，主线程实现0181ef2；必要的现有Scene检查和唯一正常产品239帧确认后，2739已知门点中2724点恢复长度2历史，黑颗粒明显减少，软斑驳仍在。单帧不证明无拖影、物理误差或收敛。Astra与独立审查同意有限采用，验证结束；[Release83](<I:/Unity test/Comparison/Builds/LocalRelease83/Start-LocalRelease.cmd>)已由公开Release/None构建整合统一入口，无追加Player／性能运行。G1/G3仍开放，原720前缀failed与已有颜色／残留证据边界保留。
+
 原目标1/2、工作流6有限关闭“成熟且严格静止的历史仍被单帧稀疏邻域裁暗”的功能缺口：[重建修复](../LocalComparison/Review/stationary-history-01/result.md)保留同位置可信历史，其余路径保持。frame119固定Floor/White的平均D偏差从−28.9%/−33.4%降至−5.84%/−3.36%，MAE与色向均改善，未知不增；不是调亮强度。代价明确：无标记真变黑32步仍保留6.88%，运动阶段239仍有颗粒/斑驳，整体G1/G3不关闭。唯一300前缀中D240因已有Capture容量缺失，原分析失败保持，普通240仅用于图审，未补采；299偏差+0.144%/−18.06%，精确收敛仍未知。Astra同意有限采用与收束；[Release82](<I:/Unity test/Comparison/Builds/LocalRelease82/Start-LocalRelease.cmd>)已通过公开Release/None构建，产品来源5e714f6，普通入口延续，无追加Player/性能/画质运行。总进度按这项重建缺口的有限关闭报告，不把采集完整性或构建数量当作生产验收。
 
 原验收说明已在44c5454纠正过期集成合同：区分源码包与本机Unity工程/Player，更新普通材质三目标、keyword覆盖/detail/parallax范围、SDF未完成查询及真实chart采样说明；原矩阵、历史失败与G0–G5保持。这关闭了集成说明与当前实现不符的缺口，没有新增画质通过项，也无需测试或哈希校验。
