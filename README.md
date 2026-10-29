@@ -1,6 +1,6 @@
 # HybridLumenGI
 
-当前源码新增两项[颜色反弹与动态历史修复](Documentation/ReviewBrief-ColorBounceDynamicLimits01.md)：缓存连接的未知alpha覆盖不再被当成确定遮挡后重归一颜色，变化帧也始终遵守 `maxHistory=1`。两条实际HLSL消费路径已有定向WARP对照；本轮没有新Player，以下Release69尚不包含这两项修复，不能沿用其图像为新源码验收。
+当前源码新增两项[颜色反弹与动态历史修复](Documentation/ReviewBrief-ColorBounceDynamicLimits01.md)：缓存连接的未知alpha覆盖不再被当成确定遮挡后重归一颜色，变化帧也始终遵守 `maxHistory=1`。两条实际HLSL消费路径已有定向WARP对照；后续[原生整合](Documentation/ReviewBrief-CurrentColorDynamicsIntegration01.md)完成真实Unity纹理168次计算／28行验证，并构建Release70；其两次隐藏运行没有相机帧，保留失败，以下Release69仍为已完成运行验证的基线。
 
 本机版本已整合两轮修复：[反射率夹取与动态历史](Documentation/ReviewBrief-ParallelColorDynamics01.md)、[普通Surface视差UV](Documentation/ReviewBrief-SurfaceParallaxUv01.md)，并将静态HDR环境Cube接入完整Feature。采用并行实现／参考准备与集中复审；原逐位失败及显式数值资格调整完整保留。
 

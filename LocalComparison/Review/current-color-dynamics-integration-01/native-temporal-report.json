@@ -1,0 +1,720 @@
+{
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "error": "",
+    "computePath": "I:\\Unity test\\Project\\Assets\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGI.compute",
+    "computeSha256": "b75c71bfa33a46dbfb4430a486c559010d4418b0e5a13441ef731ffd31a65319",
+    "kernelsPath": "I:\\Unity test\\Project\\Assets\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIKernels.hlsl",
+    "kernelsSha256": "36f561edd634ddf3d629b06e847ead631ad6b44eaa6b2039ab658a4c422d1850",
+    "inputFormat": "R16G16B16A16_SFloat",
+    "historyFormat": "R16G16B16A16_SFloat",
+    "momentsFormat": "R32G32B32A32_SFloat",
+    "geometryFormat": "R32G32B32A32_SFloat",
+    "identityFormat": "R32G32B32A32_UInt",
+    "passed": true,
+    "actualTemporalDispatches": 168,
+    "scope": "Complete current CSTemporal/CSTemporalIdentity on real Unity GPU textures; fixed uniform geometry and synthetic signals, not scene motion or whole-image quality acceptance.",
+    "cases": [
+        {
+            "name": "max1-reactive-known",
+            "kernel": "CSTemporal",
+            "stage": "event",
+            "raw": "CSTemporal-max1-reactive-known-event",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-reactive-known",
+            "kernel": "CSTemporal",
+            "stage": "recovery",
+            "raw": "CSTemporal-max1-reactive-known-recovery",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-stable-known",
+            "kernel": "CSTemporal",
+            "stage": "event",
+            "raw": "CSTemporal-max1-stable-known-event",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-stable-known",
+            "kernel": "CSTemporal",
+            "stage": "recovery",
+            "raw": "CSTemporal-max1-stable-known-recovery",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max2-reactive-known",
+            "kernel": "CSTemporal",
+            "stage": "event",
+            "raw": "CSTemporal-max2-reactive-known-event",
+            "maxHistory": 2,
+            "warmupFrames": 2,
+            "passed": true,
+            "center": [
+                1.015625,
+                1.015625,
+                1.015625,
+                1.0
+            ],
+            "centerMoments": [
+                1.015625,
+                1.03173828125,
+                2.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.015625,
+            "expectedMean": 1.015625,
+            "expectedSecond": 1.03173828125,
+            "expectedHistory": 2
+        },
+        {
+            "name": "max2-reactive-known",
+            "kernel": "CSTemporal",
+            "stage": "recovery",
+            "raw": "CSTemporal-max2-reactive-known-recovery",
+            "maxHistory": 2,
+            "warmupFrames": 2,
+            "passed": true,
+            "center": [
+                1.0234375,
+                1.0234375,
+                1.0234375,
+                1.0
+            ],
+            "centerMoments": [
+                1.0234375,
+                1.047607421875,
+                2.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.0234375,
+            "expectedMean": 1.0234375,
+            "expectedSecond": 1.047607421875,
+            "expectedHistory": 2
+        },
+        {
+            "name": "max32-reactive-known",
+            "kernel": "CSTemporal",
+            "stage": "event",
+            "raw": "CSTemporal-max32-reactive-known-event",
+            "maxHistory": 32,
+            "warmupFrames": 32,
+            "passed": true,
+            "center": [
+                1.015625,
+                1.015625,
+                1.015625,
+                1.0
+            ],
+            "centerMoments": [
+                1.015625,
+                1.03173828125,
+                2.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.015625,
+            "expectedMean": 1.015625,
+            "expectedSecond": 1.03173828125,
+            "expectedHistory": 2
+        },
+        {
+            "name": "max32-reactive-known",
+            "kernel": "CSTemporal",
+            "stage": "recovery",
+            "raw": "CSTemporal-max32-reactive-known-recovery",
+            "maxHistory": 32,
+            "warmupFrames": 32,
+            "passed": true,
+            "center": [
+                1.0205078125,
+                1.0205078125,
+                1.0205078125,
+                1.0
+            ],
+            "centerMoments": [
+                1.0208333730697632,
+                1.0423177480697632,
+                3.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.0205078125,
+            "expectedMean": 1.0208333333333335,
+            "expectedSecond": 1.0423177083333335,
+            "expectedHistory": 3
+        },
+        {
+            "name": "max1-invalid-previous",
+            "kernel": "CSTemporal",
+            "stage": "event",
+            "raw": "CSTemporal-max1-invalid-previous-event",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-invalid-previous",
+            "kernel": "CSTemporal",
+            "stage": "recovery",
+            "raw": "CSTemporal-max1-invalid-previous-recovery",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-reactive-unknown",
+            "kernel": "CSTemporal",
+            "stage": "event",
+            "raw": "CSTemporal-max1-reactive-unknown-event",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "centerMoments": [
+                1.0,
+                1.0,
+                1.0,
+                7.450580596923828e-9
+            ],
+            "expectedStoredRadiance": 1.0,
+            "expectedMean": 1.0,
+            "expectedSecond": 1.0,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-reactive-unknown",
+            "kernel": "CSTemporal",
+            "stage": "recovery",
+            "raw": "CSTemporal-max1-reactive-unknown-recovery",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max32-reactive-unknown",
+            "kernel": "CSTemporal",
+            "stage": "event",
+            "raw": "CSTemporal-max32-reactive-unknown-event",
+            "maxHistory": 32,
+            "warmupFrames": 32,
+            "passed": true,
+            "center": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "centerMoments": [
+                1.0,
+                1.0,
+                2.0,
+                7.450580596923828e-9
+            ],
+            "expectedStoredRadiance": 1.0,
+            "expectedMean": 1.0,
+            "expectedSecond": 1.0,
+            "expectedHistory": 2
+        },
+        {
+            "name": "max32-reactive-unknown",
+            "kernel": "CSTemporal",
+            "stage": "recovery",
+            "raw": "CSTemporal-max32-reactive-unknown-recovery",
+            "maxHistory": 32,
+            "warmupFrames": 32,
+            "passed": true,
+            "center": [
+                1.009765625,
+                1.009765625,
+                1.009765625,
+                1.0
+            ],
+            "centerMoments": [
+                1.0104166269302369,
+                1.0211588144302369,
+                3.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.009765625,
+            "expectedMean": 1.0104166666666668,
+            "expectedSecond": 1.0211588541666668,
+            "expectedHistory": 3
+        },
+        {
+            "name": "max1-reactive-known",
+            "kernel": "CSTemporalIdentity",
+            "stage": "event",
+            "raw": "CSTemporalIdentity-max1-reactive-known-event",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-reactive-known",
+            "kernel": "CSTemporalIdentity",
+            "stage": "recovery",
+            "raw": "CSTemporalIdentity-max1-reactive-known-recovery",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-stable-known",
+            "kernel": "CSTemporalIdentity",
+            "stage": "event",
+            "raw": "CSTemporalIdentity-max1-stable-known-event",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-stable-known",
+            "kernel": "CSTemporalIdentity",
+            "stage": "recovery",
+            "raw": "CSTemporalIdentity-max1-stable-known-recovery",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max2-reactive-known",
+            "kernel": "CSTemporalIdentity",
+            "stage": "event",
+            "raw": "CSTemporalIdentity-max2-reactive-known-event",
+            "maxHistory": 2,
+            "warmupFrames": 2,
+            "passed": true,
+            "center": [
+                1.015625,
+                1.015625,
+                1.015625,
+                1.0
+            ],
+            "centerMoments": [
+                1.015625,
+                1.03173828125,
+                2.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.015625,
+            "expectedMean": 1.015625,
+            "expectedSecond": 1.03173828125,
+            "expectedHistory": 2
+        },
+        {
+            "name": "max2-reactive-known",
+            "kernel": "CSTemporalIdentity",
+            "stage": "recovery",
+            "raw": "CSTemporalIdentity-max2-reactive-known-recovery",
+            "maxHistory": 2,
+            "warmupFrames": 2,
+            "passed": true,
+            "center": [
+                1.0234375,
+                1.0234375,
+                1.0234375,
+                1.0
+            ],
+            "centerMoments": [
+                1.0234375,
+                1.047607421875,
+                2.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.0234375,
+            "expectedMean": 1.0234375,
+            "expectedSecond": 1.047607421875,
+            "expectedHistory": 2
+        },
+        {
+            "name": "max32-reactive-known",
+            "kernel": "CSTemporalIdentity",
+            "stage": "event",
+            "raw": "CSTemporalIdentity-max32-reactive-known-event",
+            "maxHistory": 32,
+            "warmupFrames": 32,
+            "passed": true,
+            "center": [
+                1.015625,
+                1.015625,
+                1.015625,
+                1.0
+            ],
+            "centerMoments": [
+                1.015625,
+                1.03173828125,
+                2.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.015625,
+            "expectedMean": 1.015625,
+            "expectedSecond": 1.03173828125,
+            "expectedHistory": 2
+        },
+        {
+            "name": "max32-reactive-known",
+            "kernel": "CSTemporalIdentity",
+            "stage": "recovery",
+            "raw": "CSTemporalIdentity-max32-reactive-known-recovery",
+            "maxHistory": 32,
+            "warmupFrames": 32,
+            "passed": true,
+            "center": [
+                1.0205078125,
+                1.0205078125,
+                1.0205078125,
+                1.0
+            ],
+            "centerMoments": [
+                1.0208333730697632,
+                1.0423177480697632,
+                3.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.0205078125,
+            "expectedMean": 1.0208333333333335,
+            "expectedSecond": 1.0423177083333335,
+            "expectedHistory": 3
+        },
+        {
+            "name": "max1-invalid-previous",
+            "kernel": "CSTemporalIdentity",
+            "stage": "event",
+            "raw": "CSTemporalIdentity-max1-invalid-previous-event",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-invalid-previous",
+            "kernel": "CSTemporalIdentity",
+            "stage": "recovery",
+            "raw": "CSTemporalIdentity-max1-invalid-previous-recovery",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-reactive-unknown",
+            "kernel": "CSTemporalIdentity",
+            "stage": "event",
+            "raw": "CSTemporalIdentity-max1-reactive-unknown-event",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "centerMoments": [
+                1.0,
+                1.0,
+                1.0,
+                7.450580596923828e-9
+            ],
+            "expectedStoredRadiance": 1.0,
+            "expectedMean": 1.0,
+            "expectedSecond": 1.0,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max1-reactive-unknown",
+            "kernel": "CSTemporalIdentity",
+            "stage": "recovery",
+            "raw": "CSTemporalIdentity-max1-reactive-unknown-recovery",
+            "maxHistory": 1,
+            "warmupFrames": 1,
+            "passed": true,
+            "center": [
+                1.03125,
+                1.03125,
+                1.03125,
+                1.0
+            ],
+            "centerMoments": [
+                1.03125,
+                1.0634765625,
+                1.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.03125,
+            "expectedMean": 1.03125,
+            "expectedSecond": 1.0634765625,
+            "expectedHistory": 1
+        },
+        {
+            "name": "max32-reactive-unknown",
+            "kernel": "CSTemporalIdentity",
+            "stage": "event",
+            "raw": "CSTemporalIdentity-max32-reactive-unknown-event",
+            "maxHistory": 32,
+            "warmupFrames": 32,
+            "passed": true,
+            "center": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "centerMoments": [
+                1.0,
+                1.0,
+                2.0,
+                7.450580596923828e-9
+            ],
+            "expectedStoredRadiance": 1.0,
+            "expectedMean": 1.0,
+            "expectedSecond": 1.0,
+            "expectedHistory": 2
+        },
+        {
+            "name": "max32-reactive-unknown",
+            "kernel": "CSTemporalIdentity",
+            "stage": "recovery",
+            "raw": "CSTemporalIdentity-max32-reactive-unknown-recovery",
+            "maxHistory": 32,
+            "warmupFrames": 32,
+            "passed": true,
+            "center": [
+                1.009765625,
+                1.009765625,
+                1.009765625,
+                1.0
+            ],
+            "centerMoments": [
+                1.0104166269302369,
+                1.0211588144302369,
+                3.0,
+                7.92351784184575e-9
+            ],
+            "expectedStoredRadiance": 1.009765625,
+            "expectedMean": 1.0104166666666668,
+            "expectedSecond": 1.0211588541666668,
+            "expectedHistory": 3
+        }
+    ]
+}
