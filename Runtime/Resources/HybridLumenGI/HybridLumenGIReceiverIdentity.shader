@@ -6,8 +6,6 @@ Shader "Hidden/HybridLumenGI/ReceiverIdentity"
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-        float4x4 _HLGI_IdentityObjectToWorld;
-        float4x4 _HLGI_IdentityViewProjection;
         float4 _HLGI_IdentityBaseMapST;
         // Frozen (base color alpha, cutoff, alpha-test keyword, smoothness-alpha keyword).
         float4 _HLGI_IdentityAlphaParams;
@@ -27,8 +25,10 @@ Shader "Hidden/HybridLumenGI/ReceiverIdentity"
         IdentityVaryings HLGIIdentityVertex(IdentityAttributes input)
         {
             IdentityVaryings output;
-            output.positionCS=mul(_HLGI_IdentityViewProjection,
-                mul(_HLGI_IdentityObjectToWorld,float4(input.positionOS,1)));
+            // Match Lit/capture using the draw-bound object matrix and URP camera VP.
+            // An independently composed CPU VP can differ under TAA and fail exact depth ownership.
+            VertexPositionInputs vertexInput=GetVertexPositionInputs(input.positionOS);
+            output.positionCS=vertexInput.positionCS;
             output.uv=input.uv*_HLGI_IdentityBaseMapST.xy+_HLGI_IdentityBaseMapST.zw;
             return output;
         }

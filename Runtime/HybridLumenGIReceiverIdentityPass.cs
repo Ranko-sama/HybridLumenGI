@@ -30,8 +30,6 @@ namespace HybridLumenGI
         private static readonly int CameraDepthId = Shader.PropertyToID("_HLGI_IdentityCameraDepth");
         private static readonly int CaptureDepthId = Shader.PropertyToID("_HLGI_IdentityCaptureDepth");
         private static readonly int OwnerId = Shader.PropertyToID("_HLGI_IdentityOwnerIndexPlusOne");
-        private static readonly int ObjectMatrixId = Shader.PropertyToID("_HLGI_IdentityObjectToWorld");
-        private static readonly int ViewProjectionId = Shader.PropertyToID("_HLGI_IdentityViewProjection");
         private static readonly int BaseMapId = Shader.PropertyToID("_HLGI_IdentityBaseMap");
         private static readonly int BaseMapStId = Shader.PropertyToID("_HLGI_IdentityBaseMapST");
         private static readonly int AlphaId = Shader.PropertyToID("_HLGI_IdentityAlphaParams");
@@ -135,8 +133,6 @@ namespace HybridLumenGI
                             throw new InvalidOperationException("Invalid frozen identity draw.");
                         var block = new MaterialPropertyBlock();
                         block.SetInteger(OwnerId, checked(draw.RowIndex + 1));
-                        block.SetMatrix(ObjectMatrixId, draw.Record.LocalToWorld);
-                        block.SetMatrix(ViewProjectionId, gpuViewProjection);
                         block.SetVector(FullSizeId, new Vector4(fullWidth, fullHeight, 0, 0));
                         block.SetVector(BaseMapStId, draw.Coverage.BaseMapST);
                         block.SetVector(AlphaId, new Vector4(draw.Coverage.BaseColorAlpha, draw.Coverage.Cutoff,
