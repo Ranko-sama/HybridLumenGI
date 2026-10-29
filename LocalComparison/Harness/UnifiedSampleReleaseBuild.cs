@@ -169,8 +169,8 @@ public static class UnifiedSampleReleaseBuild
             var door = Named<HybridLumenGIValidationMotion>(scene, "Moving occluder");
             var redWall = Named<Renderer>(scene, "Red wall");
             Require(Named<Renderer>(scene, "Green wall") != redWall && !door.enabled, "Expected fixed walls and inactive finite-sequence motion.");
-            var interaction = new GameObject("Unified release ordinary interaction").AddComponent<HybridLumenGIUnifiedSampleInteraction>();
-            interaction.Configure(camera, controller, door, redWall, InScene<Light>(scene).OrderBy(light => light.name, StringComparer.Ordinal).ToArray());
+            var interaction = InScene<HybridLumenGIUnifiedSampleInteraction>(scene).Single();
+            Require(interaction.enabled, "The public sample builder must provide ordinary interaction.");
             var host = new GameObject("Unified release optional verification").AddComponent<UnifiedSampleHost>();
             host.Configure(camera, controller, feature, driver, bindings, Path.Combine(buildDirectory, "verification"));
             host.enabled = false; camera.enabled = true; camera.targetTexture = null;

@@ -32,17 +32,21 @@ namespace HybridLumenGI
             HybridLumenGIValidationMotion movingDoor, Renderer wall, Light[] sceneLights)
         {
             if (Application.isPlaying) throw new InvalidOperationException("Configure before Play.");
+            if (!camera || !controller) throw new ArgumentException("A camera and sample controller are required.");
             targetCamera = camera; sample = controller; door = movingDoor; colorWall = wall;
-            lights = (Light[])sceneLights.Clone();
+            lights = sceneLights == null ? Array.Empty<Light>() : (Light[])sceneLights.Clone();
         }
         private void Start()
         {
-            if (!targetCamera || !sample || !door || !colorWall) throw new InvalidOperationException("Incomplete sample interaction references.");
+            if (!targetCamera || !sample) throw new InvalidOperationException("Incomplete sample navigation references.");
             originalLights = new bool[lights.Length];
             for (int i = 0; i < lights.Length; i++) originalLights[i] = lights[i] && lights[i].enabled;
-            originalBlock = new MaterialPropertyBlock(); colorWall.GetPropertyBlock(originalBlock);
-            changedBlock = new MaterialPropertyBlock(); colorWall.GetPropertyBlock(changedBlock);
-            changedBlock.SetColor("_BaseColor", new Color(.05f, .15f, .8f, 1));
+            if (colorWall)
+            {
+                originalBlock = new MaterialPropertyBlock(); colorWall.GetPropertyBlock(originalBlock);
+                changedBlock = new MaterialPropertyBlock(); colorWall.GetPropertyBlock(changedBlock);
+                changedBlock.SetColor("_BaseColor", new Color(.05f, .15f, .8f, 1));
+            }
             HybridLumenGIResourceRetirement.RegisterShutdownOwner(Close);
             initialized = true; SyncAngles(); Application.runInBackground = true;
         }
@@ -50,16 +54,16 @@ namespace HybridLumenGI
         { var angles = targetCamera.transform.eulerAngles; yaw = angles.y; pitch = Mathf.DeltaAngle(0, angles.x); }
         private static float Keys(KeyCode positive, KeyCode negative) => (Input.GetKey(positive) ? 1 : 0) - (Input.GetKey(negative) ? 1 : 0);
         public void SetColorChanged(bool value)
-        { if (!initialized || closed) return; ColorChanged = value; colorWall.SetPropertyBlock(value ? changedBlock : originalBlock); }
+        { if (!initialized || closed || !colorWall) return; ColorChanged = value; colorWall.SetPropertyBlock(value ? changedBlock : originalBlock); }
         public void SetLightsEnabled(bool value)
         {
             if (!initialized || closed) return; LightsEnabled = value;
             for (int i = 0; i < lights.Length; i++) if (lights[i]) lights[i].enabled = value && originalLights[i];
         }
-        public void SetDoorMoving(bool value) { if (initialized && !closed) DoorMoving = value; }
+        public void SetDoorMoving(bool value) { if (initialized && !closed && door) DoorMoving = value; }
         public void SetDeformationRunning(bool value)
         {
-            if (!initialized || closed || DeformationRunning == value) return;
+            if (!initialized || closed || !door || DeformationRunning == value) return;
             if (value && !producer) CreateProducer();
             DeformationRunning = value;
             if (!value && producer) deformation.RequestCoalescedCapture(producer);
@@ -127,13 +131,14 @@ namespace HybridLumenGI
             GUILayout.BeginArea(new Rect(12, Screen.height - 115, Mathf.Min(850, Screen.width - 24), 103), GUI.skin.box);
             GUILayout.Label("WASD / Q E: move   Arrows: turn   1/2/3: near/far/leave   4/5: software/DXR   F1: hide   Esc: quit");
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button(ColorChanged ? "C: restore red wall" : "C: blue wall")) SetColorChanged(!ColorChanged);
-            if (GUILayout.Button(LightsEnabled ? "L: lights off" : "L: lights on")) SetLightsEnabled(!LightsEnabled);
-            if (GUILayout.Button(DoorMoving ? "M: stop door" : "M: move door")) SetDoorMoving(!DoorMoving);
-            if (GUILayout.Button(DeformationRunning ? "Space: stop deformation" : "Space: deform door")) SetDeformationRunning(!DeformationRunning);
+            if (colorWall && GUILayout.Button(ColorChanged ? "C: restore red wall" : "C: blue wall")) SetColorChanged(!ColorChanged);
+            if (lights.Length > 0 && GUILayout.Button(LightsEnabled ? "L: lights off" : "L: lights on")) SetLightsEnabled(!LightsEnabled);
+            if (door && GUILayout.Button(DoorMoving ? "M: stop door" : "M: move door")) SetDoorMoving(!DoorMoving);
+            if (door && GUILayout.Button(DeformationRunning ? "Space: stop deformation" : "Space: deform door")) SetDeformationRunning(!DeformationRunning);
             if (GUILayout.Button(sample.enabled ? "B: release group" : "B: reload group")) sample.enabled = !sample.enabled;
             GUILayout.EndHorizontal();
-            GUILayout.Label("Lights off keeps emissive surfaces. Deformation uses asynchronous snapshots; lighting may catch up after motion stops.");
+            if (lights.Length > 0) GUILayout.Label("Lights off keeps emissive surfaces.");
+            if (door) GUILayout.Label("Deformation uses asynchronous snapshots; lighting may catch up after motion stops.");
             GUILayout.EndArea();
         }
         private void Close()

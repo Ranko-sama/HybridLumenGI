@@ -88,6 +88,7 @@ public static class HybridLumenGIUnifiedSampleBuilder
             var controllerObject = new GameObject("Hybrid GI unified sample controls");
             var controller = controllerObject.AddComponent<HybridLumenGIUnifiedSample>();
             controller.Configure(target, feature, driver, aggregateBinding, detailBindings, bounds, near, far);
+            AddOrdinaryInteraction(variant, target, controller);
             // The saved variant starts with empty bindings. Only the manifest contains page descriptions, not source assets.
             export.Rig.SetActive(true); target.enabled = true;
             foreach (var binding in bindings)
@@ -104,6 +105,29 @@ public static class HybridLumenGIUnifiedSampleBuilder
             if (previous.IsValid() && previous.isLoaded) SceneManager.SetActiveScene(previous);
             // New owned paths are retained on failure for inspection. Never delete/overwrite authoring assets.
         }
+    }
+
+    private static void AddOrdinaryInteraction(Scene variant, Camera camera, HybridLumenGIUnifiedSample controller)
+    {
+        // Navigation works for every generated sample. Optional event controls use only the
+        // existing standard validation driver's references, never arbitrary scene discovery.
+        var sequences = variant.GetRootGameObjects()
+            .SelectMany(root => root.GetComponentsInChildren<HybridLumenGIValidationSequence>(true)).ToArray();
+        HybridLumenGIValidationMotion door = null;
+        Renderer wall = null;
+        Light[] lights = Array.Empty<Light>();
+        if (sequences.Length == 1)
+        {
+            var source = new SerializedObject(sequences[0]);
+            door = source.FindProperty("door").objectReferenceValue as HybridLumenGIValidationMotion;
+            var lightArray = source.FindProperty("switchedLights");
+            lights = new Light[lightArray.arraySize];
+            for (int i = 0; i < lights.Length; i++) lights[i] = lightArray.GetArrayElementAtIndex(i).objectReferenceValue as Light;
+            var walls = sequences[0].GetComponentsInChildren<Renderer>(true)
+                .Where(renderer => renderer.name == "Red wall" && renderer.sharedMaterials.Length > 0).ToArray();
+            if (walls.Length == 1) wall = walls[0]; // Selected/streamed source shells have no materials and stay unbound.
+        }
+        controller.gameObject.AddComponent<HybridLumenGIUnifiedSampleInteraction>().Configure(camera, controller, door, wall, lights);
     }
 
     private static void ValidateDetail(HybridLumenGIProxy proxy, Scene scene, HybridLumenGIProxy policy)
