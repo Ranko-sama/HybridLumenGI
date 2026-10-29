@@ -10,7 +10,7 @@ namespace HybridLumenGI
     public sealed class HybridLumenGIHlodReadback : IDisposable
     {
         [StructLayout(LayoutKind.Sequential)]
-        public struct CacheEntry { public Vector4 irradiance,tag,anchor,normal,guide; }
+        public struct CacheEntry { public Vector4 irradiance,tag,anchor,normal,guide,nonAnalyticIrradiance; }
         private sealed class Snapshot
         {
             internal int slot,id,revision;
@@ -173,6 +173,8 @@ namespace HybridLumenGI
         {
             covered=false;
             if(!Finite(entry.irradiance.x) || !Finite(entry.irradiance.y) || !Finite(entry.irradiance.z) || !Finite(entry.irradiance.w)) return false;
+            if(!Finite(entry.nonAnalyticIrradiance.x) || !Finite(entry.nonAnalyticIrradiance.y) ||
+                !Finite(entry.nonAnalyticIrradiance.z) || !Finite(entry.nonAnalyticIrradiance.w)) return false;
             if(entry.tag.Equals(Vector4.zero) && entry.irradiance.Equals(Vector4.zero)) return true; // Explicitly cleared uncovered cell.
             if(entry.tag.x!=id || entry.tag.y!=revision || entry.tag.z!=epoch || entry.tag.w!=cardGeneration) return false;
             covered=true;

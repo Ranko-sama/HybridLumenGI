@@ -2,9 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release77](<I:/Unity test/Comparison/Builds/LocalRelease77/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；新增可手动开启的进程显存观察，默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release78](<I:/Unity test/Comparison/Builds/LocalRelease78/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；新增可手动开启的进程显存观察，默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
 
-Release77 保留 Release76 的光传输实现，新增[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)。全局换光后的屏幕历史、缓存首次可信更新改进及面积光遮挡冗余计算优化均保留。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release77 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
+Release78 新增[按来源分离的缓存关灯响应](LocalComparison/Review/cache-source-separation-01/result.md)：当前上传的解析灯表为空时，移除其旧多跳贡献，保留自发光／环境贡献。沿用统一交互及默认关闭的[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)，保留此前屏幕历史、缓存首次可信更新和面积光冗余计算修复。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release78 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
 
 ## 使用统一示例
 
@@ -27,18 +27,18 @@ Release77 保留 Release76 的光传输实现，新增[驱动进程显存观察]
 
 ## 当前画质结论
 
-[打开同曝光对照图与曲线](LocalComparison/Review/dynamic-picture-comparison-01/index.html) · [阅读四项结论及适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md) · [当前关灯四帧对照](LocalComparison/Review/current-lightoff-prefix-01/result.md)
+[打开同曝光对照图与曲线](LocalComparison/Review/dynamic-picture-comparison-01/index.html) · [阅读四项结论及适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md) · [Release76关灯基线](LocalComparison/Review/current-lightoff-prefix-01/result.md) · [Release78缓存改进对照](LocalComparison/Review/cache-source-separation-01/result.md)
 
 | 问题 | 当前结论 |
 | --- | --- |
 | 颜色误差 | 旧同源独立参考显示亮灯间接光偏暗、关灯后仍偏亮；参考带有采样噪声及模型近似，偏差不能直接等同精确产品误差或当前版本缺陷。 |
-| 换色／关灯残留 | 已修复全局换光后混入旧屏幕历史及缓存首次更新强制混入半份旧值的问题。当前关灯观察仍显示后续变化；局部换色与默认多跳响应尚未关闭。 |
+| 换色／关灯残留 | 已修复全局换光后混入旧屏幕历史及缓存首次更新强制混入半份旧值的问题。新增灯表清空时移除旧解析灯缓存贡献；固定场景早期输出变化明显减少，局部换色及任意多跳响应仍未关闭。 |
 | 运动拖影 | 限定相机/TAA 场景验证了新显露处的旧历史拒绝；不能据此宣称任意运动、遮挡和空间滤波都无拖影。 |
 | 收敛时间 | 现有采样只能回答观测时点及区间，最后一帧不是收敛真值；尚不能给出整景达到正确颜色的统一帧数。 |
 
 首批独立参考与动态曲线保留修复前来源，不能当作 Release76 修后结果。当前关灯观察只运行原序列的 0–299 前缀，保存 239／240／270／299 四帧；其量为乘过反射率、AO 和强度的**间接漫反射出射贡献**，不是参考中的 D=E/π。原序列与 Editor 的 `failed`、native exit 1 因提前结束而保留，不记为 720 帧通过，也不与旧 D 图直接计算物理误差。
 
-随后尝试的 32 次相机准备响应窗口未达到采用条件，已撤回 Runtime 修改，未成为当前功能，见[未采用候选结果](LocalComparison/Review/global-light-response-window-01/result.md)。Release77 沿用 Release76 的光传输规则，没有新的画质通过结论。
+随后尝试的 32 次相机准备响应窗口未达到采用条件，已撤回 Runtime 修改，未成为当前功能，见[未采用候选结果](LocalComparison/Review/global-light-response-window-01/result.md)。Release78采用独立的来源分离实现：关灯首帧→第59帧的平均逐像素绝对Y变化降低92.2%，第30→59帧降低80.0%，同曝光接收面反弹保留。它们是快照变化而非物理误差或收敛速度；缓存存储增加20%，实际带宽/时间增量未测。触发条件是上传灯表为空，不等同于Unity场景中所有灯关闭。
 
 ## 安装与工程集成
 

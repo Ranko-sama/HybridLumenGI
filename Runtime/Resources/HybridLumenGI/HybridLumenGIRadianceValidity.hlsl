@@ -24,6 +24,10 @@ bool HLGIHasCacheMeasurement(float4 irradiance,float4 guide)
 {
     return HLGIHasRadianceMeasurement(irradiance) && all(isfinite(guide));
 }
+bool HLGIHasSourceCacheMeasurement(float4 irradiance,float4 guide,float4 nonAnalyticIrradiance)
+{
+    return HLGIHasCacheMeasurement(irradiance,guide) && all(isfinite(nonAnalyticIrradiance));
+}
 
 // Call after identity/epoch/geometry invalidation. Failure keeps only a still
 // valid old estimate, including its guide and sample count; invalid old data
@@ -46,6 +50,26 @@ bool HLGICommitCacheEstimate(bool known,float3 sum,float3 guideSum,float guidePo
     float4 nextGuide=float4(lengthSquared>1e-12?guideSum*rsqrt(lengthSquared):normal,guidePower/rayCount);
     if(!HLGIHasCacheMeasurement(next,nextGuide) || !isfinite(lengthSquared)) return false;
     irradiance=next;guide=nextGuide;return true;
+}
+
+// Both source classes use the same accepted rays, validity, age and temporal
+// weight. Keep the established total-D commit unchanged; never recover the
+// non-analytic component by subtracting two nearly equal bright estimates.
+bool HLGICommitSourceCacheEstimate(bool known,float3 sum,float3 nonAnalyticSum,
+    float3 guideSum,float guidePower,int rayCount,float3 normal,
+    inout float4 irradiance,inout float4 guide,inout float4 nonAnalyticIrradiance)
+{
+    if(!HLGIHasSourceCacheMeasurement(irradiance,guide,nonAnalyticIrradiance))
+    { irradiance=0;guide=0;nonAnalyticIrradiance=0; }
+    if(!known || !all(isfinite(nonAnalyticSum))) return false;
+    bool blend=irradiance.a>=1;
+    float4 next=irradiance,nextGuide=guide;
+    if(!HLGICommitCacheEstimate(known,sum,guideSum,guidePower,rayCount,normal,next,nextGuide)) return false;
+    float3 estimate=nonAnalyticSum/rayCount;
+    float alpha=max(1/next.a,0.1);
+    float4 nextNonAnalytic=float4(blend?lerp(nonAnalyticIrradiance.rgb,estimate,alpha):estimate,0);
+    if(!all(isfinite(nextNonAnalytic))) return false;
+    irradiance=next;guide=nextGuide;nonAnalyticIrradiance=nextNonAnalytic;return true;
 }
 
 bool HLGIHasTemporalHistory(float4 history,float4 moments)

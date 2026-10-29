@@ -1,0 +1,65 @@
+{
+  "baselineDirectory": "I:\\Unity test\\Comparison\\Release76LightOffPrefix\\capture\\20261029-190948-ec399e35b2a54e83b9baa8473038e4bc",
+  "candidateDirectory": "I:\\Unity test\\Comparison\\CacheSourceSeparation01\\capture\\20261029-203154-fd4553d544c44621b1e4dd037f1b920a",
+  "frames": [
+    239,
+    240,
+    270,
+    299
+  ],
+  "prefixReceiptsComplete": true,
+  "completeSequence": false,
+  "sequenceStatus": "failed",
+  "quantity": "Indirect diffuse outgoing screen output: filtered/upsampled D times diffuse reflectance, material occlusion and intensity; not D or a reference error.",
+  "rawRgbaAllFinite": true,
+  "meanOutputY": {
+    "baseline": {
+      "239": 0.030014187696436656,
+      "240": 0.010133951418819898,
+      "270": 0.004400039738175912,
+      "299": 0.003761233502795673
+    },
+    "candidate": {
+      "239": 0.030014187696436656,
+      "240": 0.0029371100842912126,
+      "270": 0.0030381590690666408,
+      "299": 0.003074068091109995
+    }
+  },
+  "relative239MeanYDifference": 0.0,
+  "absolute240To299YChange": {
+    "baseline": 0.0063787739887509855,
+    "candidate": 0.000499120953496196
+  },
+  "relativeReduction240To299YChange": 0.9217528392797112,
+  "absolute270To299YChange": {
+    "baseline": 0.0006516400428417388,
+    "candidate": 0.00013058563261088003
+  },
+  "relative270To299YChange": 0.20039534716345667,
+  "numericChecks": {
+    "preOff239MeanWithinLimit": true,
+    "change240To299Reduced": true,
+    "change270To299WithinBaseline": true
+  },
+  "numericScreenPassed": true,
+  "criterion": {
+    "candidate": "Retain total cache D and carry an emission/environment-origin D channel through the same rays. Consume and persist that subset when the current uploaded analytic-light table is empty.",
+    "sourceBaseline": "3e41f69; current-lightoff-prefix-01 retains equivalent pre-candidate transport pictures",
+    "fixedInputCheck": "One existing-host WARP execution of the actual source-cache commit and CSUpdateCache invalidation/empty-table fragment; then stop on failure.",
+    "nativeRuns": 1,
+    "nativeScope": "Saved V209 physical scene, original logical0-299 history, ordinary IndirectOnly captures at239/240/270/299; no new reference integration or performance measurement.",
+    "maximumRelative239MeanYDifference": 0.01,
+    "minimum240To299AbsoluteYChangeReduction": 0.25,
+    "maximum270To299AbsoluteYChangeRelativeToBaseline": 1.0,
+    "visualRequirements": "No clear new pre-off color/spatial defect; nonzero emissive indirect contribution must remain on receiving surfaces, not merely on the emitter itself.",
+    "limitations": "Snapshot changes are response screens, not physical error or convergence speed. Old299 is not truth; no +/-10% late-brightness condition. Unknown screen history, local changes, flicker and actual performance cost remain open.",
+    "stop": "Failed or ambiguous: withdraw and end this candidate, without reruns, parameter search, added captures, new reference or proof framework."
+  },
+  "visualReview": "Passed: primary agent and independent Astra reviewed the original same-exposure panel. No clear new pre-off color/spatial defect at239; indirect light remains visibly on red/back walls, floor and ceiling after off, not only on the emissive panel. The PNG retains its initial review-pending caption; this record and result.md contain the completed decision.",
+  "adoption": "Adopted for the scoped empty-uploaded-analytic-light-table response; integrate ordinary Release78. This verification line is closed without additional runs.",
+  "display": "Exposure 1, Reinhard + sRGB; vertical flip only for display. Metrics use unchanged raw rows.",
+  "scope": "Saved V209 physical scene, original logical0-299 history, ordinary IndirectOnly captures at239/240/270/299; no new reference integration or performance measurement.",
+  "limitation": "Snapshot changes are response screens, not physical error or convergence speed. Old299 is not truth; no +/-10% late-brightness condition. Unknown screen history, local changes, flicker and actual performance cost remain open. All-pixel outgoing Y snapshot changes only; no independent validity mask or physical reference. The intentional incomplete sequence status is retained, and numeric acceptance does not satisfy visual requirements.",
+  "costBoundary": "Cache entry storage80 to96bytes (+20%); actual bandwidth and time increments are not measured."
+}

@@ -246,8 +246,9 @@ namespace HybridLumenGI
             WithdrawForShutdown();
         }
 
+        private const int CacheEntryStride = 96;
         [StructLayout(LayoutKind.Sequential)] private struct CacheData
-        { public Vector4 irradiance,tag,anchor,normal,guide; }
+        { public Vector4 irradiance,tag,anchor,normal,guide,nonAnalyticIrradiance; }
         private sealed class CameraState : IDisposable
         {
             internal int scenePreparedEngineFrame = -1, scenePreparedWorkFrame = -1;
@@ -403,7 +404,7 @@ namespace HybridLumenGI
                 {
                     capacity=slots;patchGrid=grid;cacheEntryCount=entries;epoch++;InvalidateScreenHistory();cacheCursor=0;
                     readiness.Invalidate();scene.InvalidateReadiness();
-                    for(int i=0;i<2;i++) { cache[i]?.Release();cache[i]=new ComputeBuffer(cacheEntryCount,80);cache[i].SetData(new CacheData[cacheEntryCount]); }
+                    for(int i=0;i<2;i++) { cache[i]?.Release();cache[i]=new ComputeBuffer(cacheEntryCount,CacheEntryStride);cache[i].SetData(new CacheData[cacheEntryCount]); }
                 }
             }
             private static RTHandle Allocate(int w,int h,GraphicsFormat format,string name)
@@ -1406,7 +1407,7 @@ namespace HybridLumenGI
                         materialUploadBudgetBytes=HybridLumenGIRayTexturePool.UploadBudgetBytes,materialUploadBytesUsed=HybridLumenGIRayTexturePool.UploadBytesUsed,
                         screenTextureEstimateBytes=(long)c.fullWidth*c.fullHeight*c.fullPixelBytes+(long)c.width*c.height*c.lowPixelBytes,
                         worldMaterialBytes=c.surfaceCache.AllocatedBytes,objectSdfBytes=c.sdf.AllocatedBytes,globalSdfBytes=c.globalSdf.AllocatedBytes,
-                        worldCacheBytes=(long)c.cacheEntryCount*160,hardwareAttributeBytes=c.hardware.AttributeBytes,proposalBufferBytes=c.emissiveSampling.AllocatedBytes,
+                        worldCacheBytes=(long)c.cacheEntryCount*CacheEntryStride*2,hardwareAttributeBytes=c.hardware.AttributeBytes,proposalBufferBytes=c.emissiveSampling.AllocatedBytes,
                         gpuTimingStatus=c.useNativeGpuTiming?c.nativeGpuTiming.Status.ToString():c.gpuTiming.Status.ToString(),gpuObservationValid=c.gpuObservationValid,gpuFeedbackActive=c.gpuBudget.FeedbackActive,
                         gpuTimingProvider=c.useNativeGpuTiming?"NativeDX12":"Recorder",nativeGpuTimingStatus=c.nativeGpuTiming.Status.ToString(),
                         gpuTimingRequiresIdentity=c.receiverIdentityEnabled,

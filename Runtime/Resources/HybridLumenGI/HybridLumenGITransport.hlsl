@@ -16,7 +16,9 @@ struct HLGILight
 };
 // Irradiance alpha: zero is unknown, 0.5 is a valid measurement awaiting a
 // global-light replacement, and values >=1 hold the history/readiness weight.
-struct HLGICacheEntry { float4 irradiance; float4 tag; float4 anchor; float4 normal; float4 guide; };
+// Total D and the emission/environment-origin subset share one measurement age.
+// The second RGB is carried directly through the same rays, never subtracted.
+struct HLGICacheEntry { float4 irradiance; float4 tag; float4 anchor; float4 normal; float4 guide; float4 nonAnalyticIrradiance; };
 StructuredBuffer<HLGIProxy> _HLGI_Proxies;
 StructuredBuffer<HLGILight> _HLGI_Lights;
 StructuredBuffer<HLGICacheEntry> _HLGI_CacheRead;
@@ -278,8 +280,11 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
         if(any(cell<0)||any(cell>=_HLGI_CacheGrid)) continue;
         uint entry=surface.cardIndex*_HLGI_CacheGrid*_HLGI_CacheGrid+cell.y*_HLGI_CacheGrid+cell.x;
         HLGICacheEntry e=_HLGI_CacheRead[entry];
-        if(any(e.tag.xyz != float3(p.identity.xy,_HLGI_Epoch)) || !HLGIHasCacheMeasurement(e.irradiance,e.guide)) continue;
+        if(any(e.tag.xyz != float3(p.identity.xy,_HLGI_Epoch)) || !HLGIHasSourceCacheMeasurement(e.irradiance,e.guide,e.nonAnalyticIrradiance)) continue;
         if(e.tag.w!=(float)surface.generation) continue;
+        // This camera's uploaded analytic-light table is empty. Its contribution
+        // at every bounce is known zero; retained emission/environment is not.
+        if(_HLGI_LightCount==0) e.irradiance.rgb=e.nonAnalyticIrradiance.rgb;
         float3 delta=position-e.anchor.xyz;
         float3 anchorGeometricNormal=UnpackNormalOctQuadEncode(float2(e.anchor.w,e.normal.w));
         // Shading normals compare lighting orientation; geometry normals compare the
@@ -311,9 +316,10 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
             }
         }
         totalWeight+=weight;result.irradiance+=e.irradiance*weight;result.guide+=e.guide*weight;
+        result.nonAnalyticIrradiance+=e.nonAnalyticIrradiance*weight;
     }
     if(totalWeight<=1e-5) { result=(HLGICacheEntry)0;return false; }
-    result.irradiance/=totalWeight;result.guide/=totalWeight;
+    result.irradiance/=totalWeight;result.guide/=totalWeight;result.nonAnalyticIrradiance/=totalWeight;
     if(dot(result.guide.xyz,result.guide.xyz)>1e-6) result.guide.xyz=normalize(result.guide.xyz);
     return true;
 }
@@ -413,9 +419,9 @@ float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers
 // black; callers that accumulate radiance must use the explicit known overload.
 float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers)
 { bool known;return DirectIrradiance(p,n,biasNormal,receiverLayers,known); }
-float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFootprint,float emissionWeight,out float confidence)
+float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFootprint,float emissionWeight,out float confidence,out float3 nonAnalytic)
 {
-    confidence=0;
+    confidence=0;nonAnalytic=0;
     if(!HLGIHitOwnerCurrent(hit) || !HLGIHitMaterialKnown(hit)) return 0;
     HLGIProxy proxy=_HLGI_Proxies[hit.ownerSlot];
     HLGISurfaceSample surface;
@@ -452,9 +458,12 @@ float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFo
         receivesShadows,incomingDirection,hitFootprint,directKnown);
     if(!directKnown || !all(isfinite(diffuse)) || !all(isfinite(emission)) || !isfinite(ao)) { confidence=0;return 0; }
     float3 value=max(emission,0)*emissionWeight+clamp(diffuse,0,0.98)*(direct+ao*_HLGI_BounceFeedback*max(cached.irradiance.rgb,0));
+    nonAnalytic=max(emission,0)*emissionWeight+clamp(diffuse,0,0.98)*(ao*_HLGI_BounceFeedback*max(cached.nonAnalyticIrradiance.rgb,0));
     if(!HLGIHasRadianceMeasurement(float4(value,confidence))) { confidence=0;return 0; }
     return value;
 }
+float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFootprint,float emissionWeight,out float confidence)
+{ float3 nonAnalytic;return ProxyRadiance(hit,incomingDirection,hitFootprint,emissionWeight,confidence,nonAnalytic); }
 float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFootprint,out float confidence)
 { return ProxyRadiance(hit,incomingDirection,hitFootprint,1,confidence); }
 float3 ProxyRadiance(HLGIHit hit,out float confidence)
@@ -527,8 +536,12 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
     HLGICacheEntry e=_HLGI_CacheRead[id.x];
     float3 tag=float3(p.identity.xy,_HLGI_Epoch);
     float2 change=HLGIChangeAt(surface.position);
-    if(any(e.tag.xyz!=tag) || e.tag.w!=(float)surface.generation || change.x>0.5 || !HLGIHasCacheMeasurement(e.irradiance,e.guide))
+    if(any(e.tag.xyz!=tag) || e.tag.w!=(float)surface.generation || change.x>0.5 || !HLGIHasSourceCacheMeasurement(e.irradiance,e.guide,e.nonAnalyticIrradiance))
         e=(HLGICacheEntry)0;
+    // Persist the removal even for budget-skipped/unknown updates, so turning
+    // lights back on cannot resurrect the pre-off analytic contribution.
+    // A cold/invalid entry remains age zero; this does not invent a measurement.
+    if(_HLGI_LightCount==0) e.irradiance.rgb=e.nonAnalyticIrradiance.rgb;
     // Positive age below one keeps a valid old measurement available, but marks
     // it for replacement after a global light change. Persist across budget
     // waits and unknown updates; only a committed known estimate consumes it.
@@ -544,7 +557,7 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
         // Separate cache-update and camera-gather domains: an equal physical
         // patch/pixel index must not reuse the guide-producing random stream.
         uint rng=HLGIHash((id.x+HLGIHash((uint)_HLGI_FrameIndex+1))^0xA511E9B3u);
-        float3 sum=0,guide=0;float guidePower=0;bool estimateKnown=true;
+        float3 sum=0,nonAnalyticSum=0,guide=0;float guidePower=0;bool estimateKnown=true;
         [loop] for(int r=0;r<_HLGI_CacheRays;r++)
         {
             float3 origin=position+HLGIOffsetNormal(surface.geometricNormal,n)*_HLGI_RayBias;
@@ -552,7 +565,7 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
             if(!HLGIAreaMatchedDirectionWeight(origin,n,e.guide,direction,weight)) { estimateKnown=false;break; }
             if(!all(isfinite(direction))) { estimateKnown=false;break; }
             HLGIHit hit;
-            float3 incoming=0;float materialConfidence=1;
+            float3 incoming=0,nonAnalyticIncoming=0;float materialConfidence=1;
             HLGIRayFootprint footprint;
             HLGITrySurfacePatchRayFootprint(surface,uint2(local%_HLGI_CacheGrid,local/_HLGI_CacheGrid),direction,footprint);
             if(weight>0 && TraceSceneHit(origin,direction,_HLGI_MaxDistance,footprint,float4(position,1),hit))
@@ -560,10 +573,11 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
                 HLGIRayFootprint hitFootprint;HLGIAdvanceRayFootprint(footprint,hit.t,hitFootprint);
                 float emissionWeight;
                 if(!HLGIAreaDirectionEmissionWeight(origin,n,e.guide,direction,hit,emissionWeight)) { estimateKnown=false;break; }
-                incoming=ProxyRadiance(hit,direction,hitFootprint,emissionWeight,materialConfidence);
+                incoming=ProxyRadiance(hit,direction,hitFootprint,emissionWeight,materialConfidence,nonAnalyticIncoming);
             }
-            else if(weight>0) incoming=HLGIEnvironmentRadiance(direction);
-            if(!HLGIAccumulateRadianceSample(incoming,materialConfidence,weight,sum)) { estimateKnown=false;break; }
+            else if(weight>0) { incoming=HLGIEnvironmentRadiance(direction);nonAnalyticIncoming=incoming; }
+            if(!HLGIAccumulateRadianceSample(incoming,materialConfidence,weight,sum) ||
+                !HLGIAccumulateRadianceSample(nonAnalyticIncoming,materialConfidence,weight,nonAnalyticSum)) { estimateKnown=false;break; }
             float power=dot(max(incoming,0),float3(0.2126,0.7152,0.0722))*weight;
             guide+=direction*power;guidePower+=power;
             HLGIAreaSample lightSample;
@@ -575,12 +589,13 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
                 HLGITrySurfacePatchRayFootprint(surface,uint2(local%_HLGI_CacheGrid,local/_HLGI_CacheGrid),lightSample.direction,footprint);
                 float3 lightValue;bool lightWorldHit;HLGIHit lightHit;
                 if(!HLGIAreaLightContribution(origin,n,e.guide,lightSample,footprint,float4(position,1),lightValue,lightWorldHit,lightHit) ||
-                    !HLGIAccumulateRadianceSample(lightValue,1,1,sum)) { estimateKnown=false;break; }
+                    !HLGIAccumulateRadianceSample(lightValue,1,1,sum) ||
+                    !HLGIAccumulateRadianceSample(lightValue,1,1,nonAnalyticSum)) { estimateKnown=false;break; }
                 float lightPower=dot(lightValue,float3(0.2126,0.7152,0.0722));
                 guide+=lightSample.direction*lightPower;guidePower+=lightPower;
             }
         }
-        HLGICommitCacheEstimate(estimateKnown,sum,guide,guidePower,_HLGI_CacheRays,n,e.irradiance,e.guide);
+        HLGICommitSourceCacheEstimate(estimateKnown,sum,nonAnalyticSum,guide,guidePower,_HLGI_CacheRays,n,e.irradiance,e.guide,e.nonAnalyticIrradiance);
     }
     _HLGI_CacheWrite[id.x]=e;
 }
