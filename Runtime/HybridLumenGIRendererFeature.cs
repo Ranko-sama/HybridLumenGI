@@ -291,7 +291,7 @@ namespace HybridLumenGI
             internal void InvalidateScreenHistory()
             { valid=false;historyLifecycle.Invalidate();receiverHistory.Invalidate(); }
             internal void InvalidateFailedRender()
-            { uploadedSoftwareVersion=0;globalSdf.InvalidateAll();InvalidateScreenHistory();InvalidateGpuFeedback(); }
+            { uploadedSoftwareVersion=0;globalSdf.InvalidateAll();surfaceCache.InvalidateRecordedCapture();InvalidateScreenHistory();InvalidateGpuFeedback(); }
             internal void PrepareHistoryTarget(RenderTexture target)
             {
                 // Numeric native IDs can be reused after destruction; reference identity

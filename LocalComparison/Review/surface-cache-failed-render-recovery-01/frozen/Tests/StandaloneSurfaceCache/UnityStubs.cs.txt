@@ -1,0 +1,217 @@
+// Recording substitutes only. The entire production SurfaceCache.cs is compiled unchanged.
+// This does not emulate rasterization, native Unity property encoding, GPU execution or fences.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using N=System.Numerics;
+namespace UnityEngine
+{
+    public class Object
+    {
+        static int next; readonly int id=++next; public string name; public bool Destroyed;
+        public int GetInstanceID()=>id;
+    }
+    public struct Vector2Int {public int x,y;public Vector2Int(int x,int y){this.x=x;this.y=y;}}
+    public struct Vector2 {public float x,y;public Vector2(float x,float y){this.x=x;this.y=y;}public static Vector2 one=>new(1,1);public static Vector2 zero=>new(0,0);}
+    public struct Vector3
+    {
+        public float x,y,z; public Vector3(float x,float y,float z){this.x=x;this.y=y;this.z=z;}
+        public static Vector3 zero=>new(0,0,0);public static Vector3 one=>new(1,1,1);public static Vector3 right=>new(1,0,0);public static Vector3 up=>new(0,1,0);public static Vector3 forward=>new(0,0,1);
+        public float this[int i]{get=>i==0?x:i==1?y:z;set{if(i==0)x=value;else if(i==1)y=value;else z=value;}}
+        public float sqrMagnitude=>x*x+y*y+z*z;public float magnitude=>MathF.Sqrt(sqrMagnitude);public Vector3 normalized=>magnitude>1e-6f?this/magnitude:zero;
+        public static Vector3 operator +(Vector3 a,Vector3 b)=>new(a.x+b.x,a.y+b.y,a.z+b.z);
+        public static Vector3 operator -(Vector3 a,Vector3 b)=>new(a.x-b.x,a.y-b.y,a.z-b.z);
+        public static Vector3 operator -(Vector3 a)=>new(-a.x,-a.y,-a.z);
+        public static Vector3 operator *(Vector3 a,float b)=>new(a.x*b,a.y*b,a.z*b);
+        public static Vector3 operator /(Vector3 a,float b)=>new(a.x/b,a.y/b,a.z/b);
+        public static Vector3 Cross(Vector3 a,Vector3 b)=>new(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x);
+        public static float Dot(Vector3 a,Vector3 b)=>a.x*b.x+a.y*b.y+a.z*b.z;
+    }
+    public struct Vector4 {public float x,y,z,w;public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}}
+    // Transposed Numerics storage preserves the 64-byte Unity matrix layout.
+    public struct Matrix4x4
+    {
+        public N.Matrix4x4 value;
+        public static Matrix4x4 identity=>new(){value=N.Matrix4x4.Identity};
+        public static Matrix4x4 Translate(Vector3 p)=>new(){value=N.Matrix4x4.CreateTranslation(p.x,p.y,p.z)};
+        public static Matrix4x4 Scale(Vector3 p)=>new(){value=N.Matrix4x4.CreateScale(p.x,p.y,p.z)};
+        public static Matrix4x4 operator *(Matrix4x4 a,Matrix4x4 b)=>new(){value=b.value*a.value};
+        public Matrix4x4 inverse{get{N.Matrix4x4.Invert(value,out var m);return new(){value=m};}}
+        public Matrix4x4 transpose=>new(){value=N.Matrix4x4.Transpose(value)};
+        public float determinant=>value.GetDeterminant();
+        public float this[int i]=>i switch{0=>value.M11,1=>value.M12,2=>value.M13,3=>value.M14,4=>value.M21,5=>value.M22,6=>value.M23,7=>value.M24,8=>value.M31,9=>value.M32,10=>value.M33,11=>value.M34,12=>value.M41,13=>value.M42,14=>value.M43,15=>value.M44,_=>throw new IndexOutOfRangeException()};
+        public void SetRow(int i,Vector4 row){var m=N.Matrix4x4.Transpose(value);switch(i){case 0:m.M11=row.x;m.M12=row.y;m.M13=row.z;m.M14=row.w;break;case 1:m.M21=row.x;m.M22=row.y;m.M23=row.z;m.M24=row.w;break;case 2:m.M31=row.x;m.M32=row.y;m.M33=row.z;m.M34=row.w;break;case 3:m.M41=row.x;m.M42=row.y;m.M43=row.z;m.M44=row.w;break;}value=N.Matrix4x4.Transpose(m);}
+        public Vector3 MultiplyVector(Vector3 p){var v=N.Vector3.TransformNormal(new(p.x,p.y,p.z),value);return new(v.X,v.Y,v.Z);}
+        public Vector3 MultiplyPoint3x4(Vector3 p){var v=N.Vector3.Transform(new(p.x,p.y,p.z),value);return new(v.X,v.Y,v.Z);}
+        public override bool Equals(object other)=>other is Matrix4x4 m&&value.Equals(m.value);
+        public override int GetHashCode()=>value.GetHashCode();
+    }
+    public struct Bounds
+    {
+        public Vector3 center,size;public Vector3 extents=>size*.5f;
+        public Bounds(Vector3 center,Vector3 size){this.center=center;this.size=size;}
+        public float SqrDistance(Vector3 p){var d=p-center;var e=extents;float x=MathF.Max(0,MathF.Abs(d.x)-e.x),y=MathF.Max(0,MathF.Abs(d.y)-e.y),z=MathF.Max(0,MathF.Abs(d.z)-e.z);return x*x+y*y+z*z;}
+    }
+    public struct Rect {public float x,y,width,height;public Rect(float x,float y,float w,float h){this.x=x;this.y=y;width=w;height=h;}}
+    public struct Color
+    {
+        public float r,g,b,a;public Color(float r,float g,float b,float a=1){this.r=r;this.g=g;this.b=b;this.a=a;}
+        public static Color white=>new(1,1,1,1);public static Color clear=>new(0,0,0,0);
+        public static implicit operator Vector4(Color c)=>new(c.r,c.g,c.b,c.a);
+        public Color linear=>new(L(r),L(g),L(b),a);static float L(float v)=>v<=.04045f?v/12.92f:MathF.Pow((v+.055f)/1.055f,2.4f);
+    }
+    public static class Mathf
+    {
+        public static int Clamp(int v,int a,int b)=>Math.Clamp(v,a,b);public static float Clamp(float v,float a,float b)=>Math.Clamp(v,a,b);public static float Clamp01(float v)=>Math.Clamp(v,0,1);public static int Min(int a,int b)=>Math.Min(a,b);public static int Max(int a,int b)=>Math.Max(a,b);public static float Max(float a,float b)=>MathF.Max(a,b);public static float Abs(float a)=>MathF.Abs(a);
+        public static int NextPowerOfTwo(int v){int p=1;while(p<v)p*=2;return p;}public static float Sqrt(float a)=>MathF.Sqrt(a);public static int CeilToInt(float a)=>(int)MathF.Ceiling(a);
+    }
+    public enum MeshTopology {Triangles,Lines}
+    public sealed class Mesh:Object
+    {
+        public int vertexCount=9;public Bounds bounds=new(Vector3.zero,Vector3.one);public readonly List<MeshTopology> Topologies=new();
+        public int subMeshCount=>Topologies.Count;public MeshTopology GetTopology(int i)=>Topologies[i];
+        public readonly Dictionary<int,uint> IndexCounts=new(); public int IndexCountReads;
+        public uint GetIndexCount(int i){IndexCountReads++;return IndexCounts.TryGetValue(i,out uint count)?count:300;}
+    }
+    public sealed class MeshFilter {public Mesh sharedMesh;}
+    public sealed class GameObject {public bool activeInHierarchy=true;public int layer;}
+    public class Renderer:Object
+    {
+        public bool enabled=true,forceRenderingOff;public GameObject gameObject=new();public MeshFilter Filter;public Matrix4x4 localToWorldMatrix=Matrix4x4.identity;public Bounds bounds=new(Vector3.zero,Vector3.one);
+        public readonly List<Material> Materials=new();public MaterialPropertyBlock Block=new();public Dictionary<int,MaterialPropertyBlock> SubmeshBlocks=new();
+        public T GetComponent<T>() where T:class=>Filter as T;
+        public void GetSharedMaterials(List<Material> output){output.Clear();output.AddRange(Materials);}
+        public void GetPropertyBlock(MaterialPropertyBlock output){output.Copy(Block);}
+        public void GetPropertyBlock(MaterialPropertyBlock output,int index){output.Copy(SubmeshBlocks.TryGetValue(index,out var b)?b:null);}
+    }
+    public sealed class MeshRenderer:Renderer{}
+    public sealed class SkinnedMeshRenderer:Renderer{public Mesh sharedMesh;}
+    public class Texture:Object {public uint updateCount;public int width=16,height=16,dimension=2,graphicsFormat=1,mipmapCount=1,filterMode=1,wrapModeU,wrapModeV,wrapModeW,anisoLevel=1;public float mipMapBias;public bool isDataSRGB;}
+    public sealed class Texture2D:Texture {public bool streamingMipmaps;public int activeMipmapLimit,loadedMipmapLevel,loadingMipmapLevel;}
+    public sealed class RenderTexture:Texture{}
+    public class PropertyBag
+    {
+        public readonly Dictionary<int,object> Values=new();
+        public bool HasProperty(int id)=>Values.ContainsKey(id);public bool HasProperty(string n)=>HasProperty(Shader.PropertyToID(n));
+        public bool HasFloat(int id)=>Values.TryGetValue(id,out var v)&&v is float;
+        public bool HasVector(int id)=>Values.TryGetValue(id,out var v)&&(v is Color||v is Vector4);
+        public bool HasTexture(int id)=>Values.TryGetValue(id,out var v)&&(v==null||v is Texture);
+        T Get<T>(int id)=>Values.TryGetValue(id,out var v)&&v is T t?t:default;
+        public float GetFloat(int id)=>Get<float>(id);public float GetFloat(string n)=>GetFloat(Shader.PropertyToID(n));public Color GetColor(int id)=>Get<Color>(id);public Vector4 GetVector(int id){if(Values.TryGetValue(id,out var value)&&value is Color color){var linear=color.linear;return new(linear.r,linear.g,linear.b,linear.a);}return Get<Vector4>(id);}public Texture GetTexture(int id)=>Get<Texture>(id);
+        public void SetFloat(int id,float v)=>Values[id]=v;public void SetFloat(string n,float v)=>SetFloat(Shader.PropertyToID(n),v);public void SetColor(int id,Color v)=>Values[id]=v;public void SetVector(int id,Vector4 v)=>Values[id]=v;public void SetTexture(int id,Texture v)=>Values[id]=v;
+    }
+    public sealed class Material:Object
+    {
+        readonly PropertyBag bag=new();public Dictionary<int,object> Values=>bag.Values;public Shader shader;public int renderQueue=2000;public bool enableInstancing;public readonly HashSet<string> Keywords=new();
+        public Material(Shader shader){this.shader=shader;}
+        public int globalIlluminationFlags;public bool doubleSidedGI,ForceConstantCRC;public string[] shaderKeywords=>Keywords.ToArray();
+        public readonly Dictionary<int,Vector2> Scales=new(),Offsets=new();
+        public Vector2 GetTextureScale(int id)=>Scales.TryGetValue(id,out var value)?value:Vector2.one;
+        public Vector2 GetTextureOffset(int id)=>Offsets.TryGetValue(id,out var value)?value:Vector2.zero;
+        public int passCount=>1;public string GetPassName(int index)=>"ForwardLit";public bool GetShaderPassEnabled(string pass)=>true;public string GetTag(string tag,bool fallback,string value)=>"Opaque";
+        public bool HasProperty(int id)=>bag.HasProperty(id);public bool HasProperty(string n)=>bag.HasProperty(n);public float GetFloat(int id)=>bag.GetFloat(id);public float GetFloat(string n)=>bag.GetFloat(n);public Color GetColor(int id)=>bag.GetColor(id);public Vector4 GetVector(int id)=>bag.GetVector(id);public Texture GetTexture(int id)=>bag.GetTexture(id);
+        public void SetFloat(int id,float v)=>bag.SetFloat(id,v);public void SetFloat(string n,float v)=>bag.SetFloat(n,v);public void SetColor(int id,Color v)=>bag.SetColor(id,v);public void SetVector(int id,Vector4 v)=>bag.SetVector(id,v);public void SetTexture(int id,Texture v)=>bag.SetTexture(id,v);
+        public bool IsKeywordEnabled(string n)=>Keywords.Contains(n);
+        public uint ComputeCRC(){if(ForceConstantCRC)return 123;unchecked{int h=renderQueue;foreach(var p in Values.OrderBy(x=>x.Key))h=(h*397^p.Key)*397^(p.Value?.GetHashCode()??0);foreach(var k in Keywords.OrderBy(x=>x))h=h*397^k.GetHashCode();return(uint)h;}}
+        public void CopyPropertiesFromMaterial(Material other){Values.Clear();foreach(var p in other.Values)Values[p.Key]=p.Value;renderQueue=other.renderQueue;Keywords.Clear();Keywords.UnionWith(other.Keywords);}
+    }
+    public sealed class MaterialPropertyBlock:PropertyBag
+    {
+        public bool isEmpty=>Values.Count==0;public void Copy(MaterialPropertyBlock other){Values.Clear();if(other!=null)foreach(var p in other.Values)Values[p.Key]=p.Value;}
+    }
+    public sealed class Shader:Object
+    {
+        public int renderQueue=2000;
+        static readonly Dictionary<string,int> Names=new();public static int PropertyToID(string name){if(!Names.TryGetValue(name,out int id)){id=Names.Count+1;Names.Add(name,id);}return id;}
+    }
+    public sealed class ComputeShader:Object {public int FindKernel(string name){if(name!="CSBuildAnchors")throw new Exception("Unexpected kernel");return 5;}}
+    public static class Resources
+    {
+        public static T Load<T>(string path) where T:class=>typeof(T)==typeof(Shader)?new Shader{name=path} as T:new ComputeShader{name=path} as T;
+    }
+    public enum ComputeBufferType{Structured}
+    public sealed class ComputeBuffer:Object
+    {
+        public static readonly List<ComputeBuffer> All=new();public int count,stride;public bool Released;public object[] Data;
+        public ComputeBuffer(int count,int stride,ComputeBufferType type){this.count=count;this.stride=stride;Data=new object[count];All.Add(this);}
+        public static object[] Snapshot(Array data){var result=new object[data.Length];for(int i=0;i<data.Length;i++)result[i]=data.GetValue(i);return result;}
+        public void SetData(Array data){if(Released||data.Length>count)throw new Exception("Bad buffer upload");Data=Snapshot(data);}
+        public void Release(){Released=true;}
+    }
+    public enum FilterMode{Point}public enum TextureWrapMode{Clamp}
+    public static class Time{public static int frameCount;}
+    public static class SystemInfo{public static bool usesReversedZBuffer=true;}
+}
+namespace UnityEngine.Experimental.Rendering {public enum GraphicsFormat{None,R8G8B8A8_UNorm,R16G16B16A16_SFloat,R32G32B32A32_SFloat}}
+namespace UnityEngine.Rendering
+{
+    using UnityEngine;
+    public enum DepthBits{None,Depth32}
+    public struct RenderTargetIdentifier{public int Id;public RenderTargetIdentifier(int id){Id=id;}}
+    public sealed class RTHandle:Object
+    {
+        public static readonly List<RTHandle> All=new();public RenderTargetIdentifier nameID;public bool Released;
+        public RTHandle(string n){name=n;nameID=new(GetInstanceID());All.Add(this);}public void Release(){Released=true;}
+    }
+    public static class RTHandles{public static RTHandle Alloc(int width,int height,UnityEngine.Experimental.Rendering.GraphicsFormat colorFormat,FilterMode filterMode,TextureWrapMode wrapMode,string name,DepthBits depthBufferBits=DepthBits.None)=>new(name);}
+    public static class CoreUtils
+    {
+        public static Material CreateEngineMaterial(Shader shader)=>new(shader);
+        public static void Destroy(Object value){if(value!=null)value.Destroyed=true;}
+        public static void SetKeyword(Material mat,string keyword,bool enabled){if(enabled)mat.Keywords.Add(keyword);else mat.Keywords.Remove(keyword);}
+    }
+    public sealed class CommandBuffer
+    {
+        public sealed class Entry
+        {
+            public string Kind;public ComputeBuffer Buffer;public object[] Data;public Mesh Mesh;public Renderer Renderer;public Material Material;public int Submesh,Pass,X,Y,Z,Kernel;
+            public Dictionary<int,object> Parameters;public Dictionary<int,object> MaterialValues;public ComputeShader Shader;
+        }
+        public readonly List<Entry> Entries=new();public readonly Dictionary<int,object> Parameters=new();
+        Dictionary<int,object> Copy()=>new(Parameters);
+        public void SetBufferData(ComputeBuffer buffer,Array data){Entries.Add(new(){Kind="Upload",Buffer=buffer,Data=ComputeBuffer.Snapshot(data),Parameters=Copy()});}
+        public void SetRenderTarget(RenderTargetIdentifier[] targets,RenderTargetIdentifier depth){Entries.Add(new(){Kind="Targets"});}
+        public void SetViewport(Rect rect){Entries.Add(new(){Kind="Viewport"});}
+        public void ClearRenderTarget(bool depth,bool color,Color clear,float value){Entries.Add(new(){Kind="Clear"});}
+        public void SetGlobalVector(int id,Vector4 v)=>Parameters[id]=v;public void SetGlobalFloat(int id,float v)=>Parameters[id]=v;public void SetGlobalMatrix(int id,Matrix4x4 v)=>Parameters[id]=v;
+        public void DrawProcedural(Matrix4x4 m,Material material,int pass,MeshTopology topology,int count){Entries.Add(new(){Kind="TileClear",Material=material,Pass=pass,Parameters=Copy()});}
+        public void DrawMesh(Mesh mesh,Matrix4x4 matrix,Material material,int submesh,int pass,MaterialPropertyBlock properties){Entries.Add(new(){Kind="DrawMesh",Mesh=mesh,Material=material,Submesh=submesh,Pass=pass,MaterialValues=new(material.Values),Parameters=Copy()});}
+        public void DrawRenderer(Renderer renderer,Material material,int submesh,int pass){Entries.Add(new(){Kind="DrawRenderer",Renderer=renderer,Material=material,Submesh=submesh,Pass=pass,MaterialValues=new(material.Values),Parameters=Copy()});}
+        public void SetComputeIntParam(ComputeShader shader,int id,int value)=>Parameters[id]=value;public void SetComputeIntParam(ComputeShader shader,string name,int value)=>Parameters[Shader.PropertyToID(name)]=value;
+        public void SetComputeFloatParam(ComputeShader shader,int id,float value)=>Parameters[id]=value;
+        public void SetComputeVectorParam(ComputeShader shader,int id,Vector4 value)=>Parameters[id]=value;public void SetComputeVectorParam(ComputeShader shader,string name,Vector4 value)=>Parameters[Shader.PropertyToID(name)]=value;
+        public void SetComputeTextureParam(ComputeShader shader,int kernel,int id,RenderTargetIdentifier value)=>Parameters[id]=value;
+        public void SetComputeBufferParam(ComputeShader shader,int kernel,int id,ComputeBuffer buffer)=>Parameters[id]=buffer;
+        public void DispatchCompute(ComputeShader shader,int kernel,int x,int y,int z){Entries.Add(new(){Kind="Dispatch",Shader=shader,Kernel=kernel,X=x,Y=y,Z=z,Parameters=Copy()});}
+    }
+}
+namespace HybridLumenGI
+{
+    using UnityEngine;
+    // Dependency adapter; deformation publication has its own actual-source lifecycle check.
+    public static class HybridLumenGIDeformedMesh
+    {
+        public static bool HasSnapshot(UnityEngine.Renderer r)=>false;
+        public static UnityEngine.Mesh GetSourceMesh(UnityEngine.Renderer r)=>r is UnityEngine.SkinnedMeshRenderer skin?skin.sharedMesh:r?.GetComponent<UnityEngine.MeshFilter>()?.sharedMesh;
+    }
+    // Only asset API substituted. Baker/source fingerprint validation has separate actual-source tests.
+    public sealed class HybridLumenGISurfaceCharts:Object
+    {
+        public struct Chart {public uint stableId;public int sourceSubmesh;public Matrix4x4 localToCard;public Vector3 direction;public int[] triangleIndices;}
+        public Chart[] Charts;public Mesh CaptureMesh;public uint ContentVersion=1;public bool IsValid=true,SourceMatches=true;public int MatchesCalls;
+        public bool MatchesSource(Mesh source){MatchesCalls++;return SourceMatches;}
+    }
+    public sealed class HybridLumenGIProxy:Object
+    {
+        public bool isActiveAndEnabled=true;public int StableId,Revision=1,GeometryContentRevision=1;public Renderer SourceRenderer;public HybridLumenGISurfaceCharts SurfaceCharts;
+        public Color AlbedoTint=Color.white,EmissionOverride=Color.clear;public float EmissionIntensity;
+    }
+    public sealed class HybridLumenGIScene
+    {
+        public struct ProxyGpuData{public Vector4 identity;}
+        public ProxyGpuData[] Data;public HybridLumenGIProxy[] Proxies;public int Capacity=>Data.Length;
+        public HybridLumenGIScene(int count){Data=new ProxyGpuData[count];Proxies=new HybridLumenGIProxy[count];}
+        public HybridLumenGIProxy GetProxy(int slot)=>Proxies[slot];public Renderer GetRenderer(int slot)=>Proxies[slot]?.SourceRenderer;
+        public void Set(int slot,HybridLumenGIProxy proxy,int phase=1){Proxies[slot]=proxy;Data[slot].identity=proxy==null?default:new(proxy.StableId,proxy.Revision,0,phase);}
+    }
+}

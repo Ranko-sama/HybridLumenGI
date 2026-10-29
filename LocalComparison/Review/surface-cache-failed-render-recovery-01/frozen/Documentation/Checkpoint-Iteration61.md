@@ -1,0 +1,13 @@
+# Surface-cache discarded-recording recovery
+
+Original goals1/3, workflows3/5. ActualPro60 and independently plan-aware Astra identify a conditional CPU-state risk, not an observed native failure. Count55 and61 together as failed-render recovery; do not rerun55 or reopen multiview/native observers.
+
+First freeze and run one old-source control before any Runtime edit. Use actual SurfaceCache/MaterialSource/HitMaterialData, existing StandaloneSurfaceCache fixture construction and recording CommandBuffer. Extract the exact public/common InvalidateFailedRender method from Feature into a narrow surrounding state adapter; global SDF/history/feedback actions are counters only, not reimplemented SurfaceCache policy. Never directly call a new Surface invalidation API from the test. The existing broad material/chart matrix is compiled as reusable fixture code but not run.
+
+Fixed inputs: one owner with two charts and one material; capacity2/tile16/grid4, initial capture budget2/draw budget4. Independently run normal-recording and logically-discarded-recording branches. After initial two-card recording, discard branch calls the actual failure method. Then use capture budget1/draw budget2 in both branches for two Prepare/RecordCapture steps and one final stable step. Old failure retaining owner-ready with zero rescheduled captures establishes the counterexample. No counterexample means stop without product edits.
+
+If established, only SurfaceCache and the Feature common failure exit may change. Invalidate ALL resident cards including warming/not-captured cards, because restored clearPending clears the whole atlas: metadata ready0, ReadyMask false, dirty, per-card generation advanced under the existing24bit rule, metadata retransmission and initialization clear restored. Preserve card age, tile/owner/chart mapping, AtlasGeneration/layoutGeneration and atlas/buffer resource identity. No disposal, material change, resource replacement, budget change or per-command tracking.
+
+Candidate must immediately withdraw complete owner readiness, restore one card per original-budget step (owner remains unready until both captured), upload invalid metadata before clear/draw/anchor/ready publication, consume initialization clear once, then return to zero stable work. The normal branch snapshots must match the old-source normal branch; original failure actions and all ownership identities remain. One candidate command only; first candidate failure stops automatic expansion.
+
+This executes CPU state and recorded command ordering, not GPU pixels, actual dropped native commands or a native RenderGraph catch. Zero Unity Editor, Player or GPU runs. Source/header ABI, success path and resource lifetime remain unchanged. Full original plan remains open.

@@ -551,6 +551,26 @@ namespace HybridLumenGI
             return changed || scheduled.Count > 0;
         }
 
+        /// <summary>Reject recorded readiness after a failed render without replacing resources.
+        /// Restoring the atlas clear requires invalidating every resident card, including warming cards.</summary>
+        public void InvalidateRecordedCapture()
+        {
+            metadataDirty = clearPending = true;
+            scheduled.Clear(); pending.Clear();
+            ReadyCards = CapturedCards = PendingCards = 0;
+            for (int index = 0; index < cards.Length; index++)
+            {
+                Card card = cards[index];
+                if (card.tile < 0) continue;
+                card.dirty = true;
+                card.generation = card.generation >= 0x00ffffffu ? 1u : card.generation + 1u;
+                CardMetadata value = metadata[index];
+                value.generation = card.generation; value.ready = 0;
+                metadata[index] = value; ReadyMask[index] = false;
+                PendingCards++;
+            }
+        }
+
         /// <summary>
         /// Record on the graphics queue in an unsafe raster-capable pass, before
         /// BindCompute consumers. Import/register all five atlas textures in RG.

@@ -1,0 +1,73 @@
+[
+  {
+    "path": "successful-recording/control",
+    "initial": "{\"ReadyCards\":2,\"PendingCards\":0,\"ScheduledCards\":0,\"CapturedCards\":2,\"AtlasGeneration\":1,\"layout\":1,\"tiles\":[0,1],\"readyMask\":[true,true],\"cards\":[{\"index\":0,\"generation\":1,\"ready\":1,\"dirty\":false},{\"index\":1,\"generation\":1,\"ready\":1,\"dirty\":false}]}",
+    "afterFailure": "{\"ReadyCards\":2,\"PendingCards\":0,\"ScheduledCards\":0,\"CapturedCards\":2,\"AtlasGeneration\":1,\"layout\":1,\"tiles\":[0,1],\"readyMask\":[true,true],\"cards\":[{\"index\":0,\"generation\":1,\"ready\":1,\"dirty\":false},{\"index\":1,\"generation\":1,\"ready\":1,\"dirty\":false}]}",
+    "captures": [
+      0,
+      0,
+      0
+    ],
+    "commands": [
+      [],
+      [],
+      []
+    ],
+    "snapshots": [
+      "{\"ReadyCards\":2,\"PendingCards\":0,\"ScheduledCards\":0,\"CapturedCards\":0,\"AtlasGeneration\":1,\"layout\":1,\"tiles\":[0,1],\"readyMask\":[true,true],\"cards\":[{\"index\":0,\"generation\":1,\"ready\":1,\"dirty\":false},{\"index\":1,\"generation\":1,\"ready\":1,\"dirty\":false}]}",
+      "{\"ReadyCards\":2,\"PendingCards\":0,\"ScheduledCards\":0,\"CapturedCards\":0,\"AtlasGeneration\":1,\"layout\":1,\"tiles\":[0,1],\"readyMask\":[true,true],\"cards\":[{\"index\":0,\"generation\":1,\"ready\":1,\"dirty\":false},{\"index\":1,\"generation\":1,\"ready\":1,\"dirty\":false}]}",
+      "{\"ReadyCards\":2,\"PendingCards\":0,\"ScheduledCards\":0,\"CapturedCards\":0,\"AtlasGeneration\":1,\"layout\":1,\"tiles\":[0,1],\"readyMask\":[true,true],\"cards\":[{\"index\":0,\"generation\":1,\"ready\":1,\"dirty\":false},{\"index\":1,\"generation\":1,\"ready\":1,\"dirty\":false}]}"
+    ],
+    "uploadedSoftwareVersion": 9,
+    "sdfCalls": 0,
+    "historyCalls": 0,
+    "feedbackCalls": 0,
+    "productCounterexample": false
+  },
+  {
+    "path": "discarded-recording/common-failure-exit",
+    "initial": "{\"ReadyCards\":2,\"PendingCards\":0,\"ScheduledCards\":0,\"CapturedCards\":2,\"AtlasGeneration\":1,\"layout\":1,\"tiles\":[0,1],\"readyMask\":[true,true],\"cards\":[{\"index\":0,\"generation\":1,\"ready\":1,\"dirty\":false},{\"index\":1,\"generation\":1,\"ready\":1,\"dirty\":false}]}",
+    "afterFailure": "{\"ReadyCards\":0,\"PendingCards\":2,\"ScheduledCards\":0,\"CapturedCards\":0,\"AtlasGeneration\":1,\"layout\":1,\"tiles\":[0,1],\"readyMask\":[false,false],\"cards\":[{\"index\":0,\"generation\":2,\"ready\":0,\"dirty\":true},{\"index\":1,\"generation\":2,\"ready\":0,\"dirty\":true}]}",
+    "captures": [
+      1,
+      1,
+      0
+    ],
+    "commands": [
+      [
+        "Upload",
+        "Upload",
+        "Upload",
+        "Targets",
+        "Viewport",
+        "Viewport",
+        "Clear",
+        "TileClear",
+        "DrawMesh",
+        "Dispatch",
+        "Viewport",
+        "Upload"
+      ],
+      [
+        "Targets",
+        "Viewport",
+        "TileClear",
+        "DrawMesh",
+        "Dispatch",
+        "Viewport",
+        "Upload"
+      ],
+      []
+    ],
+    "snapshots": [
+      "{\"ReadyCards\":1,\"PendingCards\":1,\"ScheduledCards\":0,\"CapturedCards\":1,\"AtlasGeneration\":1,\"layout\":1,\"tiles\":[0,1],\"readyMask\":[true,false],\"cards\":[{\"index\":0,\"generation\":2,\"ready\":1,\"dirty\":false},{\"index\":1,\"generation\":2,\"ready\":0,\"dirty\":true}]}",
+      "{\"ReadyCards\":2,\"PendingCards\":0,\"ScheduledCards\":0,\"CapturedCards\":1,\"AtlasGeneration\":1,\"layout\":1,\"tiles\":[0,1],\"readyMask\":[true,true],\"cards\":[{\"index\":0,\"generation\":2,\"ready\":1,\"dirty\":false},{\"index\":1,\"generation\":2,\"ready\":1,\"dirty\":false}]}",
+      "{\"ReadyCards\":2,\"PendingCards\":0,\"ScheduledCards\":0,\"CapturedCards\":0,\"AtlasGeneration\":1,\"layout\":1,\"tiles\":[0,1],\"readyMask\":[true,true],\"cards\":[{\"index\":0,\"generation\":2,\"ready\":1,\"dirty\":false},{\"index\":1,\"generation\":2,\"ready\":1,\"dirty\":false}]}"
+    ],
+    "uploadedSoftwareVersion": 0,
+    "sdfCalls": 1,
+    "historyCalls": 1,
+    "feedbackCalls": 1,
+    "productCounterexample": false
+  }
+]

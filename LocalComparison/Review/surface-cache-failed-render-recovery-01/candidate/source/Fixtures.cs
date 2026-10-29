@@ -1,0 +1,403 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using HybridLumenGI;
+using UnityEngine;
+using UnityEngine.Rendering;
+
+static class Program
+{
+    static int assertions,scenarios;
+    static readonly Rect Viewport=new(0,0,640,480);
+    static void Check(bool value,string name){assertions++;if(!value)throw new Exception("FAILED: "+name);}
+    static uint U(object value,string field)=>(uint)value.GetType().GetField(field).GetValue(value);
+    static T Private<T>(object obj,string field)=>(T)obj.GetType().GetField(field,BindingFlags.NonPublic|BindingFlags.Instance).GetValue(obj);
+    static ComputeBuffer Buffer(HybridLumenGISurfaceCache cache,string field)=>Private<ComputeBuffer>(cache,field);
+    static object[] Metadata(HybridLumenGISurfaceCache cache)=>ComputeBuffer.Snapshot(Private<Array>(cache,"metadata"));
+    static object[] Ranges(HybridLumenGISurfaceCache cache)=>ComputeBuffer.Snapshot(Private<Array>(cache,"ownerRanges"));
+    static int[] Indices(HybridLumenGISurfaceCache cache,int slot)=>Enumerable.Range(0,cache.GetCardCount(slot)).Select(i=>cache.GetCardIndex(slot,i)).ToArray();
+    static HybridLumenGISurfaceCache.Config Config(int capacity,int captures=100,int draws=1000)=>new(){maxResidentCards=capacity,tileResolution=16,maxAtlasMiB=16,capturesPerFrame=captures,maxDrawsPerFrame=draws,patchGrid=4};
+    static Mesh Mesh(int count,string name){var mesh=new Mesh{name=name};for(int i=0;i<count;i++)mesh.Topologies.Add(MeshTopology.Triangles);return mesh;}
+    static HybridLumenGIProxy Proxy(int id,int charts,int phaseMaterialCount=3)
+    {
+        var source=Mesh(phaseMaterialCount,"source "+id);
+        var renderer=new MeshRenderer{Filter=new MeshFilter{sharedMesh=source}};
+        for(int m=0;m<phaseMaterialCount;m++)
+        {
+            var mat=new Material(new Shader{name="Universal Render Pipeline/Lit"});mat.SetFloat("_Surface",0);mat.SetFloat("_Cull",2);mat.SetFloat("_Metallic",id*10+m);renderer.Materials.Add(mat);
+        }
+        var proxy=new HybridLumenGIProxy{StableId=id,SourceRenderer=renderer};
+        if(charts>=0)
+        {
+            var asset=new HybridLumenGISurfaceCharts{CaptureMesh=Mesh(charts,"capture "+id),Charts=new HybridLumenGISurfaceCharts.Chart[charts]};
+            for(int c=0;c<charts;c++)asset.Charts[c]=new(){stableId=(uint)(101+c*17),sourceSubmesh=(c*2+1)%phaseMaterialCount,localToCard=Matrix4x4.identity,direction=Vector3.forward,triangleIndices=new[]{c}};
+            proxy.SurfaceCharts=asset;
+        }
+        return proxy;
+    }
+    static CommandBuffer Capture(HybridLumenGISurfaceCache cache){var command=new CommandBuffer();cache.RecordCapture(command,Viewport);return command;}
+    static void ValidateRanges(HybridLumenGISurfaceCache cache,int[] counts)
+    {
+        var ranges=Ranges(cache);var indices=Private<uint[]>(cache,"cardIndices");int cursor=0;var seen=new HashSet<int>();var metadata=Metadata(cache);
+        for(int slot=0;slot<counts.Length;slot++)
+        {
+            Check(cache.GetCardCount(slot)==counts[slot],"required physical set count "+slot);
+            if(counts[slot]==0){Check(U(ranges[slot],"count")==0&&U(ranges[slot],"layoutGeneration")==0,"retired empty range "+slot);continue;}
+            Check(U(ranges[slot],"first")==cursor&&U(ranges[slot],"count")==counts[slot],"indirect range offset/count "+slot);
+            Check(U(ranges[slot],"layoutGeneration")==cache.GetLayoutGeneration(slot),"owner range layout "+slot);
+            foreach(int index in Indices(cache,slot))
+            {
+                Check(index>=0&&index<cache.CardCount&&seen.Add(index),"unique physical pool ownership");
+                Check(indices[cursor++]==index&&cache.CardOwners[index]==slot&&U(metadata[index],"ownerSlot")==slot,"explicit indirect owner metadata");
+            }
+        }
+        Check(indices.Skip(cursor).All(i=>i==uint.MaxValue),"unused indices never reference a physical card");
+    }
+    static void VariableChartsAndOrder()
+    {
+        scenarios++;var scene=new HybridLumenGIScene(3);scene.Set(0,Proxy(11,1));scene.Set(1,Proxy(12,3));scene.Set(2,Proxy(13,7));
+        using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,Config(11));
+        Check(cache.CardCount==11&&cache.RequiredCards==11&&cache.ResidentCards==11&&cache.ChartedOwners==3&&cache.ApproximateOwners==0,"variable 1/3/7 chart admission");
+        ValidateRanges(cache,new[]{1,3,7});
+        Check(cache.ScheduledCards==11&&cache.PendingCards==11&&cache.ReadyCards==0,"prepare only schedules");
+        for(int slot=0;slot<3;slot++)Check(!cache.IsSlotReady(slot,scene.Proxies[slot].StableId,1)&&cache.RequiresCardCoverage(slot),"every required chart waits for capture");
+        Check(Buffer(cache,"metadataBuffer").stride==128&&Buffer(cache,"rangesBuffer").stride==16&&Buffer(cache,"indicesBuffer").stride==4&&Buffer(cache,"anchorsBuffer").stride==8&&Buffer(cache,"emittersBuffer").stride==32,"GPU buffer layout strides");
+        Check(Marshal.SizeOf(Metadata(cache)[0])==128&&Marshal.SizeOf(Ranges(cache)[0])==16,"actual runtime metadata marshaled sizes");
+        Check(Buffer(cache,"anchorsBuffer").count==11*16&&Buffer(cache,"anchorsBuffer").Data.Cast<Vector2Int>().All(v=>v.x==-1&&v.y==-1),"anchors cleared across full physical pool");
+        var emitters=Buffer(cache,"emittersBuffer");
+        Check(emitters.count==cache.CardCount&&Marshal.SizeOf(emitters.Data[0])==HybridLumenGISurfaceCache.EmittersStride,"one 32-byte emissive descriptor per physical card");
+        Check(emitters.Data.All(v=>v.GetType().GetFields().All(f=>f.GetValue(v).Equals(default(Vector4)))),"all descriptor bytes start at zero");
+        var cmd=Capture(cache);var uploads=cmd.Entries.Where(e=>e.Kind=="Upload"&&e.Buffer==Buffer(cache,"metadataBuffer")).ToArray();
+        Check(uploads.Length==2&&uploads[0].Data.All(v=>U(v,"ready")==0)&&uploads[1].Data.All(v=>U(v,"ready")==1),"deep snapshots preserve pre/post ready publication");
+        var draws=cmd.Entries.Where(e=>e.Kind=="DrawMesh").ToArray();var dispatches=cmd.Entries.Where(e=>e.Kind=="Dispatch").ToArray();
+        Check(draws.Length==11&&dispatches.Length==11&&cmd.Entries.Count(e=>e.Kind=="TileClear")==11,"one chart draw, clear and anchor dispatch per card");
+        int lastUpload=cmd.Entries.IndexOf(uploads[1]);int anchorCardId=Shader.PropertyToID("_HLGI_AnchorCard"),gridId=Shader.PropertyToID("_HLGI_AnchorGrid");
+        for(int slot=0;slot<3;slot++)
+        {
+            var proxy=scene.Proxies[slot];var asset=proxy.SurfaceCharts;
+            for(int ordinal=0;ordinal<asset.Charts.Length;ordinal++)
+            {
+                int index=cache.GetCardIndex(slot,ordinal);var draw=draws.Single(e=>e.Mesh==asset.CaptureMesh&&e.Submesh==ordinal);
+                Check(draw.Mesh!=((MeshRenderer)proxy.SourceRenderer).Filter.sharedMesh&&draw.Pass==0,"draw chart capture mesh only");
+                Check((float)draw.MaterialValues[Shader.PropertyToID("_Metallic")]==proxy.StableId*10+asset.Charts[ordinal].sourceSubmesh,"chart ordinal maps original source material");
+                var dispatch=dispatches.Single(e=>(int)e.Parameters[anchorCardId]==index);
+                Check(cmd.Entries.IndexOf(draw)<cmd.Entries.IndexOf(dispatch)&&cmd.Entries.IndexOf(dispatch)<lastUpload,"capture then anchors then ready metadata");
+                Check((int)dispatch.Parameters[gridId]==4&&dispatch.X==1&&dispatch.Y==1&&dispatch.Z==1&&dispatch.Kernel==5,"one 4x4 group scans card");
+                Check(ReferenceEquals(dispatch.Parameters[Shader.PropertyToID("_HLGI_SurfaceAnchors")],Buffer(cache,"anchorsBuffer")),"anchor output binding");
+                Check(ReferenceEquals(dispatch.Parameters[Shader.PropertyToID("_HLGI_SurfaceEmitters")],emitters),"same ordered scan writes descriptor output");
+                var tolerance=(Vector4)uploads[1].Data[index].GetType().GetField("directionTolerance").GetValue(uploads[1].Data[index]);
+                Check((float)dispatch.Parameters[Shader.PropertyToID("_HLGI_AnchorEmitterPadding")]==Math.Max(tolerance.w,.001f),"descriptor padding uses this card tolerance with positive minimum");
+                Check(U(uploads[1].Data[index],"chartId")==asset.Charts[ordinal].stableId&&(U(uploads[1].Data[index],"flags")&1)==1,"nonordinal chart id and required flag");
+            }
+            Check(cache.IsSlotReady(slot,proxy.StableId,1)&&cache.IsSlotSourceCurrent(slot,proxy.StableId,1),"complete required owner ready/current");
+        }
+        Check(cache.CapturedCards==11&&cache.ReadyCards==11&&cache.PendingCards==0,"capture diagnostics");
+        var bind=new CommandBuffer();cache.BindCompute(bind,new ComputeShader(),0);
+        Check((int)bind.Parameters[Shader.PropertyToID("_HLGI_SurfaceCardCount")]==11,"compute count is physical capacity");
+        foreach(string name in new[]{"_HLGI_SurfaceCards","_HLGI_SurfaceOwnerRanges","_HLGI_SurfaceCardIndices","_HLGI_SurfaceAnchors"})Check(bind.Parameters[Shader.PropertyToID(name)] is ComputeBuffer,"consumer buffer bound "+name);
+        cache.BindEmitters(bind,new ComputeShader(),2);
+        Check(ReferenceEquals(bind.Parameters[Shader.PropertyToID("_HLGI_SurfaceEmitters")],emitters),"consumer emitter buffer binding");
+        Check(cmd.Entries.All(e=>e.Kind!="Upload"||e.Buffer!=emitters),"CPU never overwrites recorded GPU descriptor writes during capture");
+    }
+    static void SparseRetirementAndLayout()
+    {
+        scenarios++;var scene=new HybridLumenGIScene(5);scene.Set(0,Proxy(21,1));scene.Set(1,Proxy(22,3));scene.Set(2,Proxy(23,1));var config=Config(7);
+        using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,config);Capture(cache);
+        var kept=Indices(cache,1);uint keptLayout=cache.GetLayoutGeneration(1),oldLayout=cache.GetLayoutGeneration(0);int oldIndex=cache.GetCardIndex(0,0);uint oldGen=cache.GetGeneration(oldIndex);
+        scene.Set(0,null);scene.Set(2,null);scene.Set(3,Proxy(24,3));cache.Prepare(scene,config);
+        var scattered=Indices(cache,3);
+        Check(scattered.Length==3&&scattered.Max()-scattered.Min()+1>3,"allocator creates noncontiguous owner indices");
+        Check(kept.SequenceEqual(Indices(cache,1))&&keptLayout==cache.GetLayoutGeneration(1),"unrelated owner retains allocation/layout");
+        Check(cache.GetLayoutGeneration(3)>oldLayout&&cache.GetGeneration(oldIndex)>oldGen&&!cache.ReadyMask[oldIndex],"physical page reuse gets new layout/generation and is not ready");
+        ValidateRanges(cache,new[]{0,3,0,3,0});Capture(cache);
+        uint layout3=cache.GetLayoutGeneration(3);scene.Proxies[3].SurfaceCharts.ContentVersion++;cache.Prepare(scene,config);
+        Check(cache.GetLayoutGeneration(3)!=layout3&&!cache.IsSlotReady(3,24,1),"asset version reallocates whole layout");Capture(cache);
+        scene.Set(3,null);cache.Prepare(scene,config);var retired=Metadata(cache);
+        Check(scattered.All(i=>cache.CardOwners[i]==-1&&U(retired[i],"ready")==0&&U(retired[i],"stableId")==0&&cache.GetGeneration(i)==0),"retired metadata and ownership cleared");
+        ValidateRanges(cache,new[]{0,3,0,0,0});Capture(cache);
+        scene.Set(0,Proxy(25,1));scene.Set(4,Proxy(26,3));cache.Prepare(scene,config);ValidateRanges(cache,new[]{1,3,0,0,3});
+        Check(cache.ResidentCards==7&&cache.GetLayoutGeneration(0)>oldLayout,"retired pool reused without leaking capacity");
+
+        // An earlier owner grows using cards freed by a later shrinking owner.
+        // This exercises the production two-phase retire/allocate transaction.
+        var resizeScene=new HybridLumenGIScene(2);resizeScene.Set(0,Proxy(27,1));resizeScene.Set(1,Proxy(28,7));
+        using var resize=new HybridLumenGISurfaceCache();resize.Prepare(resizeScene,Config(8));Capture(resize);
+        var beforeLayouts=new[]{resize.GetLayoutGeneration(0),resize.GetLayoutGeneration(1)};
+        resizeScene.Proxies[0].SurfaceCharts=Proxy(27,7).SurfaceCharts;resizeScene.Proxies[1].SurfaceCharts=Proxy(28,1).SurfaceCharts;
+        resize.Prepare(resizeScene,Config(8));ValidateRanges(resize,new[]{7,1});
+        Check(resize.ResidentCards==8&&resize.GetLayoutGeneration(0)!=beforeLayouts[0]&&resize.GetLayoutGeneration(1)!=beforeLayouts[1],"grow/shrink transaction reallocates complete sets without spare capacity");
+        Check(!resize.IsSlotReady(0,27,1)&&!resize.IsSlotReady(1,28,1),"replacement layouts require fresh capture");Capture(resize);
+        Check(resize.IsSlotReady(0,27,1)&&resize.IsSlotReady(1,28,1),"resized required sets complete independently");
+    }
+    static void AtomicCapacityAndEligibility()
+    {
+        scenarios++;var scene=new HybridLumenGIScene(3);scene.Set(0,Proxy(31,1));scene.Set(1,Proxy(32,7),2);scene.Set(2,Proxy(33,3),2);
+        using var cache=new HybridLumenGISurfaceCache();var config=Config(4);cache.Prepare(scene,config);
+        Check(cache.RequiredCards==11&&cache.ResidentCards==4&&cache.WarmupBudgetBlockedCards==7,"oversized warming chart set rejected atomically");
+        ValidateRanges(cache,new[]{1,0,3});Capture(cache);Check(!cache.IsSlotReady(1,32,1)&&cache.IsSlotReady(2,33,1),"no partial owner receives ready");
+        // One unsupported required source submesh invalidates the whole chart set.
+        scene.Proxies[2].SourceRenderer.Materials[scene.Proxies[2].SurfaceCharts.Charts[2].sourceSubmesh].SetFloat("_Surface",1);
+        cache.Prepare(scene,config);Check(cache.GetCardCount(2)==0&&cache.UnsupportedRenderers==1,"unsupported required material rejects all charts");
+        Check(cache.GetCardCount(0)==1&&cache.GetCardCount(1)==0,"warming cannot evict retained published set");
+        scene.Proxies[1].SurfaceCharts.IsValid=false;cache.Prepare(scene,config);Check(cache.UnsupportedRenderers==2&&cache.GetCardCount(1)==0,"invalid baked asset cannot become fallback-ready");
+        using var fallback=new HybridLumenGISurfaceCache();var noAsset=new HybridLumenGIScene(1);noAsset.Set(0,Proxy(34,-1));fallback.Prepare(noAsset,Config(6));Capture(fallback);
+        Check(fallback.ApproximateOwners==1&&fallback.ChartedOwners==0&&fallback.GetCardCount(0)==6&&!fallback.RequiresCardCoverage(0),"unbaked six-view fallback explicitly approximate");
+        Check(Metadata(fallback).All(v=>U(v,"flags")==0)&&fallback.IsSlotReady(0,34,1),"fallback readiness distinct from required chart coverage");
+        using var zero=new HybridLumenGISurfaceCache();zero.Prepare(noAsset,Config(0));Check(zero.ResidentCards==0&&zero.GetCardCount(0)==0&&zero.CardCount==1,"zero residency retains only inert dummy buffer");
+    }
+    static void PartialCaptureBudgetAndGrid()
+    {
+        scenarios++;var scene=new HybridLumenGIScene(1);var proxy=Proxy(41,3);scene.Set(0,proxy);var config=Config(3,2);
+        proxy.SourceRenderer.enabled=false;proxy.SourceRenderer.forceRenderingOff=true;
+        proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(50,0,0));
+        using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,config);
+        Check(cache.TryGetPreparedCaptureBounds(0,out var frozenBounds)&&frozenBounds.center.x==50&&proxy.SourceRenderer.bounds.center.x==0,"prepared hidden capture extent must include explicit mesh transform, not stale Renderer.bounds");
+        proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(80,0,0));
+        Check(cache.TryGetPreparedCaptureBounds(0,out var unchangedBounds)&&unchangedBounds.center.x==50,"capture bounds getter must return frozen preparation without live recomputation");
+        proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(50,0,0));
+        Check(!cache.TryGetPreparedCaptureBounds(-1,out _)&&!cache.TryGetPreparedCaptureBounds(1,out _),"missing capture owner has no invented bounds");
+        var first=Capture(cache);
+        Check(cache.ReadyCards==2&&cache.PendingCards==1&&!cache.IsSlotReady(0,41,1),"partial capture never satisfies whole required set");
+        Check(first.Entries.Count(e=>e.Kind=="DrawMesh")==2,"hidden static HLOD capture uses explicit mesh");
+        cache.Prepare(scene,config);Capture(cache);Check(cache.IsSlotReady(0,41,1)&&cache.ReadyCards==3,"remaining chart completes owner");
+        proxy.Revision++;scene.Set(0,proxy);config.maxDrawsPerFrame=1;cache.Prepare(scene,config);Capture(cache);
+        Check(cache.ScheduledCards==0&&cache.CapturedCards==0&&cache.DrawBudgetBlockedCards==3&&!cache.IsSlotReady(0,41,2),"draw budget includes per-tile clear");
+        config.maxDrawsPerFrame=2;config.capturesPerFrame=9;cache.Prepare(scene,config);Capture(cache);Check(cache.CapturedCards==1&&cache.ReadyCards==1,"one clear and draw fit exactly");
+        config.maxDrawsPerFrame=100;cache.Prepare(scene,config);Capture(cache);Check(cache.IsSlotReady(0,41,2),"budget completion");
+        uint generation=cache.AtlasGeneration;var oldAnchors=Buffer(cache,"anchorsBuffer");var oldEmitters=Buffer(cache,"emittersBuffer");config.patchGrid=2;cache.Prepare(scene,config);
+        Check(cache.AtlasGeneration!=generation&&oldAnchors.Released&&Buffer(cache,"anchorsBuffer").count==12&&!cache.IsSlotReady(0,41,2),"grid reallocation invalidates previous atlas/anchor evidence");
+        Check(oldEmitters.Released&&Buffer(cache,"emittersBuffer")!=oldEmitters&&Buffer(cache,"emittersBuffer").count==3,"reallocation retires and replaces descriptors atomically with atlas");
+        var second=Capture(cache);Check(second.Entries.Where(e=>e.Kind=="Dispatch").All(e=>(int)e.Parameters[Shader.PropertyToID("_HLGI_AnchorGrid")]==2),"new grid supplied to every scan");
+        // A source becoming inactive after scheduling must not publish readiness.
+        proxy.Revision++;scene.Set(0,proxy);cache.Prepare(scene,config);proxy.isActiveAndEnabled=false;var skipped=Capture(cache);
+        Check(cache.CapturedCards==0&&!cache.IsSlotReady(0,41,3)&&skipped.Entries.All(e=>e.Kind!="Dispatch"),"skipped capture cannot publish ready");
+        proxy.isActiveAndEnabled=true;cache.Prepare(scene,config);Capture(cache);Check(cache.IsSlotReady(0,41,3),"skipped card remains dirty for next scheduling");
+    }
+    static void SourceHashAndPublicationGuard()
+    {
+        scenarios++;var scene=new HybridLumenGIScene(1);var proxy=Proxy(51,3);scene.Set(0,proxy);var asset=proxy.SurfaceCharts;var config=Config(3);
+        using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,config);Capture(cache);Check(asset.MatchesCalls==1,"new asset verifies source once");
+        uint layout=cache.GetLayoutGeneration(0);proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(3,2,1));proxy.Revision++;scene.Set(0,proxy);cache.Prepare(scene,config);Capture(cache);
+        Check(asset.MatchesCalls==1&&cache.GetLayoutGeneration(0)==layout&&cache.IsSlotReady(0,51,2),"rigid transform recaptures without rehashing mesh");
+        proxy.SourceRenderer.Materials[0].SetFloat("_Smoothness",.2f);proxy.Revision++;scene.Set(0,proxy);cache.Prepare(scene,config);Capture(cache);
+        Check(asset.MatchesCalls==1&&cache.IsSlotReady(0,51,3),"material revision does not rehash unchanged geometry");
+        int changed=cache.ChangedBounds.Count;uint gen=cache.GetGeneration(cache.GetCardIndex(0,0));proxy.GeometryContentRevision++;asset.SourceMatches=false;
+        Check(!cache.IsSlotSourceCurrent(0,51,3)&&cache.IsSlotReady(0,51,3),"publication guard rejects changed geometry before prepare");
+        Check(cache.ChangedBounds.Count==changed&&cache.GetGeneration(cache.GetCardIndex(0,0))==gen&&asset.MatchesCalls==1,"publication guard is read-only and does not hash");
+        cache.Prepare(scene,config);Check(asset.MatchesCalls==2&&cache.UnsupportedRenderers==1&&cache.GetCardCount(0)==0,"geometry content revision rehashes and rejects stale asset");
+        asset.SourceMatches=true;cache.Prepare(scene,config);Capture(cache);Check(asset.MatchesCalls==3&&cache.IsSlotSourceCurrent(0,51,3),"rebuilt matching source becomes current");
+        var replacement=Mesh(3,"replacement source");((MeshRenderer)proxy.SourceRenderer).Filter.sharedMesh=replacement;
+        Check(!cache.IsSlotSourceCurrent(0,51,3),"source mesh identity rejected before prepare");cache.Prepare(scene,config);
+        Check(asset.MatchesCalls==4,"mesh identity forces source recheck");
+        Capture(cache);
+        Check(cache.IsSlotSourceCurrent(0,51,3),"matching replacement mesh updates cached source identity");
+        cache.Prepare(scene,config);Check(asset.MatchesCalls==4,"matching replacement mesh does not rehash forever");
+        // MPB changes must invalidate captured copies without rewriting renderer materials.
+        var block=new MaterialPropertyBlock();block.SetFloat("_Metallic",.25f);proxy.SourceRenderer.SubmeshBlocks[1]=block;cache.Prepare(scene,config);var cmd=Capture(cache);
+        Check(cmd.Entries.Where(e=>e.Kind=="DrawMesh"&&e.Submesh==0).All(e=>(float)e.MaterialValues[Shader.PropertyToID("_Metallic")]==.25f),"chart material receives original submesh MPB override");
+        Check(proxy.SourceRenderer.Materials[1].GetFloat("_Metallic")==511,"source material remains intact");
+    }
+    static void DisposalAndGuards()
+    {
+        scenarios++;var cache=new HybridLumenGISurfaceCache();bool failed=false;try{cache.RecordCapture(new(),Viewport);}catch(InvalidOperationException){failed=true;}Check(failed,"capture requires prepare");
+        failed=false;try{cache.BindCompute(new(),new(),0);}catch(InvalidOperationException){failed=true;}Check(failed,"bind requires prepare");
+        failed=false;try{cache.BindEmitters(new(),new(),0);}catch(InvalidOperationException){failed=true;}Check(failed,"emitter bind requires prepare");
+        var scene=new HybridLumenGIScene(1);scene.Set(0,Proxy(61,1));cache.Prepare(scene,Config(1));Capture(cache);var resources=new[]{Buffer(cache,"metadataBuffer"),Buffer(cache,"rangesBuffer"),Buffer(cache,"indicesBuffer"),Buffer(cache,"anchorsBuffer"),Buffer(cache,"emittersBuffer")};var textures=new[]{cache.DiffuseAtlas,cache.EmissionAtlas,cache.PositionAtlas,cache.NormalAtlas,cache.DepthAtlas};uint old=cache.AtlasGeneration;
+        cache.Dispose();Check(resources.All(b=>b.Released)&&textures.All(t=>t.Released),"dispose releases every atlas/buffer");Check(cache.CardCount==0&&cache.GetCardCount(0)==0&&!cache.IsSlotReady(0,61,1),"dispose clears owners and readiness");
+        cache.Prepare(scene,Config(1));Check(cache.AtlasGeneration!=old&&!cache.IsSlotReady(0,61,1),"reuse after dispose cannot accept old atlas evidence");cache.Dispose();
+    }
+    static void EmissionBudgetAndTextureCapture()
+    {
+        scenarios++;var scene=new HybridLumenGIScene(2);var proxy=Proxy(71,3);scene.Set(0,proxy);
+        var source=proxy.SourceRenderer.Materials[proxy.SurfaceCharts.Charts[0].sourceSubmesh];
+        var texture=new Texture();source.Keywords.Add("_EMISSION");source.SetTexture(Shader.PropertyToID("_EmissionMap"),texture);
+        source.SetColor(Shader.PropertyToID("_EmissionColor"),new Color(1,2,3));
+        using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,Config(3));var command=Capture(cache);
+        Check(command.Entries.Any(e=>e.Kind=="DrawMesh"&&e.Submesh==0&&ReferenceEquals(e.MaterialValues[Shader.PropertyToID("_EmissionMap")],texture)),"texture emission is captured without a CPU texture mean/readability requirement");
+        Check(command.Entries.Count(e=>e.Kind=="Dispatch")==3,"texture emission uses the existing per-card scan only");
+        long expected=4L*16*16*40+3L*(128+4+16*8+32)+2L*16;
+        Check(cache.AllocatedBytes==expected,"memory accounting includes exactly 32 bytes per physical card");
+        var estimate=typeof(HybridLumenGISurfaceCache).GetMethod("EstimateBytes",BindingFlags.Static|BindingFlags.NonPublic);
+        Check((long)estimate.Invoke(null,new object[]{3,16,2,4})==expected,"budget admission estimate includes descriptor allocation");
+        var perBuffer=new[]{"metadataBuffer","rangesBuffer","indicesBuffer","anchorsBuffer","emittersBuffer"}.Select(name=>Buffer(cache,name));
+        Check(cache.AllocatedBytes==cache.AtlasWidth*(long)cache.AtlasHeight*40+perBuffer.Sum(buffer=>(long)buffer.count*buffer.stride),"accounted bytes equal actual buffer capacities plus atlas formats");
+        var before=Buffer(cache,"emittersBuffer");cache.Prepare(scene,Config(3));
+        Check(ReferenceEquals(before,Buffer(cache,"emittersBuffer"))&&cache.ScheduledCards==0,"unchanged frame reuses descriptors without rescanning atlas");
+    }
+    static Mesh Source(HybridLumenGIProxy proxy)=>((MeshRenderer)proxy.SourceRenderer).Filter.sharedMesh;
+    static void NoBinding(HybridLumenGISurfaceCache cache,int slot,Mesh mesh,int submesh,int primitive,string why)
+    {
+        Check(!cache.TryGetTriangleBinding(slot,mesh,submesh,primitive,out var value)&&value.cardIndex==uint.MaxValue&&value.chartId==0&&value.layoutGeneration==0&&value.geometryRevision==0,why);
+    }
+    static void TriangleIdentityAndLifetime()
+    {
+        scenarios++;var scene=new HybridLumenGIScene(2);var proxy=Proxy(81,4,2);scene.Set(0,proxy,2);var mesh=Source(proxy);var asset=proxy.SurfaceCharts;
+        asset.Charts[0].sourceSubmesh=0;asset.Charts[0].triangleIndices=new[]{7,1};
+        asset.Charts[1].sourceSubmesh=1;asset.Charts[1].triangleIndices=new[]{1,8};
+        asset.Charts[2].sourceSubmesh=0;asset.Charts[2].triangleIndices=new[]{2};
+        asset.Charts[3].sourceSubmesh=1;asset.Charts[3].triangleIndices=new[]{3,0};
+        mesh.IndexCounts[0]=30;mesh.IndexCounts[1]=27;
+        using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,Config(4,0));
+        Check(Marshal.SizeOf<HybridLumenGISurfaceCache.TriangleChartBinding>()==16,"exact triangle binding ABI");
+        Check(cache.TriangleMappingBytes==19*4+2*IntPtr.Size,"bounded CPU map cost is primitive ordinals plus submesh pointers, not 16-byte bindings");
+        Check(cache.GetGeometryRevision(0)==1&&cache.GetGeometryRevision(-1)==0&&cache.GetGeometryRevision(1)==0,"prepared live geometry version");
+        for(int s=0;s<2;s++)for(int p=0;p<10;p++)
+        {
+            int expected=Array.FindIndex(asset.Charts,c=>c.sourceSubmesh==s&&c.triangleIndices.Contains(p));
+            bool found=cache.TryGetTriangleBinding(0,mesh,s,p,out var value);
+            Check(found==(expected>=0),"submesh primitive independently maps its own chart");
+            if(found)Check(value.cardIndex==cache.GetCardIndex(0,expected)&&value.chartId==asset.Charts[expected].stableId&&value.layoutGeneration==cache.GetLayoutGeneration(0)&&value.geometryRevision==1,"nonordinal chart ID and physical page identity");
+            else Check(value.cardIndex==uint.MaxValue,"gaps and degenerate/unmapped primitives are explicit unknown");
+        }
+        bool mapped=cache.TryGetTriangleBinding(0,mesh,0,7,out var old);Check(!cache.IsSlotReady(0,81,1)&&mapped,"warming unready card supplies identity but not GPU readiness");
+        var liveMetadata=Private<Array>(cache,"metadata");int physical=(int)old.cardIndex;object original=liveMetadata.GetValue(physical);
+        foreach(string field in new[]{"stableId","revision","ownerSlot","layoutGeneration","generation","chartId","flags"})
+        {
+            object corrupted=liveMetadata.GetValue(physical);var member=corrupted.GetType().GetField(field);
+            member.SetValue(corrupted,field=="generation"||field=="flags"?0u:U(corrupted,field)+1u);liveMetadata.SetValue(corrupted,physical);
+            NoBinding(cache,0,mesh,0,7,"contaminated page metadata rejected: "+field);liveMetadata.SetValue(original,physical);
+        }
+        cache.CardOwners[physical]=1;NoBinding(cache,0,mesh,0,7,"physical page owner mismatch rejected");cache.CardOwners[physical]=0;
+        NoBinding(cache,0,Mesh(2,"wrong"),0,7,"wrong mesh rejected");NoBinding(cache,0,mesh,-1,7,"negative submesh rejected");NoBinding(cache,0,mesh,2,7,"submesh overflow rejected");NoBinding(cache,0,mesh,0,-1,"negative primitive rejected");
+        int reads=mesh.IndexCountReads,hashes=asset.MatchesCalls;
+        for(int frame=0;frame<30;frame++){cache.Prepare(scene,Config(4,0));for(int t=0;t<100;t++)Check(cache.TryGetTriangleBinding(0,mesh,1,8,out _),"stable per-triangle lookup");}
+        Check(mesh.IndexCountReads==reads&&asset.MatchesCalls==hashes,"stable frames/queries read no mesh indices, vertices, index counts or fingerprint");
+        proxy.GeometryContentRevision++;proxy.Revision++;
+        Check(cache.GetGeometryRevision(0)==0,"stale prepared identity cannot export new geometry");NoBinding(cache,0,mesh,0,7,"live edit rejects old mapping before prepare");
+        scene.Set(0,proxy,2);cache.Prepare(scene,Config(4,0));
+        Check(cache.TryGetTriangleBinding(0,mesh,0,7,out var current)&&current.geometryRevision==2&&current.layoutGeneration==old.layoutGeneration,"verified geometry rebuild retains topology layout but updates content identity");
+        Check(U(Ranges(cache)[0],"geometryRevision")==2&&cache.TriangleMappingBytes==19*4+2*IntPtr.Size,"owner range exports current geometry without accumulating CPU tables");
+        var capture=Capture(cache);var rangeUpload=capture.Entries.Last(e=>e.Kind=="Upload"&&e.Buffer==Buffer(cache,"rangesBuffer"));
+        Check(U(rangeUpload.Data[0],"geometryRevision")==2,"geometry-only owner revision is uploaded for exact shader validation");
+        asset.ContentVersion++;NoBinding(cache,0,mesh,0,7,"asset version revokes old binding immediately");cache.Prepare(scene,Config(4,0));
+        Check(cache.TryGetTriangleBinding(0,mesh,0,7,out current)&&current.layoutGeneration!=old.layoutGeneration,"asset layout version cannot reuse old binding identity");
+        asset.SourceMatches=false;proxy.GeometryContentRevision++;proxy.Revision++;scene.Set(0,proxy);cache.Prepare(scene,Config(4));
+        Check(cache.TriangleMappingBytes==0&&cache.GetCardCount(0)==0,"rejected geometry clears mapping and residency");NoBinding(cache,0,mesh,0,7,"stale source has no identity mapping");
+        var replacement=Proxy(82,1);scene.Set(0,replacement);cache.Prepare(scene,Config(4));
+        NoBinding(cache,0,mesh,0,7,"slot reused by another mesh cannot access prior owner table");
+        Check(cache.TryGetTriangleBinding(0,Source(replacement),1,0,out current)&&current.layoutGeneration!=old.layoutGeneration,"reused physical pool gets fresh owner layout");
+        cache.Dispose();Check(cache.TriangleMappingBytes==0&&cache.GetGeometryRevision(0)==0,"dispose releases maps and prepared identity");
+    }
+    static void MappingDefensesAndOracle()
+    {
+        scenarios++;var random=new Random(64239);
+        for(int iteration=0;iteration<80;iteration++)
+        {
+            int submeshes=random.Next(1,8),count=random.Next(1,12);var proxy=Proxy(90+iteration,count,submeshes);var mesh=Source(proxy);var scene=new HybridLumenGIScene(1);scene.Set(0,proxy);
+            var oracle=new Dictionary<(int,int),int>();
+            for(int s=0;s<submeshes;s++)mesh.IndexCounts[s]=180;
+            for(int c=0;c<count;c++)
+            {
+                int s=random.Next(submeshes);var ordinals=new List<int>();
+                for(int k=0;k<random.Next(1,5);k++){int p=random.Next(60);if(!oracle.ContainsKey((s,p))){oracle[(s,p)]=c;ordinals.Add(p);}}
+                proxy.SurfaceCharts.Charts[c].sourceSubmesh=s;proxy.SurfaceCharts.Charts[c].triangleIndices=ordinals.ToArray();
+            }
+            using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,Config(count,0));
+            for(int s=0;s<submeshes;s++)for(int p=0;p<60;p++)
+            {
+                bool expected=oracle.TryGetValue((s,p),out int ordinal),actual=cache.TryGetTriangleBinding(0,mesh,s,p,out var binding);
+                Check(expected==actual&&(!actual||binding.cardIndex==cache.GetCardIndex(0,ordinal)&&binding.chartId==proxy.SurfaceCharts.Charts[ordinal].stableId),"seeded sparse multi-submesh mapping agrees with tuple-key oracle");
+            }
+        }
+        var malformed=Proxy(181,2,1);malformed.SurfaceCharts.Charts[1].triangleIndices=new[]{0};var invalidScene=new HybridLumenGIScene(1);invalidScene.Set(0,malformed);
+        using var invalid=new HybridLumenGISurfaceCache();invalid.Prepare(invalidScene,Config(2));
+        Check(invalid.TriangleMappingBytes==0,"duplicate source triangle cannot become arbitrary first-hit mapping");NoBinding(invalid,0,Source(malformed),0,0,"corrupt asset duplicate is unmapped");
+        var huge=Proxy(182,1,1);Source(huge).IndexCounts[0]=uint.MaxValue;invalidScene.Set(0,huge);invalid.Prepare(invalidScene,Config(1));
+        Check(invalid.GetCardCount(0)==1&&invalid.TriangleMappingBytes==0,"CPU table budget prevents oversized allocation without removing capture pages");NoBinding(invalid,0,Source(huge),0,0,"oversized map stays explicit unknown");
+        huge.SurfaceCharts=null;invalid.Prepare(invalidScene,Config(6));Check(invalid.TriangleMappingBytes==0,"six-face fallback allocates no triangle map");NoBinding(invalid,0,Source(huge),0,0,"six-face view is never claimed as exact triangle identity");
+    }
+    static double Linear(double x)=>x<=.04045?x/12.92:Math.Pow((x+.055)/1.055,2.4);
+    static void Near(float actual,double expected,string name)=>Check(Math.Abs(actual-expected)<Math.Max(2e-6,Math.Abs(expected)*2e-6),name);
+    static int Id(string value)=>Shader.PropertyToID(value);
+    static void HardwareSubmeshConstants()
+    {
+        scenarios++;var proxy=Proxy(201,2,2);proxy.EmissionIntensity=2;proxy.AlbedoTint=new(.8f,.6f,.4f);proxy.EmissionOverride=new(.2f,.1f,0);
+        var renderer=proxy.SourceRenderer;var source=Source(proxy);var a=renderer.Materials[0];var b=renderer.Materials[1];
+        a.SetColor(Id("_BaseColor"),new(.9f,.1f,.2f));b.SetColor(Id("_BaseColor"),new(.1f,.5f,.8f));a.SetFloat("_Metallic",0);b.SetFloat("_Metallic",.25f);b.SetFloat("_Cull",1);
+        b.Keywords.Add("_EMISSION");b.SetColor(Id("_EmissionColor"),new(2,3,4));b.SetTexture(Id("_BaseMap"),new());
+        var scene=new HybridLumenGIScene(1);scene.Set(0,proxy);using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,Config(0));
+        bool foundA=cache.TryGetHardwareMaterial(0,source,0,out var ma),foundB=cache.TryGetHardwareMaterial(0,source,1,out var mb);
+        Check(cache.GetCardCount(0)==0&&cache.GetGeometryRevision(0)==1&&foundA&&foundB,"nonresident owner retains real submesh constants and geometry identity");
+        Check(ma.cullMode==2&&mb.cullMode==1,"submeshes preserve independent cull mode");
+        Near(mb.diffuse.y,Linear(.5)*Linear(.6)*.96*.75,"sRGB base color tint and metallic diffuse energy");Near(mb.emission.x,(2+Linear(.2))*2,"HDR emission remains linear and applies proxy additive emission then intensity");
+        Near(ma.emission.x,Linear(.2)*2,"disabled emission keyword still permits explicit proxy emission");
+        renderer.Block.SetColor(Id("_BaseColor"),new(.7f,.2f,.3f));renderer.Block.SetFloat("_Metallic",.5f);renderer.Block.SetFloat("_Cull",0);
+        Check(cache.TryGetHardwareMaterial(0,source,1,out mb)&&mb.cullMode==1,"renderer MPB cannot change source raster Cull");Near(mb.diffuse.x,Linear(.7)*Linear(.8)*.96*.5,"SetColor MPB shader-linear values are not converted twice");
+        var block=new MaterialPropertyBlock();block.SetFloat("_Cull",1);renderer.SubmeshBlocks[1]=block;
+        Check(cache.TryGetHardwareMaterial(0,source,1,out mb)&&mb.cullMode==1,"nonempty submesh MPB replaces renderer block");Near(mb.diffuse.y,Linear(.5)*Linear(.6)*.96*.75,"missing submesh MPB fields use its own material not renderer MPB");
+        block.SetVector(Id("_BaseColor"),new(.3f,.4f,.5f,1));block.SetVector(Id("_EmissionColor"),new(5,6,7,1));b.Keywords.Add("_SPECULAR_SETUP");block.SetVector(Id("_SpecColor"),new(.15f,.4f,.2f,1));
+        Check(cache.TryGetHardwareMaterial(0,source,1,out mb),"shader-space vector MPB colors accepted");Near(mb.diffuse.x,.3*Linear(.8)*.6,"specular workflow uses one minus max specular");Near(mb.emission.z,14,"HDR vector MPB never gamma-converted");
+        block.SetFloat("_Cull",1.25f);Check(cache.TryGetHardwareMaterial(0,source,1,out mb)&&mb.cullMode==1,"invalid MPB Cull is ignored as unsupported render-state override");
+        b.SetFloat("_Cull",0);Check(cache.TryGetHardwareMaterial(0,source,1,out mb)&&mb.cullMode==0,"actual material Cull change updates hardware policy");
+        b.SetFloat("_Cull",1.25f);Check(!cache.TryGetHardwareMaterial(0,source,1,out _),"invalid actual raster Cull rejected");b.SetFloat("_Cull",1);
+        block.SetFloat("_Cull",float.NaN);Check(cache.TryGetHardwareMaterial(0,source,1,out mb)&&mb.cullMode==1,"nonfinite ignored MPB Cull cannot invalidate valid material policy");block.SetFloat("_Surface",1);Check(!cache.TryGetHardwareMaterial(0,source,1,out _),"effective transparent MPB is unsupported");block.SetFloat("_Surface",0);
+        block.SetVector(Id("_BaseColor"),new(float.NaN,0,0,1));Check(!cache.TryGetHardwareMaterial(0,source,1,out _),"nonfinite source color rejected");block.SetVector(Id("_BaseColor"),new(1,1,1,1));
+        b.shader.name="Custom";Check(!cache.TryGetHardwareMaterial(0,source,1,out _),"unknown shader rejected");b.shader.name="Universal Render Pipeline/Lit";
+        Check(!cache.TryGetHardwareMaterial(0,source,2,out _)&&!cache.TryGetHardwareMaterial(0,Mesh(2,"other"),1,out _),"missing submesh or wrong mesh rejected");
+        proxy.Revision++;Check(!cache.TryGetHardwareMaterial(0,source,1,out _),"late proxy revision rejects unprepared identity");
+    }
+    static void GeometryDirectionAndCullMetadata()
+    {
+        scenarios++;var scene=new HybridLumenGIScene(1);var proxy=Proxy(211,1,1);var material=proxy.SourceRenderer.Materials[0];material.SetFloat("_Cull",1);proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Scale(new(-1,2,-3));scene.Set(0,proxy);
+        proxy.SourceRenderer.Block.SetFloat("_Cull",2); // Deliberately conflicts with actual material CullFront.
+        using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,Config(1));var draw=Capture(cache).Entries.Single(e=>e.Kind=="DrawMesh");
+        Check((float)draw.MaterialValues[Id("_Cull")]==1,"capture material retains actual source Cull despite renderer MPB");
+        var raw=(Vector4)draw.Parameters[Id("_HLGI_CardGeometryDirection")];var facing=(Vector4)draw.Parameters[Id("_HLGI_CardDirection")];
+        Near(raw.z,-1,"chart raw geometry uses inverse transpose without determinant or CullFront flips");Check(raw.w==1&&facing.z==1,"front-cull view direction and raw geometry remain separate");
+        Check(U(Metadata(cache)[cache.GetCardIndex(0,0)],"flags")==3,"real chart flags carry Front cull independently from required bit");
+        Check((float)draw.Parameters[Id("_HLGI_CardObjectDeterminantSign")]==1,"two negative object axes retain positive determinant sign");
+        material.SetFloat("_Cull",0);cache.Prepare(scene,Config(1));Capture(cache);Check(U(Metadata(cache)[cache.GetCardIndex(0,0)],"flags")==1,"cull change refreshes per-card metadata");
+        proxy.SurfaceCharts=null;proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Scale(new(-1,2,3));cache.Prepare(scene,Config(6));var fallback=Capture(cache);Check(fallback.Entries.Where(e=>e.Kind=="DrawMesh").All(e=>((Vector4)e.Parameters[Id("_HLGI_CardGeometryDirection")]).w==0&&(float)e.Parameters[Id("_HLGI_CardObjectDeterminantSign")]==-1),"fallback has no chart geometry oracle and receives CPU mirror sign");
+        proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Scale(new(0,1,1));cache.Prepare(scene,Config(6));Check(cache.GetCardCount(0)==0&&cache.UnsupportedRenderers==1,"singular capture matrix cannot publish ready geometry");
+        proxy.SourceRenderer.localToWorldMatrix=Matrix4x4.Translate(new(float.NaN,0,0));cache.Prepare(scene,Config(6));Check(cache.GetCardCount(0)==0,"nonfinite capture transform rejected");
+    }
+    static void PropertyHashIdentity()
+    {
+        scenarios++;var method=typeof(HybridLumenGISurfaceCache).GetMethod("BlockHash",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static);
+        int Hash(MaterialPropertyBlock b)=>(int)method.Invoke(null,new object[]{b});
+        foreach(var names in new[]{new[]{"_Metallic","_Smoothness"},new[]{"_BaseColor","_SpecColor"},new[]{"_BaseMap_ST","_DetailAlbedoMap_ST"},new[]{"_BaseMap","_EmissionMap"}})
+        {
+            var a=new MaterialPropertyBlock();var b=new MaterialPropertyBlock();
+            if(names[0]=="_Metallic"){a.SetFloat(names[0],1);b.SetFloat(names[1],1);}
+            else if(names[0]=="_BaseColor"){a.SetColor(Id(names[0]),new(.2f,.3f,.4f));b.SetColor(Id(names[1]),new(.2f,.3f,.4f));}
+            else if(names[0]=="_BaseMap_ST"){a.SetVector(Id(names[0]),new(1,2,3,4));b.SetVector(Id(names[1]),new(1,2,3,4));}
+            else {var texture=new Texture();a.SetTexture(Id(names[0]),texture);b.SetTexture(Id(names[1]),texture);}
+            Check(Hash(a)!=Hash(b),"distinct property names with identical values no longer deterministically alias");
+        }
+        var empty=new MaterialPropertyBlock();var zero=new MaterialPropertyBlock();zero.SetFloat("_Metallic",0);Check(Hash(empty)!=Hash(zero),"missing override differs from explicit zero");
+        var explicitNull=new MaterialPropertyBlock();explicitNull.SetTexture(Id("_BaseMap"),null);Check(Hash(empty)!=Hash(explicitNull),"missing texture override differs from explicit null");
+        var proxy=Proxy(219,1,1);var scene=new HybridLumenGIScene(1);scene.Set(0,proxy);using var cache=new HybridLumenGISurfaceCache();
+        proxy.SourceRenderer.Block.SetFloat("_Metallic",1);cache.Prepare(scene,Config(1));Capture(cache);uint generation=cache.GetGeneration(cache.GetCardIndex(0,0));
+        proxy.SourceRenderer.Block.Values.Clear();proxy.SourceRenderer.Block.SetFloat("_Smoothness",1);cache.Prepare(scene,Config(1));Capture(cache);
+        Check(cache.GetGeneration(cache.GetCardIndex(0,0))!=generation,"actual same-value MPB property move recaptures the page");
+        proxy.SourceRenderer.Materials[0].SetFloat("_Cull",float.NaN);cache.Prepare(scene,Config(1));Check(cache.GetCardCount(0)==0,"invalid source raster state cannot publish a ready capture");
+    }
+    static void ExactMaterialObservations()
+    {
+        scenarios++;var proxy=Proxy(229,1,1);var renderer=proxy.SourceRenderer;var material=renderer.Materials[0];material.ForceConstantCRC=true;
+        var scene=new HybridLumenGIScene(1);scene.Set(0,proxy);using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,Config(1));Capture(cache);
+        Check(cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"fresh static exact material observation reusable");
+        var mesh=Source(proxy);mesh.Topologies[0]=MeshTopology.Lines;Check(!cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"material snapshot cannot certify a formerly captured triangle slot now using line topology");mesh.Topologies[0]=MeshTopology.Triangles;
+        uint generation=cache.GetGeneration(cache.GetCardIndex(0,0));material.SetFloat("_Metallic",.5f);
+        Check(!cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"forced unchanged material CRC cannot retain a stale publication ticket");
+        Check(cache.GetGeneration(cache.GetCardIndex(0,0))==generation,"pure exact validation does not mutate page generation");
+        cache.Prepare(scene,Config(1));Capture(cache);Check(cache.GetGeneration(cache.GetCardIndex(0,0))!=generation&&cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"exact value change recaptures despite colliding compact signature");
+        material.SetTexture(Id("_BaseMap"),new Texture());cache.Prepare(scene,Config(1));Capture(cache);var texture=material.GetTexture(Id("_BaseMap"));generation=cache.GetGeneration(cache.GetCardIndex(0,0));
+        texture.filterMode++;Check(!cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"sampler mutation outside compact CRC/updateCount rejects publication");
+        cache.Prepare(scene,Config(1));Capture(cache);Check(cache.GetGeneration(cache.GetCardIndex(0,0))!=generation,"sampler mutation forces actual recapture");
+        material.SetTexture(Id("_EmissionMap"),new RenderTexture());cache.Prepare(scene,Config(1));var rtDraw=Capture(cache);
+        Check(cache.IsSlotReady(0,proxy.StableId,proxy.Revision)&&rtDraw.Entries.Any(e=>e.Kind=="DrawMesh"),"unstable GPU texture still gets a valid current-frame capture");
+        Check(!cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"GPU texture cannot reuse old readiness without content proof");
+        generation=cache.GetGeneration(cache.GetCardIndex(0,0));cache.Prepare(scene,Config(1));Capture(cache);Check(cache.GetGeneration(cache.GetCardIndex(0,0))!=generation,"GPU texture pages refresh on next prepare even without updateCount");
+        material.SetTexture(Id("_EmissionMap"),null);cache.Prepare(scene,Config(1));Capture(cache);Check(cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"static texture source restores reusable publication guard");
+        renderer.Block.SetFloat("_Smoothness",float.NaN);cache.Prepare(scene,Config(1));Check(cache.GetCardCount(0)==0&&!cache.IsSlotReady(0,proxy.StableId,proxy.Revision),"invalid effective material cannot publish a fresh page");
+    }
+    static int UnusedBroadMatrix()
+    {
+        VariableChartsAndOrder();SparseRetirementAndLayout();AtomicCapacityAndEligibility();PartialCaptureBudgetAndGrid();SourceHashAndPublicationGuard();DisposalAndGuards();EmissionBudgetAndTextureCapture();
+        TriangleIdentityAndLifetime();MappingDefensesAndOracle();HardwareSubmeshConstants();GeometryDirectionAndCullMetadata();PropertyHashIdentity();ExactMaterialObservations();
+        Console.WriteLine($"Actual-source SurfaceCache: {assertions} assertions in {scenarios} scenarios passed. Recording Unity/asset substitutes only; no raster, GPU, native material or fence validation.");return 0;
+    }
+}
