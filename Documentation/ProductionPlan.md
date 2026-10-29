@@ -101,7 +101,7 @@ flowchart TD
 
 历史坐标为 `previousUV = currentUV - motion + previousJitter - currentJitter`；运动矢量与 jitter 需按 URP 实际 GPU 投影约定核验。保存上一帧的深度、法线、漫反射材质、亮度一二阶矩和历史长度。拒绝屏外/镜头切换、深度或法线不一致、材质变化、覆盖与分辨率变化；对有效历史做局部颜色/方差夹取。薄壁和移动物体要使用对象身份/速度/上一帧对象变换增强判定。
 
-生产失效应是局部依赖传播：旧/新 bounds 影响的 SDF bricks、相交 surface cards、可见性探针和照明页变为 dirty；材料变更不重建几何；局部灯光只更新其影响域。当前已将普通几何/灯光/材质变化从全局epoch重置拆出：身份/页改变清自身patch，几何变化域拒绝历史，附近影响域缩短历史并优先更新；方向光变化使照明全局reactive而保留多反弹估计。容量/后端/设置变化仍保守全重置。这是局部域近似，尚非完整路径依赖图，长距离多次反弹残留和消隐时间仍须实测。
+生产失效应是局部依赖传播：旧/新 bounds 影响的 SDF bricks、相交 surface cards、可见性探针和照明页变为 dirty；材料变更不重建几何；局部灯光只更新其影响域。当前已将普通几何/灯光/材质变化从全局epoch重置拆出：身份/页改变清自身patch，几何变化域拒绝历史，附近影响域缩短历史并优先更新。方向光等全局变化标记世界缓存待替换：预算等待或新估计未知时保留旧测量，首次可信更新直接使用当前估计，不再混入旧时间平均；仍保留原 reactive 成功提交后的年龄2及HLOD就绪语义。该年龄是截断的历史权重，不是独立样本数量。容量/后端/设置变化仍保守全重置。这是局部域近似，尚非完整路径依赖图；当前估计仍读取旧Jacobi缓存，长距离多次反弹残留和消隐时间仍须实测。
 
 世界材质页现在与 receiver registry 共用 `MaterialSource` 精确观察：原始引用、shader/keywords、属性存在位与值、纹理引用/更新计数/sampler 均参与比较。SurfaceCache 的 32 位签名只作变更提示，同 hash 仍须验证 owner 的逐槽快照。非空 per-material MPB 整体优先，不与 renderer block 合并；MPB 不能改变 render state，capture 和硬件 Cull 均取来源 Material。RenderTexture/CustomRenderTexture 保留当前捕获，但下一次 Prepare 要求更新，不能把旧就绪票据当稳定内容证明。普通 Texture2D 的 GPU/native 写入若未通知 `IncrementUpdateCount` 仍不可检测；全局 shader/probe 等变化另有失效责任。
 

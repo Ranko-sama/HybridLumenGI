@@ -1,0 +1,879 @@
+{
+  "status": "passed",
+  "scope": "Actual CSUpdateCache invalidation/pending-mark fragment and real radiance commit helper on existing D3D12 software WARP host. Fixed integrated-light samples replace ray traversal; CPU scheduling, actual multi-dispatch double-buffer synchronization, Unity and physical GPU are not exercised.",
+  "commands": [
+    {
+      "name": "compile-fixture",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSCacheLightingResponse",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneCacheLightingResponse\\output",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneCacheLightingResponse\\output\\fixture.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneCacheLightingResponse\\output\\Fixture.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneCacheLightingResponse\\output\\fixture.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneCacheLightingResponse\\output\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneCacheLightingResponse\\output\\outputs.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-software",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSUpdateCache",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneCacheLightingResponse\\output\\software.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGI.compute"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-exact-software",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSUpdateCache",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneCacheLightingResponse\\output\\exact-software.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIExactSoftware.compute"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-hardware",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-T",
+        "cs_6_5",
+        "-E",
+        "CSUpdateCache",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Tests\\StandaloneCacheLightingResponse\\output\\hardware.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHardware.compute"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "cases": [
+    {
+      "name": "global-known-black",
+      "observed": [
+        0.0,
+        0.0,
+        0.0,
+        2.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0,
+        0,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "maxAbsError": 0.0,
+      "passed": true
+    },
+    {
+      "name": "global-known-nonzero",
+      "observed": [
+        2.0,
+        1.0,
+        0.5,
+        2.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.0,
+        0.0,
+        0.0,
+        2.0,
+        2.0,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        2,
+        1,
+        0.5,
+        2,
+        0,
+        1,
+        0,
+        0,
+        1,
+        2,
+        0,
+        0,
+        2,
+        2,
+        0,
+        0
+      ],
+      "maxAbsError": 0.0,
+      "passed": true
+    },
+    {
+      "name": "budget-pending-across-frames",
+      "observed": [
+        2.0,
+        1.0,
+        0.5,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.5,
+        0.5,
+        0.5,
+        1.0,
+        8.0,
+        8.0,
+        8.0,
+        2.0
+      ],
+      "expected": [
+        2,
+        1,
+        0.5,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        8,
+        8,
+        8,
+        2
+      ],
+      "maxAbsError": 0.0,
+      "passed": true
+    },
+    {
+      "name": "unknown-then-known",
+      "observed": [
+        2.0,
+        1.0,
+        0.5,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.5,
+        0.5,
+        1.0,
+        0.0,
+        8.0,
+        8.0,
+        2.0,
+        0.0
+      ],
+      "expected": [
+        2,
+        1,
+        0.5,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0.5,
+        0.5,
+        1,
+        0,
+        8,
+        8,
+        2,
+        0
+      ],
+      "maxAbsError": 0.0,
+      "passed": true
+    },
+    {
+      "name": "unknown-retains-guide",
+      "observed": [
+        8.0,
+        4.0,
+        2.0,
+        0.5,
+        1.0,
+        0.0,
+        0.0,
+        3.0,
+        0.5,
+        0.0,
+        0.0,
+        0.0,
+        8.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        8,
+        4,
+        2,
+        0.5,
+        1,
+        0,
+        0,
+        3,
+        0.5,
+        0,
+        0,
+        0,
+        8,
+        0,
+        0,
+        0
+      ],
+      "maxAbsError": 0.0,
+      "passed": true
+    },
+    {
+      "name": "static-preserves-average",
+      "observed": [
+        6.666666507720947,
+        3.3333332538604736,
+        1.6666666269302368,
+        6.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        5.0,
+        6.0,
+        0.0,
+        0.0,
+        7.199999809265137,
+        6.666666507720947,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        6.666666666666667,
+        3.3333333333333335,
+        1.6666666666666667,
+        6,
+        0,
+        1,
+        0,
+        0,
+        5,
+        6,
+        0,
+        0,
+        7.2,
+        6.666666666666667,
+        0,
+        0
+      ],
+      "maxAbsError": 1.9073486345888568e-07,
+      "passed": true
+    },
+    {
+      "name": "local-preserves-average",
+      "observed": [
+        6.0,
+        3.0,
+        1.5,
+        2.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        2.0,
+        2.0,
+        0.0,
+        0.0,
+        6.0,
+        6.0,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        6,
+        3,
+        1.5,
+        2,
+        0,
+        1,
+        0,
+        0,
+        2,
+        2,
+        0,
+        0,
+        6,
+        6,
+        0,
+        0
+      ],
+      "maxAbsError": 0.0,
+      "passed": true
+    },
+    {
+      "name": "identity-invalid-unknown",
+      "observed": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "maxAbsError": 0.0,
+      "passed": true
+    },
+    {
+      "name": "hard-invalid-global-unknown",
+      "observed": [
+        2.0,
+        1.0,
+        0.5,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        2.0,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        2,
+        1,
+        0.5,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      "maxAbsError": 0.0,
+      "passed": true
+    }
+  ],
+  "expected": [
+    {
+      "name": "global-known-black",
+      "controls": [
+        [
+          1,
+          1,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          1
+        ]
+      ],
+      "estimates": [
+        0,
+        0
+      ],
+      "ages": [
+        1,
+        2
+      ],
+      "red": [
+        0,
+        0
+      ],
+      "final": [
+        0,
+        0,
+        0,
+        2
+      ],
+      "guide": [
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "global-known-nonzero",
+      "controls": [
+        [
+          1,
+          1,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          1
+        ]
+      ],
+      "estimates": [
+        2,
+        2
+      ],
+      "ages": [
+        1,
+        2
+      ],
+      "red": [
+        2,
+        2
+      ],
+      "final": [
+        2,
+        1,
+        0.5,
+        2
+      ],
+      "guide": [
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "budget-pending-across-frames",
+      "controls": [
+        [
+          1,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1
+        ]
+      ],
+      "estimates": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "ages": [
+        0.5,
+        0.5,
+        0.5,
+        1
+      ],
+      "red": [
+        8,
+        8,
+        8,
+        2
+      ],
+      "final": [
+        2,
+        1,
+        0.5,
+        1
+      ],
+      "guide": [
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "unknown-then-known",
+      "controls": [
+        [
+          1,
+          1,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          0,
+          1
+        ]
+      ],
+      "estimates": [
+        2,
+        2,
+        2
+      ],
+      "ages": [
+        0.5,
+        0.5,
+        1
+      ],
+      "red": [
+        8,
+        8,
+        2
+      ],
+      "final": [
+        2,
+        1,
+        0.5,
+        1
+      ],
+      "guide": [
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "unknown-retains-guide",
+      "controls": [
+        [
+          1,
+          1,
+          0,
+          2
+        ]
+      ],
+      "estimates": [
+        2
+      ],
+      "ages": [
+        0.5
+      ],
+      "red": [
+        8
+      ],
+      "final": [
+        8,
+        4,
+        2,
+        0.5
+      ],
+      "guide": [
+        1,
+        0,
+        0,
+        3
+      ]
+    },
+    {
+      "name": "static-preserves-average",
+      "controls": [
+        [
+          0,
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          1
+        ]
+      ],
+      "estimates": [
+        4,
+        4
+      ],
+      "ages": [
+        5,
+        6
+      ],
+      "red": [
+        7.2,
+        6.666666666666667
+      ],
+      "final": [
+        6.666666666666667,
+        3.3333333333333335,
+        1.6666666666666667,
+        6
+      ],
+      "guide": [
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "local-preserves-average",
+      "controls": [
+        [
+          0,
+          1,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          2
+        ]
+      ],
+      "estimates": [
+        4,
+        4
+      ],
+      "ages": [
+        2,
+        2
+      ],
+      "red": [
+        6,
+        6
+      ],
+      "final": [
+        6,
+        3,
+        1.5,
+        2
+      ],
+      "guide": [
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "identity-invalid-unknown",
+      "controls": [
+        [
+          1,
+          1,
+          2,
+          2
+        ],
+        [
+          0,
+          0,
+          0,
+          2
+        ]
+      ],
+      "estimates": [
+        2,
+        2
+      ],
+      "ages": [
+        0,
+        0
+      ],
+      "red": [
+        0,
+        0
+      ],
+      "final": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "guide": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "hard-invalid-global-unknown",
+      "controls": [
+        [
+          1,
+          1,
+          1,
+          2
+        ],
+        [
+          0,
+          0,
+          0,
+          1
+        ]
+      ],
+      "estimates": [
+        2,
+        2
+      ],
+      "ages": [
+        0,
+        1
+      ],
+      "red": [
+        0,
+        2
+      ],
+      "final": [
+        2,
+        1,
+        0.5,
+        1
+      ],
+      "guide": [
+        0,
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "tolerance": "Exact for all dyadic replacement/retention cases and ages; absolute 1e-6 only for static 1/5 and 1/6 averaging.",
+  "host": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+  "compileScope": "Only CSUpdateCache software, exact-software and hardware, with ValidateShaders flags and existing include/UnityRayQuery adapter paths. Offline compilation is not Unity or hardware execution."
+}

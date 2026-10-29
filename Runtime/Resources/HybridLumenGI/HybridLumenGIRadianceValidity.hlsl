@@ -35,9 +35,13 @@ bool HLGICommitCacheEstimate(bool known,float3 sum,float3 guideSum,float guidePo
     if(!known || rayCount<=0 || !all(isfinite(sum)) || !all(isfinite(guideSum)) ||
         !isfinite(guidePower) || guidePower<0 || !all(isfinite(normal))) return false;
     float3 estimate=sum/rayCount;
-    float samples=min(irradiance.a+1,32);
+    // A positive fractional age marks the old reactive age-one measurement
+    // pending replacement. Preserve its existing next-age-two/readiness rule;
+    // this is a capped history weight, not a count of independent samples.
+    // Unknown input returns above without consuming the pending replacement.
+    float samples=irradiance.a>0?min(max(irradiance.a,1)+1,32):1;
     float alpha=max(1/samples,0.1);
-    float4 next=float4(irradiance.a>0?lerp(irradiance.rgb,estimate,alpha):estimate,samples);
+    float4 next=float4(irradiance.a>=1?lerp(irradiance.rgb,estimate,alpha):estimate,samples);
     float lengthSquared=dot(guideSum,guideSum);
     float4 nextGuide=float4(lengthSquared>1e-12?guideSum*rsqrt(lengthSquared):normal,guidePower/rayCount);
     if(!HLGIHasCacheMeasurement(next,nextGuide) || !isfinite(lengthSquared)) return false;
