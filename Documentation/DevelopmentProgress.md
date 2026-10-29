@@ -2,7 +2,7 @@
 
 更新：2026-10-29。本表按 OriginalDevelopmentPlan.md 的十项工作流区分实现、当前来源实测和生产验收。旧版报告保留来源，不重新标为当前版本通过。当前先处理已证实的阻断和可复现缺陷，再补缺失验收；不因新增局部测试而重跑无关矩阵。
 
-当前源码在 `78618e1` 后新增[颜色反弹可信性与动态历史上限修复](ReviewBrief-ColorBounceDynamicLimits01.md)：未知alpha/覆盖的缓存连接撤销整个可信估计；reactive历史上限与用户 `maxHistory` 取交集，修复上限1时仍混入旧色的反例。两条子代理并行实现，第三条独立审查；颜色8项WARP对照符合合同，动态两入口的主反例消除、六项保持控制逐位一致，保留首分析FAIL并对原数据作RTZ补判通过。本轮不使用Codex with ChatGPT。后续[真实Unity整合](ReviewBrief-CurrentColorDynamicsIntegration01.md)已完成168次纹理计算、28行合同验证和Release70构建，Unity部署更新到269241b；两个隐藏Player检查无相机帧而失败，保留原记录，Release69仍为已通过运行验证的基线。独立有限色墙参考正在接入，整体画质、物理能量和生产验收继续开放。
+当前源码在 `78618e1` 后新增[颜色反弹可信性与动态历史上限修复](ReviewBrief-ColorBounceDynamicLimits01.md)：未知alpha/覆盖的缓存连接撤销整个可信估计；reactive历史上限与用户 `maxHistory` 取交集，修复上限1时仍混入旧色的反例。两条子代理并行实现，第三条独立审查；颜色8项WARP对照符合合同，动态两入口的主反例消除、六项保持控制逐位一致，保留首分析FAIL并对原数据作RTZ补判通过。本轮不使用Codex with ChatGPT。后续[真实Unity整合](ReviewBrief-CurrentColorDynamicsIntegration01.md)已完成168次纹理计算、28行合同验证和Release70构建，Unity部署更新到269241b；两个隐藏Player检查无相机帧而失败，保留原记录，Release69仍为已通过运行验证的基线。后续[完整Feature有限色墙参考](ReviewBrief-FiniteWallColorReference02.md)在27个像素／216条输入射线上通过独立单bounce RGB比较；原输入判据失败与另层光栅资格均保留，未改颜色阈值。继续验证真实变色／关灯响应；整体画质、多bounce物理能量和生产验收继续开放。
 
 69新增普通可启停连续形变入口，当前采用[Release69](<I:/Unity test/Comparison/Builds/LocalRelease69/Start-LocalRelease.cmd>)，产品及Unity部署来源50b63c3，示例接线另记清单。并行实现／独立参考后一次真实256帧完成运动中11次不同内容发布、停稳最终完整来源一致及两张可判读HDR，native0。首个Unity准备失败、唯一资产查询修正及23条warning保留。Astra与实际Pro已查看原图并有限采用；不追加运行，不把本轮当完整动态画质或整体进度跃升。见[69结果](ReviewBrief-ContinuousDeformationUsage01.md)。以下各轮记录保留当时来源。
 

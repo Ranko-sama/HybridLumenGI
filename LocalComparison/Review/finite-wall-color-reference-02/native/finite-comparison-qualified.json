@@ -1,0 +1,2573 @@
+{
+  "status": "passed",
+  "selectedGroups": 27,
+  "passedGroups": 27,
+  "scope": "Conditional finite single-bounce E/pi consistency after separate raster-aware input qualification; not default multi-bounce certification.",
+  "initialDecoderPassed": false,
+  "originalDecoderUnmodified": true,
+  "radianceThresholdsUnmodified": true,
+  "sourceClosure": {
+    "productFileCount": 112,
+    "observerFileCount": 8,
+    "instrumentationManifestSha256": "717a76b663bcc0e150156a59b3ba3945c932a2b3deeb05ef155016b0fc994a07",
+    "samplerManifestSha256": "7ea738fcb2ee42b974eef8d902306d581c1fdb086edc12aca679dc9b5c2c87e7",
+    "referenceSources": {
+      "source-contract.json": "02466a5289040eff541dabdb85737c6fd6b8d19621012c4f90e3f8986a6efea5",
+      "reference.py": "5a31910eb5d8a11289c778b3ffa181acaba4245d229a41855798edc010de7eeb",
+      "decode_sampler.py": "b451adc1b0f105a1a24a1a091e72adcba1fcaf0833da7b39a7b04cfd06fb01fe",
+      "generate_sampler.py": "4a8d4b407c44841444ddacb151073ae291c683c59f649a94bbe6285458ef5ef8",
+      "generated/manifest.json": "7ea738fcb2ee42b974eef8d902306d581c1fdb086edc12aca679dc9b5c2c87e7"
+    },
+    "currentSourceAndExtractionMatched": true
+  },
+  "sceneClosure": {
+    "geometryMaterialLightSettings": true,
+    "actualGatherInputs": true,
+    "hardwareReady": true,
+    "note": "GPU readback completion closes the selected command boundary; CPU status text alone does not prove completion.",
+    "lightSelection": "One authored enabled directional light and lightSelected=1; spatial selector is disabled and its capacity-omitted diagnostic is the -1 sentinel.",
+    "authoredOnlyFields": "WorkflowMode=1, smoothness=0, disabled keywords and zero ambient/reflection are fixed in the hash-matched temporary harness source, not separate receipt fields.",
+    "cameraAspect": "Pre-target scene aspect is informational. Actual gather VP/invVP and dimensions define sample geometry."
+  },
+  "inputQualification": {
+    "scope": "Input consistency only. Neither product RGB nor finite radiance limits enter this qualification.",
+    "initialDecoderPassed": false,
+    "clipping": "For a planar depth field, any clipped vertex is on the same depth plane. Convex barycentric interpolation bounds snapping by (abs(a)+abs(b))*0.6/256.",
+    "precisionScope": "The source interval models normative raster-coordinate snapping plus float32 outward storage. It is an input consistency check, not an exhaustive bound on all permitted forward projection/clipping implementation errors.",
+    "spec": "https://microsoft.github.io/DirectX-Specs/d3d/archive/D3D11_3_FunctionalSpec.htm",
+    "specSections": [
+      "3.2.4.1",
+      "3.4.1",
+      "15.16"
+    ],
+    "reconstruction": "Exact rational interval endpoints; each float32 operation is rounded outward with an additional one-ULP allowance.",
+    "decoderAdapterSha256": "05f9b0af07f40b941b9f0ddc6c7ca23681ea2f6542701545276f1d3652e23edd",
+    "groups": [
+      {
+        "qualified": true,
+        "fullPixel": [
+          285,
+          165
+        ],
+        "idealFloorDepth": 0.008603812235531966,
+        "actualDepth": 0.008603851310908794,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.008603728376328945,
+          0.008603896014392376
+        ],
+        "actualReceiver": [
+          0.5034501552581787,
+          1.1477925909275655e-05,
+          -0.04067718982696533
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.5034483075141907,
+            0.503451943397522
+          ],
+          [
+            1.060617887560511e-05,
+            1.2785544640792068e-05
+          ],
+          [
+            -0.04067924618721008,
+            -0.04067571461200714
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.5034103393554688,
+            0.5034710168838501
+          ],
+          [
+            -2.542610491218511e-05,
+            2.5861980248009786e-05
+          ],
+          [
+            -0.04069280996918678,
+            -0.04063950479030609
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          287,
+          165
+        ],
+        "idealFloorDepth": 0.00860381223357796,
+        "actualDepth": 0.00860385037958622,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.008603728376328945,
+          0.008603896014392376
+        ],
+        "actualReceiver": [
+          0.5244665741920471,
+          1.1187346899532713e-05,
+          -0.026665985584259033
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.5244648456573486,
+            0.5244683623313904
+          ],
+          [
+            1.0315599865862168e-05,
+            1.2494965631049126e-05
+          ],
+          [
+            -0.026667743921279907,
+            -0.02666422910988331
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.524427056312561,
+            0.5244879722595215
+          ],
+          [
+            -2.542610491218511e-05,
+            2.5861980248009786e-05
+          ],
+          [
+            -0.026681426912546158,
+            -0.026628369465470314
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          289,
+          165
+        ],
+        "idealFloorDepth": 0.008603812231623953,
+        "actualDepth": 0.00860385037958622,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.008603728376328945,
+          0.008603896014392376
+        ],
+        "actualReceiver": [
+          0.5454835295677185,
+          1.1187346899532713e-05,
+          -0.012654777616262436
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.5454815030097961,
+            0.5454851984977722
+          ],
+          [
+            1.0315599865862168e-05,
+            1.2494965631049126e-05
+          ],
+          [
+            -0.012656528502702713,
+            -0.012653027661144733
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.5454436540603638,
+            0.5455050468444824
+          ],
+          [
+            -2.542610491218511e-05,
+            2.5861980248009786e-05
+          ],
+          [
+            -0.012670045718550682,
+            -0.012617230415344238
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          285,
+          167
+        ],
+        "idealFloorDepth": 0.008533653544499713,
+        "actualDepth": 0.008533692918717861,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.008533569984138012,
+          0.008533737622201443
+        ],
+        "actualReceiver": [
+          0.47803202271461487,
+          1.1703140444296878e-05,
+          -0.007951113395392895
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.47803017497062683,
+            0.47803372144699097
+          ],
+          [
+            1.0679109436750878e-05,
+            1.2873460946138948e-05
+          ],
+          [
+            -0.007953166030347347,
+            -0.0079496456310153
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.4779917895793915,
+            0.47805264592170715
+          ],
+          [
+            -2.5600940716685727e-05,
+            2.5747232939465903e-05
+          ],
+          [
+            -0.007966135628521442,
+            -0.007913331501185894
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          287,
+          167
+        ],
+        "idealFloorDepth": 0.008533653542545707,
+        "actualDepth": 0.008533691987395287,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.008533569984138012,
+          0.008533737622201443
+        ],
+        "actualReceiver": [
+          0.4991929233074188,
+          1.1410561455704737e-05,
+          0.00615643709897995
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.4991912245750427,
+            0.4991946518421173
+          ],
+          [
+            1.0386531357653439e-05,
+            1.258088286704151e-05
+          ],
+          [
+            0.006154678296297789,
+            0.006158195901662111
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.4991530179977417,
+            0.4992140829563141
+          ],
+          [
+            -2.5600940716685727e-05,
+            2.5747232939465903e-05
+          ],
+          [
+            0.006141485180705786,
+            0.006194257643073797
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          289,
+          167
+        ],
+        "idealFloorDepth": 0.008533653540591702,
+        "actualDepth": 0.008533691987395287,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.008533569984138012,
+          0.008533736690878868
+        ],
+        "actualReceiver": [
+          0.5203542113304138,
+          1.1410561455704737e-05,
+          0.02026398666203022
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.5203523635864258,
+            0.5203559994697571
+          ],
+          [
+            1.0386531357653439e-05,
+            1.258088286704151e-05
+          ],
+          [
+            0.02026222087442875,
+            0.02026575617492199
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.52031409740448,
+            0.5203754305839539
+          ],
+          [
+            -2.5600940716685727e-05,
+            2.5747232939465903e-05
+          ],
+          [
+            0.02024896629154682,
+            0.02030198648571968
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          285,
+          169
+        ],
+        "idealFloorDepth": 0.008463494853467462,
+        "actualDepth": 0.008463534526526928,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.008463411591947079,
+          0.008463578298687935
+        ],
+        "actualReceiver": [
+          0.4522618353366852,
+          1.1784169146267232e-05,
+          0.025227844715118408
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.4522598683834076,
+            0.45226356387138367
+          ],
+          [
+            1.0900351298914757e-05,
+            1.3109895917295944e-05
+          ],
+          [
+            0.025226064026355743,
+            0.025229627266526222
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.4522213637828827,
+            0.45228204131126404
+          ],
+          [
+            -2.563089583418332e-05,
+            2.607280657684896e-05
+          ],
+          [
+            0.02521299198269844,
+            0.025266464799642563
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          287,
+          169
+        ],
+        "idealFloorDepth": 0.008463494851513455,
+        "actualDepth": 0.008463533595204353,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.008463411591947079,
+          0.008463578298687935
+        ],
+        "actualReceiver": [
+          0.47356927394866943,
+          1.163686829386279e-05,
+          0.039433371275663376
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.47356757521629333,
+            0.473570853471756
+          ],
+          [
+            1.060574777511647e-05,
+            1.2815292393497657e-05
+          ],
+          [
+            0.039431579411029816,
+            0.03943486884236336
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.47352924942970276,
+            0.47358983755111694
+          ],
+          [
+            -2.563089583418332e-05,
+            2.607280657684896e-05
+          ],
+          [
+            0.03941814973950386,
+            0.0394715815782547
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          289,
+          169
+        ],
+        "idealFloorDepth": 0.008463494849559449,
+        "actualDepth": 0.008463533595204353,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.008463411591947079,
+          0.008463578298687935
+        ],
+        "actualReceiver": [
+          0.4948771297931671,
+          1.163686829386279e-05,
+          0.05363859981298447
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.4948752820491791,
+            0.4948788583278656
+          ],
+          [
+            1.060574777511647e-05,
+            1.2815292393497657e-05
+          ],
+          [
+            0.05363680422306061,
+            0.05364010110497475
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.49483686685562134,
+            0.49489811062812805
+          ],
+          [
+            -2.563089583418332e-05,
+            2.607280657684896e-05
+          ],
+          [
+            0.05362331122159958,
+            0.05367698520421982
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          318,
+          151
+        ],
+        "idealFloorDepth": 0.00909492304051663,
+        "actualDepth": 0.00909495446830988,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.009094838984310627,
+          0.009095006622374058
+        ],
+        "actualReceiver": [
+          1.0030544996261597,
+          8.874343620846048e-06,
+          -0.03717628866434097
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.0030523538589478,
+            1.0030568838119507
+          ],
+          [
+            7.626385922776535e-06,
+            9.844980922935065e-06
+          ],
+          [
+            -0.037177976220846176,
+            -0.03717460483312607
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.003015398979187,
+            1.003082036972046
+          ],
+          [
+            -2.4543383915442973e-05,
+            2.4543383915442973e-05
+          ],
+          [
+            -0.03719307482242584,
+            -0.037142254412174225
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          320,
+          151
+        ],
+        "idealFloorDepth": 0.009094923038562623,
+        "actualDepth": 0.00909495446830988,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.009094838984310627,
+          0.009095006622374058
+        ],
+        "actualReceiver": [
+          1.023112416267395,
+          8.874343620846048e-06,
+          -0.023804595693945885
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.023110032081604,
+            1.0231153964996338
+          ],
+          [
+            7.626385922776535e-06,
+            9.844980922935065e-06
+          ],
+          [
+            -0.023806272074580193,
+            -0.023802364245057106
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.0230729579925537,
+            1.023140788078308
+          ],
+          [
+            -2.4543383915442973e-05,
+            2.4543383915442973e-05
+          ],
+          [
+            -0.02382122538983822,
+            -0.023770079016685486
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          322,
+          151
+        ],
+        "idealFloorDepth": 0.009094923036608617,
+        "actualDepth": 0.00909495446830988,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.009094838984310627,
+          0.009095006622374058
+        ],
+        "actualReceiver": [
+          1.0431703329086304,
+          8.874343620846048e-06,
+          -0.010432623326778412
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.043168067932129,
+            1.0431727170944214
+          ],
+          [
+            7.626385922776535e-06,
+            9.844980922935065e-06
+          ],
+          [
+            -0.010434293188154697,
+            -0.010430675931274891
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.0431307554244995,
+            1.0431983470916748
+          ],
+          [
+            -2.4543383915442973e-05,
+            2.4543383915442973e-05
+          ],
+          [
+            -0.010449103079736233,
+            -0.010398455895483494
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          318,
+          153
+        ],
+        "idealFloorDepth": 0.009024764349484378,
+        "actualDepth": 0.009024796076118946,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.009024680592119694,
+          0.009024848230183125
+        ],
+        "actualReceiver": [
+          0.9820812940597534,
+          8.932563105190638e-06,
+          -0.005930105224251747
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.9820793271064758,
+            0.9820833206176758
+          ],
+          [
+            7.815988283255138e-06,
+            9.909567779686768e-06
+          ],
+          [
+            -0.0059320623986423016,
+            -0.005928706377744675
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.982042133808136,
+            0.982108473777771
+          ],
+          [
+            -2.4564827981521375e-05,
+            2.4704400857444853e-05
+          ],
+          [
+            -0.005946921184659004,
+            -0.005896297283470631
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          320,
+          153
+        ],
+        "idealFloorDepth": 0.009024764347530372,
+        "actualDepth": 0.009024796076118946,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.009024680592119694,
+          0.009024848230183125
+        ],
+        "actualReceiver": [
+          1.0022705793380737,
+          8.932563105190638e-06,
+          0.007529313210397959
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.0022681951522827,
+            1.0022735595703125
+          ],
+          [
+            7.815988283255138e-06,
+            9.909567779686768e-06
+          ],
+          [
+            0.007527634967118502,
+            0.007531550247222185
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.0022308826446533,
+            1.0022988319396973
+          ],
+          [
+            -2.4564827981521375e-05,
+            2.4704400857444853e-05
+          ],
+          [
+            0.00751280365511775,
+            0.007564012426882982
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          322,
+          153
+        ],
+        "idealFloorDepth": 0.009024764345576365,
+        "actualDepth": 0.009024795144796371,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.009024680592119694,
+          0.009024848230183125
+        ],
+        "actualReceiver": [
+          1.0224599838256836,
+          8.653420991322491e-06,
+          0.02098929136991501
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.022457480430603,
+            1.0224626064300537
+          ],
+          [
+            7.536847078881692e-06,
+            9.63042566581862e-06
+          ],
+          [
+            0.020987605676054955,
+            0.020991258323192596
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.0224204063415527,
+            1.0224883556365967
+          ],
+          [
+            -2.4564827981521375e-05,
+            2.4704400857444853e-05
+          ],
+          [
+            0.02097242698073387,
+            0.0210235845297575
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          318,
+          155
+        ],
+        "idealFloorDepth": 0.008954605658452125,
+        "actualDepth": 0.008954637683928013,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.00895452219992876,
+          0.008954688906669617
+        ],
+        "actualReceiver": [
+          0.960830807685852,
+          9.132044397119898e-06,
+          0.025728480890393257
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.9608288407325745,
+            0.9608328938484192
+          ],
+          [
+            8.008096301637124e-06,
+            1.0255994311592076e-05
+          ],
+          [
+            0.02572678215801716,
+            0.025730181485414505
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.9607915878295898,
+            0.9608576893806458
+          ],
+          [
+            -2.4586553990957327e-05,
+            2.4867542379070073e-05
+          ],
+          [
+            0.025712046772241592,
+            0.025763055309653282
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          320,
+          155
+        ],
+        "idealFloorDepth": 0.008954605656498119,
+        "actualDepth": 0.008954637683928013,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.00895452219992876,
+          0.008954688906669617
+        ],
+        "actualReceiver": [
+          0.9811537265777588,
+          9.132044397119898e-06,
+          0.03927706182003021
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            0.9811514616012573,
+            0.981156587600708
+          ],
+          [
+            8.008096301637124e-06,
+            1.0255994311592076e-05
+          ],
+          [
+            0.03927535563707352,
+            0.039279334247112274
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            0.9811140894889832,
+            0.9811816215515137
+          ],
+          [
+            -2.4586553990957327e-05,
+            2.4867542379070073e-05
+          ],
+          [
+            0.03926055505871773,
+            0.03931235522031784
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          322,
+          155
+        ],
+        "idealFloorDepth": 0.008954605654544113,
+        "actualDepth": 0.008954636752605438,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.00895452219992876,
+          0.008954688906669617
+        ],
+        "actualReceiver": [
+          1.0014764070510864,
+          8.991552022052929e-06,
+          0.0528259314596653
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.0014740228652954,
+            1.0014787912368774
+          ],
+          [
+            7.727110642008483e-06,
+            9.975008651963435e-06
+          ],
+          [
+            0.052824217826128006,
+            0.052827924489974976
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.0014368295669556,
+            1.0015043020248413
+          ],
+          [
+            -2.4586553990957327e-05,
+            2.4867542379070073e-05
+          ],
+          [
+            0.05280906707048416,
+            0.0528608113527298
+          ]
+        ],
+        "originalFloorGuardPassed": false
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          393,
+          118
+        ],
+        "idealFloorDepth": 0.01025254136927356,
+        "actualDepth": 0.010252556763589382,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.010252458043396473,
+          0.010252624750137329
+        ],
+        "actualReceiver": [
+          1.9926115274429321,
+          3.881132215610705e-06,
+          -0.04688257351517677
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.9926085472106934,
+            1.9926142692565918
+          ],
+          [
+            2.8795484467991628e-06,
+            5.133113063493511e-06
+          ],
+          [
+            -0.046884600073099136,
+            -0.046880800276994705
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.9925724267959595,
+            1.9926477670669556
+          ],
+          [
+            -2.1909809220233e-05,
+            2.2160207663546316e-05
+          ],
+          [
+            -0.046902015805244446,
+            -0.04685574397444725
+          ]
+        ],
+        "originalFloorGuardPassed": true
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          395,
+          118
+        ],
+        "idealFloorDepth": 0.010252541367319554,
+        "actualDepth": 0.010252555832266808,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.010252458043396473,
+          0.010252624750137329
+        ],
+        "actualReceiver": [
+          2.010721445083618,
+          3.7559343581961002e-06,
+          -0.034808747470378876
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            2.010718584060669,
+            2.0107250213623047
+          ],
+          [
+            2.629152959343628e-06,
+            4.882717803411651e-06
+          ],
+          [
+            -0.03481077402830124,
+            -0.034806977957487106
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            2.0106823444366455,
+            2.010758638381958
+          ],
+          [
+            -2.1909809220233e-05,
+            2.2160207663546316e-05
+          ],
+          [
+            -0.03482833504676819,
+            -0.03478223830461502
+          ]
+        ],
+        "originalFloorGuardPassed": true
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          397,
+          118
+        ],
+        "idealFloorDepth": 0.010252541365365547,
+        "actualDepth": 0.010252555832266808,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.010252458043396473,
+          0.010252624750137329
+        ],
+        "actualReceiver": [
+          2.028831720352173,
+          3.7559343581961002e-06,
+          -0.022735172882676125
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            2.0288288593292236,
+            2.028834819793701
+          ],
+          [
+            2.629152959343628e-06,
+            4.882717803411651e-06
+          ],
+          [
+            -0.022737188264727592,
+            -0.02273366041481495
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            2.0287926197052,
+            2.0288686752319336
+          ],
+          [
+            -2.1909809220233e-05,
+            2.2160207663546316e-05
+          ],
+          [
+            -0.022754652425646782,
+            -0.022708991542458534
+          ]
+        ],
+        "originalFloorGuardPassed": true
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          393,
+          120
+        ],
+        "idealFloorDepth": 0.010182382678241309,
+        "actualDepth": 0.010182398371398449,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.010182298719882965,
+          0.010182466357946396
+        ],
+        "actualReceiver": [
+          1.9795446395874023,
+          4.030046056868741e-06,
+          -0.01874575950205326
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.9795414209365845,
+            1.979547381401062
+          ],
+          [
+            3.0225330647226656e-06,
+            5.289438377076294e-06
+          ],
+          [
+            -0.018747784197330475,
+            -0.018743986263871193
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.979504942893982,
+            1.9795812368392944
+          ],
+          [
+            -2.216545180999674e-05,
+            2.241733091068454e-05
+          ],
+          [
+            -0.018765071406960487,
+            -0.018718691542744637
+          ]
+        ],
+        "originalFloorGuardPassed": true
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          395,
+          120
+        ],
+        "idealFloorDepth": 0.010182382676287302,
+        "actualDepth": 0.010182397440075874,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.010182298719882965,
+          0.010182466357946396
+        ],
+        "actualReceiver": [
+          1.9977619647979736,
+          3.7781685477966676e-06,
+          -0.006600712426006794
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.9977588653564453,
+            1.9977649450302124
+          ],
+          [
+            2.770655555650592e-06,
+            5.037560640630545e-06
+          ],
+          [
+            -0.006602478213608265,
+            -0.006598694249987602
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.9977223873138428,
+            1.997799038887024
+          ],
+          [
+            -2.216545180999674e-05,
+            2.241733091068454e-05
+          ],
+          [
+            -0.006619913503527641,
+            -0.006573720369488001
+          ]
+        ],
+        "originalFloorGuardPassed": true
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          397,
+          120
+        ],
+        "idealFloorDepth": 0.010182382674333296,
+        "actualDepth": 0.010182397440075874,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.010182298719882965,
+          0.010182466357946396
+        ],
+        "actualReceiver": [
+          2.015979528427124,
+          3.7781685477966676e-06,
+          0.005544336512684822
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            2.0159761905670166,
+            2.0159823894500732
+          ],
+          [
+            2.770655555650592e-06,
+            5.037560640630545e-06
+          ],
+          [
+            0.005542570259422064,
+            0.005546102300286293
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            2.015939712524414,
+            2.016016721725464
+          ],
+          [
+            -2.216545180999674e-05,
+            2.241733091068454e-05
+          ],
+          [
+            0.00552515871822834,
+            0.005571085028350353
+          ]
+        ],
+        "originalFloorGuardPassed": true
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          393,
+          122
+        ],
+        "idealFloorDepth": 0.010112223987209056,
+        "actualDepth": 0.010112239979207516,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.010112140327692032,
+          0.010112307965755463
+        ],
+        "actualReceiver": [
+          1.9663219451904297,
+          4.1807334127952345e-06,
+          0.009726159274578094
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.966318964958191,
+            1.9663246870040894
+          ],
+          [
+            3.1672209388489136e-06,
+            5.320935997588094e-06
+          ],
+          [
+            0.009724127128720284,
+            0.00972793810069561
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.9662822484970093,
+            1.9663586616516113
+          ],
+          [
+            -2.217075598309748e-05,
+            2.2550824724021368e-05
+          ],
+          [
+            0.00970684178173542,
+            0.009753359481692314
+          ]
+        ],
+        "originalFloorGuardPassed": true
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          395,
+          122
+        ],
+        "idealFloorDepth": 0.01011222398525505,
+        "actualDepth": 0.010112239047884941,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.010112140327692032,
+          0.010112307965755463
+        ],
+        "actualReceiver": [
+          1.9846476316452026,
+          3.927355919586262e-06,
+          0.021943531930446625
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            1.984644889831543,
+            1.984650731086731
+          ],
+          [
+            2.9138432182662655e-06,
+            5.067558504379122e-06
+          ],
+          [
+            0.02194174751639366,
+            0.021945569664239883
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            1.9846081733703613,
+            1.9846848249435425
+          ],
+          [
+            -2.217075598309748e-05,
+            2.2550824724021368e-05
+          ],
+          [
+            0.021924136206507683,
+            0.02197083830833435
+          ]
+        ],
+        "originalFloorGuardPassed": true
+      },
+      {
+        "qualified": true,
+        "fullPixel": [
+          397,
+          122
+        ],
+        "idealFloorDepth": 0.010112223983301043,
+        "actualDepth": 0.010112239047884941,
+        "depthSlopePerFullPixel": [
+          -9.770031000466852e-13,
+          -3.507934551612615e-05
+        ],
+        "snapPixelBound": 0.00234375,
+        "snapDepthBound": 8.221721834327168e-08,
+        "depthInterval": [
+          0.010112140327692032,
+          0.010112307965755463
+        ],
+        "actualReceiver": [
+          2.002973794937134,
+          3.927355919586262e-06,
+          0.03416090086102486
+        ],
+        "actualDepthReconstructionIntervals": [
+          [
+            2.0029706954956055,
+            2.002976655960083
+          ],
+          [
+            2.9138432182662655e-06,
+            5.067558504379122e-06
+          ],
+          [
+            0.034159108996391296,
+            0.034162696450948715
+          ]
+        ],
+        "rasterSourceWorldIntervals": [
+          [
+            2.002933979034424,
+            2.0030109882354736
+          ],
+          [
+            -2.217075598309748e-05,
+            2.2550824724021368e-05
+          ],
+          [
+            0.034141428768634796,
+            0.03418806940317154
+          ]
+        ],
+        "originalFloorGuardPassed": true
+      }
+    ]
+  },
+  "groups": [
+    {
+      "id": "receiver0_-2_-2",
+      "pixel": [
+        285,
+        165
+      ],
+      "hitCount": 3,
+      "finiteRawExpected": [
+        0.18,
+        0.09,
+        0.045
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.179931640625,
+          0.1800537109375
+        ],
+        [
+          0.0899658203125,
+          0.09002685546875
+        ],
+        [
+          0.04498291015625,
+          0.045013427734375
+        ]
+      ],
+      "observed": [
+        0.179931640625,
+        0.0899658203125,
+        0.04498291015625,
+        0.39990234375
+      ]
+    },
+    {
+      "id": "receiver0_0_-2",
+      "pixel": [
+        287,
+        165
+      ],
+      "hitCount": 2,
+      "finiteRawExpected": [
+        0.12,
+        0.06,
+        0.03
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.1199951171875,
+          0.1199951171875
+        ],
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ]
+      ],
+      "observed": [
+        0.1199951171875,
+        0.05999755859375,
+        0.029998779296875,
+        0.349853515625
+      ]
+    },
+    {
+      "id": "receiver0_2_-2",
+      "pixel": [
+        289,
+        165
+      ],
+      "hitCount": 2,
+      "finiteRawExpected": [
+        0.12,
+        0.06,
+        0.03
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.1199951171875,
+          0.1199951171875
+        ],
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ]
+      ],
+      "observed": [
+        0.1199951171875,
+        0.05999755859375,
+        0.029998779296875,
+        0.349853515625
+      ]
+    },
+    {
+      "id": "receiver0_-2_0",
+      "pixel": [
+        285,
+        167
+      ],
+      "hitCount": 0,
+      "finiteRawExpected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "observed": [
+        0.0,
+        0.0,
+        0.0,
+        0.25
+      ]
+    },
+    {
+      "id": "receiver0_0_0",
+      "pixel": [
+        287,
+        167
+      ],
+      "hitCount": 2,
+      "finiteRawExpected": [
+        0.12,
+        0.06,
+        0.03
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.1199951171875,
+          0.1199951171875
+        ],
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ]
+      ],
+      "observed": [
+        0.1199951171875,
+        0.05999755859375,
+        0.029998779296875,
+        0.349853515625
+      ]
+    },
+    {
+      "id": "receiver0_2_0",
+      "pixel": [
+        289,
+        167
+      ],
+      "hitCount": 2,
+      "finiteRawExpected": [
+        0.12,
+        0.06,
+        0.03
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.1199951171875,
+          0.1199951171875
+        ],
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ]
+      ],
+      "observed": [
+        0.1199951171875,
+        0.05999755859375,
+        0.029998779296875,
+        0.349853515625
+      ]
+    },
+    {
+      "id": "receiver0_-2_2",
+      "pixel": [
+        285,
+        169
+      ],
+      "hitCount": 3,
+      "finiteRawExpected": [
+        0.18,
+        0.09,
+        0.045
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.179931640625,
+          0.1800537109375
+        ],
+        [
+          0.0899658203125,
+          0.09002685546875
+        ],
+        [
+          0.04498291015625,
+          0.045013427734375
+        ]
+      ],
+      "observed": [
+        0.179931640625,
+        0.0899658203125,
+        0.04498291015625,
+        0.39990234375
+      ]
+    },
+    {
+      "id": "receiver0_0_2",
+      "pixel": [
+        287,
+        169
+      ],
+      "hitCount": 3,
+      "finiteRawExpected": [
+        0.18,
+        0.09,
+        0.045
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.179931640625,
+          0.1800537109375
+        ],
+        [
+          0.0899658203125,
+          0.09002685546875
+        ],
+        [
+          0.04498291015625,
+          0.045013427734375
+        ]
+      ],
+      "observed": [
+        0.179931640625,
+        0.0899658203125,
+        0.04498291015625,
+        0.39990234375
+      ]
+    },
+    {
+      "id": "receiver0_2_2",
+      "pixel": [
+        289,
+        169
+      ],
+      "hitCount": 3,
+      "finiteRawExpected": [
+        0.18,
+        0.09,
+        0.045
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.179931640625,
+          0.1800537109375
+        ],
+        [
+          0.0899658203125,
+          0.09002685546875
+        ],
+        [
+          0.04498291015625,
+          0.045013427734375
+        ]
+      ],
+      "observed": [
+        0.179931640625,
+        0.0899658203125,
+        0.04498291015625,
+        0.39990234375
+      ]
+    },
+    {
+      "id": "receiver1_-2_-2",
+      "pixel": [
+        318,
+        151
+      ],
+      "hitCount": 4,
+      "finiteRawExpected": [
+        0.24,
+        0.12,
+        0.06
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.239990234375,
+          0.239990234375
+        ],
+        [
+          0.1199951171875,
+          0.1199951171875
+        ],
+        [
+          0.05999755859375,
+          0.05999755859375
+        ]
+      ],
+      "observed": [
+        0.239990234375,
+        0.1199951171875,
+        0.05999755859375,
+        0.449951171875
+      ]
+    },
+    {
+      "id": "receiver1_0_-2",
+      "pixel": [
+        320,
+        151
+      ],
+      "hitCount": 3,
+      "finiteRawExpected": [
+        0.18,
+        0.09,
+        0.045
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.179931640625,
+          0.1800537109375
+        ],
+        [
+          0.0899658203125,
+          0.09002685546875
+        ],
+        [
+          0.04498291015625,
+          0.045013427734375
+        ]
+      ],
+      "observed": [
+        0.179931640625,
+        0.0899658203125,
+        0.04498291015625,
+        0.39990234375
+      ]
+    },
+    {
+      "id": "receiver1_2_-2",
+      "pixel": [
+        322,
+        151
+      ],
+      "hitCount": 3,
+      "finiteRawExpected": [
+        0.18,
+        0.09,
+        0.045
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.179931640625,
+          0.1800537109375
+        ],
+        [
+          0.0899658203125,
+          0.09002685546875
+        ],
+        [
+          0.04498291015625,
+          0.045013427734375
+        ]
+      ],
+      "observed": [
+        0.179931640625,
+        0.0899658203125,
+        0.04498291015625,
+        0.39990234375
+      ]
+    },
+    {
+      "id": "receiver1_-2_0",
+      "pixel": [
+        318,
+        153
+      ],
+      "hitCount": 1,
+      "finiteRawExpected": [
+        0.06,
+        0.03,
+        0.015
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ],
+        [
+          0.0149993896484375,
+          0.0149993896484375
+        ]
+      ],
+      "observed": [
+        0.05999755859375,
+        0.029998779296875,
+        0.0149993896484375,
+        0.2998046875
+      ]
+    },
+    {
+      "id": "receiver1_0_0",
+      "pixel": [
+        320,
+        153
+      ],
+      "hitCount": 0,
+      "finiteRawExpected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "observed": [
+        0.0,
+        0.0,
+        0.0,
+        0.25
+      ]
+    },
+    {
+      "id": "receiver1_2_0",
+      "pixel": [
+        322,
+        153
+      ],
+      "hitCount": 3,
+      "finiteRawExpected": [
+        0.18,
+        0.09,
+        0.045
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.179931640625,
+          0.1800537109375
+        ],
+        [
+          0.0899658203125,
+          0.09002685546875
+        ],
+        [
+          0.04498291015625,
+          0.045013427734375
+        ]
+      ],
+      "observed": [
+        0.179931640625,
+        0.0899658203125,
+        0.04498291015625,
+        0.39990234375
+      ]
+    },
+    {
+      "id": "receiver1_-2_2",
+      "pixel": [
+        318,
+        155
+      ],
+      "hitCount": 1,
+      "finiteRawExpected": [
+        0.06,
+        0.03,
+        0.015
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ],
+        [
+          0.0149993896484375,
+          0.0149993896484375
+        ]
+      ],
+      "observed": [
+        0.05999755859375,
+        0.029998779296875,
+        0.0149993896484375,
+        0.2998046875
+      ]
+    },
+    {
+      "id": "receiver1_0_2",
+      "pixel": [
+        320,
+        155
+      ],
+      "hitCount": 2,
+      "finiteRawExpected": [
+        0.12,
+        0.06,
+        0.03
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.1199951171875,
+          0.1199951171875
+        ],
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ]
+      ],
+      "observed": [
+        0.1199951171875,
+        0.05999755859375,
+        0.029998779296875,
+        0.349853515625
+      ]
+    },
+    {
+      "id": "receiver1_2_2",
+      "pixel": [
+        322,
+        155
+      ],
+      "hitCount": 1,
+      "finiteRawExpected": [
+        0.06,
+        0.03,
+        0.015
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ],
+        [
+          0.0149993896484375,
+          0.0149993896484375
+        ]
+      ],
+      "observed": [
+        0.05999755859375,
+        0.029998779296875,
+        0.0149993896484375,
+        0.2998046875
+      ]
+    },
+    {
+      "id": "receiver2_-2_-2",
+      "pixel": [
+        393,
+        118
+      ],
+      "hitCount": 1,
+      "finiteRawExpected": [
+        0.06,
+        0.03,
+        0.015
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ],
+        [
+          0.0149993896484375,
+          0.0149993896484375
+        ]
+      ],
+      "observed": [
+        0.05999755859375,
+        0.029998779296875,
+        0.0149993896484375,
+        0.2998046875
+      ]
+    },
+    {
+      "id": "receiver2_0_-2",
+      "pixel": [
+        395,
+        118
+      ],
+      "hitCount": 1,
+      "finiteRawExpected": [
+        0.06,
+        0.03,
+        0.015
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ],
+        [
+          0.0149993896484375,
+          0.0149993896484375
+        ]
+      ],
+      "observed": [
+        0.05999755859375,
+        0.029998779296875,
+        0.0149993896484375,
+        0.2998046875
+      ]
+    },
+    {
+      "id": "receiver2_2_-2",
+      "pixel": [
+        397,
+        118
+      ],
+      "hitCount": 1,
+      "finiteRawExpected": [
+        0.06,
+        0.03,
+        0.015
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ],
+        [
+          0.0149993896484375,
+          0.0149993896484375
+        ]
+      ],
+      "observed": [
+        0.05999755859375,
+        0.029998779296875,
+        0.0149993896484375,
+        0.2998046875
+      ]
+    },
+    {
+      "id": "receiver2_-2_0",
+      "pixel": [
+        393,
+        120
+      ],
+      "hitCount": 1,
+      "finiteRawExpected": [
+        0.06,
+        0.03,
+        0.015
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ],
+        [
+          0.0149993896484375,
+          0.0149993896484375
+        ]
+      ],
+      "observed": [
+        0.05999755859375,
+        0.029998779296875,
+        0.0149993896484375,
+        0.2998046875
+      ]
+    },
+    {
+      "id": "receiver2_0_0",
+      "pixel": [
+        395,
+        120
+      ],
+      "hitCount": 2,
+      "finiteRawExpected": [
+        0.12,
+        0.06,
+        0.03
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.1199951171875,
+          0.1199951171875
+        ],
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ]
+      ],
+      "observed": [
+        0.1199951171875,
+        0.05999755859375,
+        0.029998779296875,
+        0.349853515625
+      ]
+    },
+    {
+      "id": "receiver2_2_0",
+      "pixel": [
+        397,
+        120
+      ],
+      "hitCount": 0,
+      "finiteRawExpected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "observed": [
+        0.0,
+        0.0,
+        0.0,
+        0.25
+      ]
+    },
+    {
+      "id": "receiver2_-2_2",
+      "pixel": [
+        393,
+        122
+      ],
+      "hitCount": 1,
+      "finiteRawExpected": [
+        0.06,
+        0.03,
+        0.015
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ],
+        [
+          0.0149993896484375,
+          0.0149993896484375
+        ]
+      ],
+      "observed": [
+        0.05999755859375,
+        0.029998779296875,
+        0.0149993896484375,
+        0.2998046875
+      ]
+    },
+    {
+      "id": "receiver2_0_2",
+      "pixel": [
+        395,
+        122
+      ],
+      "hitCount": 2,
+      "finiteRawExpected": [
+        0.12,
+        0.06,
+        0.03
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.1199951171875,
+          0.1199951171875
+        ],
+        [
+          0.05999755859375,
+          0.05999755859375
+        ],
+        [
+          0.029998779296875,
+          0.029998779296875
+        ]
+      ],
+      "observed": [
+        0.1199951171875,
+        0.05999755859375,
+        0.029998779296875,
+        0.349853515625
+      ]
+    },
+    {
+      "id": "receiver2_2_2",
+      "pixel": [
+        397,
+        122
+      ],
+      "hitCount": 0,
+      "finiteRawExpected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true,
+      "knownMeasurement": true,
+      "channelMatches": [
+        true,
+        true,
+        true
+      ],
+      "rgba16fIntervals": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "observed": [
+        0.0,
+        0.0,
+        0.0,
+        0.25
+      ]
+    }
+  ],
+  "negativeControls": {
+    "extraPiRejected": true,
+    "swappedChannelsRejected": true,
+    "unknownRejected": true
+  },
+  "expectedSha256": "a5a4854c2414b9bcf72dd874f7b6cc420324ab9932d7d5b31724d0c179cf13be",
+  "rawSha256": "6ef6ffd15849aac4ee5cecf55f7c9a46beab4492588485fd415a7784dc8d4cd4",
+  "inputSha256": "bb2830f9d37ccb0766e6747dee26f46940d1f5c1a891ac6132fdb51d358fca64",
+  "originalComparatorSha256": "9eef1dc5b3036d9596e1b23d2fed91277d3774f43b8a1ba48fb021e2a4644af7",
+  "wrapperSha256": "b07c903f2051d69edb2db5bb901e43e103056546d2624464b02c55a4c8d0d9b1",
+  "qualifierSha256": "6a2d2bff05edf128545a52d8508291f500349a3544382b3dee9ded57c3f1cc96",
+  "productionAccepted": false
+}

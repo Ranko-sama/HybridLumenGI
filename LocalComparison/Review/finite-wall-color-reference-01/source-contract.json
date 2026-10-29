@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "status": "prospective-source-contract; not a Unity execution receipt",
+  "signal": "CSTrace raw indirect incident D=E/pi, before temporal/filter/composite",
+  "rectangle": {"x": 0.0, "yMin": 0.0, "yMax": 2.0, "zMin": -2.0, "zMax": 2.0},
+  "wallMaterial": {
+    "shader": "Universal Render Pipeline/Lit",
+    "workflow": "metallic",
+    "baseColorOrigin": "shader-linear-mpb",
+    "baseColor": [0.5, 0.25, 0.125],
+    "metallic": 0.0,
+    "proxyTintLinear": [1.0, 1.0, 1.0],
+    "emission": [0.0, 0.0, 0.0],
+    "ao": 1.0,
+    "textured": false,
+    "normalMapped": false
+  },
+  "light": {"type": "Directional", "linearRgb": [1.0, 1.0, 1.0], "intensity": 1.0, "toLight": [1.0, 0.0, 0.0], "shadows": false},
+  "settings": {"bounceFeedback": 0.0, "guideWeight": 0.0, "emissiveWeight": 0.0, "areaEmitterCount": 0, "screenSteps": 0, "radianceClamp": 0.0, "environmentRgb": [0.0, 0.0, 0.0], "rayBias": 0.03, "maxDistance": 20.0},
+  "referenceReceivers": [
+    {"id": "near", "position": [0.5, 0.0, 0.0]},
+    {"id": "center", "position": [1.0, 0.0, 0.0]},
+    {"id": "far", "position": [2.0, 0.0, 0.0]}
+  ],
+  "notes": [
+    "Authored geometry, material inputs and light units must be frozen before native execution; never infer them from observed GI RGB.",
+    "MPB BaseColor is shader-linear. Do not apply another sRGB conversion. A Material authoring-color path requires a different explicit source contract.",
+    "World source diffuse is 0.96*(1-metallic)*baseColor*proxyTint. All selected components are below the existing 0.98 transport cap.",
+    "The light color is the URP-relative direct diffuse quantity. No extra division by pi is applied to wall outgoing radiance.",
+    "A separate diagnostic sampler may supply directions using identical Work.frame, pixel and normal. It must export no product hit/color/PDF as an oracle answer.",
+    "Only the declared rectangle and upward floor may intersect these rays. No other geometry or cache contribution is permitted.",
+    "The infinite-sample analytic expectation is a reference, not a pass threshold for one finite noisy frame. Finite sample comparison is independent ray/rectangle evaluation."
+  ]
+}

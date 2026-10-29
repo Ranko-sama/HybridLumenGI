@@ -1,0 +1,12 @@
+{
+  "stage": "frozen input-only decoder, before raw RGB comparison",
+  "decoderSha256": "b451adc1b0f105a1a24a1a091e72adcba1fcaf0833da7b39a7b04cfd06fb01fe",
+  "error": "Selected receiver is not on the authored floor",
+  "failedCondition": "abs(position.y) <= 64 * binary32_epsilon * max(1, abs(position.xyz))",
+  "observedNearReceiverY": 0.000011477925909275655,
+  "initialYBound": 0.00000762939453125,
+  "raysNativeWritten": false,
+  "rawColorComparisonPerformed": false,
+  "dependentComparatorAttempt": "Stopped at FileNotFoundError because rays-native.json did not exist; no expected or measured RGB comparison was produced.",
+  "nextAction": "Independently derive source consistency from actual matrices, authored plane and raster/depth precision; retain this failure and frozen code, no new GPU run, no fitted color threshold."
+}

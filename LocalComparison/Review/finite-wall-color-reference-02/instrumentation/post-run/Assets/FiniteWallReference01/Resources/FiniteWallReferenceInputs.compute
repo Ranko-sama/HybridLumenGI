@@ -1,0 +1,52 @@
+// Diagnostic input replay only. No product radiance or hit answer.
+#pragma kernel CSReferenceInputs
+#pragma target 5.0
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "ReferenceScreenSampling.hlsl"
+#include "ReferenceHit.hlsl"
+Texture2D<float> _HLGI_Depth;
+Texture2D<float4> _HLGI_Normals;
+float4 _HLGI_Size,_HLGI_FullSize;
+float4x4 _HLGI_InvVP,_HLGI_View;
+int _HLGI_NormalsOct,_HLGI_FrameIndex,_HLGI_Rays;
+float _HLGI_RayBias,_HLGI_GuideWeight;
+StructuredBuffer<uint2> _ReferencePixels;
+int _ReferencePixelCount;
+RWStructuredBuffer<float4> _ReferenceRows;
+#include "ReferenceInputFunctions.hlsl"
+
+[numthreads(64,1,1)]
+void CSReferenceInputs(uint3 dispatchId:SV_DispatchThreadID)
+{
+    if(dispatchId.x>=(uint)_ReferencePixelCount)return;
+    uint group=dispatchId.x;
+    // Fixed capacity of eight directions per receiver, independent of ray count.
+    [unroll] for(uint clearIndex=0;clearIndex<48;clearIndex++)_ReferenceRows[group*48+clearIndex]=0;
+    if(_HLGI_Rays<1 || _HLGI_Rays>8 || _HLGI_GuideWeight!=0)return;
+    uint2 pixel=_ReferencePixels[group];
+    if(any(pixel>=(uint2)_HLGI_Size.xy))return;
+    uint2 fullPixel=HLGIFullPixelForGiPixel(pixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy);
+    float2 uv=HLGIFullPixelCenterUv(fullPixel,(uint2)_HLGI_FullSize.xy);
+    float depth=_HLGI_Depth.Load(int3(fullPixel,0));
+    if(!isfinite(depth) || !ValidDepth(depth))return;
+    float3 position=WorldPosition(uv,depth,_HLGI_InvVP),normal=NormalAt(uv),geometricNormal;
+    bool hasGeometry=HLGITryScreenGeometricNormal(uv,depth,position,geometricNormal);
+    if(!all(isfinite(position)) || !all(isfinite(normal)))return;
+    // Guide weight is zero, so CSTrace does not perform its world-match/guide query.
+    float3 origin=position+(hasGeometry?HLGIOffsetNormal(geometricNormal,normal):normal)*_HLGI_RayBias;
+    uint rng=HLGIHash((pixel.x+pixel.y*(uint)_HLGI_Size.x+HLGIHash((uint)_HLGI_FrameIndex+1))^0x63D83595u);
+    [loop] for(int sample=0;sample<_HLGI_Rays;sample++)
+    {
+        float discardedWeight;
+        // Actual transport's emissive<=0 branch calls this exact function.
+        // There are no area draws in the frozen zero-emitter scene.
+        float3 direction=HLGISampleDirection(normal,0,rng,discardedWeight);
+        uint offset=(group*8+(uint)sample)*6;
+        _ReferenceRows[offset]=float4(origin,1);
+        _ReferenceRows[offset+1]=float4(direction,0);
+        _ReferenceRows[offset+2]=float4(position,depth);
+        _ReferenceRows[offset+3]=float4(normal,1);
+        _ReferenceRows[offset+4]=float4(geometricNormal,hasGeometry?1:0);
+        _ReferenceRows[offset+5]=asfloat(uint4(pixel,(uint)_HLGI_FrameIndex,(uint)sample));
+    }
+}

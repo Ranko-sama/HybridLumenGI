@@ -1,0 +1,57 @@
+{
+  "kernel": "CSReferenceInputs",
+  "sourceSha256": {
+    "Runtime\\Resources\\HybridLumenGI\\HybridLumenGITransport.hlsl": "1621a7688f9157c1169016d259168c4c7462c6695522bea1c9d0ba57b7fe2255",
+    "Runtime\\Resources\\HybridLumenGI\\HybridLumenGIKernels.hlsl": "36f561edd634ddf3d629b06e847ead631ad6b44eaa6b2039ab658a4c422d1850",
+    "Runtime\\Resources\\HybridLumenGI\\HybridLumenGIEmissiveSampling.hlsl": "5a06573326a31fb757bd504f4f938c97d8c9d48e1de801e07936d680e2a09724",
+    "Runtime\\Resources\\HybridLumenGI\\HybridLumenGIScreenSampling.hlsl": "25607ffeba963c9c7a2e1474f99337c3e4ac4079db5cc6ac54e6d1d3505f52cf",
+    "Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHit.hlsl": "7f251d8c95aa66dca1958aff4c4face153df9ebc54f94640653ca73ca4d23df6"
+  },
+  "generatedSha256": {
+    "FiniteWallReferenceInputs.compute": "c38ec867e131a7e33ab36c023cc2ff99e3911a2b032b42a10cb662177ca1451d",
+    "generate_sampler.executed.py.txt": "4a8d4b407c44841444ddacb151073ae291c683c59f649a94bbe6285458ef5ef8",
+    "ReferenceHit.hlsl": "7f251d8c95aa66dca1958aff4c4face153df9ebc54f94640653ca73ca4d23df6",
+    "ReferenceInputFunctions.hlsl": "8412e5aaa1af80f9946dc9a1ddcea4400a716090dc9a69d89aec98769f053114",
+    "ReferenceScreenSampling.hlsl": "25607ffeba963c9c7a2e1474f99337c3e4ac4079db5cc6ac54e6d1d3505f52cf"
+  },
+  "layout": "8 ray rows per pixel, each 6 float4=96 bytes; final float4 is raw uint4 identity bits",
+  "compilePassed": true,
+  "nativeExecuted": false,
+  "productRadianceRead": false,
+  "restrictions": [
+    "guideWeight=0",
+    "emissiveWeight=0",
+    "areaEmitterCount=0",
+    "same Work.frame/pixel/dimensions/depth/normals/InvVP/View as CSTrace"
+  ],
+  "compileCommand": [
+    "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+    "-HV",
+    "2018",
+    "-O3",
+    "-T",
+    "cs_6_0",
+    "-E",
+    "CSReferenceInputs",
+    "-I",
+    "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+    "-I",
+    "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+    "-I",
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Reference\\ColorBounceRectangle\\generated",
+    "-D",
+    "SHADER_API_D3D11=1",
+    "-D",
+    "SHADER_STAGE_COMPUTE=1",
+    "-D",
+    "UNITY_COMPILER_DXC=1",
+    "-D",
+    "UNITY_VERSION=600000",
+    "-Fo",
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Reference\\ColorBounceRectangle\\generated\\sampler.dxil",
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Reference\\ColorBounceRectangle\\generated\\FiniteWallReferenceInputs.compute"
+  ],
+  "compileExitCode": 0,
+  "compilerSha256": "7c6918a0e2d4e437629fa8549f5ce800970494780f363bbbe1e3d3034f435aee",
+  "dxilSha256": "669d8ef12869a22566b53c69c7610e3c8bf7d8d82e8b5af9660ec42bb99ff664"
+}

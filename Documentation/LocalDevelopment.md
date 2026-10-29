@@ -2,6 +2,10 @@
 
 2026-10-27，用户明确取消当前朋友交付任务，直接在本机继续开发。冻结的 `runtime-candidate-16` 及其交付 ZIP 保留为历史基线；不再以等待朋友反馈作为开发停点。
 
+## 原生整合与独立颜色参考（2026-10-29）
+
+后续已将269241b部署到Unity，完成[真实纹理历史验证和Release70构建](ReviewBrief-CurrentColorDynamicsIntegration01.md)；两个隐藏Player无相机回调的失败保留。新增[完整Feature有限色墙参考](ReviewBrief-FiniteWallColorReference02.md)，27个像素／216条射线符合独立单bounce期望；原输入地面精度FAIL保留，使用同数据另层光栅精度资格，颜色阈值未改。继续推进真实变色／关灯响应与可后台验证的Player接线，不把局部完成当原计划结束。
+
 ## 颜色反弹与动态历史修复（2026-10-29）
 
 按用户要求并行推进两项已证实问题：缓存插值遗漏材质覆盖未知状态，可能制造可信单色；reactive变化帧错误覆盖 `maxHistory=1`，使旧色继续混入。产品只修改两个条件，独立审查无阻断。实际HLSL定向WARP对照及保留首FAIL的同数据半精度补判支持采用，见[完整结果与边界](ReviewBrief-ColorBounceDynamicLimits01.md)。未使用Codex with ChatGPT，未修改Unity部署或Release69；后续源码变化与旧EXE来源明确分开。

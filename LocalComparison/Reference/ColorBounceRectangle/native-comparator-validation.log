@@ -1,0 +1,12 @@
+Command: bundled Python -m unittest test_compare_native -v
+Working directory: LocalComparison/Reference/ColorBounceRectangle
+Initial run: 4 setup errors because the test referred to a nested half converter as a public function. No native data was read.
+Correction: binary16 conversion for synthetic observed/control values is a local helper; frozen reference.py and its storage intervals are unchanged.
+Final run exit code: 0
+test_extra_pi_does_not_pass ... ok
+test_incomplete_raw_is_rejected ... ok
+test_pixel_addressed_positive_and_exact_black ... ok
+test_unknown_is_not_black ... ok
+Ran 4 tests in 0.001s
+OK
+This is a deterministic synthetic comparator result, not native Unity color acceptance.

@@ -1,0 +1,80 @@
+{
+  "python": "C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe",
+  "sourceSha256": {
+    "source-contract.json": "02466a5289040eff541dabdb85737c6fd6b8d19621012c4f90e3f8986a6efea5",
+    "reference.py": "5a31910eb5d8a11289c778b3ffa181acaba4245d229a41855798edc010de7eeb",
+    "decode_sampler.py": "b451adc1b0f105a1a24a1a091e72adcba1fcaf0833da7b39a7b04cfd06fb01fe",
+    "generate_sampler.py": "4a8d4b407c44841444ddacb151073ae291c683c59f649a94bbe6285458ef5ef8",
+    "compare_native.py": "9eef1dc5b3036d9596e1b23d2fed91277d3774f43b8a1ba48fb021e2a4644af7",
+    "qualify_native_inputs.py": "6a2d2bff05edf128545a52d8508291f500349a3544382b3dee9ded57c3f1cc96",
+    "compare_qualified_native.py": "b07c903f2051d69edb2db5bb901e43e103056546d2624464b02c55a4c8d0d9b1",
+    "test_reference.py": "9cfa7b9127b7d11feeccf6567bc2f230db10beb7564081fdbdb54cc97970a7dc",
+    "test_sampler_decode.py": "600e9e304eef34678c30af7acc0d3a5f5bc517d453badbd92ce1c5fd8c1af7e3",
+    "test_compare_native.py": "22f1a51034165ec245d6e8d61968f44b6e716fd6542a878954574d43cdedd744",
+    "test_input_qualification.py": "561caf7ac2cb8c671a038201ab9644ef2371283e7e2926e2db2235b2d59547a8",
+    "generated/manifest.json": "7ea738fcb2ee42b974eef8d902306d581c1fdb086edc12aca679dc9b5c2c87e7",
+    "generated/FiniteWallReferenceInputs.compute": "c38ec867e131a7e33ab36c023cc2ff99e3911a2b032b42a10cb662177ca1451d",
+    "generated/ReferenceInputFunctions.hlsl": "8412e5aaa1af80f9946dc9a1ddcea4400a716090dc9a69d89aec98769f053114",
+    "generated/ReferenceScreenSampling.hlsl": "25607ffeba963c9c7a2e1474f99337c3e4ac4079db5cc6ac54e6d1d3505f52cf",
+    "generated/ReferenceHit.hlsl": "7f251d8c95aa66dca1958aff4c4face153df9ebc54f94640653ca73ca4d23df6"
+  },
+  "commands": [
+    {
+      "cwd": "LocalComparison/Reference/ColorBounceRectangle",
+      "arguments": "-m unittest test_sampler_decode -v",
+      "exitCode": 0,
+      "testsPassed": 8
+    },
+    {
+      "cwd": "LocalComparison/Reference/ColorBounceRectangle",
+      "arguments": "-m unittest test_compare_native -v",
+      "initialExitCode": 1,
+      "initialReason": "Synthetic test setup referred to nested half conversion as public; frozen reference unchanged.",
+      "finalExitCode": 0,
+      "testsPassed": 4
+    },
+    {
+      "cwd": "workspace",
+      "arguments": "LocalComparison/Reference/ColorBounceRectangle/decode_sampler.py --native-outputdir LocalComparison/Review/finite-wall-color-reference-01/native",
+      "exitCode": 1,
+      "reason": "sampler-inputs.bin absent; observer never selected gather"
+    },
+    {
+      "cwd": "workspace",
+      "arguments": "LocalComparison/Reference/ColorBounceRectangle/decode_sampler.py --native-outputdir LocalComparison/Review/finite-wall-color-reference-02/native",
+      "exitCode": 1,
+      "reason": "Original fixed world-coordinate floor heuristic; retained unchanged"
+    },
+    {
+      "cwd": "LocalComparison/Reference/ColorBounceRectangle",
+      "arguments": "-m unittest test_input_qualification.InputQualificationTests -v",
+      "exitCode": 0,
+      "testsPassed": 4
+    },
+    {
+      "cwd": "workspace",
+      "arguments": "LocalComparison/Reference/ColorBounceRectangle/qualify_native_inputs.py --native-outputdir LocalComparison/Review/finite-wall-color-reference-02/native",
+      "exitCode": 0,
+      "qualifiedGroups": 27,
+      "originalDecoderPassed": false
+    },
+    {
+      "cwd": "workspace",
+      "arguments": "LocalComparison/Reference/ColorBounceRectangle/compare_qualified_native.py --native-outputdir LocalComparison/Review/finite-wall-color-reference-02/native",
+      "exitCode": 0,
+      "passedGroups": 27,
+      "totalRays": 216,
+      "independentRectangleHits": 47
+    }
+  ],
+  "earlierChecks": "Mathematical eight-test results: math-validation-storage.log. Exact diagnostic DXC -O3 command and compiler/input hashes: generated/manifest.json. Earlier generic decoder checks: sampler-decode-validation.log. No Unity process was started by this reference lane.",
+  "negativeControls": {
+    "extraPiRejected": true,
+    "swappedChannelsRejected": true,
+    "unknownRejected": true
+  },
+  "nativeRawSha256": "6ef6ffd15849aac4ee5cecf55f7c9a46beab4492588485fd415a7784dc8d4cd4",
+  "finiteExpectedSha256": "a5a4854c2414b9bcf72dd874f7b6cc420324ab9932d7d5b31724d0c179cf13be",
+  "instrumentationManifestSha256": "717a76b663bcc0e150156a59b3ba3945c932a2b3deeb05ef155016b0fc994a07",
+  "limits": "Conditional finite single-bounce raw E/pi under separate raster source-consistency qualification; initial decoder failure retained; no widened radiance threshold; no default multi-bounce or production acceptance."
+}
