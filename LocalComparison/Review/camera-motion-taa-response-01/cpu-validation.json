@@ -1,0 +1,21 @@
+{
+  "command": "python -B test_model.py",
+  "exitCode": 0,
+  "tests": 12,
+  "nativeInputsRead": false,
+  "unityExecuted": false,
+  "firstPreparationRun": {
+    "exitCode": 1,
+    "passed": 9,
+    "failedTest": "test_actual_jitter_difference_once",
+    "error": "jitter VP is not a pure XY translation",
+    "correction": "Include declared one-ULP stored VP component uncertainty before cancellation, not only after subtraction; no native data read"
+  },
+  "sources": {
+    "analyze.py": "a7e14390e860df9d5d0a83db4d974a384b0bee4c8013df8c45f5b18ddfaf4ff1",
+    "model.py": "363e8aa8456383b1bc80664c19ea5f87ed9fab06b6f37bb6aa1502989b345846",
+    "test_model.py": "f4b06e9f22d16517f07c919fe97d57a021a69f64dd719ce51a18310f48d82b89",
+    "input-model.txt": "9a86b43e04522ebdd34516d261c940841bfc709331f62a9bb47abc2a395990f6"
+  },
+  "finalTestScope": "Original ten plus complete continued five-tap input and independent first-exposure panel/floor input; incorrect primitive negative"
+}

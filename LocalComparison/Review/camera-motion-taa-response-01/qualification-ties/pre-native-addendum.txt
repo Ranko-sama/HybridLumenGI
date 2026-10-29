@@ -1,0 +1,33 @@
+Pre-native input-qualification correction. No camera/native output was read.
+
+The first frozen source/prepared files, two successful C# assembly checks and
+three successful observer DXC checks remain in the parent package unchanged.
+URP's actual Halton base2 sequence can give half-pixel jitter differences while
+the camera is held. Previous UV can then fall on a nearest-center tie. The first
+independent qualifier required a unique integer address; this could reject an
+entire valid frame. The shader's closest-center convention chooses the smaller
+index on exact equality. The observer's slot0 is a floor-address hint, not an
+independent certificate of which nearest pixel the product selected.
+
+The already captured four bilinear inputs cover both adjacent nearest candidates
+at such ties. The revised independent model computes the entire possible-nearest
+set from the un-narrowed pixel/motion/jitter arithmetic interval. It never uses
+the observed motionUV to shrink that interval or chooses a favorable predecessor.
+All possible nearest addresses must be present among the original five inputs.
+Continued controls require every possible nearest plus every positive bilinear
+tap to satisfy the same floor/primitive/material/normal/history gates. First
+exposure requires every possible nearest to be physical panel, have valid
+different identity and established prior history. Any unrepresented possible
+address, uncertain branch, or source boundary remains uncovered.
+
+No GPU source, ABI, input, pixel selection, source scene, camera path, 48-frame
+budget, minimum coverage or response expectation changes. Known first exposure
+still requires exact numeric current/history equality and age1; known continued
+controls still require valid output and age>1. Signed zero is the sole numeric
+equivalence exception. Unknown/invalid values remain separately classified.
+
+This is a separate, prospectively frozen input-proof correction. The effective
+analysis entry is qualification-ties/analyze.py with the parent package argument.
+source-manifest.json pins the new files, original evidence and each of the nine
+unchanged staged files. Existing compile results are reused by explicit byte
+identity; no repeated C#/DXC/Unity/GPU execution is claimed or required.

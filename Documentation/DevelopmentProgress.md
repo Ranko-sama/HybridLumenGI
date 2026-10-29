@@ -1,6 +1,6 @@
 # 完整原计划推进表
 
-当前执行：颜色可信性／历史限龄修复，以及有限色墙、变色关灯、缓存反馈、移动遮挡的原生证据已整合。[引导权重与几何解耦](ReviewBrief-GuidingReceiverGeometry01.md)已提交13f31ec并部署112产品源，同输入WARP及三后端完整CSTrace编译通过；真实相机移动与非零TAA抖动的有限显露验证正在准备。以下分轮叙述保留各自时点，“继续／下一包”不覆盖此处当前任务；原计划四目标、十工作流和G0–G5仍未完成。
+当前执行：颜色可信性／历史限龄修复，以及有限色墙、变色关灯、缓存反馈、移动遮挡的原生证据已整合。[引导权重与几何解耦](ReviewBrief-GuidingReceiverGeometry01.md)已提交13f31ec并部署112产品源，同输入WARP及三后端完整CSTrace编译通过；真实相机／TAA首个原生尝试在第1帧因临时观察shader的宏隔离缺失而失败，未进入移动；[失败与完整恢复](../LocalComparison/Review/camera-motion-taa-response-01/result.md)保留，正在独立02包修正观察接线并补齐普通／identity入口编译。以下分轮叙述保留各自时点，“继续／下一包”不覆盖此处当前任务；原计划四目标、十工作流和G0–G5仍未完成。
 
 [首帧分段诊断](ReviewBrief-StartupStageProfile01.md)完成同Release71场景／shader的唯一12帧诊断Player，60事件／25CPU范围闭合，首次完成2.684秒。旧99–142秒等待未复现，不据此声称改善；最大1.985秒空档在GI合成命令记录后，GPU归因仍未知。普通Release71未替换，诊断源码保持269241b；后续引导修复属于新来源。
 

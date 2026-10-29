@@ -1,0 +1,72 @@
+Prospective independent input model (before any native camera/TAA execution).
+
+Ownership: model.py, analyze.py and test_model.py are the independent reference.
+The scene, observer and package installation belong to the parallel dynamic lane.
+No Unity execution, deployment, renderer change or measured-color fitting is part
+of this preparation. The current result rows are not even decoded while cohort
+eligibility is built. Prior history finite bits, alpha and moments are inputs to
+the temporal consumer and may establish that useful f-1 history existed.
+
+Scope and arithmetic:
+* Fixed 640x360 DX12, full-resolution GI, perspective camera, three static opaque
+  rectangles, identity currentToPrevious, binary16 motion and history storage.
+* Each scalar binary32 arithmetic endpoint uses exact rational arithmetic and
+  outward conversion with an extra one-ULP allowance. Division additionally
+  encloses x*rcp(y), with reciprocal relative error 2^-21 plus multiplication.
+  rsq uses relative 2^-21; sqrt uses outward endpoint conversion. These bounds
+  follow the same D3D11.3 arithmetic rules already recorded by the finite source
+  reference. This model does not prescribe a native compiler lowering.
+* Planar raw-depth input consistency uses the exact inverse of captured VP and
+  normative raster-coordinate snap half-width 0.6/256 full pixels. Clipped
+  planar vertices remain on the same depth plane, so its depth contribution is
+  (abs(depthSlopeX)+abs(depthSlopeY))*0.6/256. As in the original finite reference,
+  this is a conditional source consistency check, not a complete portable bound
+  on all forward projection, clipping and varying-interpolation errors.
+* Independent source visibility uses actual captured inverse VP, a snap-width
+  box around the full-pixel center, and bounded intersections with all three
+  authored rectangles. Rectangle edge, intersection-order, screen-boundary or
+  triangle-diagonal ambiguity is uncovered. Actual geometry must separately
+  agree with the winning source plane/normal; source targets are never hits.
+* Current and previous primitive+1 are independently determined from the
+  authored rectangle diagonal and compared with identity.z. Candidate/key/row
+  fields are temporal inputs, checked for internal validity and identity pose.
+  This is not a per-ray DXR committed-binding measurement.
+* Reprojection independently evaluates both the static pose and the observed
+  motion input. Actual product motion acceptance is proved strictly inside its
+  one-full-pixel agreement gate. Any uncertain branch is uncovered; pose fallback
+  is not an alternative success route. Nearest and all four bilinear addresses
+  must be unique over the full interval and match the copied input locations.
+* Current/previous nonjittered URP matrices are copied from actual GPU globals.
+  Their f-1 chain, the CPU producer matrix, source hashes, and uploaded GI f-1
+  matrices are cross-checked. Independent static-world velocity must enclose the
+  stored motion input under signed binary16 RTZ/RNE endpoint bounds. This check
+  is conditional source consistency; it is not a general proof of all object
+  motion varying interpolation precision. A mismatch is uncovered.
+* Actual jittered VP must be a pure XY homogeneous translation of unjittered VP.
+  Solving the tiny translation from two large stored matrix components includes
+  one-ULP uncertainty on the stored VP component before subtraction. Applying
+  an ULP only to the tiny difference would incorrectly omit cancellation of the
+  stored operands. Actual previous-current jitter must lie in the independently
+  derived interval; zero settings or TAA labels alone cannot qualify this.
+
+History expectations:
+* First exposure requires current physical floor, previous nearest physical panel,
+  distinct valid identities, known finite prior history with age>1, valid global
+  f-1 state and zero hard/reactive/change inputs. Known current raw must then be
+  copied to output exactly and age must be one. Numeric equality permits only
+  IEEE +0/-0 equality; NaN/Inf are never accepted as equal.
+* Continued controls require physical floor, the same independently determined
+  source primitive, strict normal/material/distance/plane threshold margins and
+  established finite history at nearest and all four positive bilinear taps.
+  Known current output must remain finite/known and age>1. This makes a global
+  history reset fail even if all new-exposure samples look correct.
+* Unknown current raw is reported and contributes no successful event/control.
+  No physical RGB integral, variance threshold, exposure change or maximum-image
+  difference threshold is used. Deduplicate actual pixel coordinates per frame.
+  All candidate points, 48-frame budget and minimum coverage remain in contract.txt.
+
+Preparation test correction (before native data): the initial synthetic jitter
+test exposed missing stored-operand rounding in the translation inversion. The
+first 10-test run had nine passes and this one error; the corrected one-ULP
+operand placement passes all ten, including the doubled-jitter negative. No
+threshold was increased, no native result was available, and no sample was added.
