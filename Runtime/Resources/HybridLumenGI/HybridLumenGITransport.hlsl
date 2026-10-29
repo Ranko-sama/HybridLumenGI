@@ -25,6 +25,16 @@ StructuredBuffer<uint> _HLGI_CacheUpdateMask;
 float _HLGI_GuideWeight;
 float _HLGI_MaxDistance, _HLGI_ShadowDistance, _HLGI_RayBias, _HLGI_BounceFeedback;
 float4 _HLGI_Environment;
+TextureCube<float4> _HLGI_EnvironmentCube;
+SamplerState sampler_HLGIEnvironment_LinearClamp;
+int _HLGI_EnvironmentCubeEnabled;
+float3 HLGIEnvironmentRadiance(float3 direction)
+{
+    // Li along the escaping world ray; existing sampling weights produce D=E/pi.
+    // Leave nonfinite samples intact for the existing measurement guards.
+    return _HLGI_EnvironmentCubeEnabled!=0 ?
+        _HLGI_EnvironmentCube.SampleLevel(sampler_HLGIEnvironment_LinearClamp,direction,0).rgb : _HLGI_Environment.rgb;
+}
 #include "HybridLumenGILightingPolicy.hlsl"
 #include "HybridLumenGISdfTrace.hlsl"
 #include "HybridLumenGISceneBvh.hlsl"
@@ -546,7 +556,7 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
                 if(!HLGIAreaDirectionEmissionWeight(origin,n,e.guide,direction,hit,emissionWeight)) { estimateKnown=false;break; }
                 incoming=ProxyRadiance(hit,direction,hitFootprint,emissionWeight,materialConfidence);
             }
-            else if(weight>0) incoming=_HLGI_Environment.rgb;
+            else if(weight>0) incoming=HLGIEnvironmentRadiance(direction);
             if(!HLGIAccumulateRadianceSample(incoming,materialConfidence,weight,sum)) { estimateKnown=false;break; }
             float power=dot(max(incoming,0),float3(0.2126,0.7152,0.0722))*weight;
             guide+=direction*power;guidePower+=power;

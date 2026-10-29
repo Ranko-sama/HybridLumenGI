@@ -1,0 +1,79 @@
+#pragma kernel CSUpdateCache
+#pragma kernel CSUpdateCacheLegacy
+#pragma kernel CSTrace
+#pragma kernel CSTraceLegacy
+#pragma target 5.0
+#pragma use_dxc
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIRayFootprint.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIScreenGeometry.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIScreenSampling.hlsl"
+#include "../../HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIScreenMaterial.hlsl"
+#include "EnvironmentStructures.hlsl"
+StructuredBuffer<HLGIProxy> _HLGI_Proxies;
+StructuredBuffer<uint4> _HLGI_LightingPolicies;
+StructuredBuffer<HLGICacheEntry> _HLGI_CacheRead;
+RWStructuredBuffer<HLGICacheEntry> _HLGI_CacheWrite;
+StructuredBuffer<uint> _HLGI_CacheUpdateMask;
+RWTexture2D<float4> _HLGI_Output,_HLGI_GeometryOut,_HLGI_MaterialOut;
+int _HLGI_CacheRays,_HLGI_Rays,_HLGI_Epoch,_HLGI_FrameIndex;
+static int _HLGI_CacheGrid=1,_HLGI_SurfaceCardCount=1,_HLGI_ProxyCount=1,_HLGI_AreaEmitterCount=0;
+static float _HLGI_GuideWeight=0,_HLGI_BounceFeedback=0,_HLGI_RadianceClamp=0,_HLGI_RayBias=.001,_HLGI_MaxDistance=100;
+static float4 _HLGI_Size=float4(1,1,1,1),_HLGI_FullSize=float4(1,1,1,1);
+static float4x4 _HLGI_InvVP;
+int _AxisMode,_CaseMode,_ZeroWeight;
+float4 _Axis;
+#include "EnvironmentSource.hlsl" // Actual declarations and shared Cube sampling function.
+#include "EnvironmentSampling.hlsl" // Actual hash, cosine sampling and original weighting.
+
+// Explicit fixed surface/screen/nearest-query adapters. Only Cube sampling is real texture input.
+struct ScalarInput { float Load(int3 p) { return .5; } };
+struct ColorInput { float4 Load(int3 p) { return float4(.5,.5,.5,1); } };
+static ScalarInput _HLGI_Depth,_HLGI_CaptureDepth;
+static ColorInput _HLGI_Emission,_HLGI_Diffuse;
+float3 NormalAt(float2 uv) { return _Axis.xyz; }
+float3 WorldPosition(float2 uv,float depth,float4x4 matrix) { return 0; }
+bool ValidDepth(float depth) { return true; }
+bool HLGITryScreenGeometricNormal(float2 uv,float depth,float3 p,out float3 n) { n=_Axis.xyz;return true; }
+bool HLGITryScreenWorldMatch(float2 uv,float depth,float3 p,float3 n,out HLGIHit hit) { hit=HLGIEmptyHit(100);return false; }
+bool HLGICachedSample(HLGIHit hit,float3 n,out HLGICacheEntry value) { value=(HLGICacheEntry)0;return false; }
+bool HLGITrySurfacePatch(uint card,uint2 cell,uint grid,out HLGISurfaceSample s)
+{
+    s=(HLGISurfaceSample)0;s.normal=s.geometricNormal=_Axis.xyz;s.diffuse=.5;s.emission=float3(.5,1,2);s.occlusion=s.confidence=1;s.generation=1;
+    return card==0 && grid==1 && all(cell==0);
+}
+bool HLGITrySurfaceMaterialHit(HLGIHit hit,out HLGISurfaceSample s) { return HLGITrySurfacePatch(0,0,1,s); }
+bool HLGICachedSurface(int owner,float3 p,float3 ng,float3 ns,HLGISurfaceSample s,out HLGICacheEntry e,out bool known)
+{ e=(HLGICacheEntry)0;known=true;return false; }
+float2 HLGIChangeAt(float3 p) { return 0; }
+bool HLGITrySurfacePatchRayFootprint(HLGISurfaceSample s,uint2 p,float3 d,out HLGIRayFootprint f) { return HLGITryMakeRayFootprint(0,0,f); }
+bool HLGITryScreenRayFootprint(float2 uv,float depth,float3 p,float3 d,out HLGIRayFootprint f) { return HLGITryMakeRayFootprint(0,0,f); }
+float3 HLGISampleTransportDirection(float3 o,float3 n,float4 guide,inout uint rng,out float weight)
+{
+    float3 direction;
+    if(_AxisMode!=0) { direction=_Axis.xyz;weight=1; }
+    else direction=HLGISampleDirection(n,guide,rng,weight);
+    if(_ZeroWeight!=0)weight=0;
+    return direction;
+}
+float HLGITransportDirectionPdf(float3 o,float3 n,float4 guide,float3 d) { return max(0,dot(n,d))/PI; }
+bool TraceSceneHit(float3 o,float3 d,float limit,HLGIRayFootprint footprint,float4 view,out HLGIHit hit)
+{
+    hit=HLGIEmptyHit(limit);if(_CaseMode==0)return false;
+    hit.flags=HLGI_HIT_VALID|HLGI_HIT_SHADING_NORMAL|HLGI_HIT_GEOMETRIC_NORMAL;
+    if(_CaseMode==1)hit.flags|=HLGI_HIT_QUERY_UNRESOLVED;
+    hit.ownerSlot=0;hit.stableId=11;hit.ownerRevision=2;hit.t=1;hit.rawNg=hit.shadingNormal=_Axis.xyz;return true;
+}
+bool TraceScreen(float3 o,float3 d,float limit,out float3 radiance,out float t,out bool known) { radiance=0;t=limit;known=false;return false; }
+float3 DirectIrradiance(float3 p,float3 n,float3 ng,uint2 layers,bool shadows,float3 d,HLGIRayFootprint f,out bool known) { known=true;return 0; }
+bool HLGIAreaDirectionEmissionWeight(float3 o,float3 n,float4 guide,float3 d,HLGIHit hit,out float weight) { weight=1;return true; }
+#define HLGI_AREA_NONE 0u
+#define HLGI_AREA_SAMPLE 1u
+#define HLGI_AREA_UNKNOWN 2u
+struct HLGIAreaSample { float3 direction;float distance; };
+uint HLGISampleAreaEmitter(float3 o,float3 random,out HLGIAreaSample sample) { sample=(HLGIAreaSample)0;return HLGI_AREA_NONE; }
+bool HLGIAreaLightContribution(float3 o,float3 n,float4 guide,HLGIAreaSample sample,HLGIRayFootprint f,float4 view,
+    out float3 value,out bool worldHit,out HLGIHit hit) { value=0;worldHit=false;hit=HLGIEmptyHit(100);return true; }
+#include "EnvironmentActualConsumers.hlsl" // Complete original functions, entry-name changes only for legacy.

@@ -14,6 +14,8 @@
 
 以下架构与G0–G5条件继续保留。早期阶段叙述和朋友包只提供历史背景，不决定当前启动步骤。
 
+当前源码另新增[静态线性HDR环境Cube](EnvironmentRadiance.md)，替代常量环境并为两条间接光miss路径提供方向性Li。[63真实compute结果](ReviewBrief-StaticHdrEnvironmentCubemap01.md)支持固定方向、旧常量兼容及未知语义；实际设置序列化与原失效代码块也已检查。尚未在完整Feature/场景中运行此输入，不更新普通Release58入口或生产支持范围。
+
 上一阶段已修复实际阻断、完成有限 Unity/Player 检查并交付来源一致的朋友测试包。用户后来已安装 Unity，本机已运行精确软件、SDF、DXR 与材质/历史/资源页场景。基线证据见 [Unity 功能接线检查](LocalRuntimeFunctionalAudit.md)，原计划对应关系见 [九项交接表](PreFriendReadiness.md)。后续在本机处理光照正确性、动态画质、性能与资源稳定性；朋友工程集成暂不作为当前任务。
 
 integration-15 的73阶段与155项选定DXC是历史离线证据，详见 [OfflineValidation](OfflineValidation.md)。后续 Unity 修复降低了详细遍历的重复展开，精确软件及 DXR 已分别获得真实首帧；仍需记录首次构建/驱动初始化成本。新源码不冒用旧来源全绿报告，也不把编译秒数当 GPU 帧时间。

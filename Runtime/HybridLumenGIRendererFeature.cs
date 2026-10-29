@@ -107,6 +107,8 @@ namespace HybridLumenGI
             [Tooltip("Experimental: only when capacity overflows, exclude local lights proven outside the complete finite screen/world transport domain. Unknown coverage retains legacy admission.")]
             public bool spatialLightSelection;
             [ColorUsage(false,true)] public Color environmentRadiance=Color.black;
+            [Tooltip("Optional static, unencoded linear RGBAHalf/RGBAFloat radiance cube. Replaces the constant environment; contents must remain immutable while in use.")]
+            public Cubemap environmentCubemap;
             [Min(0)] public float indirectIntensity=1;
             [Tooltip("Biased luminance clamp. Zero disables it.")][Min(0)] public float radianceClamp=0;
             public bool temporalAccumulation=true;
@@ -168,6 +170,11 @@ namespace HybridLumenGI
         [SerializeField] private Shader surfaceShader;
         [SerializeField] private Shader nativeDiffuseShader;
         private Material composite;
+        internal static bool IsSupportedEnvironmentCubemap(Cubemap cube)
+        {
+            return cube!=null && (cube.format==TextureFormat.RGBAHalf || cube.format==TextureFormat.RGBAFloat) &&
+                !GraphicsFormatUtility.IsSRGBFormat(cube.graphicsFormat);
+        }
         private TransportPass pass;
         private bool warnedPlatform;
         public override void Create()
@@ -471,6 +478,7 @@ namespace HybridLumenGI
             private readonly List<ShaderTagId> tags=new List<ShaderTagId>{new ShaderTagId("UniversalForward"),new ShaderTagId("UniversalForwardOnly"),new ShaderTagId("UniversalGBuffer")};
             private readonly HybridLumenGILights worldLights=new HybridLumenGILights();
             private bool warnedBudget,warnedComposition,admissionStopped;
+            private Cubemap rejectedEnvironment;
             internal void StopAdmission()=>admissionStopped=true;
             internal TransportPass(ComputeShader shader,Material composite,Shader surface,Shader nativeDiffuse,Settings settings,Func<bool> featureActive)
             {
@@ -1113,8 +1121,20 @@ namespace HybridLumenGI
                 cmd.SetComputeFloatParam(c,"_HLGI_DepthThreshold",s.relativeDepthThreshold);cmd.SetComputeFloatParam(c,"_HLGI_NormalThreshold",s.normalThreshold);
                 cmd.SetComputeFloatParam(c,"_HLGI_CurrentWeight",s.temporalAccumulation?s.temporalCurrentWeight:1);cmd.SetComputeFloatParam(c,"_HLGI_RadianceClamp",s.radianceClamp);
                 cmd.SetComputeVectorParam(c,"_HLGI_Environment",s.environmentRadiance.linear);
+                Cubemap environment=s.environmentCubemap;
+                bool useEnvironmentCube=IsSupportedEnvironmentCubemap(environment);
+                if(environment!=null && !useEnvironmentCube)
+                {
+                    if(rejectedEnvironment!=environment)
+                        Debug.LogWarning("[HybridLumenGI] Environment Cubemap requires unencoded linear RGBAHalf/RGBAFloat radiance. Using the constant environment instead.");
+                    rejectedEnvironment=environment;
+                }
+                else rejectedEnvironment=null;
+                cmd.SetComputeIntParam(c,"_HLGI_EnvironmentCubeEnabled",useEnvironmentCube?1:0);
+                Cubemap environmentTexture=useEnvironmentCube?environment:CoreUtils.blackCubeTexture;
                 foreach(int k in new[]{update,trace})
                 {
+                    cmd.SetComputeTextureParam(c,k,"_HLGI_EnvironmentCube",environmentTexture);
                     cmd.SetComputeBufferParam(c,k,"_HLGI_Proxies",state.scene.Buffer);cmd.SetComputeBufferParam(c,k,"_HLGI_Lights",state.lights);
                     cmd.SetComputeBufferParam(c,k,"_HLGI_LightingPolicies",state.scene.LightingPolicyBuffer);
                     cmd.SetComputeBufferParam(c,k,"_HLGI_CacheRead",state.cache[d.cacheRead]);state.sdf.Bind(cmd,c,k);state.scene.Bvh.Bind(cmd,c,k);

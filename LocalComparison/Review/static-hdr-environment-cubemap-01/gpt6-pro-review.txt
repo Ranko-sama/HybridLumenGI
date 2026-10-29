@@ -1,0 +1,45 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 63
+DECISION: ACCEPT_AND_CLOSE
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_ACTION: 同包完成环境输入／合成使用合同并提交；不另开验证包
+
+一、接受方向性环境输入，未发现提交阻断
+
+已确认 HybridLumenGI / workspace:/ / main@b16b02f，README标题为`HybridLumenGI`。已先列取再读取277–279，检查三文件diff、冻结合同、实际执行代码、原始结果及恢复记录；本层没有修改、重跑或重新计算二进制哈希。
+
+价值成立：本轮增加了此前常量环境无法表达的方向性入射辐射，不是对62轮图像的修补。 实现也保持最小范围：有效Cube替代常量，两个确定miss路径共用LOD0采样函数；原随机序列、权重、面积项、反射率和置信度未改。没有新增π、gamma、曝光或强度因子。〔HybridLumenGITransport.hlsl:27–37、556–559；`HybridLumenGIKernels.hlsl:305`；本轮diff〕
+
+证据支持的具体结论
+
+真实Unity TextureCube.SampleLevel参与执行，适配器没有返回预设环境颜色。恒定HDR输入`(2,4,8)`在两条实际消费路径得到同一`D`；六个轴向输入对应各自冻结面值。未启用、恒定Cube及不受影响控制比较完整80字节世界记录／16字节屏幕记录，而不只是RGB。〔StaticEnvironmentCubeEditor.cs:29–35、74–110；`native-editor/run/result.json`〕
+
+未解决查询控制仍产生屏幕未知、空世界估计仍未测量；普通命中不被天空覆盖，零权重保持已知零。非有限Cube输入也没有被clamp伪装成有效测量。这里执行了实际拒绝消费者，但产生未解决命中的几何查询是适配输入，不是重新验证SDF或DXR遍历。〔StaticEnvironmentCube.compute:60–79；原始结果`:430–637`〕
+
+格式准入调用了实际Feature方法；引用序列`null→A→同A→B→null`使用真实`JsonUtility`与提取的原失效代码。四次失效包含首次初始化，重复A没有失效。这不等于完整CameraState／RenderGraph已执行。〔prepare.py:36–64；`native-editor/run/settings.json`〕
+
+所有权与部署边界正确
+
+Feature只借用用户Cube或Core黑色Cube占位，不创建复制池、不销毁来源；无效格式警告后退回旧常量。浮点格式检查不能判断内容是否曾预卷积、编码或动态修改，静态未编码辐射仍是调用者合同。
+
+恢复记录支持十项覆盖恢复，112份部署产品回到7190c28；当前工作区三文件候选仍待提交。普通入口仍是 Release58／7e387a5，不能标成已包含Cube能力。〔instrumentation/restoration.json；`prepare.py:126–140`；输出279〕
+
+一次托管预检、一次原生compute批次已满足本包退出条件。三个产品compute资产的受影响入口导入检查，不是这些完整后端分别完成了场景渲染。不追加Player、截图、任意天空能量或性能实验。 Astra独立结果现已读取，与有限采用判断一致。
+
+二、唯一下一动作：把能力连同正确使用边界一起合入
+
+对照原计划，当前最有价值的收尾是完成目标1／4、工作流2／7的环境输入与原生光照合成合同，而不是再制造一个没有具体反例的测试包。这属于本次能力交付，不单独计为新的开发里程碑。
+
+在同一提交中补充现有 Documentation/DirectLighting.md 与 Documentation/NativeDiffuseComposition.md，不改产品字节或冻结证据：
+
+必须说明的合同	对使用决定的意义
+Cube为沿逃逸世界射线方向的静态、未编码线性辐亮度；RGBAHalf／RGBAFloat、LOD0、有效时替代常量	防止把漫反射预卷积图、反射探针产品或曝光后颜色当成原始入射光
+未指定保留旧常量；不支持格式警告并回退；内容使用期间不可原地修改，资源由调用方拥有	明确旧行为、失效条件及资产寿命，避免把有限引用切换证据误当动态天空支持
+输入Cube不修改可见skybox、环境SH、lightmap或反射；Additive仍可能与原生漫反射GI重复计能	防止误以为指定Cube就自动替换了URP环境照明
+
+最后一项不是新发现的运行故障：现有文档已经明确Additive的重复计能风险，`ReplaceNativeDiffuseGI`仍是独立、受限的选择。不能自动切换合成模式、清空RenderSettings，或因本轮Cube通过而扩大替换模式支持范围。〔NativeDiffuseComposition.md:3–17〕
+
+只做提交前的源码／说明一致性审阅；零新增测试、构建、Unity运行或采集，不另建状态报告数据库。 若某项承诺需要新的实验才能成立，就写为未验证，不补实验来填表。
+
+退出条件：三文件实现、有限证据及上述使用合同一并提交，63轮结束。 完整四项目标、十条工作流继续开放；定量能量、广泛动态质量和生产预算没有因此完成。导航、多视点、恢复、暗区、MC、曝光及计时调查均保持关闭。

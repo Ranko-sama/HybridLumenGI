@@ -302,7 +302,7 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
             if(!HLGIAreaDirectionEmissionWeight(origin,n,receiverCache.guide,dir,hit,emissionWeight)) { estimateKnown=false;break; }
             float materialConfidence;incoming=ProxyRadiance(hit,dir,hitFootprint,emissionWeight,materialConfidence);sampleConfidence=0.65*materialConfidence;
         }
-        else if(sampleWeight>0) { incoming=_HLGI_Environment.rgb;sampleConfidence=0.25; }
+        else if(sampleWeight>0) { incoming=HLGIEnvironmentRadiance(dir);sampleConfidence=0.25; }
         // Check before a clamp can conceal a NaN/infinity. Reject the complete
         // estimate, without dividing by a smaller known-sample population.
         if(!HLGIHasRadianceMeasurement(float4(incoming,sampleConfidence)) ||

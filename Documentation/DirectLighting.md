@@ -1,10 +1,14 @@
 # 直接光、分层与独立阴影查询
 
-直接光策略从 integration-09 起接入屏幕接收面、世界卡片和软件／DXR 阴影查询。它仍是独立漫反射传输的受限实现，**不是完整 URP Lit 光照等价实现**。当前候选的验证状态、阶段数、报告及源码哈希统一以 [OfflineValidation.md](OfflineValidation.md) 为入口，不能沿用旧归档结果。工作区 Tests JSON 会随候选推广更新，不是 integration-13 原件的固定链接。这里没有 Unity、Player 或实体 GPU 验收结果；原生 D3D12 证据使用 WARP 软件适配器和模拟 Unity 宿主。
+直接光策略从 integration-09 起接入屏幕接收面、世界卡片和软件／DXR 阴影查询。它仍是独立漫反射传输的受限实现，**不是完整 URP Lit 光照等价实现**。早期离线候选的报告及源码哈希以 [OfflineValidation.md](OfflineValidation.md) 为入口，不能沿用旧归档结果。工作区 Tests JSON 会随候选推广更新，不是 integration-13 原件的固定链接。早期原生 D3D12 证据使用 WARP 软件适配器和模拟 Unity 宿主；后续各自来源的有限Unity/实体GPU结果见[推进表](DevelopmentProgress.md)，本节各项合同不因此获得整体验收。
 
 封存integration-13的精确材质来源、CPU receiver跟踪及可选对象历史有56阶段/126项选定DXC的历史统一离线证据。新增命中材质和足迹传播改变了当前传输接口，单项结果不能替代新的统一通过结论。版本与范围见 [OfflineValidation.md](OfflineValidation.md)。这也未补齐完整Lit光照；像素身份与对象历史的受限范围见 [GeometryHistoryContracts.md](GeometryHistoryContracts.md)，实际Unity/Player覆盖与图像仍待验收。
 
 ## 灯光快照与照明
+
+可选 `environmentCubemap` 为确定逃逸的世界射线提供方向性环境辐亮度Li；它只接受静态、未编码线性RGBAHalf/RGBAFloat，以LOD0读取，并替代原常量环境。空引用保留 `environmentRadiance` 的原转换与行为，不支持的格式会警告后回退常量。原权重继续计算D=E/π，不额外乘反射率、曝光或π。调用方持有资产并保证使用期间内容不可原地修改；引用切换沿用设置失效。完整输入及有限compute证据见[环境合同](EnvironmentRadiance.md)。
+
+输入Cube不改变可见skybox、环境SH、lightmap或反射。默认Additive仍保留原URP漫反射GI，可能重复计能；指定Cube不会自动切换到 `ReplaceNativeDiffuseGI` 或清空全局Lighting设置。选择替换模式须满足其独立[合成合同](NativeDiffuseComposition.md)，本轮Cube验证不扩大支持范围。
 
 `HybridLumenGILights` 在每个被渲染的引擎帧扫描一次 `Light`，包含 inactive 对象，并按 InstanceID 排序；同一 Renderer Feature 的其他相机复用引用列表，再读取当前活动状态和属性。扫描时已存在的 inactive 灯在同帧激活后可以被后续准备观察到；扫描后新创建的灯最迟在下一渲染引擎帧被发现。它不依赖某个相机的 visible-light 列表。支持方向、点、聚光灯，排除 Baked-only、未启用及无效数据；Mixed 的完整烘焙混合语义不在此合同内。默认最多选择 16 灯，上限 32，选择顺序不是按光照重要性排序。
 
