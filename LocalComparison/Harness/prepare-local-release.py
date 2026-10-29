@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];H=ROOT/'LocalComparison/Harness';PROJECT=Path('I:/Unity test/Project')
 PACKAGE=ROOT/'LocalComparison/Review/local-release-baseline-01';OUT=PACKAGE/'instrumentation'
 AUXILIARY=False
+LIGHT_MOVE=False
 spec=importlib.util.spec_from_file_location('base',H/'prepare-player-smoke.py');base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
 base.PACKAGE=PACKAGE;base.OUT=OUT;sha=base.sha;replace=base.replace
 
@@ -29,13 +30,17 @@ def configure_auxiliary():
     global PACKAGE,OUT,AUXILIARY
     PACKAGE=ROOT/'LocalComparison/Review/asset-page-auxiliary-cold-bind-01';OUT=PACKAGE/'instrumentation';AUXILIARY=True
     base.PACKAGE=PACKAGE;base.OUT=OUT
+def configure_light_move():
+    global PACKAGE,OUT,LIGHT_MOVE
+    PACKAGE=ROOT/'LocalComparison/Review/local-light-move-response-01';OUT=PACKAGE/'instrumentation';LIGHT_MOVE=True
+    base.PACKAGE=PACKAGE;base.OUT=OUT
 def prepare():
     assert not OUT.exists(),'Unique Release preparation already exists'
     product={p.relative_to(ROOT).as_posix():sha(p) for top in ['Runtime','Editor'] for p in (ROOT/top).rglob('*') if p.is_file() and p.suffix!='.meta'}
     assert all(sha(PROJECT/'Assets/HybridLumenGI'/p)==v for p,v in product.items())
     changed={}
     entry=PROJECT/'Assets/ComparisonHarness/RuntimeAuditEntry.cs'
-    startup='PageAuxiliaryColdBind' if AUXILIARY else 'LocalReleaseBootstrap'
+    startup='PageAuxiliaryColdBind' if AUXILIARY else 'LightMoveResponse' if LIGHT_MOVE else 'LocalReleaseBootstrap'
     changed[entry]=replace(entry.read_text(),'        if(Application.isEditor)return;','        if(Application.isEditor)return;\n        if('+startup+'.TryStart())return;').encode()
     trace=PROJECT/'Assets/ComparisonHarness/ResourceShutdownTrace.cs'
     changed[trace]=replace(trace.read_text(),'    static void RuntimeStart(){Install();Mark("runtime-before-scene");}',
@@ -58,6 +63,12 @@ def prepare():
         var projectSettings=''')
         build=replace(build,'        var paths=readable.Concat(', '        var paths=Directory.GetFiles("Assets/StreamingAssets","*",SearchOption.AllDirectories).Concat(readable).Concat(')
         changed[PROJECT/'Assets/ComparisonHarness/Editor/CurrentPlayerBuild.cs']=build.encode()
+    elif LIGHT_MOVE:
+        changed[PROJECT/'Assets/ComparisonHarness/LightMoveResponse.cs']=(H/'LightMoveResponse.cs').read_bytes()
+        capture=PROJECT/'Assets/ComparisonHarness/ComparisonCapture.cs'
+        methods=(H/'SingleFinalCaptureMethods.cs.txt').read_text()+'\n'+(H/'LightMoveCaptureMethod.cs.txt').read_text()
+        changed[capture]=replace(capture.read_text(),'    void Start()\n',methods+'\n    void Start()\n').encode()
+        changed[PROJECT/'Assets/ComparisonHarness/Editor/CurrentPlayerBuild.cs']=(H/'CurrentPlayerBuild.cs').read_bytes()
     else:
         changed[PROJECT/'Assets/ComparisonHarness/LocalReleaseBootstrap.cs']=(H/'LocalReleaseBootstrap.cs').read_bytes()
         capture=PROJECT/'Assets/ComparisonHarness/ComparisonCapture.cs'
@@ -94,10 +105,11 @@ def restore():
         path=exclusion_path(row);assert not path.exists(),'Do not overwrite a changed historical include';data=(OUT/row['original']).read_bytes();assert hashlib.sha256(data).hexdigest()==row['sha256'];path.write_bytes(data)
     (OUT/'excluded-restoration.json').write_text(json.dumps({'allRestored':all(sha(exclusion_path(row))==row['sha256'] for row in m['excluded']),'files':m['excluded']},indent=2))
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','install','restore']);mode=p.add_mutually_exclusive_group();mode.add_argument('--steady',action='store_true');mode.add_argument('--integration',action='store_true');mode.add_argument('--final-image',action='store_true');mode.add_argument('--navigation',action='store_true');mode.add_argument('--auxiliary',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','install','restore']);mode=p.add_mutually_exclusive_group();mode.add_argument('--steady',action='store_true');mode.add_argument('--integration',action='store_true');mode.add_argument('--final-image',action='store_true');mode.add_argument('--navigation',action='store_true');mode.add_argument('--auxiliary',action='store_true');mode.add_argument('--light-move',action='store_true');a=p.parse_args()
     if a.steady:configure_steady()
     if a.integration:configure_integration()
     if a.final_image:configure_final_image()
     if a.navigation:configure_navigation()
     if a.auxiliary:configure_auxiliary()
+    if a.light_move:configure_light_move()
     globals()[a.action]()

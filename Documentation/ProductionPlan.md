@@ -1,12 +1,12 @@
 # 实时光传输架构与生产交付计划
 
-状态：**持续本机开发；当前可巡视入口为Release58，产品来源7e387a512cbb4355fd5f3d9f3c76282375f9cd3b；最后HDR图像基线仍为Release54/a9292cb，完整生产验收尚未完成。** 更新：2026-10-29。用户不需要朋友交付。当前入口见[README](../README.md)，[58巡视结果及边界](ReviewBrief-LocalReleaseNavigation01.md)已获Astra和实际GPT-6 Pro有限采用；Pro58核对实现与记录，图片由执行层和Astra观察。完整目标仍由[原始计划](OriginalDevelopmentPlan.md)约束，后续HEAD不改变EXE产品来源。
+状态：**持续本机开发；当前可巡视入口为Release58，产品来源7e387a512cbb4355fd5f3d9f3c76282375f9cd3b；静态Final HDR基线仍为Release54/a9292cb，完整生产验收尚未完成。** 更新：2026-10-29。用户不需要朋友交付。当前入口见[README](../README.md)，[58巡视结果及边界](ReviewBrief-LocalReleaseNavigation01.md)已获Astra和实际GPT-6 Pro有限采用；Pro58核对实现与记录，图片由执行层和Astra观察。完整目标仍由[原始计划](OriginalDevelopmentPlan.md)约束，后续HEAD不改变EXE产品来源。
 
 ## 当前支持范围与证据层级
 
 | 类别 | 当前合同 | 证据与边界 |
 | --- | --- | --- |
-| 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；Release None | [Release58](ReviewBrief-LocalReleaseNavigation01.md)普通键盘巡视、正常退出，产品7e387a5；[Release54](ReviewBrief-CurrentRepresentativeFinalImage01.md)静态120相机/GI帧及单次末帧HDR图像，产品a9292cb。640×360仅为运行配置；58窗口图不替代54的HDR目标图，不构成动态GI/性能验收 |
+| 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；Release None | [Release58](ReviewBrief-LocalReleaseNavigation01.md)普通键盘巡视、正常退出，产品7e387a5；[Release54](ReviewBrief-CurrentRepresentativeFinalImage01.md)静态120相机/GI帧及单次末帧HDR图像，产品a9292cb。[62固定移灯](ReviewBrief-LocalLightMoveResponse01.md)在7190c28完成180帧及五份IndirectOnly HDR，原FAIL与一次精确同数据补判并存；仅支持该事件的检测与空间响应。640×360仅为运行配置；58窗口图不替代54静态Final HDR，不构成完整动态GI/性能验收 |
 | 已实现、有限验证 | 不变Skinned快照复用、Additive雾衰减、局部灯变化优先调度及现有架构能力 | 分别见[复用](ReviewBrief-SkinnedUnchangedSnapshotReuse01.md)、[原生捕获依赖](ReviewBrief-SkinnedNativeCaptureBoundary01.md)、[雾合成](ReviewBrief-AdditiveFogComposition01.md)、[调度](ReviewBrief-LocalLightSchedulingPriority01.md)；源码适配器、原生依赖与完整功能验收分开，54不补齐未触发条件 |
 | 历史证据 | Release44稳态、早期软件/DXR图像、流式及动态专项 | [44的300秒窗口](ReviewBrief-LocalReleaseSteadyUse01.md)属于5120a8c；其他见[推进表](DevelopmentProgress.md)各自来源，不改旧FAIL、不改标为当前通过 |
 | 代码明确限制/拒绝 | Feature跳过非DX12、非Linear、非Base或立体相机，以及无compute/必要资源的路径；仅Game及显式允许的SceneView、Tex2D目标可进入 | [实际准入代码](../Runtime/HybridLumenGIRendererFeature.cs)；替换原生漫反射还要求普通URP Lit、Forward/Forward+、有符号HDR及MSAA关闭等，失败保留原照明，见[完整替换合同](NativeDiffuseComposition.md)。这些限制不是单纯“尚未测试” |

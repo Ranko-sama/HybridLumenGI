@@ -1,0 +1,10 @@
+    public void CaptureLightMoveFrame(int frame)
+    {
+        int[] wanted={90,119,120,135,179};
+        if(enabled||running||!configured||run.captures>=wanted.Length||frame!=wanted[run.captures]||camera.targetTexture!=target||featureJson!=JsonUtility.ToJson(feature,true))throw new Exception("Frozen light-move capture changed");
+        logicalFrame=frame;
+        var f=new Frame{logicalFrame=frame,engineFrame=Time.frameCount,stage=frame<120?"light-position-A":"light-position-B",cameraPosition=camera.transform.position,cameraRotation=camera.transform.rotation,projection=camera.projectionMatrix,doorLocalPosition=door.localPosition,
+            diagnosticsStatus="CPU lamp/changes snapshot saved separately; timing fields uncollected defaults.",lights=new LightState[lights.Length]};
+        for(int i=0;i<lights.Length;i++){var l=lights[i];f.lights[i]=new LightState{name=l.name,type=l.type.ToString(),enabled=l.enabled,intensity=l.intensity,range=l.range,color=l.color,position=l.transform.position,rotation=l.transform.rotation};}
+        Capture(f);
+    }

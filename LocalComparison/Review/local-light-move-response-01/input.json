@@ -1,0 +1,1776 @@
+{
+  "sourceCommit": "7190c28a38c7ab33713d4027537da8ef13f8763e",
+  "scene": "Assets/RuntimeAudit/Functional.unity",
+  "lightFileId": 268908001,
+  "parentFileId": 129935373,
+  "lightName": "Point (toggle for invalidation)",
+  "positionA": [
+    -2.4,
+    2.8,
+    2
+  ],
+  "positionB": [
+    2.4,
+    2.8,
+    2
+  ],
+  "intensity": 7,
+  "range": 8,
+  "color": [
+    1,
+    0.75,
+    0.5,
+    1
+  ],
+  "eventLogicalFrame": 120,
+  "cameraFrames": 180,
+  "captures": [
+    90,
+    119,
+    120,
+    135,
+    179
+  ],
+  "projectInputs": {
+    "Assets/Comparison/Pipeline.asset": {
+      "physical": "Assets/Comparison/Pipeline.asset",
+      "sha256": "f0d39cb596559d916bc255067e943c690625446ec79d9839505f6a9097162d2a"
+    },
+    "Assets/Comparison/Pipeline.asset.meta": {
+      "physical": "Assets/Comparison/Pipeline.asset.meta",
+      "sha256": "a0515e3f329f89bb744fe0b053d3b1ecb04d21b8a7c57596ee1f5a0933167932"
+    },
+    "Assets/Comparison/Renderer.asset": {
+      "physical": "Assets/Comparison/Renderer.asset",
+      "sha256": "39fb7c74a1b34a1aa35a71f7bbe07fefe06183bd379fe922108d85353cd4495a"
+    },
+    "Assets/Comparison/Renderer.asset.meta": {
+      "physical": "Assets/Comparison/Renderer.asset.meta",
+      "sha256": "9f61ab9616b6f3106942f2ddabf2844147eb39019ccf5f1a024484965f51f578"
+    },
+    "Assets/ComparisonScene/Run/Black.mat": {
+      "physical": "Assets/ComparisonScene/Run/Black.mat",
+      "sha256": "347e2d668618941fba8f2e1eaf4767338e45885ae8861d9c0ad3839ee17c5384"
+    },
+    "Assets/ComparisonScene/Run/Black.mat.meta": {
+      "physical": "Assets/ComparisonScene/Run/Black.mat.meta",
+      "sha256": "c5800abd174b8993495bd3e0b1048739fc935c4d7b727d2084406c5d38b84316"
+    },
+    "Assets/ComparisonScene/Run/Metal.mat": {
+      "physical": "Assets/ComparisonScene/Run/Metal.mat",
+      "sha256": "a7de7dd25da9e2646d68d4b9b4893154ed1680d0b7ccbb93649576aa1264b8b7"
+    },
+    "Assets/ComparisonScene/Run/Metal.mat.meta": {
+      "physical": "Assets/ComparisonScene/Run/Metal.mat.meta",
+      "sha256": "7c80c1cb84e59f1cdf9dcd7107c5e872872b604c6f9f5d2e168b61908e990a7f"
+    },
+    "Assets/ComparisonScene/Run/Red.mat": {
+      "physical": "Assets/ComparisonScene/Run/Red.mat",
+      "sha256": "1cb8cb4a3eedeff356b7909be1dc3724707e2508b5844de367f087c170e400f4"
+    },
+    "Assets/ComparisonScene/Run/Red.mat.meta": {
+      "physical": "Assets/ComparisonScene/Run/Red.mat.meta",
+      "sha256": "ed53f637502bb29239b9b9ce988684f51ae14f5e747859cdf66768f66924243a"
+    },
+    "Assets/ComparisonScene/Run/White.mat": {
+      "physical": "Assets/ComparisonScene/Run/White.mat",
+      "sha256": "85c491132a29c8e84b7cd02f75d0b41d7d684bcf848442c08d7d060066f1b3c2"
+    },
+    "Assets/ComparisonScene/Run/White.mat.meta": {
+      "physical": "Assets/ComparisonScene/Run/White.mat.meta",
+      "sha256": "2a9634e306c475b1f05f94bea397c68f789dd03feab488d8efe3ede95c6d1455"
+    },
+    "Assets/LocalTest/Mesh-718-Charts.asset": {
+      "physical": "Assets/LocalTest/Mesh-718-Charts.asset",
+      "sha256": "8d77641a5e4b86d416ac2a77d2c2ca5de6e9567284254b0f7cd5ecc949042173"
+    },
+    "Assets/LocalTest/Mesh-718-Charts.asset.meta": {
+      "physical": "Assets/LocalTest/Mesh-718-Charts.asset.meta",
+      "sha256": "3d72852bd0084bf6ffea669c0f998bc1b19b6d7bdd2c24efb00e17817e8ee146"
+    },
+    "Assets/LocalTest/Mesh-718-SDF.asset": {
+      "physical": "Assets/LocalTest/Mesh-718-SDF.asset",
+      "sha256": "b04c405b6e47d83e4b849188765595658dad0ff4e3ed99e9653a950ec2486bf8"
+    },
+    "Assets/LocalTest/Mesh-718-SDF.asset.meta": {
+      "physical": "Assets/LocalTest/Mesh-718-SDF.asset.meta",
+      "sha256": "f145bef842d98668bed3237a06b315d985bbf5b71abf0323b125dc441759683a"
+    },
+    "Assets/RuntimeAudit/Checker.mat": {
+      "physical": "Assets/RuntimeAudit/Checker.mat",
+      "sha256": "0811141119f351e70790a747179c69ac2056ff62df79c0a6611d1880f7180d87"
+    },
+    "Assets/RuntimeAudit/Checker.mat.meta": {
+      "physical": "Assets/RuntimeAudit/Checker.mat.meta",
+      "sha256": "d6e9589dd3709935a6955cda39ef83503f5ce18f125102943f337e99a42545d1"
+    },
+    "Assets/RuntimeAudit/Checker.png": {
+      "physical": "Assets/RuntimeAudit/Checker.png",
+      "sha256": "680d83bdb30a43db55be9c9d35ffb19a698edd432d049d41df674f7ac8246846"
+    },
+    "Assets/RuntimeAudit/Checker.png.meta": {
+      "physical": "Assets/RuntimeAudit/Checker.png.meta",
+      "sha256": "1cc7e835b9fb7f7c693be142bb5d34ac943210e31917481f91a40960f5166b0f"
+    },
+    "Assets/RuntimeAudit/Cutout.mat": {
+      "physical": "Assets/RuntimeAudit/Cutout.mat",
+      "sha256": "d6d1306e87502adad7a1485d4388ea21d90b23a20364162134263a179eafdc59"
+    },
+    "Assets/RuntimeAudit/Cutout.mat.meta": {
+      "physical": "Assets/RuntimeAudit/Cutout.mat.meta",
+      "sha256": "380f399de5624bd69d4feea1e957be5ad8ad9989c2ebc044a304a38e5327b759"
+    },
+    "Assets/RuntimeAudit/Cutout.png": {
+      "physical": "Assets/RuntimeAudit/Cutout.png",
+      "sha256": "7900bb640431dab890c18d8ec85338546046da1db43b2639379571ab9b060c0c"
+    },
+    "Assets/RuntimeAudit/Cutout.png.meta": {
+      "physical": "Assets/RuntimeAudit/Cutout.png.meta",
+      "sha256": "fe5c51a6c1ab480f92cca4b91e135690b3490776100c0005272fc9e14bc11b7b"
+    },
+    "Assets/RuntimeAudit/EnabledEmitter.mat": {
+      "physical": "Assets/RuntimeAudit/EnabledEmitter.mat",
+      "sha256": "4fd1ab74e04f64e8c691caf36308c34849b3e69ab093805a2d152a43ef26dcf9"
+    },
+    "Assets/RuntimeAudit/EnabledEmitter.mat.meta": {
+      "physical": "Assets/RuntimeAudit/EnabledEmitter.mat.meta",
+      "sha256": "491f58cb3d686efa119598fb04a4f7711cc327bb7b7818bdb77f82ecf4391aa8"
+    },
+    "Assets/RuntimeAudit/Functional.unity": {
+      "physical": "Assets/RuntimeAudit/Functional.unity",
+      "sha256": "bfa2fff2cecdd0cc6fd03279abb6470e71ed10059bacc2a064cfb5f892a98a16"
+    },
+    "Assets/RuntimeAudit/Functional.unity.meta": {
+      "physical": "Assets/RuntimeAudit/Functional.unity.meta",
+      "sha256": "b5ea8398b2377ef415eabee87abe539aeeffded05dce6a12e01734c725a41981"
+    },
+    "Assets/RuntimeAudit/Multi-Charts.asset": {
+      "physical": "Assets/RuntimeAudit/Multi-Charts.asset",
+      "sha256": "8162e9bad610411bcfa8ecd043701305b6080d11a505b76797f28a7afd7507c4"
+    },
+    "Assets/RuntimeAudit/Multi-Charts.asset.meta": {
+      "physical": "Assets/RuntimeAudit/Multi-Charts.asset.meta",
+      "sha256": "df2525eec9783f3dd69efa4fc2ae070b9d58c72bfe69623c02e73232b8ea3335"
+    },
+    "Assets/RuntimeAudit/Multi-SDF.asset": {
+      "physical": "Assets/RuntimeAudit/Multi-SDF.asset",
+      "sha256": "6aa24250205dfb3d0dd7bfdf24fd40bf5a273fc71bec1f8b3c20577c396c2597"
+    },
+    "Assets/RuntimeAudit/Multi-SDF.asset.meta": {
+      "physical": "Assets/RuntimeAudit/Multi-SDF.asset.meta",
+      "sha256": "bbae3bcfc20a2ab83ee8854510d4ef269478481689d929bdeb097f1ed5660a3a"
+    },
+    "Assets/RuntimeAudit/MultiSubmesh.asset": {
+      "physical": "Assets/RuntimeAudit/MultiSubmesh.asset",
+      "sha256": "2008e3722264e495a32f053863cb28f42f62cde237df727f604ec91fec4e21c5"
+    },
+    "Assets/RuntimeAudit/MultiSubmesh.asset.meta": {
+      "physical": "Assets/RuntimeAudit/MultiSubmesh.asset.meta",
+      "sha256": "584d35d11ab50ae9b27d3caaeb03a344edbdec0f7047b57beb544a8e26fae6b6"
+    },
+    "Assets/RuntimeAudit/Normal.png": {
+      "physical": "Assets/RuntimeAudit/Normal.png",
+      "sha256": "c7d07586fe262706ba164984a255c1184204b6337dddcb6e0f91a1e2aea8fd94"
+    },
+    "Assets/RuntimeAudit/Normal.png.meta": {
+      "physical": "Assets/RuntimeAudit/Normal.png.meta",
+      "sha256": "173f92cdf984e6f88dcd1e947c0ef416c0bb77234ab7dbed4932cbc88b4070ac"
+    },
+    "Assets/RuntimeAudit/NormalMapped.mat": {
+      "physical": "Assets/RuntimeAudit/NormalMapped.mat",
+      "sha256": "9bca02432020bc8b08b083b069173fab58dff7ff4933f3d2547c62843f8d1b39"
+    },
+    "Assets/RuntimeAudit/NormalMapped.mat.meta": {
+      "physical": "Assets/RuntimeAudit/NormalMapped.mat.meta",
+      "sha256": "261fd5f04ee6527378534abb6922083076dd1958c322ecf44f3e43b65c0b96cb"
+    },
+    "Assets/Settings/DefaultVolumeProfile.asset": {
+      "physical": "Assets/Settings/DefaultVolumeProfile.asset",
+      "sha256": "3a6f825e8d07fe8b9f3b52e7d4e2dfa0e22c555b22335adb19f0ecc66dfa38dd"
+    },
+    "Assets/Settings/DefaultVolumeProfile.asset.meta": {
+      "physical": "Assets/Settings/DefaultVolumeProfile.asset.meta",
+      "sha256": "efbcb026cee6b8e32fdf27018c06b0515296a6ccbb43969e792fea270310700a"
+    },
+    "Assets/Settings/Mobile_RPAsset.asset": {
+      "physical": "Assets/Settings/Mobile_RPAsset.asset",
+      "sha256": "077b30c366ee79c2b0906284297c3433c470b59a7bca563801901512d6cabf64"
+    },
+    "Assets/Settings/Mobile_RPAsset.asset.meta": {
+      "physical": "Assets/Settings/Mobile_RPAsset.asset.meta",
+      "sha256": "53ea46647712c615fd1a3f2e0dddfa8559eeedc649e9a1dbf93ff913de28544c"
+    },
+    "Assets/Settings/Mobile_Renderer.asset": {
+      "physical": "Assets/Settings/Mobile_Renderer.asset",
+      "sha256": "aa93274c9521fa941170becec9e87c5fa36b8587eefd5eeb5c0eed0d1d4b1dbe"
+    },
+    "Assets/Settings/Mobile_Renderer.asset.meta": {
+      "physical": "Assets/Settings/Mobile_Renderer.asset.meta",
+      "sha256": "a148ee2b4987b05b8ff7ae5f9bf84916184f77aefddc821dceb551f5a69f8179"
+    },
+    "Assets/Settings/SampleSceneProfile.asset": {
+      "physical": "Assets/Settings/SampleSceneProfile.asset",
+      "sha256": "a8677d4bac051d24caa11cd622e39f968155ee277bfce132274f1de225692fe9"
+    },
+    "Assets/Settings/SampleSceneProfile.asset.meta": {
+      "physical": "Assets/Settings/SampleSceneProfile.asset.meta",
+      "sha256": "2e23abc214069f0adbf2b2207f1db54be7876629ec2a3681d0f4aa5b61622ef0"
+    },
+    "Assets/Settings/UniversalRenderPipelineGlobalSettings.asset": {
+      "physical": "Assets/Settings/UniversalRenderPipelineGlobalSettings.asset",
+      "sha256": "283c0db8d6b9a5d38b28de74cc069c9f095a762e5d92bc13afef2d66ceb8e9f3"
+    },
+    "Assets/Settings/UniversalRenderPipelineGlobalSettings.asset.meta": {
+      "physical": "Assets/Settings/UniversalRenderPipelineGlobalSettings.asset.meta",
+      "sha256": "f61661d8bc8dbe531daf09f6211ef978c7ba145c9207c8e76524396ae0722d7c"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/DynamicGI/DynamicGISkyOcclusion.urtshader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/DynamicGI/DynamicGISkyOcclusion.urtshader",
+      "sha256": "ba499556a83d948bacfc838950a250be15da8a29ae8d682b97e16803e0132835"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/DynamicGI/DynamicGISkyOcclusion.urtshader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/DynamicGI/DynamicGISkyOcclusion.urtshader.meta",
+      "sha256": "660ee6556b47b7bd6949d7ae4a5c64d1df3ab6d82721c4074ae3cdb30c10be6d"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/ProbeVolumeCellDilation.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/ProbeVolumeCellDilation.compute",
+      "sha256": "275aa366faa96d06c790e2e515c61c940049aa99bcff84932ccba8da7c042a6a"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/ProbeVolumeCellDilation.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/ProbeVolumeCellDilation.compute.meta",
+      "sha256": "3ae6b6a77a0cad6ba57af14f2d602f7237af4c1e75afe9fc96550ec4d2a3c9d4"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/ProbeVolumeSubdivide.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/ProbeVolumeSubdivide.compute",
+      "sha256": "ccd3c7f5cfbf72c12a8bde6f6f56190135087dddb5af173ac82d9225b34e84a6"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/ProbeVolumeSubdivide.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/ProbeVolumeSubdivide.compute.meta",
+      "sha256": "45de647f558c56d9d3569bd8316ef68367c6d1dda902f760a550586665628920"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/RenderingLayerMask/TraceRenderingLayerMask.urtshader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/RenderingLayerMask/TraceRenderingLayerMask.urtshader",
+      "sha256": "5c31d447eeac8a1896e7eb3cc8ad59a4850d6a2d6825a3b44eec53899fc117c0"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/RenderingLayerMask/TraceRenderingLayerMask.urtshader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/RenderingLayerMask/TraceRenderingLayerMask.urtshader.meta",
+      "sha256": "117b0df6e75665af6c28cd84e9b6d08645830233a7fd1cb71aa68d64e792332d"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/VirtualOffset/TraceVirtualOffset.urtshader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/VirtualOffset/TraceVirtualOffset.urtshader",
+      "sha256": "5e3fbf4ead8ae3234fab0b2e098f9ed85171befbf5301437b79233f1791fcda1"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/VirtualOffset/TraceVirtualOffset.urtshader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/VirtualOffset/TraceVirtualOffset.urtshader.meta",
+      "sha256": "3b73958222b5c86fcbd09103b5dddc6f4c2d28013a67ab564b29d9b07d289daa"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/VoxelizeScene.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/VoxelizeScene.shader",
+      "sha256": "211fe2d137a2c23d2cc052240cadc88fc563dfda9dd9b7ff5aa4746431736a99"
+    },
+    "Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/VoxelizeScene.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Editor/Lighting/ProbeVolume/VoxelizeScene.shader.meta",
+      "sha256": "251ed3c04c9226b65d5359875373bc6521a44771a4b39b0d5d8370dec9e91aa6"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeSamplingDebugMesh.fbx": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeSamplingDebugMesh.fbx",
+      "sha256": "37f208b31602e0351a0050120e916a2b8a7590de698ae97de8f9cf36ed4b565a"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeSamplingDebugMesh.fbx.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeSamplingDebugMesh.fbx.meta",
+      "sha256": "2d5b88c7db2d0df7b9aa2349d9f50734416cabdfcdb4cbcf9f5cd7a79f872012"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeDebug.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeVolumeDebug.shader",
+      "sha256": "c4acc439f6063e8ec13efd285a25c1c020fdaea4f39d80d748c1ef767126b2dc"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeDebug.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeVolumeDebug.shader.meta",
+      "sha256": "32c3c918ccff51ea2d1719d94a703ac44174fe04f37c168c03c08faf11cfe041"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeFragmentationDebug.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeVolumeFragmentationDebug.shader",
+      "sha256": "6cafa0f587b5c93e72792b9f24cda517c6a2af3734ea233168708c347b54516f"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeFragmentationDebug.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeVolumeFragmentationDebug.shader.meta",
+      "sha256": "ca0878a5b8c22ecc73b634b67c2235512f62a54507fb8b3713cb39daa512a239"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeNumbersDisplayTex.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeVolumeNumbersDisplayTex.png",
+      "sha256": "52ecc9375b70c2c6d24933f0960c66e2b476e9557de11be4a176de067882b547"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeNumbersDisplayTex.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeVolumeNumbersDisplayTex.png.meta",
+      "sha256": "b3598ce2801db7b468df8b10f8a204edb69d05beeb3de2bd52d2c9e7dfdec4e2"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeOffsetDebug.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeVolumeOffsetDebug.shader",
+      "sha256": "46183d2161d4caba686dcf3abb42b0b3c82dc9a055641a2f85fbdad5bb523d20"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeOffsetDebug.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeVolumeOffsetDebug.shader.meta",
+      "sha256": "35ccd782167d60cda1d83702b0a1404e3efaf585afd1e6ce54ef59142c6968ee"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeSamplingDebug.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeVolumeSamplingDebug.shader",
+      "sha256": "72d74a960dad6a9b16325d3d9618fd64ab4ac8875b6d08872ef55997a8f33eb1"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Debug/ProbeVolumeSamplingDebug.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Debug/ProbeVolumeSamplingDebug.shader.meta",
+      "sha256": "301da9425c1db8650137dd25e4daafd705ae7be0c65a788957d5122836da10c9"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeBlendStates.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Lighting/ProbeVolume/ProbeVolumeBlendStates.compute",
+      "sha256": "dd41bd2cf7abc97c8c7c8b3ef0d7268d925ba8177e2c4b567c143c26f5c05bed"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeBlendStates.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Lighting/ProbeVolume/ProbeVolumeBlendStates.compute.meta",
+      "sha256": "4aefb28fdeef9dc6bc2dbee47c293df24f6332633d5130b88c3b5e78eea556e5"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadData.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadData.compute",
+      "sha256": "663bc417481676958038c9fc05d597c32d276c30104516fe209f6f89f7d71c30"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadData.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadData.compute.meta",
+      "sha256": "b23414ab68ad262f920d42118d3b529b0e87f8453c64d088bd86dc07c01f85f7"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadDataL2.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadDataL2.compute",
+      "sha256": "c25cc9bbb2aa83e7cb5383677db0f87ca1b6e54b1e666e46ce36fea15fe37889"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadDataL2.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Lighting/ProbeVolume/ProbeVolumeUploadDataL2.compute.meta",
+      "sha256": "fe7762f4eb424e926dc6167e3c9c5d90892897196dd63086737826ceb388f14b"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumesOptions.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Lighting/ProbeVolume/ProbeVolumesOptions.cs",
+      "sha256": "093e4dc84996b993db66aebbccf18b80281ba6d1c790b4db2fe1c8f010da2c5a"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Lighting/ProbeVolume/ProbeVolumesOptions.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Lighting/ProbeVolume/ProbeVolumesOptions.cs.meta",
+      "sha256": "549daac96091aa4752f1b13c6d69690311e4ec815c278857150ec68be3c81570"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/DebugOccluder.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/DebugOccluder.shader",
+      "sha256": "d9de8aaf4ad40daa33af29d6ebebf512b86d32dc30c0d680f40a4c2067c69be4"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/DebugOccluder.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/DebugOccluder.shader.meta",
+      "sha256": "f172deeea65330612fb47693a91697b93ce053a98641f9af480bd06f41059333"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/DebugOcclusionTest.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/DebugOcclusionTest.shader",
+      "sha256": "1d47f9f42f614e1f1df9bc7384265e24ad8fdc9e8964d5c43988377877ecf529"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/DebugOcclusionTest.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/DebugOcclusionTest.shader.meta",
+      "sha256": "58446aadbacf89b9f2002252faff19fac1c1b1689e4996c3ac634a30a3e71cc0"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferCopyKernels.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferCopyKernels.compute",
+      "sha256": "9639aabfe4f5cb4676ba44dca47c4ae670852c51ad449f623ebb640a1769ec05"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferCopyKernels.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferCopyKernels.compute.meta",
+      "sha256": "03bc09491e667c359014765cc2356c7eefe12db385a804533185f33561a690ec"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferUploadKernels.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferUploadKernels.compute",
+      "sha256": "1a5c8d4f9592933f296e3a34b686aca44e683ce59dd68aa54b43cd4c4bcfb5ce"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferUploadKernels.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/InstanceDataBufferUploadKernels.compute.meta",
+      "sha256": "963a56850e667156604fc6eee62c6606fe9959ca794b8c830c9912193de7d0fa"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceOcclusionCullingKernels.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/InstanceOcclusionCullingKernels.compute",
+      "sha256": "a3e57a9256b795deff0de205aad33ed3f8da5159a5adf5404378051891b9be43"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceOcclusionCullingKernels.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/InstanceOcclusionCullingKernels.compute.meta",
+      "sha256": "31fe166a2cffde1a1e094ddccb370345622ed9ef7050338b86123c91d648cfef"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceTransformUpdateKernels.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/InstanceTransformUpdateKernels.compute",
+      "sha256": "ec40096c3689787e6b55f8106b574bdb16538b355c76c7577b0a436c244d08e2"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceTransformUpdateKernels.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/InstanceTransformUpdateKernels.compute.meta",
+      "sha256": "71b3b223986b2d234b5c094c5ac1e83d71c7b18feaa5694770d42c04ac3f1129"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceWindDataUpdateKernels.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/InstanceWindDataUpdateKernels.compute",
+      "sha256": "0f65521763f7e5bea4e28b837ccf9ac4b8923bded349fda80bebc3f1f5af5773"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/InstanceWindDataUpdateKernels.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/InstanceWindDataUpdateKernels.compute.meta",
+      "sha256": "3e88ee51054b86222c13cae46ee3b4d202fae15b41f206bfdf97f14d7d3634d0"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/OccluderDepthPyramidKernels.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/OccluderDepthPyramidKernels.compute",
+      "sha256": "0b23845308e2e7d9ef2aa789f41de4617448385dee389ff2cb4d042f642e01e1"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/OccluderDepthPyramidKernels.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/OccluderDepthPyramidKernels.compute.meta",
+      "sha256": "1158d7b8ae41e4e7041d65577c97a37ae5ee884687a53004def38157d5beb3c7"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/OcclusionCullingDebug.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/OcclusionCullingDebug.compute",
+      "sha256": "86a034e377b94624c0c35a2bc7569dad05df65f86bc8a9ec215e270b5a896c0e"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/GPUDriven/OcclusionCullingDebug.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/RenderPipelineResources/GPUDriven/OcclusionCullingDebug.compute.meta",
+      "sha256": "5c4073434f3f9dc53dccaa9683874042e9e51cc0ab7e2b69bf5569d7efe1de9a"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/STP/StpPreTaa.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/STP/StpPreTaa.compute",
+      "sha256": "abdc66e99bd4f804eee6b6372f353afaecd236f50cb9cdddb85f65d3c9165b42"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/STP/StpPreTaa.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/STP/StpPreTaa.compute.meta",
+      "sha256": "9de069dd5f7ace8b85fb08d1a284fd8f7ae44bf3355673bed2d093b615d75a8d"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/STP/StpSetup.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/STP/StpSetup.compute",
+      "sha256": "79671c21e636900b79a5cb0e3140c6fed340897f56154ee3e64291a6ef5b2b7f"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/STP/StpSetup.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/STP/StpSetup.compute.meta",
+      "sha256": "adb235c64015f890abd2b811367abda31aa190a8ffef95bf0befab90946b406c"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/STP/StpTaa.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/STP/StpTaa.compute",
+      "sha256": "881536df5de539c887c6b4b029f186abe46211cc8e5455d6aa67815a640bbcdf"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/STP/StpTaa.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/STP/StpTaa.compute.meta",
+      "sha256": "dd6c0bde38fed1f98ac81cfb1da781fdc82cf5e446a236944504eef0fa92fa70"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Volume/VolumeProfile.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Volume/VolumeProfile.cs",
+      "sha256": "1eecc1244a20ccd0e2c34188c158dd09741678555a31e09488d0886537b6269d"
+    },
+    "Packages/com.unity.render-pipelines.core/Runtime/Volume/VolumeProfile.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Runtime/Volume/VolumeProfile.cs.meta",
+      "sha256": "0920fb151c7c4a27ba9c1466e6d4720cb446b086c94a222f867842d0a79b82f1"
+    },
+    "Packages/com.unity.render-pipelines.core/Shaders/CoreCopy.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Shaders/CoreCopy.shader",
+      "sha256": "c322b9834b9f75008a5fc01c197250505d057d53df23a63ddcf37e0813b0e1b4"
+    },
+    "Packages/com.unity.render-pipelines.core/Shaders/CoreCopy.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.core@8d821d79e4bc/Shaders/CoreCopy.shader.meta",
+      "sha256": "690cbfd9128ebd8ee8ac09820edfbf76abc4d05b141354ee5ab3791c2b143f26"
+    },
+    "Packages/com.unity.render-pipelines.universal/Editor/AssetVersion.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Editor/AssetVersion.cs",
+      "sha256": "96ed27e15286cda1fdada6923e804887b6447a905b38360e0f5561f79cd0344c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Editor/AssetVersion.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Editor/AssetVersion.cs.meta",
+      "sha256": "e7ec88783b56ae3a5adbe60d3ab71fd3b6fe269932af20218d4cc00eb3879868"
+    },
+    "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/UniversalMetadata.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Editor/ShaderGraph/UniversalMetadata.cs",
+      "sha256": "88083201ba4b354bde926decedd11354a32b41a69e49efcd08eabe095cb15a5a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/UniversalMetadata.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Editor/ShaderGraph/UniversalMetadata.cs.meta",
+      "sha256": "665c03a7a47eb649a052b5fce4b70fc20cde2177e6fbd7026f67e9a888a3b5d4"
+    },
+    "Packages/com.unity.render-pipelines.universal/Editor/Volume/DefaultVolumeProfile.asset": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Editor/Volume/DefaultVolumeProfile.asset",
+      "sha256": "6698bfacfad479acfd9766d00aba81ab52527d3b15c8b133d03ed7a2401499d6"
+    },
+    "Packages/com.unity.render-pipelines.universal/Editor/Volume/DefaultVolumeProfile.asset.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Editor/Volume/DefaultVolumeProfile.asset.meta",
+      "sha256": "39abc540f33d73a03495f86a4c65978e3af61782ac8597116ae5123538d47c76"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/2D/Data/Textures/FalloffLookupTexture.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/2D/Data/Textures/FalloffLookupTexture.png",
+      "sha256": "12c3b60a50ba5e6e45317fac91dc9b1ed6a37df413c0c624711e8e573ffb925a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/2D/Data/Textures/FalloffLookupTexture.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/2D/Data/Textures/FalloffLookupTexture.png.meta",
+      "sha256": "eab76b783f92022a2f3f4be2aebf307c11ceb984215f3c1076734009943925fa"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Data/PostProcessData.asset": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Data/PostProcessData.asset",
+      "sha256": "5c7db8408e343cdc1d4958bef280e1fdd2af5327eb78d053df28d45c38086fb4"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Data/PostProcessData.asset.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Data/PostProcessData.asset.meta",
+      "sha256": "083325c2bd769ece74f99ba5f8bd03eec77a679c97eefa947fb689e7c8c89dd0"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Data/PostProcessData.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Data/PostProcessData.cs",
+      "sha256": "a0e9155df238540b6b315b3dbc7df195c7d8c3cec3fdd604ce67e360f651e6d9"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Data/PostProcessData.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Data/PostProcessData.cs.meta",
+      "sha256": "2b9dc7bdcb0a5086e259220b83ce10f135f0e6a6f62f8385b9ab0efd9278edb2"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Data/UniversalRenderPipelineAsset.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Data/UniversalRenderPipelineAsset.cs",
+      "sha256": "d56bda2d0314d63d02f33470e59d9e8d59488fee34283a054baa72cb0688d781"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Data/UniversalRenderPipelineAsset.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Data/UniversalRenderPipelineAsset.cs.meta",
+      "sha256": "f023b0f31acc4b3cd7530fc27bdc0fcdd550afe1f93f077e49556bea64a7995a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Decal/DBuffer/DBufferClear.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Decal/DBuffer/DBufferClear.shader",
+      "sha256": "5fb93781fd6a64e8e46de832ab60d30756b35b0f9d4a42a7fa6160cd55dd4522"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Decal/DBuffer/DBufferClear.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Decal/DBuffer/DBufferClear.shader.meta",
+      "sha256": "dbeb72dbef9153162247a6a1e83645338f04f33421e22ec87644dac93c0f6d5a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Decal.mat": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/Decal.mat",
+      "sha256": "036908a5d81b0c2a1f71e6ca65a77f191f53a562b999ca4f5e676c65e05fb962"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Decal.mat.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/Decal.mat.meta",
+      "sha256": "292422a29b1f96b0d81948e34f95cd457b888ebf2cc9973d0069c70e07c37bdf"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Lit.mat": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/Lit.mat",
+      "sha256": "a79f6ee52f6c31fc482abf73b04f915ea3dff0cbfe8ee7351e4f5a57aa94e8f1"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Lit.mat.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/Lit.mat.meta",
+      "sha256": "a96f8b5c6b76d1fefe7b4cd7d75120b07cb97338810776d2161d291eb2886ea8"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/ParticlesUnlit.mat": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/ParticlesUnlit.mat",
+      "sha256": "9ad30a782b59f1d14af9323078d5f85c56f6aece4f6b849fccb6563573a0ded1"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/ParticlesUnlit.mat.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/ParticlesUnlit.mat.meta",
+      "sha256": "75368c84a084dca75546314c8c192da14c2ad7ad5e2ba723404bb60bc3828d0d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Lit-Default.mat": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/Sprite-Lit-Default.mat",
+      "sha256": "d8bb446a4852290139d56b13d09d9e81e23ed56e77171dd1594e4e3d4dddd245"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Lit-Default.mat.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/Sprite-Lit-Default.mat.meta",
+      "sha256": "d4cb079f1d198d2581e2cea8713c761593c431bbf5cc48af4ea7f34c15fecd18"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/Sprite-Unlit-Default.mat",
+      "sha256": "c05e922c34c71f8d159e91b447485555ee01c150a91aa2a9479c06a8e69e5718"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/Sprite-Unlit-Default.mat.meta",
+      "sha256": "9b85f94f58d5b7fdd47a4b10389af532bfbc2397feaf308370e95f45b2b89426"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/SpriteMask-Default.mat": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/SpriteMask-Default.mat",
+      "sha256": "8a70f353703d0e7b099f783ade53d76a803120d792b0387141381be60fa6b3cd"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/SpriteMask-Default.mat.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/SpriteMask-Default.mat.meta",
+      "sha256": "a8d553e83cc45029e38d0346205e6c74f5decccc0ec5d53b85f84e84ff1ee1b4"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/TerrainLit.mat": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/TerrainLit.mat",
+      "sha256": "694a0752c40848178080a0ff0f580448d55cb528d08c8d1156e97cb1dc8c9e26"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Materials/TerrainLit.mat.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Materials/TerrainLit.mat.meta",
+      "sha256": "cacfb0861cbb08f3cf7e2c07da52ac55a144720e8a9691d9962d74542ff1d560"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Bloom.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/Bloom.cs",
+      "sha256": "9554daacdbd6ab164e5e833550ca038c40f430f95303859fe21770fb55ef5ecc"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Bloom.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/Bloom.cs.meta",
+      "sha256": "e7c39e90eba4c59b1392ce9f52218ec5443740d290457e052de0be053bf02758"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ChannelMixer.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ChannelMixer.cs",
+      "sha256": "832c594cc45285af7bbc9e184afbf2b81aa7c1297f7988e747a6a96dc0d0beb0"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ChannelMixer.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ChannelMixer.cs.meta",
+      "sha256": "f31e60ff8ea960267d415016934321812fed53aad189a570caac093fb90fdaf4"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ChromaticAberration.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ChromaticAberration.cs",
+      "sha256": "645b436665abcdc55f520e1d73841ab5dc09cc558501831e4d175cc3a380d48b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ChromaticAberration.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ChromaticAberration.cs.meta",
+      "sha256": "7582adc54d2a2060f1667255b1a1acf6077bf99c94bd6da3380233220d77e1e8"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorAdjustments.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ColorAdjustments.cs",
+      "sha256": "c74162b190d2393a9428c700243845ed381da3e1ae6d5df1caf9df035b8f872c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorAdjustments.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ColorAdjustments.cs.meta",
+      "sha256": "18018287b0dc0d110f84b3e1c3eb13daa6bbac66fee7cc0b6fdd09efeb248a9d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorCurves.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ColorCurves.cs",
+      "sha256": "ea9e81abbdbcf2237717b9fd9e2a34244d03ab7aa371e9ff39b6dd8aa9eb946c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorCurves.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ColorCurves.cs.meta",
+      "sha256": "117918a6541c7abb78fab3cc7a7e69f6efe16569b5e41d8dba2611a4bcb23d0b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorLookup.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ColorLookup.cs",
+      "sha256": "55f6e5b2e08e360a534a932ad08a839bc52505cebfcfd0f773858db5ee4b8939"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ColorLookup.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ColorLookup.cs.meta",
+      "sha256": "011dc1bc398f0a84e9c23747e9b2bd5f475bfdff3fbb32323426eff5494c4699"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/DepthOfField.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/DepthOfField.cs",
+      "sha256": "87c6e104fd6f718207bff7de539a2bbffb8669c47ef06847a0abc41f2515215f"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/DepthOfField.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/DepthOfField.cs.meta",
+      "sha256": "b68fc87214623afa670f29b5ca2964153badb51f5ffbc9a9fb9fe98b363f3891"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/FilmGrain.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/FilmGrain.cs",
+      "sha256": "d4feffe6363e135203e9775460d40fcfe288611e62429f9c0b1c6ba44acd12cb"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/FilmGrain.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/FilmGrain.cs.meta",
+      "sha256": "5120923f6d30f8ca509c0143fb21ac3712bc2eccf3967187e869aa8cefc7eecd"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/LensDistortion.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/LensDistortion.cs",
+      "sha256": "d2c79dd15aefbbb90893108c01a0c197846b5d579f481b47cb8b1b4ce6a20829"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/LensDistortion.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/LensDistortion.cs.meta",
+      "sha256": "941b6628a6f0d8151e649046968b77ca9c4d4f36b2b2b83df12ea6dfa9988241"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/LiftGammaGain.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/LiftGammaGain.cs",
+      "sha256": "e261d91024bf29ec95c8c039bafde39402f9958ff4e046f70bd6fe0c3fe17f25"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/LiftGammaGain.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/LiftGammaGain.cs.meta",
+      "sha256": "31f488aaa8e3eb81ea05a5ca19f74da2e0b4a9f2d5e69d2be85632fb82fe0cec"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/MotionBlur.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/MotionBlur.cs",
+      "sha256": "32cb0b2520feb0c08db98127c124c16e41fe93a11fe553eabff1996f5e1edf29"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/MotionBlur.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/MotionBlur.cs.meta",
+      "sha256": "d54de25155d491c2f96bb501a9c822f57a58ecf2c39503878848c887515384ea"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/PaniniProjection.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/PaniniProjection.cs",
+      "sha256": "ec9896556768f075bfd6762bdf8fab29082eddc3670ef431bcf39dd98141efb4"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/PaniniProjection.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/PaniniProjection.cs.meta",
+      "sha256": "aa48b662bc00fb615bcfb31623d60c3a94edc715065e7a1797ed6026af88f975"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ScreenSpaceLensFlare.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ScreenSpaceLensFlare.cs",
+      "sha256": "b5f32da21c89e75b6a09afcad584be31d2f8a2bab877a2c36700594c141d9a73"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ScreenSpaceLensFlare.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ScreenSpaceLensFlare.cs.meta",
+      "sha256": "1f66a8271b0bc2d0165282713a8f266d816440e11892173d7c1fd16e80c08020"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ShadowsMidtonesHighlights.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ShadowsMidtonesHighlights.cs",
+      "sha256": "1384cdbdfbcc24e6412bedf7a47f664aea350c4cd00b434ced4b6dd693ab0644"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/ShadowsMidtonesHighlights.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/ShadowsMidtonesHighlights.cs.meta",
+      "sha256": "99088e7a3a0329d98f7e25d912f14ac58df8ce74508d5e5c9289bfa73d7298f6"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/SplitToning.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/SplitToning.cs",
+      "sha256": "2f1b08f657ff32f8483d85edfe8ec3b0c6fcd41164284c5baf987d73091a70f2"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/SplitToning.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/SplitToning.cs.meta",
+      "sha256": "4bbb7c1b56c7f20f673eaf7ff354486a87aff0c6d88175eef9e4b64ea69d02b5"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Tonemapping.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/Tonemapping.cs",
+      "sha256": "34f67d1df334aa9323eaa41137c85438c539e0af982d195b803ac3684a13b63b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Tonemapping.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/Tonemapping.cs.meta",
+      "sha256": "830eb88a209e76516f1cb3a3fa24199b342e742f5cfea2f4088ede6de2e794c0"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Vignette.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/Vignette.cs",
+      "sha256": "a3d5118e3c010f119ba33e0be745754c0096e17c211000a4543dffa9abd0144e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Vignette.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/Vignette.cs.meta",
+      "sha256": "e5680982e58732ed47d1e770de0a939cb0da57568ea44782e818172dc957422e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/WhiteBalance.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/WhiteBalance.cs",
+      "sha256": "7b4cc05615df51426b4e35238e53ee9bc68557d2ddf2ee12192b45d01c0b45bf"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/Overrides/WhiteBalance.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/Overrides/WhiteBalance.cs.meta",
+      "sha256": "9aedc84f32fec3b9fd2dbf860876d240cd4b8e3123ce1db37ec3c1aead7d9dab"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/UniversalAdditionalCameraData.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalAdditionalCameraData.cs",
+      "sha256": "857536a9daa20e149d96297becb9dfb3a75a12a1a0249a707110cdf6163b534b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/UniversalAdditionalCameraData.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalAdditionalCameraData.cs.meta",
+      "sha256": "073ed9d37f3742da3b73a364f7b721cc7f9ee74c4873c0385068be8da7090633"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/UniversalRenderPipelineGlobalSettings.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRenderPipelineGlobalSettings.cs",
+      "sha256": "f92c511b88fbf70dcfbed236347d5115cc98ef4faeddc195f54c379c6fe1fdc0"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/UniversalRenderPipelineGlobalSettings.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRenderPipelineGlobalSettings.cs.meta",
+      "sha256": "a654c84771864a33a225361e862119e3d6f5ec68371ead3ec6ed21c119d09c58"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/UniversalRendererData.cs": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererData.cs",
+      "sha256": "08211994b8988c2d436a8f85460bca68b9a5b9afd1888acdb9e0a619918f692c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Runtime/UniversalRendererData.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Runtime/UniversalRendererData.cs.meta",
+      "sha256": "65bb0c3e6416b350ae0e3c0d175181217618032a0f0c429ddce0ad82a930bf88"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Light2D.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Light2D.shader",
+      "sha256": "ce7ad6cdfb9ddf82859b713079b29acd1fe5a032d5fd820b32ef0fcb6586df93"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Light2D.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Light2D.shader.meta",
+      "sha256": "87a3a09dd2354ce717cb0ac5b122744857093c6aca50bcd0ab286c614af66459"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Projected.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Shadow2D-Projected.shader",
+      "sha256": "7b284f48ca4158eb0a6b00808ed881af4b9d2e3420dde25d49991f931556cd94"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Projected.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Shadow2D-Projected.shader.meta",
+      "sha256": "337cf73b471577243749500beef0ee354f1ff79d71726f23daee0904b91f1a24"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Shadow-Geometry.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Shadow2D-Shadow-Geometry.shader",
+      "sha256": "6e43a4908976c9488075ef24a6105b24b42f7f53eb7b989319cc256543a1e754"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Shadow-Geometry.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Shadow2D-Shadow-Geometry.shader.meta",
+      "sha256": "34ec8e914937432b44eae6b25aede26deaf48ba5277e73dad583b6f879ed2f6d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Shadow-Sprite.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Shadow2D-Shadow-Sprite.shader",
+      "sha256": "3059b04487264f15711c975c272605c5bd5fd2fbdda5f7434698d9b07522443d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Shadow-Sprite.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Shadow2D-Shadow-Sprite.shader.meta",
+      "sha256": "8e04c5f7b2a28ecb2c0f7ec64e310138c0c8638188daa71fec805606a6930768"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Unshadow-Geometry.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Shadow2D-Unshadow-Geometry.shader",
+      "sha256": "584efa10cb4eddaec2c74d5f57c1a4a65bc81a16ce5f2081d02ec7d598f91402"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Unshadow-Geometry.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Shadow2D-Unshadow-Geometry.shader.meta",
+      "sha256": "15168e3a97739eecab5cb272a5fdbee3665467cce84dca858561116f06602ccc"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Unshadow-Sprite.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Shadow2D-Unshadow-Sprite.shader",
+      "sha256": "b3b17b50a3844ddbad03e5ad888fea94ad5209a6babfc9a4f530839b6ba40e4f"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Shadow2D-Unshadow-Sprite.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Shadow2D-Unshadow-Sprite.shader.meta",
+      "sha256": "6736cb26899580912e82d1751ad3def1eb89d3b771b2d840f5afdf5d624815b2"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Lit-Default.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Sprite-Lit-Default.shader",
+      "sha256": "aa310810fd107305fa43fad0f73abbda0cc57125dcc102b866887d4a4c67a57d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Lit-Default.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Sprite-Lit-Default.shader.meta",
+      "sha256": "26d26e3d3f4de88d22f9b156bc0e7c75ee64affeb1732f940e456ec8ae8c31fa"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Mask.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Sprite-Mask.shader",
+      "sha256": "893a09f1e6d1b9293b0424aef69ae6cb7c04f2ef4fba33d2a0acf89871c8e204"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Mask.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Sprite-Mask.shader.meta",
+      "sha256": "e5bd7c399d551edf3bffbb828937cc47ec4e2c9bb942ea8896dae21f12311c78"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Unlit-Default.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Sprite-Unlit-Default.shader",
+      "sha256": "609514c44eae5b99ada6309e37fcdf9a32fa9ea7215cd4abcedf667da06d5d08"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Unlit-Default.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/2D/Sprite-Unlit-Default.shader.meta",
+      "sha256": "b123f67aa9b92b7cb061c71f5f4274af85758662b6d8eff31231f6e1573e9b9d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractive.shadergraph": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/AutodeskInteractive/AutodeskInteractive.shadergraph",
+      "sha256": "3a470df1dff4e2123de21d350fb4ddd754ad1a36af2da1196328a126a7b42c44"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractive.shadergraph.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/AutodeskInteractive/AutodeskInteractive.shadergraph.meta",
+      "sha256": "76ee71dcb283205cd046b87f4eee065d19f5b82a9018829b313e6f2c8822a584"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractiveMasked.shadergraph": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/AutodeskInteractive/AutodeskInteractiveMasked.shadergraph",
+      "sha256": "52b6b88b28783c63dde656201a716cd6c7941b652c037c7528ac59e03d137d3a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractiveMasked.shadergraph.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/AutodeskInteractive/AutodeskInteractiveMasked.shadergraph.meta",
+      "sha256": "3ad403846626d0716f515f9320d8509746f7c22cbd1f00b56c3d1fb900b552d8"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractiveTransparent.shadergraph": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/AutodeskInteractive/AutodeskInteractiveTransparent.shadergraph",
+      "sha256": "f63d1a84ac6bea2df1f7ac1200481bc804fb6b5be2d9cd0a23cd2b6f77a2b6e5"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/AutodeskInteractive/AutodeskInteractiveTransparent.shadergraph.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/AutodeskInteractive/AutodeskInteractiveTransparent.shadergraph.meta",
+      "sha256": "ceb1f40067669a57eed463e1e05e4af71d8776a55fb69e00229cc3ce8963d64e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/CameraMotionVectors.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/CameraMotionVectors.shader",
+      "sha256": "d0e1927c83b413aafbab771e3ab910c19755449fadd0f5ae7b67cae7d2979ba8"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/CameraMotionVectors.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/CameraMotionVectors.shader.meta",
+      "sha256": "58373272a77cf0a80e8879a4ddf89352acbfa59c49001ad1ed337e9dacb2402c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Debug/DebugReplacement.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Debug/DebugReplacement.shader",
+      "sha256": "b9509c00cf949c892eba9aafd2b60d5b5962908c0c59669a2dd7e865d7349a6c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Debug/DebugReplacement.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Debug/DebugReplacement.shader.meta",
+      "sha256": "d50d267bb304f2e046d4db5bd323fb1f6776514d145b5a2587a65c1e5514644a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Debug/HDRDebugView.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Debug/HDRDebugView.shader",
+      "sha256": "a504b149f27c44b591ebe7accd68c7a494ea0b6a084e00e7ce4f4998d7c74b9d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Debug/HDRDebugView.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Debug/HDRDebugView.shader.meta",
+      "sha256": "f613d533e5c1dd370d056243522230050178e1b61348d1ffc6e9921fb5a0f091"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Debug/ProbeVolumeSamplingDebugPositionNormal.compute": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Debug/ProbeVolumeSamplingDebugPositionNormal.compute",
+      "sha256": "c455ee184c5bf02ad07f4e214cc17f4bae9ab43559efd687fd8af8ffb5ce2f6c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Debug/ProbeVolumeSamplingDebugPositionNormal.compute.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Debug/ProbeVolumeSamplingDebugPositionNormal.compute.meta",
+      "sha256": "65f6cf554fde1ff4bb524433559193f65d0ea100e5dc3d2eab65ff44bcdbed6a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Decal.shadergraph": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Decal.shadergraph",
+      "sha256": "1724fb16dfc18a0f43563b6e48fcf9bcc7760b14039a3aa6651aec50deecc754"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Decal.shadergraph.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Decal.shadergraph.meta",
+      "sha256": "9c6aa656a91b3bea75cb51087368a6b38447d7dab4e50cf824dff619026c23c9"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Lit.shader",
+      "sha256": "dd9a625d92079fb8f923f4085747f5de524cdf1dd6fe52767aee0bbbac5792fc"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Lit.shader.meta",
+      "sha256": "f0db005307ffe5480c40a402ca5bfb0b3726259031a86e255e49626228ceb008"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree7.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Nature/SpeedTree7.shader",
+      "sha256": "214dce67fbe8165a64603aa63cd7009675bcae078ed91110ceaa57135d1228a4"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree7.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Nature/SpeedTree7.shader.meta",
+      "sha256": "99231ba443ceb27f5e23f79fde79eda8c46283480d7fb71fd5d6ad3807567f38"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree8_PBRLit.shadergraph": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Nature/SpeedTree8_PBRLit.shadergraph",
+      "sha256": "3ac42a039c41535074e6c369aa1f9ab8957c7dd6a811c23215797352b29e0ab8"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree8_PBRLit.shadergraph.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Nature/SpeedTree8_PBRLit.shadergraph.meta",
+      "sha256": "52d7a06852712422484033550b91d131876faa1564215a402cc30ee615e8bf11"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree9_URP.shadergraph": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Nature/SpeedTree9_URP.shadergraph",
+      "sha256": "7bbd09fc798d99ad0a54e3b69d62330a02abdf579b2a67864fc8dae773c9afee"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Nature/SpeedTree9_URP.shadergraph.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Nature/SpeedTree9_URP.shadergraph.meta",
+      "sha256": "c854fdad9165202b7b72b830c09cc8ca2dbbeaece61584e39b71b2a9c286cf8b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Particles/ParticlesUnlit.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Particles/ParticlesUnlit.shader",
+      "sha256": "a9923ec855237bb215e98f92291ac7ac4c64987aef6798fcd5e800a15597ee9b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Particles/ParticlesUnlit.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Particles/ParticlesUnlit.shader.meta",
+      "sha256": "122a44759a8ca196415d39727a270c5554553e8270b0cd7871cc45939cd996a4"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/Bloom.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/Bloom.shader",
+      "sha256": "c9f2ea0a7c00de3914572e2239dbddcf8799bc62210d4166d897dcda797771e6"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/Bloom.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/Bloom.shader.meta",
+      "sha256": "6059727589b7978318b21160e90d9bf9121f12f1bc8b152fb07f7bc6d1e0ca73"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/BokehDepthOfField.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/BokehDepthOfField.shader",
+      "sha256": "0832e88938830e8e08613830643ef0b48572408e40fc4540de7e702731b1e233"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/BokehDepthOfField.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/BokehDepthOfField.shader.meta",
+      "sha256": "4a14c756c8597631f59fa008ac648fa5367d949fba1d1d65fd8cbfccf2dff16b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/CameraMotionBlur.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/CameraMotionBlur.shader",
+      "sha256": "60555b5c91155f7f6a32f9abac04faa62a78a9a3d58034882aff7b6440644780"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/CameraMotionBlur.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/CameraMotionBlur.shader.meta",
+      "sha256": "b948d27da83cd99f0cdc06f96657d6f6982c08712daa58c1ef0cfdf5853c67e6"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/EdgeAdaptiveSpatialUpsampling.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/EdgeAdaptiveSpatialUpsampling.shader",
+      "sha256": "8c00ba6f3465720e9295e7335c2e6958b3000d5cefd1363ea876fc4c6d917ecd"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/EdgeAdaptiveSpatialUpsampling.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/EdgeAdaptiveSpatialUpsampling.shader.meta",
+      "sha256": "7edd0265de2082442560666d39d3e4f2305475601a0fc47574b3a49049efa272"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/FinalPost.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/FinalPost.shader",
+      "sha256": "e9be627ebf749bf8b47fd87b4cbbb356f87c0f1c111e9ace7bd600a81381f799"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/FinalPost.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/FinalPost.shader.meta",
+      "sha256": "d056196c42b8c7eaebe5a7e27a3b174c760f886416c72e596998c1d671729f2d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/GaussianDepthOfField.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/GaussianDepthOfField.shader",
+      "sha256": "daf1449bbd23d14eba8381cba415b2fae995ea7a1f0ab279d1731e40f3537735"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/GaussianDepthOfField.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/GaussianDepthOfField.shader.meta",
+      "sha256": "f6309d12e9304b646582e1d470d373969c2b5115142bc533bc1fa986ec732a4d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LensFlareDataDriven.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/LensFlareDataDriven.shader",
+      "sha256": "bf43d36bf0e1e24c1ec6fd08dfb5e378a5d3fd299465d3c1531f225bdea94e3c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LensFlareDataDriven.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/LensFlareDataDriven.shader.meta",
+      "sha256": "30cf00ba6c4efb14578d2767a0e239be54ea8c4ac92fc54f8778d56f4f6f03e6"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LensFlareScreenSpace.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/LensFlareScreenSpace.shader",
+      "sha256": "3cd6c18348914be6627c4c82888328503f855b624da6ff931c648a86231624a2"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LensFlareScreenSpace.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/LensFlareScreenSpace.shader.meta",
+      "sha256": "b3bb054522929b24024a45f186efd9e223687bbe5b3fcaf62149078f3241e5c0"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LutBuilderHdr.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/LutBuilderHdr.shader",
+      "sha256": "9aaa902e8d6b47f9fd9a96b6d52fe0c677cb98204fa8e0f96a7995dc8b711f9a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LutBuilderHdr.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/LutBuilderHdr.shader.meta",
+      "sha256": "2a0eb38500daf86d9030dc60859d36b073569686ca42e19a98ed8407c64fe2a6"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LutBuilderLdr.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/LutBuilderLdr.shader",
+      "sha256": "e858546a45890d9b45f3d83f289ced7ab28a594c6bbfaa76e484f2b954e34f4a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/LutBuilderLdr.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/LutBuilderLdr.shader.meta",
+      "sha256": "bfd0c139e8d5064703e7fcdee0d07d42444c59f605504734803af46be6f596f5"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/PaniniProjection.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/PaniniProjection.shader",
+      "sha256": "e9d728d3e795e1b551f0acc73b69717cc1d10754ec6f7712266977e80918bb1d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/PaniniProjection.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/PaniniProjection.shader.meta",
+      "sha256": "42835ffe591281a9fa41dbf06afc594a7e4c6b85490de6cb18405691eb2d6733"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/ScalingSetup.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/ScalingSetup.shader",
+      "sha256": "9e3ce9bc1d27d9d39496c023c1d3bf208f4e253295a2fcee2e1dc7391521008b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/ScalingSetup.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/ScalingSetup.shader.meta",
+      "sha256": "67f4c47164151e3ca62ee2eb06e854c4d8166746c3ff04f41628ed45fa387313"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/StopNaN.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/StopNaN.shader",
+      "sha256": "157731dfb02a03e11525737375c1872296eb0e1e301cac9ab56edb97162ff489"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/StopNaN.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/StopNaN.shader.meta",
+      "sha256": "76aa5df272af90ab2335ac35b365570bb27567ae6eb4000b9ba22fd62a120ba3"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/SubpixelMorphologicalAntialiasing.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/SubpixelMorphologicalAntialiasing.shader",
+      "sha256": "84d602c0d79abaadda480ab88b28b324529d50c8bd1d02d80f9fa1fb25da6372"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/SubpixelMorphologicalAntialiasing.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/SubpixelMorphologicalAntialiasing.shader.meta",
+      "sha256": "b3b1b8fd47ddaeb2bd1df616053eea96b9544d7b5f95fda55ed2eb96bdbc3165"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/TemporalAA.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/TemporalAA.shader",
+      "sha256": "48b53bc4087c86a1e56976afbe1faefbd73a4e6452997a670de0a4d887488451"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/TemporalAA.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/TemporalAA.shader.meta",
+      "sha256": "e70b2a331de4bec5705dbf9bae01321d62cf3b0bbb9f43416bda8a8fcadef51f"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/UberPost.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/UberPost.shader",
+      "sha256": "32abcd1b4a99808c9d0c719a7a0eac619cb6ff93951c98364ecd5319840c4864"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/UberPost.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/PostProcessing/UberPost.shader.meta",
+      "sha256": "4b012e53488e2a78c4503a362b863244f550cd0afa959b3603e62f25ab8b1789"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainDetailLit.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Terrain/TerrainDetailLit.shader",
+      "sha256": "f89529c62dc4d5deda7a005f2b7fa808fc3595d3aec7f5ac03dfa2dd6ad07fb6"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainDetailLit.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Terrain/TerrainDetailLit.shader.meta",
+      "sha256": "0ee9c6444e68c50197c522240417e3d8b313da6a05b9f5cfb97ee4a4a8f8478c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLit.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Terrain/TerrainLit.shader",
+      "sha256": "8aedd1fe35ea59e6e63fe560b198b6e9e1d1e897a5f3b1b4849e6513117c00c0"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLit.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Terrain/TerrainLit.shader.meta",
+      "sha256": "46d64c347fdab5132c6bc3611dc9a5a935bcfd355223fdec673c20aeaaeacbc1"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/WavingGrass.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Terrain/WavingGrass.shader",
+      "sha256": "eb2860a6a49ba5113d21daecf990d1fe662daecf201528283eafe3dddd6b5ac3"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/WavingGrass.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Terrain/WavingGrass.shader.meta",
+      "sha256": "713f26acbcde6750591448515fccde41ca5a470e6ce5fb205f783d9afebbddc9"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/WavingGrassBillboard.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Terrain/WavingGrassBillboard.shader",
+      "sha256": "cfa7148b52d1a81569d4d9e7aa0362b4198cc80c2dabfeeadb34c5f8c622b833"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/WavingGrassBillboard.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Terrain/WavingGrassBillboard.shader.meta",
+      "sha256": "4972526fdf479979d8f071a9e2ee1a362dfab91179061ba477a84ae51c68fd27"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/BlitHDROverlay.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/BlitHDROverlay.shader",
+      "sha256": "374ceb8fd152a7079364fb836ccf27170610fc30af1ebcaba0284351796f2890"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/BlitHDROverlay.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/BlitHDROverlay.shader.meta",
+      "sha256": "a9334e4df5f3654ffaf5889b3e1ff499a65ea24999dda06a14f1dcc4d3b9de48"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CopyDepth.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/CopyDepth.shader",
+      "sha256": "465d81eb964e0b44485a2c0f6e4bfd42e66fc6329b4164f1775b57519851646e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CopyDepth.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/CopyDepth.shader.meta",
+      "sha256": "9bec4310ad32c925a2cf30ac78603db469e6ff48d3926796b10223f389409f9c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CoreBlit.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/CoreBlit.shader",
+      "sha256": "111adb36a08142215867771ad85487ce6aae4880e08e54569ac7d90996519067"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CoreBlit.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/CoreBlit.shader.meta",
+      "sha256": "db4ba42a11bef63ae0e7d2437ceff6cc596cdfea3acf62e3f7e9b6886c429ef0"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CoreBlitColorAndDepth.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/CoreBlitColorAndDepth.shader",
+      "sha256": "fd8b76d8e952fed6ea354bbf5a947ffab2e04d5cfa7920e73d6ee6ffe6540861"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/CoreBlitColorAndDepth.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/CoreBlitColorAndDepth.shader.meta",
+      "sha256": "9520cf01f47f37e2e9146b7c2245aabecd502602e5274c4c0e603a5940ab30c9"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/FallbackError.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/FallbackError.shader",
+      "sha256": "6bdb875dc44fdbdd5ea2a92b3c9bd7aaf9ac9e7650c62bd9e77d0332d048418e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/FallbackError.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/FallbackError.shader.meta",
+      "sha256": "36b82517d0cc96fdb97e0d851ece36efbf8c44bc3af5005d4e2ce05a392520b6"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/Sampling.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/Sampling.shader",
+      "sha256": "097d0523ccfe54bcd351ff5273840ed5a84dc1ee3ae9fa91bd230003b611c968"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/Sampling.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/Sampling.shader.meta",
+      "sha256": "69f4178938aa1b839c60bcd6cc867d4f54aa3cc6ff6ae0368a5a157aedf2a5b3"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/ScreenSpaceAmbientOcclusion.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/ScreenSpaceAmbientOcclusion.shader",
+      "sha256": "c80f2fcd4d166efe99b4e7110a1eaf9bbad7cff99b3d20726c80c45cb216aa9e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/ScreenSpaceAmbientOcclusion.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/ScreenSpaceAmbientOcclusion.shader.meta",
+      "sha256": "ed798f53fda5f33e5c9e37cec79b6ef4eef9ff6e85e73f9edcb6bb73f129e5d2"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/StencilDeferred.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/StencilDeferred.shader",
+      "sha256": "b0b53db0bcb14267c2f8f47f4171437a4627832fd229c71a58cddbf96efe38a3"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/Utils/StencilDeferred.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/Utils/StencilDeferred.shader.meta",
+      "sha256": "c11139e69d38d779253b1010595ad77c5b722e87890c42a442c454bd8050b8cc"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/XR/XRMirrorView.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/XR/XRMirrorView.shader",
+      "sha256": "287ab3e36dd6fdda72dd57c1cc6d83929b4d3a48da1d5967597a06e7094ed0bf"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/XR/XRMirrorView.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/XR/XRMirrorView.shader.meta",
+      "sha256": "9a3f46d9fe02989ec19812a3d765c217d5885a5e95ea87bb5e3e07574c01bd1b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/XR/XRMotionVector.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/XR/XRMotionVector.shader",
+      "sha256": "21b5e659390ac39852629be7c4ee6afbc2aa6004f8be077defc674a09b712883"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/XR/XRMotionVector.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/XR/XRMotionVector.shader.meta",
+      "sha256": "fb4ec1c5d858f09d7563a95a74b1bdfa0b847f1bf4fe2b27a0887e848f9aaca4"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/XR/XROcclusionMesh.shader": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/XR/XROcclusionMesh.shader",
+      "sha256": "15f5f2f7b563a3cf0b9218f091aadafe02d7618dbea10df862e3099237f55272"
+    },
+    "Packages/com.unity.render-pipelines.universal/Shaders/XR/XROcclusionMesh.shader.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Shaders/XR/XROcclusionMesh.shader.meta",
+      "sha256": "1fd7a24790aad33d90972952d454398fadd9be9b17ad4a8f7df86db8a32c41cc"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BayerMatrix.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BayerMatrix.png",
+      "sha256": "ab857985cb2fbbda35a23b55d0da84e26684cf8979ae777341e9dd9b952d940c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BayerMatrix.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BayerMatrix.png.meta",
+      "sha256": "6f72db8797ac40573c8b72a8d00b144ff678e5e126045d483300002ebf7b1df9"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_0.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_0.png",
+      "sha256": "cf5280f77247d7a029c4e6c7c37d3ca233ad1189e39703608b5224b425032036"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_0.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_0.png.meta",
+      "sha256": "94f74956fc385450ef4177a9ec39fea82ee760731fd3639a9bea9856dc332072"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_1.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_1.png",
+      "sha256": "bb962e645c074d7ccaa05da10dfc63d300552845b1c60220199697f452bbee9e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_1.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_1.png.meta",
+      "sha256": "ba567e12ce2e724313f7f5464736c1d831aa7d9ac2452a51ce1f6816a3a079f6"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_10.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_10.png",
+      "sha256": "4354c6a217a5add3c614a7a59d6e04e5d1be14d2937364f281fd1919bf37d013"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_10.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_10.png.meta",
+      "sha256": "492ccd43d999db1fd33b2130186b5883643afbd7145e11cba29ff3daf679270c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_11.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_11.png",
+      "sha256": "490f1ac6e0ade24d8c115dc7ec3c08672a84ea9e10bbb246b2eb7adb7ce96853"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_11.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_11.png.meta",
+      "sha256": "38e179c262bd1dd1087ff1645175c4e5efd67e1a6a317b7a6a75da13fe9b718d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_12.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_12.png",
+      "sha256": "bd62e15d43dfa805782d6461c433f274fbeaf8d60a608672a42d7a2b0e691062"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_12.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_12.png.meta",
+      "sha256": "b92f6d44150bc1b54d3fafff8eabc2e31128bb186e5831030969d1eb001c8e68"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_13.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_13.png",
+      "sha256": "75cf9d9e8155501810bd6d5dae4cc12a2ef1d530a7c133227db7efaba0660d01"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_13.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_13.png.meta",
+      "sha256": "39c6d2ac11ec9d48df9a670914bff955b4f38dd9ebfeff9204e430f69ac6239f"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_14.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_14.png",
+      "sha256": "e8576a7250ddc398e69b3821af0a8a7bf1c981c26e0eb326c867c3ad13eaaed5"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_14.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_14.png.meta",
+      "sha256": "c1e9bc249b9883dba67ed8a22f7b3038aa7e9eb0184e82a5c22c0cc54d72a8e9"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_15.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_15.png",
+      "sha256": "284607d8ee7b80d7fcebf53193a5477c3cc06903e271a2ff665e0354656c14c6"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_15.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_15.png.meta",
+      "sha256": "646976af9a9dfdf53d1dec8d14f0964e11c5dc076f6195e306be3ea9c5e589b1"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_16.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_16.png",
+      "sha256": "b8c896444fd218e10698906269f949fedd33c3e81a6a52e4da812b91252b656f"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_16.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_16.png.meta",
+      "sha256": "1fe5954c4e1b4584b87b49101498342e977d1bedf034d968e2d983de57256d16"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_17.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_17.png",
+      "sha256": "852571a69ae73632915feaed17a45f50da76c7653a287a55de1782263bf03a9f"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_17.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_17.png.meta",
+      "sha256": "5021cb5c91a10fb25f61ba4faac26fd0e64c4557f66e68e39f29e2a4172d587e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_18.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_18.png",
+      "sha256": "6f5093fca5e4031f76f52d0e30d4f104755316712544e142c6af5f5726e92f54"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_18.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_18.png.meta",
+      "sha256": "94270881a1befb043df8e23f3d1c7108f657bd9b72f6f4fa7f962bd672f8aa91"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_19.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_19.png",
+      "sha256": "35b0d8d3ff3052f391b5ffc8c6f223e5ebb7a3698e3f1aa6e6869420540ac45c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_19.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_19.png.meta",
+      "sha256": "e4d2cdc838856374d96e5045891d60220d8628231507a680e7c4f539e99557ec"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_2.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_2.png",
+      "sha256": "eb763adf35a97279b581663de8c692f47a89b556443d260b308e9b3b9c82fa9c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_2.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_2.png.meta",
+      "sha256": "82aa69e9174e66b675a7f96127ada305faee514e4670b79c48d3120e8ff8fc7c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_20.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_20.png",
+      "sha256": "727a57f9061f118e4c93c2e9c67712b5f56a041c91e9f2b7233eb6604d4cd3a1"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_20.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_20.png.meta",
+      "sha256": "cc02294d0ca1b8f014b0cb072693425c8199fd1ff321d8a61d2d1638e87444af"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_21.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_21.png",
+      "sha256": "8ae9b97ff3c2d4f565a34f63ad290b2e47996376d799ab705f575a69b4c1a07b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_21.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_21.png.meta",
+      "sha256": "e4fc496053236590c8cc4c56e17de6709778b749822c9d95dd81f9afba687111"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_22.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_22.png",
+      "sha256": "e5eeddcd318088182a6b011739793a77748e87e5e594502844d7662908bab7f8"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_22.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_22.png.meta",
+      "sha256": "45fb84e2e409b93a04b849888d2f6ccb3156ac6250044ac82ace804aba4d3f15"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_23.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_23.png",
+      "sha256": "472cdf0fd5b7905f6e46a41970f2fe12c7884f3c0578eb3e481d935113707917"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_23.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_23.png.meta",
+      "sha256": "0a335b2826918ff108a04e7267bd7f90335fa0973446ecf771fbf059cc8817d4"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_24.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_24.png",
+      "sha256": "df44a2a080d3e22853343792f3c87a2a9f846c1da2ac5dafe11b6e99a839db14"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_24.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_24.png.meta",
+      "sha256": "1362f5d26c6929641fe9055c0274515b0de64efead1c6d290f2fb1cc9ac5869c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_25.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_25.png",
+      "sha256": "2f1a46bac549eb0efc5a3249ede54806b86145e61157e72939db3dfd1381dd66"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_25.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_25.png.meta",
+      "sha256": "acaaca44039ba47dd4e40ea7a7179430a36f3e31b50246d01afb7ebb90cd3e16"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_26.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_26.png",
+      "sha256": "f2a14a6057757e7cb859b5c5598e68bb09ba4a9e9a5e646dc8c210e1eab6f14e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_26.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_26.png.meta",
+      "sha256": "40096224c1dbfaa343fa091a2df91a9100aafad2499f5f107a90a27cffa9c461"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_27.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_27.png",
+      "sha256": "6f4f4a048ac82a1747bf3c634289bd434f32ab3fdc7a7d4c5de5c2b9dff77c1a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_27.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_27.png.meta",
+      "sha256": "a90cde2d6ee7767c11790725d5b8e1c346950431aea051ac7a3654af9dc80206"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_28.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_28.png",
+      "sha256": "bcd1b2274feaa7fda986457f3fdb83e28f679b08ec0d22e13dfe16710824f380"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_28.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_28.png.meta",
+      "sha256": "f162c444aad4b0c6a40fb40553f384f568ce7d847e963d10b56265c801d60c2a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_29.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_29.png",
+      "sha256": "c444d0e6eaf51d9e9d0beb23e22afa81f44c8532103526d468a2159fdeb4fd32"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_29.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_29.png.meta",
+      "sha256": "749c0a982b9b307a16ed803047b015df13d8fd79441a7da1e497ebdbba06baa2"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_3.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_3.png",
+      "sha256": "cfe506434c592237cf8f9e5ae2ada55a83946f8224dfe5d935afbd5ad6f324ef"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_3.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_3.png.meta",
+      "sha256": "383dc6515e3461ff0486a225644365c8b63daacb5e8fb9053ae729bc98a64baf"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_30.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_30.png",
+      "sha256": "9cfbf8d6dd085b1fc4841eecffe433ca9844d9c8d3dbd3619ea7fe0a32a3aeb9"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_30.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_30.png.meta",
+      "sha256": "99fe9544361b6a809175660d628f94f7efa34a6c8700f7a00c0c209d6c449a36"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_31.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_31.png",
+      "sha256": "9bd9e78ffe3c735e845ac622b9bea371b9bfd68339b7fcb472e3bd6f58789771"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_31.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_31.png.meta",
+      "sha256": "d12e3b52019f980c8607575554dc767c3fcbc8ca6a189d66645d56a15d3de8de"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_4.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_4.png",
+      "sha256": "29fa52bc2b45b894291df90239acdabcf05f20ee343723bb0bd6bb0a51db0b0f"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_4.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_4.png.meta",
+      "sha256": "2cf752e285ba10e05be9207ecd48f12be7a974923086e3721cf3be6c2de99543"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_5.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_5.png",
+      "sha256": "3177dd550d087a78f9aae2116e500034cf677643fee02b74fb92e1324bec9199"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_5.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_5.png.meta",
+      "sha256": "fcaafaf552c344d556105330dcd8c865364924f26fff5f3bf70e7ecd1bb1b234"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_6.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_6.png",
+      "sha256": "eda087de32456e271178730119c52641b5628d48fc782c38399f6b259ffcc121"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_6.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_6.png.meta",
+      "sha256": "690d7321fb439a7b232db2a4c9b13d05c6e31c5b4144b724651c17b56faca6a8"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_7.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_7.png",
+      "sha256": "c08955fae20eeb607afdd3a6104df8d5ffe8c7920a9e9a493057aaa93897ecf0"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_7.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_7.png.meta",
+      "sha256": "eecfe04c423f4c53010c80ce4fda431a25288fc0a9a81b1f9d41357b59c6a6dc"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_8.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_8.png",
+      "sha256": "517c88d36520eb78bed54f8ade983e4bbf20e232515d79a25854774d9a8e769d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_8.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_8.png.meta",
+      "sha256": "ca0069e411118f08673143633cc959cca00ca15fc38183a1072e8e9a954d8c09"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_9.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_9.png",
+      "sha256": "519284e06252c1be8f6049559c06c0296acddaf6953398a6ab43d79b6ece06ec"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise16/L/LDR_LLL1_9.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise16/L/LDR_LLL1_9.png.meta",
+      "sha256": "e61e6839715c7dfd49fbc6f7fad40d6d86e29b30a8c1d4e26f8d046847673834"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_0.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_0.png",
+      "sha256": "90564273ed872da744aa7cc87d81b0090c7103eab2f223225c357909b41da803"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_0.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_0.png.meta",
+      "sha256": "0690f1830535b07b2f694db49b1a61a6c2aab0caec2592c312b6591165dd9419"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_1.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_1.png",
+      "sha256": "7360c0d8880110ec841114c6aea59c39123d1fb8b261e6bf9fc9573b65b0d0ea"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_1.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_1.png.meta",
+      "sha256": "6acda6cb6d57581796163f21974cde86bbdd5b57a5aaa6137858fd8bc8f36905"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_2.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_2.png",
+      "sha256": "d7db3110bd3f60169e09066e061e161e522625b013a557e923eb384a97316d5f"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_2.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_2.png.meta",
+      "sha256": "b12b2bca9104c8b875d458799884054d7f1dddee54111bb6dcedceab0b2bdd56"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_3.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_3.png",
+      "sha256": "19c67a1256b2c20c779470719386737aaa3366bd2058197bbfc3ebea71e5de29"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_3.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_3.png.meta",
+      "sha256": "27d012f2a02f678e760f9e139d54dd397d3dc74db2e7457165e17ea5337f605f"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_4.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_4.png",
+      "sha256": "2c928bfffc64c339f980c02a022bf0ac2e3b37df29b079e44625b97fdde76058"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_4.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_4.png.meta",
+      "sha256": "9d09ad0b96e7b73ac3b4479ef2165d20821e1d4f403a8ebd910f55499b5b31f3"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_5.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_5.png",
+      "sha256": "5c9977b8fc9b7c83d00ca60937977824badc5eb2ce3c744539f96cb22796157b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_5.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_5.png.meta",
+      "sha256": "9e9dfcff773a0a2daa2427127be8211f4ff8d5504b4f94894d0ae6e9e2de182b"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_6.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_6.png",
+      "sha256": "e35af946a68313ad0973bc298bfb2db18238f885ee04b4a7e760c75acafc777a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise256/LDR_LLL1_6.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise256/LDR_LLL1_6.png.meta",
+      "sha256": "995095e196cdb6a504066c5abfd524e7a19012604ea2a2e35433385013219334"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise64/L/LDR_LLL1_0.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise64/L/LDR_LLL1_0.png",
+      "sha256": "140c55bd97c21b9b22008d7054b492333fec67fbfc1a1b266e5b0209b647eed4"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/BlueNoise64/L/LDR_LLL1_0.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/BlueNoise64/L/LDR_LLL1_0.png.meta",
+      "sha256": "979f79be8dce3792e58e15f20f925615ee7191b535d27fac1be2221c430efd16"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/DebugFont.tga": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/DebugFont.tga",
+      "sha256": "a89bb057dd2a4442a582856c1ba6da4ae12c0ed1534696a191e54baa9de6dfc3"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/DebugFont.tga.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/DebugFont.tga.meta",
+      "sha256": "e3d44b2d5f428d0ceb386d1ade5c15c40d9f9e4e2aca51b1cffce14151ae828e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Large01.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Large01.png",
+      "sha256": "5a362d4d91a1c00395bb5ead5b23933f213d51f1f46bf35e9d84d3fabcc41aa2"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Large01.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Large01.png.meta",
+      "sha256": "0503a993589fe3371534f7fbd78b568908b01e7be83dedd11edcc34bb390625a"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Large02.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Large02.png",
+      "sha256": "156bf1876f04533477c57a06821a01818ed6c8c88b937be6ba12d4ea1b6dbf7c"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Large02.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Large02.png.meta",
+      "sha256": "a311e5e3969f0e875ef2c4e1ba17a389b03f364e8bcc2c8cdac229866baeb144"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium01.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium01.png",
+      "sha256": "3c4037a5b64ff1ee65852038ea931871bf5ee4eeedec896be75362fe1bcd2785"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium01.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium01.png.meta",
+      "sha256": "ac9ecc2b5721f0633820226473aa1b305519f6225cb53620340b8774652c9392"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium02.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium02.png",
+      "sha256": "3dd77147f8ff1acbe40a639c199500202d960f8db9fa26e9ca0bada483a531d8"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium02.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium02.png.meta",
+      "sha256": "d012560807218fa6a09e8357099c509984fa3052fa8a472acfbd967344112270"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium03.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium03.png",
+      "sha256": "fd01f022f743c0d3508b37421b5070a2a6263d4d966ea4532902c5930880b312"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium03.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium03.png.meta",
+      "sha256": "47dc78c66a95a6af8270608227c4723a34d447df593ce934a00eb5f6b3c3df31"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium04.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium04.png",
+      "sha256": "6e7ea6b73413a6dd244c9948351afa3838d8d606e1840c7d948544b62666c828"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium04.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium04.png.meta",
+      "sha256": "ab7c5a1acc94b5144296b1117b4c92ac979664cde6a4c70045de1f5d8d59ff69"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium05.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium05.png",
+      "sha256": "b963d8d662439cb5047bebcddfd8e758b04eae4135ebbba89dde85f9151fbccf"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium05.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium05.png.meta",
+      "sha256": "cbb53520b5d101a2c54b2eeb088dc52f3f44809031c44fcb1cc516d66be707f0"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium06.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium06.png",
+      "sha256": "67645d1dde72645dbe45cdf17bce2493da1f9982f6717c203ac059d0a8a69d71"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Medium06.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Medium06.png.meta",
+      "sha256": "69e53f6bcd924f604d98ae606215c3c220a8298e53ca504dcff64a834d73e95e"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Thin01.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Thin01.png",
+      "sha256": "bed8cd1fc2f330638afd1707ff981b288c83f99c3fbbcc0dc0d9acbdc49683d9"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Thin01.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Thin01.png.meta",
+      "sha256": "62efd83ff1171153c15595af48baaf000eaa99672fdd61b4a1a1b68ea2b373eb"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Thin02.png": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Thin02.png",
+      "sha256": "d0a2704d54931629bb5cec4e75ec2532355f36c38141b2a25a2c2e9fe3637367"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/FilmGrain/Thin02.png.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/FilmGrain/Thin02.png.meta",
+      "sha256": "0cc47e5bd18d1009590eefb919221760f69f2b09c084e00bbce8bdf71805ae3d"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/SMAA/AreaTex.tga": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/SMAA/AreaTex.tga",
+      "sha256": "84779b2c0dd6ee236bccd3a2046404ffeb8fda5bf4b24857f59ec5c3bd1270cf"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/SMAA/AreaTex.tga.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/SMAA/AreaTex.tga.meta",
+      "sha256": "11d393c45e42bcb2f302aacaca1c01a1f326a5fd5f556ee512d41d74902399f3"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/SMAA/SearchTex.tga": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/SMAA/SearchTex.tga",
+      "sha256": "96661ff73a56093bf2284bf4789027f33cd11d3203d2bde0f33cdd1d4336c89f"
+    },
+    "Packages/com.unity.render-pipelines.universal/Textures/SMAA/SearchTex.tga.meta": {
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@947f725e83ac/Textures/SMAA/SearchTex.tga.meta",
+      "sha256": "627c9d96c81e43ac10d1390b0a66b66b569166331be5f1d73f3c0440c6081135"
+    },
+    "Packages/com.unity.rendering.light-transport/Editor/UnifiedRTShaderImporter.cs": {
+      "physical": "Library/PackageCache/com.unity.rendering.light-transport@9bd588f963c0/Editor/UnifiedRTShaderImporter.cs",
+      "sha256": "549eb3e5cd9e6eb817f8cd4300ccd1a26e4954261892440ffd7977c287ffb9be"
+    },
+    "Packages/com.unity.rendering.light-transport/Editor/UnifiedRTShaderImporter.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.rendering.light-transport@9bd588f963c0/Editor/UnifiedRTShaderImporter.cs.meta",
+      "sha256": "dbab912bd5dedbbc04bc57e7b43d97ba26d46081a9f0d2980ba9ec5c5ba09429"
+    },
+    "Packages/com.unity.shadergraph/Editor/Data/SubGraph/SubGraphAsset.cs": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/Editor/Data/SubGraph/SubGraphAsset.cs",
+      "sha256": "5f1977a3d91b12a653f4e4ea9ab295f59e6a0e01f451942231799bde5c3ed38e"
+    },
+    "Packages/com.unity.shadergraph/Editor/Data/SubGraph/SubGraphAsset.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/Editor/Data/SubGraph/SubGraphAsset.cs.meta",
+      "sha256": "967590ef051a96da3ce3cd872ccf2e4b9515c82266a6587eac3a799c1a5e48a1"
+    },
+    "Packages/com.unity.shadergraph/Editor/Importers/ShaderGraphImporter.cs": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/Editor/Importers/ShaderGraphImporter.cs",
+      "sha256": "22732059b17b226bd36cbf6059aa81e267dc1fedda05f6793dd0e66d7c5c7395"
+    },
+    "Packages/com.unity.shadergraph/Editor/Importers/ShaderGraphImporter.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/Editor/Importers/ShaderGraphImporter.cs.meta",
+      "sha256": "1a7dd38dcb8455d6564ba9c53b27204045dde6c67c148ff11f54cbd5e693d83b"
+    },
+    "Packages/com.unity.shadergraph/Editor/Importers/ShaderGraphMetadata.cs": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/Editor/Importers/ShaderGraphMetadata.cs",
+      "sha256": "21e86e48c5a9114a3fd7ea363d9743d1ece6993c1056f8814aa1218d0e9fc42f"
+    },
+    "Packages/com.unity.shadergraph/Editor/Importers/ShaderGraphMetadata.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/Editor/Importers/ShaderGraphMetadata.cs.meta",
+      "sha256": "1d971d0d921dd2abacd6fc997b2b7b787b69f5f2a67988217324adea16b8cf64"
+    },
+    "Packages/com.unity.shadergraph/Editor/Importers/ShaderSubGraphImporter.cs": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/Editor/Importers/ShaderSubGraphImporter.cs",
+      "sha256": "8e8623687b157a60a123f6c733b8eb37982a69f26d7c7d68a134e9f974ae4b4f"
+    },
+    "Packages/com.unity.shadergraph/Editor/Importers/ShaderSubGraphImporter.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/Editor/Importers/ShaderSubGraphImporter.cs.meta",
+      "sha256": "dca56a4352c513533da47217b49a385e54e599254e12d4001c6cdb8d4fd688e9"
+    },
+    "Packages/com.unity.shadergraph/Editor/Importers/ShaderSubGraphMetadata.cs": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/Editor/Importers/ShaderSubGraphMetadata.cs",
+      "sha256": "8b05fd83982e45edfd34e4349961235c679146e9564fc2ec2bef983c1ff0cdb0"
+    },
+    "Packages/com.unity.shadergraph/Editor/Importers/ShaderSubGraphMetadata.cs.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/Editor/Importers/ShaderSubGraphMetadata.cs.meta",
+      "sha256": "b5b3cda17ed10ac1cb3e8d9ee9ccf2a6007de99045b4b75c05b5729b797a47e5"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/LODDitheringTransition.hlsl": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/LODDitheringTransition.hlsl",
+      "sha256": "a6729cf89712e8e7230d1bee8e56cd61b2d2f598e9c68ed000fe0dd0dec083cb"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/LODDitheringTransition.hlsl.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/LODDitheringTransition.hlsl.meta",
+      "sha256": "bf4a3c4faf19345258690f9306aaecf36ca41bb5b6d9a1e45d5cef0e780725f5"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Billboard.shadersubgraph": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8Billboard.shadersubgraph",
+      "sha256": "9cc03f5ee654877ea3b8db09f0745ade9d366aeaefcb20c835c4a6d0cf38b6a0"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Billboard.shadersubgraph.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8Billboard.shadersubgraph.meta",
+      "sha256": "804d1f80e8fc250f26ac5ac96d94c792ead74caab9fbcb474c9166c25eb9ed19"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8CameraFacingLeafEffect.shadersubgraph": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8CameraFacingLeafEffect.shadersubgraph",
+      "sha256": "21fc7daffa66054f9f3598231a20bfd0ed00e5b772f1f60cdc28a0ed705be0f6"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8CameraFacingLeafEffect.shadersubgraph.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8CameraFacingLeafEffect.shadersubgraph.meta",
+      "sha256": "0a47bb81d8aea583588e704f03549a7ed8e5f239e883112d7c9321b852a77781"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8ColorAlpha.shadersubgraph": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8ColorAlpha.shadersubgraph",
+      "sha256": "0557ad1fc2991d767faab24d944379e5de7286d9d6fb34bf6ae6ae9d545c5830"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8ColorAlpha.shadersubgraph.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8ColorAlpha.shadersubgraph.meta",
+      "sha256": "918e78c94945559cdf2064b1e65814b2b3c037f877e34fdfed4dc63d7397d40b"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8InterpolatedNormals.shadersubgraph": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8InterpolatedNormals.shadersubgraph",
+      "sha256": "50174aed0e7b700802498086a044833fca01dad5c8c56cc9a7d2196655f26d34"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8InterpolatedNormals.shadersubgraph.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8InterpolatedNormals.shadersubgraph.meta",
+      "sha256": "ced072d5a788cf2f1590f6208e524b69b17640ee2d48ca5e03f564bb68b2b7f2"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8LODTransition.shadersubgraph": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8LODTransition.shadersubgraph",
+      "sha256": "734024e5aa32bcc7500b86fb8bd2f98daaa074350a25cde8430fe874c766500c"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8LODTransition.shadersubgraph.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8LODTransition.shadersubgraph.meta",
+      "sha256": "8d6f3a2de56d4110ec1a9815677ee7effb4e8f3aafb0f58afab94abeae3de607"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Wind.hlsl": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8Wind.hlsl",
+      "sha256": "ebdc18a8bece25222ce1ca62d3c4a117a6d4260c4877ccf09f25dd62fae81364"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Wind.hlsl.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8Wind.hlsl.meta",
+      "sha256": "dc1e97ced503211b764b0d218d93dc20874ae6d68ec84c80339100c5d331b794"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Wind.shadersubgraph": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8Wind.shadersubgraph",
+      "sha256": "40facd0bfbf859e0a588509edae135380ef41eb3d8a9151148b7c92df6ba8c70"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree8Wind.shadersubgraph.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree8Wind.shadersubgraph.meta",
+      "sha256": "4a5e43245042b418e5fb6252b23f36957681a51ecabcc3985fa310ff02751745"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9CameraFacingLeafEffect.shadersubgraph": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree9CameraFacingLeafEffect.shadersubgraph",
+      "sha256": "5466b96cd8a78660a29d7c1127db17f9711ef38cf40d2811d0e1b53474e818c1"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9CameraFacingLeafEffect.shadersubgraph.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree9CameraFacingLeafEffect.shadersubgraph.meta",
+      "sha256": "dd1abfceef940b8987beea9785dbe0a9ca0c98d31ced663e032a1ff239f1e8dc"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9Wind.hlsl": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree9Wind.hlsl",
+      "sha256": "59e0fe7027192df5396d731932c5dbc0f83b274890bc866b739ef4b2b1be39d9"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9Wind.hlsl.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree9Wind.hlsl.meta",
+      "sha256": "7ca4860cbf27af8a0434900e140af15345003b4b6bb75faa871d6d9c57b29ea8"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9Wind.shadersubgraph": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree9Wind.shadersubgraph",
+      "sha256": "14ca2787e60c3c4bbcc7737a77205aed41e6d711437a2e955a38a66854554b23"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTree9Wind.shadersubgraph.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTree9Wind.shadersubgraph.meta",
+      "sha256": "b6102a82d361f60140a78cae5fe30d83555f682d180bd754c44b6289f44d046e"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTreeCommon.hlsl": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTreeCommon.hlsl",
+      "sha256": "086788eca6e93126b2ff7b0862b278f396f88f50feffe7aa6d2dc5903e61091d"
+    },
+    "Packages/com.unity.shadergraph/ShaderGraphLibrary/Nature/SpeedTreeCommon.hlsl.meta": {
+      "physical": "Library/PackageCache/com.unity.shadergraph@f269a003577c/ShaderGraphLibrary/Nature/SpeedTreeCommon.hlsl.meta",
+      "sha256": "e4d24c802a4c9ab3cbc50e80e03fd1ce2ef6196aec545e6400640a0d454d2bad"
+    },
+    "Packages/manifest.json": {
+      "physical": "Packages/manifest.json",
+      "sha256": "cb6083897e503b228bc95ee7002078aa5745093922408094d7bf8c388b1d6792"
+    },
+    "Packages/packages-lock.json": {
+      "physical": "Packages/packages-lock.json",
+      "sha256": "7ade6d88d528682fc1cd699806ae4402e99923a36a7235fdaf06c096437963e5"
+    },
+    "ProjectSettings/GraphicsSettings.asset": {
+      "physical": "ProjectSettings/GraphicsSettings.asset",
+      "sha256": "db4b5fe7b0a7c45e7a7227a0f6891a2d5283e42d764a02662d3d91bb837ea5a4"
+    },
+    "ProjectSettings/ProjectSettings.asset": {
+      "physical": "ProjectSettings/ProjectSettings.asset",
+      "sha256": "a5672236086d1d069204e907ec12e6c524a4eb079b2f8b76be52337bef665da2"
+    },
+    "ProjectSettings/QualitySettings.asset": {
+      "physical": "ProjectSettings/QualitySettings.asset",
+      "sha256": "8a30b29a572bae8c04249582e65ff6c0cc97d4f45a60017cdd93f7d6a2cfefdd"
+    }
+  }
+}

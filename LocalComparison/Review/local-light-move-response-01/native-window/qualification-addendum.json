@@ -1,0 +1,175 @@
+{
+  "sourceQualified": true,
+  "visualResponse": "Requires actual image review; pixel differences alone do not establish causality",
+  "physicalTruthProven": false,
+  "performanceAccepted": false,
+  "result": {
+    "status": "collected",
+    "error": "",
+    "scene": "Assets/RuntimeAudit/Functional.unity",
+    "api": "Direct3D12",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "view": "IndirectOnly",
+    "scope": "Five existing linear HDR captures; no physical-truth, convergence or performance claim",
+    "debugBuild": false,
+    "testCaptureDisabled": true,
+    "auditProbeDisabled": true,
+    "normalQuitObserved": true,
+    "moved": true,
+    "requestedFrames": 180,
+    "actualCameraFrames": 180,
+    "captures": 5,
+    "errors": 0,
+    "firstEngine": 1,
+    "lastEngine": 180
+  },
+  "nativeExit": {
+    "processId": 17268,
+    "exitCode": 0,
+    "watchdogTerminated": false,
+    "completedUtc": "2026-10-29T00:50:16.2337623Z"
+  },
+  "event": {
+    "logical": 120,
+    "engine": 121,
+    "previousRenderEngine": 120,
+    "lampInstance": 6506,
+    "from": {
+      "x": -2.4000000953674316,
+      "y": 2.799999952316284,
+      "z": 2.0
+    },
+    "to": {
+      "x": 2.4000000953674316,
+      "y": 2.799999952316284,
+      "z": 2.0
+    }
+  },
+  "nativeLogHits": [],
+  "images": [
+    {
+      "logical": 90,
+      "engine": 91,
+      "gi": 91,
+      "selectedCount": 5,
+      "changeCount": 0,
+      "regionCount": 0,
+      "meanLuminance": 0.03290240850667002,
+      "maxRgb": 1.7376686334609985,
+      "files": {
+        "frame-0090.rgba32f": "70230b43def15de2c2363d789d2670c4fbc04b3215c0d7d9c16ba22da4ebc13c",
+        "frame-0090.png": "0d6650403d5b5b9b2294bd680df7d873b4d6d946946f823264faef08a34d5761",
+        "frame-0090.exr": "ea86e3b743b09377b56376c22bcd07b440d51b49f07cf45054f2e36496017c1b"
+      }
+    },
+    {
+      "logical": 119,
+      "engine": 120,
+      "gi": 120,
+      "selectedCount": 5,
+      "changeCount": 0,
+      "regionCount": 0,
+      "meanLuminance": 0.032912784784378965,
+      "maxRgb": 1.2957452535629272,
+      "files": {
+        "frame-0119.rgba32f": "61ede4353dcadac92a74766eb15da8c1ff25dab7939b19c32740ea7382d0a200",
+        "frame-0119.png": "edc8146c9743b78cd5c7b339e6c9e97651ff65591e606a82f45a8322c8814416",
+        "frame-0119.exr": "58a0e7ddc8f8d617ccaf46076a2507181758101633697218c9bcd3d3a5b221ac"
+      }
+    },
+    {
+      "logical": 120,
+      "engine": 121,
+      "gi": 121,
+      "selectedCount": 5,
+      "changeCount": 2,
+      "regionCount": 2,
+      "meanLuminance": 0.0345095723270247,
+      "maxRgb": 1.3332760334014893,
+      "files": {
+        "frame-0120.rgba32f": "b13e045f050f6fe58e6ffb7a6f738a5c0f2dba40ac0aed60bb7e60fb026ad5a4",
+        "frame-0120.png": "fcddbbff2bad53ed52e5347be6384a294e285a354e23d13b90805720e2b4d7e7",
+        "frame-0120.exr": "3c67dbeb9158d9094678c3f8997520b70fe3e1f4f2a0e22746c197ac2147e4d8"
+      }
+    },
+    {
+      "logical": 135,
+      "engine": 136,
+      "gi": 136,
+      "selectedCount": 5,
+      "changeCount": 0,
+      "regionCount": 0,
+      "meanLuminance": 0.035478100870716345,
+      "maxRgb": 1.357670783996582,
+      "files": {
+        "frame-0135.rgba32f": "ab0a35029f791d35ee269eb60b76fb8405f9808f49274cf80c840627bdf5905e",
+        "frame-0135.png": "d5f68830cfa5ac2586a05ee37aae692da2773a0e4d039616a2ac089019d1b029",
+        "frame-0135.exr": "519ee7f100b2a2aa2355bfbb921ed1705a04e09e777011b956c62ba728381da9"
+      }
+    },
+    {
+      "logical": 179,
+      "engine": 180,
+      "gi": 180,
+      "selectedCount": 5,
+      "changeCount": 0,
+      "regionCount": 0,
+      "meanLuminance": 0.035018995629927226,
+      "maxRgb": 1.0996477603912354,
+      "files": {
+        "frame-0179.rgba32f": "b0c567a91570989ce205e96b7f60a5d9450769e93cbdcf05c4d19f4225bac990",
+        "frame-0179.png": "bb35e574c38f0212bb4540b53f7a9cfc8c1453df7e508a1eba3c793745a59ebe",
+        "frame-0179.exr": "24e37499f11654b17dd275b9f7d2265c9b20ff3d950f83864eb54e236ef25dcc"
+      }
+    }
+  ],
+  "oldNewLightChangesVerified": true,
+  "eventDomains": [
+    {
+      "minimum": {
+        "x": -10.399999618530273,
+        "y": -5.199999809265137,
+        "z": -6.0,
+        "w": 0.0
+      },
+      "maximum": {
+        "x": 5.599999904632568,
+        "y": 10.800000190734863,
+        "z": 10.0,
+        "w": 18.0
+      },
+      "receiver": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+      }
+    },
+    {
+      "minimum": {
+        "x": -5.599999904632568,
+        "y": -5.199999809265137,
+        "z": -6.0,
+        "w": 0.0
+      },
+      "maximum": {
+        "x": 10.399999618530273,
+        "y": 10.800000190734863,
+        "z": 10.0,
+        "w": 18.0
+      },
+      "receiver": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+      }
+    }
+  ],
+  "descriptiveMeanAbsoluteRgbDelta": {
+    "90->119": 0.0032391040585935116,
+    "119->120": 0.006924179848283529,
+    "119->135": 0.011649717576801777,
+    "119->179": 0.012912491336464882
+  }
+}

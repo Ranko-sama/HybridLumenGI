@@ -1,0 +1,56 @@
+{
+  "sourceQualified": true,
+  "visualResponse": "Requires actual image review; pixel differences alone do not establish causality",
+  "physicalTruthProven": false,
+  "performanceAccepted": false,
+  "result": {
+    "status": "collected",
+    "error": "",
+    "scene": "Assets/RuntimeAudit/Functional.unity",
+    "api": "Direct3D12",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "view": "IndirectOnly",
+    "scope": "Five existing linear HDR captures; no physical-truth, convergence or performance claim",
+    "debugBuild": false,
+    "testCaptureDisabled": true,
+    "auditProbeDisabled": true,
+    "normalQuitObserved": true,
+    "moved": true,
+    "requestedFrames": 180,
+    "actualCameraFrames": 180,
+    "captures": 5,
+    "errors": 0,
+    "firstEngine": 1,
+    "lastEngine": 180
+  },
+  "nativeExit": {
+    "processId": 17268,
+    "exitCode": 0,
+    "watchdogTerminated": false,
+    "completedUtc": "2026-10-29T00:50:16.2337623Z"
+  },
+  "event": {
+    "logical": 120,
+    "engine": 121,
+    "previousRenderEngine": 120,
+    "lampInstance": 6506,
+    "from": {
+      "x": -2.4000000953674316,
+      "y": 2.799999952316284,
+      "z": 2.0
+    },
+    "to": {
+      "x": 2.4000000953674316,
+      "y": 2.799999952316284,
+      "z": 2.0
+    }
+  },
+  "nativeLogHits": [],
+  "oldNewLightChangesVerified": true,
+  "descriptiveMeanAbsoluteRgbDelta": {
+    "90->119": 0.0032391040585935116,
+    "119->120": 0.006924179848283529,
+    "119->135": 0.011649717576801777,
+    "119->179": 0.012912491336464882
+  }
+}

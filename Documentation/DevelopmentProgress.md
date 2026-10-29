@@ -2,7 +2,7 @@
 
 更新：2026-10-29。本表按 OriginalDevelopmentPlan.md 的十项工作流区分实现、当前来源实测和生产验收。旧版报告保留来源，不重新标为当前版本通过。当前先处理已证实的阻断和可复现缺陷，再补缺失验收；不因新增局部测试而重跑无关矩阵。
 
-最新本机入口：Release58，已构建产品来源7e387a512cbb4355fd5f3d9f3c76282375f9cd3b；后续HEAD不自动替换EXE来源。[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease58/Start-LocalRelease.cmd>)默认常驻，WASD/QE移动、方向键转向、R复位、Esc退出。一普通Release构建、一实际键盘巡视及正常退出获Astra和实际Pro58有限采用，112产品源/189产物一致；23条构建警告和首postcheck误判保留。Pro58未独立读取图片。最后HDR图像仍为Release54/a9292cb，运行尺寸640×360不是生产目标。
+最新本机入口：Release58，已构建产品来源7e387a512cbb4355fd5f3d9f3c76282375f9cd3b；后续HEAD不自动替换EXE来源。[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease58/Start-LocalRelease.cmd>)默认常驻，WASD/QE移动、方向键转向、R复位、Esc退出。一普通Release构建、一实际键盘巡视及正常退出获Astra和实际Pro58有限采用，112产品源/189产物一致；23条构建警告和首postcheck误判保留。Pro58未独立读取图片。静态Final HDR图像仍为Release54/a9292cb；[62移灯观察](ReviewBrief-LocalLightMoveResponse01.md)另有7190c28的五份IndirectOnly HDR，有限动态证据与静态基线分开。运行尺寸640×360不是生产目标。
 
 45–57各已实现能力保留自己的有限专项证据；58巡视不补齐未触发原生条件，不证明动态GI质量。Release44的300秒公开计账仍对应5120a8c；54单次HDR图像仍对应a9292cb。明确拒绝和待验收配置见[支持范围](ProductionPlan.md#当前支持范围与证据层级)，本轮边界见[58巡视结果](ReviewBrief-LocalReleaseNavigation01.md)。整体画质、性能、总显存、预算目标与G0–G5继续开放；四项目标和十条工作流不标为完成。
 
@@ -12,7 +12,7 @@
 | 2 光传输链路 | DirectLighting、EmissiveSampling、ProductionPlan 方程和绑定 | denoise-02 修复 HDR 二阶矩；1b8e751统一失败cache输出；iteration10理想算子逐轮能量参考通过Pro有限复核 | 真实场景光源变更、匹配单位的色墙/黑室/金属参考和整图能量 |
 | 3 世界空间表面缓存 | 真实三角 charts、atlas、版本和预算捕获 | candidate-16 有实际 HDR/UV/材质接线证据，属历史来源 | 当前凹面/薄层/接缝覆盖、规模与捕获成本 |
 | 4 几何与近远场 | 实例 BVH、global SDF、dirty bricks、形变快照；SDF未完成查询显式传播，可选连续合并形变请求 | iteration42实际HLSL有限反例及保留原FAIL的同数据资格修正获接受；43真实Task屏障验证连续发布/最终追上。Release44包含这些源，但静态运行不等于新API原生覆盖 | 广泛薄壁/非闭合与形变边界、近远场连续性；不得把合法步数耗尽当确定miss，允许合并模式的捕获延迟 |
-| 5 局部失效与多反弹 | 变更域、代次、双缓冲、预算和年龄调度 | iteration10执行实际cache update/lookup/commit/change，两节点256开+256关独立参考通过；不代表真实帧响应 | 真实灯光检测、调度与缓存/画面链；运动/删除后的残留和收敛 |
+| 5 局部失效与多反弹 | 变更域、代次、双缓冲、预算和年龄调度 | iteration10理想两节点能量参考；62原生固定移灯在180帧中取得五份间接图及旧/新灯变化记录，保留原FAIL后一次binary32期望补判通过；不证明GPU逐射线消费或能量真值 | 广泛动态质量、多反弹残留与定量收敛；不重复该固定移灯观察 |
 | 6 采样与降噪 | 混合 PDF/MIS、运动历史与滤波 | denoise-02 F1/F2与denoise-03局部短历史过渡已通过Pro复核；单个真实门事件覆盖1230像素 | 已知第2/3历史噪声代价；持续reactive/历史上限2或3仍待画质验收；R1只有匹配信号敏感性证据；绝对拖影未验收 |
 | 7 URP Lit / DXR | 源 UV/多材质、alpha/Cull、native diffuse规则 | 3088d41同构建软件/DXR各120帧证据获Pro20/21有限接受；iteration25单槽MPB自动发现、实际上传、目标历史重建及一条实际正权重消费链已获Pro25有限接受 | 槽1屏幕历史仍未覆盖；形变、全场景材质一致性、软件差异解释与动态质量 |
 | 8 流式与预算 | 异步AssetBundle、完整组准入、HLOD原子切换、独立额度；资源页与可选Additive场景的显式附加视点冷加载需求；默认关闭的计时/完成记录导出 | 41实际representation/driver/scheduler验证资源页附加视点冷需求；59实际ChunkStreaming有限序列证明Additive需求合并、共享额度与卸载权限，完整driver编译；60仅对固定六页组完成真实辅助Transform→距离需求→异步IO→完整绑定的原生有限采用；不外推Additive IO/多渲染相机。e1aa6356的512源帧NativeDX12有限成本基线保留来源，23轮复用优化收益未超过波动而撤回 | 固定组以外的多视点原生综合使用、冷暖/高速移动/总VRAM与生产预算仍开放；不重跑已完成在途撤回和正常退出矩阵 |
@@ -162,3 +162,5 @@ iteration59：两处产品修改补齐可选Additive场景辅助视点冷需求�
 iteration60：Runtime未改，产品a11eb615；一次预检0(5既有warnings)、一次普通Release None构建0(23warnings)、一次visible DX12 PID12456 exit0/无watchdog。两帧正常距离模式六页Unloaded且零需求/预留；仅添加真实辅助Transform后，第11实际目标相机帧整组Ready、四直接lease与mesh/material/SDF/chartsSourceMesh绑定一致，renderer/proxy启用。保留postbuild路径读错的首exit1，只改读取根对同数据核对，不改断言/重建。collected.exactBindings=false为未重测默认值，权威complete-binding=true原记录保留。112产品源/188产物/8原资产及5覆盖+6include恢复核对。Astra及实际Pro60有限采用、批准证据提交，累计41+59+60结束，不追加矩阵；不证明HLOD、多相机渲染、退休清零或性能。Release58仍为用户入口。下一项先建立表面缓存录制丢弃后的假就绪反例，再决定最小恢复修复。见[60原生绑定与边界](ReviewBrief-AssetPageAuxiliaryColdBind01.md)。
 
 iteration61：两处产品修改修复公共渲染失败出口后的表面缓存CPU假就绪／不重试。唯一旧源反例捕获[0,0,0]，唯一候选恢复[1,1,0]，单卡预算下owner仅在全部卡重捕后恢复；所有驻留卡撤销ready、代次推进、重新全清理，资源与owner/chart/tile身份不变，正常分支逐字相同。实际SurfaceCache及逐字提取的失败方法执行，完整Feature/RenderGraph/原生GPU丢弃未执行；无本轮失败或重跑。Astra独立与实际Pro61均批准本地提交和收束，55＋61累计为同一失败恢复投入，不扩矩阵。部署及60 Player仍a11eb615，用户入口仍Release58。下一步沿原目标1/2与工作流2/5/6进行一次固定局部灯迁移的真实间接光响应观察；不是物理真值或性能验收。见[61修复与边界](ReviewBrief-SurfaceCacheFailedRenderRecovery01.md)。
+
+iteration62有限结项：产品7190c28、零Runtime修改，一预检0、一Release None构建0(23warnings)、一visible DX12 Player17268完成180目标相机帧与五次原Capture、exit0/正常退出。固定Point在logical120/engine121从A移至B，CPU选中表及两条旧新变化记录对应；Codex、Astra和实际Pro均看过五张图，右青墙与邻近地面形成有限空间响应，未建立具体产品故障。冻结离线判读首FAIL来自十进制期望与Unity binary32精确判等，原FAIL保留；Pro授权唯一同数据补判只转换预声明A/B期望，完整原断言全部通过、35原文件hash不变。准备阶段虚拟Package路径首诊断同样保留，无重建/原生重跑/补帧。112产品、435场景/包/设置输入、187产物、5覆盖+6include恢复核对。此动态专项收束，不证明物理正确、收敛时间或整体生产验收；Release58仍为用户入口。见[结果与原失败](ReviewBrief-LocalLightMoveResponse01.md)。

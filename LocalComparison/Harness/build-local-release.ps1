@@ -1,6 +1,6 @@
-param([switch]$SteadyUse,[switch]$Integration,[switch]$FinalImage,[switch]$Navigation,[switch]$Auxiliary)
+param([switch]$SteadyUse,[switch]$Integration,[switch]$FinalImage,[switch]$Navigation,[switch]$Auxiliary,[switch]$LightMove)
 $ErrorActionPreference='Stop'
-if(([int]$SteadyUse.IsPresent+[int]$Integration.IsPresent+[int]$FinalImage.IsPresent+[int]$Navigation.IsPresent+[int]$Auxiliary.IsPresent) -gt 1){throw 'Select one Release destination.'}
+if(([int]$SteadyUse.IsPresent+[int]$Integration.IsPresent+[int]$FinalImage.IsPresent+[int]$Navigation.IsPresent+[int]$Auxiliary.IsPresent+[int]$LightMove.IsPresent) -gt 1){throw 'Select one Release destination.'}
 $taskRootPath='C:/Users/Administrator/Desktop/test/HybridLumenGI'
 $taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/local-release-baseline-01'
 $taskPython='C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
@@ -37,6 +37,12 @@ if($Auxiliary){
     $taskAttempt=Join-Path $taskPackagePath 'build-attempt.json'
     $taskPlayerOutput='I:/Unity test/Comparison/Builds/AuxiliaryColdBind60/HybridLumenGITest.exe'
     $taskInstallArgs=@('--auxiliary');$taskBuildName='AuxiliaryColdBind60Build'
+}
+if($LightMove){
+    $taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/local-light-move-response-01'
+    $taskAttempt=Join-Path $taskPackagePath 'build-attempt.json'
+    $taskPlayerOutput='I:/Unity test/Comparison/Builds/LightMove62/HybridLumenGITest.exe'
+    $taskInstallArgs=@('--light-move');$taskBuildName='LightMove62Build'
 }
 if(Test-Path -LiteralPath $taskAttempt){throw 'Unique normal build already attempted.'}
 if(Test-Path -LiteralPath (Split-Path -Parent $taskPlayerOutput)){throw 'New build output must not replace an existing Player.'}

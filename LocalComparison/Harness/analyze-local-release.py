@@ -19,6 +19,10 @@ def configure_final_image():
     global PACKAGE,BUILD
     PACKAGE=ROOT/'LocalComparison/Review/current-representative-final-image-01';BUILD=Path('I:/Unity test/Comparison/Builds/LocalRelease54')
     existing.PACKAGE=PACKAGE;existing.BUILD=BUILD;existing.smoke.PACKAGE=PACKAGE;existing.smoke.BUILD=BUILD
+def configure_light_move():
+    global PACKAGE,BUILD
+    PACKAGE=ROOT/'LocalComparison/Review/local-light-move-response-01';BUILD=Path('I:/Unity test/Comparison/Builds/LightMove62')
+    existing.PACKAGE=PACKAGE;existing.BUILD=BUILD;existing.smoke.PACKAGE=PACKAGE;existing.smoke.BUILD=BUILD
 def build():
     report=load(PACKAGE/'build-report.json');assert report['configuration']=='Release' and report['requestedOptions']==report['actualOptions']=='None','Actual Release build options differ'
     assert load(PACKAGE/'instrumentation/excluded-restoration.json')['allRestored'],'Historical includes not restored'
@@ -54,7 +58,10 @@ def run(final_image=False):
     except Exception as e:report.update(failure=str(e),traceback=traceback.format_exc())
     assert not (n/'analysis.json').exists(),'Preserve first Release analysis';save(n/'analysis.json',report);print(json.dumps(report,indent=2));return report['ordinaryReleaseVerified']
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['build','products','run']);mode=p.add_mutually_exclusive_group();mode.add_argument('--integration',action='store_true');mode.add_argument('--final-image',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['build','products','run']);mode=p.add_mutually_exclusive_group();mode.add_argument('--integration',action='store_true');mode.add_argument('--final-image',action='store_true');mode.add_argument('--light-move',action='store_true');a=p.parse_args()
     if a.integration:configure_integration()
     if a.final_image:configure_final_image()
+    if a.light_move:
+        assert a.action!='run','Light-move uses its own fixed capture qualification'
+        configure_light_move()
     ok=build() if a.action=='build' else existing.smoke.verify_products() if a.action=='products' else run(a.final_image);raise SystemExit(0 if ok else 1)
