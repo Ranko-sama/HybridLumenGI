@@ -1,16 +1,18 @@
 # HybridLumenGI
 
+当前整合入口更新为[Release71](Documentation/ReviewBrief-CurrentLocalRelease71.md)，包含269241b的颜色／动态修复。真实Player通过120帧显式后台完整渲染与HDR读回；普通交互沿用69，未重测OS按键。首次渲染等待99.24秒仍是限制。下文69/70保持各自历史范围。
+
 完整DXR Feature新增[有限色墙参考](Documentation/ReviewBrief-FiniteWallColorReference02.md)：27个预选像素的原始间接光全部符合独立射线参考，保留首次输入判据失败及同数据光栅精度资格。此为单次反弹证据；接收面变色／关灯后的动态响应正在继续验证。
 
-当前源码新增两项[颜色反弹与动态历史修复](Documentation/ReviewBrief-ColorBounceDynamicLimits01.md)：缓存连接的未知alpha覆盖不再被当成确定遮挡后重归一颜色，变化帧也始终遵守 `maxHistory=1`。两条实际HLSL消费路径已有定向WARP对照；后续[原生整合](Documentation/ReviewBrief-CurrentColorDynamicsIntegration01.md)完成真实Unity纹理168次计算／28行验证，并构建Release70；其两次隐藏运行没有相机帧，保留失败，以下Release69仍为已完成运行验证的基线。
+当前源码新增两项[颜色反弹与动态历史修复](Documentation/ReviewBrief-ColorBounceDynamicLimits01.md)：缓存连接的未知alpha覆盖不再被当成确定遮挡后重归一颜色，变化帧也始终遵守 `maxHistory=1`。两条实际HLSL消费路径已有定向WARP对照；后续[原生整合](Documentation/ReviewBrief-CurrentColorDynamicsIntegration01.md)完成真实Unity纹理168次计算／28行验证，并构建Release70；其两次隐藏运行没有相机帧，保留失败，Release69保留其当时运行基线。
 
 本机版本已整合两轮修复：[反射率夹取与动态历史](Documentation/ReviewBrief-ParallelColorDynamics01.md)、[普通Surface视差UV](Documentation/ReviewBrief-SurfaceParallaxUv01.md)，并将静态HDR环境Cube接入完整Feature。采用并行实现／参考准备与集中复审；原逐位失败及显式数值资格调整完整保留。
 
 源码另已修复[HLOD近场冷启动的容量回退](Documentation/ReviewBrief-HlodColdStartRootFallback01.md)：细节组自身超容量且没有旧表示时，先按原就绪门控准备已有粗代理；细节恢复可容纳后仍可原子切换。这项通过实际CPU状态机对照，尚未进入下述Release67。
 
-**当前本机入口：Release69；已构建产品来源为 `50b63c33683ba533f01c7119f6320ad80b4f2ec6`，新增示例接线另有冻结清单。** 后续HEAD不自动成为该EXE的产品来源。当前继续本机开发，不需要朋友交付；四项目标与十条工作流仍以[完整原计划](Documentation/OriginalDevelopmentPlan.md)为准。
+**历史本机入口：Release69；已构建产品来源为 `50b63c33683ba533f01c7119f6320ad80b4f2ec6`，新增示例接线另有冻结清单。** 后续HEAD不自动成为该EXE的产品来源。当前继续本机开发，不需要朋友交付；四项目标与十条工作流仍以[完整原计划](Documentation/OriginalDevelopmentPlan.md)为准。
 
-当前入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease69/Start-LocalRelease.cmd>)。空格启动／停止红绿格纹薄板形变，默认暂停，停下保持形状并让GI快照追上。WASD平移、Q/E升降、方向键转向、R只复位相机、Esc退出；默认常驻。一次真实256帧运行执行同一启停方法，运动中11次不同内容发布、最终完整来源一致、两张HDR及正常退出通过；本轮没有重复OS按键验收。见[用法](Documentation/ContinuousDeformationExample.md)及[结果与边界](Documentation/ReviewBrief-ContinuousDeformationUsage01.md)。
+历史69入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease69/Start-LocalRelease.cmd>)。空格启动／停止红绿格纹薄板形变，默认暂停，停下保持形状并让GI快照追上。WASD平移、Q/E升降、方向键转向、R只复位相机、Esc退出；默认常驻。一次真实256帧运行执行同一启停方法，运动中11次不同内容发布、最终完整来源一致、两张HDR及正常退出通过；本轮没有重复OS按键验收。见[用法](Documentation/ContinuousDeformationExample.md)及[结果与边界](Documentation/ReviewBrief-ContinuousDeformationUsage01.md)。
 
 69累计一次双程序集预检、首次Unity构建准备失败、一次获准的资产查询修正构建及首次Player运行；23条构建警告保留。Astra和实际GPT-6 Pro均采用有限结果并查看原图。首相机回调等待2.938秒，不能与67的101.249秒直接比较为提速。当前两图为[运动结束](LocalComparison/Review/continuous-deformation-usage-01/build-correction/native-window/run/frame-0159.png)与[停稳](LocalComparison/Review/continuous-deformation-usage-01/build-correction/native-window/run/frame-0255.png)，保持同一最终可见姿态，不能作为完整动态画质真值。HLOD68源码已包含，不能据本场景推导HLOD原生验收。以下67等记录保留历史来源与回退入口。
 

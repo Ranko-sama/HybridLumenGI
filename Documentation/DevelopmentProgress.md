@@ -1,10 +1,12 @@
 # 完整原计划推进表
 
+后续[Release71整合](ReviewBrief-CurrentLocalRelease71.md)已通过112产品源／189产物核对与一次显式后台120帧Player及HDR读回，首次渲染99.24秒；70两次自动隐藏运行失败保留，普通OS按键未重测。当前继续真实色墙变色／关灯动态接收器验证与有限cache反馈参考。
+
 更新：2026-10-29。本表按 OriginalDevelopmentPlan.md 的十项工作流区分实现、当前来源实测和生产验收。旧版报告保留来源，不重新标为当前版本通过。当前先处理已证实的阻断和可复现缺陷，再补缺失验收；不因新增局部测试而重跑无关矩阵。
 
 当前源码在 `78618e1` 后新增[颜色反弹可信性与动态历史上限修复](ReviewBrief-ColorBounceDynamicLimits01.md)：未知alpha/覆盖的缓存连接撤销整个可信估计；reactive历史上限与用户 `maxHistory` 取交集，修复上限1时仍混入旧色的反例。两条子代理并行实现，第三条独立审查；颜色8项WARP对照符合合同，动态两入口的主反例消除、六项保持控制逐位一致，保留首分析FAIL并对原数据作RTZ补判通过。本轮不使用Codex with ChatGPT。后续[真实Unity整合](ReviewBrief-CurrentColorDynamicsIntegration01.md)已完成168次纹理计算、28行合同验证和Release70构建，Unity部署更新到269241b；两个隐藏Player检查无相机帧而失败，保留原记录，Release69仍为已通过运行验证的基线。后续[完整Feature有限色墙参考](ReviewBrief-FiniteWallColorReference02.md)在27个像素／216条输入射线上通过独立单bounce RGB比较；原输入判据失败与另层光栅资格均保留，未改颜色阈值。继续验证真实变色／关灯响应；整体画质、多bounce物理能量和生产验收继续开放。
 
-69新增普通可启停连续形变入口，当前采用[Release69](<I:/Unity test/Comparison/Builds/LocalRelease69/Start-LocalRelease.cmd>)，产品及Unity部署来源50b63c3，示例接线另记清单。并行实现／独立参考后一次真实256帧完成运动中11次不同内容发布、停稳最终完整来源一致及两张可判读HDR，native0。首个Unity准备失败、唯一资产查询修正及23条warning保留。Astra与实际Pro已查看原图并有限采用；不追加运行，不把本轮当完整动态画质或整体进度跃升。见[69结果](ReviewBrief-ContinuousDeformationUsage01.md)。以下各轮记录保留当时来源。
+69新增普通可启停连续形变入口，69阶段采用[Release69](<I:/Unity test/Comparison/Builds/LocalRelease69/Start-LocalRelease.cmd>)，产品及Unity部署来源50b63c3，示例接线另记清单。并行实现／独立参考后一次真实256帧完成运动中11次不同内容发布、停稳最终完整来源一致及两张可判读HDR，native0。首个Unity准备失败、唯一资产查询修正及23条warning保留。Astra与实际Pro已查看原图并有限采用；不追加运行，不把本轮当完整动态画质或整体进度跃升。见[69结果](ReviewBrief-ContinuousDeformationUsage01.md)。以下各轮记录保留当时来源。
 
 65按用户要求改为两线并行：修复普通Surface过早夹取detail反射率，以及未知当前测量丢失单帧照明变化的历史限龄。两条实际着色器消费者的旧反例、候选与保持控制通过，见[合并结果与边界](ReviewBrief-ParallelColorDynamics01.md)；已获一次实际Pro合并复核及Astra有限采用，停止扩测。未新增Unity/Player或整景质量结论，普通入口与部署来源不变。
 
