@@ -4,6 +4,8 @@
 
 产品公开示例生成器也已接入普通交互；[批处理构建入口](Documentation/BatchPlayerBuild.md)已用于Release76，本地构建为Release/None、0错误、19条warning。公开生成器的新交互接线仍只有编译证据，本轮复用保存场景，没有重新生成；实际CI、生产性能和整体画质继续开放。
 
+修复后的[当前关灯画面对照](LocalComparison/Review/current-lightoff-prefix-01/result.md)已补充：关灯当帧明显变暗，但后30与59帧之间仍有可见变化。本次是同曝光的间接漫反射出射贡献，不能与旧D参考直接算物理误差；只有四个时点，也不把最后一帧当作已收敛。
+
 统一示例菜单现在按目标相机的实际Renderer选择GI Feature，避免其他已加载Renderer资产导致拒绝或误选。选择至少两个同场景静态Proxy，保存场景，使用`Tools > Hybrid Lumen GI > Create Unified Sample From Selected Static Proxies`；菜单要求一个启用相机，其Renderer中唯一启用的GI Feature。显式`CreateVariant`继续可用。本次Editor修复已编译并同步本机Unity工程，没有重新生成场景或重建Player。
 
 以下 Release73 及更早条目为历史状态，保留各自来源。

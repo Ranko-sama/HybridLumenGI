@@ -1,0 +1,81 @@
+{
+  "quantity": "Indirect diffuse outgoing screen output: filtered/upsampled D times diffuse reflectance, material occlusion and intensity; not D or a reference error.",
+  "source": "6a4b5f8 transport; archived V209 physical scene; temporary ordinary capture selection only",
+  "captureDirectory": "I:\\Unity test\\Comparison\\Release76LightOffPrefix\\capture\\20261029-190948-ec399e35b2a54e83b9baa8473038e4bc",
+  "sequenceStatus": "failed",
+  "sequenceRequiredFrames": 720,
+  "renderedFrames": 300,
+  "capturesWritten": 4,
+  "sequenceFailures": 0,
+  "backendMismatches": 0,
+  "completeSequence": false,
+  "physicalQualityPass": false,
+  "records": [
+    {
+      "frame": 239,
+      "engineFrame": 243,
+      "giFrame": 240,
+      "lightsEnabled": true,
+      "reportedBackend": "reported-software",
+      "meanOutputY": 0.030014187696436656,
+      "maxOutputRgb": 1.1559436321258545,
+      "alphaMinimum": 0.0,
+      "alphaMaximum": 1.0
+    },
+    {
+      "frame": 240,
+      "engineFrame": 244,
+      "giFrame": 241,
+      "lightsEnabled": false,
+      "reportedBackend": "reported-software",
+      "meanOutputY": 0.010133951418819898,
+      "maxOutputRgb": 0.8122550249099731,
+      "alphaMinimum": 0.0,
+      "alphaMaximum": 1.0
+    },
+    {
+      "frame": 270,
+      "engineFrame": 274,
+      "giFrame": 271,
+      "lightsEnabled": false,
+      "reportedBackend": "reported-software",
+      "meanOutputY": 0.004400039738175912,
+      "maxOutputRgb": 0.2964920401573181,
+      "alphaMinimum": 0.0,
+      "alphaMaximum": 1.0
+    },
+    {
+      "frame": 299,
+      "engineFrame": 303,
+      "giFrame": 300,
+      "lightsEnabled": false,
+      "reportedBackend": "reported-software",
+      "meanOutputY": 0.003761233502795673,
+      "maxOutputRgb": 0.25784316658973694,
+      "alphaMinimum": 0.0,
+      "alphaMaximum": 1.0
+    }
+  ],
+  "changesAgainstCandidate299": [
+    {
+      "fromFrame": 239,
+      "toFrame": 299,
+      "meanAbsoluteOutputYChange": 0.026253012811672038,
+      "meanAbsoluteOutputYChangeRelativeToLateMean": 6.979894439459431
+    },
+    {
+      "fromFrame": 240,
+      "toFrame": 299,
+      "meanAbsoluteOutputYChange": 0.0063787739887509855,
+      "meanAbsoluteOutputYChangeRelativeToLateMean": 1.6959260795719626
+    },
+    {
+      "fromFrame": 270,
+      "toFrame": 299,
+      "meanAbsoluteOutputYChange": 0.0006516400428417388,
+      "meanAbsoluteOutputYChangeRelativeToLateMean": 0.17325168521374273
+    }
+  ],
+  "scope": "Full-frame actual output including background and absent estimates. Alpha is reported, not asserted to be an independently validated mask. Frame299 is another candidate observation, not ground truth; remaining radiance may include valid emissive transport. Global SDF pending work is nonzero at239/240/270. Sparse samples do not determine an exact convergence frame or exclude intermediate flicker.",
+  "display": "All panels use exposure1, Reinhard and sRGB; vertical flip for presentation only, raw data unchanged."
+}
