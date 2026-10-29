@@ -1,0 +1,12 @@
+COLD33 initial: valid=1 warming=1 published=0 bvh=0 pendingCapacity=1
+COLD33 without-receipt: valid=1 warming=1 published=0 bvh=0 pendingCapacity=1
+COLD33 wrong-revision: valid=1 warming=1 published=0 bvh=0 pendingCapacity=1
+COLD33 lighting-not-ready: valid=1 warming=1 published=0 bvh=0 pendingCapacity=1
+COLD33 complete-root-receipt: valid=1 warming=0 published=1 bvh=1 pendingCapacity=1
+COLD33 root-held-capacity-blocked: valid=1 warming=0 published=1 bvh=1 pendingCapacity=1
+COLD33 shrink-first-upload: warming=1 published=1 bvh=1 pendingUpload=1
+COLD33 shrink-second-upload: warming=2 published=1 bvh=1 pendingUpload=0
+COLD33 second-detail-not-ready: warming=2 published=1 bvh=1 pendingUpload=0
+COLD33 fitting-detail-commit: published=2 warming=0 bvh=3 rootAbsent=true
+PASS: cold root fallback/readiness, fitting-detail release and exact-capacity direct-detail control.
+PASS: actual scene HLOD source initial readiness, geometry/material/lighting gate, stale receipt rejection, budgeted warm-up with old BVH held, atomic publish without duplicate occlusion, cancellation, staging-capacity failure, material-only retention, immediate stale-geometry removal and nested root/leaf grouping. CPU receipts model ordered-queue preparation; they are not GPU fences or convergence tests.

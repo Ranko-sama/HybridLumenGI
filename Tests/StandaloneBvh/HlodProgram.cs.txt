@@ -26,6 +26,104 @@ static void RootPublished(HybridLumenGIScene s,int id)
     int slot=Slot(s,id);Require(slot>=0&&s.IsPublished(slot)&&s.PublishedCount==1,"Old root representation not held.");
     Require(s.Bvh.NodeCount==1&&s.Bvh.Nodes[0].proxySlot==slot,"Warm geometry leaked into traversal.");
 }
+// The same cold-start inputs run against frozen old source and the candidate.
+// Only assertions differ; the baseline then skips the pre-existing control suite.
+static void ColdStartRootFallback(bool baseline)
+{
+    var g=Group(33);
+    using var s=new HybridLumenGIScene();
+    void BlockedState(bool rootReady,string stage)
+    {
+        Require(s.PendingCapacity==1,stage+": detail capacity blockage must count this group exactly once.");
+        Require(s.PendingUploadCount==0,stage+": the root or empty baseline must have no queued upload.");
+        Require(g.children.All(c=>Slot(s,c.StableId)<0),stage+": oversized detail group was partially admitted.");
+        if(baseline)
+            Require(s.ValidCount==0&&s.WarmingCount==0&&s.PublishedCount==0&&s.Bvh.NodeCount==0&&Slot(s,g.root.StableId)<0,
+                stage+": frozen source did not reproduce the empty cold-start representation.");
+        else if(rootReady)
+        {
+            RootPublished(s,g.root.StableId);
+            Require(s.ValidCount==1&&s.WarmingCount==0,stage+": fallback root was not the sole representation.");
+        }
+        else
+        {
+            int rootSlot=Slot(s,g.root.StableId);
+            Require(rootSlot>=0&&s.IsWarming(rootSlot)&&s.ValidCount==1&&s.WarmingCount==1&&s.PublishedCount==0&&s.Bvh.NodeCount==0,
+                stage+": root was not retained in warming until complete readiness.");
+            Require(s.DirtyRegions.Count==0,stage+": unready root invalidated the live world.");
+        }
+        Console.WriteLine($"COLD33 {stage}: valid={s.ValidCount} warming={s.WarmingCount} published={s.PublishedCount} bvh={s.Bvh.NodeCount} pendingCapacity={s.PendingCapacity}");
+    }
+    Prepare(s,false,1);BlockedState(false,"initial");
+    Prepare(s,false,1);BlockedState(false,"without-receipt");
+    Require(!s.ReportReadiness(g.root.StableId,g.root.Revision+1,true,true,true),"Cold root accepted a wrong revision.");
+    Prepare(s,false,1);BlockedState(false,"wrong-revision");
+    Require(s.ReportReadiness(g.root.StableId,g.root.Revision,true,true,false)==!baseline,
+        "Cold root partial receipt admission differs from the frozen expectation.");
+    Prepare(s,false,1);BlockedState(false,"lighting-not-ready");
+    Require(s.ReportReadiness(g.root.StableId,g.root.Revision,true,true,true)==!baseline,
+        "Cold root complete receipt admission differs from the frozen expectation.");
+    Prepare(s,false,1);BlockedState(true,"complete-root-receipt");
+    Prepare(s,false,1);BlockedState(true,"root-held-capacity-blocked");
+
+    // Keep the same scene and camera. Two live leaves now fit beside the root.
+    foreach(var child in g.children.Skip(2))
+    {child.isActiveAndEnabled=false;HybridLumenGIProxy.ActiveProxies.Remove(child);}
+    var remaining=g.children.Take(2).ToArray();
+    void DetailWarmState(int count,string stage)
+    {
+        Require(s.PendingCapacity==0&&s.PendingUploadCount==2-count&&s.WarmingCount==count,
+            stage+": fitting detail staging violated capacity or upload budget.");
+        Require(s.ValidCount==count+(baseline?0:1)&&s.PublishedCount==(baseline?0:1),
+            stage+": fitting detail staging lost coverage or published a partial group.");
+        Require(remaining.Count(c=>Slot(s,c.StableId)>=0)==count&&remaining.All(c=>!s.IsPublished(Slot(s,c.StableId))),
+            stage+": detail residency/publication is not atomic.");
+        if(baseline)Require(s.Bvh.NodeCount==0&&Slot(s,g.root.StableId)<0,stage+": old source invented a root.");
+        else RootPublished(s,g.root.StableId);
+        Console.WriteLine($"COLD33 {stage}: warming={s.WarmingCount} published={s.PublishedCount} bvh={s.Bvh.NodeCount} pendingUpload={s.PendingUploadCount}");
+    }
+    Prepare(s,false,1);DetailWarmState(1,"shrink-first-upload");
+    int accepted=0;
+    foreach(var child in remaining)if(s.ReportReadiness(child.StableId,child.Revision,true,true,true))accepted++;
+    Require(accepted==1,"First detail upload did not accept exactly one current receipt.");
+    Prepare(s,false,1);DetailWarmState(2,"shrink-second-upload");
+    Prepare(s,false,1);DetailWarmState(2,"second-detail-not-ready");
+    foreach(var child in remaining)
+        Require(s.ReportReadiness(child.StableId,child.Revision,true,true,true),"Complete current detail receipt rejected.");
+    Prepare(s,false,1);
+    Require(s.ValidCount==2&&s.PublishedCount==2&&s.WarmingCount==0&&s.PendingCapacity==0&&s.PendingUploadCount==0&&s.Bvh.NodeCount==3,
+        "Fitting detail group did not atomically publish after all current receipts.");
+    Require(Slot(s,g.root.StableId)<0&&remaining.All(c=>s.IsPublished(Slot(s,c.StableId))),
+        "Fallback root remained locked or duplicated the published leaves.");
+    if(!baseline)
+        Require(s.DirtyRegions.Any(x=>x.StableId==g.root.StableId&&x.HasPrevious&&!x.HasCurrent&&
+            (x.Kind&HybridLumenGIScene.ChangeKind.Representation)!=0),"Fallback switch lost root representation removal.");
+    Console.WriteLine("COLD33 fitting-detail-commit: published=2 warming=0 bvh=3 rootAbsent=true");
+}
+string coldExpectation=Environment.GetEnvironmentVariable("HLGI_HLOD_COLD_START_EXPECTATION");
+Require(string.IsNullOrEmpty(coldExpectation)||coldExpectation=="candidate"||coldExpectation=="baseline","Unknown cold-start expectation.");
+bool coldBaseline=coldExpectation=="baseline";
+ColdStartRootFallback(coldBaseline);
+if(coldBaseline)
+{
+    Console.WriteLine("PASS: frozen-source cold-start hole established with the same 33/32 inputs; fitting-detail sequence remains functional. Candidate-only controls were not executed.");
+    return;
+}
+// An empty scene can fit all 32 leaves: do not reserve an unnecessary root slot.
+var fitting=Group(32);
+using(var s=new HybridLumenGIScene())
+{
+    Prepare(s,false,32);
+    Require(s.ValidCount==32&&s.WarmingCount==32&&s.PublishedCount==0&&s.Bvh.NodeCount==0&&s.PendingCapacity==0&&s.PendingUploadCount==0,
+        "Exactly fitting cold detail group did not stage directly.");
+    Require(Slot(s,fitting.root.StableId)<0&&fitting.children.All(c=>s.IsWarming(Slot(s,c.StableId))),
+        "Exactly fitting detail group unnecessarily staged the root.");
+    ReportAll(s);Prepare(s,false,32);
+    Require(s.ValidCount==32&&s.PublishedCount==32&&s.WarmingCount==0&&s.Bvh.NodeCount==63&&s.PendingCapacity==0&&
+        Slot(s,fitting.root.StableId)<0&&fitting.children.All(c=>s.IsPublished(Slot(s,c.StableId))),
+        "Exactly fitting details failed whole-group publication.");
+}
+Console.WriteLine("PASS: cold root fallback/readiness, fitting-detail release and exact-capacity direct-detail control.");
 var g=Group(8);
 using(var s=new HybridLumenGIScene())
 {

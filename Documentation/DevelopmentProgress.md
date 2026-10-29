@@ -8,7 +8,9 @@
 
 最新本机入口及静态Final HDR：Release67，已构建产品来源2fefc097b36084e05e88653d8dff8466caf9d513；后续HEAD不自动替换EXE来源。[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease67/Start-LocalRelease.cmd>)保留默认常驻和58导航代码，本轮未重复键盘验收。一次Release/None构建及一次真实120帧末帧HDR采集正常exit0，112产品源/189产物、实际Feature静态Cube与恢复均首判通过；23条warning和101.249秒首帧等待保留。Astra及实际Pro67有限采用，Pro实际读取PNG。见[67整合结果](ReviewBrief-CurrentLocalRelease67.md)。固定六面环境输入改变，不能用与54的亮度差证明算法改善；640×360不是生产目标。
 
-各能力保留自己的有限专项证据，67静态整合不补齐未触发原生条件或动态质量。Release58/7e387a5的[键盘巡视](ReviewBrief-LocalReleaseNavigation01.md)和入口保留回退；Release44/5120a8c的300秒公开计账、54/a9292cb的旧HDR、[62/7190c28移灯观察](ReviewBrief-LocalLightMoveResponse01.md)均保持原来源。明确拒绝和待验收配置见[支持范围](ProductionPlan.md#当前支持范围与证据层级)。整体画质、性能、总显存、预算目标与G0–G5继续开放；四项目标和十条工作流不标为完成。下一步为68冷启动近场HLOD组自身超容量时的已有root回退，Astra和lane独立识别，Pro67已给最小计划；不再制造第二条world/MIS修复线。
+各能力保留自己的有限专项证据，67静态整合不补齐未触发原生条件或动态质量。Release58/7e387a5的[键盘巡视](ReviewBrief-LocalReleaseNavigation01.md)和入口保留回退；Release44/5120a8c的300秒公开计账、54/a9292cb的旧HDR、[62/7190c28移灯观察](ReviewBrief-LocalLightMoveResponse01.md)均保持原来源。明确拒绝和待验收配置见[支持范围](ProductionPlan.md#当前支持范围与证据层级)。整体画质、性能、总显存、预算目标与G0–G5继续开放；四项目标和十条工作流不标为完成。
+
+68新增近场冷启动HLOD组自身超容量时的已有root回退。实现和独立预期并行；唯一旧源命令证实33/32时无表示，唯一候选首判通过root完整就绪、按组容量计数、缩至2叶后原子切换、恰满32叶直接准备及原相关控制。仅Scene目标选择／诊断10行新增1行替换，见[有限结果](ReviewBrief-HlodColdStartRootFallback01.md)。Astra及实际Pro68接受并批准本地提交，停止此项与无证据自动扩包；没有新Unity运行，部署／Release67仍2fefc09。下一阶段继续关注颜色反弹和动态稳定，只有可定位实际问题或源码反例且能给出最小改动与留用／撤回标准时才启动；未验收标签本身不等于新产品缺陷。
 
 | 工作流 | 已有实现/审查依据 | 当前版本新增或复用证据的边界 | 剩余验收与下一问题 |
 | --- | --- | --- | --- |

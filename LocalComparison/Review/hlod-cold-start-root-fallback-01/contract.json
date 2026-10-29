@@ -1,0 +1,208 @@
+{
+  "package": "hlod-cold-start-root-fallback-01",
+  "iteration": 68,
+  "state": "frozen-before-first-execution",
+  "reference": "Pro67 formal next plan; candidate Scene diff was not consulted",
+  "execution": {
+    "baselineInvocations": 1,
+    "candidateInvocations": 1,
+    "unityRuns": 0,
+    "playerRuns": 0,
+    "gpuRuns": 0,
+    "runner": "Tests/Validate-HlodTransactions.ps1",
+    "dotnet": "C:/Program Files/dotnet/dotnet.exe",
+    "targetFramework": "net8.0",
+    "expectationEnvironmentVariable": "HLGI_HLOD_COLD_START_EXPECTATION",
+    "baselineValue": "baseline",
+    "candidateValue": "candidate or unset",
+    "baselineSourceRoot": "LocalComparison/Review/hlod-cold-start-root-fallback-01/baseline-source",
+    "candidateSourceRoot": "repository root",
+    "baselineAfterColdSequence": "return; skip candidate-only exact-capacity control and original suite",
+    "candidateAfterColdSequence": "exact-capacity control, then original HlodProgram suite unchanged",
+    "firstUnexpectedResult": "stop and preserve; no retry, expansion or expectation relaxation"
+  },
+  "commonInput": {
+    "groupHelper": "original Group(33)",
+    "rootStableId": 1000,
+    "leafStableIds": "1..33",
+    "rootCenter": [
+      0,
+      0,
+      0
+    ],
+    "rootSize": [
+      12,
+      12,
+      12
+    ],
+    "leafCenterFormula": "((i % 8) - 4, (i / 8 integer) - 2, 0), i=0..32",
+    "leafSize": [
+      1,
+      1,
+      1
+    ],
+    "rootFarFieldOnly": true,
+    "revision": 1,
+    "camera": [
+      0,
+      0,
+      0
+    ],
+    "capacity": 32,
+    "nearDistance": 20,
+    "farDistance": 1000,
+    "chunkSize": 16,
+    "uploadBudget": 1
+  },
+  "coldSequence": [
+    {
+      "stage": "initial",
+      "action": "Prepare"
+    },
+    {
+      "stage": "without-receipt",
+      "action": "Prepare; no report"
+    },
+    {
+      "stage": "wrong-revision",
+      "action": "Report root revision+1 true,true,true; Prepare",
+      "reportAccepted": false
+    },
+    {
+      "stage": "lighting-not-ready",
+      "action": "Report current root true,true,false; Prepare",
+      "reportAccepted": {
+        "baseline": false,
+        "candidate": true
+      }
+    },
+    {
+      "stage": "complete-root-receipt",
+      "action": "Report current root true,true,true; Prepare",
+      "reportAccepted": {
+        "baseline": false,
+        "candidate": true
+      }
+    },
+    {
+      "stage": "root-held-capacity-blocked",
+      "action": "Prepare; no additional report"
+    }
+  ],
+  "coldExpected": {
+    "allStages": {
+      "pendingCapacity": 1,
+      "pendingUpload": 0,
+      "residentLeaves": 0
+    },
+    "baselineAllStages": {
+      "valid": 0,
+      "warming": 0,
+      "published": 0,
+      "bvhNodes": 0,
+      "rootAbsent": true
+    },
+    "candidateBeforeCompleteReceipt": {
+      "valid": 1,
+      "warming": 1,
+      "published": 0,
+      "bvhNodes": 0,
+      "rootIsSoleWarming": true,
+      "dirtyRegions": 0
+    },
+    "candidateAfterCompleteReceipt": {
+      "valid": 1,
+      "warming": 0,
+      "published": 1,
+      "bvhNodes": 1,
+      "onlyBvhLeaf": "root slot"
+    }
+  },
+  "sameSceneShrink": {
+    "mutation": "Deactivate and remove leaves 3..33 from ActiveProxies; retain leaves 1,2, root and all Prepare parameters",
+    "baselineAndCandidateUseSameActions": true,
+    "stages": [
+      {
+        "stage": "shrink-first-upload",
+        "action": "Prepare",
+        "warming": 1,
+        "pendingUpload": 1,
+        "pendingCapacity": 0
+      },
+      {
+        "stage": "shrink-second-upload",
+        "action": "Report both current leaves true,true,true (one accepted); Prepare",
+        "warming": 2,
+        "pendingUpload": 0,
+        "pendingCapacity": 0
+      },
+      {
+        "stage": "second-detail-not-ready",
+        "action": "Prepare with no new receipt",
+        "warming": 2,
+        "pendingUpload": 0,
+        "pendingCapacity": 0
+      },
+      {
+        "stage": "fitting-detail-commit",
+        "action": "Report both current leaves true,true,true (both accepted); Prepare",
+        "valid": 2,
+        "warming": 0,
+        "published": 2,
+        "bvhNodes": 3,
+        "pendingCapacity": 0,
+        "pendingUpload": 0,
+        "rootAbsent": true
+      }
+    ],
+    "beforeCommit": {
+      "baseline": {
+        "published": 0,
+        "bvhNodes": 0,
+        "rootAbsent": true
+      },
+      "candidate": {
+        "published": 1,
+        "bvhNodes": 1,
+        "onlyPublished": "root"
+      }
+    },
+    "candidateCommitRequiresRootRepresentationRemoval": true
+  },
+  "candidateOnlyExactCapacityControl": {
+    "groupHelper": "original Group(32)",
+    "capacity": 32,
+    "uploadBudget": 32,
+    "camera": "near; original Prepare helper",
+    "firstPrepare": {
+      "valid": 32,
+      "warming": 32,
+      "published": 0,
+      "bvhNodes": 0,
+      "pendingCapacity": 0,
+      "pendingUpload": 0,
+      "rootAbsent": true
+    },
+    "then": "ReportAll current true,true,true; Prepare",
+    "secondPrepare": {
+      "valid": 32,
+      "warming": 0,
+      "published": 32,
+      "bvhNodes": 63,
+      "pendingCapacity": 0,
+      "rootAbsent": true
+    }
+  },
+  "preservedControls": "Original HlodProgram control suffix unchanged: readiness/revisions, upload budget, atomic switch, cancellation, published-root plus 32-leaf capacity hold, material retention, stale geometry removal, unload/reload and nested grouping.",
+  "evidenceBoundary": "Actual Scene/Bvh/Readiness with original Unity/ComputeBuffer adapters; no GPU completion, visual coverage, convergence or streaming IO claim.",
+  "frozenHashes": {
+    "LocalComparison/Review/hlod-cold-start-root-fallback-01/baseline-source/Runtime/HybridLumenGIScene.cs": "d770cb41ba1fbc592b6bd50ec1f741aefbecf4d530f8015066731572ca1a5376",
+    "LocalComparison/Review/hlod-cold-start-root-fallback-01/baseline-source/Runtime/HybridLumenGISceneBvh.cs": "0dd488e459bee8033ac7de06d7a399151c5310ac5f5ccd18293e42be079d9ec1",
+    "LocalComparison/Review/hlod-cold-start-root-fallback-01/baseline-source/Runtime/HybridLumenGIHlodReadiness.cs": "cacac592064e13a89a8a484ff89c226f2222788f86670727fd5aca14fa77d148",
+    "LocalComparison/Review/hlod-cold-start-root-fallback-01/HlodProgram.original.cs.txt": "c377caeafefe217afde6c046908444b0bbb25ee5459262da883425476f565d22",
+    "Tests/StandaloneBvh/HlodProgram.cs.txt": "94858baa58a5203fc610094323a6b1e4474a72fd8420ca93e11b8bedea1c3d67",
+    "Tests/StandaloneBvh/UnityStubs.cs.txt": "bc7fcb6d20791f865afaebb75dd596084f1de11b11b63438a9b2a47bdb14b6dd",
+    "Tests/StandaloneBvh/SceneDependencies.cs.txt": "d96d8b91250aa2827e42eb89bd41b49a8794b632486e6f880aacf25d9916d51f",
+    "Tests/Validate-HlodTransactions.ps1": "2d63e98512eac046f4e2328c27cbe7e8f6c5a6cedce7c231526bb6e4130da323"
+  }
+}

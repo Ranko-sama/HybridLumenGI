@@ -86,6 +86,7 @@ namespace HybridLumenGI
             public readonly HashSet<int> target = new HashSet<int>();
             public float distance;
             public bool seen, initialized;
+            public bool capacityFallback; // Derived again from this Prepare's requested target.
         }
 
         private readonly List<Candidate> candidates = new List<Candidate>();
@@ -369,6 +370,12 @@ namespace HybridLumenGI
                 bool far = UseFarProxy(group.root, position, nearDistance);
                 if (far || group.details.Count == 0) group.target.Add(group.root.StableId);
                 else for (int i = 0; i < group.details.Count; i++) group.target.Add(group.details[i].StableId);
+                group.capacityFallback = group.published.Count == 0 && group.target.Count > capacity;
+                if (group.capacityFallback)
+                {
+                    group.target.Clear();
+                    group.target.Add(group.root.StableId);
+                }
                 if ((!group.initialized || !group.published.SetEquals(group.target)) && ReadyToPublish(group))
                 {
                     foreach (int id in group.published) if (!group.target.Contains(id)) representationRemoves.Add(id);
@@ -389,7 +396,9 @@ namespace HybridLumenGI
                 HlodGroup group = orderedGroups[i];
                 int extra = 0;
                 foreach (int id in group.target) if (!desired.Contains(id)) extra++;
-                if (selectedCandidates.Count + extra > capacity) { PendingCapacity++; continue; }
+                bool targetFits = selectedCandidates.Count + extra <= capacity;
+                if (group.capacityFallback || !targetFits) PendingCapacity++;
+                if (!targetFits) continue;
                 foreach (int id in group.target) AddSelected(id, group.published.Contains(id) ? 1 : 2, capacity);
             }
             for (int i = 0; i < candidates.Count; i++)

@@ -2,6 +2,8 @@
 
 本机版本已整合两轮修复：[反射率夹取与动态历史](Documentation/ReviewBrief-ParallelColorDynamics01.md)、[普通Surface视差UV](Documentation/ReviewBrief-SurfaceParallaxUv01.md)，并将静态HDR环境Cube接入完整Feature。采用并行实现／参考准备与集中复审；原逐位失败及显式数值资格调整完整保留。
 
+源码另已修复[HLOD近场冷启动的容量回退](Documentation/ReviewBrief-HlodColdStartRootFallback01.md)：细节组自身超容量且没有旧表示时，先按原就绪门控准备已有粗代理；细节恢复可容纳后仍可原子切换。这项通过实际CPU状态机对照，尚未进入下述Release67。
+
 **当前本机入口：Release67；已构建产品来源为 `2fefc097b36084e05e88653d8dff8466caf9d513`。** 后续HEAD不自动成为该EXE的产品来源。当前继续本机开发，不需要朋友交付；四项目标与十条工作流仍以[完整原计划](Documentation/OriginalDevelopmentPlan.md)为准。
 
 本机入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease67/Start-LocalRelease.cmd>)。点击窗口后，WASD平移、Q/E升降、方向键转向、R复位、Esc退出；默认常驻。导航代码沿用58，本轮实际执行同EXE的有限HDR分支，没有重复键盘验收。一次Release构建及120目标相机帧采集正常退出，23条构建警告保留；**本次首帧等待101.249秒**，仍是实际使用限制。640×360是运行配置，不是生产分辨率目标。见[67结果与边界](Documentation/ReviewBrief-CurrentLocalRelease67.md)；[Release58](<I:/Unity test/Comparison/Builds/LocalRelease58/Start-LocalRelease.cmd>)及其[巡视证据](Documentation/ReviewBrief-LocalReleaseNavigation01.md)保留回退。

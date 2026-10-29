@@ -1,0 +1,107 @@
+using HybridLumenGI;
+using UnityEngine;
+static void Require(bool condition,string message){if(!condition)throw new Exception(message);}
+static (HybridLumenGIProxy root,HybridLumenGIProxy[] children) Group(int count)
+{
+    HybridLumenGIProxy.ActiveProxies.Clear();
+    var root=new HybridLumenGIProxy{StableId=1000,FarFieldOnly=true,bounds=new Bounds(Vector3.zero,new Vector3(12,12,12))};
+    HybridLumenGIProxy.ActiveProxies.Add(root);
+    var children=new HybridLumenGIProxy[count];
+    for(int i=0;i<count;i++)
+    {
+        children[i]=new HybridLumenGIProxy{StableId=i+1,HLODParent=root,bounds=new Bounds(new Vector3((i%8)-4,(i/8)-2,0),Vector3.one)};
+        HybridLumenGIProxy.ActiveProxies.Add(children[i]);
+    }
+    return(root,children);
+}
+static void Prepare(HybridLumenGIScene s,bool far,int budget=2)=>s.Prepare(far?new Vector3(100,0,0):Vector3.zero,32,20,1000,16,budget);
+static int Slot(HybridLumenGIScene s,int id)=>Array.FindIndex(s.Data,x=>(int)x.identity.x==id&&x.identity.w>.5f);
+static void ReportAll(HybridLumenGIScene s)
+{
+    for(int i=0;i<s.Capacity;i++)if(s.Data[i].identity.w>.5f)
+        Require(s.ReportReadiness((int)s.Data[i].identity.x,(int)s.Data[i].identity.y,true,true,true),"Current receipt rejected.");
+}
+static void RootPublished(HybridLumenGIScene s,int id)
+{
+    int slot=Slot(s,id);Require(slot>=0&&s.IsPublished(slot)&&s.PublishedCount==1,"Old root representation not held.");
+    Require(s.Bvh.NodeCount==1&&s.Bvh.Nodes[0].proxySlot==slot,"Warm geometry leaked into traversal.");
+}
+var g=Group(8);
+using(var s=new HybridLumenGIScene())
+{
+    Prepare(s,true,1);Require(s.WarmingCount==1&&s.PublishedCount==0&&s.Bvh.NodeCount==0,"Initial representation published before readiness.");
+    Require(s.DirtyRegions.Count==0,"Pure warm-up invalidated the live world's caches.");
+    Require(!s.ReportReadiness(g.root.StableId,g.root.Revision+1,true,true,true),"Stale/wrong generation accepted.");
+    s.ReportReadiness(g.root.StableId,g.root.Revision,true,true,false);Prepare(s,true,1);
+    Require(s.PublishedCount==0,"Lighting readiness was ignored.");
+    ReportAll(s);Prepare(s,true,1);RootPublished(s,g.root.StableId);
+    for(int frame=0;frame<4;frame++)
+    {
+        Prepare(s,false,2);RootPublished(s,g.root.StableId);
+        Require(s.WarmingCount==(frame+1)*2,"Warm-up upload budget or whole-group reservation failed.");
+        ReportAll(s);
+    }
+    // A ready receipt for an older revision must not let the entire group publish.
+    int lightingSlot=Slot(s,g.children[0].StableId);g.children[0].SourceRenderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;g.children[0].Revision++;
+    Prepare(s,false,2);RootPublished(s,g.root.StableId);
+    Require(s.IsWarming(lightingSlot)&&s.LightingPolicies[lightingSlot].shadowCastingMode==0u,"Lighting-only edit removed staging geometry or failed to refresh policy.");
+    Require(!s.ReportReadiness(g.children[0].StableId,g.children[0].Revision-1,true,true,true),"Old lighting-policy receipt survived revision change.");
+    g.children[7].bounds.center+=new Vector3(.1f,0,0);g.children[7].Revision++;
+    Prepare(s,false,2);RootPublished(s,g.root.StableId);
+    Require(!s.ReportReadiness(g.children[7].StableId,g.children[7].Revision-1,true,true,true),"Old geometry revision receipt survived replacement.");
+    ReportAll(s);s.InvalidateReadiness();Prepare(s,false,2);RootPublished(s,g.root.StableId);
+    ReportAll(s);Prepare(s,false,2);
+    Require(s.PublishedCount==8&&s.WarmingCount==0&&s.Bvh.NodeCount==15,"New detail group was not atomically published.");
+    Require(Slot(s,g.root.StableId)<0,"Old root remained a duplicate occluder after commit.");
+    Require(s.DirtyRegions.Any(x=>x.StableId==g.root.StableId&&x.HasPrevious&&!x.HasCurrent),"Commit lost old representation invalidation.");
+    Require(s.DirtyRegions.All(x=>(x.Kind&HybridLumenGIScene.ChangeKind.Representation)!=0),"Pure publication was not distinguished from hard geometry edits.");
+    foreach(var child in g.children)Require(s.IsPublished(Slot(s,child.StableId)),"Partial detail publication.");
+    // Cancel a reverse transition after the root becomes ready, before publication.
+    Prepare(s,true,1);Require(s.PublishedCount==8&&s.WarmingCount==1,"Reverse transition dropped details before root ready.");
+    ReportAll(s);Prepare(s,false,1);
+    Require(s.PublishedCount==8&&s.WarmingCount==0&&Slot(s,g.root.StableId)<0,"Cancelled warm-up published or retained a stale target.");
+    Require(!s.ReportReadiness(g.root.StableId,g.root.Revision,true,true,true),"Retired staging identity accepted a receipt.");
+}
+g=Group(32);
+using(var s=new HybridLumenGIScene())
+{
+    Prepare(s,true,1);ReportAll(s);Prepare(s,true,1);
+    Prepare(s,false,32);RootPublished(s,g.root.StableId);
+    Require(s.PendingCapacity==1&&s.WarmingCount==0,"Insufficient atomic staging capacity partially replaced a group.");
+}
+g=Group(8);
+using(var s=new HybridLumenGIScene())
+{
+    Prepare(s,true,1);ReportAll(s);Prepare(s,true,1);
+    g.root.diffuse=new Color(.2f,.3f,.4f);g.root.Revision++;Prepare(s,true,1);
+    RootPublished(s,g.root.StableId);
+    Require((s.DirtyRegions.Single().Kind&HybridLumenGIScene.ChangeKind.Material)!=0,"Material-only change failed to preserve valid occlusion/classify dirtiness.");
+    Prepare(s,false,1);
+    g.root.bounds.center+=new Vector3(1,0,0);g.root.Revision++;Prepare(s,false,1);
+    Require(Slot(s,g.root.StableId)<0&&s.Bvh.NodeCount==0,"Atomicity retained stale deformed geometry as an occluder.");
+}
+// Unloaded detail proxies disappear from the active registry. A live published
+// root must survive that gap until reloaded details have fresh readiness.
+g=Group(2);
+using(var s=new HybridLumenGIScene())
+{
+    Prepare(s,true,1);ReportAll(s);Prepare(s,true,1);RootPublished(s,g.root.StableId);
+    foreach(var child in g.children){child.isActiveAndEnabled=false;HybridLumenGIProxy.ActiveProxies.Remove(child);}
+    Prepare(s,true,1);RootPublished(s,g.root.StableId);
+    foreach(var child in g.children){child.isActiveAndEnabled=true;child.Revision++;HybridLumenGIProxy.ActiveProxies.Add(child);}
+    Prepare(s,false,1);RootPublished(s,g.root.StableId);ReportAll(s);
+    Prepare(s,false,1);RootPublished(s,g.root.StableId);ReportAll(s);
+    Prepare(s,false,1);Require(s.PublishedCount==2&&Slot(s,g.root.StableId)<0,"Reload did not replace root after all detail receipts.");
+    s.Prepare(new Vector3(2000,0,0),32,20,1000,16,32);
+    Require(s.PublishedCount==0&&s.WarmingCount==0,"Leaving far field retained the group.");
+}
+// Nested authored trees flatten to root versus leaf details; intermediate HLODs never duplicate the leaves.
+g=Group(2);
+var middle=new HybridLumenGIProxy{StableId=2000,HLODParent=g.root,bounds=g.root.bounds};
+HybridLumenGIProxy.ActiveProxies.Add(middle);foreach(var child in g.children)child.HLODParent=middle;
+using(var s=new HybridLumenGIScene())
+{
+    Prepare(s,false,32);ReportAll(s);Prepare(s,false,32);
+    Require(s.PublishedCount==2&&Slot(s,middle.StableId)<0&&Slot(s,g.root.StableId)<0,"Nested group published an intermediate aggregate with its leaves.");
+}
+Console.WriteLine("PASS: actual scene HLOD source initial readiness, geometry/material/lighting gate, stale receipt rejection, budgeted warm-up with old BVH held, atomic publish without duplicate occlusion, cancellation, staging-capacity failure, material-only retention, immediate stale-geometry removal and nested root/leaf grouping. CPU receipts model ordered-queue preparation; they are not GPU fences or convergence tests.");
