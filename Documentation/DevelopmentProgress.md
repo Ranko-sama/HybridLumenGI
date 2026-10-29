@@ -1,5 +1,9 @@
 # 完整原计划推进表
 
+原计划目标3/工作流4关闭“真实Skinned尚未进入统一普通使用流程”的缺口：[同一门物体的两种形变来源](../LocalComparison/Review/skinned-unified-usage-01/result.md)现可由K切换，Space共用启停；保留可读Mesh，Skin实际经骨骼和既有BakeMesh快照管线。一次必要使用序列确认运动发布、停稳来源匹配、Feature发布及切回/关闭恢复。首尝试为零渲染的临时驱动启动失败，保留后只修初始化调用完成单次重试；产品与判据未改。Astra已采用并结束此条验证。它是样例集成，不重复计为新Skinned算法；任意Skinned配置、整体运动画质与性能仍开放，已通过公开入口构建[Release79](<I:/Unity test/Comparison/Builds/LocalRelease79/Start-LocalRelease.cmd>)并更新当前启动入口，实际使用依据保留上述Unity序列，未重复启动Player。
+
+非空灯表快速比例换色的有界评估已结束：即使相邻两张灯表呈统一RGB比例，缓存仍可能混有更早非统一灯光变化的反馈，不能据此安全重映射解析份额。没有改产品、没有运行验证，也不增加来源代次体系来挽救该候选。Release78空灯表置零不依赖这项前提，保持有效；非空表的渐进响应仍是开放限制，不改称新合同错误。
+
 原计划目标1、2/工作流2与5新增关闭一个具体动态反馈缺口：[来源分离缓存](../LocalComparison/Review/cache-source-separation-01/result.md)使当前上传解析灯表清空后，其旧多跳贡献不再继续反馈，同时保留自发光／环境来源。一次原场景前缀中，关灯前239均值不变；240→299平均逐像素绝对Y变化降低92.2%，270→299降低80.0%，接收面的反弹保留。仅支持该触发范围和观察窗口，不关闭局部换色、整体颜色准确度、运动拖影或准确收敛帧数。缓存项80→96B，存储增加20%；实际带宽和时间增量未测。Astra已同意有限采用；本条验证结束，不追加运行。已用公开入口和保存统一场景构建[Release78](<I:/Unity test/Comparison/Builds/LocalRelease78/Start-LocalRelease.cmd>)，新缓存能力进入普通可运行交付；0错误/23条warning。按必要性判断未重复启动Player或采集图片，当前运行证据来自上述完整Unity Feature前缀。
 
 原计划目标4/工作流10关闭“只有资源估算、缺少驱动进程内存观察能力”的缺口：[Release77](<I:/Unity test/Comparison/Builds/LocalRelease77/Start-LocalRelease.cmd>)通过现有可选DX12插件，按Unity实际适配器查询本进程local/nonlocal用量和OS预算；统一示例默认关闭，可在原面板开启并由既有ledger导出当前值、采样窗口与峰值。它不改变光传输/更新预算。普通Player已实际开启显示、导出并正常退出，详见[用法和有限结果](GpuBudget.md#驱动层进程显存观察)。采样峰值不等于瞬时峰值，OS预算不是产品目标；设备恢复、长时/压力、峰值验收和G5仍开放。之前只读功能筛选未发现可立项故障，已结束，没有扩查或新增验证体系。

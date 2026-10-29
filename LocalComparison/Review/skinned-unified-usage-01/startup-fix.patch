@@ -1,0 +1,11 @@
+--- initial/SkinnedSampleUsage.cs
++++ retry/SkinnedSampleUsage.cs
+@@ -56,7 +56,7 @@
+         try
+         {
+             Require(result.requests<600&&Time.realtimeSinceStartupAsDouble-began<600,"Bounded usage window exhausted.");
+-            if(RenderPipelineManager.currentPipeline==null)return;
++            if(!RenderPipeline.SupportsRenderRequest(cameraSource,new RenderPipeline.StandardRequest{destination=target}))return;
+             insideRequest=true;
+             try { RenderPipeline.SubmitRenderRequest(cameraSource,new RenderPipeline.StandardRequest{destination=target}); }
+             finally { insideRequest=false; }

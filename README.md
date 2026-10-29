@@ -2,9 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release78](<I:/Unity test/Comparison/Builds/LocalRelease78/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；新增可手动开启的进程显存观察，默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release79](<I:/Unity test/Comparison/Builds/LocalRelease79/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；新增可手动开启的进程显存观察，默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
 
-Release78 新增[按来源分离的缓存关灯响应](LocalComparison/Review/cache-source-separation-01/result.md)：当前上传的解析灯表为空时，移除其旧多跳贡献，保留自发光／环境贡献。沿用统一交互及默认关闭的[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)，保留此前屏幕历史、缓存首次可信更新和面积光冗余计算修复。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release78 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
+Release79 为同一门物体增加[真实 Skinned 骨骼形变模式](LocalComparison/Review/skinned-unified-usage-01/result.md)，保留可读网格模式；沿用 Release78 的[按来源分离的缓存关灯响应](LocalComparison/Review/cache-source-separation-01/result.md)：当前上传的解析灯表为空时，移除其旧多跳贡献，保留自发光／环境贡献。沿用统一交互及默认关闭的[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)，保留此前屏幕历史、缓存首次可信更新和面积光冗余计算修复。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release79 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
 
 ## 使用统一示例
 
@@ -16,10 +16,11 @@ Release78 新增[按来源分离的缓存关灯响应](LocalComparison/Review/ca
 | 近景／远景／离开分页范围 | 1 或 R ／ 2 ／ 3 |
 | 软件／DXR 偏好 | 4 ／ 5 |
 | 墙面换色／灯光开关／门运动 | C ／ L ／ M |
-| 形变启停／分页组释放与重载 | 空格 ／ B |
+| 形变启停／切换网格与骨骼来源 | 空格 ／ K |
+| 分页组释放与重载 | B |
 | 隐藏面板／退出 | F1 ／ Esc |
 
-实际后端以面板诊断为准，选择 DXR 偏好不保证硬件路径被采用。关灯仍保留发光面；停止形变后，异步 GI 快照可能继续追上可见网格。当前窗口为 960×540，不是生产分辨率目标。
+实际后端以面板诊断为准，选择 DXR 偏好不保证硬件路径被采用。关灯仍保留发光面；停止形变后，异步 GI 快照可能继续追上可见网格。骨骼模式复用现有快照流程，K可切回原网格模式；两种形变均不修改物理碰撞体。当前窗口为 960×540，不是生产分辨率目标。
 
 点击面板的 **Memory: off** 开启本进程 local/nonlocal 显存用量、OS预算及采样峰值；**Log ledger** 同时导出到Player日志。缺失或旧原生DLL会显示不可用，不影响GI。数据不是GI独占、整机用量或绝对瞬时峰值，也不改变更新配额。
 

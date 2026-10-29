@@ -17,6 +17,10 @@ namespace HybridLumenGI
         private float yaw, pitch, doorTime;
         private bool initialized, closed, showControls = true;
         private MeshFilter filter;
+        private MeshRenderer meshRenderer;
+        private bool originalRendererEnabled;
+        private HybridLumenGIProxy deformationProxy;
+        private HybridLumenGIUnifiedSampleSkin skin;
         private Mesh originalMesh, producer;
         private HybridLumenGIDeformedMesh deformation;
         private Vector3[] originalPositions, originalNormals, positions, normals;
@@ -26,7 +30,9 @@ namespace HybridLumenGI
         public bool LightsEnabled { get; private set; } = true;
         public bool DoorMoving { get; private set; }
         public bool DeformationRunning { get; private set; }
+        public bool SkinnedDeformation { get; private set; }
         public float Shear { get; private set; }
+        public float BendDegrees { get; private set; }
 
         public void Configure(Camera camera, HybridLumenGIUnifiedSample controller,
             HybridLumenGIValidationMotion movingDoor, Renderer wall, Light[] sceneLights)
@@ -66,13 +72,34 @@ namespace HybridLumenGI
             if (!initialized || closed || !door || DeformationRunning == value) return;
             if (value && !producer) CreateProducer();
             DeformationRunning = value;
-            if (!value && producer) deformation.RequestCoalescedCapture(producer);
+            if (!value && producer && !SkinnedDeformation) deformation.RequestCoalescedCapture(producer);
+        }
+        public void SetSkinnedDeformation(bool value)
+        {
+            if (!initialized || closed || !door || SkinnedDeformation == value) return;
+            if (!producer) CreateProducer();
+            if (value && skin == null) skin = new HybridLumenGIUnifiedSampleSkin(meshRenderer, originalMesh);
+            if (value) skin.SetBend(BendDegrees);
+            // Withdraw the previous renderer's snapshot and cancel its worker before
+            // selecting the new source. Clearing explicitSource is essential: skin
+            // captures must use the existing automatic BakeMesh path.
+            deformation.enabled = false;
+            if (!value) ApplyMeshPose();
+            deformationProxy.SetSources(value ? skin.Renderer : meshRenderer, deformationProxy.SourceCollider);
+            deformation.RequestCapture(value ? null : producer);
+            meshRenderer.enabled = !value && originalRendererEnabled;
+            if (skin != null) skin.Renderer.enabled = value && originalRendererEnabled;
+            SkinnedDeformation = value;
+            deformation.enabled = true;
         }
         private void CreateProducer()
         {
             filter = door.GetComponent<MeshFilter>(); originalMesh = filter ? filter.sharedMesh : null;
-            if (!originalMesh || !originalMesh.isReadable || door.GetComponent<HybridLumenGIDeformedMesh>())
+            meshRenderer = door.GetComponent<MeshRenderer>(); deformationProxy = door.GetComponent<HybridLumenGIProxy>();
+            if (!originalMesh || !originalMesh.isReadable || !meshRenderer || !deformationProxy ||
+                deformationProxy.SourceRenderer != meshRenderer || door.GetComponent<HybridLumenGIDeformedMesh>())
                 throw new InvalidOperationException("The ordinary deformation example requires an owned readable static door mesh.");
+            originalRendererEnabled = meshRenderer.enabled;
             originalPositions = originalMesh.vertices; originalNormals = originalMesh.normals; originalTangents = originalMesh.tangents;
             if (originalNormals.Length != originalPositions.Length || originalTangents.Length != originalPositions.Length)
                 throw new InvalidOperationException("Door normal/tangent streams are incomplete.");
@@ -87,6 +114,13 @@ namespace HybridLumenGI
             if (DoorMoving) { doorTime += dt; door.ApplyFrame(120 + (int)(doorTime * 30f) % 120); }
             if (!DeformationRunning) return;
             deformationTime += dt; Shear = (float)(.4 * Math.Sin(Math.PI * .5 * deformationTime));
+            BendDegrees = (float)(20 * Math.Sin(Math.PI * .5 * deformationTime));
+            if (SkinnedDeformation) { skin.SetBend(BendDegrees); return; }
+            ApplyMeshPose();
+            deformation.RequestCoalescedCapture(producer);
+        }
+        private void ApplyMeshPose()
+        {
             for (int i = 0; i < positions.Length; i++)
             {
                 Vector3 p = originalPositions[i], n = originalNormals[i]; Vector4 t = originalTangents[i];
@@ -96,7 +130,6 @@ namespace HybridLumenGI
                 tangents[i] = new Vector4(tangent.x, tangent.y, tangent.z, t.w);
             }
             producer.vertices = positions; producer.normals = normals; producer.tangents = tangents; producer.RecalculateBounds();
-            deformation.RequestCoalescedCapture(producer);
         }
         private void Update()
         {
@@ -115,6 +148,7 @@ namespace HybridLumenGI
                 if (Input.GetKeyDown(KeyCode.L)) SetLightsEnabled(!LightsEnabled);
                 if (Input.GetKeyDown(KeyCode.M)) SetDoorMoving(!DoorMoving);
                 if (Input.GetKeyDown(KeyCode.Space)) SetDeformationRunning(!DeformationRunning);
+                if (Input.GetKeyDown(KeyCode.K)) SetSkinnedDeformation(!SkinnedDeformation);
                 if (Input.GetKeyDown(KeyCode.B)) sample.enabled = !sample.enabled;
                 // Buttons can teleport the camera between Updates; read its current orientation before keyboard rotation.
                 SyncAngles(); yaw += Keys(KeyCode.RightArrow, KeyCode.LeftArrow) * 90f * dt;
@@ -135,10 +169,11 @@ namespace HybridLumenGI
             if (lights.Length > 0 && GUILayout.Button(LightsEnabled ? "L: lights off" : "L: lights on")) SetLightsEnabled(!LightsEnabled);
             if (door && GUILayout.Button(DoorMoving ? "M: stop door" : "M: move door")) SetDoorMoving(!DoorMoving);
             if (door && GUILayout.Button(DeformationRunning ? "Space: stop deformation" : "Space: deform door")) SetDeformationRunning(!DeformationRunning);
+            if (door && GUILayout.Button(SkinnedDeformation ? "K: use mesh" : "K: use skin")) SetSkinnedDeformation(!SkinnedDeformation);
             if (GUILayout.Button(sample.enabled ? "B: release group" : "B: reload group")) sample.enabled = !sample.enabled;
             GUILayout.EndHorizontal();
             if (lights.Length > 0) GUILayout.Label("Lights off keeps emissive surfaces.");
-            if (door) GUILayout.Label("Deformation uses asynchronous snapshots; lighting may catch up after motion stops.");
+            if (door) GUILayout.Label((SkinnedDeformation ? "Skinned bones" : "Readable mesh") + ": asynchronous snapshots; lighting may catch up after motion stops.");
             GUILayout.EndArea();
         }
         private void Close()
@@ -151,7 +186,12 @@ namespace HybridLumenGI
             if (door) door.Restore();
             // Withdraw/cancel GI snapshots before restoring and retiring the producer-owned mesh.
             if (deformation) deformation.enabled = false;
+            if (deformationProxy && (deformationProxy.SourceRenderer == meshRenderer ||
+                (skin != null && deformationProxy.SourceRenderer == skin.Renderer)))
+                deformationProxy.SetSources(meshRenderer, deformationProxy.SourceCollider);
             if (filter && producer && ReferenceEquals(filter.sharedMesh, producer)) filter.sharedMesh = originalMesh;
+            if (meshRenderer && producer) meshRenderer.enabled = originalRendererEnabled;
+            skin?.Dispose(); skin = null;
             if (producer) { Mesh owned = producer; HybridLumenGIResourceRetirement.Retire(() => Destroy(owned)); producer = null; }
         }
         private void OnDisable() => Close();

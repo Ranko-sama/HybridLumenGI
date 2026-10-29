@@ -20,4 +20,6 @@ Mesh、SDF、捕获网格和 charts 全部生成成功后，以同一不可变�
 
 69把合并请求接入了[普通可启停示例](ContinuousDeformationExample.md)。一次真实DX12运行完成256帧，运动期间11次内容不同的发布、停稳最终完整来源一致及两张可判读HDR图像；首个构建准备失败和唯一修正均保留，见[结果](ReviewBrief-ContinuousDeformationUsage01.md)。这补上单个可读生产者的原生使用证据，不补齐Skinned、逐射线GPU消费或完整动态画质。
 
+当前统一样例另外接通了真实两骨骼 Skinned 来源，同时保留原可读 Mesh 模式：`K` 切换来源，`Space` 共用启停。切换先撤回旧快照，再清除显式网格覆盖并让既有自动 `BakeMesh` 路径捕获；退出恢复作者 Renderer/mesh，临时资源沿既有退休流程释放。这是使用入口集成，没有重做形变算法。一次有限 Unity 渲染序列完成141次请求、运动中相邻发布网格出现8次顶点变化；停稳姿态为15.161499°，发布网格与真实 BakeMesh 的最大顶点差为0，Skin/Mesh 两种来源都达到 Feature 的 `Published`，旧 Skin 快照撤回与作者 mesh 恢复均成立。首个启动尝试零渲染失败及临时驱动修正保留，详见[统一样例使用结果](../LocalComparison/Review/skinned-unified-usage-01/result.md)。当前仅这一 Unity 使用范围通过，已构建并整合Release79，普通Player未另行启动；它不新增颜色、残留、无拖影或光照收敛结论，也不证明逐射线 GPU 消费或性能。
+
 `Tests/Validate-DeformedMesh.ps1` 执行实际组件与退休协调器源码，使用明确的 Unity/任务结果适配器验证发布、取消、预算、失败及退休状态。SDF/chart 数学各用既有专项验证。它们没有执行 Unity 的 BakeMesh、RenderGraph、真实 GPU fence 或实体显卡。
