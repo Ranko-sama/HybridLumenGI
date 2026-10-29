@@ -7,6 +7,7 @@ if '--steady' in sys.argv:PACKAGE=ROOT/'LocalComparison/Review/local-release-ste
 if '--integration' in sys.argv:PACKAGE=ROOT/'LocalComparison/Review/current-release-integration-01';OUT=PACKAGE/'preflight';STAGE=PACKAGE/'instrumentation'
 if '--final-image' in sys.argv:PACKAGE=ROOT/'LocalComparison/Review/current-representative-final-image-01';OUT=PACKAGE/'preflight';STAGE=PACKAGE/'instrumentation'
 if '--navigation' in sys.argv:PACKAGE=ROOT/'LocalComparison/Review/local-release-navigation-01';OUT=PACKAGE/'preflight';STAGE=PACKAGE/'instrumentation'
+if '--auxiliary' in sys.argv:PACKAGE=ROOT/'LocalComparison/Review/asset-page-auxiliary-cold-bind-01';OUT=PACKAGE/'preflight';STAGE=PACKAGE/'instrumentation'
 manifest=json.loads((STAGE/'manifest.json').read_text(encoding='utf-8'))
 sources={f['path']:(STAGE/f['prepared']).as_posix() for f in manifest['files'] if f['path'].endswith('.cs') and '/Editor/' not in f['path']}
 original=(PROJECT/'Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.rsp').read_text(encoding='utf-8-sig');lines=[];seen=set();removed=[]

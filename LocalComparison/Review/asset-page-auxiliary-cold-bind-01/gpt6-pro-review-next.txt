@@ -1,0 +1,55 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 60
+DECISION: ADOPT_FINITE_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_EVIDENCE_COMMIT
+NEXT_PACKAGE: surface-cache-failed-render-recovery-01
+
+一、接受辅助视点冷加载链，结束多视点专项
+
+允许提交本轮证据与有限执行接线，未发现提交阻断。 接受范围是该固定资源页组的“真实辅助Transform→正常距离需求→异步加载→完整绑定”，不是Additive原生IO、多相机渲染或HLOD验收。
+
+已确认 HybridLumenGI / workspace:/ / main@a11eb61，README标题为`HybridLumenGI`。已列取并读取264–269，核对实际diff、执行脚本、原始绑定收据及日志；Runtime没有改动，本层没有重跑或重新计算哈希。
+
+关键证据成立：
+
+冷状态不是人为清零。 初始化在旧手动探针首次Update前切入距离模式；第2帧再次确认六页Unloaded、零请求／预留／lease。随后唯一需求变化是`SetAdditionalObservers(auxiliary)`，没有直接调用SetRequests、Step或填入资产。主相机始终在原卸载距离外。〔PageAuxiliaryColdBind.cs:35–88、107–120〕
+
+完成依据是实际绑定，不只是Ready标志。 第11帧`complete-binding`记录六页Ready、一个请求者、四个直接lease；`ExactBindings()`检查实际mesh、材质槽、SDF／charts及SourceMesh关系和组件启用状态。两个依赖页refs为0不表示未加载，它们不是直接获取lease的四项。〔同文件`:96–104、122–126`；原始`result.json:72–94`〕
+
+末尾`collected.exactBindings=false`由`Record(status,false)`写入，没有再次求值绑定，不能解释为绑定回退；也不应覆盖原记录来消除歧义。首个构建后路径读取失败同样保留：修正的是`instrumentation/`读取根，不是产品、输入或验收断言。〔PageAuxiliaryColdBind.cs:130–139；输出266–269〕
+
+BuildReport为`Release / None`、0 errors／23 warnings；唯一Player退出0。112份产品源码、188项产物及原场景／bundle的核验有记录。但正常退出不证明全部lease已退休，绑定时的逻辑字节数也不是VRAM测量。Release58仍是用户入口，本包不是新的常驻版本。
+
+41＋59＋60累计收束多视点需求工作，不再补相同源码或原生矩阵。
+
+二、下一优先：表面缓存录制失败后的恢复
+
+已读取现已提供的Astra结项意见，并独立核对源码。下一步选择原目标1／3、工作流3／5的表面缓存恢复缺口，不是继续流式验收。
+
+SurfaceCache.RecordCapture()在录制时设置metadata ready、ReadyMask，并清除dirty；下一次`Prepare()`跳过非dirty卡。当前公共`InvalidateFailedRender()`已恢复global SDF，却没有撤销这些表面卡的录制状态。〔HybridLumenGISurfaceCache.cs:525–532、635–653；`HybridLumenGIRendererFeature.cs:293–294、1047`〕
+
+**P2条件性源码风险，尚未建立执行反例：**捕获命令已录制、随后被丢弃并进入公共失败出口；若场景保持不变，卡可能保留CPU假就绪且不再排队。不能据此声称本轮原生运行失败或已有漏光。
+
+三、最小范围与决定性验证
+
+复用现有`StandaloneSurfaceCache`的实际类、卡片构造及命令记录器，并逐字提取公共失败方法。固定一个owner、两张卡，只比较正常录制与逻辑丢弃两个独立分支；不执行整套材质／chart矩阵。
+
+先建立旧源码反例，成立后才修改两处产品：
+
+HybridLumenGISurfaceCache.cs增加窄的丢弃录制失效入口；`RendererFeature.cs`在公共失败出口调用它。优先保守失效该相机现有驻留卡，不引入逐命令追踪框架：撤销metadata ready／ReadyMask、恢复dirty、推进原规则下的卡代次、标记metadata需要重传，再由原Prepare预算重新捕获。
+
+保留tile、owner／chart映射、atlas及buffer所有权；不Dispose后重建缓存，不改材质、采样、预算或GPU退休。初始化清理状态也不能因被丢弃的录制而永久丢失。
+
+具体不确定性	最小判定与采用决定
+是否确有假就绪、无重试？	初始两卡完整录制后，执行实际公共失败出口；旧源下一Prepare仍无捕获工作，才算建立反例。正常分支作为同输入控制。
+恢复是否真正走原预算？	候选立即撤销owner就绪；固定每次一张卡的恢复预算，经过两次原捕获才重新完整就绪。核对metadata失效上传→清理／绘制→anchor→ready发布顺序。
+是否制造重复重建或资源变化？	成功分支保持原页状态且零新增捕获；恢复完成后的无变化帧回到零工作。atlas／buffer／tile身份及原失败动作不变。
+
+测试不得直接调用新增失效入口替代公共失败方法。现有适配器执行的是CPU状态与录制顺序，不是GPU像素、真正命令丢弃或原生RenderGraph catch；这条边界继续明示。
+
+额度：一次冻结基线命令、一次同输入候选命令；零Unity／Player／GPU运行。 不重跑55的SDF恢复分支，不增加故障注入矩阵。
+
+**退出条件：**旧反例成立，候选撤销假就绪并按原预算恢复，成功路径和所有权不退化，即交复核并结束。无反例、首次候选失败，或需要扩大到HLOD事务／资源生命周期重构时，保存首个分歧并停止自动扩展。
+
+四项目标、十条工作流仍开放；生产预算保持待答。导航、多视点、暗区、MC、曝光及计时调查继续关闭。
