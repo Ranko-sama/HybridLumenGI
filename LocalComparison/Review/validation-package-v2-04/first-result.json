@@ -1,0 +1,593 @@
+{
+  "status": "failed-after-first-render",
+  "host": {
+    "status": "failed",
+    "error": "Sequence status: failed",
+    "captureDirectory": "I:\\Unity test\\Comparison\\ValidationPackageV204\\capture\\20261029-145514-533a27a7fa804ae083288adb5f3397e0",
+    "legacyStatus": "failed",
+    "renderedFrames": 1,
+    "referenceDrained": true,
+    "elapsedSeconds": 186.8486328125
+  },
+  "editor": {
+    "status": "failed",
+    "error": "System.InvalidOperationException: Incomplete fixed-sequence capture: Sequence status: failed\r\n  at ValidationPackageV2Editor.Complete () [0x0004c] in I:\\Unity test\\Project\\Assets\\ValidationPackageV201\\Editor\\ValidationPackageV2Editor.cs:38 ",
+    "scene": "Assets/ValidationPackageV201/Generated/Scenes/Run/Validation.unity",
+    "restored": true
+  },
+  "run": {
+    "sequenceVersion": 1,
+    "totalLogicalFrames": 720,
+    "width": 640,
+    "height": 360,
+    "captureEvery": 30,
+    "renderedFrames": 1,
+    "capturesWritten": 1,
+    "failures": 2,
+    "backendMismatches": 0,
+    "initialGiFrame": -1,
+    "firstRenderedGiFrame": 1,
+    "firstEngineFrame": 1,
+    "status": "failed",
+    "referenceStatus": "reference-required",
+    "runLabel": "validation-v2-existing-sequence",
+    "expectedBackend": "Software",
+    "startedUtc": "2026-10-29T14:55:14.5056623Z",
+    "completedUtc": "2026-10-29T14:58:21.1334724Z",
+    "unityVersion": "6000.0.85f1",
+    "urpAssemblyVersion": "0.0.0.0",
+    "graphicsApi": "Direct3D12",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "driver": "Direct3D 12 [level 12.1]",
+    "colorSpace": "Linear",
+    "rowOrder": "GPU readback order; no CPU flip; compare only matching API/orientation",
+    "targetFormat": "R32G32B32A32_SFloat",
+    "scene": "Assets/ValidationPackageV201/Generated/Scenes/Run/Validation.unity",
+    "graphicsUVStartsAtTop": true,
+    "targetSRGB": false,
+    "featureActive": true,
+    "postProcessing": false,
+    "fog": false,
+    "ambientMode": "Flat",
+    "environmentNote": "Feature serialized fields are in feature.json. Probe/bake/other-feature contributions still need inspection in the real project.",
+    "featureSnapshot": "feature.json",
+    "lastError": "Unity Error: [HybridLumenGI] Validation receipt rejected: Missing, stale or skipped GI diagnostic counter; no backend identity can be claimed.",
+    "referencePackage": "candidate.json",
+    "explicitRequest": true,
+    "renderPath": "RenderPipeline.StandardRequest; one request per logical frame",
+    "ambientLight": {
+      "r": 0.0,
+      "g": 0.0,
+      "b": 0.0,
+      "a": 1.0
+    },
+    "ambientIntensity": 0.0,
+    "reflectionIntensity": 0.0,
+    "lightmapCount": 0,
+    "hasSkybox": false,
+    "lights": [
+      {
+        "name": "Directional",
+        "type": "Directional",
+        "shadows": "Soft",
+        "bakeType": "Realtime",
+        "color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "intensity": 1.2000000476837158,
+        "range": 10.0,
+        "spotAngle": 30.0,
+        "innerSpotAngle": 21.802080154418945,
+        "position": {
+          "x": 0.0,
+          "y": 5.0,
+          "z": -2.0
+        },
+        "rotation": {
+          "x": 0.4126005470752716,
+          "y": -0.1961609274148941,
+          "z": 0.0914713442325592,
+          "w": 0.8848246932029724
+        },
+        "enabled": true,
+        "cullingMask": -1,
+        "renderingLayerMask": 1
+      },
+      {
+        "name": "Point (toggle for invalidation)",
+        "type": "Point",
+        "shadows": "Soft",
+        "bakeType": "Realtime",
+        "color": {
+          "r": 1.0,
+          "g": 0.75,
+          "b": 0.5,
+          "a": 1.0
+        },
+        "intensity": 7.0,
+        "range": 8.0,
+        "spotAngle": 30.0,
+        "innerSpotAngle": 21.802080154418945,
+        "position": {
+          "x": -2.4000000953674316,
+          "y": 2.799999952316284,
+          "z": 2.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "enabled": true,
+        "cullingMask": -1,
+        "renderingLayerMask": 1
+      },
+      {
+        "name": "Spot (toggle for invalidation)",
+        "type": "Spot",
+        "shadows": "Soft",
+        "bakeType": "Realtime",
+        "color": {
+          "r": 0.5,
+          "g": 0.699999988079071,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "intensity": 12.0,
+        "range": 9.0,
+        "spotAngle": 55.0,
+        "innerSpotAngle": 35.0,
+        "position": {
+          "x": 2.299999952316284,
+          "y": 3.5,
+          "z": 0.5
+        },
+        "rotation": {
+          "x": 0.6427876353263855,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.7660444974899292
+        },
+        "enabled": true,
+        "cullingMask": -1,
+        "renderingLayerMask": 1
+      },
+      {
+        "name": "Behind thin wall",
+        "type": "Point",
+        "shadows": "Soft",
+        "bakeType": "Realtime",
+        "color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "intensity": 12.0,
+        "range": 5.0,
+        "spotAngle": 30.0,
+        "innerSpotAngle": 21.802080154418945,
+        "position": {
+          "x": 8.0,
+          "y": 2.0,
+          "z": 2.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "enabled": true,
+        "cullingMask": -1,
+        "renderingLayerMask": 1
+      },
+      {
+        "name": "Outside sealed room only",
+        "type": "Point",
+        "shadows": "Soft",
+        "bakeType": "Realtime",
+        "color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "intensity": 20.0,
+        "range": 10.0,
+        "spotAngle": 30.0,
+        "innerSpotAngle": 21.802080154418945,
+        "position": {
+          "x": 10.699999809265137,
+          "y": 2.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "enabled": true,
+        "cullingMask": -1,
+        "renderingLayerMask": 1
+      }
+    ],
+    "limitation": "Capture completion is not a GI quality verdict, successful Feature execution, real DXR proof or GPU performance measurement."
+  },
+  "captureReceipt": {
+    "logicalFrame": 0,
+    "engineFrame": 1,
+    "workFrame": 0,
+    "epoch": 4,
+    "cameraInstanceId": 31574,
+    "featureInstanceId": -1304,
+    "ticketId": 1,
+    "retainedBytes": 0,
+    "cameraName": "Validation Camera",
+    "status": "incomplete",
+    "error": "Before capture preparation: depth has an unsupported size/format/readback descriptor: D32_SFloat_S8_UInt",
+    "rowOrder": "top-to-bottom",
+    "beforeRecorded": false,
+    "afterRecorded": false,
+    "cameraEnded": true,
+    "readbacksCompleted": false,
+    "boundary": "same-render pre/post HLGI composite at AfterRenderingSkybox+1; before transparent rendering and subsequent URP effects, not endCamera output",
+    "nativeDiffuseFogStatus": "not-applicable",
+    "composite": {
+      "intensity": 1.0,
+      "depthThreshold": 0.014999999664723873,
+      "debug": 0,
+      "normalsOct": 0,
+      "composition": 0,
+      "invVP": {
+        "e00": 1.0264004468917847,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": -0.574285626411438,
+        "e12": 24.974998474121094,
+        "e13": -0.07789916545152664,
+        "e20": 0.0,
+        "e21": -0.05940885469317436,
+        "e22": -74.92499542236328,
+        "e23": 0.9196918606758118,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 9.989999771118164,
+        "e33": 0.009999994188547134
+      },
+      "giSize": {
+        "x": 320,
+        "y": 180
+      }
+    },
+    "samples": [
+      {
+        "signalId": "cameraBeforeHLGI",
+        "status": "uncovered",
+        "stage": "before-hlgi-composite-after-skybox",
+        "quantity": "camera-radiance",
+        "reasons": [
+          "Before capture preparation: depth has an unsupported size/format/readback descriptor: D32_SFloat_S8_UInt"
+        ],
+        "width": 640,
+        "height": 360,
+        "invalidPixels": 0,
+        "format": "rgba32f-le",
+        "rowOrder": "top-to-bottom",
+        "sourceFormat": "R32G32B32A32_SFloat",
+        "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+        "data": {
+          "file": "",
+          "sha256": ""
+        },
+        "validity": {
+          "file": "",
+          "sha256": "",
+          "format": "uint8",
+          "basis": "measurement-state"
+        }
+      },
+      {
+        "signalId": "filteredD",
+        "status": "uncovered",
+        "stage": "before-hlgi-composite-after-filter",
+        "quantity": "indirect-irradiance-over-pi",
+        "reasons": [
+          "Before capture preparation: depth has an unsupported size/format/readback descriptor: D32_SFloat_S8_UInt"
+        ],
+        "width": 320,
+        "height": 180,
+        "invalidPixels": 0,
+        "format": "rgba32f-le",
+        "rowOrder": "top-to-bottom",
+        "sourceFormat": "R16G16B16A16_SFloat",
+        "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+        "data": {
+          "file": "",
+          "sha256": ""
+        },
+        "validity": {
+          "file": "",
+          "sha256": "",
+          "format": "uint8",
+          "basis": "measurement-state"
+        }
+      }
+    ],
+    "support": [
+      {
+        "file": "",
+        "sha256": "",
+        "role": "geometry",
+        "stage": "before-hlgi-composite",
+        "sourceFormat": "R32G32B32A32_SFloat",
+        "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+        "width": 320,
+        "height": 180,
+        "invalidPixels": 0,
+        "format": "rgba32f-le",
+        "rowOrder": "top-to-bottom",
+        "validity": {
+          "file": "",
+          "sha256": "",
+          "format": "uint8",
+          "basis": "measurement-state"
+        }
+      },
+      {
+        "file": "",
+        "sha256": "",
+        "role": "material",
+        "stage": "before-hlgi-composite",
+        "sourceFormat": "R8G8B8A8_UNorm",
+        "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+        "width": 640,
+        "height": 360,
+        "invalidPixels": 0,
+        "format": "rgba32f-le",
+        "rowOrder": "top-to-bottom",
+        "validity": {
+          "file": "",
+          "sha256": "",
+          "format": "uint8",
+          "basis": "measurement-state"
+        }
+      }
+    ]
+  },
+  "candidateStatus": "incomplete",
+  "candidateReasons": [
+    "The fixed validation sequence ended before successful completion.",
+    "lighting-data-asset-decoding-not-implemented",
+    "Capture failed at frame 0: Before capture preparation: depth has an unsupported size/format/readback descriptor: D32_SFloat_S8_UInt",
+    "Missing selected frame 30",
+    "Missing selected frame 60",
+    "Missing selected frame 90",
+    "Missing selected frame 119",
+    "Missing selected frame 120",
+    "Missing selected frame 150",
+    "Missing selected frame 179",
+    "Missing selected frame 180",
+    "Missing selected frame 209",
+    "Missing selected frame 210",
+    "Missing selected frame 239",
+    "Missing selected frame 240",
+    "Missing selected frame 270",
+    "Missing selected frame 299",
+    "Missing selected frame 300",
+    "Missing selected frame 330",
+    "Missing selected frame 359",
+    "Missing selected frame 360",
+    "Missing selected frame 390",
+    "Missing selected frame 419",
+    "Missing selected frame 420",
+    "Missing selected frame 450",
+    "Missing selected frame 480",
+    "Missing selected frame 510",
+    "Missing selected frame 540",
+    "Missing selected frame 570",
+    "Missing selected frame 600",
+    "Missing selected frame 630",
+    "Missing selected frame 660",
+    "Missing selected frame 690",
+    "Missing selected frame 719"
+  ],
+  "restoration": {
+    "productFiles": 118,
+    "productMatches": true,
+    "ownedRootRemoved": true,
+    "ownedMetadataRemoved": true,
+    "protected": [
+      {
+        "path": "ProjectSettings/QualitySettings.asset",
+        "unchanged": true,
+        "restored": true
+      },
+      {
+        "path": "ProjectSettings/GraphicsSettings.asset",
+        "unchanged": true,
+        "restored": true
+      },
+      {
+        "path": "Assets/RuntimeAudit/Functional.unity",
+        "unchanged": true,
+        "restored": true
+      }
+    ],
+    "archiveDirectory": "I:\\Unity test\\Comparison\\ValidationPackageV204\\project-archive",
+    "archivedFiles": [
+      {
+        "path": "Assets/ValidationPackageV201/Editor.meta",
+        "sha256": "bd7300924be04cdc341f852a68ac8053dd50fb0d5b496d9b82aed24a16a17dce",
+        "bytes": 172
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated.meta",
+        "sha256": "d452b78254a89671989b687e623a6a6f6c30f65bf8d94c30bdfa3babf6ec6bcf",
+        "bytes": 172
+      },
+      {
+        "path": "Assets/ValidationPackageV201/ValidationPackageV2Host.cs",
+        "sha256": "d02870ca1548369078a5d12d107ee47067c40357b629209e643bde46b8b22771",
+        "bytes": 2478
+      },
+      {
+        "path": "Assets/ValidationPackageV201/ValidationPackageV2Host.cs.meta",
+        "sha256": "f873355f130d38dc9aab064729570284cf1f18d414d80436c93334fd3a4d975c",
+        "bytes": 59
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Editor/ValidationPackageV2Editor.cs",
+        "sha256": "1ac9052aad2cc9dce48bc76ca27686f977f72751295720ffc2c8e8e22c0027f6",
+        "bytes": 10399
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Editor/ValidationPackageV2Editor.cs.meta",
+        "sha256": "20509f958bda3022f74c6485806b95868ad9f72da3a1bcb4414adb40b4cc53d4",
+        "bytes": 59
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Pipeline.asset",
+        "sha256": "da10dc11987ac676a9302fe6be022e59363d3c98b0ca123c20822bc490dff4d0",
+        "bytes": 4403
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Pipeline.asset.meta",
+        "sha256": "f077f5c2cc3d45ae586596755402f66585f4d9c682cafe309c1b187e121fa855",
+        "bytes": 189
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Renderer.asset",
+        "sha256": "5ecc4c49c90602130e5fc1a2108865bb0e2a409d1d42125ff3adaae8cedfdf9e",
+        "bytes": 4278
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Renderer.asset.meta",
+        "sha256": "408734429f0c7a4168ae425a98a1dcffdf8726ca35f9a92e3b025aa8738ad45c",
+        "bytes": 189
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes.meta",
+        "sha256": "901ff45ab7a28e4d80b371b4998aa46a421601f52676e42c5898892220fdb8c5",
+        "bytes": 172
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run.meta",
+        "sha256": "99236bee24ac0a34bb4b1a0f3c25a5e3e3eb2aae38698ed510609371f9a46b4b",
+        "bytes": 172
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Black.mat",
+        "sha256": "ba0ccfaa50cb2466d53a980049f00edf65a2005ec5076866f858a7b1101a7826",
+        "bytes": 3685
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Black.mat.meta",
+        "sha256": "99a86558e5762686e71d43d35eeb240895332bc5ebf84ca0454c14aac1460e5b",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Emitter.mat",
+        "sha256": "ea25033348c946ad7d01a864013be234d92753dec9e96506347551e56bd31a16",
+        "bytes": 3699
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Emitter.mat.meta",
+        "sha256": "da0d8d14bbe4411a3162348953171ad3cfd8fd4c9ca0668b573b8d6763a486fd",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Green.mat",
+        "sha256": "8af4323705127a0e607cd9a9aa444fe943d8a20ffa61679be98ecb8e76c60238",
+        "bytes": 3709
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Green.mat.meta",
+        "sha256": "9ab8a0525ac1db5347313ab163efad377de9eea4e4530590ce1abdf9b0fad54d",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Mesh-000-SDF.asset",
+        "sha256": "7aa9dd3e816df5f703027d4792a0fa0cb11464a386494adda719877e820b9058",
+        "bytes": 263702
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Mesh-000-SDF.asset.meta",
+        "sha256": "4b26907468b9fcdc595a9ac08dd3a38a0ac6dfeef7994cf64dce5d699c865596",
+        "bytes": 189
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Mesh-000-SurfaceCharts.asset",
+        "sha256": "3a1d289ef56e9cf4fb0d64690b25b6dd694522eb0570d22cfe1c0661e2dc9a77",
+        "bytes": 10771
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Mesh-000-SurfaceCharts.asset.meta",
+        "sha256": "36e5a61b8ff6f1084ffc42f7081874ea2425b09e8e3b9459c466d40fc83457cb",
+        "bytes": 189
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Metal.mat",
+        "sha256": "f905e5e2dbe6cfb6415701b9763c42ceb84bb9db2501ef9fd5f3f73b62629a19",
+        "bytes": 3704
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Metal.mat.meta",
+        "sha256": "64b9625ce00b893bd2fcbcf045b18efd2c94853928ff32c9d678efbf1d0fa15f",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Red.mat",
+        "sha256": "0af628341fdeb61fd477078498ead522f0871bfbe695a00ee72f59d11249ed38",
+        "bytes": 3701
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Red.mat.meta",
+        "sha256": "36c495fe65682fd0334ff24e77ec960dec7ed488bebe6c5bc79578b3f25b2772",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Validation.unity",
+        "sha256": "1a890fb72042623a8adb79a78043c2442a385ca2f76e8e9a6fec7c43a1a5c366",
+        "bytes": 101159
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Validation.unity.meta",
+        "sha256": "86b0544e424b47dc197374543665fd5c11940393309533769722ec60ba519e39",
+        "bytes": 155
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/White.mat",
+        "sha256": "e080783e440d720abba17e3b34ca2352751d63bb8bf88fe9951af5ecde1da6b7",
+        "bytes": 3704
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/White.mat.meta",
+        "sha256": "b3d60568031aed1c9ef12cb0831db3fbec9326e5b75331b4bdfbb76375f5d220",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201.meta",
+        "sha256": "bb3df1a84a913ee5ac209f74383dad3e6e58cb302582881cf8b15cb41e33c528",
+        "bytes": 172
+      }
+    ]
+  },
+  "files": {
+    "candidate.json": "8228eb5fb9346127d9850b35171272ae6d1a1a415959a7f29063c8984b7ebb5a",
+    "source.json": "c92a695af093060dc9fe33ff5991e28ba69876e3d4ace2b2ef083c45615481b7",
+    "source-provenance.json": "0f9cdd42314a1a6f0c6626e7c944233115463bd8bd08fdb5e27f20a2618be672",
+    "frame-0000-capture.json": "ff8c378b88e9b72bc45261aa7a270874e2aeee9f1c3d96664d9cac6e1c913d31",
+    "run.json": "4f9e47e6b4077e93d90d872ea37774acc44f79385a398c48f82fb5e06caac084",
+    "frames.jsonl": "67526b20e412439d5064a4831a3ea73d4e75ad06448a494d5db04151f2ef075e"
+  },
+  "qualityAccepted": false,
+  "performanceCompared": false
+}

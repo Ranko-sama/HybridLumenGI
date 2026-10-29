@@ -28,6 +28,12 @@ namespace HybridLumenGI
         [SerializeField, Min(1)] private int captureEvery = 30;
         [SerializeField, Tooltip("Empty uses Application.persistentDataPath/HybridLumenGIValidation. Each run gets a new folder.")]
         private string outputRoot = "";
+        [SerializeField, Tooltip("Export source-matched HDR signals immediately before and after HLGI composition. This does not generate a reference image.")]
+        private bool exportReferencePackage;
+        [SerializeField, Tooltip("Directory containing an explicitly exported source.json and its assets. Required in Player; also avoids asset loading during an Editor capture.")]
+        private string referenceSourcePackage = "";
+        [SerializeField, Tooltip("Submit one URP StandardRequest per logical frame after the pipeline is ready. Useful for deterministic batch capture.")]
+        private bool explicitRenderRequests;
 
         [Serializable] private sealed class RunInfo
         {
@@ -38,6 +44,9 @@ namespace HybridLumenGI
             public string unityVersion, urpAssemblyVersion, graphicsApi, gpu, driver, colorSpace, rowOrder, targetFormat, scene;
             public bool graphicsUVStartsAtTop, targetSRGB, featureActive, postProcessing, fog;
             public string ambientMode, environmentNote, featureSnapshot = "feature.json", lastError;
+            public string referencePackage;
+            public bool explicitRequest;
+            public string renderPath;
             public Color ambientLight;
             public float ambientIntensity, reflectionIntensity;
             public int lightmapCount;
@@ -85,6 +94,15 @@ namespace HybridLumenGI
         private RunInfo run;
         private int logicalFrame, lastEngineFrame = -1, lastGiFrame = -1, awaitingEngineFrame;
         private bool running, rendered, closing, initialized;
+        private HybridLumenGIValidationPackage validationPackage;
+        private bool referenceFailureReported;
+        private bool submittingRequest;
+        private bool? deferredFinish;
+        private RenderPipeline.StandardRequest renderRequest;
+        public string OutputDirectory => directory;
+        public string CaptureStatus => run != null ? run.status : "not-started";
+        public int RenderedFrames => run != null ? run.renderedFrames : 0;
+        public bool ReferenceCaptureDrained => validationPackage == null || validationPackage.IsDrained;
 
         public void Configure(Camera camera, HybridLumenGIValidationMotion motion, Light[] lights,
             Transform color, Transform thin, Transform black, HybridLumenGIRendererFeature selectedFeature)
@@ -160,12 +178,23 @@ namespace HybridLumenGI
                 if (!output.Create() || output.sRGB || output.graphicsFormat != GraphicsFormat.R32G32B32A32_SFloat)
                     throw new InvalidOperationException("Could not create the exact linear RGBAFloat capture target.");
                 targetCamera.targetTexture = output; targetCamera.allowHDR = true; targetCamera.allowMSAA = false;
-                targetCamera.allowDynamicResolution = false; cameraData.renderPostProcessing = false; targetCamera.enabled = true;
+                targetCamera.allowDynamicResolution = false; cameraData.renderPostProcessing = false; targetCamera.enabled = !explicitRenderRequests;
+                renderRequest = explicitRenderRequests ? new RenderPipeline.StandardRequest { destination = output } : null;
+                if (renderRequest != null && !RenderPipeline.SupportsRenderRequest(targetCamera, renderRequest))
+                    throw new InvalidOperationException("Wait for the active URP pipeline before beginning explicit validation requests.");
                 run.targetFormat = output.graphicsFormat.ToString(); run.targetSRGB = output.sRGB; run.postProcessing = false;
+                run.explicitRequest = explicitRenderRequests;
+                run.renderPath = explicitRenderRequests ? "RenderPipeline.StandardRequest; one request per logical frame" : "Automatic camera rendering";
+                if (exportReferencePackage)
+                {
+                    validationPackage = new HybridLumenGIValidationPackage(targetCamera, feature, directory, captureEvery, referenceSourcePackage);
+                    run.referencePackage = "candidate.json";
+                }
                 var before = FindDiagnostics(); if (before != null) lastGiFrame = before.frame;
                 run.initialGiFrame = lastGiFrame;
                 logicalFrame = 0; lastEngineFrame = -1; rendered = false; running = true;
                 ApplyFrame(); WriteRun(); RenderPipelineManager.endCameraRendering += OnCameraRendered;
+                SubmitFrame();
                 Debug.Log("[HybridLumenGI] Fixed validation capture: " + directory + ". Reference images remain required; this is not a performance run.", this);
             }
             catch (Exception error) { Fail(error.Message); Finish(false); Debug.LogError("[HybridLumenGI] Validation capture could not start: " + error.Message, this); }
@@ -173,7 +202,16 @@ namespace HybridLumenGI
 
         private void Update()
         {
+            validationPackage?.Advance(Time.frameCount);
+            if (!referenceFailureReported && validationPackage != null && !string.IsNullOrEmpty(validationPackage.Failure))
+            {
+                referenceFailureReported = true;
+                Fail("Reference package export: " + validationPackage.Failure);
+                if (running) Finish(false);
+            }
             if (!running) return;
+            // BeginCapture may submit frame zero from Start in this same engine frame.
+            if (rendered && lastEngineFrame == Time.frameCount) return;
             if (!rendered)
             {
                 if (Time.frameCount > awaitingEngineFrame)
@@ -182,6 +220,27 @@ namespace HybridLumenGI
             }
             if (logicalFrame == TotalFrames - 1) { Finish(true); return; }
             logicalFrame++; rendered = false; ApplyFrame();
+            SubmitFrame();
+        }
+        private void SubmitFrame()
+        {
+            if (!running || renderRequest == null) return;
+            submittingRequest = true;
+            try
+            {
+                if (Time.frameCount != awaitingEngineFrame) throw new InvalidOperationException("Explicit request must use its frozen logical frame.");
+                RenderPipeline.SubmitRenderRequest(targetCamera, renderRequest);
+            }
+            catch (Exception error) { Fail("Explicit render request: " + error.Message); Finish(false); }
+            finally
+            {
+                submittingRequest = false;
+                if (deferredFinish.HasValue)
+                {
+                    bool complete = deferredFinish.Value; deferredFinish = null;
+                    Finish(complete);
+                }
+            }
         }
         private void ApplyFrame()
         {
@@ -191,6 +250,7 @@ namespace HybridLumenGI
             for (int i = 0; i < switchedLights.Length; i++) if (switchedLights[i] != null) switchedLights[i].enabled = lightsOn && previousLightStates[i];
             Transform view = logicalFrame < 360 ? colorView : logicalFrame < 420 ? thinWallView : blackRoomView;
             targetCamera.transform.SetPositionAndRotation(view.position, view.rotation);
+            validationPackage?.RequestFrame(logicalFrame, Time.frameCount);
         }
         private HybridLumenGIRendererFeature.CameraDiagnostics FindDiagnostics()
         {
@@ -218,12 +278,15 @@ namespace HybridLumenGI
                     frame.diagnostics = FindDiagnostics();
                     if (frame.diagnostics == null || frame.diagnostics.frame <= lastGiFrame ||
                         (lastGiFrame >= 0 && frame.diagnostics.frame != lastGiFrame + 1))
-                        throw new InvalidOperationException("Missing, stale or skipped GI diagnostic counter; no backend identity can be claimed.");
+                        throw new InvalidOperationException("Missing, stale or skipped GI diagnostic counter (previous=" + lastGiFrame +
+                            ", current=" + (frame.diagnostics != null ? frame.diagnostics.frame.ToString() : "missing") +
+                            ", logical=" + logicalFrame + ", engine=" + Time.frameCount + "); no backend identity can be claimed.");
                     frame.giFrame = frame.diagnostics.frame; lastGiFrame = frame.giFrame; frame.diagnosticFresh = true;
                     frame.reportedBackend = frame.diagnostics.hardwareBackend ? "reported-hardware" : "reported-software";
                     if (frame.diagnostics.hardwareBackend != (expectedBackend == ExpectedBackend.Hardware)) run.backendMismatches++;
                 }
                 lastEngineFrame = Time.frameCount; rendered = true; run.renderedFrames++;
+                validationPackage?.EndCamera(logicalFrame, Time.frameCount);
                 if (run.renderedFrames == 1) { run.firstEngineFrame = Time.frameCount; run.firstRenderedGiFrame = frame.giFrame; }
                 receipts.WriteLine(JsonUtility.ToJson(frame));
                 if (!IsCaptureFrame(logicalFrame, captureEvery)) return;
@@ -283,11 +346,25 @@ namespace HybridLumenGI
             catch (Exception error) { Fail("Log IO: " + error.Message); }
         }
         private void WriteRun()
-        { if (run != null) File.WriteAllText(Path.Combine(directory, "run.json"), JsonUtility.ToJson(run, true), new UTF8Encoding(false)); }
+        {
+            if (run == null) return;
+            File.WriteAllText(Path.Combine(directory, "run.json"), JsonUtility.ToJson(run, true), new UTF8Encoding(false));
+            if (closing && run.status != "running") validationPackage?.BindRunArtifacts(run.status == "completed");
+        }
         private void Finish(bool complete)
         {
+            // URP restores its original camera target after endCameraRendering.
+            // Keep that target alive until the enclosing request has returned.
+            if (submittingRequest)
+            {
+                deferredFinish = deferredFinish.HasValue ? deferredFinish.Value && complete : complete;
+                running = false;
+                return;
+            }
             if (closing) return; closing = true; running = false;
             RenderPipelineManager.endCameraRendering -= OnCameraRendered;
+            validationPackage?.Close(complete && run != null && run.failures == 0,
+                "The fixed validation sequence ended before successful completion.");
             // Each request is owned by this capture. Wait only on shutdown, never
             // between logical frames, and never release its RT before completion.
             try

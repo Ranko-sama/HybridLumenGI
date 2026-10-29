@@ -1,0 +1,55 @@
+Installed Unity CoreModule SHA256: 97336F9EF3E5E2EE8237FF84F8CE52619FAD2360E0131C1D47A31371697AFD88
+System.Boolean UnityEngine.Rendering.RenderPipeline::SupportsRenderRequest(UnityEngine.Camera,RequestData)
+IL_0000: nop
+IL_0001: ldc.i4.0
+IL_0002: stloc.0
+IL_0003: call UnityEngine.Rendering.RenderPipelineAsset UnityEngine.Rendering.GraphicsSettings::get_currentRenderPipeline()
+IL_0008: ldnull
+IL_0009: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+IL_000e: stloc.1
+IL_000f: ldloc.1
+IL_0010: brfalse.s IL_004f
+IL_0012: nop
+IL_0013: call UnityEngine.Rendering.RenderPipeline UnityEngine.Rendering.RenderPipelineManager::get_currentPipeline()
+IL_0018: ldnull
+IL_0019: ceq
+IL_001b: stloc.2
+IL_001c: ldloc.2
+IL_001d: brfalse.s IL_0033
+IL_001f: nop
+IL_0020: call UnityEngine.Rendering.RenderPipelineAsset UnityEngine.Rendering.GraphicsSettings::get_currentRenderPipeline()
+IL_0025: call System.Boolean UnityEngine.Rendering.RenderPipelineManager::TryPrepareRenderPipeline(UnityEngine.Rendering.RenderPipelineAsset)
+IL_002a: stloc.3
+IL_002b: ldloc.3
+IL_002c: call System.Void UnityEngine.Debug::Assert(System.Boolean)
+IL_0031: nop
+IL_0032: nop
+IL_0033: call UnityEngine.Rendering.RenderPipeline UnityEngine.Rendering.RenderPipelineManager::get_currentPipeline()
+IL_0038: ldnull
+IL_0039: cgt.un
+IL_003b: stloc.s V_4
+IL_003d: ldloc.s V_4
+IL_003f: brfalse.s IL_004e
+IL_0041: call UnityEngine.Rendering.RenderPipeline UnityEngine.Rendering.RenderPipelineManager::get_currentPipeline()
+IL_0046: ldarg.0
+IL_0047: ldarg.1
+IL_0048: callvirt System.Boolean UnityEngine.Rendering.RenderPipeline::IsRenderRequestSupported<RequestData>(UnityEngine.Camera,RequestData)
+IL_004d: stloc.0
+IL_004e: nop
+IL_004f: ldarg.1
+IL_0050: box RequestData
+IL_0055: isinst UnityEngine.Rendering.ObjectIdRequest
+IL_005a: ldnull
+IL_005b: cgt.un
+IL_005d: stloc.s V_5
+IL_005f: ldloc.s V_5
+IL_0061: brfalse.s IL_0067
+IL_0063: nop
+IL_0064: ldc.i4.1
+IL_0065: stloc.0
+IL_0066: nop
+IL_0067: ldloc.0
+IL_0068: stloc.s V_6
+IL_006a: br.s IL_006c
+IL_006c: ldloc.s V_6
+IL_006e: ret

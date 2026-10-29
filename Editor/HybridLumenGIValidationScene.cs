@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -14,22 +15,57 @@ namespace HybridLumenGI.Editor
         [MenuItem("Tools/Hybrid Lumen GI/Create Validation Scene Assets")]
         private static void CreateScene()
         {
+            try { CreateSceneAssets(); }
+            catch (Exception error) { Debug.LogException(error); }
+        }
+
+        /// <summary>Creates the original validation scene in a fresh Run. Null means cancellation.</summary>
+        public static string CreateSceneAssets(string rootPath = "Assets/HybridLumenGIValidation")
+        {
             Shader lit = Shader.Find("Universal Render Pipeline/Lit");
-            if (lit == null)
+            if (lit == null) throw new InvalidOperationException("Hybrid Lumen GI requires the URP Lit shader to create the validation scene.");
+            bool restoreEmptyScene = false;
+            for (int i = 0; i < SceneManager.sceneCount; i++)
             {
-                Debug.LogError("Hybrid Lumen GI requires the URP Lit shader to create the validation scene.");
-                return;
+                Scene loaded = SceneManager.GetSceneAt(i);
+                if (!string.IsNullOrEmpty(loaded.path)) continue;
+                if (SceneManager.sceneCount != 1 || loaded.isDirty || loaded.rootCount != 0)
+                    throw new InvalidOperationException("Save the unnamed scene before generating validation assets.");
+                restoreEmptyScene = true;
             }
 
-            const string rootPath = "Assets/HybridLumenGIValidation";
-            if (!AssetDatabase.IsValidFolder(rootPath)) AssetDatabase.CreateFolder("Assets", "HybridLumenGIValidation");
+            if (string.IsNullOrEmpty(rootPath) || !rootPath.StartsWith("Assets/", StringComparison.Ordinal) || rootPath.IndexOf('\\') >= 0)
+                throw new ArgumentException("Validation root must be a project-relative Assets/... folder using forward slashes.", nameof(rootPath));
+            foreach (string part in rootPath.Split('/'))
+                if (part.Length == 0 || part == "." || part == ".." || part.IndexOf(':') >= 0)
+                    throw new ArgumentException("Validation root cannot contain empty, relative or drive path segments.", nameof(rootPath));
+            int separator = rootPath.LastIndexOf('/'); string parent = rootPath.Substring(0, separator);
+            if (!AssetDatabase.IsValidFolder(parent)) throw new ArgumentException("Validation root's parent must already exist: " + parent, nameof(rootPath));
+            if (!AssetDatabase.IsValidFolder(rootPath))
+            {
+                if (string.IsNullOrEmpty(AssetDatabase.CreateFolder(parent, rootPath.Substring(separator + 1))) || !AssetDatabase.IsValidFolder(rootPath))
+                    throw new InvalidOperationException("Could not create validation root " + rootPath);
+            }
             string folder = AssetDatabase.GenerateUniqueAssetPath(rootPath + "/Run");
-            AssetDatabase.CreateFolder(rootPath, folder.Substring(rootPath.Length + 1));
+            if (string.IsNullOrEmpty(AssetDatabase.CreateFolder(rootPath, folder.Substring(rootPath.Length + 1))) || !AssetDatabase.IsValidFolder(folder))
+                throw new InvalidOperationException("Could not create unique validation Run " + folder);
             Scene previous = SceneManager.GetActiveScene();
-            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+            Scene scene = default;
+            bool complete = false;
             try
             {
+                scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, restoreEmptyScene ? NewSceneMode.Single : NewSceneMode.Additive);
                 SceneManager.SetActiveScene(scene);
+                // New empty scenes can still expose Unity's built-in lighting-data asset.
+                // Give this Run an explicit realtime-only source instead of inheriting
+                // default bake settings or clearing another loaded scene's lighting.
+                var lighting = new LightingSettings { name = "Validation realtime only", bakedGI = false, realtimeGI = false };
+                AssetDatabase.CreateAsset(lighting, folder + "/LightingSettings.asset");
+                Lightmapping.SetLightingSettingsForScene(scene, lighting);
+                Lightmapping.SetLightingDataAssetForScene(scene, null);
+                if (Lightmapping.GetLightingDataAssetForScene(scene) != null ||
+                    Lightmapping.GetLightingSettingsForScene(scene) != lighting)
+                    throw new InvalidOperationException("Could not establish explicit unbaked validation lighting.");
                 RenderSettings.ambientMode = AmbientMode.Flat;
                 RenderSettings.ambientLight = Color.black;
                 RenderSettings.ambientIntensity = 0f;
@@ -115,21 +151,124 @@ namespace HybridLumenGI.Editor
                 HybridLumenGIRendererFeature selectedFeature = features.Length == 1 ? features[0] : null;
                 root.AddComponent<HybridLumenGIValidationSequence>().Configure(camera, motion,
                     new[] { sun, point, spot, thinLight, outsideLight }, colorView, thinView, blackView, selectedFeature);
+                int bakedMeshes = BakeAndBind(root, folder);
                 string scenePath = folder + "/Validation.unity";
                 EditorSceneManager.MarkSceneDirty(scene);
                 if (!EditorSceneManager.SaveScene(scene, scenePath)) throw new InvalidOperationException("Could not save " + scenePath);
                 AssetDatabase.SaveAssets();
                 Debug.Log("Created " + scenePath + ". Open this scene alone; assign the camera's actual HybridLumenGIRendererFeature on Validation Sequence. " +
-                    "Prepare Mesh Distance Field / Surface Charts assets before the intended backend test. Configure mode/backend in the renderer asset, then enter Play for 720 logical frames. " +
+                    "Baked and bound 32-cubed Mesh Distance Field / Surface Charts assets for " + bakedMeshes + " unique source mesh(es). " +
+                    "Configure mode/backend in the renderer asset, then enter Play for 720 logical frames. " +
                     "See Documentation/ValidationSequence.md: no reference images or Unity acceptance results are supplied.");
                 Selection.activeObject = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
+                complete = true;
+                return scenePath;
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.Log("Hybrid Lumen GI validation scene bake cancelled; this new Run is discarded.");
+                return null;
             }
             finally
             {
-                if (previous.IsValid() && previous.isLoaded) SceneManager.SetActiveScene(previous);
-                if (scene.IsValid() && scene.isLoaded) EditorSceneManager.CloseScene(scene, true);
+                EditorUtility.ClearProgressBar();
+                try
+                {
+                    if (restoreEmptyScene) EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                    else if (previous.IsValid() && previous.isLoaded) SceneManager.SetActiveScene(previous);
+                }
+                finally
+                {
+                    try { if (scene.IsValid() && scene.isLoaded) EditorSceneManager.CloseScene(scene, true); }
+                    finally
+                    {
+                        // This path is the fresh GenerateUniqueAssetPath folder created
+                        // above. Existing Runs and the user's previous scene are untouched.
+                        if (!complete && AssetDatabase.IsValidFolder(folder) && !AssetDatabase.DeleteAsset(folder))
+                            Debug.LogError("Could not remove failed validation assets at " + folder + "; generation did not complete.");
+                    }
+                }
             }
         }
+
+        private sealed class BakedMesh
+        {
+            internal HybridLumenGIMeshSdf sdf;
+            internal HybridLumenGISurfaceCharts charts;
+        }
+
+        private static int BakeAndBind(GameObject root, string folder)
+        {
+            var proxies = root.GetComponentsInChildren<HybridLumenGIProxy>(true);
+            var baked = new Dictionary<Mesh, BakedMesh>();
+            if (proxies.Length == 0) throw new InvalidOperationException("The generated scene has no mesh proxies.");
+            foreach (var proxy in proxies)
+            {
+                Mesh mesh = proxy.SourceMesh;
+                if (!(proxy.SourceRenderer is MeshRenderer) || mesh == null || !mesh.isReadable)
+                    throw new InvalidOperationException("Generated validation proxy needs a readable static mesh: " + proxy.name);
+                if (!baked.ContainsKey(mesh)) baked.Add(mesh, BakeMesh(mesh, folder, baked.Count));
+            }
+            // No proxy receives half of a pair, nor any binding before every source
+            // bake succeeds. The scene is saved only after the complete binding pass.
+            AssetDatabase.SaveAssets();
+            foreach (var proxy in proxies)
+            {
+                Mesh mesh = proxy.SourceMesh; BakedMesh pair = baked[mesh];
+                if (!pair.sdf.IsValid || !pair.sdf.MatchesSource(mesh) || !pair.charts.IsValid || !pair.charts.MatchesSource(mesh))
+                    throw new InvalidOperationException("Generated bake no longer matches " + mesh.name);
+                proxy.SetMeshSdf(pair.sdf); proxy.SetSurfaceCharts(pair.charts);
+                if (proxy.MeshSdf != pair.sdf || proxy.SurfaceCharts != pair.charts)
+                    throw new InvalidOperationException("Generated proxy did not retain both bake bindings: " + proxy.name);
+                EditorUtility.SetDirty(proxy);
+            }
+            return baked.Count;
+        }
+
+        private static BakedMesh BakeMesh(Mesh mesh, string folder, int index)
+        {
+            const int resolution = 32;
+            Texture3D texture = null; Mesh capture = null;
+            HybridLumenGIMeshSdf sdf = null; HybridLumenGISurfaceCharts chartsAsset = null;
+            try
+            {
+                string geometry = HybridLumenGIMeshSdf.ComputeGeometryFingerprint(mesh);
+                float[] distances = HybridLumenGIMeshSdfBaker.Bake(mesh, resolution,
+                    (done, total) => ContinueBake("Hybrid GI: validation SDF", mesh.name, done, total), out Bounds bounds, out bool closed);
+                if (distances == null) throw new OperationCanceledException();
+                if (!closed) throw new InvalidOperationException("Generated validation box mesh must be watertight: " + mesh.name);
+                var charts = HybridLumenGISurfaceCharts.Bake(mesh, new HybridLumenGISurfaceCharts.BakeSettings(), out var report,
+                    (done, total) => ContinueBake("Hybrid GI: validation surface charts", mesh.name, done, total));
+                if (charts.Length == 0 || report.nonTriangleSubmeshes != 0)
+                    throw new InvalidOperationException("Generated mesh has no complete triangle chart surface: " + mesh.name);
+                capture = HybridLumenGISurfaceCharts.CreateCaptureMesh(mesh, charts);
+                texture = new Texture3D(resolution, resolution, resolution, TextureFormat.RFloat, false)
+                { name = mesh.name + "_Distance", wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+                texture.SetPixelData(distances, 0); texture.Apply(false, false);
+                sdf = ScriptableObject.CreateInstance<HybridLumenGIMeshSdf>();
+                sdf.SetBakedData(mesh, texture, bounds, resolution, closed, geometry);
+                chartsAsset = ScriptableObject.CreateInstance<HybridLumenGISurfaceCharts>();
+                chartsAsset.SetBakedData(mesh, capture, charts);
+                string prefix = folder + "/Mesh-" + index.ToString("D3");
+                AssetDatabase.CreateAsset(sdf, prefix + "-SDF.asset");
+                AssetDatabase.AddObjectToAsset(texture, sdf);
+                AssetDatabase.CreateAsset(chartsAsset, prefix + "-SurfaceCharts.asset");
+                AssetDatabase.AddObjectToAsset(capture, chartsAsset);
+                return new BakedMesh { sdf = sdf, charts = chartsAsset };
+            }
+            finally
+            {
+                // Persisted objects belong to the unique Run transaction. If any later
+                // step fails, its entire folder is removed after the temporary scene closes.
+                if (texture != null && !EditorUtility.IsPersistent(texture)) UnityEngine.Object.DestroyImmediate(texture);
+                if (capture != null && !EditorUtility.IsPersistent(capture)) UnityEngine.Object.DestroyImmediate(capture);
+                if (sdf != null && !EditorUtility.IsPersistent(sdf)) UnityEngine.Object.DestroyImmediate(sdf);
+                if (chartsAsset != null && !EditorUtility.IsPersistent(chartsAsset)) UnityEngine.Object.DestroyImmediate(chartsAsset);
+            }
+        }
+
+        private static bool ContinueBake(string title, string mesh, int done, int total)
+        { return Application.isBatchMode || !EditorUtility.DisplayCancelableProgressBar(title, mesh + ": " + (done + 1) + "/" + total, (float)done / Mathf.Max(1, total)); }
 
         private static Transform View(Transform parent, string name, Vector3 position, Vector3 lookAt)
         {

@@ -1,0 +1,16 @@
+#pragma kernel CopyDepth
+#pragma target 5.0
+
+// Observation only: preserve the exact float device depth at the same integer
+// pixel. No filtering, inverse projection, comparison, or product output write.
+Texture2D<float> _HLGI_ValidationDepth;
+RWTexture2D<float4> _HLGI_ValidationDepthCopy;
+int2 _HLGI_ValidationCopySize;
+
+[numthreads(8, 8, 1)]
+void CopyDepth(uint3 id : SV_DispatchThreadID)
+{
+    if (any(id.xy >= (uint2)_HLGI_ValidationCopySize)) return;
+    float depth = _HLGI_ValidationDepth.Load(int3(id.xy, 0));
+    _HLGI_ValidationDepthCopy[id.xy] = float4(depth, 0, 0, 1);
+}

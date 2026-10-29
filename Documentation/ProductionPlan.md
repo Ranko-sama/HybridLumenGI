@@ -2,6 +2,8 @@
 
 状态：**持续本机开发；当前入口Release73，产品来源95a3213aedef41ac6a021c0723e73343abffd748；完整生产验收尚未完成。** 更新：2026-10-29。当前入口见[README](../README.md)，[73整合记录](ReviewBrief-CurrentLocalRelease73.md)完成显式后台120帧与HDR；原48帧相机/TAA回归也已通过；用户同时游戏，本次不作性能比较。普通导航和形变Host与72一致，未重复OS按键。当前颜色反弹、变色／关灯、有限缓存反馈和遮挡恢复的独立证据见[推进表](DevelopmentProgress.md)，各自不扩大为整景质量验收。本轮不使用Codex with ChatGPT；历史外部审查仅保留当时结论。完整目标仍由[原始计划](OriginalDevelopmentPlan.md)约束，后续HEAD不改变EXE产品来源。
 
+当前源码另完成[同场景来源包、同帧合成与自动烘焙接线](ReviewBrief-ValidationSourcePackageV2.md)：118产品源、真实720帧及32采集时点的数据完整性通过，独立参考和未知覆盖仍未验收。该增量尚未替换Release73入口，后续接续同场景流式/HLOD使用。
+
 ## 当前支持范围与证据层级
 
 | 类别 | 当前合同 | 证据与边界 |

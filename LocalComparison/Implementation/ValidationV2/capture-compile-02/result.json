@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "managed",
+      "command": [
+        "I:\\Unity test\\Editor\\6000.0.85f1\\Editor\\Data\\NetCoreRuntime\\dotnet.exe",
+        "I:\\Unity test\\Editor\\6000.0.85f1\\Editor\\Data\\DotNetSdkRoslyn\\csc.dll",
+        "@C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\capture-compile-02\\capture.rsp"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "depth-copy",
+      "command": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CopyDepth",
+        "-O3",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\capture-compile-02\\CopyDepth.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIValidationCopy.compute"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "sources": {
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\Runtime\\HybridLumenGIValidationCapture.cs": "916be60235f78d1b9ec4bed61717f005b38e15a4357f4aac584001ecd4bdb97b",
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIValidationCopy.compute": "5c41e0b57c640e96bcee87fe9fc4b6d539dcd7f4b240c39274969804744eab5a",
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\capture-compile-02\\capture.rsp": "7e0378f0029c1f8062b03318aae270fae7654bdc268e4f843cbe5c258d742bea",
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\capture-compile-02\\CameraDescriptorShape.cs": "76352c893b54735eb0928bc1d1eab76cfaeb34ac6b1e4faf75aef54efcfd3356"
+  },
+  "scope": "Capture-only actual Unity6/URP17 API compile with shared CameraDescriptor shape stub; actual CopyDepth codegen. No Unity/GPU execution, no source-state/full-integration claim."
+}

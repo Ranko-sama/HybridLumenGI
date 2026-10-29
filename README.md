@@ -2,7 +2,9 @@
 
 当前整合入口为[Release73](Documentation/ReviewBrief-CurrentLocalRelease73.md)，产品来源95a3213，已加入接收面身份与URP矩阵同源修复。原48帧相机/TAA回归通过：57显露事件、561持续点，无输出违例或覆盖缺口。Release73真实Player另完成120帧及Final HDR，普通导航与形变Host沿用72；OS按键未重测。用户同时游戏，本次耗时不作性能比较。后续开发转入同场景HDR参考与合成评估能力，下文72及更早版本保留各自历史范围。
 
-完整DXR Feature已有[有限色墙参考](Documentation/ReviewBrief-FiniteWallColorReference02.md)、[变色／关灯](Documentation/ReviewBrief-FiniteWallDynamicResponse01.md)、[有限缓存反馈](Documentation/ReviewBrief-CacheFeedbackFinite02.md)和[移动遮挡恢复](Documentation/ReviewBrief-FiniteWallOcclusionResponse01.md)的独立证据，分别保留固定场景、输入与来源边界；不扩大为默认多次反弹或整体动态画质验收。[真实相机／TAA](Documentation/ReviewBrief-CameraMotionTaaResponse02.md)已完成48帧；整体覆盖仍失败，正在定位身份捕获中断。
+新增[同场景 HDR 来源包](Documentation/ReviewBrief-ValidationSourcePackageV2.md)与自动烘焙：真实720帧／32时点和来源完整性通过；独立参考与整体画质仍待，普通Player仍使用上文Release73。
+
+完整DXR Feature已有[有限色墙参考](Documentation/ReviewBrief-FiniteWallColorReference02.md)、[变色／关灯](Documentation/ReviewBrief-FiniteWallDynamicResponse01.md)、[有限缓存反馈](Documentation/ReviewBrief-CacheFeedbackFinite02.md)和[移动遮挡恢复](Documentation/ReviewBrief-FiniteWallOcclusionResponse01.md)的独立证据，分别保留固定场景、输入与来源边界；不扩大为默认多次反弹或整体动态画质验收。[相机／TAA 第二次运行](Documentation/ReviewBrief-CameraMotionTaaResponse02.md)保留覆盖失败；其身份捕获原因及原序列修复验收已由上文第三次运行收束。
 
 当前源码新增两项[颜色反弹与动态历史修复](Documentation/ReviewBrief-ColorBounceDynamicLimits01.md)：缓存连接的未知alpha覆盖不再被当成确定遮挡后重归一颜色，变化帧也始终遵守 `maxHistory=1`。两条实际HLSL消费路径已有定向WARP对照；后续[原生整合](Documentation/ReviewBrief-CurrentColorDynamicsIntegration01.md)完成真实Unity纹理168次计算／28行验证，并构建Release70；其两次隐藏运行没有相机帧，保留失败，Release69保留其当时运行基线。
 

@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "scope": "New draft source files only; not a Unity/native or full-product build",
+  "checks": [
+    {
+      "scope": "Runtime",
+      "exitCode": 0,
+      "command": [
+        "I:\\Unity test\\Editor\\6000.0.85f1\\Editor\\Data\\NetCoreRuntime\\dotnet.exe",
+        "I:\\Unity test\\Editor\\6000.0.85f1\\Editor\\Data\\DotNetSdkRoslyn\\csc.dll",
+        "@C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\source-compile-03\\Runtime.rsp"
+      ],
+      "response": {
+        "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\source-compile-03\\Runtime.rsp",
+        "sha256": "b793e3de637f7170447487601604e06ccc6087c65f1e84e984b83b2e798ed4ca"
+      },
+      "originalResponse": {
+        "file": "I:\\Unity test\\Project\\Library\\Bee\\artifacts\\1900b0aE.dag\\Assembly-CSharp.rsp",
+        "sha256": "c8ba9a932690b7838a6c5e4eb19b40c44ad384dcaa3af877f4532b9610c2a9fb"
+      },
+      "sources": [
+        {
+          "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\Runtime\\HybridLumenGIValidationSourceData.cs",
+          "sha256": "92f3a74f10661542c3d551cfc48018b0980d384d9a75886b4659047dca7f6733"
+        },
+        {
+          "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\Runtime\\HybridLumenGIValidationSourceState.cs",
+          "sha256": "7528d7e078dd32197220117bf56e8caad96f98da1d2760ec1f72610bfbe43fa0"
+        }
+      ]
+    },
+    {
+      "scope": "Editor",
+      "exitCode": 0,
+      "command": [
+        "I:\\Unity test\\Editor\\6000.0.85f1\\Editor\\Data\\NetCoreRuntime\\dotnet.exe",
+        "I:\\Unity test\\Editor\\6000.0.85f1\\Editor\\Data\\DotNetSdkRoslyn\\csc.dll",
+        "@C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\source-compile-03\\Editor.rsp"
+      ],
+      "response": {
+        "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\source-compile-03\\Editor.rsp",
+        "sha256": "3736e4af7e5a9beaafc031369b4480ce223a8b04bffc04fdac1dc9fcb9c14fbb"
+      },
+      "originalResponse": {
+        "file": "I:\\Unity test\\Project\\Library\\Bee\\artifacts\\1900b0aE.dag\\Assembly-CSharp-Editor.rsp",
+        "sha256": "150162b500bc3c026c459ac22467769e7cb9ba75263cf42af34577d6f4a6a887"
+      },
+      "sources": [
+        {
+          "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Implementation\\ValidationV2\\Editor\\HybridLumenGIValidationSourceExport.cs",
+          "sha256": "04af23993c21d34f3e61c77d87d84376fd2fd91f4a06f665a0d7013dc6146830"
+        }
+      ]
+    }
+  ]
+}

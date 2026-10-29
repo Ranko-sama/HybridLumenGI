@@ -1,0 +1,405 @@
+{
+  "status": "failed-before-render",
+  "host": {
+    "status": "failed",
+    "error": "Sequence status: failed",
+    "captureDirectory": "I:\\Unity test\\Comparison\\ValidationPackageV203\\capture\\20261029-145102-c5f84bcfc58b446f93101b4e08537e38",
+    "legacyStatus": "failed",
+    "renderedFrames": 0,
+    "referenceDrained": true,
+    "elapsedSeconds": 0.3164776563644409
+  },
+  "editor": {
+    "status": "failed",
+    "error": "System.InvalidOperationException: Incomplete fixed-sequence capture: Sequence status: failed\r\n  at ValidationPackageV2Editor.Complete () [0x0004c] in I:\\Unity test\\Project\\Assets\\ValidationPackageV201\\Editor\\ValidationPackageV2Editor.cs:38 ",
+    "scene": "Assets/ValidationPackageV201/Generated/Scenes/Run/Validation.unity",
+    "restored": true
+  },
+  "run": {
+    "sequenceVersion": 1,
+    "totalLogicalFrames": 720,
+    "width": 640,
+    "height": 360,
+    "captureEvery": 30,
+    "renderedFrames": 0,
+    "capturesWritten": 0,
+    "failures": 1,
+    "backendMismatches": 0,
+    "initialGiFrame": -1,
+    "firstRenderedGiFrame": -1,
+    "firstEngineFrame": -1,
+    "status": "failed",
+    "referenceStatus": "reference-required",
+    "runLabel": "validation-v2-existing-sequence",
+    "expectedBackend": "Software",
+    "startedUtc": "2026-10-29T14:51:02.7148735Z",
+    "completedUtc": "2026-10-29T14:51:02.7966042Z",
+    "unityVersion": "6000.0.85f1",
+    "urpAssemblyVersion": "0.0.0.0",
+    "graphicsApi": "Direct3D12",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "driver": "Direct3D 12 [level 12.1]",
+    "colorSpace": "Linear",
+    "rowOrder": "GPU readback order; no CPU flip; compare only matching API/orientation",
+    "targetFormat": "R32G32B32A32_SFloat",
+    "scene": "Assets/ValidationPackageV201/Generated/Scenes/Run/Validation.unity",
+    "graphicsUVStartsAtTop": true,
+    "targetSRGB": false,
+    "featureActive": true,
+    "postProcessing": false,
+    "fog": false,
+    "ambientMode": "Flat",
+    "environmentNote": "Feature serialized fields are in feature.json. Probe/bake/other-feature contributions still need inspection in the real project.",
+    "featureSnapshot": "feature.json",
+    "lastError": "Lightmapping.lightingSettings is null. Please assign it to an existing asset or a new instance. ",
+    "referencePackage": "",
+    "explicitRequest": true,
+    "renderPath": "RenderPipeline.StandardRequest; one request per logical frame",
+    "ambientLight": {
+      "r": 0.0,
+      "g": 0.0,
+      "b": 0.0,
+      "a": 1.0
+    },
+    "ambientIntensity": 0.0,
+    "reflectionIntensity": 0.0,
+    "lightmapCount": 0,
+    "hasSkybox": false,
+    "lights": [
+      {
+        "name": "Directional",
+        "type": "Directional",
+        "shadows": "Soft",
+        "bakeType": "Realtime",
+        "color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "intensity": 1.2000000476837158,
+        "range": 10.0,
+        "spotAngle": 30.0,
+        "innerSpotAngle": 21.802080154418945,
+        "position": {
+          "x": 0.0,
+          "y": 5.0,
+          "z": -2.0
+        },
+        "rotation": {
+          "x": 0.4126005470752716,
+          "y": -0.1961609274148941,
+          "z": 0.0914713442325592,
+          "w": 0.8848246932029724
+        },
+        "enabled": true,
+        "cullingMask": -1,
+        "renderingLayerMask": 1
+      },
+      {
+        "name": "Point (toggle for invalidation)",
+        "type": "Point",
+        "shadows": "Soft",
+        "bakeType": "Realtime",
+        "color": {
+          "r": 1.0,
+          "g": 0.75,
+          "b": 0.5,
+          "a": 1.0
+        },
+        "intensity": 7.0,
+        "range": 8.0,
+        "spotAngle": 30.0,
+        "innerSpotAngle": 21.802080154418945,
+        "position": {
+          "x": -2.4000000953674316,
+          "y": 2.799999952316284,
+          "z": 2.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "enabled": true,
+        "cullingMask": -1,
+        "renderingLayerMask": 1
+      },
+      {
+        "name": "Spot (toggle for invalidation)",
+        "type": "Spot",
+        "shadows": "Soft",
+        "bakeType": "Realtime",
+        "color": {
+          "r": 0.5,
+          "g": 0.699999988079071,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "intensity": 12.0,
+        "range": 9.0,
+        "spotAngle": 55.0,
+        "innerSpotAngle": 35.0,
+        "position": {
+          "x": 2.299999952316284,
+          "y": 3.5,
+          "z": 0.5
+        },
+        "rotation": {
+          "x": 0.6427876353263855,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.7660444974899292
+        },
+        "enabled": true,
+        "cullingMask": -1,
+        "renderingLayerMask": 1
+      },
+      {
+        "name": "Behind thin wall",
+        "type": "Point",
+        "shadows": "Soft",
+        "bakeType": "Realtime",
+        "color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "intensity": 12.0,
+        "range": 5.0,
+        "spotAngle": 30.0,
+        "innerSpotAngle": 21.802080154418945,
+        "position": {
+          "x": 8.0,
+          "y": 2.0,
+          "z": 2.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "enabled": true,
+        "cullingMask": -1,
+        "renderingLayerMask": 1
+      },
+      {
+        "name": "Outside sealed room only",
+        "type": "Point",
+        "shadows": "Soft",
+        "bakeType": "Realtime",
+        "color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "intensity": 20.0,
+        "range": 10.0,
+        "spotAngle": 30.0,
+        "innerSpotAngle": 21.802080154418945,
+        "position": {
+          "x": 10.699999809265137,
+          "y": 2.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "enabled": true,
+        "cullingMask": -1,
+        "renderingLayerMask": 1
+      }
+    ],
+    "limitation": "Capture completion is not a GI quality verdict, successful Feature execution, real DXR proof or GPU performance measurement."
+  },
+  "runSha256": "34c2111add1cd4f82dca10c01b9cf01ce5a7b275eef369ebe68b13d1ee8d190f",
+  "restoration": {
+    "productFiles": 118,
+    "productMatches": true,
+    "ownedRootRemoved": true,
+    "ownedMetadataRemoved": true,
+    "protected": [
+      {
+        "path": "ProjectSettings/QualitySettings.asset",
+        "unchanged": true,
+        "restored": true
+      },
+      {
+        "path": "ProjectSettings/GraphicsSettings.asset",
+        "unchanged": true,
+        "restored": true
+      },
+      {
+        "path": "Assets/RuntimeAudit/Functional.unity",
+        "unchanged": true,
+        "restored": true
+      }
+    ],
+    "archiveDirectory": "I:\\Unity test\\Comparison\\ValidationPackageV203\\project-archive",
+    "archivedFiles": [
+      {
+        "path": "Assets/ValidationPackageV201/Editor.meta",
+        "sha256": "bd7300924be04cdc341f852a68ac8053dd50fb0d5b496d9b82aed24a16a17dce",
+        "bytes": 172
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated.meta",
+        "sha256": "d452b78254a89671989b687e623a6a6f6c30f65bf8d94c30bdfa3babf6ec6bcf",
+        "bytes": 172
+      },
+      {
+        "path": "Assets/ValidationPackageV201/ValidationPackageV2Host.cs",
+        "sha256": "d02870ca1548369078a5d12d107ee47067c40357b629209e643bde46b8b22771",
+        "bytes": 2478
+      },
+      {
+        "path": "Assets/ValidationPackageV201/ValidationPackageV2Host.cs.meta",
+        "sha256": "f873355f130d38dc9aab064729570284cf1f18d414d80436c93334fd3a4d975c",
+        "bytes": 59
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Editor/ValidationPackageV2Editor.cs",
+        "sha256": "1ac9052aad2cc9dce48bc76ca27686f977f72751295720ffc2c8e8e22c0027f6",
+        "bytes": 10399
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Editor/ValidationPackageV2Editor.cs.meta",
+        "sha256": "20509f958bda3022f74c6485806b95868ad9f72da3a1bcb4414adb40b4cc53d4",
+        "bytes": 59
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Pipeline.asset",
+        "sha256": "da10dc11987ac676a9302fe6be022e59363d3c98b0ca123c20822bc490dff4d0",
+        "bytes": 4403
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Pipeline.asset.meta",
+        "sha256": "f077f5c2cc3d45ae586596755402f66585f4d9c682cafe309c1b187e121fa855",
+        "bytes": 189
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Renderer.asset",
+        "sha256": "fbf5470e33612cdcd499f50a2a924248c6f7e295df76ad9fb4254255dd06a8b8",
+        "bytes": 4276
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Renderer.asset.meta",
+        "sha256": "408734429f0c7a4168ae425a98a1dcffdf8726ca35f9a92e3b025aa8738ad45c",
+        "bytes": 189
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes.meta",
+        "sha256": "901ff45ab7a28e4d80b371b4998aa46a421601f52676e42c5898892220fdb8c5",
+        "bytes": 172
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run.meta",
+        "sha256": "99236bee24ac0a34bb4b1a0f3c25a5e3e3eb2aae38698ed510609371f9a46b4b",
+        "bytes": 172
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Black.mat",
+        "sha256": "2a3ee2d8cbf81308203353de17f106a55487ca8fbadc62c4cc2aefc97b4cfcd6",
+        "bytes": 3686
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Black.mat.meta",
+        "sha256": "99a86558e5762686e71d43d35eeb240895332bc5ebf84ca0454c14aac1460e5b",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Emitter.mat",
+        "sha256": "dff17ac88e9d8d12675529c59f0c4732d696ba5ee790b38eaff40bb1d2010277",
+        "bytes": 3700
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Emitter.mat.meta",
+        "sha256": "da0d8d14bbe4411a3162348953171ad3cfd8fd4c9ca0668b573b8d6763a486fd",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Green.mat",
+        "sha256": "f427d0170b1b212913a37124cf7389d7b0dd806d63dba2b9b78504be767d24e2",
+        "bytes": 3709
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Green.mat.meta",
+        "sha256": "9ab8a0525ac1db5347313ab163efad377de9eea4e4530590ce1abdf9b0fad54d",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Mesh-000-SDF.asset",
+        "sha256": "97b03a76af1401678aca62a1b33ba120c9673e13bfa09b8a9bbe043536f13f16",
+        "bytes": 263704
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Mesh-000-SDF.asset.meta",
+        "sha256": "4b26907468b9fcdc595a9ac08dd3a38a0ac6dfeef7994cf64dce5d699c865596",
+        "bytes": 189
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Mesh-000-SurfaceCharts.asset",
+        "sha256": "ece51dd1ac7749de4cc827d322884eee3419c807c3b2f1152130aa6d95ba6101",
+        "bytes": 10771
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Mesh-000-SurfaceCharts.asset.meta",
+        "sha256": "36e5a61b8ff6f1084ffc42f7081874ea2425b09e8e3b9459c466d40fc83457cb",
+        "bytes": 189
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Metal.mat",
+        "sha256": "9f017b96136cf2e0501163ac67741b3b9f8d8a7c16b058af1baacebe8e201292",
+        "bytes": 3703
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Metal.mat.meta",
+        "sha256": "64b9625ce00b893bd2fcbcf045b18efd2c94853928ff32c9d678efbf1d0fa15f",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Red.mat",
+        "sha256": "cf8e9ccc9602448aa8b2731dac3f87db80b1e2b74261d616ad44003ea31c0f00",
+        "bytes": 3701
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Red.mat.meta",
+        "sha256": "36c495fe65682fd0334ff24e77ec960dec7ed488bebe6c5bc79578b3f25b2772",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Validation.unity",
+        "sha256": "0258f1a082624f53129bd1d46cb2fd394d5521f2fead58fb67b00193cfacb382",
+        "bytes": 101084
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/Validation.unity.meta",
+        "sha256": "86b0544e424b47dc197374543665fd5c11940393309533769722ec60ba519e39",
+        "bytes": 155
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/White.mat",
+        "sha256": "68f0f313c45df8abe4be556d3cb3e317104e0c03932d9ea221b3183d00713090",
+        "bytes": 3703
+      },
+      {
+        "path": "Assets/ValidationPackageV201/Generated/Scenes/Run/White.mat.meta",
+        "sha256": "b3d60568031aed1c9ef12cb0831db3fbec9326e5b75331b4bdfbb76375f5d220",
+        "bytes": 188
+      },
+      {
+        "path": "Assets/ValidationPackageV201.meta",
+        "sha256": "bb3df1a84a913ee5ac209f74383dad3e6e58cb302582881cf8b15cb41e33c528",
+        "bytes": 172
+      }
+    ]
+  },
+  "cause": "Optional lightingSettings getter throws when absent; use read-only TryGetLightingSettings."
+}

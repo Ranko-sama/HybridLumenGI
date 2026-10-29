@@ -187,7 +187,7 @@ namespace HybridLumenGI
             surfaceShader=surfaceShader!=null?surfaceShader:Resources.Load<Shader>("HybridLumenGI/HybridLumenGISurface");
             nativeDiffuseShader=nativeDiffuseShader!=null?nativeDiffuseShader:Resources.Load<Shader>("HybridLumenGI/HybridLumenGINativeDiffuseCapture");
             composite=compositeShader!=null?CoreUtils.CreateEngineMaterial(compositeShader):null;
-            pass=new TransportPass(traceCompute,composite,surfaceShader,nativeDiffuseShader,settings,()=>isActive);
+            pass=new TransportPass(traceCompute,composite,surfaceShader,nativeDiffuseShader,settings,()=>isActive,this);
         }
         public override void AddRenderPasses(ScriptableRenderer renderer,ref RenderingData renderingData)
         {
@@ -469,6 +469,7 @@ namespace HybridLumenGI
             private readonly HybridLumenGIReceiverIdentityPass receiverIdentityPass=new HybridLumenGIReceiverIdentityPass();
             private readonly Settings s;
             private readonly Func<bool> featureActive;
+            private readonly HybridLumenGIRendererFeature validationOwner;
             private int EffectiveEmissiveBudget => s.emissiveSamplingWeight>0 ? Mathf.Clamp(s.maxEmissiveProposals,0,HybridLumenGIEmissiveSampling.ProposalCapacity) : 0;
             private readonly Dictionary<int,CameraState> cameras=new Dictionary<int,CameraState>();
             private readonly List<int> retire=new List<int>();
@@ -480,11 +481,12 @@ namespace HybridLumenGI
             private bool warnedBudget,warnedComposition,admissionStopped;
             private Cubemap rejectedEnvironment;
             internal void StopAdmission()=>admissionStopped=true;
-            internal TransportPass(ComputeShader shader,Material composite,Shader surface,Shader nativeDiffuse,Settings settings,Func<bool> featureActive)
+            internal TransportPass(ComputeShader shader,Material composite,Shader surface,Shader nativeDiffuse,Settings settings,Func<bool> featureActive,HybridLumenGIRendererFeature validationOwner=null)
             {
                 software=shader; this.composite=composite; this.surface=surface;this.nativeDiffuse=nativeDiffuse;s=settings;
                 exactSoftware=Resources.Load<ComputeShader>("HybridLumenGI/HybridLumenGIExactSoftware");
                 this.featureActive=featureActive;
+                this.validationOwner=validationOwner;
                 // After scheduled depth/motion copies, before URP's AfterOpaque SSAO multiply at 450.
                 renderPassEvent=(RenderPassEvent)((int)RenderPassEvent.AfterRenderingSkybox+1);
                 ConfigureInput(ScriptableRenderPassInput.Depth|ScriptableRenderPassInput.Normal|ScriptableRenderPassInput.Motion);
@@ -891,6 +893,26 @@ namespace HybridLumenGI
                     builder.SetRenderFunc(static(Work d,UnsafeGraphContext ctx)=>d.owner.Execute(d,CommandBufferHelpers.GetNativeCommandBuffer(ctx.cmd)));
                 }
                 TextureHandle filtered=s.filterIterations<=0?work.historyWrite:(Mathf.Clamp(s.filterIterations,0,4)%2==1?work.tempA:work.tempB);
+                HybridLumenGIValidationCapture.Ticket validationTicket=null;
+                if(HybridLumenGIValidationCapture.TryClaim(camera,validationOwner,Time.frameCount,work.frame,work.epoch,
+                    cameraData.cameraTargetDescriptor,resources.isActiveTargetBackBuffer,camera.stereoEnabled,out validationTicket))
+                {
+                    validationTicket.SetCamera(HybridLumenGIValidationSourceState.CameraDescriptor.FromMatrices(
+                        view,GL.GetGPUProjectionMatrix(cameraData.GetProjectionMatrix(),true),jitter,fullW,fullH));
+                    validationTicket.SetComposite(new HybridLumenGIValidationCapture.CompositeConstants
+                    {
+                        intensity=s.indirectIntensity,depthThreshold=s.relativeDepthThreshold,debug=(int)s.debugView,
+                        normalsOct=s.normalsOctEncoded?1:0,composition=replace?1:0,invVP=work.invVP,
+                        giSize=new Vector2Int(state.width,state.height)
+                    });
+                    HybridLumenGIValidationCapture.RecordBefore(graph,validationTicket,resources.activeColorTexture,
+                        new HybridLumenGIValidationCapture.SupportTextures
+                        {
+                            filteredD=filtered,geometry=work.geometryWrite,material=diffuse,depth=work.depth,
+                            captureDepth=captureDepth,emissionValidity=emission,normals=work.normals,moments=work.momentsWrite,
+                            nativeDiffuseFog=replace?nativeDiffuseFog:default
+                        });
+                }
                 using(var builder=graph.AddRasterRenderPass<CompositeData>("HLGI Bilateral composite",out var data))
                 {
                     data.material=composite; data.state=state; data.gi=filtered; data.geometry=work.geometryWrite;
@@ -930,6 +952,8 @@ namespace HybridLumenGI
                         d.state.CompleteScreenHistory(d.historyToken,d.completedVP,d.invVP,d.completedJitter,d.completedPosition,d.completedRotation);
                     });
                 }
+                if(validationTicket!=null)
+                    HybridLumenGIValidationCapture.RecordAfter(graph,validationTicket,resources.activeColorTexture);
                 if(state.useNativeGpuTiming && state.nativeGpuTiming.CurrentFrameToken.IsValid)
                 {
                     // D3D12 ResolveQueryData is forbidden inside native render passes.

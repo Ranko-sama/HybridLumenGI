@@ -172,9 +172,9 @@ string array. Supported quantities are `camera-radiance`,
 `native-diffuse-radiance`; units are `scene-linear-radiance`. Unknown quantities or
 units remain unsupported, rather than being interpreted as equivalent RGB.
 
-Use `stage: "before-hlgi-composite"` for cameraBeforeHLGI,
+Use `stage: "before-hlgi-composite-after-skybox"` for cameraBeforeHLGI,
 `"after-hlgi-composite-before-transparents"` for cameraAfterHLGI, and
-`"after-hlgi-filter"` for filteredD. A Sequence end-camera target needs its own
+`"before-hlgi-composite-after-filter"` for filteredD. A Sequence end-camera target needs its own
 distinct stage. CameraBeforeHLGI is not "direct": it may include native diffuse
 GI, specular, emission and fog. filteredD is E/pi before receiver reflectance/AO
 and final composition. CameraAfterHLGI precedes later URP transparent/post passes.

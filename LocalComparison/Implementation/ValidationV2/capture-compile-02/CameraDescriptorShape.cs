@@ -1,0 +1,1 @@
+namespace HybridLumenGI { public static class HybridLumenGIValidationSourceState { public sealed class CameraDescriptor { public string matrixOrder,rowOrder,uvOrigin,clipDepth,pixelCenter; public float[] view,projection,jitter; public int[] viewport; public bool reversedZ; public void Validate(){} } } }

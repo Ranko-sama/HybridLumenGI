@@ -1,0 +1,34 @@
+Read-only native data audit (no reference and no physical quality PASS).
+
+python -B LocalComparison/Review/validation-package-v2-01/verify_package.py C:/new/native-output --output LocalComparison/Review/validation-package-v2-01/package-verification-first.json
+
+Input is the external -validationPackageOutput root, not its timestamped capture
+subdirectory. host-result.json identifies that subdirectory, which must remain
+inside the input root. The report path must be new and outside the input root.
+No native file is modified. Node.js must be installed, or supplied with --node.
+
+This script uses the existing compare-validation-reference.mjs for the complete
+v2 schema/source/state/camera and declared-artifact protocol. It adds:
+- Normal host/editor/run receipts, 720 ordered logical/engine/GI frames, prescribed
+  stage/light-enable flags, zero captured error/assert/exception logs.
+- Both legacy and v2 selection equal to the actual IsCaptureFrame(30) contract:
+  32 selected frames, no missing/extra/duplicate replacement frames.
+- Same-camera/Feature and engine/work/GI receipt linkage; complete before/after
+  recording and drained own readbacks; all three signals and composite supports.
+- RGBA32F sizes, all numeric values and exact uint8 mask semantics, also without
+  a reference (the reference comparator deliberately postpones RGB decoding).
+  Camera/support masks mean all four components finite. filteredD additionally
+  requires alpha>0. Unknown pixels remain explicitly uncovered, never measured
+  black or quality success. No current value is used to select a different pixel.
+- Physical source assets and separate source-provenance artifacts are hash-checked
+  separately. Presence of archived SDF/Charts files is not a live-binding proof.
+  Explicit source binding reports, if present, are reported without inventing one.
+
+Exit2 means data integrity passed but an independent reference remains required.
+Source unsupported reasons or unknown measurements are retained independently;
+they cannot be converted into physical PASS. Exit1 means capture/input integrity
+could not be established, not automatically a product rendering defect. Neither
+branch returns exit0 or passed=true. Host/editor restoration is verified as a
+receipt, not by re-reading Unity/project state. Root's execution audit owns that.
+EXR is checked only for its magic; numeric checks use the preserved RGBA32F.
+No GPU timing comparison or automatic frame/threshold extension is performed.

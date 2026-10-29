@@ -2,6 +2,8 @@
 
 当前增量：`95a3213` 已将接收面身份顶点改为 URP Lit 同源变换，删除自算 VP/M 上传；严格深度、alpha、Cull 和历史门保持。实际 [深度诊断](ReviewBrief-CameraIdentityDepthDiagnostic01.md) 已确认 275 个身份丢失均来自顶点深度不匹配，现有 CPU 合同、12 shader 入口与两程序集预编译通过，112 产品源已部署；[原 48 帧相机/TAA 验收](ReviewBrief-CameraMotionTaaResponse03.md)首次分析通过：57 显露事件、561 持续点，零输出违例和覆盖缺口。该修复已进入[Release73](ReviewBrief-CurrentLocalRelease73.md)，112产品源／189产物与真实120帧／Final HDR通过；旧Release72保持13f31ec来源。
 
+当前执行：[同场景来源包与合成接线](ReviewBrief-ValidationSourcePackageV2.md)已完成118份源码的双程序集预编译、真实720帧和32时点全部采集，20代理自动烘焙绑定，来源unsupported为空；未知间接光掩码与独立参考缺口保持。普通入口仍Release73。正在接续同场景streaming/HLOD/后端切换和动态使用，整体G0–G5未完成。
+
 后续按原计划整体依赖推进五个交付节点，局部检查完成后继续下一项：
 
 1. 收束已观测的相机身份缺陷：最小修复、原序列验收、一次版本整合；不继续扩展探索性探针。
@@ -10,7 +12,7 @@
 4. 接通同一样例的 streaming/HLOD/软件与 DXR 切换及资源计账，基于实际反例完善规模支持，推进 G4。
 5. 完成来源一致发布、CI 与迁移/支持矩阵；G5 的生产分辨率、FPS、GI 时间和总显存门槛仍需明确，当前游戏并发数据不作性能放行依据。
 
-当前执行：颜色可信性／历史限龄与引导几何修复已进入[Release72](ReviewBrief-CurrentLocalRelease72.md)，112产品源、189产物、一次真实120帧及HDR通过，产品来源13f31ec。用户同时游戏，本次121.38秒首帧不作性能比较。[相机移动／真实TAA](ReviewBrief-CameraMotionTaaResponse02.md)完成48帧，43显露点／462持续点无合格输出违例，但38/39及41–43覆盖失败，整体FAIL保留；已定位37面板与41地面的身份候选中断及历史重置，后续深度诊断及95a3213修复已在上文03回归收束。四目标、十工作流和G0–G5仍未完成。
+历史阶段记录：颜色可信性／历史限龄与引导几何修复已进入[Release72](ReviewBrief-CurrentLocalRelease72.md)，112产品源、189产物、一次真实120帧及HDR通过，产品来源13f31ec。用户同时游戏，本次121.38秒首帧不作性能比较。[相机移动／真实TAA](ReviewBrief-CameraMotionTaaResponse02.md)完成48帧，43显露点／462持续点无合格输出违例，但38/39及41–43覆盖失败，整体FAIL保留；已定位37面板与41地面的身份候选中断及历史重置，后续深度诊断及95a3213修复已在上文03回归收束。四目标、十工作流和G0–G5仍未完成。
 
 [首帧分段诊断](ReviewBrief-StartupStageProfile01.md)完成同Release71场景／shader的唯一12帧诊断Player，60事件／25CPU范围闭合，首次完成2.684秒。旧99–142秒等待未复现，不据此声称改善；最大1.985秒空档在GI合成命令记录后，GPU归因仍未知。普通Release71未替换，诊断源码保持269241b；后续引导修复属于新来源。
 
