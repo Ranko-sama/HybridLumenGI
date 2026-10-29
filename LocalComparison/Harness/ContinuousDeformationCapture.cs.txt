@@ -1,0 +1,10 @@
+    public void CaptureContinuousDeformationFrame(int frame)
+    {
+        int[] wanted={159,255};
+        if(enabled||running||!configured||run.captures>=wanted.Length||frame!=wanted[run.captures]||camera.targetTexture!=target||featureJson!=JsonUtility.ToJson(feature,true))throw new Exception("Continuous deformation capture contract changed");
+        logicalFrame=frame;
+        var f=new Frame{logicalFrame=frame,engineFrame=Time.frameCount,stage=frame==159?"motion-ending":"settled",cameraPosition=camera.transform.position,cameraRotation=camera.transform.rotation,projection=camera.projectionMatrix,doorLocalPosition=door.localPosition,
+            diagnosticsStatus="Public source and Feature receipts saved separately; no per-ray consumption or timing claim.",lights=new LightState[lights.Length]};
+        for(int i=0;i<lights.Length;i++){var l=lights[i];f.lights[i]=new LightState{name=l.name,type=l.type.ToString(),enabled=l.enabled,intensity=l.intensity,range=l.range,color=l.color,position=l.transform.position,rotation=l.transform.rotation};}
+        Capture(f);
+    }

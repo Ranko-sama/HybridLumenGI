@@ -1,0 +1,114 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 69
+DECISION: CONTINUE — 交付一个可启动／停止的连续形变示例
+PACKAGE: continuous-deformation-usage-01
+CORE_RUNTIME: 默认不修改算法或资源管理
+
+一、选择可操作Release示例，不再做一份源码夹具
+
+已确认 HybridLumenGI / workspace:/ / main@50b63c3，README标题为`HybridLumenGI`。当前仅有本包准备目录未跟踪，产品无待提交修改。已读取提案中的Astra独立判断、比较意见、完整原计划及实际接口。
+
+批准这一方向。 它把43轮的合并请求能力带到真实使用中，推进原目标3及工作流4／7／9／10；比增加门开关更直接，也不需要假定已有算法故障。现有普通入口禁用混合测试驱动、只提供相机导航，确实没有连续形变操作。〔LocalReleaseBootstrap.cs:31–51、89–121〕
+
+交付同一个普通Release：用户按空格启动／停止现有`Audit deforming occluder`的连续形变，停止后保持当前形状，并允许GI快照追上。默认暂停，原相机导航、R复位相机和Escape退出保持不变。
+
+二、最小实现与文件所有权
+所有者	范围
+实现lane	新增`LocalComparison/Harness/ContinuousDeformationExample.cs`；只负责单对象生产网格、启动／停止和自身清理。通过现有`RequestCoalescedCapture`提交，不改DeformedMesh核心。
+独立参考lane	在本包冻结变形公式、源身份、发布／停稳判据及两个图像时点；准备有限结果判读，不修改示例或公共宿主。
+根执行层	少量bootstrap／构建路由接线、当前源码部署、唯一Unity与Player进程、资产恢复、文档和git。统一交一次复核。
+
+复用`RuntimeAuditProbe.deformation`找到原对象，但继续禁用旧probe；不复制26轮的`DeformationEventTap`。已有MeshFilter网格只读保存，创建一个生产者自有、可读Mesh克隆供可见Renderer与捕获请求使用。〔DeformationEventMode.cs:23–42〕
+
+建议冻结一个简单可解析的局部剪切：
+
+𝑥
+′
+=
+𝑥
++
+𝑘
+(
+𝑡
+)
+𝑦
+,
+𝑦
+′
+=
+𝑦
+,
+𝑧
+′
+=
+𝑧
+,
+𝑘
+(
+𝑡
+)
+=
+0.4
+sin
+⁡
+(
+2
+𝜋
+𝑡
+/
+4
+)
+.
+x
+′
+=x+k(t)y,y
+′
+=y,z
+′
+=z,k(t)=0.4sin(2πt/4).
+
+始终从原始数组计算，不累计扭曲；法线按逆转置、切线按线性变换更新，UV／索引／submesh及对象Transform保持。每次主线程写完所有流和bounds，再调用`RequestCoalescedCapture(clone)`。保留现有对象的SDF分辨率、捕获间隔及共享预算，执行前核对实际场景值，不为通过而调高。
+
+停止时冻结当前系数和源数组，再提交一次最终合并请求；停止不是disable、取消在途任务或恢复原网格。这符合接口“捕获时复制、保留在途工作、合并后续需求”的语义。〔DeformedMesh.cs:155–167、243–291〕
+
+所有权不能省略
+
+示例只拥有自己的克隆和CPU数组；已发布Mesh、SDF、charts、捕获网格及worker仍由DeformedMesh管理。
+
+退出／移除示例时，先停止生产并撤销对克隆的后续捕获资格，恢复原MeshFilter引用，再按既有`HybridLumenGIResourceRetirement.Retire`延后销毁克隆。不得直接销毁系统快照，也不得在退出过程中重新启动捕获。停键本身不触发这套清理。〔DeformedMesh.cs:118–153；`DeformationEventMode.cs:77–89`〕
+
+三、一次原生确认有决策价值，但不做新矩阵
+
+43的任务适配结果不能证明这个可用入口已经接通真实Unity网格、worker发布和场景消费。因此授权：
+
+一次托管预检、一次Release／None构建、一次可见DX12 Player；最多256个目标相机帧。
+
+使用独立`LocalRelease69`目录，保留Release67。部署当前已接受产品50b63c3并记录与2fefc09的实际差异；示例／接线另记精确来源。复用67的Functional、colorView、Final／Additive及同一静态Cube定义，不调灯光、材质、曝光、滤波或预算。
+
+同一EXE默认常驻，空格调用示例的启动／停止方法。唯一验证运行通过显式有限模式调用同一方法：
+
+logical 0–31：暂停并建立初始状态。
+32–159：持续更新并提交合并请求。
+160–255：停止写入，等待最终来源追上。
+
+有限模式固定相机，旧有限模式不自动启用示例。它证明实际启动／停止逻辑，不宣称重新验证了OS按键输入；不另跑一次导航检查。
+
+只在159和255各保存一组既有HDR／PNG。复用原`Capture`和读回／清理实现，增加薄的两个时点入口即可；不启用旧720帧驱动或26轮射线观察器。
+
+四、采用判据：进展、最终一致、可判读，三者分开
+决策问题	最小证据与采用条件
+连续请求是否真正取得进展？	在运行阶段观察到至少两次不同的、捕获于运行阶段的已发布快照；记录发现变化的engine frame、快照身份及`PublishedFrame`。只增加请求次数或PendingFrame不算进展。
+停止后是否追上最终几何？	最终已发布网格的逻辑顶点／法线／切线／UV／索引与冻结的最终生产者数据对应；不能只看帧号或“Published”状态。比较逻辑内容，不因快照使用不同索引存储格式而误判。
+实际对象关联是否一致？	HasSnapshot成立，`GetSourceMesh(renderer)`、`Proxy.SourceMesh`、`MeshSdf.SourceMesh`、`SurfaceCharts.SourceMesh`指向同一发布来源；SDF／charts有效，可见Renderer仍使用示例克隆。不得由测试替换这些绑定。
+示例是否可用且输出可解释？	两份原图数据完整且实际查看；正常退出、临时工程恢复与来源核验完成。无图像或只剩日志计数，不算完成可用示例。
+
+PublishedFrame是捕获帧，不是发布发生帧。 上述来源关联也不是实际RTAS射线命中、逐像素GI消费或光照收敛证明。只保留单对象必要的源参数、快照变化及停止／最终收据，不增加逐阶段GPU读回或通用观察框架。〔DeformedMesh.cs:92–105、211–218〕
+
+五、有限出口
+
+窗口内持续发布、停稳后最终来源追上、关联一致且图像可判读，即交一次集中复核，采用可操作示例并结束。不要求每个动画帧都有对应GI快照，也不把两张图当动态画质通过。
+
+首个预检／构建／运行失败，或256帧内未达到进展／追赶条件，保留结果并停止；不延长窗口、增预算、改动画幅度或自动重跑。只有具体反例才另议核心修复。首次等待另行如实记录，不并入启动或计时调查。
+
+四项目标、十条工作流继续开放；本包交付的是实际使用能力，不是理想效果或生产完成。68不补验，暗区、MC、曝光、计时、材质和旧射线矩阵均不恢复。

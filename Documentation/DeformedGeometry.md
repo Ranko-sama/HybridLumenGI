@@ -18,4 +18,6 @@ Mesh、SDF、捕获网格和 charts 全部生成成功后，以同一不可变�
 
 字节额度包含实际来源 vertex strides、生成网格/体素及估算的 chart/BVH 工作存储；它不是 Unity/驱动分配器峰值上界。大于单帧发布额度的对象会给出明确状态，需要调高配置或拆分资产，不能宣称已更新。CPU BakeMesh 的成本、生成延迟、长时内存和动态画质需在本机 Player 中测量。
 
+69把合并请求接入了[普通可启停示例](ContinuousDeformationExample.md)。一次真实DX12运行完成256帧，运动期间11次内容不同的发布、停稳最终完整来源一致及两张可判读HDR图像；首个构建准备失败和唯一修正均保留，见[结果](ReviewBrief-ContinuousDeformationUsage01.md)。这补上单个可读生产者的原生使用证据，不补齐Skinned、逐射线GPU消费或完整动态画质。
+
 `Tests/Validate-DeformedMesh.ps1` 执行实际组件与退休协调器源码，使用明确的 Unity/任务结果适配器验证发布、取消、预算、失败及退休状态。SDF/chart 数学各用既有专项验证。它们没有执行 Unity 的 BakeMesh、RenderGraph、真实 GPU fence 或实体显卡。

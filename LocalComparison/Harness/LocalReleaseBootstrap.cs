@@ -48,6 +48,11 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
             mode.finalImage=Array.IndexOf(Environment.GetCommandLineArgs(),"-localReleaseFinalImage120")>=0;
             Require((mode.verify?1:0)+(mode.steady?1:0)+(mode.finalImage?1:0)<=1,"Select only one finite Release mode");
             mode.verify|=mode.steady||mode.finalImage;
+            if(Array.IndexOf(Environment.GetCommandLineArgs(),"-localContinuousDeformation256")>=0)
+            {
+                Require(!mode.verify,"Select only one finite Release mode");
+                ContinuousDeformationRun.Begin(capture,mode.feature);Destroy(mode);return true;
+            }
             mode.Initialize(capture);
         }
         catch(Exception e){Debug.LogError("LOCAL_RELEASE_START_FAILED "+e);Application.Quit(1);}
@@ -65,6 +70,7 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
         if(!verify)
         {
             navigationStartPosition=target.transform.position;navigationStartRotation=target.transform.rotation;
+            ContinuousDeformationExample.Create(capture,true);
             ResetNavigation();return; // Normal use has no frame counter, diagnostics polling, capture or automatic quit.
         }
         folder=Arg("-localReleaseOutput");Require(!string.IsNullOrEmpty(folder)&&Path.IsPathRooted(folder)&&!Directory.Exists(folder),"New absolute Release verification directory required");

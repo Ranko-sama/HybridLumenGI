@@ -1,12 +1,12 @@
 # 实时光传输架构与生产交付计划
 
-状态：**持续本机开发；当前本机入口及静态Final HDR为Release67，产品来源2fefc097b36084e05e88653d8dff8466caf9d513；完整生产验收尚未完成。** 更新：2026-10-29。用户不需要朋友交付。当前入口见[README](../README.md)，[67整合结果及边界](ReviewBrief-CurrentLocalRelease67.md)已获Astra和实际GPT-6 Pro有限采用，Pro读取了实际PNG。该轮实测有限HDR分支，保留58导航代码但未重做键盘验收；101.249秒首帧等待和旧58回退入口保留。完整目标仍由[原始计划](OriginalDevelopmentPlan.md)约束，后续HEAD不改变EXE产品来源。
+状态：**持续本机开发；当前入口Release69，产品来源50b63c33683ba533f01c7119f6320ad80b4f2ec6；完整生产验收尚未完成。** 更新：2026-10-29。用户不需要朋友交付。当前入口见[README](../README.md)，[69连续形变示例](ReviewBrief-ContinuousDeformationUsage01.md)已获Astra与实际Pro有限采用：同启停方法的256帧原生持续发布／最终来源追上与两张原图，不补齐整体动态画质。历史[67整合结果及边界](ReviewBrief-CurrentLocalRelease67.md)已获Astra和实际GPT-6 Pro有限采用，Pro读取了实际PNG。该轮实测有限HDR分支，保留58导航代码但未重做键盘验收；101.249秒首帧等待和旧58回退入口保留。完整目标仍由[原始计划](OriginalDevelopmentPlan.md)约束，后续HEAD不改变EXE产品来源。
 
 ## 当前支持范围与证据层级
 
 | 类别 | 当前合同 | 证据与边界 |
 | --- | --- | --- |
-| 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；Release None | [Release58](ReviewBrief-LocalReleaseNavigation01.md)普通键盘巡视、正常退出，产品7e387a5；[Release54](ReviewBrief-CurrentRepresentativeFinalImage01.md)静态120相机/GI帧及单次末帧HDR图像，产品a9292cb。[62固定移灯](ReviewBrief-LocalLightMoveResponse01.md)在7190c28完成180帧及五份IndirectOnly HDR，原FAIL与一次精确同数据补判并存；仅支持该事件的检测与空间响应。640×360仅为运行配置；58窗口图不替代54静态Final HDR，不构成完整动态GI/性能验收 |
+| 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；Release None | [Release69](ReviewBrief-ContinuousDeformationUsage01.md)可启停单网格、256帧原生发布与最终来源一致；[Release67](ReviewBrief-CurrentLocalRelease67.md)实际Feature静态Cube与Final HDR。历史[Release58](ReviewBrief-LocalReleaseNavigation01.md)普通键盘巡视、正常退出，产品7e387a5；[Release54](ReviewBrief-CurrentRepresentativeFinalImage01.md)静态120相机/GI帧及单次末帧HDR图像，产品a9292cb。[62固定移灯](ReviewBrief-LocalLightMoveResponse01.md)在7190c28完成180帧及五份IndirectOnly HDR，原FAIL与一次精确同数据补判并存；仅支持该事件的检测与空间响应。640×360仅为运行配置；58窗口图不替代54静态Final HDR，不构成完整动态GI/性能验收 |
 | 已实现、有限验证 | 不变Skinned快照复用、Additive雾衰减、局部灯变化优先调度及现有架构能力 | 分别见[复用](ReviewBrief-SkinnedUnchangedSnapshotReuse01.md)、[原生捕获依赖](ReviewBrief-SkinnedNativeCaptureBoundary01.md)、[雾合成](ReviewBrief-AdditiveFogComposition01.md)、[调度](ReviewBrief-LocalLightSchedulingPriority01.md)；源码适配器、原生依赖与完整功能验收分开，54不补齐未触发条件 |
 | 历史证据 | Release44稳态、早期软件/DXR图像、流式及动态专项 | [44的300秒窗口](ReviewBrief-LocalReleaseSteadyUse01.md)属于5120a8c；其他见[推进表](DevelopmentProgress.md)各自来源，不改旧FAIL、不改标为当前通过 |
 | 代码明确限制/拒绝 | Feature跳过非DX12、非Linear、非Base或立体相机，以及无compute/必要资源的路径；仅Game及显式允许的SceneView、Tex2D目标可进入 | [实际准入代码](../Runtime/HybridLumenGIRendererFeature.cs)；替换原生漫反射还要求普通URP Lit、Forward/Forward+、有符号HDR及MSAA关闭等，失败保留原照明，见[完整替换合同](NativeDiffuseComposition.md)。这些限制不是单纯“尚未测试” |
@@ -14,7 +14,7 @@
 
 以下架构与G0–G5条件继续保留。早期阶段叙述和朋友包只提供历史背景，不决定当前启动步骤。
 
-当前源码另新增[静态线性HDR环境Cube](EnvironmentRadiance.md)，替代常量环境并为两条间接光miss路径提供方向性Li。[63真实compute结果](ReviewBrief-StaticHdrEnvironmentCubemap01.md)支持固定方向、旧常量兼容及未知语义；实际设置序列化与原失效代码块也已检查。尚未在完整Feature/场景中运行此输入，不更新普通Release58入口或生产支持范围。
+当前源码另新增[静态线性HDR环境Cube](EnvironmentRadiance.md)，替代常量环境并为两条间接光miss路径提供方向性Li。[63真实compute结果](ReviewBrief-StaticHdrEnvironmentCubemap01.md)支持固定方向、旧常量兼容及未知语义；[67整合](ReviewBrief-CurrentLocalRelease67.md)已在完整Feature/场景中绑定此输入并取得Final HDR。固定六面工程输入不等于物理环境参考，也不扩大生产支持范围。
 
 上一阶段已修复实际阻断、完成有限 Unity/Player 检查并交付来源一致的朋友测试包。用户后来已安装 Unity，本机已运行精确软件、SDF、DXR 与材质/历史/资源页场景。基线证据见 [Unity 功能接线检查](LocalRuntimeFunctionalAudit.md)，原计划对应关系见 [九项交接表](PreFriendReadiness.md)。后续在本机处理光照正确性、动态画质、性能与资源稳定性；朋友工程集成暂不作为当前任务。
 

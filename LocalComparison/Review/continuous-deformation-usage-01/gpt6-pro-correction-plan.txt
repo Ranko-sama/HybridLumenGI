@@ -1,0 +1,54 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 69
+DECISION: CONTINUE_ONCE — 修正资产存在性检查，继续同一功能
+ALLOWANCE: 至多一次修正构建；通过后使用尚未执行的256帧Player额度
+ADOPTION: 尚未认证原生能力，不批准69结项或替换Release67
+
+一、值得继续，但不能把推测当成根因
+
+已确认 HybridLumenGI / workspace:/ / main@50b63c3，README标题为`HybridLumenGI`。已先列取再读取294／295，核对首次失败、实际Cube准备代码、源码差异、预检及恢复收据；没有修改或执行构建。
+
+失败发生在构建准备，不是连续形变运行失败。 一次托管预检中的runtime／Editor两程序集均通过；Unity随后在`SetupCurrentRelease67Cube`的冲突保护处退出，尚未进入BuildPipeline。没有69 BuildReport、Player产物或运行证据。〔preflight/exit.json；`build-unity.log:371–378`〕
+
+保护条件把文件、meta、目录、已加载资产及默认GUID查询结果合并判断，没有记录具体命中项。准备和恢复记录支持Cube文件／meta不存在，但不能据此证明失败当时必然只有GUID项为真。〔CurrentReleaseCubeSetup.cs.txt:62–65；`asset-state.json`；`asset-restoration.json`〕
+
+Unity 6000.0文档明确：默认`AssetPathToGUID`可能返回当前Editor会话中已删除资产的GUID；`OnlyExistingAssets`限定为磁盘上仍存在的资产。因此，默认GUID非空不适合作为“当前真实资产占用了路径”的独立依据。这个语义修正合理，不要求先证明本次数据库状态。
+Unity 文档
++1
+
+二、唯一功能性修正：保留所有真实资产保护
+
+只修改69包内`CurrentReleaseCubeSetup.cs.txt`的碰撞判断，将该处查询改为：
+
+C#
+AssetDatabase.AssetPathToGUID(
+    Release67CubePath,
+    AssetPathToGUIDOptions.OnlyExistingAssets)
+
+其余拒绝条件原样保留：目标文件、`.meta`、同名目录或`LoadMainAssetAtPath`返回对象，任一成立都停止。Feature身份、原环境必须为空、Cube内容、持久化／依赖核验及后续BuildReport来源检查均不变。不修改67冻结副本，也不更换资产路径来绕开冲突。
+
+允许在这一次保护检查中保存各条件的结果，供再次失败时定位；不另启Unity诊断会话，不建观察器。若已加载资产仍存在或磁盘出现真实冲突，直接停止，不能进一步忽略该条件、删除资产、清Library或强制刷新求通过。
+
+示例的`SetRunning/Advance`、独立判据、时间序列、采集方法和Runtime／Editor产品保持本次已预检字节。退出仍先撤销后续捕获、恢复原MeshFilter引用，再退休示例自有克隆；不接管系统快照。〔ContinuousDeformationExample.cs:85–109、124–157〕
+
+三、续行额度与证据保存
+
+原失败尝试不可覆盖。 保留首个build-attempt、日志、预检、准备源、manifest和恢复记录；新增同包修正尝试目录及对应源差异。新manifest准确记录唯一Editor检查修正，不能把旧预检称为覆盖了新字节。修正源由此次构建中的正常Editor编译确认，不重复runtime预检或另开资产测试包。
+
+根执行层独占Unity，按以下顺序推进：
+
+阶段	授权范围与门槛
+一次修正构建	重新确认工程已恢复、部署仍为50b63c3、输出未被占用；按原Release／None配置安装、构建、核验并在finally恢复临时输入。真实冲突不得删除后续跑。
+唯一Player运行	仅构建、来源及Cube依赖资格全部通过后执行。沿原256帧合同：0–31暂停、32–159持续请求、160–255停稳；仅159／255采集原定两组图像。
+结果处置	原生退出、来源恢复、运动期至少两次有效发布、最终几何追上、Mesh／SDF／charts关联及图像可判读均按原判据判断；不改预算、幅度、窗口或容差。
+
+现有收据支持八项临时接线、Renderer／Cube路径及历史include恢复；产品部署已保留50b63c3。续行前仍须重新核对，不能只复用旧`restored=true`作为当前状态。〔instrumentation/restoration.json；`asset-restoration.json`；`excluded-restoration.json`〕
+
+四、停止条件与累计边界
+
+修正后再次出现任一非预期失败——包括同一冲突保护、编译／构建、来源核验、运行或最终追赶不足——保存首个分歧并停止，不授权第三次Unity尝试或第二次Player运行。通过后交一次集中结果复核，不自动宣布动态GI质量达标。
+
+累计仍是同一69功能：一次双程序集预检、一次已失败的构建准备调用，加至多一次修正构建和一次首次Player运行；不能因尚未进入BuildPipeline而抹掉第一次Unity失败。
+
+连续形变示例的使用价值仍成立，故不退回门开关或源码演示；但目前只有编译与设计依据，原生持续发布、最终追上和可判读动态图像仍待本次唯一运行验证。Release67继续作为可用入口，完整四项目标／十条工作流及质量、规模、生产关卡保持开放。

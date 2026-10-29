@@ -1,0 +1,67 @@
+{
+  "passed": true,
+  "fullProductionAccepted": false,
+  "perRayGpuConsumptionProven": false,
+  "products": "bd3c0a55de08d611936db5ebad90d4fc65106e66bf060018dd5fef58967a30c0",
+  "native": {
+    "processId": 20472,
+    "exitCode": 0,
+    "watchdogTerminated": false,
+    "completedUtc": "2026-10-29T06:03:04.9935379Z"
+  },
+  "runtime": {
+    "status": "collected",
+    "error": "",
+    "scene": "Assets/RuntimeAudit/Functional.unity",
+    "api": "Direct3D12",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "environmentCubeName": "CurrentRelease67Environment",
+    "view": "Final",
+    "composition": "Additive",
+    "imageScope": "Final linear HDR target, motion-ending and settled same visible pose; not ordinary backbuffer or per-ray consumption proof",
+    "debugBuild": false,
+    "testCaptureDisabled": true,
+    "auditProbeDisabled": true,
+    "normalQuitObserved": true,
+    "sourceClosed": true,
+    "requestedFrames": 256,
+    "actualCameraFrames": 256,
+    "captures": 2,
+    "errors": 0,
+    "firstEngine": 1,
+    "lastEngine": 256,
+    "firstRenderWaitSeconds": 2.9383177000000007
+  },
+  "nativeLogHits": [],
+  "sourceCheck": {
+    "status": "passed",
+    "snapshotChanges": 13,
+    "motionPublications": 11,
+    "differingMotionContents": true,
+    "finalPublishedFrame": 165,
+    "finalProducerError": 0.0,
+    "finalReferenceError": 5.960464477539063e-08,
+    "scope": "Public CPU publication tuple and complete logical mesh agreement; not target-ray GPU consumption or image-quality approval"
+  },
+  "images": [
+    {
+      "logical": 159,
+      "stage": "motion-ending",
+      "files": {
+        "frame-0159.rgba32f": "7b2a87f7b34c79e0be2f43680e144e3c5987170e7b2c682718c2939368be5e43",
+        "frame-0159.png": "7d2270520a5ffa83ebc8cd400dbcc9461ed126ed60825b0ac86cbed6b656c7c6",
+        "frame-0159.exr": "7e3dc28dfc78eee960e7f26d7627310bd25546a4809f9063598cde990261e3f2"
+      }
+    },
+    {
+      "logical": 255,
+      "stage": "settled",
+      "files": {
+        "frame-0255.rgba32f": "8ed84617fb2d4ab5febfec81a2b1ee684ef6b9d2dc27df8299afc11510d34db0",
+        "frame-0255.png": "c8a5f9085e7905d1460f49fe7b768c1149dd5d49df6246f0a402f3ea77fe975b",
+        "frame-0255.exr": "6a1942445c9c6760dd96ac28e7627ab709453c5c76c5d7cfa0908e574345dd18"
+      }
+    }
+  ],
+  "visualAssessment": "Actual PNG viewing required separately; images do not establish dynamic GI truth"
+}
