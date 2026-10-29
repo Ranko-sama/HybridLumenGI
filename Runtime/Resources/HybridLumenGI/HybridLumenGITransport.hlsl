@@ -302,9 +302,9 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
             if(TraceSceneVisibilityHit(visibilityOrigin,connection/separation,separation-0.0001,
                 HLGIPointQueryFootprint(),float4(position,1),blocker))
             {
-                // An unfinished connection is not a proven occluded tap. Do
-                // not discard it and renormalize the remaining interpolation.
-                if(HLGIHitQueryUnresolved(blocker)) { known=false;result=(HLGICacheEntry)0;return false; }
+                // Unknown coverage or an unfinished connection cannot prove
+                // occlusion. Do not discard that tap and renormalize the rest.
+                if(!HLGIHitMaterialKnown(blocker)) { known=false;result=(HLGICacheEntry)0;return false; }
                 continue;
             }
         }

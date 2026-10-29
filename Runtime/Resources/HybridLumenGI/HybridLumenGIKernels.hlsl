@@ -525,7 +525,7 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
     }
     float3 sigma=sqrt(max(second-mean*mean,0))+0.02;
     history.rgb=clamp(history.rgb,mean-2*sigma,mean+2*sigma);
-    float samples=valid?min(moments.z+1,change.y>0.5?2:(float)_HLGI_MaxHistory):1;
+    float samples=valid?min(moments.z+1,change.y>0.5?min(2,(float)_HLGI_MaxHistory):(float)_HLGI_MaxHistory):1;
     float alpha=valid?max(_HLGI_CurrentWeight,1/samples):1;
     alpha=max(alpha,valid?0.25*abs(current.a-history.a):1);
     float2 newMoments=lerp(moments.xy,float2(lum,lum*lum),alpha);

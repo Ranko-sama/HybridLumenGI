@@ -1,0 +1,344 @@
+{
+  "stage": "baseline",
+  "passed": true,
+  "counterexampleEstablished": true,
+  "rows": [
+    {
+      "case": "clear",
+      "checks": {
+        "status": true,
+        "cache": true,
+        "fullZeroOnUnknown": true,
+        "cachedConsumer": true,
+        "proxyConsumer": true,
+        "unchangedControl": true
+      },
+      "status": [
+        1.0,
+        1.0,
+        4.0,
+        0.0
+      ],
+      "cache": [
+        2.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "cached": [
+        2.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "proxy": [
+        1.25,
+        0.5,
+        1.375,
+        1.0
+      ],
+      "expectedProxy": [
+        1.25,
+        0.5,
+        1.375,
+        1
+      ]
+    },
+    {
+      "case": "known-right-occluder",
+      "checks": {
+        "status": true,
+        "cache": true,
+        "fullZeroOnUnknown": true,
+        "cachedConsumer": true,
+        "proxyConsumer": true,
+        "unchangedControl": true
+      },
+      "status": [
+        1.0,
+        1.0,
+        4.0,
+        0.0
+      ],
+      "cache": [
+        4.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cached": [
+        4.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "proxy": [
+        2.25,
+        0.5,
+        0.875,
+        1.0
+      ],
+      "expectedProxy": [
+        2.25,
+        0.5,
+        0.875,
+        1
+      ]
+    },
+    {
+      "case": "unknown-first-tap",
+      "checks": {
+        "status": true,
+        "cache": true,
+        "fullZeroOnUnknown": true,
+        "cachedConsumer": true,
+        "proxyConsumer": true,
+        "unchangedControl": true
+      },
+      "status": [
+        1.0,
+        1.0,
+        4.0,
+        512.0
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        2.0,
+        1.0
+      ],
+      "cached": [
+        0.0,
+        0.0,
+        2.0,
+        1.0
+      ],
+      "proxy": [
+        0.25,
+        0.5,
+        1.875,
+        1.0
+      ],
+      "expectedProxy": [
+        0.25,
+        0.5,
+        1.875,
+        1
+      ]
+    },
+    {
+      "case": "unknown-after-red-tap",
+      "checks": {
+        "status": true,
+        "cache": true,
+        "fullZeroOnUnknown": true,
+        "cachedConsumer": true,
+        "proxyConsumer": true,
+        "unchangedControl": true
+      },
+      "status": [
+        1.0,
+        1.0,
+        4.0,
+        512.0
+      ],
+      "cache": [
+        4.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cached": [
+        4.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "proxy": [
+        2.25,
+        0.5,
+        0.875,
+        1.0
+      ],
+      "expectedProxy": [
+        2.25,
+        0.5,
+        0.875,
+        1
+      ]
+    },
+    {
+      "case": "unresolved-after-red-tap",
+      "checks": {
+        "status": true,
+        "cache": true,
+        "fullZeroOnUnknown": true,
+        "cachedConsumer": true,
+        "proxyConsumer": true,
+        "unchangedControl": true
+      },
+      "status": [
+        0.0,
+        0.0,
+        2.0,
+        2048.0
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "cached": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "proxy": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expectedProxy": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "zero-weight-unknown-tap",
+      "checks": {
+        "status": true,
+        "cache": true,
+        "fullZeroOnUnknown": true,
+        "cachedConsumer": true,
+        "proxyConsumer": true,
+        "unchangedControl": true
+      },
+      "status": [
+        1.0,
+        1.0,
+        1.0,
+        0.0
+      ],
+      "cache": [
+        4.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cached": [
+        4.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "proxy": [
+        2.25,
+        0.5,
+        0.875,
+        1.0
+      ],
+      "expectedProxy": [
+        2.25,
+        0.5,
+        0.875,
+        1
+      ]
+    },
+    {
+      "case": "all-unknown",
+      "checks": {
+        "status": true,
+        "cache": true,
+        "fullZeroOnUnknown": true,
+        "cachedConsumer": true,
+        "proxyConsumer": true,
+        "unchangedControl": true
+      },
+      "status": [
+        0.0,
+        1.0,
+        4.0,
+        512.0
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "cached": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "proxy": [
+        0.25,
+        0.5,
+        0.875,
+        1.0
+      ],
+      "expectedProxy": [
+        0.25,
+        0.5,
+        0.875,
+        1
+      ]
+    },
+    {
+      "case": "all-known-occluded",
+      "checks": {
+        "status": true,
+        "cache": true,
+        "fullZeroOnUnknown": true,
+        "cachedConsumer": true,
+        "proxyConsumer": true,
+        "unchangedControl": true
+      },
+      "status": [
+        0.0,
+        1.0,
+        4.0,
+        0.0
+      ],
+      "cache": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "cached": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "proxy": [
+        0.25,
+        0.5,
+        0.875,
+        1.0
+      ],
+      "expectedProxy": [
+        0.25,
+        0.5,
+        0.875,
+        1
+      ]
+    }
+  ],
+  "failures": [],
+  "host": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+  "hostSha256": "8dc02bf76d564dba07b117af905335c1281377e8d7fd9e5853e6cd1a07324cb4",
+  "dxcSha256": "7c6918a0e2d4e437629fa8549f5ce800970494780f363bbbe1e3d3034f435aee",
+  "inputSha256": "a60e9b798f307456afd6490630fdaa7d5aaa723611718336b1538bcc6af4bfea",
+  "outputSha256": "1adcd398d7cf9d1cd1f7fcaf43cfb6ba1bd316383fe6b9f0884cd65658d78faf",
+  "sourceSha256": "a48a5fe0620999d54e51ef62b9bd396b57d43713f2f5bc6888f8a910c31c1221",
+  "unityExecuted": false,
+  "physicalGpuExecuted": false
+}

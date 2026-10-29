@@ -1,0 +1,540 @@
+{
+    "schemaVersion":  1,
+    "kind":  "ReactiveTemporalHistoryLimitActualBody",
+    "status":  "failed",
+    "startedUtc":  "2026-10-29T07:10:44.2803899Z",
+    "scope":  "Paired extracted actual temporal body, both preprocessor variants, fixed 1x1 resource/geometry/projection and explicit half-rounding adapters on software WARP. No Unity, real texture-format/UAV validation, physical GPU, scene incidence or dynamic quality claim.",
+    "unityExecuted":  false,
+    "physicalGpuExecuted":  false,
+    "candidatePath":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIKernels.hlsl",
+    "artifactDirectory":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution",
+    "reusedHost":  {
+                       "schemaVersion":  1,
+                       "selection":  "Existing passed standalone run; cpp/CMake bytes match frozen source; current executable SHA matches its retained report artifact",
+                       "directory":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6",
+                       "files":  {
+                                     "cpp":  {
+                                                 "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\ReceiverTemporalWarp.cpp",
+                                                 "sha256":  "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+                                             },
+                                     "cmake":  {
+                                                   "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\CMakeLists.txt",
+                                                   "sha256":  "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+                                               },
+                                     "exe":  {
+                                                 "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+                                                 "sha256":  "D6A8D0C6A0E881C2FECE0AF65DC9A9627AD5E54DC1F4D0AF684300CB91BDE270"
+                                             },
+                                     "priorReport":  {
+                                                         "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\receiver-temporal-results.json",
+                                                         "sha256":  "0FC7CB121DB107312376A1D68C9A2C2FC4DF48D57D44F79CD42C258CB9F3826C"
+                                                     }
+                                 }
+                   },
+    "tools":  {
+                  "dxc":  "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+                  "node":  "C:\\Program Files\\nodejs\\node.exe",
+                  "existingWarpHost":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+                  "existingWarpHostSha256":  "D6A8D0C6A0E881C2FECE0AF65DC9A9627AD5E54DC1F4D0AF684300CB91BDE270"
+              },
+    "warpExecuted":  true,
+    "error":  "oracle-verify failed: node.exe : node:internal/modules/run_main:107\r\nAt C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\Invoke-OfflineCheck.ps1:18 char:20\r\n+         $output = (\u0026 $command.Source @Arguments 2\u003e\u00261 | Out-String -Wi ...\r\n+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (node:internal/modules/run_main:107:String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: max32-reactive-unknown/legacy/Old: recovery radiance 8\r\n    at require (file:///C:/Users/Administrator/Desktop/test/HybridLumenGI/LocalComparison/Review/temporal-reactive-history-limit-01/TemporalReactionOracle.mjs:69:50)\r\n    at file:///C:/Users/Administrator/Desktop/test/HybridLumenGI/LocalComparison/Review/temporal-reactive-history-limit-01/TemporalReactionOracle.mjs:91:41\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)\r\n    at async node:internal/modules/esm/loader:639:26\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: \u0027ERR_ASSERTION\u0027,\r\n  actual: false,\r\n  expected: true,\r\n  operator: \u0027==\u0027,\r\n  diff: \u0027simple\u0027\r\n}\r\n\r\nNode.js v24.15.0\r\n",
+    "errorLocation":  "at Run-Check, C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\Run-TemporalHistoryLimit.ps1: line 27\r\nat \u003cScriptBlock\u003e, C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\Run-TemporalHistoryLimit.ps1: line 81",
+    "sources":  [
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIKernels.hlsl",
+                        "sha256":  "36F561EDD634DDF3D629B06E847EAD631AD6B44EAA6B2039AB658A4C422D1850"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\proposal.txt",
+                        "sha256":  "4FC0A63ACBA3C2206542AE51CE85DC352F262F27EB315CA485EDE7ADAF739C66"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\contract.txt",
+                        "sha256":  "3AF8BF83EA4B8668A07F74231190025D775826C309705B04FF28F1D099F17A30"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\TemporalReactionAdapters.hlsl",
+                        "sha256":  "DB574632A82AEC62C116BCFFB507E2A94627509BA61C4253FC2E875E1DDB1A9A"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\TemporalReactionOracle.mjs",
+                        "sha256":  "573E0A0DE82725D50BF859B44C3130CF40DE4B9F97339D2CA9EA27D840AC790F"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\Run-TemporalHistoryLimit.ps1",
+                        "sha256":  "A767E79F2FFA25911AFB1091348DC5ACE08C77F104C53C883BBA22CF0B304C4C"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen-manifest.json",
+                        "sha256":  "EEDE48DE1BC21E68C142BA8D5E5082D2DFF0FEC4923C663885EB5493D431914C"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\host-reuse.json",
+                        "sha256":  "6086B0FC658A2A6FCCA6A7BEB332DFE497A521EEE1452214011845C1FB6207A2"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\CMakeLists.txt",
+                        "sha256":  "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\HybridLumenGIKernels.hlsl",
+                        "sha256":  "160AE3A6962B961A6CE660E1F963C74BB84B9868C665BC228A7AA2B51AD63C87"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\HybridLumenGIRadianceValidity.hlsl",
+                        "sha256":  "C86A90BB01DA33D26D06D2F34686AC24ED5D0086F7202E79846ABB25CA17637E"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\HybridLumenGIReceiverIdentity.hlsl",
+                        "sha256":  "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\HybridLumenGIReceiverTemporal.hlsl",
+                        "sha256":  "9EFEC293CA3475A00BA584765FBED9ADFD60129EAED3099407F5DDB10498478A"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\HybridLumenGIScreenSampling.hlsl",
+                        "sha256":  "25607FFEBA963C9C7A2E1474F99337C3E4AC4079DB5CC6AC54E6D1D3505F52CF"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\Invoke-OfflineCheck.ps1",
+                        "sha256":  "A7FD1B3AB734151B816D79941D7381517563AA44514C6CA3C04C12029BEED446"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\ReceiverTemporalWarp.cpp.txt",
+                        "sha256":  "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\ReceiverTemporalWarp.cpp",
+                        "sha256":  "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\CMakeLists.txt",
+                        "sha256":  "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+                        "sha256":  "D6A8D0C6A0E881C2FECE0AF65DC9A9627AD5E54DC1F4D0AF684300CB91BDE270"
+                    },
+                    {
+                        "file":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\receiver-temporal-results.json",
+                        "sha256":  "0FC7CB121DB107312376A1D68C9A2C2FC4DF48D57D44F79CD42C258CB9F3826C"
+                    }
+                ],
+    "sourcesAfter":  [
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIKernels.hlsl",
+                             "sha256":  "36F561EDD634DDF3D629B06E847EAD631AD6B44EAA6B2039AB658A4C422D1850"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\proposal.txt",
+                             "sha256":  "4FC0A63ACBA3C2206542AE51CE85DC352F262F27EB315CA485EDE7ADAF739C66"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\contract.txt",
+                             "sha256":  "3AF8BF83EA4B8668A07F74231190025D775826C309705B04FF28F1D099F17A30"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\TemporalReactionAdapters.hlsl",
+                             "sha256":  "DB574632A82AEC62C116BCFFB507E2A94627509BA61C4253FC2E875E1DDB1A9A"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\TemporalReactionOracle.mjs",
+                             "sha256":  "573E0A0DE82725D50BF859B44C3130CF40DE4B9F97339D2CA9EA27D840AC790F"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\Run-TemporalHistoryLimit.ps1",
+                             "sha256":  "A767E79F2FFA25911AFB1091348DC5ACE08C77F104C53C883BBA22CF0B304C4C"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen-manifest.json",
+                             "sha256":  "EEDE48DE1BC21E68C142BA8D5E5082D2DFF0FEC4923C663885EB5493D431914C"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\host-reuse.json",
+                             "sha256":  "6086B0FC658A2A6FCCA6A7BEB332DFE497A521EEE1452214011845C1FB6207A2"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\CMakeLists.txt",
+                             "sha256":  "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\HybridLumenGIKernels.hlsl",
+                             "sha256":  "160AE3A6962B961A6CE660E1F963C74BB84B9868C665BC228A7AA2B51AD63C87"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\HybridLumenGIRadianceValidity.hlsl",
+                             "sha256":  "C86A90BB01DA33D26D06D2F34686AC24ED5D0086F7202E79846ABB25CA17637E"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\HybridLumenGIReceiverIdentity.hlsl",
+                             "sha256":  "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\HybridLumenGIReceiverTemporal.hlsl",
+                             "sha256":  "9EFEC293CA3475A00BA584765FBED9ADFD60129EAED3099407F5DDB10498478A"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\HybridLumenGIScreenSampling.hlsl",
+                             "sha256":  "25607FFEBA963C9C7A2E1474F99337C3E4AC4079DB5CC6AC54E6D1D3505F52CF"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\Invoke-OfflineCheck.ps1",
+                             "sha256":  "A7FD1B3AB734151B816D79941D7381517563AA44514C6CA3C04C12029BEED446"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\ReceiverTemporalWarp.cpp.txt",
+                             "sha256":  "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\ReceiverTemporalWarp.cpp",
+                             "sha256":  "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\CMakeLists.txt",
+                             "sha256":  "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+                             "sha256":  "D6A8D0C6A0E881C2FECE0AF65DC9A9627AD5E54DC1F4D0AF684300CB91BDE270"
+                         },
+                         {
+                             "file":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\receiver-temporal-results.json",
+                             "sha256":  "0FC7CB121DB107312376A1D68C9A2C2FC4DF48D57D44F79CD42C258CB9F3826C"
+                         }
+                     ],
+    "checks":  [
+                   {
+                       "name":  "oracle-prepare",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\oracle-prepare.log",
+                       "output":  "Prepared seven fixed rows, two dependent calls per actual temporal variant; no GPU executed by prepare.\r\n",
+                       "startedUtc":  "2026-10-29T07:10:44.5530008Z",
+                       "completedUtc":  "2026-10-29T07:10:44.6599494Z",
+                       "executable":  "C:\\Program Files\\nodejs\\node.exe",
+                       "arguments":  [
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\TemporalReactionOracle.mjs",
+                                         "prepare",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIKernels.hlsl"
+                                     ]
+                   },
+                   {
+                       "name":  "dxc-baseline-legacy",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\dxc-baseline-legacy.log",
+                       "output":  "",
+                       "startedUtc":  "2026-10-29T07:10:44.6760456Z",
+                       "completedUtc":  "2026-10-29T07:10:44.7542192Z",
+                       "executable":  "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-T",
+                                         "cs_6_0",
+                                         "-E",
+                                         "CSTemporalReactionTest",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-legacy.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-legacy.ll",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\TemporalReactionAdapters.hlsl"
+                                     ]
+                   },
+                   {
+                       "name":  "dxc-baseline-identity",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\dxc-baseline-identity.log",
+                       "output":  "",
+                       "startedUtc":  "2026-10-29T07:10:44.7573164Z",
+                       "completedUtc":  "2026-10-29T07:10:44.8550901Z",
+                       "executable":  "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-T",
+                                         "cs_6_0",
+                                         "-E",
+                                         "CSTemporalReactionTest",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-identity.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-identity.ll",
+                                         "-D",
+                                         "HLGI_RECEIVER_IDENTITY=1",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\TemporalReactionAdapters.hlsl"
+                                     ]
+                   },
+                   {
+                       "name":  "dxc-candidate-legacy",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\dxc-candidate-legacy.log",
+                       "output":  "",
+                       "startedUtc":  "2026-10-29T07:10:44.8570960Z",
+                       "completedUtc":  "2026-10-29T07:10:44.9334058Z",
+                       "executable":  "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-T",
+                                         "cs_6_0",
+                                         "-E",
+                                         "CSTemporalReactionTest",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-legacy.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-legacy.ll",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\TemporalReactionAdapters.hlsl"
+                                     ]
+                   },
+                   {
+                       "name":  "dxc-candidate-identity",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\dxc-candidate-identity.log",
+                       "output":  "",
+                       "startedUtc":  "2026-10-29T07:10:44.9354102Z",
+                       "completedUtc":  "2026-10-29T07:10:45.0330877Z",
+                       "executable":  "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+                       "arguments":  [
+                                         "-HV",
+                                         "2018",
+                                         "-T",
+                                         "cs_6_0",
+                                         "-E",
+                                         "CSTemporalReactionTest",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen",
+                                         "-I",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate",
+                                         "-Fo",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-identity.dxil",
+                                         "-Fc",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-identity.ll",
+                                         "-D",
+                                         "HLGI_RECEIVER_IDENTITY=1",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\TemporalReactionAdapters.hlsl"
+                                     ]
+                   },
+                   {
+                       "name":  "warp-baseline-legacy",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\warp-baseline-legacy.log",
+                       "output":  "Actual ReceiverTemporal HLSL executed on D3D12 WARP: 7 cases, inputStride=176 outputStride=64; adapterVendor=5140 adapterDevice=140. No Unity or physical GPU.\r\n",
+                       "startedUtc":  "2026-10-29T07:10:45.0340900Z",
+                       "completedUtc":  "2026-10-29T07:10:45.1010162Z",
+                       "executable":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+                       "arguments":  [
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-legacy.dxil",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\inputs.bin",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-legacy.bin"
+                                     ]
+                   },
+                   {
+                       "name":  "warp-baseline-identity",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\warp-baseline-identity.log",
+                       "output":  "Actual ReceiverTemporal HLSL executed on D3D12 WARP: 7 cases, inputStride=176 outputStride=64; adapterVendor=5140 adapterDevice=140. No Unity or physical GPU.\r\n",
+                       "startedUtc":  "2026-10-29T07:10:45.1020241Z",
+                       "completedUtc":  "2026-10-29T07:10:45.1602030Z",
+                       "executable":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+                       "arguments":  [
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-identity.dxil",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\inputs.bin",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-identity.bin"
+                                     ]
+                   },
+                   {
+                       "name":  "warp-candidate-legacy",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\warp-candidate-legacy.log",
+                       "output":  "Actual ReceiverTemporal HLSL executed on D3D12 WARP: 7 cases, inputStride=176 outputStride=64; adapterVendor=5140 adapterDevice=140. No Unity or physical GPU.\r\n",
+                       "startedUtc":  "2026-10-29T07:10:45.1612056Z",
+                       "completedUtc":  "2026-10-29T07:10:45.2194748Z",
+                       "executable":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+                       "arguments":  [
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-legacy.dxil",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\inputs.bin",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-legacy.bin"
+                                     ]
+                   },
+                   {
+                       "name":  "warp-candidate-identity",
+                       "exitCode":  0,
+                       "log":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\warp-candidate-identity.log",
+                       "output":  "Actual ReceiverTemporal HLSL executed on D3D12 WARP: 7 cases, inputStride=176 outputStride=64; adapterVendor=5140 adapterDevice=140. No Unity or physical GPU.\r\n",
+                       "startedUtc":  "2026-10-29T07:10:45.2209768Z",
+                       "completedUtc":  "2026-10-29T07:10:45.2777680Z",
+                       "executable":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+                       "arguments":  [
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-identity.dxil",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\inputs.bin",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-identity.bin"
+                                     ]
+                   },
+                   {
+                       "name":  "oracle-verify",
+                       "exitCode":  1,
+                       "log":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\oracle-verify.log",
+                       "output":  "node.exe : node:internal/modules/run_main:107\r\nAt C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\frozen\\Invoke-OfflineCheck.ps1:18 char:20\r\n+         $output = (\u0026 $command.Source @Arguments 2\u003e\u00261 | Out-String -Wi ...\r\n+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (node:internal/modules/run_main:107:String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: max32-reactive-unknown/legacy/Old: recovery radiance 8\r\n    at require (file:///C:/Users/Administrator/Desktop/test/HybridLumenGI/LocalComparison/Review/temporal-reactive-history-limit-01/TemporalReactionOracle.mjs:69:50)\r\n    at file:///C:/Users/Administrator/Desktop/test/HybridLumenGI/LocalComparison/Review/temporal-reactive-history-limit-01/TemporalReactionOracle.mjs:91:41\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)\r\n    at async node:internal/modules/esm/loader:639:26\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: \u0027ERR_ASSERTION\u0027,\r\n  actual: false,\r\n  expected: true,\r\n  operator: \u0027==\u0027,\r\n  diff: \u0027simple\u0027\r\n}\r\n\r\nNode.js v24.15.0\r\n",
+                       "startedUtc":  "2026-10-29T07:10:45.2803260Z",
+                       "completedUtc":  "2026-10-29T07:10:45.3877301Z",
+                       "executable":  "C:\\Program Files\\nodejs\\node.exe",
+                       "arguments":  [
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\TemporalReactionOracle.mjs",
+                                         "verify",
+                                         "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution"
+                                     ]
+                   }
+               ],
+    "artifacts":  [
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-identity.bin",
+                          "bytes":  448,
+                          "sha256":  "CEC979DDB07E8ED9DF081ED7623029F73401A85DCC1B9E45323666F38F8918F5"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-identity.dxil",
+                          "bytes":  8104,
+                          "sha256":  "D70040B167E0D405C564CFE87B893DFDBAD4B889F13C57868BD5F375163BDE1A"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-identity.ll",
+                          "bytes":  31470,
+                          "sha256":  "D53133BFDDE0DBB8C8703BA486D98A4FD8B2D7A882350B40E8F1EA4EDE66C186"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-legacy.bin",
+                          "bytes":  448,
+                          "sha256":  "CEC979DDB07E8ED9DF081ED7623029F73401A85DCC1B9E45323666F38F8918F5"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-legacy.dxil",
+                          "bytes":  7380,
+                          "sha256":  "B6C20D959251C2EEA71FE90978F7C234CB9729B0E9BA760E37623619AE8210B9"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline-legacy.ll",
+                          "bytes":  28029,
+                          "sha256":  "974503BBD9B677DB8A7357F91E74A685DC6CAEACD6CC5969DBA99874F264A6F9"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-identity.bin",
+                          "bytes":  448,
+                          "sha256":  "3C2D853FF89CF877E7A437DF15064DA1464DD041542F4D545B6B85E5488EE511"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-identity.dxil",
+                          "bytes":  8112,
+                          "sha256":  "657C29CA6926B6636F903E764C989F3B438C93EB366888F7765BAB42CAE7807C"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-identity.ll",
+                          "bytes":  31553,
+                          "sha256":  "647C4A6C20F2B2816AD0DE7ECD1A63F1781FAFB15F8A6603BCF47DFBEE50966B"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-legacy.bin",
+                          "bytes":  448,
+                          "sha256":  "3C2D853FF89CF877E7A437DF15064DA1464DD041542F4D545B6B85E5488EE511"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-legacy.dxil",
+                          "bytes":  7392,
+                          "sha256":  "ADEAFF5AFD4D2298B2CA6F8132C317A21D172755B7FA5B6BE00F04337BE45BA5"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate-legacy.ll",
+                          "bytes":  28112,
+                          "sha256":  "6063D9EFF0F736AFF0642A76626965287CB0F3708B4CC0B99E6F031080B711E1"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\dxc-baseline-identity.log",
+                          "bytes":  5,
+                          "sha256":  "F01A374E9C81E3DB89B3A42940C4D6A5447684986A1296E42BF13F196EED6295"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\dxc-baseline-legacy.log",
+                          "bytes":  5,
+                          "sha256":  "F01A374E9C81E3DB89B3A42940C4D6A5447684986A1296E42BF13F196EED6295"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\dxc-candidate-identity.log",
+                          "bytes":  5,
+                          "sha256":  "F01A374E9C81E3DB89B3A42940C4D6A5447684986A1296E42BF13F196EED6295"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\dxc-candidate-legacy.log",
+                          "bytes":  5,
+                          "sha256":  "F01A374E9C81E3DB89B3A42940C4D6A5447684986A1296E42BF13F196EED6295"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\inputs.bin",
+                          "bytes":  1236,
+                          "sha256":  "A6A9B7E4329FDB40E0A792645FB76DC5570811BD15562A99CED75716DFD71F4E"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\oracle-prepare.log",
+                          "bytes":  110,
+                          "sha256":  "B523541C2B25C05C225F8C2BECE418F561267E32065C4F8684802753183BC81D"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\oracle-results.json",
+                          "bytes":  4653,
+                          "sha256":  "4E53461E1B129505E1926F48AB90941DF9CF10A09596CB973F446B0ECB10A5B9"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\oracle-verify.log",
+                          "bytes":  1313,
+                          "sha256":  "D5043EE4A903508D5DAAA1FDFC19DB6943DA1D0155BF97E85CA42250F66B693B"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\oracle.json",
+                          "bytes":  2343,
+                          "sha256":  "B955BF65C0313CCB42BB7019CF3EA93E1115B36440805AEDDD975B9A81A241BD"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\warp-baseline-identity.log",
+                          "bytes":  165,
+                          "sha256":  "AA1F0572047357AC17CB38F110ED9883474B67F10BD3751372B9BFDCD957249A"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\warp-baseline-legacy.log",
+                          "bytes":  165,
+                          "sha256":  "AA1F0572047357AC17CB38F110ED9883474B67F10BD3751372B9BFDCD957249A"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\warp-candidate-identity.log",
+                          "bytes":  165,
+                          "sha256":  "AA1F0572047357AC17CB38F110ED9883474B67F10BD3751372B9BFDCD957249A"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\warp-candidate-legacy.log",
+                          "bytes":  165,
+                          "sha256":  "AA1F0572047357AC17CB38F110ED9883474B67F10BD3751372B9BFDCD957249A"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\baseline\\ActualTemporalBody.hlsl",
+                          "bytes":  12519,
+                          "sha256":  "260982A141DFA0B3AD75B6B545951B7C1391F35F468A30478EFD2DC3DA387EA7"
+                      },
+                      {
+                          "path":  "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\temporal-reactive-history-limit-01\\execution\\candidate\\ActualTemporalBody.hlsl",
+                          "bytes":  12548,
+                          "sha256":  "051FA5AA76E14DFFA980D0A242AF912C1721A8FFD2CB79B2EBD09FEC64314B13"
+                      }
+                  ],
+    "completedUtc":  "2026-10-29T07:10:45.4822757Z"
+}

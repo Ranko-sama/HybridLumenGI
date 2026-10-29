@@ -1,0 +1,26 @@
+﻿node.exe : node:internal/modules/run_main:107
+At C:\Users\Administrator\Desktop\test\HybridLumenGI\LocalComparison\Review\temporal-reactive-history-limit-01\frozen\Invoke-OfflineCheck.ps1:18 char:20
++         $output = (& $command.Source @Arguments 2>&1 | Out-String -Wi ...
++                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (node:internal/modules/run_main:107:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: max32-reactive-unknown/legacy/Old: recovery radiance 8
+    at require (file:///C:/Users/Administrator/Desktop/test/HybridLumenGI/LocalComparison/Review/temporal-reactive-history-limit-01/TemporalReactionOracle.mjs:69:50)
+    at file:///C:/Users/Administrator/Desktop/test/HybridLumenGI/LocalComparison/Review/temporal-reactive-history-limit-01/TemporalReactionOracle.mjs:91:41
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.15.0
+

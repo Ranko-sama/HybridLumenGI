@@ -1,0 +1,50 @@
+Reactive history must respect the configured maximum
+2026-10-29. Product baseline main78618e1, source-bound finite correction.
+
+The documented maxHistory1 behavior was violated when a lighting change marked the
+pixel reactive. The actual shared temporal expression selected a literal limit2,
+allowing a valid old sample to mix into a known current sample. The one-line fix
+intersects this reactive limit with _HLGI_MaxHistory. Eligibility, unknown-current
+retention, geometry/material gates, clipping, confidence and filtering are unchanged.
+
+Product file: Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl.
+Baseline SHA256160ae3a6962b961a6ce660e1f963c74bb84b9868c665bc228a7aa2b51ad63c87.
+Candidate SHA25636f561edd634ddf3d629b06e847ead631ad6b44eaa6b2039ab658a4c422d1850.
+
+First invocation failed before source-hash collection: the reused nested runner's
+default SourceRoot traversed one directory too far. No oracle, shader compilation
+or dispatch occurred. Original runner and failure receipt remain in initial-path-failure/.
+Only that default path was corrected before the sole actual paired execution.
+
+Four actual-body shader variants compiled; the unchanged preverified WARP host ran
+baseline/candidate x legacy/identity once each. Each processes seven frozen rows and
+a dependent recovery call, with a static1x1 dependency fixture and explicit half
+conversion. Main old history starts at legitimate age1 with maxHistory1, not an
+unreachable mature history after a setting change. OldRGB1,currentRGB1.03125 remain
+inside the existing clip window. Both entry points produced:
+  baseline reactive: RGB1.015625, history length2;
+  candidate reactive: exact current RGB1.03125, history length1.
+All six controls are bit-identical between product variants: max1 stable, max2/32
+reactive, invalid prior receipt, max1/32 unknown-current retention. The following
+stable max1 frame is also unchanged. All qualified legacy/identity outputs agree.
+
+Preserved numerical failure: the original oracle compared recovery radiance to its
+unquantized double mean with0.0005 tolerance. max32-reactive-unknown gives identical
+old/new RGB1.009765625, while the unquantized mean is1.0104166667; original frozen
+contract fails and execution/result.json and oracle-results.json remain FAIL.
+
+An independent qualification accounts for the adapter's FLOAT narrowing rule,
+round-to-zero, specified by Microsoft's Data Conversion Rules:
+https://learn.microsoft.com/en-us/windows/win32/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+The separate integer model clears binary32's low13 fraction bits for this fixed
+normal[1,2) domain. It independently derives each event and stored recovery value,
+requiring exact radiance encoding while retaining the original moments bounds.
+qualification/result.json passes14 rows/339 checks, originalFrozenPass=false,
+gpuRerun=false. Hashes before/after match for original inputs, four readbacks and
+three result/oracle JSONs. Original scripts/contracts/results were not overwritten.
+
+This establishes the finite actual-consumer correction with explicit geometry,
+projection and storage adapters. It does not validate Unity texture/UAV formats,
+real motion, whole-image dynamic quality, performance or production acceptance.
+No Unity/Player, deployment or Git commit was performed by this lane. Root owns
+full-entry compilation and integration; no additional dynamic matrix is needed.

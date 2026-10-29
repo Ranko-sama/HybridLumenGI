@@ -1,0 +1,10 @@
+The dynamic audit found a configuration interaction in the actual temporal consumer.
+Settings permits maxHistory=1 and the existing Denoise02-TestContract promises it
+remains 1. A reactive frame instead selects the literal cap 2, admitting old color
+with a half blend even though the configured maximum is one frame.
+
+The only product change intersects the reactive cap with the configured maximum:
+change.y > 0.5 ? min(2, (float)_HLGI_MaxHistory) : (float)_HLGI_MaxHistory.
+It does not alter history eligibility, color clipping, unknown-current retention,
+filter sigma, confidence, currentWeight or resource formats. Both temporal entry
+points share this actual expression. Root owns integration and full-entry compile.

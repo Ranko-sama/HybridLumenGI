@@ -1,0 +1,38 @@
+Frozen before execution, 2026-10-29. Baseline is current Kernels at main 78618e1;
+its exact bytes and unchanged required helpers are frozen with SHA256 hashes.
+
+Execute the extracted actual temporal body in both legacy and identity variants,
+using the unchanged previously verified WARP host. Reuse the finite 1x1 static
+geometry/projection adapters from parallel-color-dynamics-01; add only explicit
+maxHistory input via an unused control lane. The source extraction retains every
+temporal gate and blend expression. Explicit binary16 round trips stand in for
+stored radiance; moments remain binary32. No Unity or physical GPU claim.
+
+Seven frozen rows, each with an event and dependent next-frame recovery:
+1. maxHistory1/reactive/known, initial length1: baseline event length2 and half old
+   color mixture; candidate event length1 and exact current stored RGB.
+2. maxHistory1/stable/known: exact current RGB, length1, bit-identical control.
+3. maxHistory2/reactive/known: existing cap2/blend unchanged, bit-identical control.
+4. maxHistory32/reactive/known: existing cap2 then recovery3 unchanged, bit-identical.
+5. maxHistory1/reactive/invalid previous receipt: restart1/current unchanged.
+6. maxHistory1/reactive/unknown current: retained old length1 unchanged, next known1.
+7. maxHistory32/reactive/unknown current: existing retained cap2 and recovery3 unchanged.
+
+Initial history RGB is exactly1, confidence1, moments(1,1,length,0). Known event
+and recovery RGB are1.03125 with confidence1. This exactly representable difference
+is below the existing +-0.04 single-pixel clip window, so clipping does not hide
+the wrong old-color contribution. Unknown event uses(0,0,0,-1). No neighborhood
+or geometry ambiguity is involved. The row invalid-previous uses HistoryValid0.
+
+All channels must be finite. Event/recovery history lengths and confidence must
+equal the independently declared expectations. Known output is checked against
+the two-value weighted mean with the row's independently declared count/alpha,
+including the previous stored binary16 value; maximum radiance tolerance0.0005
+and moments tolerance0.000002. Main candidate RGB must equal1.03125 exactly,
+baseline event1.015625 exactly, so a no-op cannot pass. All six controls must be
+bit-identical baseline/candidate; legacy/identity qualified results must match.
+
+One paired execution (four shader variants/four bounded host invocations). Keep
+first failure and stop for a concrete diagnosis. Do not extend cases, modify
+thresholds or start Unity to obtain a pass. Result does not prove scene occurrence,
+whole-image ghosting/noise quality, performance or production acceptance.

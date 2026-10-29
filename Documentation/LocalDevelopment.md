@@ -2,6 +2,22 @@
 
 2026-10-27，用户明确取消当前朋友交付任务，直接在本机继续开发。冻结的 `runtime-candidate-16` 及其交付 ZIP 保留为历史基线；不再以等待朋友反馈作为开发停点。
 
+## 颜色反弹与动态历史修复（2026-10-29）
+
+按用户要求并行推进两项已证实问题：缓存插值遗漏材质覆盖未知状态，可能制造可信单色；reactive变化帧错误覆盖 `maxHistory=1`，使旧色继续混入。产品只修改两个条件，独立审查无阻断。实际HLSL定向WARP对照及保留首FAIL的同数据半精度补判支持采用，见[完整结果与边界](ReviewBrief-ColorBounceDynamicLimits01.md)。未使用Codex with ChatGPT，未修改Unity部署或Release69；后续源码变化与旧EXE来源明确分开。
+
+## 当前接手记录（2026-10-29）
+
+本对话按用户要求读取项目，并由独立子代理核对《接手当前开发项目》（`01a17df1-bb3a-7680-8b54-347178a5bec7`）的最新开发与进度对话。当前明确不使用 Codex with ChatGPT；本轮未运行连接检查、恢复或外部 ChatGPT 审查。后续沿用完整原计划，优先“颜色反弹可信、动态变化稳定”，执行方式见[当前接续约定](AutonomousDevelopment.md)。
+
+接手时 `main` / `78618e1`，工作区干净。Release69 已完成并提交，之后仅有进度询问，没有待续编码或失败运行。产品构建来源为 `50b63c33683ba533f01c7119f6320ad80b4f2ec6`，新增示例接线另有冻结清单；`50b63c3..78618e1` 在 Runtime/Editor/Shaders 下无差异。本轮重新逐项计算 SHA256：仓库与 `I:/Unity test/Project/Assets/HybridLumenGI` 的112份产品源码（共224次检查）、Release69 清单内189份构建产物均匹配，没有缺失或不一致。
+
+实际 Unity 工程位于 `I:/Unity test/Project`，ProjectVersion/manifest 确认为 Unity6000.0.85f1 / URP17.0.4。可运行入口为 [Release69](<I:/Unity test/Comparison/Builds/LocalRelease69/Start-LocalRelease.cmd>)。原始 [analysis69-run.json](../LocalComparison/Review/continuous-deformation-usage-01/build-correction/analysis69-run.json) 记录256帧、11次运动期不同快照发布、最终完整网格一致、正常退出；`fullProductionAccepted` 和 `perRayGpuConsumptionProven` 均为 false。本轮读取并查看159/255两张原始图，它们保持同一最终可见姿态，不能补齐完整动态画质验收。
+
+该次接手尚未选定新的产品工作包，后续围绕用户重点定位具体源码反例或实际使用缺口，再确定最小改动和采用条件。颜色/能量参考、整体动态质量、复杂形变/材质、软件与DXR一致性、流式规模、GPU尾延迟、总显存及长时验收继续开放；目标预算仍未确定。此前总体约71%的答复仅为工程估计，不作为本轮测得进度。旧文档中的“下一包”与“等待Pro”按各自历史时点理解。
+
+本轮完成的是接手核对与开发记录纠正，没有修改产品源码、重新构建或新增Player运行；现有运行结论保持原来源。以下条目保留历史记录。
+
 ## transport-hotspot-and-reuse-01（2026-10-28）
 
 两个必要的实体DXR窗口均完整取得64个预选源帧，并通过原始ticks嵌套、固定配额和退出检查。Gather中位约16.907ms，占Transport主要成本。唯一接收像素导数复用候选虽通过有限实际HLSL逐字节等价及编译检查，但Gather仅降低0.027856ms，低于块间波动，已撤回。仓库与Unity部署110产品源码恢复原基线，保留全部证据；不追加采样或热点优化。必要构建也验证了修正后的独占Windows导入配置。实际Pro23已批准证据提交与撤回，下一包为单一材质槽MPB自动传播事件。详见[本包结果](../LocalComparison/Review/transport-hotspot-and-reuse-01/result.md)。

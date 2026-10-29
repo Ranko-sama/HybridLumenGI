@@ -1,0 +1,101 @@
+{
+  "cases": [
+    {
+      "name": "max1-reactive-known",
+      "maxHistory": 1,
+      "reactive": 1,
+      "length": 1,
+      "known": true,
+      "eventAlphaOld": 0.5,
+      "eventAlphaNew": 1,
+      "eventOld": 2,
+      "eventNew": 1,
+      "recoveryAlpha": 1,
+      "recovery": 1
+    },
+    {
+      "name": "max1-stable-known",
+      "maxHistory": 1,
+      "reactive": 0,
+      "length": 1,
+      "known": true,
+      "eventAlphaOld": 1,
+      "eventAlphaNew": 1,
+      "eventOld": 1,
+      "eventNew": 1,
+      "recoveryAlpha": 1,
+      "recovery": 1
+    },
+    {
+      "name": "max2-reactive-known",
+      "maxHistory": 2,
+      "reactive": 1,
+      "length": 2,
+      "known": true,
+      "eventAlphaOld": 0.5,
+      "eventAlphaNew": 0.5,
+      "eventOld": 2,
+      "eventNew": 2,
+      "recoveryAlpha": 0.5,
+      "recovery": 2
+    },
+    {
+      "name": "max32-reactive-known",
+      "maxHistory": 32,
+      "reactive": 1,
+      "length": 32,
+      "known": true,
+      "eventAlphaOld": 0.5,
+      "eventAlphaNew": 0.5,
+      "eventOld": 2,
+      "eventNew": 2,
+      "recoveryAlpha": 0.3333333333333333,
+      "recovery": 3
+    },
+    {
+      "name": "max1-invalid-previous",
+      "maxHistory": 1,
+      "reactive": 1,
+      "length": 1,
+      "known": true,
+      "invalid": true,
+      "eventAlphaOld": 1,
+      "eventAlphaNew": 1,
+      "eventOld": 1,
+      "eventNew": 1,
+      "recoveryAlpha": 1,
+      "recovery": 1
+    },
+    {
+      "name": "max1-reactive-unknown",
+      "maxHistory": 1,
+      "reactive": 1,
+      "length": 1,
+      "eventAlphaOld": 0,
+      "eventAlphaNew": 0,
+      "eventOld": 1,
+      "eventNew": 1,
+      "recoveryAlpha": 1,
+      "recovery": 1
+    },
+    {
+      "name": "max32-reactive-unknown",
+      "maxHistory": 32,
+      "reactive": 1,
+      "length": 32,
+      "eventAlphaOld": 0,
+      "eventAlphaNew": 0,
+      "eventOld": 2,
+      "eventNew": 2,
+      "recoveryAlpha": 0.3333333333333333,
+      "recovery": 3
+    }
+  ],
+  "inputStride": 176,
+  "outputStride": 64,
+  "sourceHashes": {
+    "baseline": "160ae3a6962b961a6ce660e1f963c74bb84b9868c665bc228a7aa2b51ad63c87",
+    "candidate": "36f561edd634ddf3d629b06e847ead631ad6b44eaa6b2039ab658a4c422d1850"
+  },
+  "scope": "Actual temporal body with explicit fixed dependency/half-rounding adapters; not real texture-format or scene evidence"
+}

@@ -1,0 +1,23 @@
+The original frozen result remains FAIL. Four shader compilations and four WARP
+invocations completed successfully; original oracle stopped at the unchanged
+max32-reactive-unknown recovery RGB, before completing identity-variant checks.
+Its0.0005 tolerance against the unquantized double mean assumed nearest rounding.
+
+Actual adapters use f16tof32(f32tof16(value)). Microsoft's Data Conversion Rules
+specifies round-to-zero when narrowing to another FLOAT format:
+https://learn.microsoft.com/en-us/windows/win32/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+
+The root authorized only an independent qualification of the existing readbacks,
+without a GPU rerun, product/input changes, altered moments tolerances or overwriting
+the original contract/oracle/results. The separate script derives expected stored
+values by converting the declared mean to binary32, then clearing its low13 fraction
+bits. All frozen values are normal positive[1,2), so retaining ten fraction bits is
+exactly binary16 RTZ with no sign/exponent/subnormal ambiguity. A recovery expectation
+uses the mathematically derived previous stored value, never measured readback.
+
+The problematic known mean1+1/96 encodes as1+10/1024=1.009765625, whereas the original
+unquantized comparison falsely rejected it. This supplements the first contract;
+it does not turn that original pass flag true. Recheck every existing row and both
+variants, all main-event exact conditions, unchanged controls and original moments
+bounds. Stored radiance must now match the independent encoding model exactly.
+Record hashes before/after for all original binary inputs/outputs and result JSONs.
