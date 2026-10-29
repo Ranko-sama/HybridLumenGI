@@ -1,0 +1,111 @@
+Finite wall: source-color transition and indirect receiver history response
+Prospective contract; no native execution and no Runtime defect assumed.
+
+Use the same authored wall/floor, camera, white directional light, exact mesh
+backend and 27 projection-selected floor pixels as finite-wall-color-reference-02.
+No sample is chosen by radiance. Freeze those coordinates on the first actual
+gather. Keep 640x360, 8 rays, rayBias .03, distance20, no environment/emission/
+screen trace/guide/feedback/clamp/spatial filter. Enable existing temporal at
+maxHistory32/currentWeight.08. These are actual spatially varying stochastic
+estimates, not a uniform adapter or a synthetic temporal input.
+
+Exactly 96 explicit consecutive-engine-frame StandardRequests in one Play run:
+0..31 old wall shader-linear MPB (.5,.25,.125,1);
+before32 ordinary SetPropertyBlock only, new (.125,.25,.5,1);
+before64 disable the same directional Light; end after95 and drain readbacks.
+No MarkDirty, forced history reset, proxy revision, settings change, seed change,
+extra warmup, ray selection, adaptive extension or second event within a phase.
+The initial history reset can leave age31 after32 real renders; report actual
+age, and require known admitted old history age>2 before the MPB event rather
+than falsely claiming exactly32. Total wall-clock deadline remains180 seconds.
+Capture only stage representative full final images31/63/95.
+CPU material/card readiness is recorded rather than required on every frame:
+an ordinary material refresh may be transiently unknown. Exact hardware meshes,
+fixed two published charted owners, no geometry fallback, and authored light
+count remain hard scope constraints. The compact readback first preserves its
+payload, then immediately rejects any known target raw with a wrong phase color;
+unknown current radiance continues within the fixed timeline.
+
+Source path established by inspection:
+SurfaceCache.Prepare compares complete actual material sources in addition to
+the signature and appends old/new published owner bounds; scheduled recaptures
+also append their bounds. RendererFeature adds those bounds with traceDistance
+influence. Changes.HLGIChangeAtReceiver separately evaluates hard crossing x and
+influence y. An interior floor receiver is outside the wall bounds but within20,
+so a material source event must be local reactive (x0/y1), not hard rejection.
+Lights.Update reports the removed directional record. AddLightChange uses
+MarkGlobalLightingChange for directionals. That light-off event must be global
+reactive with no invented geometry rejection. These are input predictions,
+not values copied from a product change decision.
+
+Observation is compact: the27 centers each retain a5x5 support region, deduped
+to about243 coordinates. Per coordinate preserve actual raw, history output,
+moments output, history read, moments read, two geometry/material generations
+and motion. Preserve actual shader scalar bindings and active GPU change-region
+bytes. The temporary copy kernel contains only texture Loads and buffer stores;
+it performs no history validity, hit, change-region or transport decision.
+Copy controls from the same shader immediately after CSTemporal dispatch, without
+rebinding those controls. Preserve actual Work.frame (initial resets allowed),
+matrices, engine frame and CPU source event receipts. Full96 compact records,
+not sparse chosen success frames. No product shader arithmetic is replaced.
+
+Physical raw checks:
+All known floor raw estimates before32 lie on old RGB ray4:2:1; all known ones
+from32..63 lie on new RGB ray1:2:4. Unknown confidence is recorded separately
+and never accepted as black or fresh color. Pure miss black does not prove
+changed-source consumption; each lit phase must have known positive samples.
+Dyadic channel ratios commute with binary float/half arithmetic here (no tiny
+subnormal contributions: finite8 samples of uniform untextured source). Preserve
+any unexpected ratio, source mismatch or nonfinite observation as failure.
+After64 all known raw RGB must be exact black because every possible source
+term is zero. There is no MC uncertainty in that zero-source claim.
+Unknowns get an explicit first-known/recovery count within the fixed32-frame
+phase; any unknown remaining at a phase endpoint leaves that response uncovered.
+
+History checks and limits:
+Do not require temporal RGB to acquire the new source ratio immediately. The
+specified reactive path permits history mixing; per-channel variance clipping
+and its additive .02 floor can itself alter color ratios. At event32, verify
+actual floor current/previous receiver support, independently evaluate x0/y1
+from the copied input regions, and require the known valid receiver's age2.
+If it becomes invalid, preserve the reset result and mark the reactive-history
+path uncovered instead of attributing success to a forced reset.
+
+At light-off64, known black current and9 current-neighbor raw values imply
+mean0/sigma.02. Before half storage each temporal channel is <=.02 because
+history is clipped at.04 and alpha>=1/2. A half format may round that up:
+the initial storage envelope is0.0200042724609375 (next half >=.02), not a
+post hoc tolerance increase. Thereafter use only a prospective scalar bound:
+u=2^-24, gamma32=32u/(1-32u), alphaLower=(1-gamma32)*max(float32(.08),1/min(k+2,32)),
+B0=ceilHalf(.02*(1+gamma32)),
+Bk=ceilHalf(B[k-1]*(1-alphaLower)*(1+gamma32)+2^-126), for offset k=1..31.
+The32-operation guard covers up to4 weight-times-history products,4 history
+accumulations,4 weight accumulations, division, alpha division, and the final
+lerp, with spare allowance for weight construction/FMA alternatives. Nonnegative
+weights and their shared normalization keep exact reconstruction convex; clamp
+cannot enlarge a positive upper bound. This is a sufficient error bound, not
+an exact temporal reimplementation.
+ceilHalf is directed upward over nonnegative finite binary16 values. This covers
+RTZ and RNE storage without fitting a residual. Resets/shorter histories/larger
+confidence alpha can only decrease this zero-input upper bound.
+
+For each off-frame target, reconstruct its actual previous UV independently
+from recorded motion/previousVP and current geometry, and verify every positive
+bilinear support coordinate is present in the fixed5x5 observation. Test each
+actual previous support RGB against B[k-1] and age<=min(k+1,32), and current
+3x3 raw against known black. These are assertions against the independently
+propagated bound, not using measured previous history as the new expected bound.
+If correspondence/support is unavailable, label that sample uncovered; never
+assume center-only history or silently substitute nearest history. Capture also
+the nearest predecessor used by fallback. All selected output channels must
+respect Bk. Report actual residual history, source-color response, unknown
+intervals, clamp/temporal allowances and missing coverage separately.
+If any captured off-phase support has unknown current radiance, the global
+zero-input envelope attribution for subsequent frames is conservatively marked
+uncovered. Retention after an unknown is allowed by the product; exceeding a
+bound whose known-input premise is absent is not called a product defect.
+
+The outcome can establish a finite real receiver response or expose a concrete
+counterexample. Native exit0 alone is not dynamic-quality acceptance. No whole
+scene multi-bounce, arbitrary material, moving camera or performance conclusion.
+Keep02 and all prior evidence byte-identical. Root alone executes/deploys.

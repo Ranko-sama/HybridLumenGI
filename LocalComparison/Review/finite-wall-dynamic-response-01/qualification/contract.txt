@@ -1,0 +1,45 @@
+Additional input-history coverage qualification, frozen before this layer reads
+the native compact buffers. No Unity/GPU rerun. The original analyze.py remains
+f691fd1385bdb39176fee9dd74a42e6934eeb6cbf5ab76125194c05e5c6d6d9e and its
+analysis-source.json remainsbf5d822ee8221cca75d6a1b6af195948cd632c80e0e0e6dfe456ba6ef4f6085d.
+Original contract, color ratios, half-storage rules and all32 temporal upper
+bounds are unchanged. The first analysis remains a distinct historical result.
+
+Check phase32 and64..95:27 fixed target pixels ×33 frames =891 qualifications.
+Use the existing outward float32 interval helpers and actual recorded motion,
+jitter, current depth/inverseVP and previousVP to enclose the previous UV.
+Require the nearest and all potential positive-weight bilinear centers to lie
+within the already-captured5x5 support. A missing/indeterminate/off-screen
+support is uncovered, never a product counterexample by itself.
+
+At every predecessor, check current and previous geometry using their own
+camera projection and inverse-projection, including the existing independent
+floor raster-depth interval. Decode actual shading-normal oct and geometric
+oct12+12 codes with outward arithmetic. D3D11.3 section22.10.19 permits rsq
+relative error2^-21; section22.10.21 specifies sqrt precision1 ULP. Enclose
+those operations explicitly, then prove strict Ns>.9, Ng>.85, both plane
+distances and Euclidean distance < .015*max(1,abs(viewDepth)), and material
+RGB difference <.1. Use the actual float32 source settings; never widen gates.
+Source: https://microsoft.github.io/DirectX-Specs/d3d/archive/D3D11_3_FunctionalSpec.htm
+
+Require actual current raw confidence and current output history confidence
+positive and finite, valid output moments/age, a valid global history receipt,
+and positive finite predecessor confidence/moments/age. RGB numerical values
+are not decoded; exponent-bit finite checks close the history-validity premise
+without inspecting the measured color or choosing any numerical threshold.
+Phase32 additionally requires established predecessor age>2. A current-only
+reset is uncovered for reactive reuse even if its current signal is correct.
+
+Preserve per-sample classification and minimum proven gate margins. Every
+qualification failure due to unavailable inputs is uncovered; malformed ABI
+or modified source/evidence is a separate qualification error. Combined
+acceptance requires both the unchanged original response analysis and all891
+input qualifications. Link every examined native JSON/buffer/change payload
+hash back to that original analysis; never attach its RGB verdict to new data.
+
+Pure-input tests precede native qualification and read no native data. They
+cover motion and matrix paths, UV/clip/support unavailable classification,
+previous geometry/material rejection, zero current/previous history confidence,
+nonfinite previous-history bit patterns, current-only reset, unknown raw, and
+RGB value non-decoding. The first run's single reason-substring mismatch is
+preserved with its source snapshots; its classification was already correct.

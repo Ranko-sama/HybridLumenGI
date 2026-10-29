@@ -4,7 +4,7 @@
 
 ## 原生整合与独立颜色参考（2026-10-29）
 
-进一步完成[Release71](ReviewBrief-CurrentLocalRelease71.md)显式后台 Player 的120帧及HDR验证，退出正常；首次渲染99.24秒仍保留为限制。该整合已结束，接续工作是真实变色／关灯接收器响应和有限缓存反馈参考。
+进一步完成[Release71](ReviewBrief-CurrentLocalRelease71.md)显式后台 Player 的120帧及HDR验证，退出正常；首次渲染99.24秒仍保留为限制。随后[真实变色／关灯接收器响应](ReviewBrief-FiniteWallDynamicResponse01.md)一次96帧通过2,592项首分析及891项独立输入资格；首次渲染141.34秒。当前接续有限缓存反馈参考，保留整体动态画质和生产验收边界。
 
 后续已将269241b部署到Unity，完成[真实纹理历史验证和Release70构建](ReviewBrief-CurrentColorDynamicsIntegration01.md)；两个隐藏Player无相机回调的失败保留。新增[完整Feature有限色墙参考](ReviewBrief-FiniteWallColorReference02.md)，27个像素／216条射线符合独立单bounce期望；原输入地面精度FAIL保留，使用同数据另层光栅精度资格，颜色阈值未改。继续推进真实变色／关灯响应与可后台验证的Player接线，不把局部完成当原计划结束。
 
