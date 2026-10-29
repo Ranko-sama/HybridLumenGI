@@ -1,0 +1,66 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 67
+DECISION: INTEGRATE_CURRENT_RELEASE
+PACKAGE: current-local-release-67
+SCOPE: 一次当前构建、一次Final HDR运行；默认零产品修改
+
+一、采用这一个整合方向，不重审66
+
+已确认 HybridLumenGI / workspace:/ / main@2fefc09，README标题为`HybridLumenGI`。已先读取提案中的独立Astra意见，再检查现有启动、构建、采集、恢复入口与环境合同。66按既定条件结项，不重新验证。
+
+本包有具体采用价值：把已接受源码交付为可运行版本，并让合法Cube首次进入完整Feature路径。 它推进原目标1／4及工作流7／10，不再追加Surface小项，也不把新图当成物理真值或动态质量验收。
+
+现有启动器已经分离两条路径：普通模式常驻并导航，有限Final模式固定采集后退出。因此同一EXE可以保留普通操作能力，只运行一次现有Final采集分支；无需再做键盘矩阵。〔LocalReleaseBootstrap.cs:43–82、89–121〕
+
+二、冻结一个输入，走真实Feature，不新增运行时资源框架
+
+使用现有 Functional／colorView、640×360、Final、当前Additive合成。灯、材质、相机、曝光、降噪、反馈及预算保持原配置；唯一新增场景输入是静态环境Cube。
+
+Cube直接复用63的六面输入定义：2×2、线性RGBAFloat、无mip、Bilinear／Clamp、alpha＝1；六面RGB按原`Faces`数组原样保存，不另选天空、不缩放亮度，也不根据截图改值。它是明确的工程演示辐射输入，不是目标天空或颜色真值。〔StaticEnvironmentCubeEditor.cs:25–35〕
+
+优先将其保存为一个本包专用的静态`.asset`，绑定到实际`Functional.capture.feature`，而非另建Feature或直接设置测试kernel。已有归档和提案指向`Assets/Comparison/Renderer.asset`、local fileID 5043623260922118210；执行前须从当前场景引用确认这一身份。〔归档`Functional.unity:419`；`Renderer.asset:54–68`〕
+
+资产生成、赋值和保存必须发生在本次BuildReport冻结输入之前，可并入唯一构建进程的准备阶段。把实际Renderer、Cube及meta纳入构建输入和备份；不要为此另启动Unity准备进程。通过序列化引用让默认模式与有限采集模式使用同一个Cube，尽量不改bootstrap的运行控制流。
+
+**寿命规则：**Player使用构建内的静态资产，Feature仅借用；运行期间不更换、改写、Destroy或Unload该Cube。HDR读回结束只清理私有采集目标，不能顺带释放环境资产。无效格式或引用缺失对本包是输入失败，不能悄悄退回常量后仍称Cube整合成功。产品本身的回退语义不修改。〔EnvironmentRadiance.md:5–11；`RendererFeature.cs:1124–1140`〕
+
+三、执行和来源：一份产物，两种入口语义
+并行准备，根执行层独占整合
+
+输入lane负责Cube定义、来源和实际Feature引用；来源lane负责新目录路由、构建清单与恢复核对。两者可并行，但不各自写Unity工程或修改共享runner。根执行层统一安装、构建、运行、恢复和git整合。
+
+产品Runtime／Editor保持当前HEAD字节。相对部署7190c28，预期产品差异是Feature、Transport、Kernels、Surface四处，以实际文件清单核实，不能只凭数量认定来源一致。
+
+先备份7190c28部署，再部署当前已接受源码。后续恢复的是临时harness、Renderer、Cube／meta及历史include覆盖，产品部署保留本次当前基线，不误回退7190c28。新旧Release目录和原FAIL均不覆盖。
+
+唯一构建与运行
+
+授权 一次既有托管预检、一次Release构建、一次可见DX12 Player：
+
+构建复用`CurrentPlayerBuild`的Windows x64／Mono／Linear／DX12、`BuildOptions.None`。若增加Editor资产准备代码，单次预检按63已有方式同时编译runtime和Editor程序集；不另建检查框架。
+新建`LocalRelease67`输出目录；既有包装只增加67路由，不能复用54／58的硬编码目标覆盖旧产物。
+唯一运行使用现有`-localReleaseFinalImage120`：120个实际目标相机帧，在logical119保存一组原始RGBA32F／EXR／固定映射PNG，然后沿原`Update→Finish→Application.Quit`路径正常结束。
+
+Capture、读回完成条件、预览映射和`SingleFinalCaptureMethods`保持原语义。目标RT从首帧固定，不能末帧换目标、清历史或挑更好看的帧。〔SingleFinalCaptureMethods.cs.txt:2–30；`LocalReleaseBootstrap.cs:153–169`〕
+
+交付启动器继续默认不带有限模式参数，保留WASD／QE、方向键、R和Escape的既有代码；普通窗口常驻。此次实际执行的是同EXE的有限HDR分支，不能写成当前键盘交互又实测了一次。
+
+四、只收集能够决定采用的证据
+采用问题	最小证据与判断
+是否确为当前可用产物？	当前产品、实际构建输入及完整产物清单对应；Release／None成功；同一EXE保留默认导航入口。构建警告如实保留，不把历史23条当必须匹配的数量。
+Cube是否进入真实Feature配置？	构建内资产身份、格式与内容对应冻结定义；当前Feature引用非空且准入成立，既有实际GI路径正常推进，无Cube回退／绑定错误。只在现有启动／结果收据中保存必要身份，不增加GPU探针。
+是否取得可判读的当前Final？	唯一末帧身份、尺寸、格式、有限值及文件哈希成立；实际打开PNG确认场景构成和采集模式可解释，视觉观察与自动数据检查分别记录。
+是否正常退出并恢复？	原生exit0、无watchdog；沿用现有日志判读，核对临时文件恢复与新产品部署身份。未采集的退休字段不能当作owner归零。
+
+保留入口已有的必要就绪检查，但关闭旧audit探针、720帧自动事件、退休trace及计时入口。不启用门、移灯、形变、多视点事件，不增加阶段读回或逐帧观察器。
+
+合法Cube配置加完整渲染执行，支持本次Feature整合；单张Final并不能量化Cube贡献或证明每条miss实际采样。 HDR相机目标也不等于普通backbuffer。新环境改变了输入，不能把与54旧图的亮度差称为算法改善；Additive原有重复环境贡献风险仍按原合同说明，不自动切换替换模式或清除URP环境。〔EnvironmentRadiance.md:11–13〕
+
+五、有限出口
+
+来源一致、合法Cube接入完整Feature、取得可判读Final HDR并正常退出／恢复，即交一次集中复核并结束。 成功后才将Release67设为新的本机入口，Release58保留回退；旧图和旧版本证据不重标。
+
+首次预检、构建、运行或资格判读失败，保留原记录并停止；只依据明确整合阻断决定后续修复，本授权不包含第二次构建／运行、补帧、调亮度或放宽门槛。纯路径错误也须记录其发生在何阶段，不能消除已发生的行为失败。
+
+这次继续计入既有Release交付投入，不新增算法完成项。四项目标、十条工作流保持开放；生产预算待答，Surface专项及暗区、MC、曝光、计时、移灯、恢复、多视点调查均不重开。

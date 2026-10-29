@@ -1,0 +1,68 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 67
+DECISION: ADOPT_FINITE_AND_CLOSE
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: hlod-cold-start-root-fallback-01（68）
+
+一、采用Release67，允许本地提交
+
+67满足既定有限采用条件。允许提交整合代码与证据，并将Release67设为新的本机入口；Release58保留回退，不追加运行。
+
+已确认 HybridLumenGI / workspace:/ / main@2fefc09，README标题为`HybridLumenGI`。已先列取再读取287–291，检查构建／运行分析、资产接线与恢复实现、原生日志和git差异，且实际打开了本轮`frame-0119.png`。本层没有修改或重跑。
+
+采用依据不是只有“分析通过”：
+
+来源与完整执行对应。 BuildReport为Release／None、0 errors／23 warnings；Cube与Renderer实际构建依赖匹配，运行时Cube通过原产品准入。120个目标相机帧完成，公开GI进度推进，末段22个硬件mesh、132张ready card，进程7808正常退出0、无watchdog。产品Runtime／Editor无本轮修改。〔build-report.json:1–23；`analyze67.py:24–49`；`native-window/analysis.json`；输出287–291〕
+
+恢复没有混淆产品版本与临时输入。 四份产品差异更新到2fefc09并保留；临时harness、Renderer和Cube／meta恢复。Player仍携带构建时的Cube资产，不能把编辑器恢复后的空引用解释为Player缺失输入。〔prepare67.py:17–32、80–93；`analysis67-build.json`〕
+
+图像确实可判读。 实际PNG中红色左墙、蓝青分块右墙、浅紫地面、前柱和红绿柱清楚可辨，部分边缘有颗粒／阶梯表现；未从这张图建立具体产品阻断。环境输入已经改变，不能拿它与54的亮度差证明算法改善。
+
+101.249秒首帧等待是实际使用限制，不是合格性能。 23条构建warning、阴影图集降分辨率警告及info-queue诊断继续保留；无需为本次有限采用调查原因。实际执行的是同一EXE的有限HDR分支，导航代码保留但没有重新进行键盘验收。HDR目标也不是普通backbuffer；未采集字段的默认零值不能证明资源清零。〔native-window/player.log:10、32–35；`native-window/analysis.json:12–56`〕
+
+本次允许同步主入口的版本与限制说明，不另开文档包。旧FAIL、历史图像和各版本的原生证据不重标。
+
+二、68优先修复HLOD冷启动缺口
+
+认可Astra与lane的方向，实际源码支持这一具体问题。 它对应原目标3、工作流4／8，不重开多视点或流式IO矩阵，也不需要另配一个没有反例的world／MIS修复。
+
+**P2条件性进展缺口：**近场冷启动、33个叶节点、合法容量32、组内没有旧发布表示，但存在可用的单root。当前代码先将全部细节设为target；完整target放不下时直接跳过。root属于grouped集合，又不能从普通候选路径进入，因此在这些输入不变时始终没有warming对象，也无法取得后续readiness。〔HybridLumenGIScene.cs:364–407〕
+
+现有容量测试先在远处发布root，再验证近场放不下时保留它，没有覆盖上述“从空表示开始”的情况。这解释了缺口，而不是否定既有测试。〔HlodProgram.cs.txt:61–68〕
+
+目前是源码可推导的反例，尚未执行68的验证；不能说67画面已经发生该故障。
+
+三、最小产品方案：只改变初始目标选择
+
+优先仅修改 Runtime/HybridLumenGIScene.cs的`SelectAtomicGroups`：
+
+在构造近场细节target之后、调用`ReadyToPublish`之前，若该组没有旧发布表示，且完整细节集合本身超过已规范化的总Capacity，将本次准备目标改为已有root。root仍经原`AddSelected(..., phase=2)`、上传预算和readiness流程。
+
+首版限定这个明确的“组本身超容量”条件，不顺势处理其他组暂时占槽、抢占、排序或全局容量重分配。
+
+关键不变量：
+
+不能直接发布root。 不伪造readiness，不手动设`initialized`／published，不把上传完成当作几何、材质和照明全部就绪。
+不能只在容量失败分支临时塞入root。 下一帧必须仍把它识别为待完成目标，已有的完整readiness才能正常发布；否则只是暖了一帧又丢掉。
+不改变已有表示保护。 已发布root／details继续优先保留；细节重新具备完整原子暂存条件时，按原机制准备并切换，不永久强制far状态。
+PendingCapacity仍应如实表示细节需求受阻，按组计数，不因回退准备重复计数。保留原far范围、滞回、revision拒绝、Representation脏标记及BVH只含published的规则。
+
+不自动生成代理、不新增资源池、slot或GPU格式；root仍是作者提供的现有Proxy，场景继续拥有原buffer，GPU完成与资产寿命仍由原调用方管理。〔Scene.cs:117–128、437–453；`HybridLumenGIHlodReadiness.cs:12–17`〕
+
+四、一次有限旧源／候选对照即可决定采用
+
+复用 Validate-HlodTransactions.ps1与实际Scene／BVH／Readiness源码。实现lane只拥有Scene改动；参考lane独立冻结预期与HlodProgram增量，两者可并行准备，根执行层统一执行和整合。不新增观察器或测试框架。
+
+决策问题	最小判据
+冷启动是否确实停滞，候选是否恢复进展？	固定33叶／32槽／上传预算1／近场。旧源保持空published、空warming及容量阻塞；候选只准备root。无收据、错误revision或缺lighting收据都不能发布；完整当前收据后才出现唯一root及对应BVH叶。
+是否误损失可容纳的细节或已有覆盖？	32叶／32槽的空场景仍直接准备完整细节，不因多加root而制造新的容量阻塞；复用原“已发布root＋32叶”控制，继续保留root而不部分发布。
+回退是否成为永久锁定？	在同一有限序列中令有效细节集合缩小到可与root同时暂存：root保持到所有目标就绪，再一次性切换；没有root／details重复遮挡。
+
+保留既有相关readiness、上传预算和原子发布守卫，不扩到原生IO、HLOD画质、多个相机或设备故障。
+
+额度：一次冻结旧源命令、一次同输入候选命令；零Unity／Player／GPU运行。 CPU收据及假buffer适配只能证明选择、准备与发布状态机，不能认证真实GPU完成或代理视觉覆盖。
+
+**退出条件：**旧反例成立，候选通过原预算和完整readiness获得root覆盖，可容纳细节与已有表示不退化，即交一次集中复核并结束。无反例、首次候选失败或需要扩展到抢占／生命周期重构时，保存首个分歧并停止，不自动重试。
+
+现在采用并提交67，随后执行上述唯一68修复。 四项目标、十条工作流继续开放；Surface、world／MIS、图像、暗区、MC、曝光、计时、移灯、恢复及多视点工作不因本包重新展开。

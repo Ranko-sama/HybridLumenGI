@@ -6,9 +6,9 @@
 
 66继续采用产品实现与独立参考并行，补齐普通Surface的stock Lit视差UV。实际Vert插值/Frag主反例符合独立参考；零偏移四个float的1ULP逐位FAIL保留，获Pro明确数值资格；唯一续行只补未执行off控制和四个完整编译，全部通过，满足Pro条件提交与有限结项。见[视差结果](ReviewBrief-SurfaceParallaxUv01.md)。累计Surface36/51/52/65/66，不将夹具数量算作整体进度；这条材质修复线收束。
 
-最新本机入口：Release58，已构建产品来源7e387a512cbb4355fd5f3d9f3c76282375f9cd3b；后续HEAD不自动替换EXE来源。[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease58/Start-LocalRelease.cmd>)默认常驻，WASD/QE移动、方向键转向、R复位、Esc退出。一普通Release构建、一实际键盘巡视及正常退出获Astra和实际Pro58有限采用，112产品源/189产物一致；23条构建警告和首postcheck误判保留。Pro58未独立读取图片。静态Final HDR图像仍为Release54/a9292cb；[62移灯观察](ReviewBrief-LocalLightMoveResponse01.md)另有7190c28的五份IndirectOnly HDR，有限动态证据与静态基线分开。运行尺寸640×360不是生产目标。
+最新本机入口及静态Final HDR：Release67，已构建产品来源2fefc097b36084e05e88653d8dff8466caf9d513；后续HEAD不自动替换EXE来源。[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease67/Start-LocalRelease.cmd>)保留默认常驻和58导航代码，本轮未重复键盘验收。一次Release/None构建及一次真实120帧末帧HDR采集正常exit0，112产品源/189产物、实际Feature静态Cube与恢复均首判通过；23条warning和101.249秒首帧等待保留。Astra及实际Pro67有限采用，Pro实际读取PNG。见[67整合结果](ReviewBrief-CurrentLocalRelease67.md)。固定六面环境输入改变，不能用与54的亮度差证明算法改善；640×360不是生产目标。
 
-45–57各已实现能力保留自己的有限专项证据；58巡视不补齐未触发原生条件，不证明动态GI质量。Release44的300秒公开计账仍对应5120a8c；54单次HDR图像仍对应a9292cb。明确拒绝和待验收配置见[支持范围](ProductionPlan.md#当前支持范围与证据层级)，本轮边界见[58巡视结果](ReviewBrief-LocalReleaseNavigation01.md)。整体画质、性能、总显存、预算目标与G0–G5继续开放；四项目标和十条工作流不标为完成。
+各能力保留自己的有限专项证据，67静态整合不补齐未触发原生条件或动态质量。Release58/7e387a5的[键盘巡视](ReviewBrief-LocalReleaseNavigation01.md)和入口保留回退；Release44/5120a8c的300秒公开计账、54/a9292cb的旧HDR、[62/7190c28移灯观察](ReviewBrief-LocalLightMoveResponse01.md)均保持原来源。明确拒绝和待验收配置见[支持范围](ProductionPlan.md#当前支持范围与证据层级)。整体画质、性能、总显存、预算目标与G0–G5继续开放；四项目标和十条工作流不标为完成。下一步为68冷启动近场HLOD组自身超容量时的已有root回退，Astra和lane独立识别，Pro67已给最小计划；不再制造第二条world/MIS修复线。
 
 | 工作流 | 已有实现/审查依据 | 当前版本新增或复用证据的边界 | 剩余验收与下一问题 |
 | --- | --- | --- | --- |
@@ -21,7 +21,7 @@
 | 7 URP Lit / DXR | 源 UV/多材质、alpha/Cull、native diffuse规则 | 3088d41同构建软件/DXR各120帧证据获Pro20/21有限接受；iteration25单槽MPB自动发现、实际上传、目标历史重建及一条实际正权重消费链已获Pro25有限接受 | 槽1屏幕历史仍未覆盖；形变、全场景材质一致性、软件差异解释与动态质量 |
 | 8 流式与预算 | 异步AssetBundle、完整组准入、HLOD原子切换、独立额度；资源页与可选Additive场景的显式附加视点冷加载需求；默认关闭的计时/完成记录导出 | 41实际representation/driver/scheduler验证资源页附加视点冷需求；59实际ChunkStreaming有限序列证明Additive需求合并、共享额度与卸载权限，完整driver编译；60仅对固定六页组完成真实辅助Transform→距离需求→异步IO→完整绑定的原生有限采用；不外推Additive IO/多渲染相机。e1aa6356的512源帧NativeDX12有限成本基线保留来源，23轮复用优化收益未超过波动而撤回 | 固定组以外的多视点原生综合使用、冷暖/高速移动/总VRAM与生产预算仍开放；不重跑已完成在途撤回和正常退出矩阵 |
 | 9 可重复回归 | 离线入口、固定场景、HDR和来源清单 | denoise-03有限场景；gather真实消费/偏移可见性；失败cache反例；理想能量及实际关灯链；新增固定源帧GPU成本基线；均保留来源和失败记录 | 按具体热点或动态/材质反例增加最小验证；不重复已完成关灯链、Player冒烟或同类函数夹具 |
-| 10 工程验收 | Unity环境、普通Release默认常驻入口、当前Player与来源清单、键盘巡视 | Release58/7e387a5一build/一普通可见Player完成移动/转向/松键/复位与正常退出，112产品源/189产物。Release54/a9292cb保留120帧单次HDR图像，Release44/5120a8c保留300秒公开计账，各自来源不混用 | 整应用/动态/Release尾延迟、参考图/动态质量、总显存与生产长测、G0–G5支持范围仍开放；本机巡视不等于整体验收 |
+| 10 工程验收 | Unity环境、普通Release默认常驻入口、当前Player与来源清单、键盘巡视 | Release67/2fefc09一build/一120帧可见Player、实际Feature静态HDR Cube与末帧HDR、正常退出，112产品源/189产物；101.249秒首帧仍为限制。58键盘巡视、54旧HDR、44公开计账保留各自来源，不混用 | 整应用/动态/Release尾延迟、参考图/动态质量、总显存与生产长测、G0–G5支持范围仍开放；当前整合不等于整体验收 |
 
 实际环境已知：Unity6000.0.85f1 / URP17.0.4 / Windows DX12 / RTX2080Ti。目标FPS、GI GPU预算和总显存验收阈值尚未确定，不伪造。可继续正确性开发和测量，不能据此宣布生产完成。朋友交付不再是依赖或停点。
 
