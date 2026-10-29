@@ -16,6 +16,8 @@
 
 已知且有效的零漫反射表面，其入射光项权重严格为零。世界命中按现有`clamp(diffuse,0,.98)`判断，屏幕命中按捕获RGB精确全零判断：通过原命中/材质及有限性资格后，只返回原发光贡献；世界路径仍乘原发光MIS权重，total与非解析来源输出保持同一发光值。无关阴影或反弹缓存的unknown不再撤销这份已知发光／已知黑。未知材质、非有限输入和任何小正漫反射不会借此变成已知零；屏幕命中与距离、非零路径的方程和未知规则保持。该改动不扩展完整金属镜面传输，也不构成实测加速或整景颜色验收。见[修复结果与Release80整合](../LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)。
 
+后续源码对严格零AO作同类收束：仍计算有效直接光与Le，仅跳过权重为零的反弹缓存查询；微小非零AO与异常输入保持原处理，屏幕沿用原材质AO解码。该追加只有独立源码审阅，未单独编译、运行或部署；当前已构建Release80不包含它，等待下一次必要整合。反馈系数为零原本已经跳过缓存，不重复算作修复。
+
 接收面的 GameObject layer bit 必须与 `Light.cullingMask` 相交。URP rendering layers 启用时，再检查接收面的 rendering-layer mask 与灯的照明 mask；照明 mask 来自 `UniversalAdditionalLightData.renderingLayers`，按 URP 的已定义层限制。阴影 mask 最终读取原生 `Light.renderingLayerMask`：URP 通常按 `customShadowLayers ? shadowRenderingLayers : renderingLayers` 同步它，但脚本之后直接覆盖原生值时，以实际原生值为准。因此不能把它当照明 mask，也不能只从 AdditionalLightData 推导投影策略。[固定版本的层数据与同步实现](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/Runtime/UniversalAdditionalLightData.cs#L166)、[照明层规范化](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/Runtime/ForwardLights.cs#L537)。
 
 灯记录的独立 flag 指示是否启用 rendering-layer 过滤，不能用 mask 是否为零推断功能开关。启用时 mask=0 是合法空集合；禁用时跳过这一维过滤，包括接收面 rendering mask=0 的情况。GameObject `cullingMask=0` 始终排除所有接收面与投影者。所有 mask 保留完整 uint32，包括 bit 31。

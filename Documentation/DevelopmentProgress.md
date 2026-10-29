@@ -1,5 +1,7 @@
 # 完整原计划推进表
 
+原计划目标1／工作流2继续收束同类源码缺口：在正漫反射但AO严格为零时，世界与屏幕消费者仍会因没有贡献的cache unknown丢弃合法直接光／Le。现在只保护这两处缓存查询，保留来源、direct、非零AO及有限性规则；屏幕额外保持非有限反馈的原拒绝路径。独立源码审阅通过，Astra判断不需要单独新增测试或重建；没有编译／运行通过声明。BounceFeedback=0原本已有正确门控，不是新增缺口，逐参数核查在此结束。**本项只保留于源码，当前已构建Release80（ca5600f）尚不包含它**，也未部署到Unity工程；随下一次必要功能整合构建。
+
 原计划目标1／工作流2关闭“零漫反射仍因无关入射查询未知而丢弃有效辐射”的具体缺口：[屏幕与世界路径修复](../LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)只在原有效来源的漫反射项严格为零时返回原Le／已知黑，世界保留发光MIS与来源分离；小正值、无效来源和端点规则保持。必要的实际函数固定对照通过，Astra同意采用且结束此条验证；未增加整景颜色、残留、拖影、精确收敛或性能通过项。已通过公开入口构建[Release80](<I:/Unity test/Comparison/Builds/LocalRelease80/Start-LocalRelease.cmd>)，0错误／19条warning，当前启动入口同步；沿用保存统一示例，无重复Player、画面或哈希检查。
 
 原计划目标3/工作流4关闭“真实Skinned尚未进入统一普通使用流程”的缺口：[同一门物体的两种形变来源](../LocalComparison/Review/skinned-unified-usage-01/result.md)现可由K切换，Space共用启停；保留可读Mesh，Skin实际经骨骼和既有BakeMesh快照管线。一次必要使用序列确认运动发布、停稳来源匹配、Feature发布及切回/关闭恢复。首尝试为零渲染的临时驱动启动失败，保留后只修初始化调用完成单次重试；产品与判据未改。Astra已采用并结束此条验证。它是样例集成，不重复计为新Skinned算法；任意Skinned配置、整体运动画质与性能仍开放，已通过公开入口构建[Release79](<I:/Unity test/Comparison/Builds/LocalRelease79/Start-LocalRelease.cmd>)并更新当前启动入口，实际使用依据保留上述Unity序列，未重复启动Player。

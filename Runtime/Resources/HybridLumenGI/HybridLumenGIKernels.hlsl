@@ -245,9 +245,13 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                     if(worldMatch && _HLGI_BounceFeedback>0)
                     {
                         float materialAO=HLGIScreenMaterialAO(emission.a,_HLGI_NativeComposition!=0,diffuse.a);
-                        bool cacheKnown;float3 cached=CachedIrradiance(match,n,cacheKnown);
-                        if(!cacheKnown) { known=false;return true; }
-                        radiance+=diffuse.rgb*materialAO*_HLGI_BounceFeedback*cached;
+                        // Zero AO removes the cache term; invalid feedback keeps its original rejection path.
+                        if(materialAO!=0 || !isfinite(_HLGI_BounceFeedback))
+                        {
+                            bool cacheKnown;float3 cached=CachedIrradiance(match,n,cacheKnown);
+                            if(!cacheKnown) { known=false;return true; }
+                            radiance+=diffuse.rgb*materialAO*_HLGI_BounceFeedback*cached;
+                        }
                     }
                     known=all(isfinite(radiance));return true;
                 }

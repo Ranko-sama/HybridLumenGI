@@ -457,7 +457,7 @@ float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFo
         return emissionOnly;
     }
     HLGICacheEntry cached=(HLGICacheEntry)0;
-    if(materialResolved && _HLGI_BounceFeedback>0)
+    if(materialResolved && _HLGI_BounceFeedback>0 && ao!=0)
     {
         float3 queryNg=HLGIHitHas(hit.flags,HLGI_HIT_ORIENTED_NG)?hit.rawNg:surface.geometricNormal;
         bool cacheKnown;
