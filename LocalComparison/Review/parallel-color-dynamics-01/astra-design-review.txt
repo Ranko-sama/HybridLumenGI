@@ -1,0 +1,9 @@
+Independent GPT-6 Astra xhigh review, 2026-10-29.
+First reviewed original goals/current source before main and Pro proposals.
+Final finite design comparison:
+
+继续。A 修正合法 detail 亮化被提前截断：1.5×0.48=0.72，保持最终上限1，比扩展视差更直接。B 将一帧 reactive 信息保存在历史长度中；未知时只缩短 z，恢复后 age3，在冻结权重与相同置信度下 α=1/3，数学成立，拒绝规则不变。
+
+唯一关键风险：缩短 z 也会启用短历史滤波，不能把合同修复宣称为整景拖影或噪声改善。
+
+退出：真实 body 的旧反例、候选及保持控制通过即收束；失败保留，不扩造溢出例或追加 Unity。

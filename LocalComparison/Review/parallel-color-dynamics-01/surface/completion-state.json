@@ -1,0 +1,39 @@
+{
+  "baselinePassed": true,
+  "candidatePassed": true,
+  "baselineProductSha256": "b8e529a4cb019896ce03f77e852a582aff8071d766d555bca34fbdae6d68c961",
+  "candidateProductSha256": "1db0d9a01bd1abf55e1e9c8d1164441fe721ad78c733082ac89cff9833edd8db",
+  "currentProductSha256": "1db0d9a01bd1abf55e1e9c8d1164441fe721ad78c733082ac89cff9833edd8db",
+  "preparation": [
+    {
+      "path": "cases.json",
+      "sha256": "8fe2e8e06377f871c6440c789711cb867648191c824da35b55a6605b5778eb9e"
+    },
+    {
+      "path": "contract.md",
+      "sha256": "eeacdc0987f83a9d31f44b7a897de1c3b164f03e5d76a8a3d11bb9d2e2bfb7c5"
+    },
+    {
+      "path": "run_surface.py",
+      "sha256": "0b74c8150439ee09ab1e3efa1e4632ecd2c658b287164f60b4304ea55eed98ef"
+    },
+    {
+      "path": "prepared-manifest.json",
+      "sha256": "85d194ceb5fb775c6cb5861fb697afc34f6cbc19e25cc9c52e6154dc6615aa66"
+    }
+  ],
+  "inputs": [
+    {
+      "file": "metal-inputs.bin",
+      "baselineSha256": "e68cf1d4eb0ad662ba3a82cda0a30fc3c9e248bbbefd08edc7517c4c2aeaf3e1",
+      "candidateSha256": "e68cf1d4eb0ad662ba3a82cda0a30fc3c9e248bbbefd08edc7517c4c2aeaf3e1",
+      "identical": true
+    },
+    {
+      "file": "spec-inputs.bin",
+      "baselineSha256": "e531d59b7cf4394ebdcacd7b0179821e358ee5c492e41e162df1568ed74cc340",
+      "candidateSha256": "e531d59b7cf4394ebdcacd7b0179821e358ee5c492e41e162df1568ed74cc340",
+      "identical": true
+    }
+  ]
+}

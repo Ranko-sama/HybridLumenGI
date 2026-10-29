@@ -1,0 +1,47 @@
+Parallel correctness batch 65; baseline main@06d24a644ebe3b6c1c5daf48588460fca5c96aa5.
+
+User explicitly resumed development and requested parallel work because progress was slow.
+Full original plan remains authoritative (Documentation/OriginalDevelopmentPlan.md).
+Priority already answered: credible color bounce and stable dynamic changes. No friend delivery.
+This supersedes the earlier pause. Overall goal remains open; estimates of completion are not acceptance evidence.
+
+Independent Astra xhigh received original goals, current code and evidence before the main/Pro proposals.
+Its value -> smallest solution -> correctness verdict was CONTINUE with two disjoint product lines.
+It identified the temporal event-loss candidate below. Its larger parallax suggestion is not selected:
+the independently found clamp-order discrepancy gives a smaller concrete material fix.
+Prior cumulative Surface work 36/51/52 remains counted; no new observers or renamed test campaigns.
+
+A: ordinary screen reflectance clamp order. Owner transport_lane.
+Surface.shader:155 clamps albedo before the diffuse split, unlike pinned URP/CardCapture/HitMaterials.
+Legal colored detail can produce albedo >1 but final reflectance <.98. For base1, MulX2 detail
+(.75,.25,.125), mask1, metallic.5, old rho(.48,.24,.12) vs correct(.72,.24,.12).
+Proposed sole expression change: saturate(albedo * diffuseFraction). Keep ordinary [0,1] cap.
+See surface/proposal.txt, contract.md, cases.json and run_surface.py. Prepared only, not run.
+One frozen old and one candidate actual-Vert/Frag WARP invocation, three decision-bearing cases,
+four affected full-fragment compilations. No Unity/Player or parallax expansion for this line.
+
+B: reactive light-change signal is lost when the current estimate is unknown. Owner temporal_lane.
+ChangeRegions.Begin clears reactive each frame; Lights.Update emits only changed light snapshots;
+Feature passes pure lighting changes as change.x=0,y=1 without hard rejecting same-surface history.
+Kernels:468 preserves entire old moments in unknown-current branch, bypassing reactive cap2 at:526.
+Thus next known frame after event disappears may retain age32/current weight.08. Real raw gather
+can be unknown on otherwise legal receiver geometry, so this is an actual reachable combination.
+Minimal proposal: after each of the two ResolveUnknownHistory calls, if(change.y>0.5)
+retainedMoments.z=min(retainedMoments.z,2). No helper/resources/layout/gates/RGBA/moments.xyw changes.
+Second fallback (bad neighborhood statistics) has same semantics, but finite RGBA16F raw cannot
+ordinarily overflow float32 nine-tap sums; do not invent an ordinary runtime case for that branch.
+Use existing actual temporal body fixture for both entry variants, old/candidate once.
+Fixed main sequence: mature age32, one unknown reactive frame, known1.03125 next nonreactive frame.
+Expect old age32 then32 vs candidate2 then3, retained other components identical, correct blend/moments.
+Controls: unknown nonreactive unchanged, invalid history zero, age1 never increased by unknown,
+known reactive unchanged. Respect actual radiance/moment formats and avoid clipping confound.
+Worker is preparing temporal/proposal.txt and fixture only; no product changes or tests run yet.
+
+Root owns shared Feature/scene/deployment/docs/git and any Unity singleton. Workers own disjoint
+Surface and two Kernels branches with separate evidence directories. No parallel Unity processes.
+Request one combined Pro plan, then concurrent implementation and targeted verification, one
+combined review and local commit. No automatic full Player rebuild or full regression matrix.
+If B needs native Unity, root integrates once after frozen sources; actual consumer WARP is preferred
+when it can decide this finite shader fix without recreating the algorithm in the test.
+Do not claim whole-scene image quality, production performance, or all original goals completed.
+Stop these two fixes after fixed defects plus preservation controls pass and review accepts.

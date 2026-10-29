@@ -1,0 +1,72 @@
+[
+  {
+    "name": "metal-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSSurfaceClampOrder",
+      "-D",
+      "_EMISSION=1",
+      "-D",
+      "_OCCLUSIONMAP=1",
+      "-D",
+      "_DETAIL_MULX2=1",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline\\metal.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline\\actual-surface.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "metal-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline\\metal.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline\\metal-inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline\\metal.bin"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "spec-compile",
+    "arguments": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSSurfaceClampOrder",
+      "-D",
+      "_EMISSION=1",
+      "-D",
+      "_OCCLUSIONMAP=1",
+      "-D",
+      "_DETAIL_MULX2=1",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline\\spec.dxil",
+      "-D",
+      "_SPECULAR_SETUP=1",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline\\actual-surface.hlsl"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "spec-warp",
+    "arguments": [
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline\\spec.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline\\spec-inputs.bin",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\baseline\\spec.bin"
+    ],
+    "exitCode": 0
+  }
+]

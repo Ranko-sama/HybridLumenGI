@@ -1,0 +1,359 @@
+{
+  "passed": true,
+  "stage": "candidate",
+  "oldCounterexampleEstablished": false,
+  "rows": [
+    {
+      "case": "legal-detail-colored-counterexample",
+      "diffuse": [
+        0.7199999690055847,
+        0.23999999463558197,
+        0.11999999731779099,
+        0.5
+      ],
+      "expected": [
+        0.72,
+        0.24,
+        0.12
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "predicates": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "checks": {
+        "expected": true,
+        "referenceRole": true,
+        "payload": true,
+        "unrelatedUnchanged": true,
+        "controlsUnchanged": true,
+        "unaffectedChannels": true
+      }
+    },
+    {
+      "case": "bounded-albedo-unchanged-control",
+      "diffuse": [
+        0.11999999731779099,
+        0.23999999463558197,
+        0.35999998450279236,
+        0.5
+      ],
+      "expected": [
+        0.12,
+        0.24,
+        0.36
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "predicates": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "checks": {
+        "expected": true,
+        "referenceRole": true,
+        "payload": true,
+        "unrelatedUnchanged": true,
+        "controlsUnchanged": true,
+        "unaffectedChannels": true
+      }
+    },
+    {
+      "case": "ordinary-one-cap-unchanged-control",
+      "diffuse": [
+        1.0,
+        1.0,
+        1.0,
+        0.5
+      ],
+      "expected": [
+        1,
+        1,
+        1
+      ],
+      "emission": [
+        0.125,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "predicates": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "checks": {
+        "expected": true,
+        "referenceRole": true,
+        "payload": true,
+        "unrelatedUnchanged": true,
+        "controlsUnchanged": true,
+        "unaffectedChannels": true
+      }
+    }
+  ],
+  "failures": [],
+  "commands": [
+    {
+      "name": "metal-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceClampOrder",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-D",
+        "_DETAIL_MULX2=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\metal.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\actual-surface.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "metal-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\metal.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\metal-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\metal.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "spec-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceClampOrder",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-D",
+        "_DETAIL_MULX2=1",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\spec.dxil",
+        "-D",
+        "_SPECULAR_SETUP=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\actual-surface.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "spec-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\spec.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\spec-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\spec.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-metal-_detail_mulx2-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\full-metal-_detail_mulx2.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-D",
+        "_DETAIL_MULX2=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-metal-_detail_scaled-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\full-metal-_detail_scaled.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-D",
+        "_DETAIL_SCALED=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-spec-_detail_mulx2-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\full-spec-_detail_mulx2.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-D",
+        "_DETAIL_MULX2=1",
+        "-D",
+        "_SPECULAR_SETUP=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "full-spec-_detail_scaled-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-E",
+        "Frag",
+        "-T",
+        "ps_6_0",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\full-spec-_detail_scaled.dxil",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_FRAGMENT=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-D",
+        "_DETAIL_SCALED=1",
+        "-D",
+        "_SPECULAR_SETUP=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\surface\\candidate\\surface-full-pass.hlsl"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\ShaderLibrary\\BRDF.hlsl",
+      "sha256": "1e8427056b0ab3046adf753d72fc3afee3d54c335e38a4d1069e6eedb0f78075"
+    },
+    {
+      "path": "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\Shaders\\LitInput.hlsl",
+      "sha256": "4790ecd2f2c8093113b702fdc106486a63308754802c58995f2f0a8121b5b516"
+    },
+    {
+      "path": "I:\\Unity test\\Project\\Library\\PackageCache\\com.unity.render-pipelines.universal@947f725e83ac\\Shaders\\Lit.shader",
+      "sha256": "dd9a625d92079fb8f923f4085747f5de524cdf1dd6fe52767aee0bbbac5792fc"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIScreenMaterial.hlsl",
+      "sha256": "757f6f0b32397cc2c2c928e7e394c7dd0dc29d3e840c8433286f4118509e879e"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverPolicyCapture.hlsl",
+      "sha256": "5772f5cfc8dd7fb3eaaa59f6e7a5c65bf10cd2d0a16fd6671d0a6b7278440845"
+    }
+  ],
+  "runner": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+  "runnerSha256": "8dc02bf76d564dba07b117af905335c1281377e8d7fd9e5853e6cd1a07324cb4",
+  "dxcSha256": "7c6918a0e2d4e437629fa8549f5ce800970494780f363bbbe1e3d3034f435aee",
+  "productSha256": "1db0d9a01bd1abf55e1e9c8d1164441fe721ad78c733082ac89cff9833edd8db",
+  "sourceSha256": "8cc0493c2a79f6b382b766973cee5440bcfd80cc8ca76ac35f7a0b3944b9af20",
+  "colorAbsoluteBound": 2e-06,
+  "scope": "Actual Vert/Frag with fixed shader-space texture/raster adapters on existing WARP host; candidate full fragment compilation. No Unity/native raster/image or performance qualification."
+}

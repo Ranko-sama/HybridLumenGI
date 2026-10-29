@@ -1,0 +1,27 @@
+Surface reflectance clamp order (original goals 1/4, workflows 2/7).
+
+Current Surface.shader line 155 clamps albedo before the diffuse BRDF split.
+Legal MulX2 detail inputs can produce albedo > 1 while final rho remains < .98.
+With base RGB 1, detail RGB (.75,.25,.125), mask 1 and metallic .5, old
+screen rho is (.48,.24,.12); pinned URP/CardCapture/hit material give
+(.72,.24,.12). This is a source discrepancy, not attribution of an old image.
+
+Proposed sole product edit:
+  saturate(albedo) * diffuseFraction
+to
+  saturate(albedo * diffuseFraction)
+Keep ordinary output bound [0,1], all shader keywords, formats and other fields.
+Do not introduce the world-cache .98 cap here or alter Kernels/Feature.
+
+Exactly three fixed cases are in cases.json and contract.md. The first is the
+colored counterexample; the second preserves ordinary bounded input; the third
+preserves the existing [0,1] cap using legal specular workflow and detail.
+Use actual frozen/current Vert+Frag via the existing source-matched WARP host,
+one baseline and one candidate invocation, then four full fragment compilations
+(metal/spec x MulX2/Scaled). No Unity, Player, new host, image, sampling, UV or
+parallax work. Pin only this lane's consumed dependencies; concurrent Kernels
+changes are unrelated. No product edit or execution has occurred at preparation.
+
+Prior 36/51/52 work deliberately preserved this clamp; 36 explicitly used
+albedo below 1. This candidate counts toward cumulative Surface work and does
+not reopen their accepted conclusions or claim complete material qualification.

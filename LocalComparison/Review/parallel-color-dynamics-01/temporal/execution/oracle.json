@@ -1,0 +1,80 @@
+{
+  "cases": [
+    {
+      "name": "reactive-unknown",
+      "reactive": 1,
+      "length": 32,
+      "alphaOld": 0.08,
+      "alphaNew": 0.3333333333333333,
+      "eventOld": 32,
+      "eventNew": 2,
+      "recoveryOld": 32,
+      "recoveryNew": 3
+    },
+    {
+      "name": "nonreactive-unknown",
+      "reactive": 0,
+      "length": 32,
+      "alphaOld": 0.08,
+      "alphaNew": 0.08,
+      "eventOld": 32,
+      "eventNew": 32,
+      "recoveryOld": 32,
+      "recoveryNew": 32
+    },
+    {
+      "name": "invalid-old",
+      "reactive": 1,
+      "length": 32,
+      "invalid": true,
+      "alphaOld": 1,
+      "alphaNew": 1,
+      "eventOld": 0,
+      "eventNew": 0,
+      "recoveryOld": 1,
+      "recoveryNew": 1
+    },
+    {
+      "name": "short-old",
+      "reactive": 1,
+      "length": 1,
+      "alphaOld": 0.5,
+      "alphaNew": 0.5,
+      "eventOld": 1,
+      "eventNew": 1,
+      "recoveryOld": 2,
+      "recoveryNew": 2
+    },
+    {
+      "name": "known-reactive",
+      "reactive": 1,
+      "length": 32,
+      "known": true,
+      "alphaOld": 0.3333333333333333,
+      "alphaNew": 0.3333333333333333,
+      "eventOld": 2,
+      "eventNew": 2,
+      "recoveryOld": 3,
+      "recoveryNew": 3
+    },
+    {
+      "name": "hard-rejected",
+      "reactive": 1,
+      "length": 32,
+      "hard": true,
+      "alphaOld": 1,
+      "alphaNew": 1,
+      "eventOld": 0,
+      "eventNew": 0,
+      "recoveryOld": 1,
+      "recoveryNew": 1
+    }
+  ],
+  "inputStride": 176,
+  "outputStride": 64,
+  "sourceHashes": {
+    "baseline": "189993d7ebaaa8143b8d53b2743e4b5ca93698e0ac08c04152e43a97bbbe9834",
+    "candidate": "160ae3a6962b961a6ce660e1f963c74bb84b9868c665bc228a7aa2b51ad63c87"
+  },
+  "scope": "Actual temporal body with explicit fixed dependency/half-rounding adapters; not real texture-format or scene evidence"
+}

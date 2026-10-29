@@ -1,0 +1,35 @@
+[
+  {
+    "name": "legal-detail-colored-counterexample",
+    "variant": "metal",
+    "baseColor": [1, 1, 1, 1],
+    "detail": [0.75, 0.25, 0.125, 1],
+    "metallic": 0.5,
+    "specular": [0.5, 0.5, 0.5, 1],
+    "baselineExpected": [0.48, 0.24, 0.12],
+    "candidateExpected": [0.72, 0.24, 0.12],
+    "counterexample": true
+  },
+  {
+    "name": "bounded-albedo-unchanged-control",
+    "variant": "metal",
+    "baseColor": [0.25, 0.5, 0.75, 1],
+    "detail": [0.5, 0.5, 0.5, 1],
+    "metallic": 0.5,
+    "specular": [0.5, 0.5, 0.5, 1],
+    "baselineExpected": [0.12, 0.24, 0.36],
+    "candidateExpected": [0.12, 0.24, 0.36],
+    "counterexample": false
+  },
+  {
+    "name": "ordinary-one-cap-unchanged-control",
+    "variant": "spec",
+    "baseColor": [1, 1, 1, 1],
+    "detail": [1, 1, 1, 1],
+    "metallic": 0,
+    "specular": [0, 0, 0, 1],
+    "baselineExpected": [1, 1, 1],
+    "candidateExpected": [1, 1, 1],
+    "counterexample": false
+  }
+]

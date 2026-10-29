@@ -1,0 +1,57 @@
+Temporal lane proposal: retain one-frame lighting reactivity during unknown current GI
+Prepared against product HEAD 06d24a6; no product edit or verification execution yet.
+
+Current-source causal finding
+- HybridLumenGIChangeRegions.cs:27 clears global/local reaction state each Begin.
+- HybridLumenGILights.cs:74 clears changes; :104-114 reports only old/new unmatched
+  light records. A one-time light edit followed by an unchanged light need not
+  reissue the lighting-change domain on the following frame.
+- RendererFeature.cs:1201-1203 and :1254-1259 add these domains for this frame.
+  Pure lighting does not cause the scene full-invalidation branch at :697-698.
+- Changes.hlsl gives pure lighting change.x=0/change.y=1. Receiver, geometry,
+  identity, material and history-validity gates can all remain valid.
+- Kernels.hlsl:468-472 returns an unknown-current estimate through the actual
+  HLGIResolveUnknownHistory helper with the complete old moments, bypassing the
+  reactive length cap at :526. Therefore the sole reactive event can be lost.
+- The statistic-failure fallback at :518-522 has the same omission. Ordinary
+  finite RGBA16F input cannot overflow a nine-value float32 sum, so this second
+  branch is not claimed as a demonstrated normal-format trigger.
+
+Proposed exact product change, only after the unified Pro65 plan permits it:
+After each of the two HLGIResolveUnknownHistory calls in Kernels.hlsl, add:
+    if(change.y>0.5) retainedMoments.z=min(retainedMoments.z,2);
+Preserve retained RGB, confidence and moments.x/y/w. Do not increment an unknown
+sample; no invalid history is resurrected. Nonreactive exact retention and all
+known-current paths remain unchanged. No change to RadianceValidity, filter
+sigma, geometry/identity gates, exposure, transport, formats or C# code.
+
+Decision evidence to prepare, not execute before Pro65:
+One old/candidate paired D3D12 WARP batch, both actual temporal entry variants.
+Reuse the existing ReceiverTemporalWarp host unchanged (176-byte input,
+64-byte output). Extract the actual temporal body, TemporalTapMatches,
+TrySubpixelHistory, WorldPosition, ProjectUV and LuminanceGI from the frozen
+source. Only resource Load fixtures and output lvalues are adapted. Actual
+ScreenSampling, ReceiverTemporal and RadianceValidity helper bytes are frozen.
+Compile the legacy and HLGI_RECEIVER_IDENTITY preprocessor variants. The latter
+uses actual identity eligibility and primitive predicates with a fixed valid row.
+No wrapper reimplements the history formula.
+
+A legitimate mature history is a direct fixture input; a 32-frame warmup has no
+additional decision value. Required execution is unknown+reactive followed by
+known recovery after reactivity clears. Fixed control rows preserve nonreactive,
+invalid-history, short-history, known-reactive, and hard-rejection behavior.
+See contract.txt for complete values, bounds and stopping rules.
+
+Scope: actual temporal consumer arithmetic/control-flow with explicit 1x1
+resource, geometry and projection fixtures, running on software WARP. Explicit
+f32tof16/f16tof32 radiance rounding is an adapter model. The corresponding CPU
+rounding oracle is not independent proof of a real RGBA16F texture/UAV format.
+This can decide this two-line correction, not motion/reprojection integration,
+GPU texture behavior, scene incidence, flicker, absolute ghosting or overall G3.
+No Unity, Player, scene capture or shared runner changes are required.
+
+Preparation simplification: reuse the existing built ReceiverTemporalWarp.exe
+identified in host-reuse.json. Its cpp/CMake SHA matches the frozen host, and its
+current executable SHA matches the artifact in a retained passed report. The
+runner verifies those identities, needs only DXC/Node/WARP, and performs no new
+VS/CMake host build. No cases or numerical bounds changed.

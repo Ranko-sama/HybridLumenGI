@@ -1,0 +1,52 @@
+Temporal lane: PASSED; exact tested candidate adopted, not committed.
+
+Approved scope: Pro65 parallel-color-dynamics-01, six fixed rows in each of the
+two actual temporal entry variants, old/candidate pair, no Unity or scene run.
+One product-test launch, exit 0. Ten child commands all exit 0: input preparation,
+four DXC compiles, four existing-host WARP dispatches, one fixed oracle verify.
+375 assertions, 12 paired result rows. No behavioral rerun or widened contract.
+
+Actual results, identical across legacy/identity variants:
+reactive unknown event: baseline moments.z=32; candidate=2. Retained RGBA and
+moments.x/y/w are bit-identical. Both preserve (RGB,confidence)=(1,1).
+Following known recovery, reactive cleared:
+  baseline: RGB=1.001953125, moments=(1.002500057220459,
+            1.0050780773162842,32,0)
+  candidate: RGB=1.009765625, moments=(1.0104166269302368,
+             1.0211588144302368,3,0)
+Confidence remains1. Results match the predeclared .08 versus 1/3 analytic
+weights within the frozen bounds; no history clipping is needed in this input.
+The RGB values are observed explicit f32tof16/f16tof32 adapter conversion
+results, not assertions about real RGBA16F texture/UAV storage.
+
+Five fixed controls are completely bit-identical old/candidate: nonreactive
+unknown, invalid old history, old length1, known reactive, and hard rejection.
+Invalid/hard-rejected event output and moments remain all zero. All values are
+finite. The shared-body preprocessor variants have identical qualified results.
+
+Identity/source evidence:
+Old Kernels SHA256 189993D7EBAAA8143B8D53B2743E4B5CA93698E0AC08C04152E43A97BBBE9834
+Tested/adopted SHA256 160AE3A6962B961A6CE660E1F963C74BB84B9868C665BC228A7AA2B51AD63C87
+Product differs by exactly the declared two retainedMoments.z cap lines. The
+runner enforces that comparison before compilation. All tracked test inputs,
+actual helpers and reused host identities remain unchanged during execution.
+Existing executable reused without VS/CMake build:
+D6A8D0C6A0E881C2FECE0AF65DC9A9627AD5E54DC1F4D0AF684300CB91BDE270
+Its original cpp/CMake match frozen source and its SHA matches the retained
+passed host report. host-reuse.json identifies all paths and hashes.
+
+Evidence entry points:
+- launch-result.json: exact outer executable/arguments/stdout/exit.
+- execution/result.json: full child commands, logs, exits, source/artifact hashes.
+- execution/oracle-results.json: all 12 paired numeric records and assertions.
+- execution/{baseline,candidate}/ActualTemporalBody.hlsl: extracted actual body.
+- execution/*.dxil, *.ll, *.bin: compiled identities and original readbacks.
+- adoption.json: baseline unchanged before adopting exact tested candidate bytes.
+
+Boundaries: production identity predicates and history-validity helpers execute,
+but geometry decoding, projection and resource Loads are explicit fixed 1x1
+adapters. Radiance conversion is an explicit half model, not real texture proof.
+The defensive nonfinite-neighborhood return is source-wired and compiled but not
+claimed as a reachable ordinary-half overflow case. No filter changes, scene
+incidence, physical GPU, motion integration, flicker, absolute ghosting or full
+dynamic quality conclusions. No shared helper/runner, C#, deployment or git edits.

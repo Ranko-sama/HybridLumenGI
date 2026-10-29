@@ -152,7 +152,7 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                     emission = max(0.0h, _EmissionColor.rgb * SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, input.uv).rgb);
                 #endif
                 SurfaceOutput output;
-                output.diffuseOcclusion = half4(saturate(albedo) * diffuseFraction, saturate(occlusion));
+                output.diffuseOcclusion = half4(saturate(albedo * diffuseFraction), saturate(occlusion));
                 output.emissionValidity = half4(emission, HLGIEncodeScreenMaterial(1.0h, HLGICaptureReceivesShadows()));
                 output.receiverPolicy = HLGICaptureReceiverPolicy();
                 return output;

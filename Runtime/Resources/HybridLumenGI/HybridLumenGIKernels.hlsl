@@ -469,6 +469,7 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
     {
         float4 retained,retainedMoments;
         HLGIResolveUnknownHistory(valid,history,moments,retained,retainedMoments);
+        if(change.y>0.5) retainedMoments.z=min(retainedMoments.z,2);
         _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
     }
     // Reconstruction may improve an already accepted known measurement only.
@@ -519,6 +520,7 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
     {
         float4 retained,retainedMoments;
         HLGIResolveUnknownHistory(valid,history,moments,retained,retainedMoments);
+        if(change.y>0.5) retainedMoments.z=min(retainedMoments.z,2);
         _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
     }
     float3 sigma=sqrt(max(second-mean*mean,0))+0.02;

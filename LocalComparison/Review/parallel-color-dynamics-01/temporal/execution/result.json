@@ -1,0 +1,1025 @@
+{
+  "schemaVersion": 1,
+  "kind": "ReactiveUnknownTemporalActualBody",
+  "status": "passed",
+  "startedUtc": "2026-10-29T03:39:40.6999824Z",
+  "scope": "Paired extracted actual temporal body, both preprocessor variants, fixed 1x1 resource/geometry/projection and explicit half-rounding adapters on software WARP. No Unity, real texture-format/UAV validation, physical GPU, scene incidence or dynamic quality claim.",
+  "unityExecuted": false,
+  "physicalGpuExecuted": false,
+  "candidatePath": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\candidate-kernel.hlsl",
+  "artifactDirectory": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution",
+  "reusedHost": {
+    "schemaVersion": 1,
+    "selection": "Existing passed standalone run; cpp/CMake bytes match frozen source; current executable SHA matches its retained report artifact",
+    "directory": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6",
+    "files": {
+      "cpp": {
+        "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\ReceiverTemporalWarp.cpp",
+        "sha256": "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+      },
+      "cmake": {
+        "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\CMakeLists.txt",
+        "sha256": "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+      },
+      "exe": {
+        "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+        "sha256": "D6A8D0C6A0E881C2FECE0AF65DC9A9627AD5E54DC1F4D0AF684300CB91BDE270"
+      },
+      "priorReport": {
+        "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\receiver-temporal-results.json",
+        "sha256": "0FC7CB121DB107312376A1D68C9A2C2FC4DF48D57D44F79CD42C258CB9F3826C"
+      }
+    }
+  },
+  "tools": {
+    "dxc": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+    "node": "C:\\Program Files\\nodejs\\node.exe",
+    "existingWarpHost": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+    "existingWarpHostSha256": "D6A8D0C6A0E881C2FECE0AF65DC9A9627AD5E54DC1F4D0AF684300CB91BDE270"
+  },
+  "warpExecuted": true,
+  "oracle": {
+    "status": "passed",
+    "cases": [
+      {
+        "name": "reactive-unknown",
+        "mode": "legacy",
+        "baseline": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          32,
+          0,
+          1.001953125,
+          1.001953125,
+          1.001953125,
+          1,
+          1.002500057220459,
+          1.0050780773162842,
+          32,
+          0
+        ],
+        "candidate": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          0,
+          1.009765625,
+          1.009765625,
+          1.009765625,
+          1,
+          1.0104166269302368,
+          1.0211588144302368,
+          3,
+          0
+        ]
+      },
+      {
+        "name": "nonreactive-unknown",
+        "mode": "legacy",
+        "baseline": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          32,
+          0,
+          1.001953125,
+          1.001953125,
+          1.001953125,
+          1,
+          1.002500057220459,
+          1.0050780773162842,
+          32,
+          0
+        ],
+        "candidate": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          32,
+          0,
+          1.001953125,
+          1.001953125,
+          1.001953125,
+          1,
+          1.002500057220459,
+          1.0050780773162842,
+          32,
+          0
+        ]
+      },
+      {
+        "name": "invalid-old",
+        "mode": "legacy",
+        "baseline": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.03125,
+          1.03125,
+          1.03125,
+          1,
+          1.03125,
+          1.0634765625,
+          1,
+          0
+        ],
+        "candidate": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.03125,
+          1.03125,
+          1.03125,
+          1,
+          1.03125,
+          1.0634765625,
+          1,
+          0
+        ]
+      },
+      {
+        "name": "short-old",
+        "mode": "legacy",
+        "baseline": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1.015625,
+          1.015625,
+          1.015625,
+          1,
+          1.015625,
+          1.03173828125,
+          2,
+          0
+        ],
+        "candidate": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1.015625,
+          1.015625,
+          1.015625,
+          1,
+          1.015625,
+          1.03173828125,
+          2,
+          0
+        ]
+      },
+      {
+        "name": "known-reactive",
+        "mode": "legacy",
+        "baseline": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          0,
+          1.009765625,
+          1.009765625,
+          1.009765625,
+          1,
+          1.0104166269302368,
+          1.0211588144302368,
+          3,
+          0
+        ],
+        "candidate": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          0,
+          1.009765625,
+          1.009765625,
+          1.009765625,
+          1,
+          1.0104166269302368,
+          1.0211588144302368,
+          3,
+          0
+        ]
+      },
+      {
+        "name": "hard-rejected",
+        "mode": "legacy",
+        "baseline": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.03125,
+          1.03125,
+          1.03125,
+          1,
+          1.03125,
+          1.0634765625,
+          1,
+          0
+        ],
+        "candidate": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.03125,
+          1.03125,
+          1.03125,
+          1,
+          1.03125,
+          1.0634765625,
+          1,
+          0
+        ]
+      },
+      {
+        "name": "reactive-unknown",
+        "mode": "identity",
+        "baseline": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          32,
+          0,
+          1.001953125,
+          1.001953125,
+          1.001953125,
+          1,
+          1.002500057220459,
+          1.0050780773162842,
+          32,
+          0
+        ],
+        "candidate": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          0,
+          1.009765625,
+          1.009765625,
+          1.009765625,
+          1,
+          1.0104166269302368,
+          1.0211588144302368,
+          3,
+          0
+        ]
+      },
+      {
+        "name": "nonreactive-unknown",
+        "mode": "identity",
+        "baseline": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          32,
+          0,
+          1.001953125,
+          1.001953125,
+          1.001953125,
+          1,
+          1.002500057220459,
+          1.0050780773162842,
+          32,
+          0
+        ],
+        "candidate": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          32,
+          0,
+          1.001953125,
+          1.001953125,
+          1.001953125,
+          1,
+          1.002500057220459,
+          1.0050780773162842,
+          32,
+          0
+        ]
+      },
+      {
+        "name": "invalid-old",
+        "mode": "identity",
+        "baseline": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.03125,
+          1.03125,
+          1.03125,
+          1,
+          1.03125,
+          1.0634765625,
+          1,
+          0
+        ],
+        "candidate": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.03125,
+          1.03125,
+          1.03125,
+          1,
+          1.03125,
+          1.0634765625,
+          1,
+          0
+        ]
+      },
+      {
+        "name": "short-old",
+        "mode": "identity",
+        "baseline": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1.015625,
+          1.015625,
+          1.015625,
+          1,
+          1.015625,
+          1.03173828125,
+          2,
+          0
+        ],
+        "candidate": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1.015625,
+          1.015625,
+          1.015625,
+          1,
+          1.015625,
+          1.03173828125,
+          2,
+          0
+        ]
+      },
+      {
+        "name": "known-reactive",
+        "mode": "identity",
+        "baseline": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          0,
+          1.009765625,
+          1.009765625,
+          1.009765625,
+          1,
+          1.0104166269302368,
+          1.0211588144302368,
+          3,
+          0
+        ],
+        "candidate": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          0,
+          1.009765625,
+          1.009765625,
+          1.009765625,
+          1,
+          1.0104166269302368,
+          1.0211588144302368,
+          3,
+          0
+        ]
+      },
+      {
+        "name": "hard-rejected",
+        "mode": "identity",
+        "baseline": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.03125,
+          1.03125,
+          1.03125,
+          1,
+          1.03125,
+          1.0634765625,
+          1,
+          0
+        ],
+        "candidate": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.03125,
+          1.03125,
+          1.03125,
+          1,
+          1.03125,
+          1.0634765625,
+          1,
+          0
+        ]
+      }
+    ],
+    "scope": "Finite actual-body WARP consumer comparison; no Unity/physical GPU/real texture-format proof",
+    "checks": 375
+  },
+  "sources": [
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\candidate-kernel.hlsl",
+      "sha256": "160AE3A6962B961A6CE660E1F963C74BB84B9868C665BC228A7AA2B51AD63C87"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\proposal.txt",
+      "sha256": "09B0423222D3A0C2F2C57F6630A0B6AF98955C6B0B2464E5E6AD8FDD7715131B"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\contract.txt",
+      "sha256": "5F9B6866310F922B28D9A36C0C168ACD3BCD7152D200C4CFDB43FBE0A14BBBBD"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\TemporalReactionAdapters.hlsl",
+      "sha256": "713A6725C1C0A3AE5B85B7BB8B0CBC9D26B68BB15CC8C68868B9D524EC1201A4"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\TemporalReactionOracle.mjs",
+      "sha256": "05657BB57D5E9D38726A5B49A65CF2EB660FC727D44D48500B948D00F28A8396"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\Run-TemporalReaction.ps1",
+      "sha256": "045A7E0579413AC5A60A1509EE38CC4463EE8449386CC156307E8E90F7311170"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen-manifest.json",
+      "sha256": "BF96D096553B8CD95A03317448A5989AD97EF27D9D86B509C1311318AFD6E458"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\host-reuse.json",
+      "sha256": "6086B0FC658A2A6FCCA6A7BEB332DFE497A521EEE1452214011845C1FB6207A2"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\CMakeLists.txt",
+      "sha256": "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\HybridLumenGIKernels.hlsl",
+      "sha256": "189993D7EBAAA8143B8D53B2743E4B5CA93698E0AC08C04152E43A97BBBE9834"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\HybridLumenGIRadianceValidity.hlsl",
+      "sha256": "C86A90BB01DA33D26D06D2F34686AC24ED5D0086F7202E79846ABB25CA17637E"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\HybridLumenGIReceiverIdentity.hlsl",
+      "sha256": "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\HybridLumenGIReceiverTemporal.hlsl",
+      "sha256": "9EFEC293CA3475A00BA584765FBED9ADFD60129EAED3099407F5DDB10498478A"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\HybridLumenGIScreenSampling.hlsl",
+      "sha256": "25607FFEBA963C9C7A2E1474F99337C3E4AC4079DB5CC6AC54E6D1D3505F52CF"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\Invoke-OfflineCheck.ps1",
+      "sha256": "A7FD1B3AB734151B816D79941D7381517563AA44514C6CA3C04C12029BEED446"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\ReceiverTemporalWarp.cpp.txt",
+      "sha256": "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\ReceiverTemporalWarp.cpp",
+      "sha256": "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\CMakeLists.txt",
+      "sha256": "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+      "sha256": "D6A8D0C6A0E881C2FECE0AF65DC9A9627AD5E54DC1F4D0AF684300CB91BDE270"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\receiver-temporal-results.json",
+      "sha256": "0FC7CB121DB107312376A1D68C9A2C2FC4DF48D57D44F79CD42C258CB9F3826C"
+    }
+  ],
+  "sourcesAfter": [
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\candidate-kernel.hlsl",
+      "sha256": "160AE3A6962B961A6CE660E1F963C74BB84B9868C665BC228A7AA2B51AD63C87"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\proposal.txt",
+      "sha256": "09B0423222D3A0C2F2C57F6630A0B6AF98955C6B0B2464E5E6AD8FDD7715131B"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\contract.txt",
+      "sha256": "5F9B6866310F922B28D9A36C0C168ACD3BCD7152D200C4CFDB43FBE0A14BBBBD"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\TemporalReactionAdapters.hlsl",
+      "sha256": "713A6725C1C0A3AE5B85B7BB8B0CBC9D26B68BB15CC8C68868B9D524EC1201A4"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\TemporalReactionOracle.mjs",
+      "sha256": "05657BB57D5E9D38726A5B49A65CF2EB660FC727D44D48500B948D00F28A8396"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\Run-TemporalReaction.ps1",
+      "sha256": "045A7E0579413AC5A60A1509EE38CC4463EE8449386CC156307E8E90F7311170"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen-manifest.json",
+      "sha256": "BF96D096553B8CD95A03317448A5989AD97EF27D9D86B509C1311318AFD6E458"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\host-reuse.json",
+      "sha256": "6086B0FC658A2A6FCCA6A7BEB332DFE497A521EEE1452214011845C1FB6207A2"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\CMakeLists.txt",
+      "sha256": "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\HybridLumenGIKernels.hlsl",
+      "sha256": "189993D7EBAAA8143B8D53B2743E4B5CA93698E0AC08C04152E43A97BBBE9834"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\HybridLumenGIRadianceValidity.hlsl",
+      "sha256": "C86A90BB01DA33D26D06D2F34686AC24ED5D0086F7202E79846ABB25CA17637E"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\HybridLumenGIReceiverIdentity.hlsl",
+      "sha256": "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\HybridLumenGIReceiverTemporal.hlsl",
+      "sha256": "9EFEC293CA3475A00BA584765FBED9ADFD60129EAED3099407F5DDB10498478A"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\HybridLumenGIScreenSampling.hlsl",
+      "sha256": "25607FFEBA963C9C7A2E1474F99337C3E4AC4079DB5CC6AC54E6D1D3505F52CF"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\Invoke-OfflineCheck.ps1",
+      "sha256": "A7FD1B3AB734151B816D79941D7381517563AA44514C6CA3C04C12029BEED446"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen\\ReceiverTemporalWarp.cpp.txt",
+      "sha256": "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\ReceiverTemporalWarp.cpp",
+      "sha256": "4DE56FE29504C860B30AD8F27A116CBF03BED008304BDAA9571EBC6FB0381AAB"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\source\\CMakeLists.txt",
+      "sha256": "BDFFCD6345A97DFC2DB50CD152834CB2DA39A4C8ACA3ABDBEC398CEAFC922195"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+      "sha256": "D6A8D0C6A0E881C2FECE0AF65DC9A9627AD5E54DC1F4D0AF684300CB91BDE270"
+    },
+    {
+      "file": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\receiver-temporal-results.json",
+      "sha256": "0FC7CB121DB107312376A1D68C9A2C2FC4DF48D57D44F79CD42C258CB9F3826C"
+    }
+  ],
+  "checks": [
+    {
+      "name": "oracle-prepare",
+      "exitCode": 0,
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\oracle-prepare.log",
+      "output": "Prepared six fixed rows, two dependent calls per actual temporal variant; no GPU executed by prepare.\r\n",
+      "startedUtc": "2026-10-29T03:39:40.8437345Z",
+      "completedUtc": "2026-10-29T03:39:40.9265913Z",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\TemporalReactionOracle.mjs",
+        "prepare",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\candidate-kernel.hlsl"
+      ]
+    },
+    {
+      "name": "dxc-baseline-legacy",
+      "exitCode": 0,
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\dxc-baseline-legacy.log",
+      "output": "",
+      "startedUtc": "2026-10-29T03:39:40.9373122Z",
+      "completedUtc": "2026-10-29T03:39:41.0158695Z",
+      "executable": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "arguments": [
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSTemporalReactionTest",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-legacy.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-legacy.ll",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\TemporalReactionAdapters.hlsl"
+      ]
+    },
+    {
+      "name": "dxc-baseline-identity",
+      "exitCode": 0,
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\dxc-baseline-identity.log",
+      "output": "",
+      "startedUtc": "2026-10-29T03:39:41.0283117Z",
+      "completedUtc": "2026-10-29T03:39:41.1304102Z",
+      "executable": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "arguments": [
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSTemporalReactionTest",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-identity.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-identity.ll",
+        "-D",
+        "HLGI_RECEIVER_IDENTITY=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\TemporalReactionAdapters.hlsl"
+      ]
+    },
+    {
+      "name": "dxc-candidate-legacy",
+      "exitCode": 0,
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\dxc-candidate-legacy.log",
+      "output": "",
+      "startedUtc": "2026-10-29T03:39:41.1321589Z",
+      "completedUtc": "2026-10-29T03:39:41.2106011Z",
+      "executable": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "arguments": [
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSTemporalReactionTest",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-legacy.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-legacy.ll",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\TemporalReactionAdapters.hlsl"
+      ]
+    },
+    {
+      "name": "dxc-candidate-identity",
+      "exitCode": 0,
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\dxc-candidate-identity.log",
+      "output": "",
+      "startedUtc": "2026-10-29T03:39:41.2123857Z",
+      "completedUtc": "2026-10-29T03:39:41.3261844Z",
+      "executable": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "arguments": [
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSTemporalReactionTest",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\frozen",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-identity.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-identity.ll",
+        "-D",
+        "HLGI_RECEIVER_IDENTITY=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\TemporalReactionAdapters.hlsl"
+      ]
+    },
+    {
+      "name": "warp-baseline-legacy",
+      "exitCode": 0,
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\warp-baseline-legacy.log",
+      "output": "Actual ReceiverTemporal HLSL executed on D3D12 WARP: 6 cases, inputStride=176 outputStride=64; adapterVendor=5140 adapterDevice=140. No Unity or physical GPU.\r\n",
+      "startedUtc": "2026-10-29T03:39:41.3287985Z",
+      "completedUtc": "2026-10-29T03:39:41.4038264Z",
+      "executable": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-legacy.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-legacy.bin"
+      ]
+    },
+    {
+      "name": "warp-baseline-identity",
+      "exitCode": 0,
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\warp-baseline-identity.log",
+      "output": "Actual ReceiverTemporal HLSL executed on D3D12 WARP: 6 cases, inputStride=176 outputStride=64; adapterVendor=5140 adapterDevice=140. No Unity or physical GPU.\r\n",
+      "startedUtc": "2026-10-29T03:39:41.4048602Z",
+      "completedUtc": "2026-10-29T03:39:41.4635985Z",
+      "executable": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-identity.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-identity.bin"
+      ]
+    },
+    {
+      "name": "warp-candidate-legacy",
+      "exitCode": 0,
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\warp-candidate-legacy.log",
+      "output": "Actual ReceiverTemporal HLSL executed on D3D12 WARP: 6 cases, inputStride=176 outputStride=64; adapterVendor=5140 adapterDevice=140. No Unity or physical GPU.\r\n",
+      "startedUtc": "2026-10-29T03:39:41.4645668Z",
+      "completedUtc": "2026-10-29T03:39:41.5241788Z",
+      "executable": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-legacy.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-legacy.bin"
+      ]
+    },
+    {
+      "name": "warp-candidate-identity",
+      "exitCode": 0,
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\warp-candidate-identity.log",
+      "output": "Actual ReceiverTemporal HLSL executed on D3D12 WARP: 6 cases, inputStride=176 outputStride=64; adapterVendor=5140 adapterDevice=140. No Unity or physical GPU.\r\n",
+      "startedUtc": "2026-10-29T03:39:41.5250775Z",
+      "completedUtc": "2026-10-29T03:39:41.5832150Z",
+      "executable": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-identity.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-identity.bin"
+      ]
+    },
+    {
+      "name": "oracle-verify",
+      "exitCode": 0,
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\oracle-verify.log",
+      "output": "{\"status\":\"passed\",\"checks\":375,\"rows\":12}\r\n",
+      "startedUtc": "2026-10-29T03:39:41.5856767Z",
+      "completedUtc": "2026-10-29T03:39:41.6572862Z",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\TemporalReactionOracle.mjs",
+        "verify",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-identity.bin",
+      "bytes": 384,
+      "sha256": "0E034E3EB2DA2BEA2D1999B551441840E3B1B05213382A5C5E9DF6F34CF6BC1F"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-identity.dxil",
+      "bytes": 8060,
+      "sha256": "E023B34376B70F0B779468C83A0650B4335BDA8860601145713549A1EDF30A03"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-identity.ll",
+      "bytes": 30960,
+      "sha256": "FFB1A9D6BC88CF4FE924CDC10C06EEC9B8413A2CB9BCE180136352FFE1F8FE2B"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-legacy.bin",
+      "bytes": 384,
+      "sha256": "0E034E3EB2DA2BEA2D1999B551441840E3B1B05213382A5C5E9DF6F34CF6BC1F"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-legacy.dxil",
+      "bytes": 7344,
+      "sha256": "20EE4CF8967F13DF9A223078ACF0573B3D14CDBB27A248A3FB98A11068AB8573"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline-legacy.ll",
+      "bytes": 27566,
+      "sha256": "D90B3A9EFA6C29F7F1E0D3F294726C087F3B7053A805AF8110245EE3C3100B9F"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-identity.bin",
+      "bytes": 384,
+      "sha256": "66B61454AF7AD7AD12C9507B77AFCF93F33A03A3ACE6483473E35B302920ED7B"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-identity.dxil",
+      "bytes": 8096,
+      "sha256": "76693D54575A9144A6D0208066D79CA135C1A4A6F1144640C8A092DA01D07B28"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-identity.ll",
+      "bytes": 31335,
+      "sha256": "14086EBD507BDAA421622C6F534286DF562E0C4065F381D587BC451C1ABE39AC"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-legacy.bin",
+      "bytes": 384,
+      "sha256": "66B61454AF7AD7AD12C9507B77AFCF93F33A03A3ACE6483473E35B302920ED7B"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-legacy.dxil",
+      "bytes": 7380,
+      "sha256": "111EBDB28E7BDD0A5FE8F9A1F8A2118C713D0080DB82CF5DFA9C0638941F1B3E"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate-legacy.ll",
+      "bytes": 27894,
+      "sha256": "A6B0E2DDF2557A156D78D9922840C93B55CAA3AAC4C0521F597A971DD0E75CEB"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\dxc-baseline-identity.log",
+      "bytes": 2,
+      "sha256": "7EB70257593DA06F682A3DDDA54A9D260D4FC514F645237F5CA74B08F8DA61A6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\dxc-baseline-legacy.log",
+      "bytes": 2,
+      "sha256": "7EB70257593DA06F682A3DDDA54A9D260D4FC514F645237F5CA74B08F8DA61A6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\dxc-candidate-identity.log",
+      "bytes": 2,
+      "sha256": "7EB70257593DA06F682A3DDDA54A9D260D4FC514F645237F5CA74B08F8DA61A6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\dxc-candidate-legacy.log",
+      "bytes": 2,
+      "sha256": "7EB70257593DA06F682A3DDDA54A9D260D4FC514F645237F5CA74B08F8DA61A6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\inputs.bin",
+      "bytes": 1060,
+      "sha256": "C40D0E5F79D02E52D1A72585C43687E4EB95F53C2770BB3D40E875B4AED8FFEE"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\oracle-prepare.log",
+      "bytes": 105,
+      "sha256": "718CB00F8C1DB6D27D35FAA3F2319BEA2DE48814DAFBDD3FD026E51787E582AF"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\oracle-results.json",
+      "bytes": 7111,
+      "sha256": "2246705E5620F30A7D1EE9D9D32FFCDDCF712E6A5D528995A2120DF14ABCC47C"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\oracle-verify.log",
+      "bytes": 46,
+      "sha256": "78CA63484877EBE7F430CCE1765F72B1963E0E5F1F65B9F9276147318031933C"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\oracle.json",
+      "bytes": 1821,
+      "sha256": "EF583CD6D4D204574E60F94BDC4DF2FC9C327BE42DF64FDB641F3A3E34F425A8"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\warp-baseline-identity.log",
+      "bytes": 162,
+      "sha256": "2B03FFF7FDF9E258D8062E997EF939F229465C53C57A2D775F1E92FF6A529804"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\warp-baseline-legacy.log",
+      "bytes": 162,
+      "sha256": "2B03FFF7FDF9E258D8062E997EF939F229465C53C57A2D775F1E92FF6A529804"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\warp-candidate-identity.log",
+      "bytes": 162,
+      "sha256": "2B03FFF7FDF9E258D8062E997EF939F229465C53C57A2D775F1E92FF6A529804"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\warp-candidate-legacy.log",
+      "bytes": 162,
+      "sha256": "2B03FFF7FDF9E258D8062E997EF939F229465C53C57A2D775F1E92FF6A529804"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\baseline\\ActualTemporalBody.hlsl",
+      "bytes": 12381,
+      "sha256": "0D189DF513DE2776C4CE7D9731FE4E5E1444407B4A766A0AA439A936D4A8F0D4"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\parallel-color-dynamics-01\\temporal\\execution\\candidate\\ActualTemporalBody.hlsl",
+      "bytes": 12519,
+      "sha256": "260982A141DFA0B3AD75B6B545951B7C1391F35F468A30478EFD2DC3DA387EA7"
+    }
+  ],
+  "completedUtc": "2026-10-29T03:39:41.6903171Z"
+}
