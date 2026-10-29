@@ -1,0 +1,158 @@
+--- a/Runtime/HybridLumenGIScene.cs
++++ b/Runtime/HybridLumenGIScene.cs
+@@ -12,6 +12,23 @@
+     /// </summary>
+     public sealed class HybridLumenGIScene : IDisposable
+     {
++        /// <summary>Latest CPU scene selection. None of these values is a GPU completion fence.</summary>
++        public enum PublicationPhase { Unknown, Warming, Published }
++        public struct PublicationSnapshot
++        {
++            public PublicationPhase phase;
++            public int stableId, revision, hlodRootId, sceneRevision;
++            public int preparedEngineFrame, preparedWorkFrame;
++        }
++        public struct HlodPublicationSnapshot
++        {
++            public PublicationPhase phase;
++            public int rootStableId, sceneRevision;
++            public int preparedEngineFrame, preparedWorkFrame;
++            public int publishedCount, targetCount, targetWarmingCount, targetUnknownCount;
++            public bool transitioning, capacityFallback;
++        }
++
+         [Flags]
+         public enum ChangeKind { Added = 1, Removed = 2, Transform = 4, Material = 8, Topology = 16, Manual = 32, Representation = 64, Lighting = 128 }
+         public struct DirtyRegion
+@@ -123,6 +140,53 @@
+             if(!IsPublished(slot) && !IsWarming(slot)) return false;
+             bounds=traversalBounds[slot];return true;
+         }
++        // Pure queries of the latest Prepare; do not refresh proxies or advance residency here.
++        private bool TryGetPublicationSlot(HybridLumenGIProxy proxy, out int slot)
++        {
++            slot = -1;
++            return proxy != null && proxy.isActiveAndEnabled &&
++                slots.TryGetValue(proxy.StableId, out slot) && slot >= 0 && slot < Capacity &&
++                ReferenceEquals(owners[slot], proxy) && (int)Data[slot].identity.x == proxy.StableId &&
++                (int)Data[slot].identity.y == proxy.Revision && (IsPublished(slot) || IsWarming(slot));
++        }
++        internal bool TryGetPublication(HybridLumenGIProxy proxy, out PublicationSnapshot value)
++        {
++            value = new PublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1, sceneRevision = Revision };
++            if (!TryGetPublicationSlot(proxy, out int slot)) return false;
++            value.stableId = proxy.StableId; value.revision = (int)Data[slot].identity.y;
++            value.phase = IsPublished(slot) ? PublicationPhase.Published : PublicationPhase.Warming;
++            foreach (var pair in groups)
++                if (pair.Value.seen && (pair.Value.published.Contains(proxy.StableId) || pair.Value.target.Contains(proxy.StableId)))
++                { value.hlodRootId = pair.Key; break; }
++            return true;
++        }
++        internal bool TryGetHlodPublication(HybridLumenGIProxy root, List<HybridLumenGIProxy> published,
++            List<HybridLumenGIProxy> target, out HlodPublicationSnapshot value)
++        {
++            value = new HlodPublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1, sceneRevision = Revision };
++            if (root == null || !root.isActiveAndEnabled || !groups.TryGetValue(root.StableId, out HlodGroup group) ||
++                !ReferenceEquals(group.root, root) || !group.seen || group.target.Count == 0) return false;
++            value.rootStableId = root.StableId;
++            value.publishedCount = group.published.Count; value.targetCount = group.target.Count;
++            value.transitioning = !group.published.SetEquals(group.target); value.capacityFallback = group.capacityFallback;
++            // Validate the entire published set before exposing any member. A partial set must
++            // never become the sample's visible LOD, even if one member still has phase 1.
++            foreach (int id in group.published)
++                if (!activeById.TryGetValue(id, out HybridLumenGIProxy proxy) ||
++                    !TryGetPublicationSlot(proxy, out int slot) || !IsPublished(slot)) return false;
++            foreach (int id in group.target)
++            {
++                if (!activeById.TryGetValue(id, out HybridLumenGIProxy proxy) || proxy == null || !proxy.isActiveAndEnabled) return false;
++                if (!TryGetPublicationSlot(proxy, out int slot)) value.targetUnknownCount++;
++                else if (IsWarming(slot)) value.targetWarmingCount++;
++            }
++            foreach (int id in group.published) published.Add(activeById[id]);
++            foreach (int id in group.target) target.Add(activeById[id]);
++            value.phase = group.published.Count > 0 ? PublicationPhase.Published :
++                value.targetWarmingCount > 0 ? PublicationPhase.Warming : PublicationPhase.Unknown;
++            return true;
++        }
++
+         public void InvalidateReadiness() => readiness.Clear();
+ 
+         /// <summary>
+--- a/Runtime/HybridLumenGIRendererFeature.cs
++++ b/Runtime/HybridLumenGIRendererFeature.cs
+@@ -64,6 +64,26 @@
+         [Serializable] private sealed class DiagnosticReport
+         { public string scope="CPU resource estimates plus optional delayed GPU observations for the three GI render passes; excludes preparation uploads outside those passes and RTAS/driver allocation; not a hard GPU deadline";public CameraDiagnostics[] cameras; }
+         public CameraDiagnostics[] GetDiagnostics() => pass!=null?pass.GetDiagnostics():Array.Empty<CameraDiagnostics>();
++        /// <summary>Read-only latest Prepare snapshot for this exact camera and proxy, on the main thread.
++        /// A snapshot is not page readiness, GPU completion, or permission to unload resources.</summary>
++        public bool TryGetPublication(Camera camera, HybridLumenGIProxy proxy, out HybridLumenGIScene.PublicationSnapshot value)
++        {
++            value = new HybridLumenGIScene.PublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1 };
++            return isActive && pass != null && pass.TryGetPublication(camera, proxy, out value);
++        }
++        /// <summary>Read-only atomic HLOD selection. Caller-owned lists are cleared, then filled only
++        /// for a valid group. Published may remain the old representation while target is warming.
++        /// Lists are unordered; keep proxies enabled and do not use this result as a retirement fence.</summary>
++        public bool TryGetHlodPublication(Camera camera, HybridLumenGIProxy root, List<HybridLumenGIProxy> published,
++            List<HybridLumenGIProxy> target, out HybridLumenGIScene.HlodPublicationSnapshot value)
++        {
++            if (published == null) throw new ArgumentNullException(nameof(published));
++            if (target == null) throw new ArgumentNullException(nameof(target));
++            if (ReferenceEquals(published, target)) throw new ArgumentException("Published and target lists must be distinct.");
++            published.Clear(); target.Clear();
++            value = new HybridLumenGIScene.HlodPublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1 };
++            return isActive && pass != null && pass.TryGetHlodPublication(camera, root, published, target, out value);
++        }
+         [ContextMenu("Log Runtime Diagnostics")]
+         public void LogRuntimeDiagnostics() => Debug.Log(JsonUtility.ToJson(new DiagnosticReport{cameras=GetDiagnostics()},true),this);
+         [Serializable]
+@@ -223,6 +243,7 @@
+         { public Vector4 irradiance,tag,anchor,normal,guide; }
+         private sealed class CameraState : IDisposable
+         {
++            internal int scenePreparedEngineFrame = -1, scenePreparedWorkFrame = -1;
+             internal readonly Camera camera;
+             internal readonly HybridLumenGIScene scene=new HybridLumenGIScene();
+             internal readonly HybridLumenGIHardwareBackend hardware=new HybridLumenGIHardwareBackend();
+@@ -660,7 +681,9 @@
+                     if(!geometry || !state.surfaceCache.IsSlotSourceCurrent(slot,id,revision))
+                         state.scene.ReportReadiness(id,revision,false,false,false);
+                 }
++                state.scenePreparedEngineFrame = state.scenePreparedWorkFrame = -1;
+                 state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),s.chunkSize,s.proxyUploadsPerFrame);
++                state.scenePreparedEngineFrame = Time.frameCount; state.scenePreparedWorkFrame = state.frame;
+                 state.sdf.Prepare(state.scene,2*1024*1024);
+                 state.globalSdf.Prepare(state.scene,state.sdf,camera.transform.position,new HybridLumenGIGlobalSdf.Configuration
+                 {
+@@ -1286,6 +1309,30 @@
+                     bounds.Expand(influence*2);
+                     state.localLightChangeBounds.Add(bounds);
+                 }
++            }
++            private bool TryGetPreparedCamera(Camera camera, out CameraState state)
++            {
++                state = null;
++                return !admissionStopped && !HybridLumenGIResourceRetirement.AdmissionClosed && camera != null &&
++                    cameras.TryGetValue(camera.GetInstanceID(), out state) && ReferenceEquals(state.camera, camera) &&
++                    state.scenePreparedEngineFrame >= 0;
++            }
++            internal bool TryGetPublication(Camera camera, HybridLumenGIProxy proxy, out HybridLumenGIScene.PublicationSnapshot value)
++            {
++                value = new HybridLumenGIScene.PublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1 };
++                if (!TryGetPreparedCamera(camera, out var state)) return false;
++                bool known = state.scene.TryGetPublication(proxy, out value);
++                value.preparedEngineFrame = state.scenePreparedEngineFrame; value.preparedWorkFrame = state.scenePreparedWorkFrame;
++                return known;
++            }
++            internal bool TryGetHlodPublication(Camera camera, HybridLumenGIProxy root, List<HybridLumenGIProxy> published,
++                List<HybridLumenGIProxy> target, out HybridLumenGIScene.HlodPublicationSnapshot value)
++            {
++                value = new HybridLumenGIScene.HlodPublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1 };
++                if (!TryGetPreparedCamera(camera, out var state)) return false;
++                bool known = state.scene.TryGetHlodPublication(root, published, target, out value);
++                value.preparedEngineFrame = state.scenePreparedEngineFrame; value.preparedWorkFrame = state.scenePreparedWorkFrame;
++                return known;
+             }
+             private CameraState GetCameraState(Camera camera)
+             {

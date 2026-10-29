@@ -1,5 +1,9 @@
 # 完整原计划推进表
 
+2026-10-30 当前优先级：按用户要求暂停扩大严格误差证明，保留已有成果，先交付注明适用范围与不确定性的独立画面对照。下一交付必须回答颜色误差、换色／关灯残留、运动拖影和收敛时间，并据证据修复具体问题。进度按原计划缺口关闭情况报告，不按测试或归档数量换算。
+
+新关闭的使用缺口：[同场景分页、完整组 HLOD、软件/DXR 偏好切换及停用/离开释放](ReviewBrief-UnifiedSample02.md)已在真实 Unity 中接通。自动烘焙与同场景来源包也已接通；普通 Release 整合、独立颜色图与默认动态质量结论仍在进行，G1–G5 不因此关闭。
+
 当前增量：`95a3213` 已将接收面身份顶点改为 URP Lit 同源变换，删除自算 VP/M 上传；严格深度、alpha、Cull 和历史门保持。实际 [深度诊断](ReviewBrief-CameraIdentityDepthDiagnostic01.md) 已确认 275 个身份丢失均来自顶点深度不匹配，现有 CPU 合同、12 shader 入口与两程序集预编译通过，112 产品源已部署；[原 48 帧相机/TAA 验收](ReviewBrief-CameraMotionTaaResponse03.md)首次分析通过：57 显露事件、561 持续点，零输出违例和覆盖缺口。该修复已进入[Release73](ReviewBrief-CurrentLocalRelease73.md)，112产品源／189产物与真实120帧／Final HDR通过；旧Release72保持13f31ec来源。
 
 当前执行：[同场景来源包与合成接线](ReviewBrief-ValidationSourcePackageV2.md)已完成118份源码的双程序集预编译、真实720帧和32时点全部采集，20代理自动烘焙绑定，来源unsupported为空；未知间接光掩码与独立参考缺口保持。普通入口仍Release73。正在接续同场景streaming/HLOD/后端切换和动态使用，整体G0–G5未完成。

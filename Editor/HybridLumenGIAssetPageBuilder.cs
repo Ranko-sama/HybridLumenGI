@@ -10,6 +10,13 @@ using Object=UnityEngine.Object;
 /// <summary>Builds real local LZ4 bundles, one independently addressable resource per page.</summary>
 public static class HybridLumenGIAssetPageBuilder
 {
+    public sealed class ExportResult
+    {
+        public HybridLumenGIAssetPageManifest Manifest { get; }
+        public GameObject Rig { get; }
+        internal ExportResult(HybridLumenGIAssetPageManifest manifest,GameObject rig)
+        {Manifest=manifest;Rig=rig;}
+    }
     private sealed class Page
     {
         internal Object source,copy;
@@ -22,7 +29,28 @@ public static class HybridLumenGIAssetPageBuilder
         var proxies=new HashSet<HybridLumenGIProxy>();
         foreach(GameObject selected in Selection.gameObjects)
             foreach(var proxy in selected.GetComponentsInChildren<HybridLumenGIProxy>(true))proxies.Add(proxy);
+        string run=Guid.NewGuid().ToString("N");
+        var result=Export(proxies,"Assets/HybridLumenGIAssetPages/"+run,"Assets/StreamingAssets/HybridLumenGIAssetPages/"+run);
+        Selection.activeObject=result.Rig;
+    }
+    /// <summary>
+    /// Builds pages in two new project-relative directories and returns an inactive rig.
+    /// Source proxies and their bindings are retained; the caller decides when to replace them.
+    /// </summary>
+    public static ExportResult Export(IEnumerable<HybridLumenGIProxy> sourceProxies,string assetDirectory,string bundleOutputDirectory)
+    {
+        if(sourceProxies==null)throw new ArgumentNullException(nameof(sourceProxies));
+        var proxies=new HashSet<HybridLumenGIProxy>();
+        foreach(var proxy in sourceProxies)
+        {
+            if(proxy==null)throw new ArgumentException("Source proxies cannot contain a null/destroyed entry.",nameof(sourceProxies));
+            proxies.Add(proxy);
+        }
         if(proxies.Count==0)throw new InvalidOperationException("Select one or more static MeshRenderer proxies to export.");
+        string assetRoot=assetDirectory,output=bundleOutputDirectory;
+        string assetFull=ValidateNewDirectory(assetRoot,false),outputFull=ValidateNewDirectory(output,true);
+        if(IsWithin(assetFull,outputFull) || IsWithin(outputFull,assetFull))
+            throw new ArgumentException("Source-asset and bundle-output directories must not overlap.");
         var sources=new Dictionary<Object,Page>();
         var renderers=new HashSet<Renderer>();
         foreach(var proxy in proxies)
@@ -38,9 +66,8 @@ public static class HybridLumenGIAssetPageBuilder
             foreach(var material in renderer.sharedMaterials)
             {if(material==null)throw new InvalidOperationException("Null material slots cannot be exported.");Collect(material,sources);}
         }
-        string run=Guid.NewGuid().ToString("N"),assetRoot="Assets/HybridLumenGIAssetPages/"+run;
-        string bundleRelative="HybridLumenGIAssetPages/"+run;
-        string output="Assets/StreamingAssets/"+bundleRelative;
+        string run=Path.GetFileName(assetRoot);
+        string bundleRelative=output.Substring("Assets/StreamingAssets/".Length);
         Directory.CreateDirectory(assetRoot+"/Sources");Directory.CreateDirectory(output);AssetDatabase.Refresh();
         var builds=new List<AssetBundleBuild>();
         foreach(var page in sources.Values)
@@ -103,7 +130,7 @@ public static class HybridLumenGIAssetPageBuilder
 
         // Clone transform ancestry without source assets/components so parent nonuniform scale
         // and rotation remain exact. All destinations live under one inactive, independent rig.
-        var rig=new GameObject("HybridLumenGI Streamed Pages "+run.Substring(0,8));rig.SetActive(false);
+        var rig=new GameObject("HybridLumenGI Streamed Pages "+run.Substring(0,Math.Min(8,run.Length)));rig.SetActive(false);
         Undo.RegisterCreatedObjectUndo(rig,"Create streamed GI representations");
         var driver=rig.AddComponent<HybridLumenGIAssetPageStreamer>();driver.Configure(manifest);
         var replacements=new Dictionary<HybridLumenGIProxy,HybridLumenGIProxy>();
@@ -138,10 +165,42 @@ public static class HybridLumenGIAssetPageBuilder
         }
         foreach(var pair in replacements)
             if(pair.Key.HLODParent!=null && replacements.TryGetValue(pair.Key.HLODParent,out var replacement))pair.Value.SetHLODParent(replacement);
-        Selection.activeObject=rig;
         Debug.Log("Built "+definitions.Count+" independently loaded LZ4 asset pages in "+output+". Manifest: "+assetRoot+
             "/Manifest.asset. Inactive streamed rig created; disable originals and enable the rig to test. " +
             "Costs are admission estimates; verify actual GPU time/memory on the target Player. Export must match its build target.",manifest);
+        return new ExportResult(manifest,rig);
+    }
+    private static bool IsWithin(string child,string parent)
+        => string.Equals(child,parent,StringComparison.OrdinalIgnoreCase) ||
+            child.StartsWith(parent+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase);
+    private static string ValidateNewDirectory(string path,bool bundles)
+    {
+        string prefix=bundles?"Assets/StreamingAssets/":"Assets/";
+        if(string.IsNullOrEmpty(path) || !path.StartsWith(prefix,StringComparison.Ordinal) || path.IndexOf('\\')>=0)
+            throw new ArgumentException("Expected a new project-relative "+prefix+"... directory.",nameof(path));
+        foreach(string part in path.Split('/'))
+            if(part.Length==0 || part=="." || part==".." || part.IndexOf(':')>=0 || part.IndexOfAny(Path.GetInvalidFileNameChars())>=0 ||
+                part.EndsWith(".",StringComparison.Ordinal) || part.EndsWith(" ",StringComparison.Ordinal))
+                throw new ArgumentException("Output path has an invalid or ambiguous segment.",nameof(path));
+        string project=Path.GetFullPath(Path.Combine(Application.dataPath,".."));
+        if(!string.Equals(Path.GetFullPath("."),project,StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Page export requires the Unity project working directory.");
+        string full=Path.GetFullPath(Path.Combine(project,path));
+        if(!full.StartsWith(Path.Combine(project,"Assets")+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Output path escaped project Assets.",nameof(path));
+        string current=project;
+        foreach(string part in path.Split('/'))
+        {
+            current=Path.Combine(current,part);
+            if(File.Exists(current))throw new IOException("Output directory ancestor is a file: "+current);
+            if(!Directory.Exists(current) && File.Exists(current+".meta"))
+                throw new IOException("Output directory would reuse orphaned metadata: "+current);
+            if(Directory.Exists(current) && (File.GetAttributes(current)&FileAttributes.ReparsePoint)!=0)
+                throw new IOException("Output directory traverses a reparse point: "+current);
+        }
+        if(Directory.Exists(full) || File.Exists(full) || File.Exists(full+".meta") || AssetDatabase.IsValidFolder(path) || AssetDatabase.LoadMainAssetAtPath(path)!=null)
+            throw new IOException("Refusing to overwrite an existing output path or metadata: "+path);
+        return full;
     }
     private static Transform CloneTransform(Transform source,Transform rig,Dictionary<Transform,Transform> clones)
     {

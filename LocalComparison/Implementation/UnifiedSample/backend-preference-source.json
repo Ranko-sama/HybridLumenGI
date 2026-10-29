@@ -1,0 +1,21 @@
+{
+  "baselineFile": "Runtime/HybridLumenGIRendererFeature.cs",
+  "baselineSha256": "1e554909af31c95c92e5a56bdb7db82fb02e6abc9958d9b80e681d7f85085654",
+  "candidateFile": "LocalComparison/Implementation/UnifiedSample/Runtime/HybridLumenGIRendererFeature.cs",
+  "candidateSha256": "38ac556924096c5aa6551ed493c36c236bf331058b29bc525806487779233e1a",
+  "patchSha256": "8c14b0c804ea18ac8a44997248e18e0091d1f7de68f23f17b3d22d2fb916d794",
+  "removedInsertionEqualsBaseline": true,
+  "gitApplyCheckWithWhitespaceErrorAll": "passed; read-only check, not applied",
+  "newline": "LF",
+  "scope": "Source-only API addition; no full compiler, Unity, deployment, or behavioral execution",
+  "requestedGetter": "RequestedPreferHardwareTracing",
+  "setter": "SetPreferHardwareTracing(bool value)",
+  "preservedCallChain": [
+    "Create passes same Settings reference to TransportPass.s",
+    "serializedSettings/lastSettingsHash configuration invalidation",
+    "PrepareGpuBudget exact configuration string invalidation",
+    "CancelBuildDemand when preference false",
+    "hardware.Prepare then actual hardware transition invalidation",
+    "FallBackToSoftware material-source failure invalidation"
+  ]
+}

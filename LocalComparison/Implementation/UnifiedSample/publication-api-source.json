@@ -1,0 +1,26 @@
+{
+  "scope": "Read-only publication query draft; no Unity, compilation, deployment, or product edit",
+  "baselines": {
+    "Runtime/HybridLumenGIScene.cs": "55d412a36bb252957f892a71fd3b0cb6cf349a6ac10b198640bc3e3c93684cdf",
+    "Runtime/HybridLumenGIRendererFeature.cs": "1e554909af31c95c92e5a56bdb7db82fb02e6abc9958d9b80e681d7f85085654",
+    "Runtime/HybridLumenGIHlodReadback.cs": "9eddfb61d8207f2b6a500c75285419182f19cb9d79bfb2e6508e77cbafb80d51",
+    "Runtime/HybridLumenGIStreamedRepresentation.cs": "d9aca1dc1a07befe5d1d672d75dabc61125548cd8e0caba5e9a0bfe008de49be",
+    "Runtime/HybridLumenGIResourceRetirement.cs": "48c0e279da529aaddf58602b7d5caa8ba422d7e538d9dec6d8a1313bd4fb9af9"
+  },
+  "candidateTextSha256": {
+    "Runtime/HybridLumenGIScene.cs": "dd5f69b8eaa72daf258731b37eceda356e245dc996e2ff50692c198ce8820e15",
+    "Runtime/HybridLumenGIRendererFeature.cs": "35c527bade0c51d8e3e27067841dc8750650007698cf6386ea6022963b574a61"
+  },
+  "patchSha256": "d0194691eb5f37e081fafb9c9036192b1bdafb45bfadea58c33f2421d72ac32e",
+  "changes": "Add snapshot types and pure scene queries; Feature wrappers use existing exact camera state; two stamp fields are set after actual Scene.Prepare. Existing selection/readiness/retirement branches unchanged.",
+  "doesNotProvide": [
+    "GPU completion fence",
+    "permission to unload",
+    "lighting convergence",
+    "physical asset-page readiness",
+    "automatic visible LOD switching"
+  ],
+  "preparationStamp": "Clear before Scene.Prepare; publish only after it returns. Snapshot stamps are not GPU completion.",
+  "gitApplyCheckWithWhitespaceErrorAll": "passed on final patch; read-only check, not applied",
+  "documentationSha256": "25900397390650c6a7ac9aa053c287fa845facd8a54279d0c74b95d1d47aded6"
+}

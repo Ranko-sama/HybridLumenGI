@@ -405,7 +405,7 @@ namespace HybridLumenGI
         {
             string key = Key(light); c.Object(light, "light-source");
             if (light.type != LightType.Directional && light.type != LightType.Point && light.type != LightType.Spot) c.Unsupported("unmodeled-light-type:" + key);
-            if (light.lightmapBakeType != LightmapBakeType.Realtime) c.Unsupported("baked-or-mixed-light:" + key);
+            if (HybridLumenGILights.GetBakeType(light) != LightmapBakeType.Realtime) c.Unsupported("baked-or-mixed-light:" + key);
             var direction = -light.transform.forward;
             var additional = light.GetComponent<UniversalAdditionalLightData>(); c.Object(additional, "urp-light-data");
             // URP 17 creates this component on demand. Missing-component defaults are explicitly
@@ -426,7 +426,7 @@ namespace HybridLumenGI
                 renderingLayerMask = unchecked((uint)light.renderingLayerMask), shadows = light.shadows.ToString(), shadowStrength = light.shadowStrength,
                 shadowBias = light.shadowBias, shadowNormalBias = light.shadowNormalBias, shadowNearPlane = light.shadowNearPlane,
                 shadowResolution = light.shadowResolution.ToString(), shadowCustomResolution = light.shadowCustomResolution, additional = extra,
-                bakeType = light.lightmapBakeType.ToString(), renderMode = light.renderMode.ToString(), cookieSize = light.cookieSize,
+                bakeType = HybridLumenGILights.GetBakeType(light).ToString(), renderMode = light.renderMode.ToString(), cookieSize = light.cookieSize,
                 cookie = Texture(light.cookie, key + ":cookie", c) };
         }
 

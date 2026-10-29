@@ -1,0 +1,23 @@
+{
+  "scope": "Isolated same-scene streaming/HLOD sample draft; no Unity, bundle build, deployment or native evidence",
+  "files": {
+    "Runtime/HybridLumenGIUnifiedSample.cs": "c3c0c74d63029524723d42dd6bfde583a72836f1d433704cfbc33879415c5279",
+    "Editor/HybridLumenGIUnifiedSampleBuilder.cs": "c9a1cedb6fab1567ae4d87932a197904ea9537fc5f48c3716dc91b65091654db",
+    "SAMPLE.md": "218a5fdf73ba2cc4d9cd75ae4fdee265a5a93b25292bb6c8bba3b8342f3e9264",
+    "compile_sample.py": "06728a0f33a4f57a25b997781393669806460e85f9a818ac7ae776665aa0019f",
+    "sample-compile-02/report.json": "9cbba11272448fe6699c858e745ae3741e43d8131f8363defe11a1d090ec6813"
+  },
+  "compilePassed": true,
+  "sourceOnlyReview": "dynamic_stability_audit: no further concrete blocker after controller disable/re-enable retirement correction; no Unity executed",
+  "requiredPatches": [
+    "backend-preference.patch",
+    "publication-api.patch",
+    "asset-page-builder-api.patch"
+  ],
+  "compileModes": {
+    "publication-api.patch": "already present; reverse applicability checked only",
+    "backend-preference.patch": "already present; reverse applicability checked only",
+    "asset-page-builder-api.patch": "already present; reverse applicability checked only"
+  },
+  "productFilesEditedByThisLane": false
+}

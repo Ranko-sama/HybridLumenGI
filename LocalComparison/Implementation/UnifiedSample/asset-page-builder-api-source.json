@@ -1,0 +1,37 @@
+{
+  "baselineFile": "Editor/HybridLumenGIAssetPageBuilder.cs",
+  "baselineSha256": "58378e20c81bed75e75e255805ed09cfffd2522f7d733364a7f63502368f62ca",
+  "candidateFile": "LocalComparison/Implementation/UnifiedSample/Editor/HybridLumenGIAssetPageBuilder.cs",
+  "candidateSha256": "950f45dc6ae3294192ed3953a8605e4c05742505aacdeae498185e3d5c91ebc9",
+  "patchSha256": "96dd6b926b8092ad4a31e86060f92890b48c971927c952f89ad9a2d31519281b",
+  "preservedAlgorithmBlocks": [
+    {
+      "name": "source-validation-collection",
+      "identical": true,
+      "sha256": "32c8159ef7bb09430b4cc48704c354dc3d587f182a4f363afefc036439bc09cf"
+    },
+    {
+      "name": "build-remap-crc-dependencies-budget",
+      "identical": true,
+      "sha256": "85bc08cc19f5523ea16102221171c2ca13eb57d114861a9cb4b0571da26f0360"
+    },
+    {
+      "name": "rig-binding-hlod-remap",
+      "identical": true,
+      "sha256": "ed9546a59e4fa6ea008d4c0cee7a5afba37ac08c80cbcdd9e6dbce5310e043ef"
+    },
+    {
+      "name": "helpers-clone-collect-declared-budget",
+      "identical": true,
+      "sha256": "8e96800a3fbd56584cdd5547a061d757ccf4d679a2677b605ac404cff44e54cb"
+    }
+  ],
+  "scope": "Source extraction and path preconditions only; no Unity, bundle build, deployment or behavioral execution",
+  "menuCaller": "Existing StreamingAuditEditor still calls the unchanged menu path and reads Selection.activeGameObject",
+  "pathGuardsPrecedeFirstWrite": true,
+  "patchApplyCheck": {
+    "command": "git apply --check --whitespace=error-all LocalComparison/Implementation/UnifiedSample/asset-page-builder-api.patch",
+    "exitCode": 0,
+    "applied": false
+  }
+}

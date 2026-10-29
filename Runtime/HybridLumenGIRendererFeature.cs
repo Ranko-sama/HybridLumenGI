@@ -64,6 +64,26 @@ namespace HybridLumenGI
         [Serializable] private sealed class DiagnosticReport
         { public string scope="CPU resource estimates plus optional delayed GPU observations for the three GI render passes; excludes preparation uploads outside those passes and RTAS/driver allocation; not a hard GPU deadline";public CameraDiagnostics[] cameras; }
         public CameraDiagnostics[] GetDiagnostics() => pass!=null?pass.GetDiagnostics():Array.Empty<CameraDiagnostics>();
+        /// <summary>Read-only latest Prepare snapshot for this exact camera and proxy, on the main thread.
+        /// A snapshot is not page readiness, GPU completion, or permission to unload resources.</summary>
+        public bool TryGetPublication(Camera camera, HybridLumenGIProxy proxy, out HybridLumenGIScene.PublicationSnapshot value)
+        {
+            value = new HybridLumenGIScene.PublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1 };
+            return isActive && pass != null && pass.TryGetPublication(camera, proxy, out value);
+        }
+        /// <summary>Read-only atomic HLOD selection. Caller-owned lists are cleared, then filled only
+        /// for a valid group. Published may remain the old representation while target is warming.
+        /// Lists are unordered; keep proxies enabled and do not use this result as a retirement fence.</summary>
+        public bool TryGetHlodPublication(Camera camera, HybridLumenGIProxy root, List<HybridLumenGIProxy> published,
+            List<HybridLumenGIProxy> target, out HybridLumenGIScene.HlodPublicationSnapshot value)
+        {
+            if (published == null) throw new ArgumentNullException(nameof(published));
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (ReferenceEquals(published, target)) throw new ArgumentException("Published and target lists must be distinct.");
+            published.Clear(); target.Clear();
+            value = new HybridLumenGIScene.HlodPublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1 };
+            return isActive && pass != null && pass.TryGetHlodPublication(camera, root, published, target, out value);
+        }
         [ContextMenu("Log Runtime Diagnostics")]
         public void LogRuntimeDiagnostics() => Debug.Log(JsonUtility.ToJson(new DiagnosticReport{cameras=GetDiagnostics()},true),this);
         [Serializable]
@@ -165,6 +185,13 @@ namespace HybridLumenGI
             public DebugView debugView;
         }
         [SerializeField] private Settings settings=new Settings();
+        /// <summary>Requested preference, not proof that this camera is using hardware tracing.</summary>
+        public bool RequestedPreferHardwareTracing => settings.preferHardwareTracing;
+        /// <summary>
+        /// Call on the Unity main thread before camera preparation. The existing render path
+        /// applies configuration/backend invalidation and retains normal software fallback.
+        /// </summary>
+        public void SetPreferHardwareTracing(bool value) => settings.preferHardwareTracing=value;
         [SerializeField] private ComputeShader traceCompute;
         [SerializeField] private Shader compositeShader;
         [SerializeField] private Shader surfaceShader;
@@ -223,6 +250,7 @@ namespace HybridLumenGI
         { public Vector4 irradiance,tag,anchor,normal,guide; }
         private sealed class CameraState : IDisposable
         {
+            internal int scenePreparedEngineFrame = -1, scenePreparedWorkFrame = -1;
             internal readonly Camera camera;
             internal readonly HybridLumenGIScene scene=new HybridLumenGIScene();
             internal readonly HybridLumenGIHardwareBackend hardware=new HybridLumenGIHardwareBackend();
@@ -660,7 +688,9 @@ namespace HybridLumenGI
                     if(!geometry || !state.surfaceCache.IsSlotSourceCurrent(slot,id,revision))
                         state.scene.ReportReadiness(id,revision,false,false,false);
                 }
+                state.scenePreparedEngineFrame = state.scenePreparedWorkFrame = -1;
                 state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),s.chunkSize,s.proxyUploadsPerFrame);
+                state.scenePreparedEngineFrame = Time.frameCount; state.scenePreparedWorkFrame = state.frame;
                 state.sdf.Prepare(state.scene,2*1024*1024);
                 state.globalSdf.Prepare(state.scene,state.sdf,camera.transform.position,new HybridLumenGIGlobalSdf.Configuration
                 {
@@ -1286,6 +1316,30 @@ namespace HybridLumenGI
                     bounds.Expand(influence*2);
                     state.localLightChangeBounds.Add(bounds);
                 }
+            }
+            private bool TryGetPreparedCamera(Camera camera, out CameraState state)
+            {
+                state = null;
+                return !admissionStopped && !HybridLumenGIResourceRetirement.AdmissionClosed && camera != null &&
+                    cameras.TryGetValue(camera.GetInstanceID(), out state) && ReferenceEquals(state.camera, camera) &&
+                    state.scenePreparedEngineFrame >= 0;
+            }
+            internal bool TryGetPublication(Camera camera, HybridLumenGIProxy proxy, out HybridLumenGIScene.PublicationSnapshot value)
+            {
+                value = new HybridLumenGIScene.PublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1 };
+                if (!TryGetPreparedCamera(camera, out var state)) return false;
+                bool known = state.scene.TryGetPublication(proxy, out value);
+                value.preparedEngineFrame = state.scenePreparedEngineFrame; value.preparedWorkFrame = state.scenePreparedWorkFrame;
+                return known;
+            }
+            internal bool TryGetHlodPublication(Camera camera, HybridLumenGIProxy root, List<HybridLumenGIProxy> published,
+                List<HybridLumenGIProxy> target, out HybridLumenGIScene.HlodPublicationSnapshot value)
+            {
+                value = new HybridLumenGIScene.HlodPublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1 };
+                if (!TryGetPreparedCamera(camera, out var state)) return false;
+                bool known = state.scene.TryGetHlodPublication(root, published, target, out value);
+                value.preparedEngineFrame = state.scenePreparedEngineFrame; value.preparedWorkFrame = state.scenePreparedWorkFrame;
+                return known;
             }
             private CameraState GetCameraState(Camera camera)
             {

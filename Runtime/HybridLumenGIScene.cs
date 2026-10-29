@@ -12,6 +12,23 @@ namespace HybridLumenGI
     /// </summary>
     public sealed class HybridLumenGIScene : IDisposable
     {
+        /// <summary>Latest CPU scene selection. None of these values is a GPU completion fence.</summary>
+        public enum PublicationPhase { Unknown, Warming, Published }
+        public struct PublicationSnapshot
+        {
+            public PublicationPhase phase;
+            public int stableId, revision, hlodRootId, sceneRevision;
+            public int preparedEngineFrame, preparedWorkFrame;
+        }
+        public struct HlodPublicationSnapshot
+        {
+            public PublicationPhase phase;
+            public int rootStableId, sceneRevision;
+            public int preparedEngineFrame, preparedWorkFrame;
+            public int publishedCount, targetCount, targetWarmingCount, targetUnknownCount;
+            public bool transitioning, capacityFallback;
+        }
+
         [Flags]
         public enum ChangeKind { Added = 1, Removed = 2, Transform = 4, Material = 8, Topology = 16, Manual = 32, Representation = 64, Lighting = 128 }
         public struct DirtyRegion
@@ -123,6 +140,53 @@ namespace HybridLumenGI
             if(!IsPublished(slot) && !IsWarming(slot)) return false;
             bounds=traversalBounds[slot];return true;
         }
+        // Pure queries of the latest Prepare; do not refresh proxies or advance residency here.
+        private bool TryGetPublicationSlot(HybridLumenGIProxy proxy, out int slot)
+        {
+            slot = -1;
+            return proxy != null && proxy.isActiveAndEnabled &&
+                slots.TryGetValue(proxy.StableId, out slot) && slot >= 0 && slot < Capacity &&
+                ReferenceEquals(owners[slot], proxy) && (int)Data[slot].identity.x == proxy.StableId &&
+                (int)Data[slot].identity.y == proxy.Revision && (IsPublished(slot) || IsWarming(slot));
+        }
+        internal bool TryGetPublication(HybridLumenGIProxy proxy, out PublicationSnapshot value)
+        {
+            value = new PublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1, sceneRevision = Revision };
+            if (!TryGetPublicationSlot(proxy, out int slot)) return false;
+            value.stableId = proxy.StableId; value.revision = (int)Data[slot].identity.y;
+            value.phase = IsPublished(slot) ? PublicationPhase.Published : PublicationPhase.Warming;
+            foreach (var pair in groups)
+                if (pair.Value.seen && (pair.Value.published.Contains(proxy.StableId) || pair.Value.target.Contains(proxy.StableId)))
+                { value.hlodRootId = pair.Key; break; }
+            return true;
+        }
+        internal bool TryGetHlodPublication(HybridLumenGIProxy root, List<HybridLumenGIProxy> published,
+            List<HybridLumenGIProxy> target, out HlodPublicationSnapshot value)
+        {
+            value = new HlodPublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1, sceneRevision = Revision };
+            if (root == null || !root.isActiveAndEnabled || !groups.TryGetValue(root.StableId, out HlodGroup group) ||
+                !ReferenceEquals(group.root, root) || !group.seen || group.target.Count == 0) return false;
+            value.rootStableId = root.StableId;
+            value.publishedCount = group.published.Count; value.targetCount = group.target.Count;
+            value.transitioning = !group.published.SetEquals(group.target); value.capacityFallback = group.capacityFallback;
+            // Validate the entire published set before exposing any member. A partial set must
+            // never become the sample's visible LOD, even if one member still has phase 1.
+            foreach (int id in group.published)
+                if (!activeById.TryGetValue(id, out HybridLumenGIProxy proxy) ||
+                    !TryGetPublicationSlot(proxy, out int slot) || !IsPublished(slot)) return false;
+            foreach (int id in group.target)
+            {
+                if (!activeById.TryGetValue(id, out HybridLumenGIProxy proxy) || proxy == null || !proxy.isActiveAndEnabled) return false;
+                if (!TryGetPublicationSlot(proxy, out int slot)) value.targetUnknownCount++;
+                else if (IsWarming(slot)) value.targetWarmingCount++;
+            }
+            foreach (int id in group.published) published.Add(activeById[id]);
+            foreach (int id in group.target) target.Add(activeById[id]);
+            value.phase = group.published.Count > 0 ? PublicationPhase.Published :
+                value.targetWarmingCount > 0 ? PublicationPhase.Warming : PublicationPhase.Unknown;
+            return true;
+        }
+
         public void InvalidateReadiness() => readiness.Clear();
 
         /// <summary>

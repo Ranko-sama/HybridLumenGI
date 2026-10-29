@@ -1,0 +1,16 @@
+--- a/Runtime/HybridLumenGIRendererFeature.cs
++++ b/Runtime/HybridLumenGIRendererFeature.cs
+@@ -165,6 +165,13 @@
+             public DebugView debugView;
+         }
+         [SerializeField] private Settings settings=new Settings();
++        /// <summary>Requested preference, not proof that this camera is using hardware tracing.</summary>
++        public bool RequestedPreferHardwareTracing => settings.preferHardwareTracing;
++        /// <summary>
++        /// Call on the Unity main thread before camera preparation. The existing render path
++        /// applies configuration/backend invalidation and retains normal software fallback.
++        /// </summary>
++        public void SetPreferHardwareTracing(bool value) => settings.preferHardwareTracing=value;
+         [SerializeField] private ComputeShader traceCompute;
+         [SerializeField] private Shader compositeShader;
+         [SerializeField] private Shader surfaceShader;
