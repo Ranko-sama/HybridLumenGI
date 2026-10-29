@@ -445,6 +445,17 @@ float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFo
         confidence=saturate(surface.confidence);
     }
     else confidence=0.1; // Uncharted analytic/SDF owner-level approximation.
+    if(all(isfinite(diffuse)) && all(clamp(diffuse,0,0.98)==0))
+    {
+        // Incident light has zero weight, but source validity still matters.
+        // Keep the finite-input gates normally supplied by DirectIrradiance.
+        if(!all(isfinite(emission)) || !isfinite(ao) || !all(isfinite(hit.position)) ||
+            !all(isfinite(shadingNormal)) || !all(isfinite(biasNormal))) { confidence=0;return 0; }
+        float3 emissionOnly=max(emission,0)*emissionWeight;
+        if(!HLGIHasRadianceMeasurement(float4(emissionOnly,confidence))) { confidence=0;return 0; }
+        nonAnalytic=emissionOnly;
+        return emissionOnly;
+    }
     HLGICacheEntry cached=(HLGICacheEntry)0;
     if(materialResolved && _HLGI_BounceFeedback>0)
     {

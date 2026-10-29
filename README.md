@@ -2,9 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release79](<I:/Unity test/Comparison/Builds/LocalRelease79/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；新增可手动开启的进程显存观察，默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release80](<I:/Unity test/Comparison/Builds/LocalRelease80/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；新增可手动开启的进程显存观察，默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
 
-Release79 为同一门物体增加[真实 Skinned 骨骼形变模式](LocalComparison/Review/skinned-unified-usage-01/result.md)，保留可读网格模式；沿用 Release78 的[按来源分离的缓存关灯响应](LocalComparison/Review/cache-source-separation-01/result.md)：当前上传的解析灯表为空时，移除其旧多跳贡献，保留自发光／环境贡献。沿用统一交互及默认关闭的[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)，保留此前屏幕历史、缓存首次可信更新和面积光冗余计算修复。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release79 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
+Release80 修复[零漫反射表面的已知辐射丢失](LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)：有效自发光／黑色不再因无关的阴影或缓存查询未知而被丢弃，正漫反射和来源资格保持。它是局部能量资格修复，没有新增整景颜色、动态质量或性能结论。Release79 已为同一门物体增加[真实 Skinned 骨骼形变模式](LocalComparison/Review/skinned-unified-usage-01/result.md)，保留可读网格模式；沿用 Release78 的[按来源分离的缓存关灯响应](LocalComparison/Review/cache-source-separation-01/result.md)：当前上传的解析灯表为空时，移除其旧多跳贡献，保留自发光／环境贡献。沿用统一交互及默认关闭的[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)，保留此前屏幕历史、缓存首次可信更新和面积光冗余计算修复。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release80 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
 
 ## 使用统一示例
 
@@ -32,7 +32,7 @@ Release79 为同一门物体增加[真实 Skinned 骨骼形变模式](LocalCompa
 
 | 问题 | 当前结论 |
 | --- | --- |
-| 颜色误差 | 旧同源独立参考显示亮灯间接光偏暗、关灯后仍偏亮；参考带有采样噪声及模型近似，偏差不能直接等同精确产品误差或当前版本缺陷。 |
+| 颜色误差 | 已修复零漫反射表面丢失有效发光／黑色的局部原因；没有新增当前整景误差测量。旧同源独立参考显示亮灯间接光偏暗、关灯后仍偏亮；参考带有采样噪声及模型近似，偏差不能直接等同精确产品误差或当前版本缺陷。 |
 | 换色／关灯残留 | 已修复全局换光后混入旧屏幕历史及缓存首次更新强制混入半份旧值的问题。新增灯表清空时移除旧解析灯缓存贡献；固定场景早期输出变化明显减少，局部换色及任意多跳响应仍未关闭。 |
 | 运动拖影 | 限定相机/TAA 场景验证了新显露处的旧历史拒绝；不能据此宣称任意运动、遮挡和空间滤波都无拖影。 |
 | 收敛时间 | 现有采样只能回答观测时点及区间，最后一帧不是收敛真值；尚不能给出整景达到正确颜色的统一帧数。 |

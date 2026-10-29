@@ -1,0 +1,76 @@
+bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out float distanceHit,out bool known,bool resolveRadiance=true)
+{
+    radiance=0; distanceHit=maxT;known=true;
+    float lastT=_HLGI_RayBias*2, lastDelta=-1e10;
+    [loop] for(int i=0;i<_HLGI_ScreenSteps;i++)
+    {
+        float u=(i+1.0)/max(_HLGI_ScreenSteps,1);
+        float t=lerp(_HLGI_RayBias*2,maxT,u*u);
+        float2 uv; float delta; float3 p;
+        if(!ScreenPoint(origin,dir,t,uv,delta,p)) return false;
+        if(delta>=0 && lastDelta<0)
+        {
+            float lo=lastT,hi=t;
+            [unroll] for(int refine=0;refine<5;refine++)
+            {
+                float mid=(lo+hi)*0.5; float2 mu; float md; float3 mp;
+                if(ScreenPoint(origin,dir,mid,mu,md,mp) && md>=0) hi=mid; else lo=mid;
+            }
+            if(ScreenPoint(origin,dir,hi,uv,delta,p) && delta>=0 && delta<_HLGI_Thickness &&
+                length(origin+dir*hi-p)<_HLGI_Thickness*2)
+            {
+                float3 n=NormalAt(uv);
+                float4 emission=_HLGI_Emission.SampleLevel(sampler_PointClamp,uv,0);
+                float captureRaw=_HLGI_CaptureDepth.SampleLevel(sampler_PointClamp,uv,0);
+                bool captured=ValidDepth(captureRaw) && distance(p,WorldPosition(uv,captureRaw,_HLGI_InvVP))<0.03;
+                float surfaceT=dot(p-origin,dir);
+                if(HLGIHasScreenMaterial(emission.a) && captured && surfaceT>0 && surfaceT<=maxT)
+                {
+                    float raw=_HLGI_Depth.SampleLevel(sampler_PointClamp,uv,0);
+                    float3 geometricNormal;
+                    bool hasGeometry=HLGITryScreenGeometricNormal(uv,raw,p,geometricNormal);
+                    // No reliable depth neighborhood: retain the existing single-bounce
+                    // shading fallback, but never use Ns to locate a world-cache layer.
+                    float3 biasNormal=hasGeometry?geometricNormal:n;
+                    if(dot(biasNormal,-dir)<=0.05) { lastT=t;lastDelta=delta;continue; }
+                    // Area NEE only needs this same endpoint to exclude screen
+                    // support. Its radiance/known outputs are deliberately unused.
+                    if(!resolveRadiance) { distanceHit=surfaceT;return true; }
+                    HLGIHit match;
+                    bool worldMatch=false;
+                    if(hasGeometry) worldMatch=HLGITryScreenWorldMatch(uv,raw,p,geometricNormal,match);
+                    if(worldMatch) biasNormal=match.rawNg;
+                    float4 diffuse=_HLGI_Diffuse.SampleLevel(sampler_PointClamp,uv,0);
+                    // No lit camera color or screen-history feedback enters the transport equation.
+                    uint policyWidth,policyHeight;_HLGI_ReceiverPolicy.GetDimensions(policyWidth,policyHeight);
+                    uint2 policyPixel=min((uint2)(uv*float2(policyWidth,policyHeight)),uint2(policyWidth-1,policyHeight-1));
+                    uint2 receiverLayers=_HLGI_ReceiverPolicy.Load(int3(policyPixel,0));
+                    // Captured material represents this camera pixel. Express
+                    // its spatial support perpendicular to the camera ray before
+                    // projecting it onto each light connection in DirectIrradiance.
+                    float3 cameraRay=p*_HLGI_MaterialView.w-_HLGI_MaterialView.xyz;
+                    HLGIRayFootprint screenFootprint;
+                    HLGITryScreenRayFootprint(uv,raw,p,cameraRay,screenFootprint);
+                    bool directKnown;
+                    float3 direct=DirectIrradiance(p,n,biasNormal,receiverLayers,HLGIScreenReceivesShadows(emission.a),cameraRay,screenFootprint,directKnown);
+                    // A captured surface with unknown incident light is still a
+                    // hit. Never continue behind it or reinterpret it as a miss.
+                    distanceHit=surfaceT;
+                    if(!directKnown) { known=false;return true; }
+                    radiance=emission.rgb+diffuse.rgb*direct;
+                    // Only registered spatially matching surfaces can contribute higher-order cache light.
+                    if(worldMatch && _HLGI_BounceFeedback>0)
+                    {
+                        float materialAO=HLGIScreenMaterialAO(emission.a,_HLGI_NativeComposition!=0,diffuse.a);
+                        bool cacheKnown;float3 cached=CachedIrradiance(match,n,cacheKnown);
+                        if(!cacheKnown) { known=false;return true; }
+                        radiance+=diffuse.rgb*materialAO*_HLGI_BounceFeedback*cached;
+                    }
+                    known=all(isfinite(radiance));return true;
+                }
+            }
+        }
+        lastT=t; lastDelta=delta;
+    }
+    return false;
+}

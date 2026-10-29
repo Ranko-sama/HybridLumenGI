@@ -1,5 +1,7 @@
 # 完整原计划推进表
 
+原计划目标1／工作流2关闭“零漫反射仍因无关入射查询未知而丢弃有效辐射”的具体缺口：[屏幕与世界路径修复](../LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)只在原有效来源的漫反射项严格为零时返回原Le／已知黑，世界保留发光MIS与来源分离；小正值、无效来源和端点规则保持。必要的实际函数固定对照通过，Astra同意采用且结束此条验证；未增加整景颜色、残留、拖影、精确收敛或性能通过项。已通过公开入口构建[Release80](<I:/Unity test/Comparison/Builds/LocalRelease80/Start-LocalRelease.cmd>)，0错误／19条warning，当前启动入口同步；沿用保存统一示例，无重复Player、画面或哈希检查。
+
 原计划目标3/工作流4关闭“真实Skinned尚未进入统一普通使用流程”的缺口：[同一门物体的两种形变来源](../LocalComparison/Review/skinned-unified-usage-01/result.md)现可由K切换，Space共用启停；保留可读Mesh，Skin实际经骨骼和既有BakeMesh快照管线。一次必要使用序列确认运动发布、停稳来源匹配、Feature发布及切回/关闭恢复。首尝试为零渲染的临时驱动启动失败，保留后只修初始化调用完成单次重试；产品与判据未改。Astra已采用并结束此条验证。它是样例集成，不重复计为新Skinned算法；任意Skinned配置、整体运动画质与性能仍开放，已通过公开入口构建[Release79](<I:/Unity test/Comparison/Builds/LocalRelease79/Start-LocalRelease.cmd>)并更新当前启动入口，实际使用依据保留上述Unity序列，未重复启动Player。
 
 非空灯表快速比例换色的有界评估已结束：即使相邻两张灯表呈统一RGB比例，缓存仍可能混有更早非统一灯光变化的反馈，不能据此安全重映射解析份额。没有改产品、没有运行验证，也不增加来源代次体系来挽救该候选。Release78空灯表置零不依赖这项前提，保持有效；非空表的渐进响应仍是开放限制，不改称新合同错误。

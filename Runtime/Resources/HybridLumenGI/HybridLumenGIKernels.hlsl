@@ -209,11 +209,21 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                     // Area NEE only needs this same endpoint to exclude screen
                     // support. Its radiance/known outputs are deliberately unused.
                     if(!resolveRadiance) { distanceHit=surfaceT;return true; }
+                    float4 diffuse=_HLGI_Diffuse.SampleLevel(sampler_PointClamp,uv,0);
+                    if(all(diffuse.rgb==0))
+                    {
+                        // Zero diffuse reflectance needs no incident-light query,
+                        // but cannot turn invalid captured inputs into known emission.
+                        distanceHit=surfaceT;
+                        known=all(isfinite(emission)) && all(isfinite(diffuse)) &&
+                            all(isfinite(p)) && all(isfinite(n)) && all(isfinite(biasNormal));
+                        if(known) radiance=emission.rgb;
+                        return true;
+                    }
                     HLGIHit match;
                     bool worldMatch=false;
                     if(hasGeometry) worldMatch=HLGITryScreenWorldMatch(uv,raw,p,geometricNormal,match);
                     if(worldMatch) biasNormal=match.rawNg;
-                    float4 diffuse=_HLGI_Diffuse.SampleLevel(sampler_PointClamp,uv,0);
                     // No lit camera color or screen-history feedback enters the transport equation.
                     uint policyWidth,policyHeight;_HLGI_ReceiverPolicy.GetDimensions(policyWidth,policyHeight);
                     uint2 policyPixel=min((uint2)(uv*float2(policyWidth,policyHeight)),uint2(policyWidth-1,policyHeight-1));
