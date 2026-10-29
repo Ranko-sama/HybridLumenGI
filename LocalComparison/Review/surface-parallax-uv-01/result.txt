@@ -1,0 +1,42 @@
+Iteration66 stopped on the first candidate contract failure. No rerun or repair.
+
+Baseline command: configured absolute Python run_parallax.py baseline, exit0.
+Its on/off compiles and WARP commands all exit0. Frozen old source establishes
+the missing-offset counterexample and both controls with the declared inputs.
+
+Candidate command: same Python/runner run_parallax.py candidate, exit1.
+Candidate on compile and WARP dispatch exit0. The first row, parallax-on, passes:
+sample UV=(.5021881461143494,.41407039761543274), all six material maps use it,
+detail reads (.5010940432548523,.4105527997016907), and color/AO/emission match
+the independent declared reference within2e-6. Thus the primary UV discrepancy
+is removed in the adapted actual consumer.
+
+The second row, zero-offset, fails only controlBytes. All declared numerical
+payload/UV bounds, finite checks, clip/validity/policy and unrelated fields pass.
+Existing raw baseline/candidate records differ in exactly four float lanes,
+each by one binary32 ULP:
+ record byte0 diffuse R: 3E52870D -> 3E52870C
+ record byte4 diffuse G: 3E1B5303 -> 3E1B5302
+ record byte8 diffuse B: 3E65E5A7 -> 3E65E5A8
+ record byte88 detail UV.x: 3EFAE148 -> 3EFAE147
+All six primary material UVs remain identical. This is compatible with a
+floating-point arithmetic/optimization difference but this lane does not claim
+its cause proved, reinterpret the bitwise contract or waive the failure.
+
+Execution stopped immediately. Candidate keyword-off behavior and the four
+complete Vert/Frag off/on compiles did not run. No additional matrix, Unity,
+Player, physical GPU, host build, dependency or product edit occurred in this
+reference lane. Product ownership remains with A/root for disposition.
+
+Evidence: baseline-command.json/log and candidate-command.json/log contain
+exact launch arguments, stdout/stderr and exit status. Each stage commands.json
+records compiler/host arguments and exits. baseline/analysis.json records the
+accepted baseline; candidate/failure.json and partial-rows.json retain the
+original failure. Original on.bin, inputs, source, DXIL and disassembly remain.
+run_parallax.py, adapter, contract, inputs and prepared manifest are unchanged.
+
+Candidate shader SHA256 remains
+289ACDF7EF8A05E48C9CFF491F7E5D823820AB77A0047BF655BF92BC3A97CB6A.
+Actual Vert x3/Frag and actual locked view/parallax helpers execute with fixed
+transform/interpolation/texture/raster adapters; no native raster, keyword
+transfer, render-attachment format or overall material/image claim is made.

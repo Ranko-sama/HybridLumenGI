@@ -1,0 +1,252 @@
+{
+  "passed": true,
+  "stage": "baseline",
+  "oldCounterexampleEstablished": true,
+  "rows": [
+    {
+      "case": "parallax-on",
+      "payload": [
+        0.2055933028459549,
+        0.15168385207653046,
+        0.2245088666677475,
+        0.5874999761581421,
+        0.12000000476837158,
+        0.07500000298023224,
+        0.04625000059604645,
+        1.0
+      ],
+      "textureUvs": [
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.49000000953674316,
+        0.4000000059604645
+      ],
+      "expectedUv": [
+        0.48,
+        0.4
+      ],
+      "expected": [
+        0.2055932928,
+        0.15168384,
+        0.2245088664,
+        0.5875,
+        0.12,
+        0.075,
+        0.04625,
+        1
+      ],
+      "referenceMatch": false,
+      "checks": {
+        "payload": true,
+        "allMaterialUvs": true,
+        "opaquePolicy": true,
+        "finite": true,
+        "expectedReferenceRole": true,
+        "controlBytes": true,
+        "unrelatedBytes": true
+      }
+    },
+    {
+      "case": "zero-offset",
+      "payload": [
+        0.2055933028459549,
+        0.15168385207653046,
+        0.2245088666677475,
+        0.5874999761581421,
+        0.12000000476837158,
+        0.07500000298023224,
+        0.04625000059604645,
+        1.0
+      ],
+      "textureUvs": [
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.49000000953674316,
+        0.4000000059604645
+      ],
+      "expectedUv": [
+        0.48,
+        0.4
+      ],
+      "expected": [
+        0.2055932928,
+        0.15168384,
+        0.2245088664,
+        0.5875,
+        0.12,
+        0.075,
+        0.04625,
+        1
+      ],
+      "referenceMatch": false,
+      "checks": {
+        "payload": true,
+        "allMaterialUvs": true,
+        "opaquePolicy": true,
+        "finite": true,
+        "expectedReferenceRole": true,
+        "controlBytes": true,
+        "unrelatedBytes": true
+      }
+    },
+    {
+      "case": "keyword-off",
+      "payload": [
+        0.2055933028459549,
+        0.15168385207653046,
+        0.2245088666677475,
+        0.5874999761581421,
+        0.12000000476837158,
+        0.07500000298023224,
+        0.04625000059604645,
+        1.0
+      ],
+      "textureUvs": [
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.48000001907348633,
+        0.4000000059604645,
+        0.49000000953674316,
+        0.4000000059604645
+      ],
+      "expectedUv": [
+        0.48,
+        0.4
+      ],
+      "expected": [
+        0.2055932928,
+        0.15168384,
+        0.2245088664,
+        0.5875,
+        0.12,
+        0.075,
+        0.04625,
+        1
+      ],
+      "referenceMatch": false,
+      "checks": {
+        "payload": true,
+        "allMaterialUvs": true,
+        "opaquePolicy": true,
+        "finite": true,
+        "expectedReferenceRole": true,
+        "controlBytes": true,
+        "unrelatedBytes": true
+      }
+    }
+  ],
+  "commands": [
+    {
+      "name": "on-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceParallax",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\on.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\on.ll",
+        "-D",
+        "_METALLICSPECGLOSSMAP=1",
+        "-D",
+        "_DETAIL_MULX2=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_PARALLAXMAP=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\actual-parallax.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "on-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\on.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\on-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\on.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "off-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceParallax",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\off.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\off.ll",
+        "-D",
+        "_METALLICSPECGLOSSMAP=1",
+        "-D",
+        "_DETAIL_MULX2=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-D",
+        "_EMISSION=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\actual-parallax.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "off-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\off.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\off-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\baseline\\off.bin"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "runner": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+  "runnerSha256": "8dc02bf76d564dba07b117af905335c1281377e8d7fd9e5853e6cd1a07324cb4",
+  "dxcSha256": "7c6918a0e2d4e437629fa8549f5ce800970494780f363bbbe1e3d3034f435aee",
+  "productSha256": "1db0d9a01bd1abf55e1e9c8d1164441fe721ad78c733082ac89cff9833edd8db",
+  "floatAbsoluteBound": 2e-06,
+  "scope": "Actual product Vert x3 and Frag plus actual URP view/parallax helpers; fixed transform/barycentric/texture/raster adapters on existing WARP. No Unity/native raster or material matrix."
+}

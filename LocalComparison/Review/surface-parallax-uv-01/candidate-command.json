@@ -1,0 +1,13 @@
+{
+  "name": "candidate-command",
+  "exitCode": 1,
+  "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\candidate-command.log",
+  "output": "Traceback (most recent call last):\r\n  File \"C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\run_parallax.py\", line 140, in <module>\r\n    parser=argparse.ArgumentParser();parser.add_argument('stage',choices=['baseline','candidate']);main(parser.parse_args().stage)\r\n                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\run_parallax.py\", line 116, in main\r\n    assert all(checks.values()),row\r\n           ^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: {'case': 'zero-offset', 'payload': (0.2055932879447937, 0.15168383717536926, 0.2245088815689087, 0.5874999761581421, 0.12000000476837158, 0.07500000298023224, 0.04625000059604645, 1.0), 'textureUvs': [0.48000001907348633, 0.4000000059604645, 0.48000001907348633, 0.4000000059604645, 0.48000001907348633, 0.4000000059604645, 0.48000001907348633, 0.4000000059604645, 0.48000001907348633, 0.4000000059604645, 0.48000001907348633, 0.4000000059604645, 0.4899999797344208, 0.4000000059604645], 'expectedUv': [0.48, 0.4], 'expected': [0.2055932928, 0.15168384, 0.2245088664, 0.5875, 0.12, 0.075, 0.04625, 1], 'referenceMatch': False, 'checks': {'payload': True, 'allMaterialUvs': True, 'opaquePolicy': True, 'finite': True, 'expectedReferenceRole': True, 'controlBytes': False, 'unrelatedBytes': True}}\r\n",
+  "startedUtc": "2026-10-29T04:05:04.9769876Z",
+  "completedUtc": "2026-10-29T04:05:05.2098432Z",
+  "executable": "C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe",
+  "arguments": [
+    "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\run_parallax.py",
+    "candidate"
+  ]
+}

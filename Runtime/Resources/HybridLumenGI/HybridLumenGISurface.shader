@@ -15,6 +15,8 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
         _DetailMask("Detail Mask", 2D) = "white" {}
         _DetailAlbedoMap("Detail Albedo", 2D) = "linearGrey" {}
         _DetailAlbedoMapScale("Detail Albedo Scale", Float) = 1
+        _ParallaxMap("Height Map", 2D) = "black" {}
+        _Parallax("Height Scale", Range(0.005, 0.08)) = 0.005
         _WorkflowMode("Workflow Mode", Float) = 1
         _SmoothnessTextureChannel("Smoothness Texture Channel", Float) = 0
         _AlphaClip("Alpha Clip", Float) = 0
@@ -46,7 +48,9 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             #pragma multi_compile_local_fragment _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
             #pragma multi_compile_local_fragment _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma multi_compile_local_fragment _ _RECEIVE_SHADOWS_OFF
+            #pragma multi_compile_local _ _PARALLAXMAP
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/ParallaxMapping.hlsl"
             #include "HybridLumenGIReceiverPolicyCapture.hlsl"
             #include "HybridLumenGIScreenMaterial.hlsl"
 
@@ -57,18 +61,23 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             TEXTURE2D(_EmissionMap); SAMPLER(sampler_EmissionMap);
             TEXTURE2D(_DetailMask); SAMPLER(sampler_DetailMask);
             TEXTURE2D(_DetailAlbedoMap); SAMPLER(sampler_DetailAlbedoMap);
+            TEXTURE2D(_ParallaxMap); SAMPLER(sampler_ParallaxMap);
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
                 float4 _DetailAlbedoMap_ST;
                 half4 _BaseColor, _SpecColor, _EmissionColor;
                 half _Metallic, _OcclusionStrength, _WorkflowMode;
                 half _AlphaClip, _Cutoff, _Surface, _SmoothnessTextureChannel;
-                half _DetailAlbedoMapScale;
+                half _DetailAlbedoMapScale, _Parallax;
             CBUFFER_END
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
+                #if defined(_PARALLAXMAP)
+                    float3 normalOS : NORMAL;
+                    float4 tangentOS : TANGENT;
+                #endif
                 float2 uv : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
@@ -76,6 +85,9 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             {
                 float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                #if defined(_PARALLAXMAP)
+                    half3 viewDirTS : TEXCOORD1;
+                #endif
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
@@ -96,6 +108,15 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                #if defined(_PARALLAXMAP)
+                    // Match Lit's per-vertex tangent-space view before interpolation.
+                    VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
+                    VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
+                    real sign = input.tangentOS.w * GetOddNegativeScale();
+                    half4 tangentWS = half4(normalInput.tangentWS.xyz, sign);
+                    half3 viewDirWS = GetWorldSpaceNormalizeViewDir(vertexInput.positionWS);
+                    output.viewDirTS = GetViewDirectionTangentSpace(tangentWS, normalInput.normalWS, viewDirWS);
+                #endif
                 return output;
             }
             SurfaceOutput Frag(Varyings input)
@@ -103,6 +124,10 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 clip(0.5h - _Surface);
+                #if defined(_PARALLAXMAP)
+                    // Base ST is already applied; every material read shares this offset.
+                    input.uv += ParallaxMapping(TEXTURE2D_ARGS(_ParallaxMap, sampler_ParallaxMap), input.viewDirTS, _Parallax, input.uv);
+                #endif
                 half4 baseSample = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
                 // Lit's compiled keywords determine coverage; numeric uniforms
                 // (including MPB overrides) do not switch shader variants.

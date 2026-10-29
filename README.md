@@ -1,5 +1,7 @@
 # HybridLumenGI
 
+当前源码新增两轮有限修复：[反射率夹取与动态历史](Documentation/ReviewBrief-ParallelColorDynamics01.md)、[普通Surface视差UV](Documentation/ReviewBrief-SurfaceParallaxUv01.md)。已采用并行实现/参考准备与集中复审；原逐位失败及其数值资格调整完整保留。这些源码结果不更新下述既有EXE来源或代表整景验收完成。
+
 **当前本机可巡视入口：Release58；已构建产品来源为 `7e387a512cbb4355fd5f3d9f3c76282375f9cd3b`。** 后续提交的 HEAD 不自动成为该 EXE 的产品来源。当前继续本机开发，不需要朋友交付；四项目标与十条工作流仍以[完整原计划](Documentation/OriginalDevelopmentPlan.md)为准。
 
 本机入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease58/Start-LocalRelease.cmd>)。点击窗口后，WASD平移、Q/E升降、方向键转向、R复位、Esc退出；窗口默认常驻。一次普通 Release 构建及一次实际键盘巡视正常退出，原23条构建警告保留。移动、转向、松键和复位有执行层与Astra的画面观察；Pro58核对源码和记录，未独立读取图片。00–03启动暗窗口未合格判读，首可辨场景至退出58.307秒、首窗口至退出151.629秒；失焦护栏仅检查实现。见[巡视结果与限制](Documentation/ReviewBrief-LocalReleaseNavigation01.md)。640×360是运行配置，不是生产分辨率目标。

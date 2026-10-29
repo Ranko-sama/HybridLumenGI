@@ -4,6 +4,8 @@
 
 65按用户要求改为两线并行：修复普通Surface过早夹取detail反射率，以及未知当前测量丢失单帧照明变化的历史限龄。两条实际着色器消费者的旧反例、候选与保持控制通过，见[合并结果与边界](ReviewBrief-ParallelColorDynamics01.md)；已获一次实际Pro合并复核及Astra有限采用，停止扩测。未新增Unity/Player或整景质量结论，普通入口与部署来源不变。
 
+66继续采用产品实现与独立参考并行，补齐普通Surface的stock Lit视差UV。实际Vert插值/Frag主反例符合独立参考；零偏移四个float的1ULP逐位FAIL保留，获Pro明确数值资格；唯一续行只补未执行off控制和四个完整编译，全部通过，满足Pro条件提交与有限结项。见[视差结果](ReviewBrief-SurfaceParallaxUv01.md)。累计Surface36/51/52/65/66，不将夹具数量算作整体进度；这条材质修复线收束。
+
 最新本机入口：Release58，已构建产品来源7e387a512cbb4355fd5f3d9f3c76282375f9cd3b；后续HEAD不自动替换EXE来源。[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease58/Start-LocalRelease.cmd>)默认常驻，WASD/QE移动、方向键转向、R复位、Esc退出。一普通Release构建、一实际键盘巡视及正常退出获Astra和实际Pro58有限采用，112产品源/189产物一致；23条构建警告和首postcheck误判保留。Pro58未独立读取图片。静态Final HDR图像仍为Release54/a9292cb；[62移灯观察](ReviewBrief-LocalLightMoveResponse01.md)另有7190c28的五份IndirectOnly HDR，有限动态证据与静态基线分开。运行尺寸640×360不是生产目标。
 
 45–57各已实现能力保留自己的有限专项证据；58巡视不补齐未触发原生条件，不证明动态GI质量。Release44的300秒公开计账仍对应5120a8c；54单次HDR图像仍对应a9292cb。明确拒绝和待验收配置见[支持范围](ProductionPlan.md#当前支持范围与证据层级)，本轮边界见[58巡视结果](ReviewBrief-LocalReleaseNavigation01.md)。整体画质、性能、总显存、预算目标与G0–G5继续开放；四项目标和十条工作流不标为完成。

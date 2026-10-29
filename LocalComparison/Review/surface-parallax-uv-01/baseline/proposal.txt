@@ -1,0 +1,32 @@
+Iteration66: ordinary Surface parallax UV parity, independent reference lane.
+Baseline main@55c74f117cae0ddba71ec8fc4f7497c29a054dd1 is frozen before edits.
+No product or shared helper/host changes belong to this lane.
+
+Locked source chain: URP17.0.4 LitForwardPass enables the tangent-space view
+interpolator with _PARALLAXMAP. LitPassVertex normalizes world N/T and each
+vertex's world view, converts view to TS at vertices, then interpolates TS.
+LitPassFragment calls LitInput.ApplyPerPixelDisplacement before material reads.
+That helper adds Core ParallaxMapping once: sample height.g, center and scale
+height, normalize interpolated TS view, add .42 to z, and offset UV.
+Frozen actual files and source SHA are in reference-manifest.json.
+
+One triangle deliberately has different valid vertex normal/tangent frames and
+perspective view directions. Invoke actual product Vert three times and feed
+their declared barycentric UV/TS interpolation to actual Frag. Do not hardcode
+the correct TS vector into Frag or rebuild a frame there. All clip w values are
+1, so chosen perspective-correct weights equal screen barycentrics.
+The independent double reference differs from fragment-frame reconstruction by
+about (.00394855,.00492751) in UV, far above the declared 2e-6 bound.
+
+One nonzero colored case plus keyword-off and height.g=.5 zero-offset controls.
+All sample coordinates are recorded, including base, metal/spec, AO, emission,
+mask and post-ST detail UV, so changing only BaseMap cannot pass. Numeric texture
+fields are legal affine bilinear 2x2 signals over the sampled interior. One
+fixed metallic+MulX2 source variant exposes all reads; no workflow/detail/alpha
+matrix. Existing matching-source RadianceValidity WARP executable is reused.
+Only four affected complete entries are compiled: Vert/Frag x parallax off/on.
+Actual Core parallax helper and product Vert/Frag bodies remain unmodified.
+
+This proves consumer UV/material arithmetic with fixed transform/interpolation,
+texture and raster adapters. It does not prove native keyword transfer, raster,
+UNorm attachment storage, scene color bounce, or complete material coverage.

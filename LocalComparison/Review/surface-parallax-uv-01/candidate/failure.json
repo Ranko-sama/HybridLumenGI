@@ -1,0 +1,48 @@
+{
+  "stage": "candidate",
+  "error": "AssertionError({'case': 'zero-offset', 'payload': (0.2055932879447937, 0.15168383717536926, 0.2245088815689087, 0.5874999761581421, 0.12000000476837158, 0.07500000298023224, 0.04625000059604645, 1.0), 'textureUvs': [0.48000001907348633, 0.4000000059604645, 0.48000001907348633, 0.4000000059604645, 0.48000001907348633, 0.4000000059604645, 0.48000001907348633, 0.4000000059604645, 0.48000001907348633, 0.4000000059604645, 0.48000001907348633, 0.4000000059604645, 0.4899999797344208, 0.4000000059604645], 'expectedUv': [0.48, 0.4], 'expected': [0.2055932928, 0.15168384, 0.2245088664, 0.5875, 0.12, 0.075, 0.04625, 1], 'referenceMatch': False, 'checks': {'payload': True, 'allMaterialUvs': True, 'opaquePolicy': True, 'finite': True, 'expectedReferenceRole': True, 'controlBytes': False, 'unrelatedBytes': True}})",
+  "commands": [
+    {
+      "name": "on-compile",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSSurfaceParallax",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\candidate\\on.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\candidate\\on.ll",
+        "-D",
+        "_METALLICSPECGLOSSMAP=1",
+        "-D",
+        "_DETAIL_MULX2=1",
+        "-D",
+        "_OCCLUSIONMAP=1",
+        "-D",
+        "_EMISSION=1",
+        "-D",
+        "_PARALLAXMAP=1",
+        "-D",
+        "HLGI_SURFACE_HAS_PARALLAX=1",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\candidate\\actual-parallax.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "on-warp",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-radiance-validity-warp-986da91f985341e7aeaa97ecdcc5332e\\build\\Release\\RadianceValidityWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\candidate\\on.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\candidate\\on-inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\surface-parallax-uv-01\\candidate\\on.bin"
+      ],
+      "exitCode": 0
+    }
+  ]
+}
