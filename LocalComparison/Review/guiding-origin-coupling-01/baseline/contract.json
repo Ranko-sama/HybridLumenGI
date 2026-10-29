@@ -1,0 +1,8 @@
+{
+  "scope": "Actual CSTrace receiver prefix, world reconstruction, normal reconstruction, world-match gates, footprint, complete direction sampler and geometry encoding. Depth/material storage, finite opaque plane traversal, and absent cache are explicit dependencies; no real scene/DXR/atlas/native frame or RGB energy claim.",
+  "expected": "With empty guide, all pairs have identical direction, sampler weight and RNG. Only tilted+world-match changes origin and encoded geometry on the current source. Aligned, world-miss and unreliable-depth pairs preserve origin and encoded geometry.",
+  "sourceGeometry": "Center camera sample is on a y=0 patch |x|<=.01, |z|<=.05; neighboring sample depths follow y=-.2*x, except aligned/no-support controls. Full 5x5 data and orthographic invVP are fixed before execution.",
+  "absoluteGeometryTolerance": 2e-06,
+  "directionWeightRngPairComparison": "exact raw bytes",
+  "execution": "One baseline D3D12 WARP dispatch on existing source-matched host; Runtime and frozen finite reference unchanged."
+}

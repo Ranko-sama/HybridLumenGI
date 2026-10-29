@@ -1,0 +1,33 @@
+[
+  {
+    "label": "compile",
+    "args": [
+      "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+      "-HV",
+      "2018",
+      "-O3",
+      "-T",
+      "cs_6_0",
+      "-E",
+      "CSGuideOrigin",
+      "-I",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\guiding-origin-coupling-01\\baseline",
+      "-I",
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+      "-I",
+      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+      "-D",
+      "SHADER_API_D3D11=1",
+      "-D",
+      "SHADER_STAGE_COMPUTE=1",
+      "-D",
+      "UNITY_COMPILER_DXC=1",
+      "-D",
+      "UNITY_VERSION=600000",
+      "-Fo",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\guiding-origin-coupling-01\\baseline\\fixture.dxil",
+      "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\guiding-origin-coupling-01\\baseline\\fixture.hlsl"
+    ],
+    "exitCode": 2147500037
+  }
+]

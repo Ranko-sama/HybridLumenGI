@@ -1,0 +1,21 @@
+{
+  "scope": "Temporary candidate only; repository Runtime unchanged. Same eight inputs, actual-source prefix/sampler and explicit dependency adapters as baseline.",
+  "changes": [
+    "CSTrace world-match gated by hasGeometry regardless of guide setting",
+    "Only HLGICachedSample remains gated by guideWeight>0"
+  ],
+  "retainedConditions": [
+    "All guide.35 rows exactly match complete baseline output records",
+    "All paired origin/direction/weight/RNG/Geometry are equal after the candidate",
+    "guide0 cache queries remain zero",
+    "world-miss geometric outputs preserved; the extra matching query is recorded",
+    "no-depth complete records preserved"
+  ],
+  "signedZero": "Original baseline aligned -0/+0 exception remains preserved and separately qualified; no other tolerance changes.",
+  "cost": "One short visibility query and its footprint per valid GI receiver with reliable depth geometry and guide0, not per ray. No measured GPU time claim.",
+  "absoluteGeometryTolerance": 2e-06,
+  "inputSha256": "c5b4c600583d78da73f7506e834affeaea72632d4a251a594aca412fbc5c07a8",
+  "baselineRawSha256": "713d2d0cbe7cc97cbbd9033112c1f81c9473d4f3676ebcfea0b172e09ef6bb95",
+  "baselineProductSha256": "36f561edd634ddf3d629b06e847ead631ad6b44eaa6b2039ab658a4c422d1850",
+  "candidateProductSha256": "68bdfe49b2c8b09a52722bc5ba7dcb7045be016359d6682e380269116df67455"
+}

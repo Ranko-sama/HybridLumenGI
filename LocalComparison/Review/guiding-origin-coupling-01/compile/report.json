@@ -1,0 +1,628 @@
+{
+  "status": "passed",
+  "startedUtc": "2026-10-29T10:34:59.1906704Z",
+  "baseline": "269241b38c45a97f29758fb92640cdb36f5092f8",
+  "scope": "Optimized complete CSTrace entries for all three backends after decoupling receiver geometry from guide weight. Pinned Unity includes and repository RayQuery compile adapter; no Unity import, native DXR execution or whole-scene quality claim.",
+  "compiler": "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxc.exe",
+  "compilerSha256": "7C6918A0E2D4E437629FA8549F5CE800970494780F363BBBE1E3D3034F435AEE",
+  "compilerVersion": "dxcompiler.dll: 1.8 - 1.8.2502.11 (239921522); dxil.dll: 1.8(1.8.2502.11)",
+  "runnerSha256": "03D996BC08D65C6F4B714F050BD77CC3E344C09678AC3A203A6CD6481260C0BF",
+  "sources": [
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGI.compute",
+      "sha256": "B75C71BFA33A46DBFB4430A486C559010D4418B0E5A13441EF731FFD31A65319"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIAreaEmission.hlsl",
+      "sha256": "1AFA21078910F749D24393020B7F8204AFDD3285233E82683071C5297F5DEC0E"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGICardCapture.shader",
+      "sha256": "20ADF46A44A368D09CE9386E5E924CE0D324FFE3D60804D68390921E4FD2106B"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIChanges.hlsl",
+      "sha256": "36DD5C0EA5F29F4AE0A28A2363667C65A215D5FA5543E93B14112B7D96437720"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIColorContractProbe.shader",
+      "sha256": "D6436CFE2EFF1DF880FCF8BBB7C30BA6FE7DEB0571119DEE013203440470F391"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIComposite.shader",
+      "sha256": "14800A68D0A44A5ABBC24B25663E001B74EBE6EEC5DDE763269BF27423FECB32"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIEmissiveProposals.compute",
+      "sha256": "43EDA35C8872CF8F53AD6DF5BA6E4DB4B0434855F74337C4C884478898CBA0F9"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIEmissiveRecords.hlsl",
+      "sha256": "B6083A3522D11DA35FB9D73251F3E9C6A339B82D668EE8E7CAA5010AC1996A16"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIEmissiveSampling.hlsl",
+      "sha256": "5A06573326A31FB757BD504F4F938C97D8C9D48E1DE801E07936D680E2A09724"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIExactMesh.hlsl",
+      "sha256": "80F873B8A83002E78ADF8BC4215DC58E43FFD6C6472DF67594E1FC537B8DE678"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIExactSoftware.compute",
+      "sha256": "F94CA5B81AA5AFA5DF35CC66E5D45185461D0A573F5990232D0DC1390A6A9F1F"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIGlobalSdf.compute",
+      "sha256": "A11F5122B6CB87FF9E431F688C769B4F81B3BEE2CAA25E3522C2D3797A2056C7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIGlobalSdf.hlsl",
+      "sha256": "3BF31A3B3BCB082CA702CD98C0640E6D5DB081E8DCC5A8D6F685BE06B77042FF"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHardware.compute",
+      "sha256": "810088F829DB38B717821B5AA7956EEB1192BE5583233E76929D3A6C687B5AE0"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHardwareMaterials.hlsl",
+      "sha256": "B8D132CAFAEC85D2A00ABA500E4DFB0046DE3A766C3FE63084C28F18D042BF75"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHardwareNormals.hlsl",
+      "sha256": "419BFF04B6F9B44CFFDA3343AE0DDDDB4B0F3EE185B8DE309404D7475CD22A4B"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHardwareSurface.hlsl",
+      "sha256": "A87C4778D7E14D5D236D5B0E351AA2766C33767440084DE0A3AA18A032F19164"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHardwareTrace.hlsl",
+      "sha256": "EB42D3EDA7A7DDFE22581C5E35BD8BAD6F64C4CEC19053046DF8B7841E629AE8"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHit.hlsl",
+      "sha256": "7F251D8C95AA66DCA1958AFF4C4FACE153DF9EBC54F94640653CA73CA4D23DF6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHitMaterials.hlsl",
+      "sha256": "77CA138DBCC6DD6E9543DBFDA38963780CCA9658F0498142647863C5A174E0A4"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIKernels.hlsl",
+      "sha256": "68BDFE49B2C8B09A52722BC5BA7DCB7045BE016359D6682E380269116DF67455"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGILightingPolicy.hlsl",
+      "sha256": "581F74482B70C8AE02C5D5BB0CEBBBF49886CFC9E76417F6F6677632961844D7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGINativeDiffuseCapture.shader",
+      "sha256": "CB740AD9F846EC927F805EA1200C72BD585C52CE423CBF8A233BF44AEF018C73"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIRadianceValidity.hlsl",
+      "sha256": "C86A90BB01DA33D26D06D2F34686AC24ED5D0086F7202E79846ABB25CA17637E"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIRayFootprint.hlsl",
+      "sha256": "6EA7286E57ABDE318F1E318E17CEC6ED1E1C0E8451DD7E3546FB62977741B1AC"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIRayTextureCopy.compute",
+      "sha256": "C9E91AF98BB614D09F493C28344A25C5A3BC1A311084A686B2C62D09611BC6F2"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIRayTextureCopy.hlsl",
+      "sha256": "3AF3352DAA3A053C31CE4D3F5A7669993A3FD9DC5170050165F9A82E7C6C43F6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIRayTextures.hlsl",
+      "sha256": "F09E5FA8EC91938707B246B1A67B7024FBF34AEF4C3D5E6240FBE9DF715BD4FB"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverIdentity.compute",
+      "sha256": "78F60FEAC6235395A7E986EED84A3BDEDA7B8AEC503954981E8D47229A46775F"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverIdentity.hlsl",
+      "sha256": "9ADA21BD73DB96FB3B0D71031D19522E2B0E344A58DF74AEAF956FD9152818FB"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverIdentity.shader",
+      "sha256": "2F3C467D36FBE63A6F9581A4517A24CBA77F19D9B14510C6D5F7DC0DFA35480A"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverPolicyCapture.hlsl",
+      "sha256": "5772F5CFC8DD7FB3EAAA59F6E7A5C65BF10CD2D0A16FD6671D0A6B7278440845"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverTemporal.hlsl",
+      "sha256": "9EFEC293CA3475A00BA584765FBED9ADFD60129EAED3099407F5DDB10498478A"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGISceneBvh.hlsl",
+      "sha256": "7B39FFAF26F71045A192E614B7B5D9793993C0C4051AF6172B564EFCDD7B0D51"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIScreenGeometry.hlsl",
+      "sha256": "5BA1DD165E0DF7E852E125407B9F26FE1371A545630662838A4174F7FA72B563"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIScreenMaterial.hlsl",
+      "sha256": "757F6F0B32397CC2C2C928E7E394C7DD0DC29D3E840C8433286F4118509E879E"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIScreenSampling.hlsl",
+      "sha256": "25607FFEBA963C9C7A2E1474F99337C3E4AC4079DB5CC6AC54E6D1D3505F52CF"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGISdfTrace.hlsl",
+      "sha256": "D231416B92FE8146D209B5594E3B7F31175478B5A80E9D86BE0E12AB81D9429F"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGISoftwareTriangleBvh.hlsl",
+      "sha256": "595C56C351D66C393244FF7B934FE3FE3EB5E05D6A21F6D2E400D9495EAED3F7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGISurface.shader",
+      "sha256": "289ACDF7EF8A05E48C9CFF491F7E5D823820AB77A0047BF655BF92BC3A97CB6A"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGISurfaceAnchors.compute",
+      "sha256": "DC19A4AE6A31C54AEDF46D2C636C78AFB09E76099A798A4E195F16B38BDEF414"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGISurfaceCache.hlsl",
+      "sha256": "44ED0A0F51905578766824EC58D40F13E4976069FE12FD938924E8E4D87F1AE2"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGITransport.hlsl",
+      "sha256": "1621A7688F9157C1169016D259168C4C7462C6695522BEA1C9D0BA57B7FE2255"
+    }
+  ],
+  "includes": [
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters\\UnityRayQuery.cginc",
+      "sha256": "0F0204C87C314095ECB16A26143CAEBCC9DBFBBB30A5DAB058D5CFB9C3A42FC7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\CardCapture.validation.hlsl",
+      "sha256": "23561B3047D677C5B5CB3112000D7D9766ADD14F7C6F348B6519E3F81F9BFA8C"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\CardClear.validation.hlsl",
+      "sha256": "3EC6907CD6DBA79E33F6768D3EBD0432F2B92DD1DF6C8CF4BB74495141839603"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\ColorContractProbe.validation.hlsl",
+      "sha256": "8A3C26BB49BF42C2D8FEF5852C89D756ED0ED47605FF92356488350B10F2F8E4"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Composite.validation.hlsl",
+      "sha256": "E0949DA79A1C0C7E9EA21B5D96DB2363A0E6CEBDD135A5D179BA8F4F3835CAC3"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Core.hlsl",
+      "sha256": "D2A0D8FC95539837EC612E768F80284DF0A50ACA39A50E1D5E91A827DAD4F0C0"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\HardwareHit.validation.hlsl",
+      "sha256": "4ECB8DC946E6926FC8DC59CEEFD2212E653D2BF4C2B10BDACA05D7EF3FF41587"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\HardwareShadow.validation.hlsl",
+      "sha256": "20A23F91E9737D256838A23F72C689683DB82E962C41E9AB1B33F43E59A26FEB"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Lit.shader",
+      "sha256": "DD9A625D92079FB8F923F4085747F5DE524CDF1DD6FE52767AEE0BBBAC5792FC"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\MeshSdf.validation.hlsl",
+      "sha256": "7A8A68BCB757904F7357ED6FD156FF95167B5250253D7A1143624D473EB62153"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\NativeDiffuseCapture.validation.hlsl",
+      "sha256": "C2DCACADCA4B9BE2438F724A5A77B0FFB57311D47901439D9B06279DF0C66FFD"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\OfficialUnityRayQuery-6000.0.65f1\\UnityRayQuery.cginc",
+      "sha256": "95F9B7E5F5361CD6577F09EE36E2702F1C35635BCA493746B42E29DA939843E6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\Runtime\\Lighting\\ProbeVolume\\DecodeSH.hlsl",
+      "sha256": "F3076129B5C7589C7DFD2F6E970CB031EA6094D1FE5353AE6F5ADC07373A3815"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\Runtime\\Lighting\\ProbeVolume\\ProbeVolume.hlsl",
+      "sha256": "84CDAB966920E76EC490EEFD11E34552DE41D94F7D4B20637BC54AF8D3A97CC6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\Runtime\\Lighting\\ProbeVolume\\ShaderVariablesProbeVolumes.cs.hlsl",
+      "sha256": "C8354ABA69D89EF3BE341FD146E2EB3E0948BDE74D1F0575B8DCE9EF2968D2B6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\Runtime\\ShaderLibrary\\Sampling\\Hammersley.cs.hlsl",
+      "sha256": "04F63398FBA53A8E6E3377D15CE57440A4F30966BCED9025CBE201D84CDB7D85"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\ACES.hlsl",
+      "sha256": "7E7978F40993E90C34C29BA3CBDA505A64ED5D2E7920907B247E5FF335522C94"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\AmbientProbe.hlsl",
+      "sha256": "C34711410EDDAD9DE1F189CED4E711D02C0245CFB8DD3BB93D06944AD8D5AA54"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\API\\D3D11.hlsl",
+      "sha256": "DC9362FC3F1F495735681247BBCA47D304D08B2A7252772D71037BAD9A8B70DC"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\API\\Validate.hlsl",
+      "sha256": "3134DB504D40F1A1FBF300AF43FBF8C7BA62937DAB96E873C998B20546BE9B0D"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\BSDF.hlsl",
+      "sha256": "C19E8362B94A9E9ECDB2B422706B825B2F9599220D29C97F29D7801B1E53EB83"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Color.hlsl",
+      "sha256": "21EC6EBFA1AE02CCE8B4966E669DDD0D437DD4C89422712E6B48D1EE3CF18C3E"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Common.hlsl",
+      "sha256": "9EE9A26C9D8245AA7B2A8C44F2D92CCDC055F86BE9E366BDBD9D217D831E3ACD"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\CommonDeprecated.hlsl",
+      "sha256": "44745D7CEBAA271E6AEF262D55DB3DEBCBE26117A1929A21459CAC5F62DD2CDD"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\CommonLighting.hlsl",
+      "sha256": "88A3DA8D877F2D5F4406AE621B2EB3A3761BDD3A687906EF77DD7D48D583F028"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\CommonMaterial.hlsl",
+      "sha256": "1025EFB7D34F4F73864944624490684CA11E5D35DFA5435895D7BD6D2D640B74"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Debug.hlsl",
+      "sha256": "B98556D3EE6D2BE7DAFACA88EBE7E5764C4DE4C146D08568568A862090527046"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\DebugMipmapStreaming.hlsl",
+      "sha256": "47DC63086BA665147EF4633D21F6A900367B97576AAB203F1EA0A483A83AC455"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\DebugMipmapStreamingMacros.hlsl",
+      "sha256": "E5062897F2E34F61DA4260804BD2FDA337BB0E0A22C9BA020089521886C7BAB1"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\EntityLighting.hlsl",
+      "sha256": "7A13EA784C5F57C5483BA55FB16958AA9C6AC933D6398CD503718EE1B50E8AA0"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\FoveatedRendering.hlsl",
+      "sha256": "188D904BFD6357F0E6BF5ECEFB6839030A552CE8B72C427AD11E9B6720F31ED1"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\GlobalSamplers.hlsl",
+      "sha256": "F8DB3219070A49DE17E423BBFA2839BECBECBD614C02F4888B39396F8E5D90DB"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\ImageBasedLighting.hlsl",
+      "sha256": "0FB6C5F7D1AD7102700211AEE6A060EAC7C8B1D181D19F637A64AC10B229E007"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Macros.hlsl",
+      "sha256": "BC2FCDDD337B4F18FF6B1F89B5C487F9B974D18E9D4EAC4F1DA63CA1E2914816"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Packing.hlsl",
+      "sha256": "DF21B00C1457CE5C8C1AE6069FB4E6E4B4E15B3334ECE98A28B7D2E8F302082E"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\ParallaxMapping.hlsl",
+      "sha256": "B9887BEA0370A49FF421289C48AE440BD39DF9F7F29E4763EA59BC7FCF522969"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Random.hlsl",
+      "sha256": "4D788EDDA5D92CB119AE7FE19E47965338979997E64D8DF701AE6DF1175D0BE7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Sampling\\Fibonacci.hlsl",
+      "sha256": "142F2411B6854A4D68077FDA893C3AC90EC13F9A94FE429B2BAC8AB7D9CD0048"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Sampling\\Hammersley.hlsl",
+      "sha256": "69EC8E738AFD4641C24976FBE8F07DA1CDEA6EF012FF21DAEF4F573AD56F7F88"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Sampling\\Sampling.hlsl",
+      "sha256": "D7E890AEE6984117561F87A05A6D6EC89C5DC9989FAC00F547B04BCAB6523DF5"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Shadow\\ShadowSamplingTent.hlsl",
+      "sha256": "77E2D61FDCFA891D5164653D6E0B3FD0666987189AA9D67A826209C457144A9B"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\SpaceTransforms.hlsl",
+      "sha256": "BD0C174C2300EEC9BAF99BDDC5B003E34082766950D86E8D3746DF7E8693ACFA"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\SphericalHarmonics.hlsl",
+      "sha256": "A55AFB8FFFCBC918B1AB607BE74CCE0B5BE995B9A743E76C93677D76B999DD97"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\UnityDOTSInstancing.hlsl",
+      "sha256": "7E09CCF4267412C30EE60271F1149C045A783938E7681E8B33A1D13E46B96B65"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\UnityInstancing.hlsl",
+      "sha256": "2EDB4ED8A69277A5A7F94F00DD323B5D594F9737B2761AF99E943809A4C54862"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.core\\ShaderLibrary\\Version.hlsl",
+      "sha256": "7712221F6A5D67235080A7E5A11B83B2A51C641F1B6CEE4B73A702AF33ADDE59"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal-config\\Runtime\\ShaderConfig.cs.hlsl",
+      "sha256": "386F4B4362AC4B158B3B87C94D571E12DDB22D078A6016CD2EEBD64DF098C9A4"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\AmbientOcclusion.hlsl",
+      "sha256": "CA4EB8189F5DB08F839E768A1FA1E4C3A198ADDF6D06E60A9D5EBBC8DD08ED36"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\BRDF.hlsl",
+      "sha256": "1E8427056B0AB3046ADF753D72FC3AFEE3D54C335E38A4D1069E6EEDB0F78075"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\Clustering.hlsl",
+      "sha256": "9E7887889903A63C1CC9CED314AABFF82712664DBDFA14FAA60EDCB439B61BDF"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\Core.hlsl",
+      "sha256": "D2A0D8FC95539837EC612E768F80284DF0A50ACA39A50E1D5E91A827DAD4F0C0"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\DBuffer.hlsl",
+      "sha256": "8B0FA67DEB613F74F9BAAEC694A154CCF51BF5C1AAC3DF69A7431922797D6A83"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\Debug\\Debugging3D.hlsl",
+      "sha256": "59A9D66505BEA7985DF2B6F3B39D8860339AFF48B138B48901A6D394F1256678"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\Debug\\DebuggingCommon.hlsl",
+      "sha256": "98B99E2CB1490186C1041EAB8CA20CA88160746937C3C58B03FB52D202726030"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\Debug\\DebugViewEnums.cs.hlsl",
+      "sha256": "184B6B5970CBD3F6C52A20BA8181584F62137A141AF73C2609443D0E3649D5E7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\DecalInput.hlsl",
+      "sha256": "7D05A2431D8B2C2AA633C617AC149FDBE6F74D3E773E34944DCFB93146D39036"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\Deprecated.hlsl",
+      "sha256": "5B6C0B3A2E9AD8F6285F30AED67952DE8E4431524F14C326C574DBC7502A2D21"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\GlobalIllumination.hlsl",
+      "sha256": "BA9E188BD326BFF5DE8C9D9DA0E17B78857A6DA6A286C3637C4344AA81411FA4"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\Input.hlsl",
+      "sha256": "2D6ACC42177E51DECB6933AF61E6F4B56565A3E1697060120F4C7D52B4F82BDD"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\LightCookie\\LightCookie.hlsl",
+      "sha256": "2660A79E9653764B9567923994FBC83D52B3EE16A574471E7C729293870BF772"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\LightCookie\\LightCookieInput.hlsl",
+      "sha256": "E548590C9F8BC05D04853A56830688FB4327EA4166673D76CFB3F2DEE20CC962"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\LightCookie\\LightCookieTypes.hlsl",
+      "sha256": "E72F8359E539E3A69DCD3B772FE27587830E883A5E9C73B1A183C95D5F3562FB"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\Lighting.hlsl",
+      "sha256": "E537487AF94A66D46B1456FD0431C7EDAAB226DF66DD1E3637BD84434B181951"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\LODCrossFade.hlsl",
+      "sha256": "95FEA0C28560E3F0355CDC35C98558296FA870C154C916A3939945779EBD874E"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\RealtimeLights.hlsl",
+      "sha256": "DE581AD5BEA94C57E723CFFA2C3B6D18BB79AC7B15889D7F325A32442B34D246"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\ShaderTypes.cs.hlsl",
+      "sha256": "F48EB2E6338DA6E9AEF933F1B42533B459308F728CDE48DAC8FA5CFA21F53BAD"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\ShaderVariablesFunctions.deprecated.hlsl",
+      "sha256": "87423AAB757B97E99F1B8905D7980C527AAC8134EFE2F9CA66CBECBDDF5E0C24"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\ShaderVariablesFunctions.hlsl",
+      "sha256": "B76AFF0ED3773C02C824C35527156C630097747BC5784731473CBF2D8F8CE25F"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\Shadows.deprecated.hlsl",
+      "sha256": "3294BF6448A0724A251634502EBE135E1E2B8B4E2E31E423CC2C3CD5979D82B8"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\Shadows.hlsl",
+      "sha256": "B459EC72515E7EDD4C0AD49F6A266FD3F479149BF0FC501F0AD9F3A72C7D7E98"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\SurfaceData.hlsl",
+      "sha256": "789C20CDFAA4F9578770E999D75ADEC5DBD337D93D5718056013636ED19AF039"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\SurfaceInput.hlsl",
+      "sha256": "245362E43921BBD9BB8A346F88636C8D93E1F3E0E2322082247543EDD38C12EF"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\UnityGBuffer.hlsl",
+      "sha256": "2C6BE8A06278495F3C1732779712F815C6A1F7DD1803CFEBA684662C6295F8A7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\UnityInput.hlsl",
+      "sha256": "891980D4A828E843A053C16277040C24145E613EF0A6D626FC61017DB19A2EF2"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\UnityTypes.hlsl",
+      "sha256": "C63BE00E04BF36EB4455DF64F722F0423979005FF0C3B78F2599CA92CA0A9140"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\ShaderLibrary\\UniversalDOTSInstancing.hlsl",
+      "sha256": "71AA2633C1B9314CAC16FA3D1E2FC49797B9A47796CE706C27A7FD933F22691C"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\Shaders\\LitForwardPass.hlsl",
+      "sha256": "8B6541BEB61A81B516B09C7CC88A489299B70C32066904B29EF7B7CACA28DD09"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\Shaders\\LitGBufferPass.hlsl",
+      "sha256": "3E214855B0EBF1A472271EB45B5A492AFBF610B11225DEA6CF9C00E1F1DACA51"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.render-pipelines.universal\\Shaders\\LitInput.hlsl",
+      "sha256": "4790ECD2F2C8093113B702FDC106486A63308754802C58995F2F0A8121B5B516"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Packages\\com.unity.visualeffectgraph\\Shaders\\VFXMatricesOverride.hlsl",
+      "sha256": "2752A0E99C390080F4BD07D1E8945A479B07878D6E1ED145872AFC5CD3E36C1B"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\ScreenGeometry.validation.hlsl",
+      "sha256": "8D99329394393EC6A93C1DF0DD09ED21BCA253397EB11182DF827D29258DED29"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\software-sm5-preprocessed.hlsl",
+      "sha256": "BD4936AFFC0F2BB1F6EDDD212EE60CE586781D1FD22AB865168085956FD3EFFD"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Surface.validation.hlsl",
+      "sha256": "F4ACC236BEBAFA42E50E9F659B598672EAB3689144B05586375AD7B76209F989"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\SurfaceCache.validation.hlsl",
+      "sha256": "A850AC0D1769C85BD252549C36E583BB2B485097185F2F36C29F4286FC743BB8"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\UnityRayQuery.cginc",
+      "sha256": "C61C2294F64E02573069769DB5FB9456911938B68A1FC09BFDF0ECDEDD1E41A2"
+    }
+  ],
+  "checks": [
+    {
+      "name": "software-CSTrace",
+      "exitCode": 0,
+      "startedUtc": "2026-10-29T10:34:59.2189318Z",
+      "completedUtc": "2026-10-29T10:35:11.0016824Z",
+      "arguments": [
+        "-O3",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSTrace",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\guiding-origin-coupling-01\\compile\\software-CSTrace.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGI.compute"
+      ],
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\guiding-origin-coupling-01\\compile\\software-CSTrace.log",
+      "diagnostics": "",
+      "binarySha256": "27C3C4181DF97148A23CD5A920CA3EA5B44D63390A78746C5748F7FF40C233D0"
+    },
+    {
+      "name": "exact-software-CSTrace",
+      "exitCode": 0,
+      "startedUtc": "2026-10-29T10:35:11.0141241Z",
+      "completedUtc": "2026-10-29T10:38:49.5736451Z",
+      "arguments": [
+        "-O3",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSTrace",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\guiding-origin-coupling-01\\compile\\exact-software-CSTrace.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIExactSoftware.compute"
+      ],
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\guiding-origin-coupling-01\\compile\\exact-software-CSTrace.log",
+      "diagnostics": "",
+      "binarySha256": "DB1F908DA76A9E954D64EF4B8DB54103D3CFC84115939FF3207A690F455EAF6A"
+    },
+    {
+      "name": "hardware-CSTrace",
+      "exitCode": 0,
+      "startedUtc": "2026-10-29T10:38:49.5832417Z",
+      "completedUtc": "2026-10-29T10:41:00.1297574Z",
+      "arguments": [
+        "-O3",
+        "-T",
+        "cs_6_5",
+        "-E",
+        "CSTrace",
+        "-D",
+        "SHADER_API_D3D11=1",
+        "-D",
+        "SHADER_STAGE_COMPUTE=1",
+        "-D",
+        "UNITY_COMPILER_DXC=1",
+        "-D",
+        "UNITY_VERSION=600000",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation\\Adapters",
+        "-I",
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\HybridLumenGI-shader-validation",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\guiding-origin-coupling-01\\compile\\hardware-CSTrace.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\Runtime\\Resources\\HybridLumenGI\\HybridLumenGIHardware.compute"
+      ],
+      "log": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\guiding-origin-coupling-01\\compile\\hardware-CSTrace.log",
+      "diagnostics": "",
+      "binarySha256": "12CFD391C49D159B84FB569FC7DCB0ECCF07C093941CAC5F0D202D7263747D4E"
+    }
+  ],
+  "completedUtc": "2026-10-29T10:41:00.1813185Z"
+}

@@ -264,13 +264,13 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
     HLGICacheEntry receiverCache=(HLGICacheEntry)0;
     float3 geometricNormal;
     bool hasGeometry=HLGITryScreenGeometricNormal(uv,depth,p,geometricNormal);
-    if(hasGeometry && _HLGI_GuideWeight>0)
+    if(hasGeometry)
     {
         HLGIHit receiverHit;
         if(HLGITryScreenWorldMatch(uv,depth,p,geometricNormal,receiverHit))
         {
             geometricNormal=HLGIOffsetNormal(receiverHit.rawNg,geometricNormal);
-            HLGICachedSample(receiverHit,n,receiverCache);
+            if(_HLGI_GuideWeight>0) HLGICachedSample(receiverHit,n,receiverCache);
         }
     }
     _HLGI_GeometryOut[id.xy]=HLGIPackScreenGeometry(n,geometricNormal,hasGeometry,depth);
