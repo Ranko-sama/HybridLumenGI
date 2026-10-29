@@ -12,4 +12,4 @@
 
 [首批独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/index.html)回答颜色误差、换色/关灯残留、运动拖影和收敛时间。其720序列图保持修复前来源，不能宣称是本版本修后画质。完整颜色准确度、局部换色和多跳缓存残留仍有缺口；G1–G5 未因此关闭。
 
-来源与必要交付记录：[构建](../LocalComparison/Review/current-local-release-74/build-analysis.json)、[运行](../LocalComparison/Review/current-local-release-74/run-verification-first.json)、[实际构建来源](../LocalComparison/Review/current-local-release-74/instrumentation/manifest.json)。这些记录在用户进一步收紧测试原则之前生成，后续不默认重复。
+来源与必要交付记录：[构建](../LocalComparison/Review/current-local-release-74/build-analysis.json)、[运行](../LocalComparison/Review/current-local-release-74/run-verification-first.json)、[实际构建来源](../LocalComparison/Review/current-local-release-74/instrumentation/manifest.json)。
