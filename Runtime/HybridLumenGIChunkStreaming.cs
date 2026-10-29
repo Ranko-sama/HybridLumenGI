@@ -53,6 +53,7 @@ namespace HybridLumenGI
         private readonly IBackend backend;
         private readonly State[] states;
         private readonly State[] candidates;
+        private readonly Vector3[] singleObserver = new Vector3[1];
         private readonly Dictionary<string, State> byId = new Dictionary<string, State>(StringComparer.Ordinal);
         private int tick;
         public IReadOnlyList<State> States => states;
@@ -91,6 +92,15 @@ namespace HybridLumenGI
         public void Step(Vector3 position, float loadDistance, float unloadDistance, int maxResidentScenes,
             int maxConcurrentOperations, int maxStartsPerStep)
         {
+            singleObserver[0] = position;
+            Step(singleObserver, loadDistance, unloadDistance, maxResidentScenes, maxConcurrentOperations, maxStartsPerStep);
+        }
+
+        /// <summary>Union distance demand, with one shared operation budget. No viewpoints preserves the prior state.</summary>
+        public void Step(IReadOnlyList<Vector3> positions, float loadDistance, float unloadDistance, int maxResidentScenes,
+            int maxConcurrentOperations, int maxStartsPerStep)
+        {
+            if (positions == null || positions.Count == 0) return;
             tick++;
             loadDistance = Mathf.Max(0f, loadDistance); unloadDistance = Mathf.Max(loadDistance, unloadDistance);
             maxResidentScenes = Mathf.Clamp(maxResidentScenes, 1, 512);
@@ -122,7 +132,9 @@ namespace HybridLumenGI
                     state.Owned = state.UnloadSafe = false; state.ownedHandle = 0;
                 }
                 state.Loaded = handle != 0;
-                state.distanceSquared = state.definition.worldBounds.SqrDistance(position);
+                state.distanceSquared = float.PositiveInfinity;
+                for (int view = 0; view < positions.Count; view++)
+                    state.distanceSquared = Mathf.Min(state.distanceSquared, state.definition.worldBounds.SqrDistance(positions[view]));
                 if (state.distanceSquared <= loadDistance * loadDistance) state.Wanted = true;
                 else if (state.distanceSquared > unloadDistance * unloadDistance) state.Wanted = false;
                 if (state.Wanted) state.UnloadSafe = false;

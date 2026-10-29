@@ -1,0 +1,11 @@
+# Additive chunk multiview demand — frozen scope
+
+Original goal3 / workflow8. Pro58 proposes this still-supported optional scene IO capability; Astra independently compared it with the original plan and accepts the value. Resource-page multiview in41 cannot cold-load an absent Additive scene. Count both rounds together; navigation work is closed.
+
+Only Runtime/HybridLumenGIChunkStreamer.cs and HybridLumenGIChunkStreaming.cs may change: default-empty explicit additional transforms, copying setter, legacy observer/main fallback, minimum bounds distance, exactly one state Step per frame. Keep the single-position API. No observers means no advancement, as before. Do not change hysteresis, operation/start/residency quotas, async completion, generation receipts or scene ownership. No registry, HLOD or retirement refactor.
+
+One finite old-source control and one candidate-source execution using the existing StreamingProgram fake async backend, with a small early-exit multiview sequence. Frozen common inputs: A at0 and B at10, unit bounds; far100, near0, hysteresis30; load20/unload40, resident1/concurrent1/starts1. Candidate additions: primary far/aux near starts cold A, reordered/duplicate views do not multiply starts, band retains, all-far withdraws while an in-flight load still completes, empty views do not advance, stale receipt rejected/current receipt required, old single view restored on clearing additions; external scene never owned/unloaded. The old control calls the actual old single-position Step for primary only and must make no auxiliary request. A separate identical legacy single-position control runs in both. No AssetPage/HLOD matrix is executed.
+
+Compile full candidate driver, state machine and manifest with existing Unity Roslyn/reference assemblies, without launching Unity. Driver Transform/SceneManager execution remains an adapter boundary; copying and once-per-frame wiring get source review. All execution sources and controls freeze before baseline. One candidate failure stops expansion; no automatic second attempt.
+
+Exit: auxiliary cold demand works, quotas remain shared, old single-view and unload ownership controls do not regress. Zero Unity Editor, Player or GPU runs, no native streaming/quality/performance claim. Preserve any failed result before review.

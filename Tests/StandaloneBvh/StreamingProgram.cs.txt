@@ -1,5 +1,6 @@
 using HybridLumenGI;
 using UnityEngine;
+if(args.Contains("--chunk-multiview")){ChunkMultiviewChecks.Run(args.Contains("--expect-single-observer"));return;}
 static void Require(bool condition,string message){if(!condition)throw new Exception(message);}
 static HybridLumenGIChunkStreaming.Definition Def(string id,float x)=>new(){id=id,scenePath=$"Assets/Chunks/{id}.unity",worldBounds=new Bounds(new Vector3(x,0,0),Vector3.one)};
 var definitions=new[]{Def("A",0),Def("B",10),Def("C",100)};
@@ -70,5 +71,59 @@ sealed class Backend : HybridLumenGIChunkStreaming.IBackend
         var op=operations.First(x=>!x.IsDone);
         if(op.unload)loaded.Remove(op.path);else loaded[op.path]=op.handle;
         op.IsDone=true;
+    }
+}
+
+static class ChunkMultiviewChecks
+{
+    static void Require(bool value,string message){if(!value)throw new Exception(message);}
+    static HybridLumenGIChunkStreaming.Definition Def(string id,float x)=>new(){id=id,scenePath=$"Assets/Chunks/{id}.unity",worldBounds=new Bounds(new Vector3(x,0,0),Vector3.one)};
+    static string Snapshot(HybridLumenGIChunkStreaming s,Backend b)=>System.Text.Json.JsonSerializer.Serialize(new{
+        s.ActiveOperations,s.PendingLoads,s.BlockedUnloads,s.OwnedScenes,s.OperationsStarted,b.attempts,
+        tick=typeof(HybridLumenGIChunkStreaming).GetField("tick",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).GetValue(s),
+        states=s.States.Select(x=>new{x.Id,x.Generation,x.Wanted,x.Loaded,x.Owned,x.Loading,x.Unloading,x.UnloadSafe,x.LastError}),
+        operations=b.operations.Select(x=>new{x.path,x.handle,x.unload,x.IsDone})});
+    public static void Run(bool legacy)
+    {
+        var far=new Vector3(100,0,0);var near=Vector3.zero;var band=new Vector3(30,0,0);
+        var method=typeof(HybridLumenGIChunkStreaming).GetMethod("Step",new[]{typeof(IReadOnlyList<Vector3>),typeof(float),typeof(float),typeof(int),typeof(int),typeof(int)});
+        Require(legacy ? method==null : method!=null,"Source mode does not match the frozen control.");
+        void Union(HybridLumenGIChunkStreaming s,params Vector3[] positions)
+        {
+            if(legacy){if(positions.Length>0)s.Step(positions[0],20,40,1,1,1);}
+            else method.Invoke(s,new object[]{positions,20f,40f,1,1,1});
+        }
+        var b=new Backend();var s=new HybridLumenGIChunkStreaming(new[]{Def("A",0),Def("B",10)},b);
+        Union(s,far,near);
+        Require(b.operations.Count==(legacy?0:1),"Auxiliary viewpoint did not produce exactly one cold request.");
+        string cold=Snapshot(s,b);
+        var controlBackend=new Backend();var control=new HybridLumenGIChunkStreaming(new[]{Def("A",0)},controlBackend);
+        var controls=new List<string>();
+        void Single(Vector3 p){control.Step(p,20,40,1,1,1);controls.Add(Snapshot(control,controlBackend));}
+        Single(near);controlBackend.Complete();Single(band);Single(far);
+        Require(!control.ReportUnloadSafe("A",2,true)&&control.ReportUnloadSafe("A",1,true),"Legacy generation gate regressed.");
+        Single(far);controlBackend.Complete();Single(far);
+        Require(controlBackend.operations.Count==2&&!control.States[0].Owned,"Legacy load/unload behavior regressed.");
+        var externalBackend=new Backend();externalBackend.loaded["Assets/Chunks/X.unity"]=999;
+        var external=new HybridLumenGIChunkStreaming(new[]{Def("X",0)},externalBackend);
+        Union(external,far,near);Union(external,far);
+        Require(external.States[0].Loaded&&!external.States[0].Owned&&externalBackend.operations.Count==0&&!external.ReportUnloadSafe("X",0,true),"External ownership was adopted.");
+        if(!legacy)
+        {
+            Require(b.operations[0].path.EndsWith("A.unity")&&s.PendingLoads==1,"Minimum-distance ordering/shared starts failed.");
+            Union(s,near,far,near);Require(b.operations.Count==1&&s.ActiveOperations==1,"Duplicate/reordered views multiplied concurrency.");
+            Union(s,far,band);Require(s.States[0].Wanted,"Hysteresis dropped auxiliary demand.");
+            Union(s,far);Require(s.States[0].Loading&&!s.States[0].Wanted,"Withdrawn in-flight load was cancelled.");
+            string before=Snapshot(s,b);Union(s);Require(Snapshot(s,b)==before,"No viewpoints advanced the state/tick.");
+            b.Complete();Union(s,far);Require(s.States[0].Owned&&s.BlockedUnloads==1&&b.operations.Count==1,"Completed unwanted load bypassed the safe gate.");
+            Union(s,far,near);Require(b.operations.Count==1&&s.PendingLoads==1,"Auxiliary demand enlarged residency budget.");
+            Union(s,far);Require(!s.ReportUnloadSafe("A",2,true)&&s.ReportUnloadSafe("A",1,true),"Auxiliary demand weakened generation receipts.");
+            Union(s,far);Require(s.States[0].Unloading&&b.operations.Count==2,"Current safe receipt did not authorize unload.");
+            b.Complete();Union(s,far);Require(!s.States[0].Owned,"Owned scene did not finish unloading.");
+            var clearedBackend=new Backend();var cleared=new HybridLumenGIChunkStreaming(new[]{Def("A",0)},clearedBackend);
+            Union(cleared,far);Require(clearedBackend.operations.Count==0,"Cleared additions did not restore primary-only demand.");
+        }
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new{mode=legacy?"old-primary-only":"candidate-union",cold,legacyControls=controls,external=Snapshot(external,externalBackend),final=Snapshot(s,b)}));
+        Console.WriteLine("PASS: finite actual chunk Step sequence; fake async backend/bounds adapters, no SceneManager IO or driver Transform execution.");
     }
 }

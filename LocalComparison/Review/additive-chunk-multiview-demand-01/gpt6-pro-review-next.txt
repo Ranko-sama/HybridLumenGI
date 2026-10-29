@@ -1,0 +1,55 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 59
+DECISION: ACCEPT_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: asset-page-auxiliary-cold-bind-01
+
+一、接受Additive多视点需求，结束本包
+
+允许提交当前两处产品修改及证据，未发现本范围的提交阻断。不追加Additive源码或原生矩阵。
+
+已确认 HybridLumenGI / workspace:/ / main@3314a7f，README标题为HybridLumenGI。已先列取再读取262／263，核对实际diff、冻结合同、执行程序、原始结果及Unity引用编译记录；没有修改、重跑或重新计算哈希。
+
+这次确实增加了辅助视点冷加载能力：候选将全部有效位置合并后只推进一次State，距离取最小值；旧单位置API仍进入同一流程。滞回、驻留／并发／启动额度、在途完成和安全卸载代码未改。空视点直接返回，不把“无人观察”擅自解释为可卸载。〔ChunkStreamer.cs:20–44；ChunkStreaming.cs:92–143〕
+
+实际序列证明主远／辅近从无请求变为启动A、B等待；重复视点没有增加在途操作，全部远离没有取消已开始的加载，完成后仍等待当前generation的安全收据。五份旧单视点快照及外部场景结果与基线相同。“清空附加集合”的setter接线由源码支持，执行对照验证的是仅传主位置后的State行为，不能混称完整Transform操作已运行。〔StreamingProgram.cs.txt新增序列；本包两侧result.json〕
+
+完整driver／state／manifest引用编译通过，保留两个序列化字段CS0649警告。但Transform枚举、SceneManager和真实场景IO未执行；旧控制通过表示确认单视点能力边界，不是产品故障。Astra的完成意见现已可读，支持这一有限结项，与本层判断一致。
+
+41与59共同计入多视点流式能力，不能按包数宣布架构完成。 Release58仍对应7e387a5，不包含本次未提交改动。
+
+二、下一优先：确认资源页主路径能由真实辅助视点冷启动
+
+选择原目标3／工作流8的一项具体采用决策，而不是继续扩展59：
+
+显式辅助Transform能否经正常距离模式，触发真实AssetBundle加载，并完成mesh／材质／SDF／charts整组绑定？
+
+现有资源页原生场景的旧探针通过detail.SetWanted(...)手动产生需求，还会调整预算；它不能证明41新增的距离入口。当前产品则在距离判断后调用原SetRequests，等待整组Ready，再获取lease并绑定。这条入口至绑定的连接尚需区分源码可行与实际可用。〔归档StreamingAuditProbe.cs:31–38；当前HybridLumenGIStreamedRepresentation.cs:78–130〕
+
+结果会决定是否将资源页辅助视点冷加载提升为有限原生可用能力。它不补齐Additive原生IO，也不等于多相机渲染或HLOD验收。
+
+三、最小执行范围
+
+默认零Runtime修改。 复用既有Assets/RuntimeAudit/Streaming.unity、现成页manifest与bundle，不重新导出资产或建立新场景。冻结当前来源、页组及依赖闭包、bundle哈希／CRC和原预算。
+
+在旧StreamingAuditProbe首次运行前停用其手动需求、预算切换和自动相机动作；同样绕开普通导航与旧720帧采集入口。仅保留一个受测detail表示，防止其他请求者提前加载共享页。现有退出／恢复流程沿用，不复制27轮撤回插桩或建立新观察框架。
+
+使用一个主视点和一个辅助Transform即可，不增加第二个渲染相机：
+
+阶段	必要证据及改变的决定
+主视点远、无附加视点	经两个正常更新帧后，受测表示仍未绑定、目标页组无请求／预留／加载。否则冷启动前提不成立，停止。
+只添加位于加载范围内的辅助Transform	调用SetAdditionalObservers，保持UseDistanceRequests；让实际Update和原pump推进。禁止测试直接SetWanted(true)、SetRequests、调用Step或填充资产。
+完整绑定	全部必需页及依赖已Ready，HasBoundAssets成立；实际mesh、材质槽、SDF／charts的SourceMesh关系正确，renderer／proxy按产品路径启用，无操作错误。成立才接受该有限能力；仅出现IO请求不算完成。
+
+主视点必须始终在卸载距离外；原显式observer与Camera.main回退都需核对，不能留一个近处旧observer制造假阳性。追加Transform是需求来源，不要求其参与渲染。
+
+授权一次既有预检、一次构建、一次可见Player，最多120个实际目标相机帧。在第2帧的冷状态检查后添加辅助视点；首个完整绑定结果取得后正常结束，未完成则到上限报告未覆盖。只保存初始、绑定／首错及退出的必要收据，不逐帧扩展诊断，不采HDR、射线、计时或图像评分。
+
+四、退出条件
+
+冷状态成立，唯一新增辅助视点经真实距离模式完成整组加载与绑定，即关闭这一采用问题。 正常退出和源码／资产恢复同时核对，但不重验卸载、取消、HLOD或GPU退休矩阵。
+
+冷前提失败、出现首个错误、无法完整绑定或达到窗口上限，均保留首次证据并结束；不增预算、预热、补帧、重导资产或自动第二次运行。通过也只认证这一固定页组，不声明IO延迟、整体动态质量或生产预算达标。
+
+现在提交59轮能力，随后执行上述唯一原生连接检查。四项目标、十条工作流仍开放；导航、暗区、MC、曝光、计时和已关闭源码检查继续关闭，生产预算保持待答。

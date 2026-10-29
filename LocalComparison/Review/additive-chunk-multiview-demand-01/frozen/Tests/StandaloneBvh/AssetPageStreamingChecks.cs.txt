@@ -1,0 +1,86 @@
+using HybridLumenGI;
+using Stream=HybridLumenGI.HybridLumenGIAssetPageStreaming;
+
+static class AssetPageStreamingChecks
+{
+    static void Check(bool pass,string failure){if(!pass)throw new Exception(failure);}
+    static Stream.Definition Page(string id,params string[] dependencies)=>new(){id=id,bundlePath=id+".bundle",assetName=id,kind=Stream.Kind.Geometry,fileBytes=10,residentBytes=20,uploadBytes=8,dependencies=dependencies};
+    static Stream.Budgets Budget()=>new(){ioBytesPerStep=20,maxIoBytesInFlight=20,maxBundleBytes=100,maxResidentBytes=100,uploadBytesPerStep=8,concurrentOperations=2,startsPerStep=2};
+    public static void Run()
+    {
+        var backend=new Provider();var stream=new Stream(new[]{Page("parent","dependency"),Page("dependency")},backend);var budget=Budget();
+        stream.Request("parent",true);stream.Step(budget);
+        Check(stream.IoBytesStarted==20 && stream.IoBytesInFlight==20 && stream.BundleBytes==20 && backend.operations.Count==2,"Bundle IO admission did not reserve exact declared bytes.");
+        stream.Step(budget);Check(backend.operations.Count==2,"In-flight bundles did not retain concurrency/IO budgets.");
+        backend.CompleteAll();stream.Step(budget);
+        Check(backend.operations.Last().id=="dependency" && backend.operations.Last().phase=="asset" && stream.ResidentBytes==20,"Parent asset loaded before its dependency, or residency was not reserved at admission.");
+        backend.CompleteAll();stream.Step(budget);Check(backend.operations.Last().id=="parent" && stream.UploadBytesStarted==8,"Dependency completion did not admit parent upload.");
+        backend.CompleteAll();stream.Step(budget);Check(stream.TryAcquire("parent",out var lease),"Ready group could not acquire a lease.");
+        var ticket=new Ticket();Check(stream.ReleaseAfter(lease,ticket) && !stream.ReleaseAfter(lease,ticket),"Retirement accepted duplicate receipt.");
+        stream.Request("parent",false);stream.Step(budget);
+        Check(stream.ResidentBytes==40 && backend.operations.Count==4 && stream.RetiringLeases==1,"Unproven GPU retirement freed a page/dependency.");
+        ticket.done=true;stream.Step(budget);
+        Check(backend.operations.Last().id=="parent" && backend.operations.Last().phase=="release" && stream.ResidentBytes==40,"Parent release failed to retain residency until native completion.");
+        backend.CompleteAll();stream.Step(budget);
+        Check(backend.operations.Last().id=="dependency" && stream.ResidentBytes==20,"Dependency was released before parent completion.");
+        backend.CompleteAll();stream.Step(budget);Check(stream.ResidentBytes==0 && stream.BundleBytes==0 && stream.IoBytesInFlight==0,"Completed releases did not return reservations.");
+        Check(!stream.ReleaseAfter(lease,new Ticket{done=true}),"Retired lease authorized another lifetime.");
+
+        var cancelledProvider=new Provider();var cancelled=new Stream(new[]{Page("a")},cancelledProvider);
+        cancelled.Request("a",true);cancelled.Step(budget);cancelled.Request("a",false);cancelled.Step(budget);
+        Check(cancelled.IoBytesInFlight==10 && cancelledProvider.operations.Count==1,"Cancellation forgot an in-flight native operation.");
+        cancelledProvider.CompleteAll();cancelled.Step(budget);
+        Check(cancelledProvider.operations.Last().phase=="release" && cancelled.ResidentBytes==0,"Cancelled bundle completion loaded an unwanted asset.");
+        cancelledProvider.CompleteAll();cancelled.Step(budget);Check(cancelled.BundleBytes==0,"Cancelled late completion leaked its owned bundle.");
+
+        var cappedProvider=new Provider();var capped=new Stream(new[]{Page("a"),Page("b")},cappedProvider);
+        var cap=Budget();cap.ioBytesPerStep=10;cap.maxBundleBytes=10;cap.maxResidentBytes=19;
+        capped.Request("a",true);capped.Request("b",true);capped.Step(cap);
+        Check(cappedProvider.operations.Count==1 && capped.BundleBytes==10,"IO/whole-bundle capacity was exceeded.");
+        cappedProvider.CompleteAll();capped.Step(cap);Check(capped.ResidentBytes==0 && capped.BudgetBlocked>0,"Resident page exceeding capacity was admitted.");
+        cap.maxResidentBytes=20;cap.uploadBytesPerStep=7;capped.Step(cap);Check(capped.ResidentBytes==0,"Upload admission exceeded per-step budget.");
+        cap.uploadBytesPerStep=8;capped.Step(cap);Check(capped.ResidentBytes==20,"Admissible page remained blocked after budget increase.");
+
+        var groups=new Stream(new[]{Page("meshA"),Page("textureA"),Page("meshB"),Page("textureB")},new Provider());
+        var groupBudget=Budget();groupBudget.maxResidentBytes=60;var admitted=new HashSet<string>();
+        Check(groups.TryAdmitGroup(new[]{"meshA","textureA"},groupBudget,admitted),"Complete group fitting capacity was not admitted.");
+        Check(!groups.TryAdmitGroup(new[]{"meshB","textureB"},groupBudget,admitted) && admitted.Count==2,"Partial second group consumed material capacity and could deadlock both representations.");
+        Check(groups.TryAdmitGroup(new[]{"meshB","textureA"},groupBudget,admitted) && admitted.Count==3,"Shared group dependency was charged twice.");
+
+        var retryProvider=new Provider();var retry=new Stream(new[]{Page("a")},retryProvider);
+        retry.Request("a",true);for(int i=0;i<3;i++){retry.Step(budget);retryProvider.CompleteAll();}
+        uint firstGeneration=retry.GetState("a").Generation;retry.Request("a",false);retry.Step(budget);
+        retryProvider.operations.Last().error="Native unload failed.";retryProvider.CompleteAll();retry.Step(budget);
+        Check(retry.GetState("a").Status==Stream.Phase.ReleaseFailed && retry.ResidentBytes==20,"Failed native release lost reservations.");
+        retry.Request("a",true);int operations=retryProvider.operations.Count;
+        for(int i=0;i<59;i++)retry.Step(budget);
+        Check(retryProvider.operations.Count==operations,"Failed release ignored retry backoff or reloaded uncertain ownership.");
+        retry.Step(budget);Check(retryProvider.operations.Last().phase=="release","Re-requested failed release did not complete quarantine before reuse.");
+        retryProvider.CompleteAll();retry.Step(budget);
+        Check(retry.GetState("a").Generation>firstGeneration && retry.ResidentBytes==0,"Page lifetime was reused after failed release.");
+
+        var unknownProvider=new Provider();var unknown=new Stream(new[]{Page("a")},unknownProvider);
+        unknown.Request("a",true);unknown.Step(budget);unknownProvider.operations[0].throws=true;unknown.Request("a",false);
+        unknown.Step(budget);Check(unknown.IoBytesInFlight==10 && unknown.ActiveOperations==1 && unknownProvider.operations.Count==1,"Unknown native completion was treated as failure/completion.");
+        bool rejected=false;try{_ = new Stream(new[]{Page("a","b"),Page("b","a")},new Provider());}catch(ArgumentException){rejected=true;}
+        Check(rejected,"Cyclic page dependencies accepted.");
+        foreach(string path in new[]{"../a","a/../b","C:/x","/root","a\\b","a//b"})Check(!Stream.RelativePath(path),"Unsafe relative bundle path accepted: "+path);
+        Console.WriteLine("PASS: actual independent asset-page scheduler: dependency ordering, IO/upload/resident quotas, non-cancellable late completion, delayed consumer retirement, failed-release quarantine/retry, generations, unknown native completion and manifest/path rejection. Fake provider; Unity AssetBundle IO/GPU execution is not claimed.");
+    }
+    sealed class Ticket : Stream.ICompletion {internal bool done;public bool IsComplete=>done;}
+    sealed class Provider : Stream.IProvider
+    {
+        internal sealed class Op : Stream.IOperation
+        {
+            internal string id,phase,error;internal bool done,throws;
+            public bool IsDone=>throws?throw new InvalidOperationException("Unknown completion"):done;
+            public string Error=>error;public object Result=>phase=="release" || error!=null?null:this;
+        }
+        internal readonly List<Op> operations=new();
+        Op Add(string id,string phase){var op=new Op{id=id,phase=phase};operations.Add(op);return op;}
+        public Stream.IOperation LoadBundle(Stream.Definition definition)=>Add(definition.id,"bundle");
+        public Stream.IOperation LoadAsset(Stream.Definition definition,object bundle)=>Add(definition.id,"asset");
+        public Stream.IOperation Release(Stream.Definition definition,object bundle,object asset)=>Add(definition.id,"release");
+        internal void CompleteAll(){foreach(var op in operations)op.done=true;}
+    }
+}

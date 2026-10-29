@@ -15,7 +15,7 @@
 | 5 局部失效与多反弹 | 变更域、代次、双缓冲、预算和年龄调度 | iteration10执行实际cache update/lookup/commit/change，两节点256开+256关独立参考通过；不代表真实帧响应 | 真实灯光检测、调度与缓存/画面链；运动/删除后的残留和收敛 |
 | 6 采样与降噪 | 混合 PDF/MIS、运动历史与滤波 | denoise-02 F1/F2与denoise-03局部短历史过渡已通过Pro复核；单个真实门事件覆盖1230像素 | 已知第2/3历史噪声代价；持续reactive/历史上限2或3仍待画质验收；R1只有匹配信号敏感性证据；绝对拖影未验收 |
 | 7 URP Lit / DXR | 源 UV/多材质、alpha/Cull、native diffuse规则 | 3088d41同构建软件/DXR各120帧证据获Pro20/21有限接受；iteration25单槽MPB自动发现、实际上传、目标历史重建及一条实际正权重消费链已获Pro25有限接受 | 槽1屏幕历史仍未覆盖；形变、全场景材质一致性、软件差异解释与动态质量 |
-| 8 流式与预算 | 异步AssetBundle、完整组准入、HLOD原子切换、独立额度；显式附加视点冷加载需求；默认关闭的计时/完成记录导出 | 41实际representation/driver/scheduler验证附加视点冷需求、滞回和预算/退休权限；原生IO为适配边界。e1aa6356的512源帧NativeDX12有限成本基线保留来源，23轮复用优化收益未超过波动而撤回 | 多视点新需求的原生综合使用、冷暖/高速移动/总VRAM与生产预算仍开放；不重跑已完成在途撤回和正常退出矩阵 |
+| 8 流式与预算 | 异步AssetBundle、完整组准入、HLOD原子切换、独立额度；资源页与可选Additive场景的显式附加视点冷加载需求；默认关闭的计时/完成记录导出 | 41实际representation/driver/scheduler验证资源页附加视点冷需求；59实际ChunkStreaming有限序列证明Additive需求合并、共享额度与卸载权限，完整driver编译；真实Transform/IO仍为适配边界。e1aa6356的512源帧NativeDX12有限成本基线保留来源，23轮复用优化收益未超过波动而撤回 | 多视点新需求的原生综合使用、冷暖/高速移动/总VRAM与生产预算仍开放；不重跑已完成在途撤回和正常退出矩阵 |
 | 9 可重复回归 | 离线入口、固定场景、HDR和来源清单 | denoise-03有限场景；gather真实消费/偏移可见性；失败cache反例；理想能量及实际关灯链；新增固定源帧GPU成本基线；均保留来源和失败记录 | 按具体热点或动态/材质反例增加最小验证；不重复已完成关灯链、Player冒烟或同类函数夹具 |
 | 10 工程验收 | Unity环境、普通Release默认常驻入口、当前Player与来源清单、键盘巡视 | Release58/7e387a5一build/一普通可见Player完成移动/转向/松键/复位与正常退出，112产品源/189产物。Release54/a9292cb保留120帧单次HDR图像，Release44/5120a8c保留300秒公开计账，各自来源不混用 | 整应用/动态/Release尾延迟、参考图/动态质量、总显存与生产长测、G0–G5支持范围仍开放；本机巡视不等于整体验收 |
 
@@ -156,3 +156,5 @@ iteration56有限结项：GlobalSdf只排除明确非零且仅Material/Lighting�
 iteration56已提交862b93c并获实际Pro确认收束。iteration57首轮基线确认屏幕分区已排除的面积项因端点照明未知，错误否决已知方向估计；候选仅将该零贡献标为knowntrue，保留全部胜出/PDF/采样规则。实际TraceScreen未知照明出口、完整估计循环及原有效性谓词在既有WARP宿主执行，独立D参考准确保留，真正方向未知、未解决world等距不胜出的面积未知及非零面积控制逐字节不变。唯一候选两CSTrace入口及旧源码守卫前缀均通过；无行为/编译失败、重跑、新宿主、数值CDF矩阵或Unity，非可见故障/画质收益验收。冻结执行前缀末尾空行的格式诊断保留，不重写原执行字节。见[结果与边界](ReviewBrief-ScreenExcludedAreaKnownZero01.md)。独立Astra及实际Pro均接受有限结项和本地提交，停止本项扩测。下一普通Release导航补齐实际巡视能力：键盘移动/转向/复位/退出，固定采集路径保持原样；一预检/一构建/一真实窗口操作，非动态质量验收。
 
 iteration58已有限采用：普通Release新增WASD/QE移动、方向键转向、R精确初始位姿、Esc退出；只在!verify执行，有限采集与GI配置不变。一次预检0、一Release构建0(23warnings)、一普通可见Player20784经实际OS键盘输入观察到平移/转向/松键停止/复位并exit0；112当前产品源、189产物、五覆盖与六include恢复均核对。00–03暗窗口未合格判读，04才可辨场景；总进程172.586秒、首窗口至exit151.629秒、首可辨场景至exit58.307秒，不能声称无条件120秒通过。失焦护栏仅代码核验。首次postcheck误匹配启动JSON空error键，首诊断保留，同数据结构化解释修正，无原生重跑。见[巡视结果与原始边界](ReviewBrief-LocalReleaseNavigation01.md)。独立Astra与实际Pro58批准有限采用Release58并停止追加导航验证；Pro未独立读取图片，视觉结论属于执行层和Astra。Release54仍为HDR图像来源。
+
+iteration59：两处产品修改补齐可选Additive场景辅助视点冷需求，默认空附加集合/复制setter/每帧合并一次Step，旧单位置API、滞回、预算和卸载收据保持。一次旧源控制0、一次候选实际状态机0；五份旧单视点快照及external结果逐字相同，driver/state/manifest真实Unity引用编译0、两个序列化字段警告保留。0Unity/Player/GPU，setter/Transform枚举仅源码核对，清空对照执行的是仅传主位置的State，不伪称原生输入。Astra和实际Pro59有限结项并批准本地提交；累计41+59，不追加Additive矩阵。下一项仅为资源页主路径真实辅助Transform冷加载到完整绑定的采用判断。Release58产品仍7e387a5，完整计划继续开放。见[59能力与边界](ReviewBrief-AdditiveChunkMultiviewDemand01.md)。
