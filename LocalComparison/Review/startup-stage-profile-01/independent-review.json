@@ -1,0 +1,155 @@
+{
+  "schema": "startup-stage-independent-review-v1",
+  "status": "accepted_with_scope_limits",
+  "blockingFindings": [],
+  "sourceProvenance": {
+    "productBaseline": "269241b38c45a97f29758fb92640cdb36f5092f8",
+    "productFiles": 112,
+    "stagedFiles": 10,
+    "stagedAndObserverSourcesMatchFrozenHashes": true,
+    "buildInputsMatchFrozenProductAndStagedSources": true,
+    "unchangedShaderFiles": 43,
+    "unchangedProductComputeFiles": 8,
+    "onlyTemporaryProductChange": "Runtime/HybridLumenGIRendererFeature.cs",
+    "frozenKernelsSha256": "36f561edd634ddf3d629b06e847ead631ad6b44eaa6b2039ab658a4c422d1850",
+    "subsequentWorkingTreeKernelsSha256": "68bdfe49b2c8b09a52722bc5ba7dcb7045be016359d6682e380269116df67455",
+    "subsequentWorkingTreeNote": "Later guiding fix is outside this diagnostic. The earlier build/run is bound to its frozen inputs; build() was not rerun against the subsequent working tree."
+  },
+  "release71SettingsClosure": {
+    "rendererEqualsAfterReplacingExactlyOneCubeGuid": true,
+    "oldCubeGuid": "9593eeb131815834ab05d9b823b35506",
+    "newCubeGuid": "0d8dcc8bec9321649aebaaae2e45d6d2",
+    "rendererMetaBytesEqual": true,
+    "cubeAssetBytesEqual": true,
+    "cubeFaceValuesAndParametersEqual": true,
+    "note": "The analyzer excludes regenerated Renderer/Cube file hashes from general context equality. This independent byte comparison closes that exception for these actual artifacts."
+  },
+  "timeBoundaries": {
+    "firstRenderWaitSeconds": 2.6840022,
+    "firstRenderWaitOrigin": "Host.Initialize Time.realtimeSinceStartupAsDouble; not process launch and not probe origin",
+    "probeOrigin": "RuntimeInitialize / first probe use Stopwatch.GetTimestamp; registration ordering is not an OS launch timestamp",
+    "firstRequestEngineFrame": 1,
+    "actualRequests": 12,
+    "events": 60,
+    "scopes": 25,
+    "nestedScopesMustNotBeSummed": true,
+    "submitMilliseconds": 2429.7058,
+    "hostInitializeMilliseconds": 117.3614,
+    "featureCreateInsideInitializeMilliseconds": 81.4419,
+    "afterInitializeToSubmitMilliseconds": 144.8905,
+    "recordRenderGraphMilliseconds": 179.7339,
+    "transportCommandRecordingMilliseconds": 88.0733,
+    "postCompositeToEndCamera": {
+      "beginSequence": 55,
+      "endSequence": 56,
+      "milliseconds": 1985.0733,
+      "fractionOfSubmit": 0.8170015069314153,
+      "interpretation": "Largest uninstrumented CPU wall-clock interval follows managed composite command recording and precedes endCameraRendering callback entry. May include later URP/driver work or waits; not a GPU execution measurement."
+    },
+    "submitOutsideDisjointTopLevelFeatureScopesMilliseconds": 2158.1543,
+    "transportUnsplitCluster": {
+      "beginSequence": 32,
+      "endSequence": 33,
+      "milliseconds": 76.2316,
+      "scope": "Emissive proposal recording, scheduler preparation, source validation and geometry RecordBuild cluster; no individual attribution"
+    },
+    "maximumFindKernelMilliseconds": 0.0078
+  },
+  "conclusions": {
+    "longWaitReproduced": false,
+    "previousObservedFirstRenderSeconds": [
+      99.2426217,
+      141.3432229,
+      141.970988
+    ],
+    "currentObservedFirstRenderSeconds": 2.6840022,
+    "performanceImprovementEstablished": false,
+    "gpuBottleneckEstablished": false,
+    "productionPerformanceAccepted": false,
+    "note": "The 99-142 second waits did not recur in this sole fixed 12-request run. No added run or cold-cache assumption. Small FindKernel intervals only describe this run."
+  },
+  "reviewMethod": {
+    "readOnlyArtifactAndSourceInspection": true,
+    "unityOrPlayerStarted": false,
+    "frozenFilesModified": false,
+    "additionalBenchmark": false
+  },
+  "references": [
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/contract.md",
+      "sha256": "596f9160f7f7b0f205117f4ff40dbb52e2334b53f157d8e7fc09ffa01ad765b2"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/prepare.py",
+      "sha256": "38a80ef65d618c94fd697a66308651d6926124af9514d91eebb5a4c919998c24"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/analyze.py",
+      "sha256": "e64da9f0d9a9e890a79c43e7d40a83c0072aec624b2f400aaa5d30f5e735dbd9"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/qualify_run.py",
+      "sha256": "529b94466561c1d176695d8dd8c0214b8fc8aa18387574b750ef50a206bccac0"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/observer-preparation.json",
+      "sha256": "d0d805d764723ca5ba088a91518a4ae1fb22c232c638dd61c7c9cb4e9477ad34"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/instrumentation/manifest.json",
+      "sha256": "55dec910bdc61c6177f82495dbdde4cfed09eda1be28fef0a40e6717f6c70a31"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/build-report.json",
+      "sha256": "6e62cc865f3d2fb08e8954120beed3836bf14d80f6a8d68956f6c0593a6fe543"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/build-analysis.json",
+      "sha256": "7dbe34b2a2f5a4aa7fd91c019993d76e9cf5b6d4f1e56955c3d2150ea565919f"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/instrumentation/restoration.json",
+      "sha256": "0e588b7e5acc5bfc60a46cc0559afc37941953f63c19d064f5c78851da44e362"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/asset-restoration.json",
+      "sha256": "d32514628a91195ed72e9ec60ded0dfd8c17d0b8a23182de7589ec3d582992f8"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/cube-setup-receipt.json",
+      "sha256": "2240fe34ddea1151310ff9aac78fb275e9f704a7126c1cb1c4eff3dd4d9e43c4"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/native-explicit/run/startup-stage-cpu.json",
+      "sha256": "622e48a4ba106fac70b5cf17ceaa00d99926a9ff7cd1c7e9bf0fd6443bccdd00"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/native-explicit/run/release-result.json",
+      "sha256": "7aedef9068bec2f9b0155ce178645b7c8dcd00675a87e62e497681febc486073"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/native-explicit/analysis-first.json",
+      "sha256": "a4003935441931d8719d9efd11e49e876398122afcae9b2d76a9d0745755252e"
+    },
+    {
+      "path": "LocalComparison/Review/current-local-release-71/cube-setup-receipt.json",
+      "sha256": "48d4e572a7f0f0301571ce10ee605e6170f9ba4735e715d5f7dd6f20400fd84a"
+    },
+    {
+      "path": "LocalComparison/Review/current-local-release-71/built-assets/Renderer.asset",
+      "sha256": "49f86314004a668e18e1c60667a27fdd84b3ef2ae64c3d3a3713f8b9abfb1486"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/built-assets/Renderer.asset",
+      "sha256": "04d45d6619e6816860c1422f0ffd333015e3bfa618024bed2e1649723f887e63"
+    },
+    {
+      "path": "LocalComparison/Review/current-local-release-71/built-assets/CurrentRelease67Environment.asset",
+      "sha256": "e4b814b4b524275940cae92edc07a34d9795761b76b50063a67f907602f3cacb"
+    },
+    {
+      "path": "LocalComparison/Review/startup-stage-profile-01/built-assets/CurrentRelease67Environment.asset",
+      "sha256": "e4b814b4b524275940cae92edc07a34d9795761b76b50063a67f907602f3cacb"
+    }
+  ]
+}

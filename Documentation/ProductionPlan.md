@@ -1,18 +1,20 @@
 # 实时光传输架构与生产交付计划
 
-状态：**持续本机开发；当前入口Release69，产品来源50b63c33683ba533f01c7119f6320ad80b4f2ec6；完整生产验收尚未完成。** 更新：2026-10-29。用户不需要朋友交付。当前入口见[README](../README.md)，[69连续形变示例](ReviewBrief-ContinuousDeformationUsage01.md)已获Astra与实际Pro有限采用：同启停方法的256帧原生持续发布／最终来源追上与两张原图，不补齐整体动态画质。历史[67整合结果及边界](ReviewBrief-CurrentLocalRelease67.md)已获Astra和实际GPT-6 Pro有限采用，Pro读取了实际PNG。该轮实测有限HDR分支，保留58导航代码但未重做键盘验收；101.249秒首帧等待和旧58回退入口保留。完整目标仍由[原始计划](OriginalDevelopmentPlan.md)约束，后续HEAD不改变EXE产品来源。
+状态：**持续本机开发；当前入口Release71，产品来源269241b38c45a97f29758fb92640cdb36f5092f8；完整生产验收尚未完成。** 更新：2026-10-29。当前入口见[README](../README.md)，[71整合记录](ReviewBrief-CurrentLocalRelease71.md)完成显式后台120帧与HDR，首帧99.24秒仍是限制；普通导航和形变入口沿用69，本轮未重复OS按键。当前颜色反弹、变色／关灯、有限缓存反馈和遮挡恢复的独立证据见[推进表](DevelopmentProgress.md)，各自不扩大为整景质量验收。用户不需要朋友交付，本轮不使用Codex with ChatGPT；历史外部审查仅保留当时结论。完整目标仍由[原始计划](OriginalDevelopmentPlan.md)约束，后续HEAD不改变EXE产品来源。
 
 ## 当前支持范围与证据层级
 
 | 类别 | 当前合同 | 证据与边界 |
 | --- | --- | --- |
-| 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；Release None | [Release69](ReviewBrief-ContinuousDeformationUsage01.md)可启停单网格、256帧原生发布与最终来源一致；[Release67](ReviewBrief-CurrentLocalRelease67.md)实际Feature静态Cube与Final HDR。历史[Release58](ReviewBrief-LocalReleaseNavigation01.md)普通键盘巡视、正常退出，产品7e387a5；[Release54](ReviewBrief-CurrentRepresentativeFinalImage01.md)静态120相机/GI帧及单次末帧HDR图像，产品a9292cb。[62固定移灯](ReviewBrief-LocalLightMoveResponse01.md)在7190c28完成180帧及五份IndirectOnly HDR，原FAIL与一次精确同数据补判并存；仅支持该事件的检测与空间响应。640×360仅为运行配置；58窗口图不替代54静态Final HDR，不构成完整动态GI/性能验收 |
+| 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；Release None | [Release71](ReviewBrief-CurrentLocalRelease71.md)在269241b完成当前产品构建、显式后台120帧及HDR；[Release69](ReviewBrief-ContinuousDeformationUsage01.md)在50b63c3完成可启停单网格、256帧原生发布与最终来源一致；[Release67](ReviewBrief-CurrentLocalRelease67.md)实际Feature静态Cube与Final HDR。历史[Release58](ReviewBrief-LocalReleaseNavigation01.md)普通键盘巡视、正常退出，产品7e387a5；[Release54](ReviewBrief-CurrentRepresentativeFinalImage01.md)静态120相机/GI帧及单次末帧HDR图像，产品a9292cb。[62固定移灯](ReviewBrief-LocalLightMoveResponse01.md)在7190c28完成180帧及五份IndirectOnly HDR，原FAIL与一次精确同数据补判并存；仅支持该事件的检测与空间响应。640×360仅为运行配置；58窗口图不替代54静态Final HDR，不构成完整动态GI/性能验收 |
 | 已实现、有限验证 | 不变Skinned快照复用、Additive雾衰减、局部灯变化优先调度及现有架构能力 | 分别见[复用](ReviewBrief-SkinnedUnchangedSnapshotReuse01.md)、[原生捕获依赖](ReviewBrief-SkinnedNativeCaptureBoundary01.md)、[雾合成](ReviewBrief-AdditiveFogComposition01.md)、[调度](ReviewBrief-LocalLightSchedulingPriority01.md)；源码适配器、原生依赖与完整功能验收分开，54不补齐未触发条件 |
 | 历史证据 | Release44稳态、早期软件/DXR图像、流式及动态专项 | [44的300秒窗口](ReviewBrief-LocalReleaseSteadyUse01.md)属于5120a8c；其他见[推进表](DevelopmentProgress.md)各自来源，不改旧FAIL、不改标为当前通过 |
 | 代码明确限制/拒绝 | Feature跳过非DX12、非Linear、非Base或立体相机，以及无compute/必要资源的路径；仅Game及显式允许的SceneView、Tex2D目标可进入 | [实际准入代码](../Runtime/HybridLumenGIRendererFeature.cs)；替换原生漫反射还要求普通URP Lit、Forward/Forward+、有符号HDR及MSAA关闭等，失败保留原照明，见[完整替换合同](NativeDiffuseComposition.md)。这些限制不是单纯“尚未测试” |
 | 尚未完成的验收 | 整体图像质量/动态收敛、各功能未覆盖的原生条件、目标规模、总VRAM、GPU p95/p99、完整G0–G5 | 生产分辨率/FPS、GI时间和显存预算仍待确定。未采集的资源/退休字段默认值不能当清零；首帧等待不是受控性能改善；不由120帧静态运行推导生产放行 |
 
 以下架构与G0–G5条件继续保留。早期阶段叙述和朋友包只提供历史背景，不决定当前启动步骤。
+
+当前源码13f31ec已采用并部署[引导与几何解耦修复](ReviewBrief-GuidingReceiverGeometry01.md)，同输入WARP和三后端完整编译通过；现有Release71的产品来源仍是269241b，尚未以新源码替换普通Player。[首帧CPU分段诊断](ReviewBrief-StartupStageProfile01.md)沿用269241b完成12帧，旧长等待未复现；不构成GPU性能改善或生产验收。
 
 当前源码另新增[静态线性HDR环境Cube](EnvironmentRadiance.md)，替代常量环境并为两条间接光miss路径提供方向性Li。[63真实compute结果](ReviewBrief-StaticHdrEnvironmentCubemap01.md)支持固定方向、旧常量兼容及未知语义；[67整合](ReviewBrief-CurrentLocalRelease67.md)已在完整Feature/场景中绑定此输入并取得Final HDR。固定六面工程输入不等于物理环境参考，也不扩大生产支持范围。
 
@@ -135,12 +137,14 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
-| G0：基线锁定 | Unity/URP 精确版本、设备矩阵、目标分辨率/FPS、GI GPU/显存预算、参考场景与图 | 本机导入/Player build及来源一致基线；当前Release49/31c9415已完成Windows x64/Mono/DX12普通构建与有限静态运行；3088d41的软件/DXR记录仍为历史，完整配置/性能预算仍开放 |
+| G0：基线锁定 | Unity/URP 精确版本、设备矩阵、目标分辨率/FPS、GI GPU/显存预算、参考场景与图 | 本机导入/Player build及来源一致基线；当前Release71/269241b完成Windows x64/Mono/DX12构建及显式后台120帧/HDR；普通交互沿用69且本轮未重复OS按键。Release49/31c9415和3088d41的软件/DXR记录保持历史来源，完整配置/性能预算仍开放 |
 | G1：传输正确性 | 灯光单位/阴影/材质合约、真实 hit 材质、白炉/黑室/金属/色墙对照 | 线性 HDR 与匹配参考比对；无重复环境/烘焙贡献；能量/关灯衰减通过 |
 | G2：世界表面与几何 | cards/atlas、mesh SDF 资产管线、实例空间加速、global SDF clipmaps、dirty bricks | 复杂多房间、薄壁、凹物体、离屏纹理与材质正确；覆盖 debug 可解释 |
 | G3：动态稳定性 | 局部失效、运动/形变一致性、可见性缓存、引导/MIS、时域重建 | 规定 camera/light/door 序列通过；误差、拖影、收敛时间量化 |
 | G4：规模与后端 | 异步 streaming、原子 HLOD 切换、反馈预算；DXR refit/alpha/纹理支持 | 冷/热/高速移动与长时压力通过，软件/DXR 视觉偏差可解释；无残留引用/增长 |
 | G5：发布 | CI 导入和构建、回归图、GPU/显存报告、支持矩阵、版本迁移、打包清单 | 每一承诺平台完成 p95/p99 与峰值内存验收；无未关闭阻断缺陷 |
+
+当前G1/G3新增[有限单次颜色参考](ReviewBrief-FiniteWallColorReference02.md)、[变色与关灯](ReviewBrief-FiniteWallDynamicResponse01.md)、[真实有限缓存反馈](ReviewBrief-CacheFeedbackFinite02.md)和[刚体遮挡恢复](ReviewBrief-FiniteWallOcclusionResponse01.md)的来源绑定证据，各自限制见原报告；不合并成默认配置或整景质量认证。
 
 本机已有Unity6000.0.85f1、URP17.0.4、DX12和RTX2080Ti的实际记录；目标分辨率/FPS及GI GPU/显存放行预算尚未确定，不填写虚构阈值。完整当前进度见[推进表](DevelopmentProgress.md)。G5目前增加了当前本地构建/启动证据，尚未完成CI、承诺平台矩阵、性能或峰值内存放行；上表G0–G5条件不因此降低。当前源码构建和有限运行不等于整个G0完成，**不能跳过 G2–G5 后标注为“完整生产交付”**。开发不再依赖朋友工程反馈。
 

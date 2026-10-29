@@ -10,4 +10,6 @@
 
 这是真实产品函数配合明确资源／世界查询适配器的定向验证，不是完整 DXR 场景或实机 RGB 改善证明。独立审查确认反例和候选控制；软件、精确软件、硬件三个完整 CSTrace 入口均以优化 DXC 编译通过，源码已采用。此项不宣布默认 guided 图像或整体动态质量验收。
 
+产品提交 `13f31ec`，Unity 项目112个产品源已按哈希更新一致；这只说明部署字节，不追加原生图像结论。普通 Player 仍为 Release71／269241b。
+
 依据：[范围和失败记录](../LocalComparison/Review/guiding-origin-coupling-01/result.md)、[基线资格](../LocalComparison/Review/guiding-origin-coupling-01/qualified-analysis.json)、[候选原分析](../LocalComparison/Review/guiding-origin-coupling-01/candidate/analysis.json)、[完整入口编译](../LocalComparison/Review/guiding-origin-coupling-01/compile/report.json)。

@@ -1,0 +1,83 @@
+Temporary first-request CPU stage probe
+
+Parent package integration (preferred)
+--------------------------------------
+Load prepare-startup-stage-probe.py with importlib. It exports:
+  patch_feature(source_bytes) -> patched_bytes
+  patch_host(source_bytes) -> patched_bytes
+  FEATURE_REL = Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs
+  PROBE_REL   = Assets/HybridLumenGI/Runtime/StartupStageProbe.cs
+  PROBE_SOURCE = this directory / StartupStageProbe.cs
+
+Apply the pure functions to unfrozen candidate Feature/Host bytes. Add those
+two results and PROBE_SOURCE to the parent's ordinary install/restore manifest.
+Pin input SHA256 before patching, pin output SHA256 before compilation/run.
+patch_host supports Release71 LocalReleaseBootstrap and its fixed-frame
+derivatives, plus the existing finite-wall hosts. It does not change frame
+count, budget, settings, camera/target, capture policy, or exception handling.
+Every exact anchor is counted; unknown inputs and double application fail.
+Original LF/CRLF is preserved. No .compute/.hlsl/.shader is patched.
+
+Use the parent's two-assembly managed preflight after merging all its staged
+dependencies; compiling Bootstrap against the old deployed ComparisonCapture
+alone does not check the real candidate. The standalone probe/Feature/derived
+Bootstrap has also been compiled with the actual Unity 6000.0.85 Roslyn refs.
+
+Optional standalone overlay
+---------------------------
+python prepare-startup-stage-probe.py prepare --out <new-absolute-directory>
+  --project <Unity-project> --feature-source <candidate-Feature.cs>
+  --feature-sha256 <exact-SHA256> --host-source <candidate-Host.cs>
+  --host-sha256 <exact-SHA256> --host-target Assets/<path>/Host.cs
+python prepare-startup-stage-probe.py install --out <same-directory>
+python prepare-startup-stage-probe.py restore --out <same-directory>
+
+Prepare may run before the base candidate is installed. Install requires
+those exact uninstrumented candidate bytes already deployed. Restore this
+overlay first, then restore the base candidate. The two input copies are
+the overlay's originals, not an inferred clean repository state.
+All product shader source/dependency bytes are checked against the repository
+before prepare/install/restore. The helper checks every target before mutation,
+preserves backups and post-run files, refuses unrelated edits, and journals
+partial installation. It only removes its exact new probe file and meta.
+No Unity/Player launch is performed by this helper.
+
+Output and interpretation
+-------------------------
+<existing-host-output>/startup-stage-cpu.json
+schema: startup-stage-cpu-v1
+status: collected or incomplete; error describes trace integrity failures.
+events: sequence, scopeId, kind(begin/end/marker), stage, timestamp,
+        millisecondsFromOrigin, engineFrame, threadId, cameraId.
+stopwatchFrequency and originTimestamp permit independent tick conversion.
+
+Match each nonzero scopeId's begin/end to obtain CPU elapsed wall-clock time.
+Nested scopes overlap: do not sum them. A marker records entry to that callback,
+not time spent by all subscribers. cameraId 0 marks an unscoped/global stage.
+RuntimeInitialize hooks and Feature.Create are buffered before camera selection;
+their process-local origin is not OS process start. RuntimeInitialize ordering
+relative to other components with the same attribute is not guaranteed.
+No trace file is opened during the measured window. The fixed 1024-event
+buffer is written once after the first SubmitRenderRequest returns or throws.
+If the host stops earlier, it writes an explicitly incomplete trace. Following
+requests run unchanged and are not sampled. A missing file is not a pass.
+
+Feature stages: Create; RecordRenderGraph; Ensure; scene/SDF preparation;
+surface/cache preparation; hardware preparation; hit-material preparation;
+individual FindKernel calls; receiver/transport/composite command recording;
+world material capture, cache, gather, temporal, and filter command recording.
+Command recording and render callbacks do not prove GPU execution/completion.
+These CPU intervals include scheduling, blocking, driver work at the call site,
+and probe overhead. No GPU timing, adaptive feedback, or acceptance threshold
+is introduced. Inspect gaps as well as measured scopes: URP/driver work outside
+the instrumented Feature remains visible in the containing request interval.
+
+Independent GPU timing proposal, deliberately not implemented here
+------------------------------------------------------------------
+Use a separate HybridLumenGINativeGpuTiming owner after backend selection;
+do not derive enable/generation from the product ticket invalidated on the
+first hardware transition. Record receiver capture, transport, composite and
+an unsafe resolve with the real first engine-frame identity. Drain completions
+in the already fixed following frames without a synchronous wait. Missing or
+invalid native results leave GPU attribution unproven. This requires additional
+render-graph bindings and should be reviewed separately from the CPU overlay.
