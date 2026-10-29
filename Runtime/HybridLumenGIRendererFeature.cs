@@ -192,6 +192,24 @@ namespace HybridLumenGI
         /// applies configuration/backend invalidation and retains normal software fallback.
         /// </summary>
         public void SetPreferHardwareTracing(bool value) => settings.preferHardwareTracing=value;
+        public bool RequestedMeasureGpuCost => settings.measureGpuCost;
+        public bool RequestedAdaptiveGpuBudget => settings.adaptiveGpuBudget;
+        public float RequestedTargetGpuMilliseconds => settings.targetGpuMilliseconds;
+        /// <summary>
+        /// Configure the existing per-camera GI-pass timing/feedback on the Unity main thread,
+        /// before camera preparation. Invalid input leaves all settings unchanged. These are
+        /// feature-wide requests, not a hard deadline or the application's total GPU budget.
+        /// The normal configuration-change path refreshes timing and lighting history.
+        /// </summary>
+        public bool TryConfigureGpuBudget(bool measureCost,bool feedback,float targetMilliseconds)
+        {
+            if(float.IsNaN(targetMilliseconds) || float.IsInfinity(targetMilliseconds) ||
+                targetMilliseconds<0 || (feedback && targetMilliseconds<=0)) return false;
+            settings.measureGpuCost=measureCost;
+            settings.adaptiveGpuBudget=feedback;
+            settings.targetGpuMilliseconds=targetMilliseconds;
+            return true;
+        }
         [SerializeField] private ComputeShader traceCompute;
         [SerializeField] private Shader compositeShader;
         [SerializeField] private Shader surfaceShader;

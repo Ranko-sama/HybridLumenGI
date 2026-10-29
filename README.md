@@ -2,9 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release80](<I:/Unity test/Comparison/Builds/LocalRelease80/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；新增可手动开启的进程显存观察，默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release81](<I:/Unity test/Comparison/Builds/LocalRelease81/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；提供默认关闭的GPU计时、更新预算反馈和进程显存观察。该路径属于当前开发机，其他工程请按下文集成或构建。
 
-Release80 修复[零漫反射表面的已知辐射丢失](LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)：有效自发光／黑色不再因无关的阴影或缓存查询未知而被丢弃，正漫反射和来源资格保持。它是局部能量资格修复，没有新增整景颜色、动态质量或性能结论。Release79 已为同一门物体增加[真实 Skinned 骨骼形变模式](LocalComparison/Review/skinned-unified-usage-01/result.md)，保留可读网格模式；沿用 Release78 的[按来源分离的缓存关灯响应](LocalComparison/Review/cache-source-separation-01/result.md)：当前上传的解析灯表为空时，移除其旧多跳贡献，保留自发光／环境贡献。沿用统一交互及默认关闭的[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)，保留此前屏幕历史、缓存首次可信更新和面积光冗余计算修复。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release80 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
+Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review/gpu-budget-controls-01/result.md)，允许只测量或显式输入目标后启用已有控制器；关闭可恢复静态配额。同步整合零AO下不必要的缓存依赖修复。没有自动选择生产预算，也不保证达到输入目标。Release80 已修复[零漫反射表面的已知辐射丢失](LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)：有效自发光／黑色不再因无关的阴影或缓存查询未知而被丢弃，正漫反射和来源资格保持。它是局部能量资格修复，没有新增整景颜色、动态质量或性能结论。Release79 已为同一门物体增加[真实 Skinned 骨骼形变模式](LocalComparison/Review/skinned-unified-usage-01/result.md)，保留可读网格模式；沿用 Release78 的[按来源分离的缓存关灯响应](LocalComparison/Review/cache-source-separation-01/result.md)：当前上传的解析灯表为空时，移除其旧多跳贡献，保留自发光／环境贡献。沿用统一交互及默认关闭的[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)，保留此前屏幕历史、缓存首次可信更新和面积光冗余计算修复。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release81 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
 
 ## 使用统一示例
 
@@ -23,6 +23,8 @@ Release80 修复[零漫反射表面的已知辐射丢失](LocalComparison/Review
 实际后端以面板诊断为准，选择 DXR 偏好不保证硬件路径被采用。关灯仍保留发光面；停止形变后，异步 GI 快照可能继续追上可见网格。骨骼模式复用现有快照流程，K可切回原网格模式；两种形变均不修改物理碰撞体。当前窗口为 960×540，不是生产分辨率目标。
 
 点击面板的 **Memory: off** 开启本进程 local/nonlocal 显存用量、OS预算及采样峰值；**Log ledger** 同时导出到Player日志。缺失或旧原生DLL会显示不可用，不影响GI。数据不是GI独占、整机用量或绝对瞬时峰值，也不改变更新配额。
+
+展开 **GPU time / update budget**，先选 **Measure only** 查看已有GI区间；输入有限正数并点击 **Apply feedback** 才启用反馈，**Off** 关闭。输入框获得焦点时暂停导航快捷键。实际状态和配额显示在同一面板，**Log ledger** 导出请求与结果；缺测不当作零成本，最低配额仍可能超目标。详见[用法与范围](Documentation/GpuBudget.md#普通运行入口与公开配置)。
 
 从自己的场景生成示例：保存场景，选择至少两个已绑定 SDF 和 surface charts 的静态 Proxy，执行 **Tools > Hybrid Lumen GI > Create Unified Sample From Selected Static Proxies**。菜单要求一个启用相机，并从该相机实际选择的 Universal Renderer Data 中解析唯一启用的 GI Feature；无关已加载资产不参与选择。显式 `CreateVariant` 仍可使用。生成器保留作者场景，创建独立变体与资源页；静态网格、材质及 HLOD 限制见[统一示例说明](Documentation/ReviewBrief-UnifiedSample02.md)。菜单修复已有 Editor 编译依据，尚未重新生成场景。
 

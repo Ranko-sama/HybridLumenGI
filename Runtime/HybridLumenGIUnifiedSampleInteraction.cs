@@ -139,23 +139,26 @@ namespace HybridLumenGI
             {
                 if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
                 if (Input.GetKeyDown(KeyCode.F1)) { showControls = !showControls; sample.ShowControls = showControls; }
-                if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Alpha1)) { sample.GoNear(); SyncAngles(); }
-                if (Input.GetKeyDown(KeyCode.Alpha2)) { sample.GoFar(); SyncAngles(); }
-                if (Input.GetKeyDown(KeyCode.Alpha3)) { sample.Leave(); SyncAngles(); }
-                if (Input.GetKeyDown(KeyCode.Alpha4)) sample.SetHardwarePreference(false);
-                if (Input.GetKeyDown(KeyCode.Alpha5)) sample.SetHardwarePreference(true);
-                if (Input.GetKeyDown(KeyCode.C)) SetColorChanged(!ColorChanged);
-                if (Input.GetKeyDown(KeyCode.L)) SetLightsEnabled(!LightsEnabled);
-                if (Input.GetKeyDown(KeyCode.M)) SetDoorMoving(!DoorMoving);
-                if (Input.GetKeyDown(KeyCode.Space)) SetDeformationRunning(!DeformationRunning);
-                if (Input.GetKeyDown(KeyCode.K)) SetSkinnedDeformation(!SkinnedDeformation);
-                if (Input.GetKeyDown(KeyCode.B)) sample.enabled = !sample.enabled;
-                // Buttons can teleport the camera between Updates; read its current orientation before keyboard rotation.
-                SyncAngles(); yaw += Keys(KeyCode.RightArrow, KeyCode.LeftArrow) * 90f * dt;
-                pitch = Mathf.Clamp(pitch + Keys(KeyCode.DownArrow, KeyCode.UpArrow) * 90f * dt, -85f, 85f);
-                targetCamera.transform.rotation = Quaternion.Euler(pitch, yaw, 0);
-                Vector3 move = Vector3.ClampMagnitude(new Vector3(Keys(KeyCode.D, KeyCode.A), Keys(KeyCode.E, KeyCode.Q), Keys(KeyCode.W, KeyCode.S)), 1);
-                targetCamera.transform.position += Quaternion.Euler(0, yaw, 0) * move * (3f * dt);
+                if (!sample.IsEditingGpuTarget)
+                {
+                    if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Alpha1)) { sample.GoNear(); SyncAngles(); }
+                    if (Input.GetKeyDown(KeyCode.Alpha2)) { sample.GoFar(); SyncAngles(); }
+                    if (Input.GetKeyDown(KeyCode.Alpha3)) { sample.Leave(); SyncAngles(); }
+                    if (Input.GetKeyDown(KeyCode.Alpha4)) sample.SetHardwarePreference(false);
+                    if (Input.GetKeyDown(KeyCode.Alpha5)) sample.SetHardwarePreference(true);
+                    if (Input.GetKeyDown(KeyCode.C)) SetColorChanged(!ColorChanged);
+                    if (Input.GetKeyDown(KeyCode.L)) SetLightsEnabled(!LightsEnabled);
+                    if (Input.GetKeyDown(KeyCode.M)) SetDoorMoving(!DoorMoving);
+                    if (Input.GetKeyDown(KeyCode.Space)) SetDeformationRunning(!DeformationRunning);
+                    if (Input.GetKeyDown(KeyCode.K)) SetSkinnedDeformation(!SkinnedDeformation);
+                    if (Input.GetKeyDown(KeyCode.B)) sample.enabled = !sample.enabled;
+                    // Buttons can teleport the camera between Updates; read its current orientation before keyboard rotation.
+                    SyncAngles(); yaw += Keys(KeyCode.RightArrow, KeyCode.LeftArrow) * 90f * dt;
+                    pitch = Mathf.Clamp(pitch + Keys(KeyCode.DownArrow, KeyCode.UpArrow) * 90f * dt, -85f, 85f);
+                    targetCamera.transform.rotation = Quaternion.Euler(pitch, yaw, 0);
+                    Vector3 move = Vector3.ClampMagnitude(new Vector3(Keys(KeyCode.D, KeyCode.A), Keys(KeyCode.E, KeyCode.Q), Keys(KeyCode.W, KeyCode.S)), 1);
+                    targetCamera.transform.position += Quaternion.Euler(0, yaw, 0) * move * (3f * dt);
+                }
             }
             Advance(dt);
         }

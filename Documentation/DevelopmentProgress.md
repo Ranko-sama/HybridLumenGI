@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-原计划目标1／工作流2继续收束同类源码缺口：在正漫反射但AO严格为零时，世界与屏幕消费者仍会因没有贡献的cache unknown丢弃合法直接光／Le。现在只保护这两处缓存查询，保留来源、direct、非零AO及有限性规则；屏幕额外保持非有限反馈的原拒绝路径。独立源码审阅通过，Astra判断不需要单独新增测试或重建；没有编译／运行通过声明。BounceFeedback=0原本已有正确门控，不是新增缺口，逐参数核查在此结束。**本项只保留于源码，当前已构建Release80（ca5600f）尚不包含它**，也未部署到Unity工程；随下一次必要功能整合构建。
+原计划目标3／4、工作流8关闭“已有GPU计时／反馈无法从普通Player使用”的入口缺口：[Release81](<I:/Unity test/Comparison/Builds/LocalRelease81/Start-LocalRelease.cmd>)在原面板提供默认关闭的只测量、显式目标反馈、实际状态与有效配额，并沿用ledger导出。一次普通使用确认NativeDX12有效观测、非法目标不改变配置、数字输入不触发导航、实际feedback active及Off恢复；20ms只作临时功能操作，最低配额仍超目标的事实保留，不是性能达标。见[结果与范围](../LocalComparison/Review/gpu-budget-controls-01/result.md)。Astra已同意收尾；无追加统计、画质或哈希。该构建也纳入零AO修复，只新增编译整合依据，不新增其专项画质结论。此前局部调度的限定源码筛选确认已有功能接通，无新增缺口，已停止。
+
+原计划目标1／工作流2继续收束同类源码缺口：在正漫反射但AO严格为零时，世界与屏幕消费者仍会因没有贡献的cache unknown丢弃合法直接光／Le。现在只保护这两处缓存查询，保留来源、direct、非零AO及有限性规则；屏幕额外保持非有限反馈的原拒绝路径。独立源码审阅通过，Astra判断不需要单独新增测试或重建；没有编译／运行通过声明。BounceFeedback=0原本已有正确门控，不是新增缺口，逐参数核查在此结束。该阶段仅保留源码，Release80（ca5600f）不包含它；随后已随上文Release81部署和构建，未新增该条件的专项运行。
 
 原计划目标1／工作流2关闭“零漫反射仍因无关入射查询未知而丢弃有效辐射”的具体缺口：[屏幕与世界路径修复](../LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)只在原有效来源的漫反射项严格为零时返回原Le／已知黑，世界保留发光MIS与来源分离；小正值、无效来源和端点规则保持。必要的实际函数固定对照通过，Astra同意采用且结束此条验证；未增加整景颜色、残留、拖影、精确收敛或性能通过项。已通过公开入口构建[Release80](<I:/Unity test/Comparison/Builds/LocalRelease80/Start-LocalRelease.cmd>)，0错误／19条warning，当前启动入口同步；沿用保存统一示例，无重复Player、画面或哈希检查。
 

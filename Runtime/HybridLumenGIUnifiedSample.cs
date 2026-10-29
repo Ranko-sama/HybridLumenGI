@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -31,8 +32,17 @@ namespace HybridLumenGI
         private bool subscribed, detailsWanted, singleCameraSupported = true;
         private double nextOverlay;
         private string overlay;
-        public bool ShowControls { get => showControls; set => showControls = value; }
+        private bool showGpuControls, gpuTargetFocused;
+        private string gpuTargetText = "", gpuTargetControlName, gpuInputMessage, gpuOverlay;
+        private Vector2 controlsScroll;
+        public bool ShowControls
+        {
+            get => showControls;
+            set { showControls = value; if (!value) gpuTargetFocused = false; }
+        }
         public bool MeasureVideoMemory { get => measureVideoMemory; set => measureVideoMemory = value; }
+        public bool IsEditingGpuTarget => isActiveAndEnabled && subscribed && showControls &&
+            showGpuControls && Application.isFocused && gpuTargetFocused;
 
         public void Configure(Camera camera, HybridLumenGIRendererFeature rendererFeature,
             HybridLumenGIAssetPageStreamer pages, HybridLumenGIStreamedRepresentation root,
@@ -75,6 +85,11 @@ namespace HybridLumenGI
             if (!Application.isPlaying) return;
             if (!HasInputs())
             { status = "invalid sample configuration"; enabled = false; return; }
+            float requestedTarget = feature.RequestedTargetGpuMilliseconds;
+            gpuTargetText = requestedTarget > 0 && !float.IsInfinity(requestedTarget)
+                ? requestedTarget.ToString("R", CultureInfo.InvariantCulture) : "";
+            gpuTargetControlName = "HLGI GPU target " + GetInstanceID();
+            gpuTargetFocused = false; gpuInputMessage = null; nextOverlay = 0;
             HybridLumenGIResourceRetirement.Register(RequiresVisible);
             RenderPipelineManager.beginCameraRendering += BeforeCamera;
             RenderPipelineManager.endCameraRendering += AfterCamera;
@@ -83,6 +98,7 @@ namespace HybridLumenGI
         }
         private void OnDisable()
         {
+            gpuTargetFocused = false;
             videoMemory.Sample(Time.frameCount, false);
             if (!subscribed) return;
             RenderPipelineManager.beginCameraRendering -= BeforeCamera;
@@ -176,6 +192,8 @@ namespace HybridLumenGI
             public long pageBundleBytes, pageResidentBytes, pageIoBytesInFlight, pageIoBytesStartedThisStep, pageUploadBytesStartedThisStep;
             public int pageActiveOperations, pageRetiringLeases, pageOperationsStartedThisStep, pageBudgetBlockedThisStep;
             public HybridLumenGIRendererFeature.CameraDiagnostics cameraGi;
+            public bool requestedMeasureGpuCost, requestedAdaptiveGpuBudget;
+            public float requestedTargetGpuMilliseconds;
             // Process-wide values observed in this sample's enabled window; never sum across cameras.
             public HybridLumenGIVideoMemory.Snapshot processVideoMemory;
             public int retirementPending, retirementOwned, retirementFailed, retirementUnknownSubmissions;
@@ -189,6 +207,9 @@ namespace HybridLumenGI
                 visibleMembers = visible.Count, requestedBackend = feature.RequestedPreferHardwareTracing ? "prefer DXR" : "software",
                 actualBackend = "unknown", diagnosticsStatus = "no camera diagnostic", budgetBlockedGroups = streamer.BudgetBlockedGroups,
                 featureEnabled = feature.isActive,
+                requestedMeasureGpuCost = feature.RequestedMeasureGpuCost,
+                requestedAdaptiveGpuBudget = feature.RequestedAdaptiveGpuBudget,
+                requestedTargetGpuMilliseconds = feature.RequestedTargetGpuMilliseconds,
                 retirementPending = HybridLumenGIResourceRetirement.PendingCount, retirementOwned = HybridLumenGIResourceRetirement.OwnedCount,
                 retirementFailed = HybridLumenGIResourceRetirement.FailedCount, retirementUnknownSubmissions = HybridLumenGIResourceRetirement.UnknownSubmissionCount,
                 retirementSubmissionUncertain = HybridLumenGIResourceRetirement.SubmissionUncertain };
@@ -230,7 +251,8 @@ namespace HybridLumenGI
         public void LogLedger() => Debug.Log("HLGI_UNIFIED_SAMPLE " + JsonUtility.ToJson(CaptureLedger()), this);
         private void OnGUI()
         {
-            if (!Application.isPlaying || !showControls || !subscribed) return;
+            if (!Application.isPlaying || !showControls || !subscribed)
+            { gpuTargetFocused = false; return; }
             if (Time.realtimeSinceStartupAsDouble >= nextOverlay)
             {
                 nextOverlay = Time.realtimeSinceStartupAsDouble + .5;
@@ -241,8 +263,13 @@ namespace HybridLumenGI
                     "\nPage resident/bundle/IO-inflight estimates (bytes): " + row.pageResidentBytes + "/" + row.pageBundleBytes + "/" + row.pageIoBytesInFlight +
                     "\nRetirement pending/owned/failed/unknown: " + row.retirementPending + "/" + row.retirementOwned + "/" + row.retirementFailed + "/" + row.retirementUnknownSubmissions +
                     "\n" + VideoMemoryLabel(row.processVideoMemory);
+                gpuOverlay = GpuTimingLabel(row.cameraGi);
             }
-            GUILayout.BeginArea(new Rect(12, 12, Mathf.Min(760, Screen.width - 24), measureVideoMemory ? 270 : 230), GUI.skin.box);
+            float desiredHeight = showGpuControls ? 400 : measureVideoMemory ? 295 : 255;
+            // The ordinary interaction strip starts at Screen.height - 115.
+            float height = Mathf.Min(desiredHeight, Mathf.Max(80, Screen.height - 139));
+            GUILayout.BeginArea(new Rect(12, 12, Mathf.Min(760, Screen.width - 24), height), GUI.skin.box);
+            controlsScroll = GUILayout.BeginScrollView(controlsScroll);
             GUILayout.Label(overlay); GUILayout.BeginHorizontal();
             if (GUILayout.Button("Near / details")) GoNear();
             if (GUILayout.Button("Far / aggregate")) GoFar();
@@ -252,7 +279,73 @@ namespace HybridLumenGI
             if (GUILayout.Button("Log ledger")) LogLedger();
             if (GUILayout.Button(measureVideoMemory ? "Memory: on" : "Memory: off"))
             { measureVideoMemory = !measureVideoMemory; nextOverlay = 0; }
-            GUILayout.EndHorizontal(); GUILayout.EndArea();
+            GUILayout.EndHorizontal();
+            bool expanded = GUILayout.Toggle(showGpuControls, "GPU time / update budget", GUI.skin.button);
+            if (expanded != showGpuControls)
+            {
+                showGpuControls = expanded;
+                if (!expanded) { GUI.FocusControl(null); gpuTargetFocused = false; }
+            }
+            if (showGpuControls) DrawGpuControls();
+            else gpuTargetFocused = false;
+            GUILayout.EndScrollView(); GUILayout.EndArea();
+        }
+        private void DrawGpuControls()
+        {
+            string requestedMode = feature.RequestedAdaptiveGpuBudget ? "feedback" :
+                feature.RequestedMeasureGpuCost ? "measure only" : "off";
+            GUILayout.Label("Requested: " + requestedMode + "; configured target " +
+                feature.RequestedTargetGpuMilliseconds.ToString("R", CultureInfo.InvariantCulture) +
+                " ms. GI passes only; excludes CPU, some uploads and the rest of the application.");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Off")) ConfigureGpuMode(false, false, feature.RequestedTargetGpuMilliseconds);
+            if (GUILayout.Button("Measure only")) ConfigureGpuMode(true, false, feature.RequestedTargetGpuMilliseconds);
+            GUILayout.Label("Target ms (decimal point):", GUILayout.Width(165));
+            GUI.SetNextControlName(gpuTargetControlName);
+            gpuTargetText = GUILayout.TextField(gpuTargetText, 32, GUILayout.Width(95));
+            if (GUILayout.Button("Apply feedback"))
+            {
+                if (!float.TryParse(gpuTargetText, NumberStyles.Float, CultureInfo.InvariantCulture, out float targetMs) ||
+                    float.IsNaN(targetMs) || float.IsInfinity(targetMs) || targetMs <= 0)
+                    gpuInputMessage = "Enter a finite target greater than zero. Configuration unchanged.";
+                else ConfigureGpuMode(feature.RequestedMeasureGpuCost, true, targetMs);
+            }
+            GUILayout.EndHorizontal();
+            gpuTargetFocused = GUI.GetNameOfFocusedControl() == gpuTargetControlName;
+            if (!string.IsNullOrEmpty(gpuInputMessage)) GUILayout.Label(gpuInputMessage);
+            GUILayout.Label(gpuOverlay ?? "GPU timing: no camera diagnostic yet.");
+            GUILayout.Label("Target is user supplied, not a hard deadline. Applying settings refreshes existing timing and lighting history.");
+        }
+        private void ConfigureGpuMode(bool measure, bool feedback, float targetMs)
+        {
+            if (!feature.TryConfigureGpuBudget(measure, feedback, targetMs))
+            { gpuInputMessage = "Invalid target. Configuration unchanged."; return; }
+            gpuInputMessage = null; nextOverlay = 0;
+            GUI.FocusControl(null); gpuTargetFocused = false;
+        }
+        private static string GpuTimingLabel(HybridLumenGIRendererFeature.CameraDiagnostics timing)
+        {
+            if (timing == null) return "GPU timing: no unambiguous camera diagnostic; cost unavailable.";
+            bool hasObservation = timing.gpuLastObservationConsumedFrame >= 0 &&
+                !double.IsNaN(timing.gpuLastObservedMilliseconds) && !double.IsInfinity(timing.gpuLastObservedMilliseconds) &&
+                timing.gpuLastObservedMilliseconds >= 0;
+            string observation = "No valid timing sample; cost unavailable.";
+            if (hasObservation)
+            {
+                string source = timing.gpuTimingProvider == "NativeDX12"
+                    ? timing.nativeGpuMeasuredSourceFrame >= 0
+                        ? timing.nativeGpuMeasuredSourceFrame.ToString(CultureInfo.InvariantCulture) : "unavailable"
+                    : "unknown (Recorder)";
+                observation = (timing.gpuObservationValid ? "Valid observation: " : "Historical observation (previous configuration possible): ") +
+                    timing.gpuLastObservedMilliseconds.ToString("F3", CultureInfo.InvariantCulture) + " ms; source frame " + source +
+                    "; consumed frame " + timing.gpuLastObservationConsumedFrame + ".";
+            }
+            return "Last camera CPU snapshot: " + timing.gpuTimingProvider + " / " + timing.gpuTimingStatus +
+                "\n" + observation +
+                "\nFeedback active: " + timing.gpuFeedbackActive + "; scale " + timing.gpuWorkScale.ToString("F3", CultureInfo.InvariantCulture) +
+                "; effective patches/captures/bricks " + timing.effectiveCachePatchBudget + "/" +
+                timing.effectiveSurfaceCaptureBudget + "/" + timing.effectiveGlobalBrickBudget +
+                (timing.gpuMinimumWorkOverBudget ? "; minimum work remains over target." : ".");
         }
         private static string VideoMemoryLabel(HybridLumenGIVideoMemory.Snapshot memory)
         {

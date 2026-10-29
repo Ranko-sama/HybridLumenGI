@@ -1,5 +1,19 @@
 # GPU 时间反馈与更新预算
 
+## 普通运行入口与公开配置
+
+[Release81](<I:/Unity test/Comparison/Builds/LocalRelease81/Start-LocalRelease.cmd>)已接入现有计时／反馈能力，并完成一次普通使用，见[结果与范围](../LocalComparison/Review/gpu-budget-controls-01/result.md)。在原面板展开 **GPU time / update budget**：
+
+- **Off** 关闭计时请求与反馈；**Measure only** 只观察已有GI区间，不改变静态更新配额。
+- 在 **Target ms** 输入有限正数，点击 **Apply feedback** 才应用目标并启用反馈。目标默认留空，不提供预选生产预算；编辑文本本身不修改配置，非法输入保留旧设置。Off／Measure保留已有合法目标供以后使用。
+- 输入框获得焦点时，数字导航、移动及其他样例快捷键暂停，避免输入目标时误切场景；已启动的门／形变动画继续。F1隐藏面板、Esc退出仍可用。
+- 面板区分请求模式、已配置目标和上次相机诊断；显示已有提供器／状态、耗时观测、源帧／消费帧、实际反馈状态、缩放比例和patch／capture／brick有效配额。缺测显示不可用；历史值明确可能来自先前配置，不能当新样本或零成本。Recorder没有精确源帧时显示unknown。
+- **Log ledger** 沿用原导出入口，额外记录请求的测量／反馈开关与目标，实际结果仍在`cameraGi`。没有新计时或统计管线。
+
+目标只约束既有控制器所观测的GI区间，不是整应用GPU时间、硬截止或G0／G5生产预算。最低更新量下仍超目标会明确显示，不自动降画质或修改资源尺寸。配置在Feature范围生效，各相机独立控制；沿用原配置变化流程刷新计时与光照历史。
+
+自有运行入口可在Unity主线程、相机准备之前调用`TryConfigureGpuBudget(measureCost, feedback, targetMilliseconds)`；有限非负目标是基础要求，启用反馈另须严格大于零。非法输入返回false且三个字段均不变。`RequestedMeasureGpuCost`、`RequestedAdaptiveGpuBudget`、`RequestedTargetGpuMilliseconds`读取请求配置，`GetDiagnostics()`读取实际状态。默认设置保持关闭，不自动选择预算。
+
 ## 驱动层进程显存观察
 
 Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开启后，现有面板和 **Log ledger** 的 `processVideoMemory` 字段给出 Unity 渲染适配器上的本进程 local/nonlocal 用量、操作系统预算与启用窗口内采样峰值。它通过可选 DX12 插件的独立 `HLGI_Memory_Query` 导出读取，不开启 GPU 计时或反馈，不改变光传输配置、更新配额、驻留或预留。
