@@ -1,0 +1,987 @@
+{
+  "status": "available-data-comparison-produced",
+  "originalResult": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\stationary-history-01\\comparison.json",
+  "originalCaptureContractSatisfied": false,
+  "adoption": "accepted-limited",
+  "visualReview": {
+    "mainThread": "Viewed available D panels, full static outgoing comparison and four outgoing event frames; no clear added static bright spots/edge trails or post-off old-light contour. Existing 239 grain/blotches remain.",
+    "independent": "Independent reviewer and Astra accepted the bounded static improvement; no whole dynamic-quality claim.",
+    "limits": [
+      "D240 remains missing; original five-capture comparison failed.",
+      "Unmarked real-black decay after32 steps retains6.88% of initial history.",
+      "239 has visible grain/blotches; old images are context, not current exact A/B."
+    ]
+  },
+  "qualityVerdict": null,
+  "candidateDirectory": "I:\\Unity test\\Comparison\\StationaryHistory01\\signals",
+  "baselineDirectory": "I:\\Unity test\\Comparison\\Release81ColorFrame119\\signals",
+  "decisionFile": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\stationary-history-01\\decision.md",
+  "reusedAnalysis": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\stationary-history-01\\analyze.py",
+  "availableFrames": [
+    119,
+    239,
+    270,
+    299
+  ],
+  "inputChecks": {
+    "baseline119": {
+      "directory": "I:\\Unity test\\Comparison\\Release81ColorFrame119\\signals",
+      "frame": 119,
+      "oldCaptureFrame": 119,
+      "sourceFormat": "R16G16B16A16_SFloat",
+      "storedFormat": "rgba32f-le",
+      "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+      "metadata": {
+        "invVP": {
+          "same": true,
+          "current": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          },
+          "old": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          }
+        },
+        "giSize": {
+          "same": true,
+          "current": {
+            "x": 320,
+            "y": 180
+          },
+          "old": {
+            "x": 320,
+            "y": 180
+          }
+        },
+        "intensity": {
+          "same": true,
+          "current": 1.0,
+          "old": 1.0
+        }
+      },
+      "materials": {
+        "Floor": {
+          "same": true,
+          "sourcePixels": 13330,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "White receiver": {
+          "same": true,
+          "sourcePixels": 86,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "debugIgnoredForD": {
+        "current": 1,
+        "old": 0
+      },
+      "materialSourceFormats": {
+        "current": "R8G8B8A8_UNorm",
+        "old": "R8G8B8A8_UNorm"
+      }
+    },
+    "119": {
+      "directory": "I:\\Unity test\\Comparison\\StationaryHistory01\\signals",
+      "frame": 119,
+      "oldCaptureFrame": 119,
+      "sourceFormat": "R16G16B16A16_SFloat",
+      "storedFormat": "rgba32f-le",
+      "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+      "metadata": {
+        "invVP": {
+          "same": true,
+          "current": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          },
+          "old": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          }
+        },
+        "giSize": {
+          "same": true,
+          "current": {
+            "x": 320,
+            "y": 180
+          },
+          "old": {
+            "x": 320,
+            "y": 180
+          }
+        },
+        "intensity": {
+          "same": true,
+          "current": 1.0,
+          "old": 1.0
+        }
+      },
+      "materials": {
+        "Floor": {
+          "same": true,
+          "sourcePixels": 13330,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "White receiver": {
+          "same": true,
+          "sourcePixels": 86,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "debugIgnoredForD": {
+        "current": 1,
+        "old": 0
+      },
+      "materialSourceFormats": {
+        "current": "R8G8B8A8_UNorm",
+        "old": "R8G8B8A8_UNorm"
+      }
+    },
+    "239": {
+      "directory": "I:\\Unity test\\Comparison\\StationaryHistory01\\signals",
+      "frame": 239,
+      "oldCaptureFrame": 119,
+      "sourceFormat": "R16G16B16A16_SFloat",
+      "storedFormat": "rgba32f-le",
+      "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+      "metadata": {
+        "invVP": {
+          "same": true,
+          "current": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          },
+          "old": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          }
+        },
+        "giSize": {
+          "same": true,
+          "current": {
+            "x": 320,
+            "y": 180
+          },
+          "old": {
+            "x": 320,
+            "y": 180
+          }
+        },
+        "intensity": {
+          "same": true,
+          "current": 1.0,
+          "old": 1.0
+        }
+      },
+      "materials": {
+        "Floor": {
+          "same": true,
+          "sourcePixels": 13330,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "White receiver": {
+          "same": true,
+          "sourcePixels": 86,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "debugIgnoredForD": {
+        "current": 1,
+        "old": 0
+      },
+      "materialSourceFormats": {
+        "current": "R8G8B8A8_UNorm",
+        "old": "R8G8B8A8_UNorm"
+      }
+    },
+    "270": {
+      "directory": "I:\\Unity test\\Comparison\\StationaryHistory01\\signals",
+      "frame": 270,
+      "oldCaptureFrame": 299,
+      "sourceFormat": "R16G16B16A16_SFloat",
+      "storedFormat": "rgba32f-le",
+      "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+      "metadata": {
+        "invVP": {
+          "same": true,
+          "current": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          },
+          "old": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          }
+        },
+        "giSize": {
+          "same": true,
+          "current": {
+            "x": 320,
+            "y": 180
+          },
+          "old": {
+            "x": 320,
+            "y": 180
+          }
+        },
+        "intensity": {
+          "same": true,
+          "current": 1.0,
+          "old": 1.0
+        }
+      },
+      "materials": {
+        "Floor": {
+          "same": true,
+          "sourcePixels": 13330,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "White receiver": {
+          "same": true,
+          "sourcePixels": 86,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "debugIgnoredForD": {
+        "current": 1,
+        "old": 0
+      },
+      "materialSourceFormats": {
+        "current": "R8G8B8A8_UNorm",
+        "old": "R8G8B8A8_UNorm"
+      }
+    },
+    "299": {
+      "directory": "I:\\Unity test\\Comparison\\StationaryHistory01\\signals",
+      "frame": 299,
+      "oldCaptureFrame": 299,
+      "sourceFormat": "R16G16B16A16_SFloat",
+      "storedFormat": "rgba32f-le",
+      "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+      "metadata": {
+        "invVP": {
+          "same": true,
+          "current": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          },
+          "old": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          }
+        },
+        "giSize": {
+          "same": true,
+          "current": {
+            "x": 320,
+            "y": 180
+          },
+          "old": {
+            "x": 320,
+            "y": 180
+          }
+        },
+        "intensity": {
+          "same": true,
+          "current": 1.0,
+          "old": 1.0
+        }
+      },
+      "materials": {
+        "Floor": {
+          "same": true,
+          "sourcePixels": 13330,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "White receiver": {
+          "same": true,
+          "sourcePixels": 86,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "debugIgnoredForD": {
+        "current": 1,
+        "old": 0
+      },
+      "materialSourceFormats": {
+        "current": "R8G8B8A8_UNorm",
+        "old": "R8G8B8A8_UNorm"
+      }
+    }
+  },
+  "references": {
+    "119": {
+      "directory": "I:\\Unity test\\Comparison\\ValidationPackageV209-reference-frame0119-01",
+      "spp": 256,
+      "maxDepth": 8,
+      "modelDifferences": [
+        "Authored Soft shadows use ideal source-triangle hard visibility, not URP PCF/bias/cascades.",
+        "Only metallic-Lit diffuse rho and source emission transport; metal/glossy specular paths are omitted. metalHitFraction is sampled evidence, zero does not prove no specular influence.",
+        "Finite path depth truncates remaining diffuse transport; maxDepthReachedFraction describes sampling, not a bias bound.",
+        "Black environment only; no baked GI, texture, transparency, participating medium, temporal filter or product cache.",
+        "Source float64 pinhole geometry with boundary exclusion; not GPU raster/depth-equivalent. Ray minimum 1e-6*max(1,maxAbsOrigin) metres; finite-precision/model bias is not in Monte Carlo standard error."
+      ],
+      "computation": "Source float64 geometry/MC; stored RGBA32F"
+    },
+    "299": {
+      "directory": "I:\\Unity test\\Comparison\\ValidationPackageV209-reference-frame0299-02",
+      "spp": 256,
+      "maxDepth": 8,
+      "modelDifferences": [
+        "Authored Soft shadows use ideal source-triangle hard visibility, not URP PCF/bias/cascades.",
+        "Only metallic-Lit diffuse rho and source emission transport; metal/glossy specular paths are omitted. metalHitFraction is sampled evidence, zero does not prove no specular influence.",
+        "Finite path depth truncates remaining diffuse transport; maxDepthReachedFraction describes sampling, not a bias bound.",
+        "Black environment only; no baked GI, texture, transparency, participating medium, temporal filter or product cache.",
+        "Source float64 pinhole geometry with boundary exclusion; not GPU raster/depth-equivalent. Ray minimum 1e-6*max(1,maxAbsOrigin) metres; finite-precision/model bias is not in Monte Carlo standard error."
+      ],
+      "computation": "Source float64 geometry/MC; stored RGBA32F"
+    }
+  },
+  "scope": "Available-data supplement; original stopped-incomparable result is unchanged. No new capture, hashes, integration or source reconstruction.",
+  "uncertainty": "Reference SE is a mean of per-pixel Monte Carlo SE, not an ROI confidence interval; original model differences remain.",
+  "momentsMeaning": "Stored moments.x is raw-luminance temporal statistics, not truth or temporal RGB.",
+  "originalFailure": {
+    "status": "stopped-incomparable",
+    "reason": "Incomplete capture receipt: frame 240"
+  },
+  "missingD240": {
+    "status": "incomplete",
+    "error": "Before capture preparation: Capture byte budget exhausted; no frame or size substitution.",
+    "sampleStatus": "uncovered",
+    "reasons": [
+      "Before capture preparation: Capture byte budget exhausted; no frame or size substitution."
+    ],
+    "readbacksCompleted": false,
+    "substituted": false
+  },
+  "comparison119": {
+    "Floor": {
+      "sourcePixels": 13330,
+      "fixedBaselineDomainPixels": 13328,
+      "pairedPixels": 13328,
+      "baselineUnknownPixels": 2,
+      "candidateUnknownPixels": 2,
+      "newlyUnknownOnBaselineDomain": 0,
+      "baseline": {
+        "meanRGB": [
+          0.09209455648103969,
+          0.04117087241695995,
+          0.02685187901912474
+        ],
+        "meanY": 0.0509634163256596,
+        "referenceMeanRGB": [
+          0.13361872458728552,
+          0.05682944424413598,
+          0.03652322090808094
+        ],
+        "meanBiasRGB": [
+          -0.04152416810624583,
+          -0.015658571827176032,
+          -0.0096713418889562
+        ],
+        "absoluteMeanBiasRGB": [
+          0.04152416810624583,
+          0.015658571827176032,
+          0.0096713418889562
+        ],
+        "referenceMeanY": 0.0716887359202264,
+        "meanBiasY": -0.0207253195945668,
+        "absoluteMeanBiasY": 0.0207253195945668,
+        "relativeMeanBiasY": -0.2891014791728155,
+        "pixelYMAE": 0.021369354576978465,
+        "pixelYRMSE": 0.031045221177109058,
+        "meanChromaL1": 0.027067324200002518,
+        "meanMomentsX": 0.06951408674628465,
+        "referenceMeanPixelStandardErrorRGB": [
+          0.018481189138846013,
+          0.009217535186712622,
+          0.0064951781660416074
+        ],
+        "referenceMeanPixelConservativeLumaSE": 0.010990433840043713
+      },
+      "candidate": {
+        "meanRGB": [
+          0.12536460926838996,
+          0.05360707286454621,
+          0.034744817955868874
+        ],
+        "meanY": 0.06750087029959688,
+        "referenceMeanRGB": [
+          0.13361872458728552,
+          0.05682944424413598,
+          0.03652322090808094
+        ],
+        "meanBiasRGB": [
+          -0.008254115318895555,
+          -0.003222371379589771,
+          -0.0017784029522120645
+        ],
+        "absoluteMeanBiasRGB": [
+          0.008254115318895555,
+          0.003222371379589771,
+          0.0017784029522120645
+        ],
+        "referenceMeanY": 0.0716887359202264,
+        "meanBiasY": -0.00418786562062951,
+        "absoluteMeanBiasY": 0.00418786562062951,
+        "relativeMeanBiasY": -0.05841734502460292,
+        "pixelYMAE": 0.01019924678388488,
+        "pixelYRMSE": 0.01963194282399063,
+        "meanChromaL1": 0.0042198220830376165,
+        "meanMomentsX": 0.06951361664999983,
+        "referenceMeanPixelStandardErrorRGB": [
+          0.018481189138846013,
+          0.009217535186712622,
+          0.0064951781660416074
+        ],
+        "referenceMeanPixelConservativeLumaSE": 0.010990433840043713
+      },
+      "cohort": "Unchanged original rule: baseline-known source ROI paired with candidate; any lost baseline point fails the coverage condition."
+    },
+    "White receiver": {
+      "sourcePixels": 86,
+      "fixedBaselineDomainPixels": 86,
+      "pairedPixels": 86,
+      "baselineUnknownPixels": 0,
+      "candidateUnknownPixels": 0,
+      "newlyUnknownOnBaselineDomain": 0,
+      "baseline": {
+        "meanRGB": [
+          0.303466796875,
+          0.11215635787609012,
+          0.08937037268350291
+        ],
+        "meanY": 0.15118380907635356,
+        "referenceMeanRGB": [
+          0.4155668373717818,
+          0.179802808477435,
+          0.1386817782944025
+        ],
+        "meanBiasRGB": [
+          -0.1121000404967818,
+          -0.06764645060134487,
+          -0.0493114056108996
+        ],
+        "absoluteMeanBiasRGB": [
+          0.1121000404967818,
+          0.06764645060134487,
+          0.0493114056108996
+        ],
+        "referenceMeanY": 0.22695730264115818,
+        "meanBiasY": -0.07577349356480463,
+        "absoluteMeanBiasY": 0.07577349356480463,
+        "relativeMeanBiasY": -0.33386673476909434,
+        "pixelYMAE": 0.07577349356480463,
+        "pixelYRMSE": 0.08858783422082049,
+        "meanChromaL1": 0.06960872397736723,
+        "meanMomentsX": 0.2257637523201316,
+        "referenceMeanPixelStandardErrorRGB": [
+          0.0254822920692248,
+          0.01574886247570123,
+          0.013149847888430332
+        ],
+        "referenceMeanPixelConservativeLumaSE": 0.01763054075408338
+      },
+      "candidate": {
+        "meanRGB": [
+          0.38115177598110467,
+          0.17906579305959303,
+          0.1416271121002907
+        ],
+        "meanY": 0.21932620026344476,
+        "referenceMeanRGB": [
+          0.4155668373717818,
+          0.179802808477435,
+          0.1386817782944025
+        ],
+        "meanBiasRGB": [
+          -0.034415061390677126,
+          -0.000737015417841963,
+          0.002945333805888184
+        ],
+        "absoluteMeanBiasRGB": [
+          0.034415061390677126,
+          0.000737015417841963,
+          0.002945333805888184
+        ],
+        "referenceMeanY": 0.22695730264115818,
+        "meanBiasY": -0.007631102377713418,
+        "absoluteMeanBiasY": 0.007631102377713418,
+        "relativeMeanBiasY": -0.03362351547585557,
+        "pixelYMAE": 0.02011300027382581,
+        "pixelYRMSE": 0.028394729578953053,
+        "meanChromaL1": 0.04611257389192053,
+        "meanMomentsX": 0.22576293622165225,
+        "referenceMeanPixelStandardErrorRGB": [
+          0.0254822920692248,
+          0.01574886247570123,
+          0.013149847888430332
+        ],
+        "referenceMeanPixelConservativeLumaSE": 0.01763054075408338
+      },
+      "cohort": "Unchanged original rule: baseline-known source ROI paired with candidate; any lost baseline point fails the coverage condition."
+    }
+  },
+  "predeclaredNumericalConditions119": {
+    "Floor": {
+      "noNewUnknownPoints": true,
+      "lowerAbsoluteMeanYBias": true,
+      "lowerPixelYMAE": true,
+      "chromaL1NotWorse": true
+    },
+    "White receiver": {
+      "noNewUnknownPoints": true,
+      "lowerAbsoluteMeanYBias": true,
+      "lowerPixelYMAE": true,
+      "chromaL1NotWorse": true
+    }
+  },
+  "numericalScreen119": "met",
+  "comparison299": {
+    "Floor": {
+      "sourcePixels": 13330,
+      "pairedPixels": 13328,
+      "unknownPixels": 2,
+      "candidate": {
+        "meanRGB": [
+          0.010262318089658043,
+          0.004248326941698539,
+          0.0019121968678208817
+        ],
+        "meanY": 0.0053582328684207625,
+        "referenceMeanRGB": [
+          0.009179467529421123,
+          0.004548657823467757,
+          0.002018782595161046
+        ],
+        "meanBiasRGB": [
+          0.0010828505602369191,
+          -0.0003003308817692181,
+          -0.00010658572734016441
+        ],
+        "absoluteMeanBiasRGB": [
+          0.0010828505602369191,
+          0.0003003308817692181,
+          0.00010658572734016441
+        ],
+        "referenceMeanY": 0.005350510975469698,
+        "meanBiasY": 7.721892951064759e-06,
+        "absoluteMeanBiasY": 7.721892951064759e-06,
+        "relativeMeanBiasY": 0.0014432066369860848,
+        "pixelYMAE": 0.0011933899962203284,
+        "pixelYRMSE": 0.013307423017845791,
+        "meanChromaL1": 0.08388598379362597,
+        "meanMomentsX": 0.005419803129711056,
+        "referenceMeanPixelStandardErrorRGB": [
+          0.002574710685333501,
+          0.0007460195716682382,
+          0.0003591933385634811
+        ],
+        "referenceMeanPixelConservativeLumaSE": 0.0011068704484033113
+      }
+    },
+    "White receiver": {
+      "sourcePixels": 86,
+      "pairedPixels": 86,
+      "unknownPixels": 0,
+      "candidate": {
+        "meanRGB": [
+          0.02058703400367914,
+          0.005215689193370731,
+          0.002551677615143532
+        ],
+        "meanY": 0.008291295464094295,
+        "referenceMeanRGB": [
+          0.019842176676489586,
+          0.007860327182814132,
+          0.0038595082925979136
+        ],
+        "meanBiasRGB": [
+          0.0007448573271895548,
+          -0.0026446379894434014,
+          -0.0013078306774543815
+        ],
+        "absoluteMeanBiasRGB": [
+          0.0007448573271895548,
+          0.0026446379894434014,
+          0.0013078306774543815
+        ],
+        "referenceMeanY": 0.010118809261295922,
+        "meanBiasY": -0.0018275137972016276,
+        "absoluteMeanBiasY": 0.0018275137972016276,
+        "relativeMeanBiasY": -0.1806056177174721,
+        "pixelYMAE": 0.0022965675329275127,
+        "pixelYRMSE": 0.006469430239005151,
+        "meanChromaL1": 0.19477718164464153,
+        "meanMomentsX": 0.00846461346372962,
+        "referenceMeanPixelStandardErrorRGB": [
+          0.0039346130560877395,
+          0.0011615300457203839,
+          0.0005801764108004663
+        ],
+        "referenceMeanPixelConservativeLumaSE": 0.001709113761283265
+      }
+    }
+  },
+  "frameObservations": {
+    "119": {
+      "Floor": {
+        "sourcePixels": 13330,
+        "validPixels": 13328,
+        "unknownPixels": 2,
+        "meanRGB": [
+          0.12536460926838996,
+          0.05360707286454621,
+          0.034744817955868874
+        ],
+        "meanY": 0.0675008702995969,
+        "meanMomentsX": 0.06951361664999983
+      },
+      "White receiver": {
+        "sourcePixels": 86,
+        "validPixels": 86,
+        "unknownPixels": 0,
+        "meanRGB": [
+          0.38115177598110467,
+          0.17906579305959303,
+          0.1416271121002907
+        ],
+        "meanY": 0.21932620026344468,
+        "meanMomentsX": 0.22576293622165225
+      }
+    },
+    "239": {
+      "Floor": {
+        "sourcePixels": 13330,
+        "validPixels": 13328,
+        "unknownPixels": 2,
+        "meanRGB": [
+          0.10268904868007994,
+          0.042468539520758256,
+          0.02682033735735505
+        ],
+        "meanY": 0.05414161957183233,
+        "meanMomentsX": 0.07183845648563658
+      },
+      "White receiver": {
+        "sourcePixels": 86,
+        "validPixels": 86,
+        "unknownPixels": 0,
+        "meanRGB": [
+          0.37501419422238375,
+          0.15747496139171513,
+          0.115966796875
+        ],
+        "meanY": 0.20072691281340846,
+        "meanMomentsX": 0.23709789190243735
+      }
+    },
+    "270": {
+      "Floor": {
+        "sourcePixels": 13330,
+        "validPixels": 13328,
+        "unknownPixels": 2,
+        "meanRGB": [
+          0.01027989076251457,
+          0.004046982129653391,
+          0.0018405257394405402
+        ],
+        "meanY": 0.005212792353626308,
+        "meanMomentsX": 0.005357039183020872
+      },
+      "White receiver": {
+        "sourcePixels": 86,
+        "validPixels": 86,
+        "unknownPixels": 0,
+        "meanRGB": [
+          0.019305650577988734,
+          0.005836930385855741,
+          0.002937283626822538
+        ],
+        "meanY": 0.008491025802701018,
+        "meanMomentsX": 0.008805201504634
+      }
+    },
+    "299": {
+      "Floor": {
+        "sourcePixels": 13330,
+        "validPixels": 13328,
+        "unknownPixels": 2,
+        "meanRGB": [
+          0.010262318089658043,
+          0.004248326941698539,
+          0.0019121968678208817
+        ],
+        "meanY": 0.005358232868420764,
+        "meanMomentsX": 0.005419803129711056
+      },
+      "White receiver": {
+        "sourcePixels": 86,
+        "validPixels": 86,
+        "unknownPixels": 0,
+        "meanRGB": [
+          0.02058703400367914,
+          0.005215689193370731,
+          0.002551677615143532
+        ],
+        "meanY": 0.008291295464094297,
+        "meanMomentsX": 0.00846461346372962
+      }
+    }
+  },
+  "intervalChanges": [
+    {
+      "first": 270,
+      "last": 299,
+      "roi": "Floor",
+      "sourcePixels": 13330,
+      "pairedPixels": 13328,
+      "firstUnknownPixels": 2,
+      "lastUnknownPixels": 2,
+      "meanSignedDeltaY": 0.00014544051479445356,
+      "meanAbsoluteDeltaY": 0.00025053046338287005,
+      "rmsDeltaY": 0.0005791124070957883
+    },
+    {
+      "first": 270,
+      "last": 299,
+      "roi": "White receiver",
+      "sourcePixels": 86,
+      "pairedPixels": 86,
+      "firstUnknownPixels": 0,
+      "lastUnknownPixels": 0,
+      "meanSignedDeltaY": -0.0001997303386067234,
+      "meanAbsoluteDeltaY": 0.0007924894266350325,
+      "rmsDeltaY": 0.0010218442995688212
+    }
+  ],
+  "outgoing": {
+    "directory": "I:\\Unity test\\Comparison\\StationaryHistory01\\capture\\20261029-230708-f1ff24abeb424690bf3dad7132d2c9b5",
+    "image": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\stationary-history-01\\outgoing.png",
+    "quantity": "D * diffuse rho * material AO * intensity after upsampling; not D or reference error",
+    "records": [
+      {
+        "frame": 239,
+        "engineFrame": 243,
+        "giFrame": 240,
+        "rawFile": "I:\\Unity test\\Comparison\\StationaryHistory01\\capture\\20261029-230708-f1ff24abeb424690bf3dad7132d2c9b5\\frame-0239.rgba32f",
+        "allRGBAFinite": true
+      },
+      {
+        "frame": 240,
+        "engineFrame": 244,
+        "giFrame": 241,
+        "rawFile": "I:\\Unity test\\Comparison\\StationaryHistory01\\capture\\20261029-230708-f1ff24abeb424690bf3dad7132d2c9b5\\frame-0240.rgba32f",
+        "allRGBAFinite": true
+      },
+      {
+        "frame": 270,
+        "engineFrame": 274,
+        "giFrame": 271,
+        "rawFile": "I:\\Unity test\\Comparison\\StationaryHistory01\\capture\\20261029-230708-f1ff24abeb424690bf3dad7132d2c9b5\\frame-0270.rgba32f",
+        "allRGBAFinite": true
+      },
+      {
+        "frame": 299,
+        "engineFrame": 303,
+        "giFrame": 300,
+        "rawFile": "I:\\Unity test\\Comparison\\StationaryHistory01\\capture\\20261029-230708-f1ff24abeb424690bf3dad7132d2c9b5\\frame-0299.rgba32f",
+        "allRGBAFinite": true
+      }
+    ]
+  },
+  "image": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\stationary-history-01\\available-comparison.png",
+  "display": "Exposure 1/Reinhard+sRGB; only PNG is vertically flipped, numeric rows unchanged.",
+  "decisionBoundary": "Only original item-3 numerical conditions are evaluated. D240 and its D intervals remain missing. Original five-capture failure remains; available images do not automatically establish adoption, dynamic parity or convergence."
+}

@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "fullResult": "output/result.json",
+  "script": "run.py",
+  "baseline": "git HEAD temporal body at execution",
+  "candidate": "current working-tree temporal body at execution",
+  "entries": ["legacy", "identity"],
+  "execution": "One finite paired batch: each baseline/candidate entry compiled and executed once on the existing ReceiverTemporalWarp.exe. No new host, hashes, Unity or Player.",
+  "matureStaticKnownBlackFirstRaw": {
+    "baseline": 0.03680000081658363,
+    "candidate": 0.9200000166893005
+  },
+  "matureStaticKnownBlackFirstStored": {
+    "baseline": 0.036773681640625,
+    "candidate": 0.919921875
+  },
+  "unmarkedRealBlackAfter32Stored": {
+    "baseline": 0.0027446746826171875,
+    "candidate": 0.06878662109375
+  },
+  "preservedControlsBothEntries": [
+    "marked global light off",
+    "local reactive",
+    "camera motion with nonzero velocity",
+    "nonzero velocity rejected by identity pose",
+    "disocclusion depth rejection",
+    "unknown current with global/local change",
+    "immature age31"
+  ],
+  "controlComparison": "Each control's complete 64-byte consumer output is identical between baseline and candidate in its respective entry.",
+  "identityMotionResult": "With nonzero velocity rejected by the verified pose, identity retains correspondence but still takes the original clipped path; it does not enter the stationary exception.",
+  "dynamicTradeoff": "A real lighting change with no change marker decays more slowly. After32 black updates the candidate retains about6.88% of the initial history. This is not unchanged dynamic response or a no-ghosting claim.",
+  "limits": "Actual temporal and current Runtime helper code with fixed 1x1 texture/decoded-normal/change inputs. Thirty-two dependent calls run on one GPU thread and consume explicit half-rounded history plus float32 moments; they are not separate frame dispatches or real RGBA16F textures. No physical GPU, scene, visual-convergence or performance result."
+}

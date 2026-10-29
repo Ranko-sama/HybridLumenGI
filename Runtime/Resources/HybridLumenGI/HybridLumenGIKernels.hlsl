@@ -492,9 +492,24 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
     // A changed global light set makes old radiance obsolete. Unknown current
     // measurements have already retained their qualified history above.
     if(_HLGI_GlobalReactive>0.5) valid=false;
+    // A mature, exactly unchanged sample may keep its nearest history without
+    // clipping it to this frame's sparse Monte Carlo neighborhood. A missed
+    // bright path is not evidence that an earlier accepted path disappeared.
+    // This is a bounded static-sample policy, not proof of constant lighting:
+    // unmarked transport changes still decay through the existing EMA.
+    bool stationaryHistory=valid && change.y<0.5 && moments.z>=_HLGI_MaxHistory &&
+        all(previousPixel==pixel) && all(prevUV==uv) && all(_HLGI_JitterDelta.xy==0) &&
+        (_HLGI_HasMotion==0 || all(_HLGI_Motion.Load(int3(fullPixel,0))==0)) &&
+        all(expectedP==p) && all(expectedNs==shadingNormal) && all(expectedNg==geometricNormal) &&
+        all(_HLGI_VP[0]==_HLGI_PreviousVP[0]) && all(_HLGI_VP[1]==_HLGI_PreviousVP[1]) &&
+        all(_HLGI_VP[2]==_HLGI_PreviousVP[2]) && all(_HLGI_VP[3]==_HLGI_PreviousVP[3]) &&
+        all(_HLGI_PreviousGeometry.Load(int3(previousPixel,0))==geometry) &&
+        all(_HLGI_PreviousMaterial.Load(int3(previousPixel,0))==_HLGI_Material.Load(int3(pixel,0)));
     // Reconstruction may improve an already accepted known measurement only.
     // Any incomplete support retains the exact original nearest history pair.
-    if(valid)
+    // The static exception must retain that same sample, not interpolate taps
+    // whose lighting has not qualified for the exception.
+    if(valid && !stationaryHistory)
     {
         uint4 expectedIdentity=0;
 #if defined(HLGI_RECEIVER_IDENTITY)
@@ -544,7 +559,7 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
         _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
     }
     float3 sigma=sqrt(max(second-mean*mean,0))+0.02;
-    history.rgb=clamp(history.rgb,mean-2*sigma,mean+2*sigma);
+    if(!stationaryHistory) history.rgb=clamp(history.rgb,mean-2*sigma,mean+2*sigma);
     float samples=valid?min(moments.z+1,change.y>0.5?min(2,(float)_HLGI_MaxHistory):(float)_HLGI_MaxHistory):1;
     float alpha=valid?max(_HLGI_CurrentWeight,1/samples):1;
     alpha=max(alpha,valid?0.25*abs(current.a-history.a):1);
