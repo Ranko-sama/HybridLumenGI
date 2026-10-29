@@ -26,6 +26,7 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
         public bool finalImageMode,finalImageCaptured;public string actualViewMode,composition,imageScope;
     }
     Result result;Receipt previousQualified;StreamWriter receipts;
+    Vector3 navigationStartPosition;Quaternion navigationStartRotation;float navigationYaw,navigationPitch;
     static string Arg(string name){var args=Environment.GetCommandLineArgs();int i=Array.IndexOf(args,name);return i>=0&&i+1<args.Length?args[i+1]:null;}
     static void Require(bool value,string reason){if(!value)throw new Exception(reason);}
     public static bool TryStart()
@@ -61,7 +62,11 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
             auditProbeDisabled=!UnityEngine.Object.FindObjectsByType<RuntimeAuditProbe>(FindObjectsInactive.Include,FindObjectsSortMode.None).Any(p=>p.enabled),startEngine=startEngine,width=Screen.width,height=Screen.height};
         Require(!result.debugBuild&&result.testCaptureDisabled&&result.auditProbeDisabled,"Ordinary Release isolation failed");
         Debug.Log("LOCAL_RELEASE_START "+JsonUtility.ToJson(result));
-        if(!verify)return; // Normal local use has no frame counter, diagnostics polling, file capture or automatic quit.
+        if(!verify)
+        {
+            navigationStartPosition=target.transform.position;navigationStartRotation=target.transform.rotation;
+            ResetNavigation();return; // Normal use has no frame counter, diagnostics polling, capture or automatic quit.
+        }
         folder=Arg("-localReleaseOutput");Require(!string.IsNullOrEmpty(folder)&&Path.IsPathRooted(folder)&&!Directory.Exists(folder),"New absolute Release verification directory required");
         Directory.CreateDirectory(folder);receipts=new StreamWriter(Path.Combine(folder,"diagnostics.jsonl")){AutoFlush=true};Save();
         if(finalImage)
@@ -81,12 +86,36 @@ public sealed class LocalReleaseBootstrap : MonoBehaviour
     {if(type==LogType.Error||type==LogType.Exception||type==LogType.Assert){errors++;firstError=firstError??message;}}
     void Update()
     {
-        if(!verify||finished)return;
+        if(!verify){Navigate();return;}
+        if(finished)return;
         if(errors>0){Finish(false);return;}
         if(quitPending){Finish(true);return;}
         if(frames==0&&(Time.frameCount-startEngine>120||Time.realtimeSinceStartupAsDouble-started>900))
         {errors++;firstError="First target-camera receipt exceeded existing startup limit";Finish(false);}
         else if(frames>0&&Time.frameCount>lastEngine+1){errors++;firstError="Target-camera receipts stopped";Finish(false);}
+    }
+    void ResetNavigation()
+    {
+        target.transform.SetPositionAndRotation(navigationStartPosition,navigationStartRotation);
+        var angles=navigationStartRotation.eulerAngles;navigationYaw=angles.y;navigationPitch=Mathf.DeltaAngle(0,angles.x);
+    }
+    static float Keys(KeyCode positive,KeyCode negative) { return (Input.GetKey(positive)?1:0)-(Input.GetKey(negative)?1:0); }
+    void Navigate()
+    {
+        if(!Application.isFocused||!target)return;
+        if(Input.GetKeyDown(KeyCode.Escape)){Application.Quit();return;}
+        if(Input.GetKeyDown(KeyCode.R)){ResetNavigation();return;}
+        float dt=Mathf.Min(Time.unscaledDeltaTime,0.05f);
+        float yaw=Keys(KeyCode.RightArrow,KeyCode.LeftArrow),pitch=Keys(KeyCode.DownArrow,KeyCode.UpArrow);
+        if(yaw!=0||pitch!=0)
+        {
+            navigationYaw=Mathf.Repeat(navigationYaw+yaw*90*dt+180,360)-180;
+            navigationPitch=Mathf.Clamp(navigationPitch+pitch*90*dt,-85,85);
+            target.transform.rotation=Quaternion.Euler(navigationPitch,navigationYaw,0);
+        }
+        Vector3 move=new Vector3(Keys(KeyCode.D,KeyCode.A),Keys(KeyCode.E,KeyCode.Q),Keys(KeyCode.W,KeyCode.S));
+        move=Vector3.ClampMagnitude(move,1);
+        target.transform.position+=Quaternion.Euler(0,navigationYaw,0)*move*(3*dt);
     }
     void Rendered(ScriptableRenderContext context,Camera camera)
     {

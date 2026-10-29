@@ -1,6 +1,6 @@
-param([switch]$SteadyUse,[switch]$Integration,[switch]$FinalImage)
+param([switch]$SteadyUse,[switch]$Integration,[switch]$FinalImage,[switch]$Navigation)
 $ErrorActionPreference='Stop'
-if(([int]$SteadyUse.IsPresent+[int]$Integration.IsPresent+[int]$FinalImage.IsPresent) -gt 1){throw 'Select one Release destination.'}
+if(([int]$SteadyUse.IsPresent+[int]$Integration.IsPresent+[int]$FinalImage.IsPresent+[int]$Navigation.IsPresent) -gt 1){throw 'Select one Release destination.'}
 $taskRootPath='C:/Users/Administrator/Desktop/test/HybridLumenGI'
 $taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/local-release-baseline-01'
 $taskPython='C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
@@ -25,6 +25,12 @@ if($FinalImage){
     $taskAttempt=Join-Path $taskPackagePath 'build-attempt.json'
     $taskPlayerOutput='I:/Unity test/Comparison/Builds/LocalRelease54/HybridLumenGITest.exe'
     $taskInstallArgs=@('--final-image');$taskBuildName='LocalRelease54Build'
+}
+if($Navigation){
+    $taskPackagePath=Join-Path $taskRootPath 'LocalComparison/Review/local-release-navigation-01'
+    $taskAttempt=Join-Path $taskPackagePath 'build-attempt.json'
+    $taskPlayerOutput='I:/Unity test/Comparison/Builds/LocalRelease58/HybridLumenGITest.exe'
+    $taskInstallArgs=@('--navigation');$taskBuildName='LocalRelease58Build'
 }
 if(Test-Path -LiteralPath $taskAttempt){throw 'Unique normal build already attempted.'}
 if(Test-Path -LiteralPath (Split-Path -Parent $taskPlayerOutput)){throw 'New build output must not replace an existing Player.'}

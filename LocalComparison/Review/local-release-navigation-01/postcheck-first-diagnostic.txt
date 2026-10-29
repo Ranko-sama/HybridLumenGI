@@ -1,0 +1,3 @@
+First read-only post-run source/log check, tool chunk3c8cbc, exit1.
+The source/helper/artifact/scene/restoration assertions had passed. Its generic word regex then matched the literal empty JSON key/value "error":"" in the normal LOCAL_RELEASE_START record and asserted a log error. The same record had errors:0 and all ordinary-mode assertions passed.
+This is a metadata parser false positive, not a build/Player failure. Preserve the original player.log and process receipts. Correct the same-data interpretation by requiring the parsed startup error to be empty/errors0, then scanning non-startup log lines. No build, Player, input sequence or source contract is rerun or changed.

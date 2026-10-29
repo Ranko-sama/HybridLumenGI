@@ -1,8 +1,10 @@
 # HybridLumenGI
 
-**当前本机图像基线：Release54；已验证产品来源为 `a9292cb8c3c1bd86b64fdcb7888565bd7c957ec4`。** 后续提交的 HEAD 不自动成为该 EXE 的产品来源。当前继续本机开发，不需要朋友交付；四项目标与十条工作流仍以[完整原计划](Documentation/OriginalDevelopmentPlan.md)为准。
+**当前本机可巡视入口：Release58；已构建产品来源为 `7e387a512cbb4355fd5f3d9f3c76282375f9cd3b`。** 后续提交的 HEAD 不自动成为该 EXE 的产品来源。当前继续本机开发，不需要朋友交付；四项目标与十条工作流仍以[完整原计划](Documentation/OriginalDevelopmentPlan.md)为准。
 
-本机入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease54/Start-LocalRelease.cmd>)（`I:\Unity test\Comparison\Builds\LocalRelease54\Start-LocalRelease.cmd`）。默认窗口常驻，可正常关闭。本轮实际运行的是同一 EXE 的 `-localReleaseFinalImage120` 分支，默认模式未另跑一次。640×360 是本次运行配置，不是生产分辨率目标。
+本机入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease58/Start-LocalRelease.cmd>)。点击窗口后，WASD平移、Q/E升降、方向键转向、R复位、Esc退出；窗口默认常驻。一次普通 Release 构建及一次实际键盘巡视正常退出，原23条构建警告保留。移动、转向、松键和复位有执行层与Astra的画面观察；Pro58核对源码和记录，未独立读取图片。00–03启动暗窗口未合格判读，首可辨场景至退出58.307秒、首窗口至退出151.629秒；失焦护栏仅检查实现。见[巡视结果与限制](Documentation/ReviewBrief-LocalReleaseNavigation01.md)。640×360是运行配置，不是生产分辨率目标。
+
+**最后一次HDR图像基线仍为Release54，来源 `a9292cb8c3c1bd86b64fdcb7888565bd7c957ec4`。** 58的窗口截图不替换54的HDR采集，也不补齐55–57各修复的原生触发条件。
 
 Release54 已在 Unity6000.0.85f1 / URP17.0.4 / Windows x64 / Mono / DX12 / Linear / RTX2080Ti 完成普通 Release（BuildOptions.None）构建、静态120个真实相机/GI帧、一次末帧HDR采集及正常退出；112份产品来源与189项产物有清单，23条构建警告保留。见[当前图像结果与边界](Documentation/ReviewBrief-CurrentRepresentativeFinalImage01.md)、[实际预览图](LocalComparison/Review/current-representative-final-image-01/native-window/run/frame-0119.png)和[原始运行收据](LocalComparison/Review/current-representative-final-image-01/native-window/analysis.json)。该图来自首帧固定的HDR相机目标及既有预览映射，不是普通backbuffer像素证明。未采集的嵌套资源/退休字段默认零值不代表资源归零。
 

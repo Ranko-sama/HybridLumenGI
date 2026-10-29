@@ -1,0 +1,53 @@
+STATE: PLAN
+TASK_ID: c2c_a702
+ITERATION: 58
+DECISION: ADOPT_FINITE_AND_REDIRECT
+COMMIT: APPROVE_LOCAL_COMMIT
+NEXT_PACKAGE: additive-chunk-multiview-demand-01
+
+一、有限采用Release58，结束导航线
+
+允许本地提交，采用Release58作为可巡视入口；Release54继续保留为原HDR图像基线。不追加输入、失焦、启动或暗窗口检查。
+
+已确认 HybridLumenGI / workspace:/ / main@7e387a5，README标题为HybridLumenGI。已先列取再读取257–261，核对实际diff、冻结bootstrap、动作时间表及构建／进程记录；没有修改或重跑。
+
+源码符合最小范围：导航仅在!verify执行，普通模式不订阅有限采集回调；位移归一化、时间步有界、俯仰受限，R直接恢复保存的位置／旋转，Escape走正常退出。GI算法、历史和曝光未改。失焦保护与精确位姿恢复的实现有源码依据，但本轮没有分别取得失焦操作或数值位姿证据。〔冻结LocalReleaseBootstrap.cs.txt:62–69、89–121〕
+
+构建为Release / None、0 errors／23 warnings；日志确认普通模式、GI启用、旧探针关闭，进程20784退出0。首次postcheck把启动JSON的"error":""误当错误，同数据结构化解释有原日志支持；保留该exit1，不将它重写为首次判读成功。〔build-report.json:1–23；native-window/player.log:32–39；输出260–261〕
+
+本层没有完成独立像素复核。 我实际尝试打开00、04、09，连接器均报“文件内容与图像扩展名不匹配”。因此，移动／转向／松键／复位的视觉结论仍归属于保存的执行层及Astra观察；本层独立核对的是实现、操作记录与进程证据，不声称亲眼确认画面。
+
+时间边界保持原样：总进程172.586秒，首窗口至退出151.629秒，首个可辨场景至退出58.307秒。后者满足冻结检查点的场景可见后120秒限定，前者不满足窗口口径。00–03不作为有效场景观察，04也不是未受输入影响的初始位姿。〔Checkpoint-Iteration58.md:9；native-window/observations.md:5–11〕
+
+这些限制不要求重跑，也不阻断本机导航能力的有限采用；但不能外推动态GI质量、55–57各分支原生验收或性能。
+
+二、下一价值：补齐Additive场景的多视点需求
+
+认可Astra关于停止导航追加验证的判断。下一项不从这些截图推断故障，而推进原目标3／工作流8的具体能力：
+
+辅助视点能够请求尚未加载的Additive场景，并与主视点共用原有加载预算。
+
+当前ChunkStreamer.Update只取单一observer／主相机，ChunkStreaming.Step也只计算一个位置。41轮增加的是资源页表示的附加视点，没有覆盖这条Additive场景路径。〔HybridLumenGIChunkStreamer.cs:21–31；HybridLumenGIChunkStreaming.cs:91–130；HybridLumenGIStreamedRepresentation.cs:21–24、78–104〕
+
+这是能力扩展，不是声称现有单视点设计发生了原生故障。具体采用条件是“主视点远、显式辅助视点近”能够发起冷加载，而非再次证明已加载对象被保留。
+
+三、最小实现与决定性验证
+
+优先只改 HybridLumenGIChunkStreamer.cs和HybridLumenGIChunkStreaming.cs。
+
+增加默认空的显式附加视点集合及复制输入的设置接口，保留旧observer／Camera.main回退和原单位置Step入口。每帧汇总有效位置，每个State只执行一次Step；按各chunk到有效视点的最小距离执行原加载／卸载滞回和距离排序。不要逐视点调用Step，否则会重复推进tick及操作额度。
+
+任一视点靠近即可产生需求；全部离开卸载距离才撤需。没有有效视点时保留旧无observer语义，不擅自解释为安全卸载。原驻留、并发、启动次数、在途操作和ReportUnloadSafe权限不变；附加视点不能直接卸载场景，也不能扩大预算或接管外部加载的scene handle。
+
+复用现有ChunkStreaming实际源码及假异步Backend，冻结一个小型请求序列，不重跑资源页／HLOD／原生IO矩阵。〔Tests/StandaloneBvh/StreamingProgram.cs.txt〕
+
+需要决定的问题	最小验证与采用条件
+是否新增了辅助视点冷需求？	主远／辅近时，旧路径无请求；候选实际Step启动对应加载。移除附加集合恢复旧单视点结果。
+是否保持共享额度与滞回？	重复／重排视点不增加操作；滞回带内保留需求；多个chunk竞争时仍遵守同一State原额度。
+是否削弱卸载安全？	全部远离只撤需，仍须当前generation的安全收据；在途加载仍完成，外部scene仍不被接管或卸载。
+
+一次有限旧行为控制、一次候选实际源码判定；零Unity／Player／GPU运行。 完整driver接线至少编译核对；状态机执行与Unity Transform／SceneManager适配边界分开陈述，不把源码结果写成多相机原生流式验收。保留既有入口兼容性，不再让专项开关承担公共编译依赖。
+
+**退出条件：**辅助视点冷加载成立，合并需求不放大预算，旧单视点和卸载所有权不退化，即交复核并结束。首次候选失败，或需要通用相机注册、HLOD事务或资源退休重构时，保存具体阻断并停止自动扩展。
+
+导航及既有Release投入到此收束；41轮和本包共同计入多视点流式能力，不以新包名重置成本。四项目标、十条工作流仍开放，生产预算保持待答，暗区、MC、曝光及计时调查不恢复。

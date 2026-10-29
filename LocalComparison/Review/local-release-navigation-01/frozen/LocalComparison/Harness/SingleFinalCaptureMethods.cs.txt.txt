@@ -1,0 +1,31 @@
+    // Temporary explicit final-image entry points. Original Start/Update/Finish stay disabled.
+    public void BeginSingleFinalCapture(string outputDirectory)
+    {
+        if(enabled||running||configured||!Directory.Exists(outputDirectory))throw new Exception("Disabled unconfigured capture and existing output required");
+        if(QualitySettings.activeColorSpace!=ColorSpace.Linear||!BitConverter.IsLittleEndian||!SystemInfo.supportsAsyncGPUReadback)throw new Exception("Final capture requires Linear little-endian GPU readback");
+        data=camera.GetUniversalAdditionalCameraData();
+        if(camera.stereoEnabled||data.renderType!=CameraRenderType.Base||(data.cameraStack!=null&&data.cameraStack.Count!=0))throw new Exception("Single Base camera required");
+        directory=outputDirectory;featureJson=JsonUtility.ToJson(feature,true);
+        File.WriteAllText(Path.Combine(directory,"feature.json"),featureJson);
+        oldTarget=camera.targetTexture;oldHdr=camera.allowHDR;oldMsaa=camera.allowMSAA;oldDynamic=camera.allowDynamicResolution;oldPost=data.renderPostProcessing;oldEnabled=camera.enabled;configured=true;
+        target=new RenderTexture(Width,Height,24,RenderTextureFormat.ARGBFloat,RenderTextureReadWrite.Linear){name="Comparison Linear HDR",antiAliasing=1,useMipMap=false,autoGenerateMips=false,useDynamicScale=false};
+        if(!target.Create()||target.sRGB||target.graphicsFormat!=GraphicsFormat.R32G32B32A32_SFloat)throw new Exception("Exact final capture RT creation failed");
+        camera.targetTexture=target;camera.allowHDR=true;camera.allowMSAA=false;camera.allowDynamicResolution=false;camera.enabled=true;data.renderPostProcessing=false;
+    }
+    public void CaptureSingleFinalFrame(int actualCameraFrames)
+    {
+        if(enabled||running||!configured||actualCameraFrames!=120||run.captures!=0||camera.targetTexture!=target||featureJson!=JsonUtility.ToJson(feature,true))throw new Exception("Single final capture contract changed");
+        logicalFrame=actualCameraFrames-1;
+        var f=new Frame{logicalFrame=logicalFrame,engineFrame=Time.frameCount,stage="color-static-final-only",cameraPosition=camera.transform.position,cameraRotation=camera.transform.rotation,projection=camera.projectionMatrix,doorLocalPosition=door.localPosition,
+            diagnosticsStatus="Not collected by image capture; use Release diagnostics. Timing fields are uncollected defaults.",lights=new LightState[lights.Length]};
+        for(int i=0;i<lights.Length;i++){var l=lights[i];f.lights[i]=new LightState{name=l.name,type=l.type.ToString(),enabled=l.enabled,intensity=l.intensity,range=l.range,color=l.color,position=l.transform.position,rotation=l.transform.rotation};}
+        Capture(f); // Existing completed readback, finite checks, RGBA32F/EXR and fixed PNG mapping.
+    }
+    public void EndSingleFinalCapture()
+    {
+        if(!configured)return;
+        if(pending){readback.WaitForCompletion();if(!readback.done)throw new Exception("Final target retained: readback completion unproven");pending=false;}
+        camera.targetTexture=oldTarget;camera.allowHDR=oldHdr;camera.allowMSAA=oldMsaa;camera.allowDynamicResolution=oldDynamic;camera.enabled=oldEnabled;data.renderPostProcessing=oldPost;
+        if(target){target.Release();Destroy(target);target=null;}
+        configured=false;
+    }
