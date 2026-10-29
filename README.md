@@ -2,9 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release76](<I:/Unity test/Comparison/Builds/LocalRelease76/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；默认常驻，普通启动不启用测量观察器。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release77](<I:/Unity test/Comparison/Builds/LocalRelease77/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；新增可手动开启的进程显存观察，默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
 
-Release76 包含全局换光后的屏幕历史与缓存首次可信更新改进，以及面积光遮挡判断的冗余辐射计算优化。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)只覆盖固定配置的三个 GI 区间，不代表全应用帧率或生产性能放行。后续源码修改不会自动更新这个 EXE。
+Release77 保留 Release76 的光传输实现，新增[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)。全局换光后的屏幕历史、缓存首次可信更新改进及面积光遮挡冗余计算优化均保留。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release77 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
 
 ## 使用统一示例
 
@@ -21,6 +21,8 @@ Release76 包含全局换光后的屏幕历史与缓存首次可信更新改进�
 
 实际后端以面板诊断为准，选择 DXR 偏好不保证硬件路径被采用。关灯仍保留发光面；停止形变后，异步 GI 快照可能继续追上可见网格。当前窗口为 960×540，不是生产分辨率目标。
 
+点击面板的 **Memory: off** 开启本进程 local/nonlocal 显存用量、OS预算及采样峰值；**Log ledger** 同时导出到Player日志。缺失或旧原生DLL会显示不可用，不影响GI。数据不是GI独占、整机用量或绝对瞬时峰值，也不改变更新配额。
+
 从自己的场景生成示例：保存场景，选择至少两个已绑定 SDF 和 surface charts 的静态 Proxy，执行 **Tools > Hybrid Lumen GI > Create Unified Sample From Selected Static Proxies**。菜单要求一个启用相机，并从该相机实际选择的 Universal Renderer Data 中解析唯一启用的 GI Feature；无关已加载资产不参与选择。显式 `CreateVariant` 仍可使用。生成器保留作者场景，创建独立变体与资源页；静态网格、材质及 HLOD 限制见[统一示例说明](Documentation/ReviewBrief-UnifiedSample02.md)。菜单修复已有 Editor 编译依据，尚未重新生成场景。
 
 ## 当前画质结论
@@ -36,7 +38,7 @@ Release76 包含全局换光后的屏幕历史与缓存首次可信更新改进�
 
 首批独立参考与动态曲线保留修复前来源，不能当作 Release76 修后结果。当前关灯观察只运行原序列的 0–299 前缀，保存 239／240／270／299 四帧；其量为乘过反射率、AO 和强度的**间接漫反射出射贡献**，不是参考中的 D=E/π。原序列与 Editor 的 `failed`、native exit 1 因提前结束而保留，不记为 720 帧通过，也不与旧 D 图直接计算物理误差。
 
-随后尝试的 32 次相机准备响应窗口未达到采用条件，已撤回 Runtime 修改，未成为当前功能，见[未采用候选结果](LocalComparison/Review/global-light-response-window-01/result.md)。当前 EXE 仍为 Release76。
+随后尝试的 32 次相机准备响应窗口未达到采用条件，已撤回 Runtime 修改，未成为当前功能，见[未采用候选结果](LocalComparison/Review/global-light-response-window-01/result.md)。Release77 沿用 Release76 的光传输规则，没有新的画质通过结论。
 
 ## 安装与工程集成
 

@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include <d3d12.h>
-#include <dxgi.h>
+#include <dxgi1_4.h>
 #include <wrl/client.h>
 #include "IUnityInterface.h"
 #include "IUnityGraphics.h"
@@ -24,6 +24,7 @@ constexpr UINT64 ReadbackBytes=static_cast<UINT64>(QueryCount)*sizeof(UINT64);
 
 struct DeviceResources {
     ComPtr<ID3D12Device> device;
+    ComPtr<IDXGIAdapter3> memoryAdapter;
     ComPtr<ID3D12Fence> fence;
     ComPtr<ID3D12QueryHeap> queries;
     ComPtr<ID3D12Resource> readback;
@@ -126,6 +127,11 @@ void Initialize(State& s) {
     ID3D12CommandQueue* queue=Queue(s);
     if(!resource->device || !resource->fence || !queue || resource->device->GetNodeCount()!=1 ||
        FAILED(queue->GetTimestampFrequency(&resource->frequency)) || resource->frequency==0) return;
+    // Optional CPU observation of the actual Unity adapter. Failure leaves the
+    // established timing path available; never choose an arbitrary adapter.
+    ComPtr<IDXGIFactory4> factory;
+    if(SUCCEEDED(CreateDXGIFactory1(IID_PPV_ARGS(&factory))))
+        factory->EnumAdapterByLuid(resource->device->GetAdapterLuid(),IID_PPV_ARGS(&resource->memoryAdapter));
     s.status=hlgi::NativeStatus::AllocationFailure;
     D3D12_QUERY_HEAP_DESC queryDesc{};queryDesc.Count=QueryCount;queryDesc.Type=D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
     if(FAILED(resource->device->CreateQueryHeap(&queryDesc,IID_PPV_ARGS(&resource->queries)))) return;
@@ -188,6 +194,26 @@ void UNITY_INTERFACE_API OnRenderEvent(int eventId,void* opaque) {
 }
 
 extern "C" {
+__declspec(dllexport) int __cdecl HLGI_Memory_Query(hlgi::MemoryInfo* output,std::uint32_t size) noexcept {
+    if(!output || size!=sizeof(hlgi::MemoryInfo)) return 0;
+    *output={};
+    try {
+        auto& s=GetState();std::lock_guard<std::mutex> lock(s.mutex);
+        if(!s.active || s.status!=hlgi::NativeStatus::Ready)
+            return s.status==hlgi::NativeStatus::DeviceLost?-2:0;
+        if(s.active->Removed()) return -2;
+        if(!s.active->memoryAdapter) return 0;
+        DXGI_QUERY_VIDEO_MEMORY_INFO local{},nonlocal{};
+        if(FAILED(s.active->memoryAdapter->QueryVideoMemoryInfo(0,DXGI_MEMORY_SEGMENT_GROUP_LOCAL,&local)) ||
+           FAILED(s.active->memoryAdapter->QueryVideoMemoryInfo(0,DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL,&nonlocal))) return 0;
+        const LUID luid=s.active->device->GetAdapterLuid();
+        const auto identity=(static_cast<std::uint64_t>(static_cast<std::uint32_t>(luid.HighPart))<<32)|luid.LowPart;
+        *output={1,sizeof(hlgi::MemoryInfo),s.active->epoch,identity,
+            local.CurrentUsage,local.Budget,nonlocal.CurrentUsage,nonlocal.Budget};
+        // No timestamp polling, GPU commands, residency or reservation changes.
+        return 1;
+    } catch(...) { return 0; }
+}
 __declspec(dllexport) int __cdecl HLGI_Timing_GetInfo(hlgi::ApiInfo* output,std::uint32_t size) noexcept {
     if(!output || size!=sizeof(hlgi::ApiInfo)) return 0;
     try {

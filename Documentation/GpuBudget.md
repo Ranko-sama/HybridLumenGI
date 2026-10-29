@@ -1,5 +1,17 @@
 # GPU 时间反馈与更新预算
 
+## 驱动层进程显存观察
+
+Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开启后，现有面板和 **Log ledger** 的 `processVideoMemory` 字段给出 Unity 渲染适配器上的本进程 local/nonlocal 用量、操作系统预算与启用窗口内采样峰值。它通过可选 DX12 插件的独立 `HLGI_Memory_Query` 导出读取，不开启 GPU 计时或反馈，不改变光传输配置、更新配额、驻留或预留。
+
+适配器由 Unity `ID3D12Device::GetAdapterLuid` 绑定；当前插件只支持单节点，因此读取 node 0。[DXGI QueryVideoMemoryInfo](https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiadapter3-queryvideomemoryinfo)返回本进程在该适配器的用量和 OS 预算，**不是 GI 独占、整机显存占用或物理显存容量**。local/nonlocal 分开报告，不相加为峰值。OS 预算会变化，也不代替尚待确定的产品预算。
+
+`HybridLumenGIVideoMemory.Sample` 在统一示例的每次 LateUpdate 采样；同一实例同引擎帧不重复查询。`valid/status` 表示本次是否可用，`sampleFrame` 是最后成功帧，`attemptFrame` 是尝试帧；缺失/旧 DLL、设备丢失或查询失败均明确不可用，不把无效字段的零当作已测量零。`windowFirstFrame`、`samples/failedSamples` 描述采样窗口，两个 `peak*UsageBytes` 仅为窗口内成功 CPU 采样的最大值，可能错过采样之间或启用前的峰值。关闭、帧回退或设备身份变化会重新开始窗口。进程级数值在多个实例中可能重复，不能跨相机相加。此数据不控制任何分配器或预算。
+
+这项能力已进入[普通 Release77](<I:/Unity test/Comparison/Builds/LocalRelease77/Start-LocalRelease.cmd>)：原生生产 DLL 与 Release/None Player 构建完成，普通窗口开启观察并使用既有日志入口后正常退出。该次记录的 local 当前/采样峰值为611,201,024 / 612,249,600 B（约582.9 / 583.9 MiB），nonlocal为303,734,784 B（约289.7 MiB）；对应 OS 预算分别22,504,538,112 / 16,334,618,624 B。设备为日志报告的RTX2080Ti，适配器LUID `0x000000000000F1DC`、deviceEpoch 1。原始字段见[既有ledger导出](<I:/Unity test/Comparison/Builds/LocalRelease77/memory-ledger.json>)，构建见[BuildReport摘要](<I:/Unity test/Comparison/Builds/LocalRelease77/build-result.json>)。只证明该次真实窗口中的功能接通；不代表整段运行峰值、设备恢复、长时压力、显存优化或G5放行。
+
+## 已有 GPU 时间结果
+
 Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过未被调用方消费的辐射求值。相同场景、设置和512源帧窗口中，每源帧三个GI范围之和的中位为30.742 ms、p95 31.581 ms、p99 31.819 ms；相对下文Release75基线，中位减少7.563 ms（19.7%），满足运行前固定的5%及64帧分块分离条件。只有这一个候选窗口；[完整对比和边界](../LocalComparison/Review/screen-endpoint-only-01/result.md)不宣称统计显著性、所有场景/DXR性能或生产达标。
 
 2026-10-30已补当前[Release75源码的有限成本结果](../LocalComparison/Review/unified-release75-cost-01/result.json)。使用保存的统一场景、960×540普通backbuffer、480×270 GI与默认精确软件路径，另建Release/None测量配置，只开启既有NativeDX12计时、关闭反馈及输入/UI。普通Release75 EXE未替换。固定相机、灯光和几何，源帧159–670的完成记录完整；进程正常退出。没有采图、哈希或新GPU查询。

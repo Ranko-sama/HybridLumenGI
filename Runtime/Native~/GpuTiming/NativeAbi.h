@@ -21,7 +21,15 @@ struct TimingResult {
     std::uint64_t frequency;
     std::uint64_t ticks[6];
 };
+// Independent optional export; the existing timestamp ABI remains unchanged.
+// DXGI process usage/budget on Unity's adapter, node zero; not GI-only memory.
+struct MemoryInfo {
+    std::uint32_t abiVersion, structSize;
+    std::uint64_t deviceEpoch, adapterLuid;
+    std::uint64_t localUsage, localBudget, nonlocalUsage, nonlocalBudget;
+};
 static_assert(sizeof(void*)==8, "The native timing ABI requires Windows x64.");
 static_assert(sizeof(ApiInfo)==48 && offsetof(ApiInfo,callback)==40, "API layout changed.");
 static_assert(sizeof(TimingResult)==96 && offsetof(TimingResult,ticks)==48, "Result layout changed.");
+static_assert(sizeof(MemoryInfo)==56 && offsetof(MemoryInfo,localUsage)==24, "Memory layout changed.");
 }

@@ -1,6 +1,6 @@
 # 实时光传输架构与生产交付计划
 
-状态：**持续本机开发；当前入口 Release76，完整生产验收尚未完成。** 更新：2026-10-30。[统一交互入口](<I:/Unity test/Comparison/Builds/LocalRelease76/Start-LocalRelease.cmd>)包含导航、分页/HLOD、软件/DXR、换色、灯、门和形变；[独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)给出颜色、残留、拖影与收敛结论及其边界。已修复全局光变化后的旧屏幕历史，并改进世界缓存首次可信更新的响应；本版关闭面积光遮挡判断的冗余辐射计算缺口，[同配置有限成本](../LocalComparison/Review/screen-endpoint-only-01/result.md)下降约19.7%。默认多跳残留与整体颜色仍开放。完整目标由[原始计划](OriginalDevelopmentPlan.md)约束；后续源码提交不改变已构建EXE来源。不使用 Codex with ChatGPT，阶段下一步由独立 Astra Max 审查是否漂移，功能实现优先。
+状态：**持续本机开发；当前入口 Release77，完整生产验收尚未完成。** 更新：2026-10-30。[统一交互入口](<I:/Unity test/Comparison/Builds/LocalRelease77/Start-LocalRelease.cmd>)包含导航、分页/HLOD、软件/DXR、换色、灯、门和形变，并新增默认关闭的[驱动进程显存观察](GpuBudget.md#驱动层进程显存观察)。[独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)给出颜色、残留、拖影与收敛结论及其边界。光传输沿用Release76：全局屏幕历史、缓存首次可信响应及面积光冗余计算优化已保留；约19.7%的[有限成本收益](../LocalComparison/Review/screen-endpoint-only-01/result.md)仍属于Release76来源。默认多跳残留与整体颜色仍开放。完整目标由[原始计划](OriginalDevelopmentPlan.md)约束；后续源码提交不改变已构建EXE来源。不使用 Codex with ChatGPT，阶段下一步由独立 Astra Max 审查是否漂移，功能实现优先。
 
 同场景来源包、合成和自动烘焙已接通，首批独立参考已交付。公开示例生成器另已接入普通交互并编译，尚未为这处接线重跑实机生成；其余历史版本记录保留各自来源与限制。
 

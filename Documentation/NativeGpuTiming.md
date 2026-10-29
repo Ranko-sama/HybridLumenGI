@@ -1,5 +1,7 @@
 # 可选 DX12 原生计时后端
 
+当前同一可选 DLL 另提供独立的 `HLGI_Memory_Query`，供统一示例的进程显存观察使用。它不调用计时池、提交GPU命令或修改显存预留；旧计时ABI保持1，新内存结构有独立的ABI1/56字节布局。旧DLL仍可用于原计时，新显存入口缺失会明确显示Unavailable。用法、字段与实际Release77接通结果见[驱动层进程显存观察](GpuBudget.md#驱动层进程显存观察)。
+
 本后端给 GPU 时间观测提供提交编号、设备代次和 fence 完成条件，供独立测量或更新预算控制器使用。它不替换软件 SDF 或 DXR 追踪实现，也不改变光照方程。已有 MSVC、CPU 状态机和 WARP 来源证据；e1aa6356 新增一次 Unity/RenderGraph、RTX2080Ti Development DX12 Player 的固定512源帧成本测量，全部有效完成且正常退出，见[实际结果](../LocalComparison/Review/gpu-cost-baseline-01/result.md)，Pro22已接受有限证据。该有限证据不覆盖Release、多相机、长时、异常退出或真实设备丢失。
 
 ## 安装与选择
@@ -8,7 +10,7 @@
 
 在本机测试工程中将 `HybridLumenGIGpuTiming.dll` 放到 `Assets/Plugins/x86_64`，在 Plugin Inspector 中只启用 Windows Editor/x86_64 和 Windows x86_64 Player，关闭 Any Platform，并明确关闭 Linux64、OSXUniversal 和 Win32；只关闭 Any Platform 不会清除已有平台勾选。不要同时安装多个同名 DLL。Unity 原生插件替换后应按 Editor 提示重启，不使用手动 FreeLibrary 热卸载。
 
-Renderer Feature 的 `adaptiveGpuBudget` 和 `measureGpuCost` 默认关闭，`targetGpuMilliseconds` 默认零。两种用途都关闭时不探测或加载计时 DLL，也不分配完成记录导出缓冲。反馈启用仍要求 adaptive 开关和有效正数目标；`measureGpuCost=true` 可在目标为零、反馈关闭时单独观测，保持原静态配额。`preferNativeGpuTiming=true` 优先选取安装且就绪的原生后端；DLL 缺失、ABI 不匹配或不支持时回退 Recorder。两者都无有效数据则使用静态预算。原生 ring 暂满仅表示该帧缺测，不触发后端来回切换。
+Renderer Feature 的 `adaptiveGpuBudget` 和 `measureGpuCost` 默认关闭，`targetGpuMilliseconds` 默认零。两种用途都关闭时，计时桥不探测或加载 DLL，也不分配完成记录导出缓冲；统一示例的显存观察开关独立，开启时可调用同一DLL的内存入口。反馈启用仍要求 adaptive 开关和有效正数目标；`measureGpuCost=true` 可在目标为零、反馈关闭时单独观测，保持原静态配额。`preferNativeGpuTiming=true` 优先选取安装且就绪的原生后端；DLL 缺失、ABI 不匹配或不支持时回退 Recorder。两者都无有效数据则使用静态预算。原生 ring 暂满仅表示该帧缺测，不触发后端来回切换。
 
 只测量开关同时开启每 owner 最多 32 条只读完成记录。`TryDequeueCompleted` 不增加原生轮询；记录通过既有完整校验后保留原提交身份、源帧、读取帧、频率和六个 ticks。反馈仍只取最新结果，迟到但有效的完成项仍可导出。`CompletedResults = ExportedResults + UnexportedResults + BufferedCompletedRecords`（计数未饱和时）；缓冲满丢弃新导出项，停用/失效/销毁清除未读项，均计入 Unexported。InvalidCompleted 单独记录无效结果，Cancelled/TimedOut 记录取消及超时（超时也是取消）。RejectedResults 包含仅被反馈拒绝的旧结果，不能直接当成坏时间戳数量。导出失败不改变 GI 命令或配额。
 

@@ -19,6 +19,9 @@ namespace HybridLumenGI
         [SerializeField] private Vector3 nearPosition, farPosition, outsidePosition;
         [SerializeField] private Quaternion nearRotation, farRotation, outsideRotation;
         [SerializeField] private bool showControls = true;
+        [SerializeField, Tooltip("Optional DXGI process usage on the Unity adapter. Samples once per LateUpdate; does not change GI budgets.")]
+        private bool measureVideoMemory;
+        private readonly HybridLumenGIVideoMemory videoMemory = new HybridLumenGIVideoMemory();
         private readonly List<HybridLumenGIProxy> published = new List<HybridLumenGIProxy>();
         private readonly List<HybridLumenGIProxy> target = new List<HybridLumenGIProxy>();
         private readonly HashSet<HybridLumenGIProxy> visible = new HashSet<HybridLumenGIProxy>();
@@ -29,6 +32,7 @@ namespace HybridLumenGI
         private double nextOverlay;
         private string overlay;
         public bool ShowControls { get => showControls; set => showControls = value; }
+        public bool MeasureVideoMemory { get => measureVideoMemory; set => measureVideoMemory = value; }
 
         public void Configure(Camera camera, HybridLumenGIRendererFeature rendererFeature,
             HybridLumenGIAssetPageStreamer pages, HybridLumenGIStreamedRepresentation root,
@@ -79,6 +83,7 @@ namespace HybridLumenGI
         }
         private void OnDisable()
         {
+            videoMemory.Sample(Time.frameCount, false);
             if (!subscribed) return;
             RenderPipelineManager.beginCameraRendering -= BeforeCamera;
             RenderPipelineManager.endCameraRendering -= AfterCamera;
@@ -106,6 +111,7 @@ namespace HybridLumenGI
         private void LateUpdate()
         {
             if (!subscribed || !KeepRunning()) return;
+            videoMemory.Sample(Time.frameCount, measureVideoMemory);
             if (aggregate.Proxy != null) aggregate.Proxy.enabled = aggregate.HasBoundAssets;
             // Binding is per representation. Do not expose a partial authored detail set to Scene.Prepare.
             bool complete = aggregate.HasBoundAssets;
@@ -170,12 +176,15 @@ namespace HybridLumenGI
             public long pageBundleBytes, pageResidentBytes, pageIoBytesInFlight, pageIoBytesStartedThisStep, pageUploadBytesStartedThisStep;
             public int pageActiveOperations, pageRetiringLeases, pageOperationsStartedThisStep, pageBudgetBlockedThisStep;
             public HybridLumenGIRendererFeature.CameraDiagnostics cameraGi;
+            // Process-wide values observed in this sample's enabled window; never sum across cameras.
+            public HybridLumenGIVideoMemory.Snapshot processVideoMemory;
             public int retirementPending, retirementOwned, retirementFailed, retirementUnknownSubmissions;
             public bool featureEnabled, retirementSubmissionUncertain;
         }
         public Ledger CaptureLedger()
         {
             var result = new Ledger { status = status, engineFrame = Time.frameCount,
+                processVideoMemory = videoMemory.Current,
                 publicationEngineFrame = lastReceiptEngine, publicationWorkFrame = lastReceiptWork,
                 visibleMembers = visible.Count, requestedBackend = feature.RequestedPreferHardwareTracing ? "prefer DXR" : "software",
                 actualBackend = "unknown", diagnosticsStatus = "no camera diagnostic", budgetBlockedGroups = streamer.BudgetBlockedGroups,
@@ -231,9 +240,9 @@ namespace HybridLumenGI
                     "; pages ready/loading/releasing/failed " + row.pagesReady + "/" + row.pagesLoading + "/" + row.pagesReleasing + "/" + row.pagesFailed +
                     "\nPage resident/bundle/IO-inflight estimates (bytes): " + row.pageResidentBytes + "/" + row.pageBundleBytes + "/" + row.pageIoBytesInFlight +
                     "\nRetirement pending/owned/failed/unknown: " + row.retirementPending + "/" + row.retirementOwned + "/" + row.retirementFailed + "/" + row.retirementUnknownSubmissions +
-                    "\nNo total-VRAM or performance claim. Log includes GI/global account fields.";
+                    "\n" + VideoMemoryLabel(row.processVideoMemory);
             }
-            GUILayout.BeginArea(new Rect(12, 12, Mathf.Min(680, Screen.width - 24), 230), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(12, 12, Mathf.Min(760, Screen.width - 24), measureVideoMemory ? 270 : 230), GUI.skin.box);
             GUILayout.Label(overlay); GUILayout.BeginHorizontal();
             if (GUILayout.Button("Near / details")) GoNear();
             if (GUILayout.Button("Far / aggregate")) GoFar();
@@ -241,7 +250,18 @@ namespace HybridLumenGI
             if (GUILayout.Button("Software")) SetHardwarePreference(false);
             if (GUILayout.Button("Prefer DXR")) SetHardwarePreference(true);
             if (GUILayout.Button("Log ledger")) LogLedger();
+            if (GUILayout.Button(measureVideoMemory ? "Memory: on" : "Memory: off"))
+            { measureVideoMemory = !measureVideoMemory; nextOverlay = 0; }
             GUILayout.EndHorizontal(); GUILayout.EndArea();
+        }
+        private static string VideoMemoryLabel(HybridLumenGIVideoMemory.Snapshot memory)
+        {
+            if (!memory.valid) return "Process video memory: " + memory.status + ". Resource estimates are not total VRAM.";
+            const double mib = 1024.0 * 1024.0;
+            return "Process memory MiB - local usage / sampled peak / OS budget: " +
+                (memory.localUsageBytes / mib).ToString("F1") + " / " + (memory.peakLocalUsageBytes / mib).ToString("F1") + " / " + (memory.localBudgetBytes / mib).ToString("F1") +
+                "\nNonlocal: " + (memory.nonlocalUsageBytes / mib).ToString("F1") + " / " + (memory.peakNonlocalUsageBytes / mib).ToString("F1") + " / " + (memory.nonlocalBudgetBytes / mib).ToString("F1") +
+                "\nCPU samples, not instantaneous peaks or GI-only memory; samples " + memory.samples + ", unavailable " + memory.failedSamples + ".";
         }
     }
 }
