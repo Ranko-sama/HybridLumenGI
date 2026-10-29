@@ -1,0 +1,12 @@
+{
+  "candidate": "32 per-camera preparations after MarkGlobalLightingChange; cache known-estimate current-weight floor 0.5 instead of 0.1; no age, unknown, budget or screen-history change",
+  "baseline": "../current-lightoff-prefix-01/observations.json",
+  "necessaryDecision": "One same-scene ordinary HDR prefix decides limited adoption or withdrawal of this response/noise tradeoff.",
+  "frames": [239, 240, 270, 299],
+  "maximumRuns": 1,
+  "minimumRelativeReductionIn270To299AbsoluteYChange": 0.2,
+  "maximumAbsoluteRelative299MeanYDifference": 0.1,
+  "visualRequirement": "No clear new bright blotches or missing illumination in the four same-exposure views.",
+  "interpretation": "20% is a two-snapshot screening threshold, not convergence speed. Baseline 299 is not truth. A late mean change over 10% is ambiguous, not automatically an error. Four snapshots cannot establish flicker or overall dynamic stability.",
+  "stop": "If failed or ambiguous, withdraw or leave unadopted. No rerun, window extension, parameter search, new reference integration, hashes, profiling or additional validation system."
+}

@@ -1,85 +1,76 @@
 # HybridLumenGI
 
-当前入口：[统一交互 Release76](<I:/Unity test/Comparison/Builds/LocalRelease76/Start-LocalRelease.cmd>)。复用保存的统一场景、分页资源和设置，保留Release75的全局换光缓存响应改进。本版跳过面积光遮挡判断中被丢弃的辐射计算；同配置精确软件窗口的三个GI区间合计中位38.305→30.742 ms，满足预定采用条件，见[结果与边界](LocalComparison/Review/screen-endpoint-only-01/result.md)。该EXE完成固定测量并正常退出；普通启动不启用测量观察器。随后一次普通关灯观察未见明显持续衰减或旧色拖尾，但首次截图已在输入约2.7秒后，不据此判定早期残留或数值收敛。首批[独立画面对照与四项结论](LocalComparison/Review/dynamic-picture-comparison-01/index.html)仍保留修前来源、模型近似和采样噪声。
+Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-产品公开示例生成器也已接入普通交互；[批处理构建入口](Documentation/BatchPlayerBuild.md)已用于Release76，本地构建为Release/None、0错误、19条warning。公开生成器的新交互接线仍只有编译证据，本轮复用保存场景，没有重新生成；实际CI、生产性能和整体画质继续开放。
+**当前本机入口：[启动统一交互 Release76](<I:/Unity test/Comparison/Builds/LocalRelease76/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；默认常驻，普通启动不启用测量观察器。该路径属于当前开发机，其他工程请按下文集成或构建。
 
-修复后的[当前关灯画面对照](LocalComparison/Review/current-lightoff-prefix-01/result.md)已补充：关灯当帧明显变暗，但后30与59帧之间仍有可见变化。本次是同曝光的间接漫反射出射贡献，不能与旧D参考直接算物理误差；只有四个时点，也不把最后一帧当作已收敛。
+Release76 包含全局换光后的屏幕历史与缓存首次可信更新改进，以及面积光遮挡判断的冗余辐射计算优化。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)只覆盖固定配置的三个 GI 区间，不代表全应用帧率或生产性能放行。后续源码修改不会自动更新这个 EXE。
 
-统一示例菜单现在按目标相机的实际Renderer选择GI Feature，避免其他已加载Renderer资产导致拒绝或误选。选择至少两个同场景静态Proxy，保存场景，使用`Tools > Hybrid Lumen GI > Create Unified Sample From Selected Static Proxies`；菜单要求一个启用相机，其Renderer中唯一启用的GI Feature。显式`CreateVariant`继续可用。本次Editor修复已编译并同步本机Unity工程，没有重新生成场景或重建Player。
+## 使用统一示例
 
-以下 Release73 及更早条目为历史状态，保留各自来源。
+点击窗口后操作：
 
-当前整合入口为[Release73](Documentation/ReviewBrief-CurrentLocalRelease73.md)，产品来源95a3213，已加入接收面身份与URP矩阵同源修复。原48帧相机/TAA回归通过：57显露事件、561持续点，无输出违例或覆盖缺口。Release73真实Player另完成120帧及Final HDR，普通导航与形变Host沿用72；OS按键未重测。用户同时游戏，本次耗时不作性能比较。后续开发转入同场景HDR参考与合成评估能力，下文72及更早版本保留各自历史范围。
+| 操作 | 按键 |
+| --- | --- |
+| 平移／升降／转向 | WASD ／ Q、E ／ 方向键 |
+| 近景／远景／离开分页范围 | 1 或 R ／ 2 ／ 3 |
+| 软件／DXR 偏好 | 4 ／ 5 |
+| 墙面换色／灯光开关／门运动 | C ／ L ／ M |
+| 形变启停／分页组释放与重载 | 空格 ／ B |
+| 隐藏面板／退出 | F1 ／ Esc |
 
-新增[同场景 HDR 来源包](Documentation/ReviewBrief-ValidationSourcePackageV2.md)与自动烘焙：真实720帧／32时点和来源完整性通过；独立参考与整体画质仍待，普通Player仍使用上文Release73。
+实际后端以面板诊断为准，选择 DXR 偏好不保证硬件路径被采用。关灯仍保留发光面；停止形变后，异步 GI 快照可能继续追上可见网格。当前窗口为 960×540，不是生产分辨率目标。
 
-完整DXR Feature已有[有限色墙参考](Documentation/ReviewBrief-FiniteWallColorReference02.md)、[变色／关灯](Documentation/ReviewBrief-FiniteWallDynamicResponse01.md)、[有限缓存反馈](Documentation/ReviewBrief-CacheFeedbackFinite02.md)和[移动遮挡恢复](Documentation/ReviewBrief-FiniteWallOcclusionResponse01.md)的独立证据，分别保留固定场景、输入与来源边界；不扩大为默认多次反弹或整体动态画质验收。[相机／TAA 第二次运行](Documentation/ReviewBrief-CameraMotionTaaResponse02.md)保留覆盖失败；其身份捕获原因及原序列修复验收已由上文第三次运行收束。
+从自己的场景生成示例：保存场景，选择至少两个已绑定 SDF 和 surface charts 的静态 Proxy，执行 **Tools > Hybrid Lumen GI > Create Unified Sample From Selected Static Proxies**。菜单要求一个启用相机，并从该相机实际选择的 Universal Renderer Data 中解析唯一启用的 GI Feature；无关已加载资产不参与选择。显式 `CreateVariant` 仍可使用。生成器保留作者场景，创建独立变体与资源页；静态网格、材质及 HLOD 限制见[统一示例说明](Documentation/ReviewBrief-UnifiedSample02.md)。菜单修复已有 Editor 编译依据，尚未重新生成场景。
 
-当前源码新增两项[颜色反弹与动态历史修复](Documentation/ReviewBrief-ColorBounceDynamicLimits01.md)：缓存连接的未知alpha覆盖不再被当成确定遮挡后重归一颜色，变化帧也始终遵守 `maxHistory=1`。两条实际HLSL消费路径已有定向WARP对照；后续[原生整合](Documentation/ReviewBrief-CurrentColorDynamicsIntegration01.md)完成真实Unity纹理168次计算／28行验证，并构建Release70；其两次隐藏运行没有相机帧，保留失败，Release69保留其当时运行基线。
+## 当前画质结论
 
-本机版本已整合两轮修复：[反射率夹取与动态历史](Documentation/ReviewBrief-ParallelColorDynamics01.md)、[普通Surface视差UV](Documentation/ReviewBrief-SurfaceParallaxUv01.md)，并将静态HDR环境Cube接入完整Feature。采用并行实现／参考准备与集中复审；原逐位失败及显式数值资格调整完整保留。
+[打开同曝光对照图与曲线](LocalComparison/Review/dynamic-picture-comparison-01/index.html) · [阅读四项结论及适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md) · [当前关灯四帧对照](LocalComparison/Review/current-lightoff-prefix-01/result.md)
 
-源码另已修复[HLOD近场冷启动的容量回退](Documentation/ReviewBrief-HlodColdStartRootFallback01.md)：细节组自身超容量且没有旧表示时，先按原就绪门控准备已有粗代理；细节恢复可容纳后仍可原子切换。这项通过实际CPU状态机对照，尚未进入下述Release67。
+| 问题 | 当前结论 |
+| --- | --- |
+| 颜色误差 | 旧同源独立参考显示亮灯间接光偏暗、关灯后仍偏亮；参考带有采样噪声及模型近似，偏差不能直接等同精确产品误差或当前版本缺陷。 |
+| 换色／关灯残留 | 已修复全局换光后混入旧屏幕历史及缓存首次更新强制混入半份旧值的问题。当前关灯观察仍显示后续变化；局部换色与默认多跳响应尚未关闭。 |
+| 运动拖影 | 限定相机/TAA 场景验证了新显露处的旧历史拒绝；不能据此宣称任意运动、遮挡和空间滤波都无拖影。 |
+| 收敛时间 | 现有采样只能回答观测时点及区间，最后一帧不是收敛真值；尚不能给出整景达到正确颜色的统一帧数。 |
 
-**历史本机入口：Release69；已构建产品来源为 `50b63c33683ba533f01c7119f6320ad80b4f2ec6`，新增示例接线另有冻结清单。** 后续HEAD不自动成为该EXE的产品来源。当前继续本机开发，不需要朋友交付；四项目标与十条工作流仍以[完整原计划](Documentation/OriginalDevelopmentPlan.md)为准。
+首批独立参考与动态曲线保留修复前来源，不能当作 Release76 修后结果。当前关灯观察只运行原序列的 0–299 前缀，保存 239／240／270／299 四帧；其量为乘过反射率、AO 和强度的**间接漫反射出射贡献**，不是参考中的 D=E/π。原序列与 Editor 的 `failed`、native exit 1 因提前结束而保留，不记为 720 帧通过，也不与旧 D 图直接计算物理误差。
 
-历史69入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease69/Start-LocalRelease.cmd>)。空格启动／停止红绿格纹薄板形变，默认暂停，停下保持形状并让GI快照追上。WASD平移、Q/E升降、方向键转向、R只复位相机、Esc退出；默认常驻。一次真实256帧运行执行同一启停方法，运动中11次不同内容发布、最终完整来源一致、两张HDR及正常退出通过；本轮没有重复OS按键验收。见[用法](Documentation/ContinuousDeformationExample.md)及[结果与边界](Documentation/ReviewBrief-ContinuousDeformationUsage01.md)。
+随后尝试的 32 次相机准备响应窗口未达到采用条件，已撤回 Runtime 修改，未成为当前功能，见[未采用候选结果](LocalComparison/Review/global-light-response-window-01/result.md)。当前 EXE 仍为 Release76。
 
-69累计一次双程序集预检、首次Unity构建准备失败、一次获准的资产查询修正构建及首次Player运行；23条构建警告保留。Astra和实际GPT-6 Pro均采用有限结果并查看原图。首相机回调等待2.938秒，不能与67的101.249秒直接比较为提速。当前两图为[运动结束](LocalComparison/Review/continuous-deformation-usage-01/build-correction/native-window/run/frame-0159.png)与[停稳](LocalComparison/Review/continuous-deformation-usage-01/build-correction/native-window/run/frame-0255.png)，保持同一最终可见姿态，不能作为完整动态画质真值。HLOD68源码已包含，不能据本场景推导HLOD原生验收。以下67等记录保留历史来源与回退入口。
+## 安装与工程集成
 
-历史67入口：[Start-LocalRelease.cmd](<I:/Unity test/Comparison/Builds/LocalRelease67/Start-LocalRelease.cmd>)。点击窗口后，WASD平移、Q/E升降、方向键转向、R复位、Esc退出；默认常驻。导航代码沿用58，本轮实际执行同EXE的有限HDR分支，没有重复键盘验收。一次Release构建及120目标相机帧采集正常退出，23条构建警告保留；**本次首帧等待101.249秒**，仍是实际使用限制。640×360是运行配置，不是生产分辨率目标。见[67结果与边界](Documentation/ReviewBrief-CurrentLocalRelease67.md)；[Release58](<I:/Unity test/Comparison/Builds/LocalRelease58/Start-LocalRelease.cmd>)及其[巡视证据](Documentation/ReviewBrief-LocalReleaseNavigation01.md)保留回退。
+1. 将源码放入 Unity 6 URP 工程的 `Assets/HybridLumenGI`，不要同时导入两份。当前要求 **DX12、Linear 色彩空间、Render Graph**。
+2. 在相机实际使用的 Universal Renderer Data 中添加一次 `HybridLumenGIRendererFeature`。Shader 资源自动加载；Feature 请求深度、法线和运动矢量，不要求 Opaque Texture。
+3. 使用 **Tools > Hybrid Lumen GI > Setup & Proxies** 注册相关 Renderer。使用真实网格 SDF/chart 路径时，源网格需保留 Read/Write，并烘焙、绑定匹配资产；修改几何后旧资产可能需要重烘焙。没有 charts 的对象保留六视图近似。详细步骤见[安装与实现](Documentation/Implementation.md)。
+4. 保存普通运行场景后，可使用[公开批处理构建入口](Documentation/BatchPlayerBuild.md)构建 Player；它使用现有工程配置，不注入本机观察器。
 
-**历史静态Final HDR来自Release67／2fefc09。** [实际预览](LocalComparison/Review/current-local-release-67/native-window/run/frame-0119.png)与[原始运行结果](LocalComparison/Review/current-local-release-67/native-window/analysis.json)对应首帧固定HDR相机目标，不是普通backbuffer。新增输入为固定六面RGBAFloat工程环境，不能以它与54的亮度差证明算法改善。另有[62固定移灯观察](Documentation/ReviewBrief-LocalLightMoveResponse01.md)，来源7190c28，五份IndirectOnly HDR及保留原FAIL的binary32资格修正；有限动态证据不重新标为当前版本验收。
+默认 Additive 合成会保留原生漫反射 GI。用于受控对照时，应关闭额外环境光、探针、lightmap 或其他 GI，避免重复计入照明。可选 Replace Native Diffuse GI 有更严格的 Forward/Forward+、有符号 HDR、MSAA 关闭及普通 URP Lit 条件，详见[原生漫反射合成合同](Documentation/NativeDiffuseComposition.md)。
 
-Release67在Unity6000.0.85f1／URP17.0.4／Windows x64／Mono／DX12／Linear／RTX2080Ti完成一次构建和一次末帧HDR采集。112产品源、189产物、实际Feature与Cube构建依赖、临时工程恢复均核对通过；Astra及实际Pro67有限采用，Pro也读取了PNG。未采集的资源／退休字段默认零不代表资源归零。旧[Release54图像](Documentation/ReviewBrief-CurrentRepresentativeFinalImage01.md)保留其a9292cb来源。
+运行时原地修改可读网格后需调用 `MarkDirty()` 或 `HybridLumenGIMeshSource.NotifyGeometryChanged(mesh)`；形变使用匹配网格/SDF/charts 的快照流程。外部 GPU 纹理写入也需要明确的更新通知和生产者顺序，不能仅靠对象引用推断内容已更新。
 
-**已实现与已验证需要分开。** 单张静态Additive图不补齐各功能未触发的原生条件，也不认证整体画质、物理光照、动态质量、性能、总显存或G0–G5。代码明确跳过非DX12/非Linear、非Base及立体相机；原生漫反射替换还有[限定条件](Documentation/NativeDiffuseComposition.md)。明确拒绝的配置与尚未验证的配置见[当前支持范围](Documentation/ProductionPlan.md#当前支持范围与证据层级)。目标分辨率/FPS、GI毫秒与显存预算仍待确定。
+## 支持边界与未关闭缺口
 
-**历史证据保留各自来源。** Release44的300秒公开计账窗口对应5120a8c，见[旧版持续使用结果](Documentation/ReviewBrief-LocalReleaseSteadyUse01.md)，不升级为Release54稳态验收。更早的runtime-candidate-16功能/流式Player及后续软件/DXR图像、动态和资源专项仍可追溯，见[历史功能检查](Documentation/LocalRuntimeFunctionalAudit.md)与[完整推进表](Documentation/DevelopmentProgress.md)。旧失败、归档包和报告继续保留；朋友交付资料属于历史流程，不是当前使用前提。有限记录不代表UE5 Lumen等价或生产认证。
+本机已有依据的环境为 Unity 6000.0.85f1 / URP 17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti。Feature 仅进入 Base Game 相机及显式允许的 Scene View；非 DX12、非 Linear、Overlay、立体/XR 和纹理数组目标会被跳过。普通 opaque/cutout URP Lit 是主要材质路径；Shader Graph、自定义顶点变形、透明、镜面 GI 和完整软阴影语义不在同一支持承诺内。
 
-Experimental Unity 6 / URP 17 diffuse light transport. The source includes baked triangle surface charts with a variable card pool, mesh SDF baking and residency, a stackless instance BVH, a global distance-field empty-space accelerator, patch irradiance caching, guided sampling, temporal reconstruction, and optional triangle DXR queries. Independent of VXGI.
+精确软件与 DXR 共用命中材质、alpha/Cull 和 chart 绑定；未知覆盖或材质不能贡献可信辐射。容量、来源或后端准入失败会保留明确的 SDF/解析近似或未知结果。HLOD 就绪表示完整组可发布，不表示照明已经收敛；资源账目也不等于驱动总 VRAM。
 
-An optional static linear HDR Cubemap supplies directional environment radiance to both indirect-light miss paths. Null keeps the constant environment; the Cube is borrowed and replaces that constant. See the [input contract](Documentation/EnvironmentRadiance.md), [63 native compute evidence](Documentation/ReviewBrief-StaticHdrEnvironmentCubemap01.md), and [67 full Feature integration](Documentation/ReviewBrief-CurrentLocalRelease67.md). Release67 contains this capability and a fixed six-face demonstration asset; its single static image does not quantify the Cube contribution or certify performance or physical accuracy.
+[原始计划](Documentation/OriginalDevelopmentPlan.md)的四项目标、十条工作流及[生产计划 G0–G5](Documentation/ProductionPlan.md)仍约束后续开发，主要开放项是：
 
-HLOD groups stage geometry, material cards and lighting before atomic publication, with GPU readback checking cache initialization. Independent AssetBundle pages now load mesh, SDF, charts, materials and textures under dependency, IO, upload and residency quotas. Complete groups bind together and retire after all-camera context fences; the earlier additive-scene streamer remains available. Ordinary opaque/cutout URP Lit has default additive composition and an opt-in, restricted native diffuse replacement path.
+- 整体颜色准确度、局部换色和多跳残留，以及运动后的画质与收敛时间。
+- 复杂薄壁／凹腔覆盖、目标规模、流送压力和各后端未覆盖的实际使用条件。
+- 生产分辨率、FPS、GI 时间及显存预算；完整平台验收、实际 CI 和发布保障。
 
-Surface charts capture assigned source triangles, including internal surfaces. Static readable meshes use authored assets; `HybridLumenGIDeformedMesh` builds immutable skinning/readable-producer snapshots with matching SDF and charts under capture, worker and publication quotas. Old snapshots retire through GPU fences. Objects without charts retain the six-view approximation. Invalid/stale assets or insufficient complete-owner capacity are rejected; finite raster coverage still requires visual acceptance.
+有限场景、短窗口和历史专项不替代上述放行条件。旧成果按各自源码与配置保留，详见[完整进度与历史证据](Documentation/DevelopmentProgress.md)。
 
-DXR and exact software triangles share original submesh/primitive identity, source-UV material evaluation, alpha coverage, Cull, normals and versioned chart bindings. Unknown coverage blocks visibility and cannot contribute trusted radiance. A chart supplies cached incoming irradiance; it does not replace the hit material. Exact software BVH tables and GPU buffers are reused while geometry is unchanged. Capacity/material failures retain the explicit SDF/analytic fallback.
+## 开发文档
 
-Stable texture pages persist across frames/cameras. A changed source replaces only its page, with independent generations and reader fences. Eligible color data uses paired binary16 texels; alpha-test coverage inputs and unbounded formats retain float32 precision. Shared memory and per-frame copy quotas include pending/retiring resources; stable large pages upload progressively. Dynamic RenderTextures must fit a coherent current-frame capture. Record actual backend, page status and budget diagnostics. Spatial ray footprints do not certify visibility over a whole patch or complete angular filtering.
-
-Direct-light injection respects shadow enable/strength, GameObject culling masks, and separate URP illumination/shadow rendering layers. Shadow queries filter candidates independently of ordinary GI visibility, including non-casters and two-sided hardware casters. Screen receivers carry exact integer layer masks alongside the material capture. These changes add 8 bytes per full-resolution pixel and 16 bytes per resident scene slot; the screen allocation budget includes that cost. Hard-shadow sampling does not reproduce soft shadows, shadowmask, cookies, or the full Lit receive-shadows contract.
-
-Screen-history receipts bind full and GI dimensions, viewport and target identity. Camera matrices are published with successfully recorded history; reused native camera IDs cannot inherit another camera's state. Depth, motion, temporal lookup and upsampling share actual full-resolution sample centers. Optional `receiverObjectHistory` automatically enables CPU source tracking and adds an explicit identity draw, atomic overlap rejection, unknown-source masks and per-submesh generation/primitive matching. Previous-object transforms are accepted only for supported relative positive similarities. Changes belonging to other occluders remain hard rejections; only a proven receiver's own pose can be exempted. Identity failure or an insufficient identity budget retains affordable current-frame GI. This path is off by default and still needs Unity/Player raster, synchronization and device validation.
-
-World material pages now require exact effective-property snapshots even when their compact hash is unchanged. Renderer and per-material MPB precedence, keyword/texture/sampler changes and source raster Cull are checked separately. RenderTexture sources can still be captured, but cannot reuse an unproven source receipt; producers of other GPU-written textures must report updates. These CPU checks do not establish the contents used by a Unity draw or GPU synchronization.
-
-GPU emission statistics guide directions alongside cosine and cache-guide sampling. Exact prepared emitter triangles additionally supply one area sample per direction sample, paired through full-density MIS. Only endpoint Le receives the direction MIS weight; reflected/cache radiance retains its original estimator. The same screen/world nearest-hit partition suppresses duplicate contributions. Unlisted or approximate endpoints retain their original direction estimate.
-
-Optional GPU feedback adjusts patch, capture and brick update quotas within static limits. It is disabled by default (`adaptiveGpuBudget=false`, `targetGpuMilliseconds=0`). An optional Windows x64 DX12 plugin provides submission identities and fence-gated readback through 128 recyclable slots; when unavailable, the feature falls back to Recorder's 32 lifetime channels, then static quotas if feedback is unavailable. Native ABI1 now extends its receiver-capture interval through the optional identity chain. Recorder uses three or seven locally paired scopes to cover the same scheduled work. A failed Recorder marker command disables that channel's feedback; rendering continues. The source package does not automatically install the DLL. See [GPU budgets](Documentation/GpuBudget.md) and [native timing](Documentation/NativeGpuTiming.md).
-
-**Not UE5 Lumen equivalent or production certified.** The current integration targets DX12, Linear color space and Render Graph. The local Editor evidence is limited to the documented scene, settings and device; it does not establish general rendered correctness or target-device timing and memory budgets. Native timing has separate C++ and D3D12 WARP tests with a simulated Unity host; these do not validate its Unity integration or physical GPU measurements. Follow the handoff and validation documents before using this candidate in a project.
-
-- [Architecture and production plan](Documentation/ProductionPlan.md)
-- [Historical task-baseline audit](Documentation/TaskBaselineAudit-2026-10-27.md)
-- [Import and implementation](Documentation/Implementation.md)
-- [Friend handoff and evidence checklist](Documentation/FriendHandoff.md)
-- [Geometry provenance, normals and history contracts](Documentation/GeometryHistoryContracts.md)
-- [Direct-light, receiver-layer and shadow-query contracts](Documentation/DirectLighting.md)
-- [Papers and official sources](Documentation/Research.md)
-- [Community source audit and licenses](Documentation/CommunitySourceAudit.md)
-- [World surface cache](Documentation/SurfaceCache.md)
-- [Emissive directional sampling and paired area NEE](Documentation/EmissiveSampling.md)
-- [Budgeted deformation snapshots](Documentation/DeformedGeometry.md)
-- [Independent asset pages and retirement](Documentation/IndependentAssetPages.md)
-- [Instance BVH and cache scheduling](Documentation/SceneBvh.md)
-- [Global SDF lower bounds](Documentation/GlobalSdf.md)
-- [Experimental GPU timing feedback and remaining release gates](Documentation/GpuBudget.md)
-- [Optional native DX12 timestamp backend, build and validation scope](Documentation/NativeGpuTiming.md)
-- [HLOD transactions and asynchronous chunks](Documentation/HlodStreaming.md)
-- [Stock Lit native diffuse composition](Documentation/NativeDiffuseComposition.md)
-- [Runtime acceptance tests](Documentation/Validation.md)
-- [Fixed scene sequence, linear HDR capture and comparison](Documentation/ValidationSequence.md)
-- [Offline validation evidence](Documentation/OfflineValidation.md)
+- [安装与实现](Documentation/Implementation.md)；[批处理构建](Documentation/BatchPlayerBuild.md)。
+- [几何来源、法线与历史](Documentation/GeometryHistoryContracts.md)；[形变快照](Documentation/DeformedGeometry.md)。
+- [表面缓存](Documentation/SurfaceCache.md)；[SDF 驻留](Documentation/SdfAtlasResidency.md)；[全局 SDF](Documentation/GlobalSdf.md)。
+- [直接光与阴影](Documentation/DirectLighting.md)；[环境辐射输入](Documentation/EnvironmentRadiance.md)；[发光采样与面积 NEE](Documentation/EmissiveSampling.md)。
+- [原生漫反射合成](Documentation/NativeDiffuseComposition.md)；[BVH 与缓存调度](Documentation/SceneBvh.md)。
+- [独立资产页](Documentation/IndependentAssetPages.md)；[HLOD 与异步场景](Documentation/HlodStreaming.md)。
+- [GPU 预算及计账边界](Documentation/GpuBudget.md)；[可选原生 DX12 计时](Documentation/NativeGpuTiming.md)。
+- [固定序列与 HDR 捕获](Documentation/ValidationSequence.md)；[同场景来源包](Documentation/ReviewBrief-ValidationSourcePackageV2.md)；[验收说明](Documentation/Validation.md)。
+- [历史离线验证](Documentation/OfflineValidation.md)；[研究来源](Documentation/Research.md)；[社区来源与许可](Documentation/CommunitySourceAudit.md)。

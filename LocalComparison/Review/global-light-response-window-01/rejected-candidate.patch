@@ -1,0 +1,93 @@
+diff --git a/Runtime/HybridLumenGIChangeRegions.cs b/Runtime/HybridLumenGIChangeRegions.cs
+index d4bc606..aa96288 100644
+--- a/Runtime/HybridLumenGIChangeRegions.cs
++++ b/Runtime/HybridLumenGIChangeRegions.cs
+@@ -18,12 +18,17 @@ namespace HybridLumenGI
+         private ComputeBuffer buffer;
+         private int count;
+         private float globalReactive, globalGeometryChange;
++        // A bounded response/noise tradeoff after a global lighting event. This
++        // counts camera preparations, including budget waits/unknown updates.
++        private const int LightingResponsePreparations = 32;
++        private int lightingResponseRemaining;
+         public int Count => count;
+         public long AllocatedBytes => buffer==null?0:Capacity*48L;
+ 
+         public void Begin(HybridLumenGIScene scene, float influenceRadius,Func<int,int,Renderer> receiverForChange=null)
+         {
+             Array.Clear(receiverSources,0,receiverSources.Length);
++            if (lightingResponseRemaining > 0) lightingResponseRemaining--;
+             count = 0; globalReactive = globalGeometryChange = 0;byBounds.Clear();
+             foreach (var change in scene.DirtyRegions)
+             {
+@@ -88,7 +93,11 @@ namespace HybridLumenGI
+                 regions[i].receiver=new Vector4(group<=16384?group:0,0,0,0);
+             }
+         }
+-        public void MarkGlobalLightingChange() { globalReactive = 1; }
++        public void MarkGlobalLightingChange()
++        {
++            globalReactive = 1;
++            lightingResponseRemaining = LightingResponsePreparations;
++        }
+         public void Upload()
+         {
+             if (buffer == null) buffer = new ComputeBuffer(Capacity, 48) { name = "HLGI local changes" };
+@@ -100,6 +109,7 @@ namespace HybridLumenGI
+             cmd.SetComputeIntParam(shader, "_HLGI_ChangeCount", count);
+             cmd.SetComputeFloatParam(shader, "_HLGI_GlobalReactive", globalReactive);
+             cmd.SetComputeFloatParam(shader, "_HLGI_GlobalGeometryChange", globalGeometryChange);
++            cmd.SetComputeFloatParam(shader, "_HLGI_CacheMinimumCurrentWeight", lightingResponseRemaining > 0 ? 0.5f : 0.1f);
+         }
+         public void Dispose() { buffer?.Release(); buffer = null; }
+     }
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl
+index 3bb46fb..7fa4cfa 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIChanges.hlsl
+@@ -4,6 +4,8 @@ struct HLGIChangeRegion { float4 minimum, maximum, receiver; };
+ StructuredBuffer<HLGIChangeRegion> _HLGI_ChangeRegions;
+ int _HLGI_ChangeCount;
+ float _HLGI_GlobalReactive, _HLGI_GlobalGeometryChange;
++// Cache-only transient weight; it must not extend screen-history rejection.
++float _HLGI_CacheMinimumCurrentWeight;
+ // x: a changed surface crossed this point; y: transport may be affected by a nearby change.
+ float2 HLGIChangeAtReceiver(float3 position,uint provenReceiverGroup)
+ {
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl
+index 5174d07..7949344 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIRadianceValidity.hlsl
+@@ -29,7 +29,7 @@ bool HLGIHasCacheMeasurement(float4 irradiance,float4 guide)
+ // valid old estimate, including its guide and sample count; invalid old data
+ // cannot be resurrected by a failed update.
+ bool HLGICommitCacheEstimate(bool known,float3 sum,float3 guideSum,float guidePower,
+-    int rayCount,float3 normal,inout float4 irradiance,inout float4 guide)
++    int rayCount,float3 normal,inout float4 irradiance,inout float4 guide,float minimumCurrentWeight=0.1)
+ {
+     if(!HLGIHasCacheMeasurement(irradiance,guide)) { irradiance=0;guide=0; }
+     if(!known || rayCount<=0 || !all(isfinite(sum)) || !all(isfinite(guideSum)) ||
+@@ -40,7 +40,9 @@ bool HLGICommitCacheEstimate(bool known,float3 sum,float3 guideSum,float guidePo
+     // this is a capped history weight, not a count of independent samples.
+     // Unknown input returns above without consuming the pending replacement.
+     float samples=irradiance.a>0?min(max(irradiance.a,1)+1,32):1;
+-    float alpha=max(1/samples,0.1);
++    // Only known estimates reach this point. A global lighting response window
++    // can reduce repeated averaging of old Jacobi energy without changing ages.
++    float alpha=max(1/samples,minimumCurrentWeight);
+     float4 next=float4(irradiance.a>=1?lerp(irradiance.rgb,estimate,alpha):estimate,samples);
+     float lengthSquared=dot(guideSum,guideSum);
+     float4 nextGuide=float4(lengthSquared>1e-12?guideSum*rsqrt(lengthSquared):normal,guidePower/rayCount);
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
+index 5cb7d2b..86d8aed 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
+@@ -580,7 +580,7 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
+                 guide+=lightSample.direction*lightPower;guidePower+=lightPower;
+             }
+         }
+-        HLGICommitCacheEstimate(estimateKnown,sum,guide,guidePower,_HLGI_CacheRays,n,e.irradiance,e.guide);
++        HLGICommitCacheEstimate(estimateKnown,sum,guide,guidePower,_HLGI_CacheRays,n,e.irradiance,e.guide,_HLGI_CacheMinimumCurrentWeight);
+     }
+     _HLGI_CacheWrite[id.x]=e;
+ }

@@ -8,6 +8,8 @@
 
 ## 当前支持范围与证据层级
 
+后续一次[全局光暂态加权候选](../LocalComparison/Review/global-light-response-window-01/result.md)未满足既定响应筛选，已撤回并结束。当前产品仍采用Release76的响应规则，不把候选更暗的晚帧当作物理改善；G1/G3收敛保持开放。
+
 | 类别 | 当前合同 | 证据与边界 |
 | --- | --- | --- |
 | 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；Release None | [Release73](ReviewBrief-CurrentLocalRelease73.md)在95a3213完成当前产品构建、显式后台120帧及HDR；[相机/TAA原序列](ReviewBrief-CameraMotionTaaResponse03.md)57事件／561持续点通过；并行游戏条件下不作性能比较；[Release69](ReviewBrief-ContinuousDeformationUsage01.md)在50b63c3完成可启停单网格、256帧原生发布与最终来源一致；[Release67](ReviewBrief-CurrentLocalRelease67.md)实际Feature静态Cube与Final HDR。历史[Release58](ReviewBrief-LocalReleaseNavigation01.md)普通键盘巡视、正常退出，产品7e387a5；[Release54](ReviewBrief-CurrentRepresentativeFinalImage01.md)静态120相机/GI帧及单次末帧HDR图像，产品a9292cb。[62固定移灯](ReviewBrief-LocalLightMoveResponse01.md)在7190c28完成180帧及五份IndirectOnly HDR，原FAIL与一次精确同数据补判并存；仅支持该事件的检测与空间响应。640×360仅为运行配置；58窗口图不替代54静态Final HDR，不构成完整动态GI/性能验收 |
