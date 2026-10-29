@@ -1,0 +1,39 @@
+Pre-native compiler-entry correction; no staged shader edit
+
+The original compile-probe/ report and logs remain failed. The standalone FXC
+command was not the project's existing identity-shader validation entry. It
+failed while parsing Core Common.hlsl:252 (#define PopMarker()) and the bare
+half4 declarations in URP Input.hlsl:100, before producing any shader binary.
+This does not establish that Unity uses that standalone FXC command, nor that
+the product/probe HLSL is invalid in Unity's shader import pipeline.
+
+The source-qualified replacement is compile_probe_dxc.py -> compile-probe-02/.
+Its semantic compiler arguments follow Tests/Validate-ReceiverIdentityShaders.ps1
+exactly: DXC, -HV 2018, -flegacy-macro-expansion, vs_6_0 or ps_6_0,
+SHADER_API_D3D11=1, SHADER_STAGE_VERTEX/FRAGMENT=1, UNITY_COMPILER_DXC=1,
+UNITY_VERSION=600000, SHADER_TARGET=50; DEBUG_DISPLAY=1 for the debug fragment.
+-H, -MD and -MF only retain include/dependency evidence. It compiles the three
+distinct HLSL entries once; three ShaderLab Cull states share those entry bodies.
+The 18 unchanged compute entries retain the earlier frozen compilation.
+
+The extracted HLSL must be byte-identical to the first attempt. The 13 staged
+files, original vertex, original strict depth gate and original candidate CAS
+remain unchanged. The ordinary fragment must retain candidate u1 and probe u2.
+The DEBUG fragment may record probe u2 atomics, but must not contain the original
+candidate resource/claim. The original script's broader "no atomics in DEBUG"
+assertion is therefore not transferred to this deliberately instrumented shader.
+
+The previous include cache contains 68 files. Against the installed package
+sources, 66 are byte-identical. The installed Core and URP packages are 17.0.4;
+the installed URP-config package is 17.0.3. Common.hlsl, Input.hlsl and Core.hlsl
+are byte-identical. GlobalIllumination.hlsl has one source-version difference;
+VFXMatricesOverride.hlsl has no installed VFX package source. The new preflight
+copies the 67 actually installed files into a separate include mirror, hashes
+both originals and copies, and records compiler-used headers/dependency files.
+The absent VFX package is not synthesized. Compilation must resolve the actual
+active include chain from those copied installed headers.
+
+This is offline DXC development evidence. It does not certify Unity's native
+preprocessing, actual pixel UAV behavior, raster depth or runtime success. The
+single separately authorized native diagnostic remains necessary. Root owns its
+execution and recovery; this correction does not rerun native work.

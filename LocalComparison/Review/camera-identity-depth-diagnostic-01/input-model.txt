@@ -1,0 +1,99 @@
+Prospective identity-depth diagnosis, version1. Observation only.
+
+The original fixed camera experiment remains exactly48 StandardRequest frames:
+warm0..31, translate32..39, hold40..47; same three meshes/materials/light/settings,
+real URP TAA, source-authored264 points and existing45-row main observer. No extra
+frames, changed positions, RGB selection, tolerances or identity acceptance edits.
+Only logical36..43 have a second diagnostic. If the earlier dropout is absent,
+the new run is inconclusive about its cause, not a successful product fix.
+
+The original identity vertex calculation and all fragment rejection/atomic rules
+remain byte-preserved by the instrumentation patch. An additional u2 uint4 buffer
+observes mapped fragments; the original candidate UAV stays u1. GPU-only map has
+one uint per full-resolution pixel; zero is unselected and otherwise gives the
+first authored point index+1. Duplicate authored points share this canonical index.
+Map contents are generated from the same actual VP/source formula as the original
+264-point selector, independently of geometry/identity/RGB. Only the small probe
+buffer is read back. Exactly8 additional compact buffers; no full-frame probe dump.
+
+ABI:2433 uint4 =38928 bytes per probe.
+Three owner headers,19 uint4 each (57 total), indexed by actual source row index:
+0=(claimed,asuint(_AlphaToMaskAvailable),asuint(HasBaseMap),ownerIndexPlus1)
+1..4=actual UNITY_MATRIX_VP rows;5..8=custom MPB VP rows
+9=asuint(original alpha parameters)
+10=(actual DEBUG_DISPLAY branch flag,0,0,0)
+11..14=actual UNITY_MATRIX_M rows;15..18=custom MPB ObjectToWorld rows.
+A header's first mapped fragment wins its atomic claim. Never use a panel header
+as evidence of the floor draw's constants. An owner without mapped fragments has
+an all-zero header and is not considered a measured matrix source.
+
+Body has264*3 groups of3 uint4, starting at57; aliases/unprojected rows stay zero.
+Group address=57+(canonicalIndex*3+ownerIndex)*3.
+r0=(fragmentEntryCount,depthGateReachedCount,firstDepthClaim,0)
+r1=(primitivePlus1,asuint(SV_Position.z),asuint(cameraDepth),asuint(captureDepth))
+r2=(gateMask,ownerPlus1,pixelX,pixelY).
+Entry is counted before any original fragment discard. Depth count/payload are
+written immediately after original depth loads and before the unchanged strict
+comparison. First-depth payload is protected by atomic claim. Multiple fragments
+in a group are reported as ambiguous: a first payload never proves every fragment's
+reason. Per-owner grouping preserves both a visible panel and its occluded floor.
+Mask bit0: camera/capture depths finite and each in[0,1]. Bit1:SVz==cameraDepth.
+Bit2:cameraDepth==captureDepth. Equality is numeric IEEE equality, including +/-0;
+do not substitute bit equality. The original earlier finite-position gate remains.
+
+Every probe JSON binds logical/engine frame, size, source row-index/owner/name/
+submesh/token/geometryGeneration/materialGeneration/key/flags/group and matrices,
+custom VP, full264 selection with canonical indices, captureRecorded and completion.
+The main frame for that same logical/engine frame supplies work-frame, actual
+geometry/material/candidate/current identity and original selection. Probe VP and
+all original selected values/pixels must match that main receipt. The source row
+mapping determines owner names; do not assume floor=owner2 or panel=owner1.
+
+Input qualification precedes reading a candidate/identity result as evidence:
+- Frozen source/harness/imported-math hashes,48 consecutive main receipts, same
+  fixed scene and author/path inputs, and eight complete probe receipts are required.
+  The separate execution-receipt must first confirm48callbacks, native log/source
+  validity and restoration. Main input hashes must match that audit. The dedicated
+  probe-result lifecycle summary is distinct from the eight numeric frame receipts.
+  Actual GPU nonjittered matrices and the original nonzero-jitter qualification
+  remain required; CPU TAA settings alone do not establish the observed jitter.
+- Keep physical source fields exact across48 and complete source records30..47;
+  actual history/change controls and matrix ownership31..47 retain the previous
+  source qualification. No source mutation is admitted inside the diagnostic window.
+- Same finite planar rectangle/raster interval model as the existing camera test
+  (one-ULP outward float32 operations, fixed snap envelope; no new fitted tolerance)
+  determines nearest visible floor/panel/wall from actual pixel+invVP. Actual current
+  geometry depth/Ns/Ng must independently agree with that source rectangle. Neither
+  candidate/identity nor probe outcomes choose which source ought to be visible.
+- At least8 distinct qualified floor pixels and8 qualified panel pixels per probe
+  frame are required to claim an adequately observed diagnosis. Ambiguous source
+  boundaries remain uncovered. No adaptive point/frame extension.
+
+For each independently visible, unique pixel and its owner:
+1. No entry: no mapped fragment was observed. Do not call it a depth rejection.
+2. Entry but no depth arrival: an earlier rejection occurred; record global/alpha
+   header evidence, without inventing the exact uninstrumented branch.
+3. More than one entry/depth fragment: insufficient unique-fragment evidence.
+4. One entry and one depth arrival: independently reconstruct the three mask bits
+   from saved float values. Require cameraDepth bits equal current geometry.w bits
+   (this is the same actual camera depth texture); a mismatch is source/observation
+   linkage failure, not a reason to alter the identity predicate.
+5. Strict mask!=7 explains why this fragment cannot publish a candidate. Report
+   SVz-camera and camera-capture differences separately, with exact bits and signed
+   numeric/ULP distances. A visible candidate/identity dropout with this observation
+   is directly observed false-negative identity availability; no epsilon is added.
+6. Mask7 but missing/conflicting candidate or zero/mismatched resolved identity is
+   a separate candidate/resolve discrepancy; a matrix mismatch alone is not its cause.
+7. Matching candidate and identity is the retained success control.
+
+Record actual/custom VP and M differences per measured owner, both exact bit and
+numeric equality. A matrix mismatch is a measured source discrepancy and possible
+cause, not proof of particular engine/JIT/GPU instructions. Equal matrices do not
+prove identical vertex code generation or raster-depth arithmetic. The probe does
+not capture vertex disassembly; never claim it does.
+
+The final report separates input/probe integrity, geometric coverage, reproduced
+dropouts, classified depth rejections and unresolved reasons. Overall original
+temporal-quality acceptance remains unchanged and is not granted by this diagnosis.
+No current radiance/history RGB is needed. Existing original failures are preserved.
+Concurrent GPU game load is recorded by the runner; this run makes no timing claim.

@@ -1,0 +1,33 @@
+{
+  "uniqueAnchorsMatched": true,
+  "passAndShaderReversePatchAssertions": true,
+  "originalVertexByteIdentical": true,
+  "productFilesWritten": false,
+  "helperSha256": "22849104c27326c0574a94db31293996b2092cc30372bcc75fdbc6a1e36c65ec",
+  "checks": [
+    {
+      "name": "pass",
+      "source": "Runtime\\HybridLumenGIReceiverIdentityPass.cs",
+      "sourceSha256": "cfd2b3566a1acbe446c483689cc527ee65c41037f2d5fa9fa3c27e53d6fb56f9",
+      "patchedSha256": "5566a846b4cf049102acd2079df034df0106a7364a602b6f823437f569b9fe15"
+    },
+    {
+      "name": "shader",
+      "source": "Runtime\\Resources\\HybridLumenGI\\HybridLumenGIReceiverIdentity.shader",
+      "sourceSha256": "2f3c467d36fbe63a6f9581a4517a24cba77f19d9b14510c6d5f7dc0dfa35480a",
+      "patchedSha256": "cf25ccdd27085f59f81a3d4feb08ca6898f247fe1f18f10992b3c875ca9ee246"
+    },
+    {
+      "name": "feature",
+      "source": "LocalComparison\\Review\\camera-motion-taa-response-02\\instrumentation\\prepared\\Assets\\HybridLumenGI\\Runtime\\HybridLumenGIRendererFeature.cs",
+      "sourceSha256": "a735b39c14654ceef1de9b7457101b2c5c78d7b655744db2587d5a1333307674",
+      "patchedSha256": "0d117058ef9bfdb931fbb09fbad5b5c64117dea6df38f168d68e0b8b7f66cef7"
+    },
+    {
+      "name": "host",
+      "source": "LocalComparison\\Review\\camera-motion-taa-response-02\\instrumentation\\prepared\\Assets\\CameraMotionTaa01\\CameraMotionTaaScene.cs",
+      "sourceSha256": "4b5e1e1c1e42c7e8cd0d471c6fe2d31458db730a84a72f28dddda8f899af3f0c",
+      "patchedSha256": "497d465447fb93542f07006f142ed8d821cc00614e75c515562e5f9013863187"
+    }
+  ]
+}

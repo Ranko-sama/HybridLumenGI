@@ -1,0 +1,19 @@
+{
+  "command": "python -B test_analyze.py",
+  "tests": 9,
+  "exitCode": 0,
+  "stdout": "",
+  "stderr": "test_candidate_and_resolve_discrepancies_are_distinct (__main__.DiagnosticTests.test_candidate_and_resolve_discrepancies_are_distinct) ... ok\ntest_capture_depth_difference_is_separate (__main__.DiagnosticTests.test_capture_depth_difference_is_separate) ... ok\ntest_lifecycle_summary_has_eight_exact_frame_links (__main__.DiagnosticTests.test_lifecycle_summary_has_eight_exact_frame_links) ... ok\ntest_multiple_fragments_cannot_inherit_first_failure_reason (__main__.DiagnosticTests.test_multiple_fragments_cannot_inherit_first_failure_reason) ... ok\ntest_no_entry_and_early_rejection_are_not_depth_failures (__main__.DiagnosticTests.test_no_entry_and_early_rejection_are_not_depth_failures) ... ok\ntest_numeric_signed_zero_matches_original_equality (__main__.DiagnosticTests.test_numeric_signed_zero_matches_original_equality) ... ok\ntest_retained_identity_control (__main__.DiagnosticTests.test_retained_identity_control) ... ok\ntest_saved_mask_and_camera_depth_link_cannot_be_forged (__main__.DiagnosticTests.test_saved_mask_and_camera_depth_link_cannot_be_forged) ... ok\ntest_single_ulp_identity_fragment_mismatch_is_observed_not_tolerated (__main__.DiagnosticTests.test_single_ulp_identity_fragment_mismatch_is_observed_not_tolerated) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.000s\n\nOK\n",
+  "nativeDataOpened": false,
+  "currentRadianceRgbDecoded": false,
+  "nativeExecutionAdded": false,
+  "sources": {
+    "analyze.py": "e029437a7d1406c50c07310401c6c4886d8a98302868ab7f2de78e071b4cfbae",
+    "test_analyze.py": "994a6bf259e05b026a5f63845932b09db998440cf7ad3b2a72c5bfceb9ab2c4e",
+    "input-model.txt": "9f32b43b538222ea1ddd5da651bf68cf1b851d984d39ada78f65d796521c7423"
+  },
+  "preNativeReviewCorrections": [
+    "Initially the broad probe JSON glob would include probe-result.json; before any native execution this was replaced by exact 8-frame plus unique-summary admission, and the lifecycle summary received its own positive/negative control.",
+    "Final source admission requires the independent execution receipt and links all48 main JSON/BIN hashes; actual nonjittered/TAA inputs preserve original conditions."
+  ]
+}
