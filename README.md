@@ -1,8 +1,8 @@
 # HybridLumenGI
 
-当前入口：[统一交互 Release74](Documentation/ReviewBrief-CurrentLocalRelease74.md)。同场景可操作导航、分页/HLOD、软件/DXR、换色、灯光、移动门与连续形变。已构建并完成必要运行检查，实际普通窗口可用；全局灯光变化后已知测量不再混入旧屏幕历史。首批[独立画面对照与四项结论](LocalComparison/Review/dynamic-picture-comparison-01/index.html)保留模型近似、采样噪声和修前来源，整体颜色、多跳收敛与生产验收仍未完成。
+当前入口：[统一交互 Release75](<I:/Unity test/Comparison/Builds/LocalRelease75/Start-LocalRelease.cmd>)。复用Release74的统一场景、分页资源和设置，包含本轮全局换光后的世界缓存响应改进：首次可信更新直接替换旧时间平均，预算等待或unknown保留待替换状态，保持HLOD就绪规则。公开构建入口已实际构建成功；普通窗口呈现场景、L关灯和Esc正常退出已完成。首批[独立画面对照与四项结论](LocalComparison/Review/dynamic-picture-comparison-01/index.html)仍保留修前来源、模型近似和采样噪声，未用本次窗口检查推断整景改善程度。
 
-产品公开示例生成器也已接入普通交互；[批处理构建入口](Documentation/BatchPlayerBuild.md)可使用调用方保存的场景构建普通 Player，供本地脚本或 CI 调用。这两项新增接线已编译，未以新入口重建 Player 或宣称 CI 已通过。
+产品公开示例生成器也已接入普通交互；[批处理构建入口](Documentation/BatchPlayerBuild.md)已用于Release75，本地构建为Release/None、0错误、23条warning。公开生成器的新交互接线仍只有编译证据，本轮复用保存场景，没有重新生成；实际CI、生产性能和整体画质继续开放。
 
 以下 Release73 及更早条目为历史状态，保留各自来源。
 

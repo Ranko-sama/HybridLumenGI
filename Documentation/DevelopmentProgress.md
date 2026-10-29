@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-本轮关闭一个具体动态响应缺口：全局灯变化后，世界缓存的首次可信更新不再强制混入半份旧时间平均；待替换状态跨预算等待和unknown保留。维持原 reactive 年龄2及HLOD就绪语义，避免连续换光阻塞warming组。最终实际HLSL短序列通过，见[结果与边界](ReviewBrief-GlobalLightHistoryReset01.md)；没有新增Unity、图片或哈希。此项源码改进尚未进入Release74，多跳反馈本身的残留、整景颜色误差与收敛时间仍开放。
+可运行交付已收束为[Release75](<I:/Unity test/Comparison/Builds/LocalRelease75/Start-LocalRelease.cmd>)，包含下述缓存响应改进和当前产品源码。新公开构建入口首次实际使用，复用保存的统一场景与资源页；普通窗口显示、一次L关灯、Esc退出完成。关闭的是“新缓存规则尚未进入可运行版本”和“公开构建入口只有编译证据”两个缺口。公开场景生成器未重跑，整景动态质量、性能和实际CI仍开放。仅一次普通构建/窗口，无哈希或新增画质采集。
+
+本轮关闭一个具体动态响应缺口：全局灯变化后，世界缓存的首次可信更新不再强制混入半份旧时间平均；待替换状态跨预算等待和unknown保留。维持原 reactive 年龄2及HLOD就绪语义，避免连续换光阻塞warming组。最终实际HLSL短序列通过，见[结果与边界](ReviewBrief-GlobalLightHistoryReset01.md)；该局部实现阶段没有新增Unity、图片或哈希，后续发布整合见上文Release75。多跳反馈本身的残留、整景颜色误差与收敛时间仍开放。
 
 发布能力新增：[公开批处理构建入口](BatchPlayerBuild.md)已实现并完成新增 Editor C# 编译。调用方显式提供场景顺序、新输出目录和当前支持的工程配置，普通 BuildPipeline 路径不依赖本机 Harness；未引入云服务、观察器、hash/归档框架。关闭的是“缺少可供CI调用的产品入口”，实际CI、平台/性能放行仍未关闭。
 

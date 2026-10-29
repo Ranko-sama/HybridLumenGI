@@ -17,4 +17,6 @@
 
 成功输出 `HybridLumenGIPlayer.exe` 及其数据目录，并保存简短 `build-result.json`。配置错误或构建失败会抛出异常，供批处理返回失败；失败中的部分输出保留。日志同时打印 `HLGI_PLAYER_BUILD_RESULT`，预检失败且尚未创建输出目录时可从日志读取原因。
 
-该入口已完成 C# 编译，可供 CI 调用；尚未据此执行新的 Player 构建或 CI 运行。它不替代图像、性能和支持平台验收，也不改变已交付 Release74 的来源。
+该入口已实际构建[Release75](<I:/Unity test/Comparison/Builds/LocalRelease75/Start-LocalRelease.cmd>)：复用保存的统一场景，Release/None，0错误、23条warning，见[BuildReport摘要](<I:/Unity test/Comparison/Builds/LocalRelease75/build-result.json>)。普通窗口呈现、一次L关灯和Esc退出完成，native exit 0。局部测试工程的自动观察器临时沿用旧版统一场景guard，构建后恢复；PC质量设置也恢复。没有新增场景生成、哈希或来源归档流程。
+
+这是本地普通构建入口的实际使用，不代表CI已运行或生产平台放行。原Release74仍保留自己的来源；本轮没有重新验收公开生成器接线，也没有新增整景图像、性能或收敛结论。
