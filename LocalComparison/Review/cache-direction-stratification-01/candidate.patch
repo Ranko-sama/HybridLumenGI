@@ -1,0 +1,95 @@
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl
+index 42f0840..d3d8e7f 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl
+@@ -127,12 +127,12 @@ float HLGITransportDirectionPdf(float3 origin,float3 normal,float4 guide,float3
+         emissive*HLGIEmissiveDirectionalPdf(origin,direction,count);
+ }
+ 
+-float3 HLGISampleTransportDirection(float3 origin,float3 normal,float4 guide,inout uint rng,out float weight)
++float3 HLGISampleTransportDirection(float3 origin,float3 normal,float4 guide,int stratum,int strata,inout uint rng,out float weight)
+ {
+     uint count=HLGIEmissiveProposalCount();
+     float emissive=count>0u && isfinite(_HLGI_EmissiveWeight)?clamp(_HLGI_EmissiveWeight,0,0.8):0;
+-    // Preserve the existing two-lobe sampler and random sequence exactly when disabled.
+-    if(emissive<=0) return HLGISampleDirection(normal,guide,rng,weight);
++    // Preserve the existing two-lobe branch and random consumption when disabled.
++    if(emissive<=0) return HLGISampleDirection(normal,guide,stratum,strata,rng,weight);
+     bool validGuide=all(isfinite(guide)) && guide.w>1e-6 && dot(guide.xyz,guide.xyz)>0.5 && isfinite(dot(guide.xyz,guide.xyz));
+     float guideFraction=validGuide && isfinite(_HLGI_GuideWeight)?clamp(_HLGI_GuideWeight,0,0.8):0;
+     float guided=(1-emissive)*guideFraction;
+@@ -140,17 +140,23 @@ float3 HLGISampleTransportDirection(float3 origin,float3 normal,float4 guide,ino
+     float3 guideAxis=guideFraction>0?normalize(guide.xyz):normal;
+     float branch=Random(rng),selector=Random(rng);
+     float2 xi=float2(Random(rng),Random(rng));
++    xi.x=HLGIStratifiedDirectionCoordinate(xi.x,stratum,strata);
+     float3 direction;
+     if(branch<emissive) direction=HLGISampleEmissiveDirection(origin,selector,xi,count);
+     else direction=CosineHemisphere(branch<emissive+guided?guideAxis:normal,xi);
+     float receiverCosine=saturate(dot(normal,direction));
+     float guideCosine=saturate(dot(guideAxis,direction));
+-    // One-sample balance mixture. Sum every overlapping lobe, even if a different
+-    // proposal generated this ray. Li is evaluated once by the usual hit path.
++    // Sum every overlapping lobe, even if a different proposal generated this
++    // ray. Cache strata recover this mixture across the complete batch.
++    // Li is evaluated once by the usual hit path.
+     float pdf=(cosineFraction*receiverCosine+guided*guideCosine)/PI+
+         emissive*HLGIEmissiveDirectionalPdf(origin,direction,count);
+     weight=receiverCosine>0 && pdf>0 && isfinite(pdf)?receiverCosine/(PI*pdf):0;
+     // No hemisphere rejection, successful-hit normalization or separate emissive term.
+     return direction;
+ }
++float3 HLGISampleTransportDirection(float3 origin,float3 normal,float4 guide,inout uint rng,out float weight)
++{
++    return HLGISampleTransportDirection(origin,normal,guide,0,1,rng,weight);
++}
+ #endif
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
+index ad48b48..415c934 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
+@@ -59,19 +59,31 @@ float3 CosineHemisphere(float3 n, float2 xi)
+     float3 t = normalize(cross(abs(n.z) < 0.999 ? float3(0,0,1) : float3(0,1,0), n));
+     return t * (r * cos(phi)) + cross(n,t) * (r * sin(phi)) + n * sqrt(1-xi.x);
+ }
+-float3 HLGISampleDirection(float3 n,float4 guide,inout uint rng,out float weight)
++float HLGIStratifiedDirectionCoordinate(float u,int stratum,int strata)
++{
++    // Only cache batches opt in. Keep one-ray and screen-gather sequences intact.
++    // Float addition can round the last stratum to 1, outside the inverse CDF.
++    return strata>1 ? min((stratum+u)/strata,asfloat(0x3f7fffffu)):u;
++}
++float3 HLGISampleDirection(float3 n,float4 guide,int stratum,int strata,inout uint rng,out float weight)
+ {
+     float mixture=guide.w>1e-6 && dot(guide.xyz,guide.xyz)>0.5 ? _HLGI_GuideWeight:0;
+     float3 axis=mixture>0 ? normalize(guide.xyz):n;
+     float branch=Random(rng);
+     float2 xi=float2(Random(rng),Random(rng));
++    xi.x=HLGIStratifiedDirectionCoordinate(xi.x,stratum,strata);
+     float3 direction=CosineHemisphere(branch<mixture?axis:n,xi);
+     float cosine=saturate(dot(n,direction)), guidedCosine=saturate(dot(axis,direction));
+-    // One-sample mixture estimator: full mixture PDF, including the branch not chosen.
++    // Full mixture PDF, including the branch not chosen. Cache strata recover
++    // this proposal across the complete batch, not for each fixed stratum.
+     // Samples below the receiver hemisphere have zero contribution, never get resampled.
+     weight=cosine/max((1-mixture)*cosine+mixture*guidedCosine,1e-8);
+     return direction;
+ }
++float3 HLGISampleDirection(float3 n,float4 guide,inout uint rng,out float weight)
++{
++    return HLGISampleDirection(n,guide,0,1,rng,weight);
++}
+ #include "HybridLumenGIEmissiveSampling.hlsl"
+ #include "HybridLumenGIAreaEmission.hlsl"
+ uint _HLGI_AreaMaterialGeneration;
+@@ -572,7 +584,9 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
+         [loop] for(int r=0;r<_HLGI_CacheRays;r++)
+         {
+             float3 origin=position+HLGIOffsetNormal(surface.geometricNormal,n)*_HLGI_RayBias;
+-            float weight;float3 direction=HLGISampleTransportDirection(origin,n,e.guide,rng,weight);
++            // Equal strata cover the original proposal across this complete batch;
++            // retain the full mixture PDF and the all-known batch commit below.
++            float weight;float3 direction=HLGISampleTransportDirection(origin,n,e.guide,r,_HLGI_CacheRays,rng,weight);
+             if(!HLGIAreaMatchedDirectionWeight(origin,n,e.guide,direction,weight)) { estimateKnown=false;break; }
+             if(!all(isfinite(direction))) { estimateKnown=false;break; }
+             HLGIHit hit;
