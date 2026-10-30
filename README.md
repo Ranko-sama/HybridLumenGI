@@ -12,7 +12,7 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 
 ## 使用统一示例
 
-已按用户要求完成[Release83本机起始基线](LocalComparison/Review/release83-local-baseline-01/result.md)：当前960×540／半分辨率GI／精确软件下，GI三区间合计中位28.02ms、p95 31.19ms、p99 31.45ms；相机回调平均34.50次／秒，非Present FPS。进程local采样峰值577.45MiB、nonlocal280.66MiB，非GI独占或瞬时峰值。正式性能目标尚未设定，普通入口保持不变。
+已按用户要求完成[Release83本机起始基线](LocalComparison/Review/release83-local-baseline-01/result.md)：当前960×540／半分辨率GI／精确软件下，GI三区间合计中位28.02ms、p95 31.19ms、p99 31.45ms；相机回调平均34.50次／秒，非Present FPS。进程local采样峰值577.45MiB、nonlocal280.66MiB，非GI独占或瞬时峰值。基线之后用户已选定960×540／30 FPS目标；GI专项时间和显存上限尚未单独确定。
 
 点击窗口后操作：
 
@@ -26,7 +26,7 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 | 分页组释放与重载 | B |
 | 隐藏面板／退出 | F1 ／ Esc |
 
-实际后端以面板诊断为准，选择 DXR 偏好不保证硬件路径被采用。关灯仍保留发光面；停止形变后，异步 GI 快照可能继续追上可见网格。骨骼模式复用现有快照流程，K可切回原网格模式；两种形变均不修改物理碰撞体。当前窗口为 960×540，不是生产分辨率目标。
+实际后端以面板诊断为准，选择 DXR 偏好不保证硬件路径被采用。关灯仍保留发光面；停止形变后，异步 GI 快照可能继续追上可见网格。骨骼模式复用现有快照流程，K可切回原网格模式；两种形变均不修改物理碰撞体。用户已根据本机基线选择先以 **960×540／30 FPS** 为开发目标；这是目标，当前尚未完成稳定帧率验收。
 
 点击面板的 **Memory: off** 开启本进程 local/nonlocal 显存用量、OS预算及采样峰值；**Log ledger** 同时导出到Player日志。缺失或旧原生DLL会显示不可用，不影响GI。数据不是GI独占、整机用量或绝对瞬时峰值，也不改变更新配额。
 

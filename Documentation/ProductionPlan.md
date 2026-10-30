@@ -12,6 +12,8 @@
 
 ## 当前支持范围与证据层级
 
+**基线后的用户决定：先以960×540／30 FPS为开发目标。** 整帧约33.33ms，GI专项时间与显存上限仍待单独确定。当前半分辨率GI为开发起点；现有回调频率不是实际呈现FPS验收，完整G0／G5仍开放。
+
 用户要求的[Release83本机起始基线](../LocalComparison/Review/release83-local-baseline-01/result.md)已完成：960×540／480×270 GI／精确软件、反馈关闭，三GI区间合计中位28.017ms、p95 31.186ms、p99 31.447ms；相机回调平均34.505次／秒，非实际Present FPS。该源窗口进程local采样峰值577.449MiB、nonlocal280.664MiB，非GI独占或瞬时峰值。该阶段补齐当前起始数据，不自动选择生产目标或扩测配置；正式预算待据此确定，完整G0／G5保持开放。
 
 后续一次[全局光暂态加权候选](../LocalComparison/Review/global-light-response-window-01/result.md)未满足既定响应筛选，已撤回并结束。Release78另采用来源分离功能：同一前缀240→299输出绝对变化降低92.2%，270→299降低80.0%，接收面反弹保留；该有限采用不证明物理误差或精确收敛。触发的是上传灯表为空，非所有场景光源关闭；缓存存储增加20%，实际带宽/时间增量未测。G1/G3整体收敛保持开放。
@@ -22,7 +24,7 @@
 | 已实现、有限验证 | 不变Skinned快照复用、Additive雾衰减、局部灯变化优先调度及现有架构能力 | 分别见[复用](ReviewBrief-SkinnedUnchangedSnapshotReuse01.md)、[原生捕获依赖](ReviewBrief-SkinnedNativeCaptureBoundary01.md)、[雾合成](ReviewBrief-AdditiveFogComposition01.md)、[调度](ReviewBrief-LocalLightSchedulingPriority01.md)；源码适配器、原生依赖与完整功能验收分开，54不补齐未触发条件 |
 | 历史证据 | Release44稳态、早期软件/DXR图像、流式及动态专项 | [44的300秒窗口](ReviewBrief-LocalReleaseSteadyUse01.md)属于5120a8c；其他见[推进表](DevelopmentProgress.md)各自来源，不改旧FAIL、不改标为当前通过 |
 | 代码明确限制/拒绝 | Feature跳过非DX12、非Linear、非Base或立体相机，以及无compute/必要资源的路径；仅Game及显式允许的SceneView、Tex2D目标可进入 | [实际准入代码](../Runtime/HybridLumenGIRendererFeature.cs)；替换原生漫反射还要求普通URP Lit、Forward/Forward+、有符号HDR及MSAA关闭等，失败保留原照明，见[完整替换合同](NativeDiffuseComposition.md)。这些限制不是单纯“尚未测试” |
-| 尚未完成的验收 | 整体图像质量/动态收敛、各功能未覆盖的原生条件、目标规模、总VRAM、GPU p95/p99、完整G0–G5 | 生产分辨率/FPS、GI时间和显存预算仍待确定。未采集的资源/退休字段默认值不能当清零；首帧等待不是受控性能改善；不由120帧静态运行推导生产放行 |
+| 尚未完成的验收 | 整体图像质量/动态收敛、各功能未覆盖的原生条件、目标规模、总VRAM、GPU p95/p99、完整G0–G5 | 目标分辨率/FPS已定为960×540／30；GI时间和显存预算仍待确定。未采集的资源/退休字段默认值不能当清零；首帧等待不是受控性能改善；不由120帧静态运行推导生产放行 |
 
 以下架构与G0–G5条件继续保留。早期阶段叙述和朋友包只提供历史背景，不决定当前启动步骤。
 
@@ -160,7 +162,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 当前G1/G3新增[有限单次颜色参考](ReviewBrief-FiniteWallColorReference02.md)、[变色与关灯](ReviewBrief-FiniteWallDynamicResponse01.md)、[真实有限缓存反馈](ReviewBrief-CacheFeedbackFinite02.md)和[刚体遮挡恢复](ReviewBrief-FiniteWallOcclusionResponse01.md)的来源绑定证据，各自限制见原报告；不合并成默认配置或整景质量认证。
 
-本机已有Unity6000.0.85f1、URP17.0.4、DX12和RTX2080Ti的实际记录；目标分辨率/FPS及GI GPU/显存放行预算尚未确定，不填写虚构阈值。完整当前进度见[推进表](DevelopmentProgress.md)。G5目前增加了当前本地构建/启动证据，尚未完成CI、承诺平台矩阵、性能或峰值内存放行；上表G0–G5条件不因此降低。当前源码构建和有限运行不等于整个G0完成，**不能跳过 G2–G5 后标注为“完整生产交付”**。开发不再依赖朋友工程反馈。
+本机已有Unity6000.0.85f1、URP17.0.4、DX12和RTX2080Ti的实际记录；用户已选择960×540／30 FPS目标；GI GPU/显存放行预算仍未确定，不填写虚构阈值。完整当前进度见[推进表](DevelopmentProgress.md)。G5目前增加了当前本地构建/启动证据，尚未完成CI、承诺平台矩阵、性能或峰值内存放行；上表G0–G5条件不因此降低。当前源码构建和有限运行不等于整个G0完成，**不能跳过 G2–G5 后标注为“完整生产交付”**。开发不再依赖朋友工程反馈。
 
 ## 7. 历史朋友工程接入步骤
 
