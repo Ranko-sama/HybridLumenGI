@@ -8,7 +8,7 @@
 - 在 **Target ms** 输入有限正数，点击 **Apply feedback** 才应用目标并启用反馈。目标默认留空，不提供预选生产预算；编辑文本本身不修改配置，非法输入保留旧设置。Off／Measure保留已有合法目标供以后使用。
 - 输入框获得焦点时，数字导航、移动及其他样例快捷键暂停，避免输入目标时误切场景；已启动的门／形变动画继续。F1隐藏面板、Esc退出仍可用。
 - 面板区分请求模式、已配置目标和上次相机诊断；显示已有提供器／状态、耗时观测、源帧／消费帧、实际反馈状态、缩放比例和patch／capture／brick有效配额。缺测显示不可用；历史值明确可能来自先前配置，不能当新样本或零成本。Recorder没有精确源帧时显示unknown。
-- **Log ledger** 沿用原导出入口，额外记录请求的测量／反馈开关与目标，实际结果仍在`cameraGi`。没有新计时或统计管线。
+- **Log ledger** 沿用原导出入口，额外记录请求的测量／反馈开关与目标，实际结果仍在`cameraGi`。Release84也可按 **F2** 调用同一功能，不自动开启测量。没有新计时或统计管线。
 
 目标只约束既有控制器所观测的GI区间，不是整应用GPU时间、硬截止或G0／G5生产预算。最低更新量下仍超目标会明确显示，不自动降画质或修改资源尺寸。配置在Feature范围生效，各相机独立控制；沿用原配置变化流程刷新计时与光照历史。
 
@@ -31,6 +31,8 @@ Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开�
 一次[普通Release83呈交采集](../LocalComparison/Review/release83-present-01/result.md)未生成CSV；没有有效Present／显示节奏数据，不代表零FPS，目标仍未据此验收。采集已收尾，未自动重复运行。
 
 随后用户请求重启并确认场景正常显示，[单次应用Present采集](../LocalComparison/Review/release83-present-api-02/result.md)得到平均29.15Hz、间隔中位34.07ms／p95 38.58ms／p99 41.35ms；该普通窗口未达到30FPS。关闭了display tracking，因此仍无实际显示节奏结论。与UI/input关闭、另行计时的起始基线口径不同，不据此推导性能回退；原采集失败原因仍未知。
+
+[普通Release84的DXR应用Present窗口](../LocalComparison/Review/release84-dxr-present-01/result.md)测得79.22Hz，间隔p95 14.33ms／p99 14.81ms，窗口内全部低于33.33ms。同进程F2日志在采集前后报告就绪DXR、计时和反馈关闭；只支持端点状态，不是逐帧后端证明。该有限结果支持当前30FPS方向，仍非实际显示FPS或G5通过；不据与旧83软件运行的差异宣称等画质加速。
 
 [已有DXR后端的单次同配置成本窗口](../LocalComparison/Review/release83-dxr-cost-01/result.md)实际512源帧均为DXR：GI三区间合计中位13.276ms、p95 14.334ms、p99 14.522ms；相对软件基线中位观察差−52.61%。进程local采样峰值560.941MiB、nonlocal287.691MiB。此处只提供现有后端取舍依据，没有普通显示FPS或等画质声明，也不自动改变默认和预算。
 

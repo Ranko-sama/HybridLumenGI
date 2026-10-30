@@ -2,7 +2,7 @@
 
 ## 当前交付结论（Release83，2026-10-30）
 
-[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease83/Start-LocalRelease.cmd>)已整合静止重建和刚体历史修复。下表汇总各自最近的有效依据；**不同版本、时点和测量量不能合并成Release83的整景验收**。本页后半部分的旧参考图与旧数值属于修复前／中间版本，不能用作当前误差。
+[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease84/Start-LocalRelease.cmd>)现为Release84，只新增F2状态日志快捷键，GI延续Release83的静止重建和刚体历史修复；本页图像仍保留各自实际测量版本。下表汇总各自最近的有效依据；**不同版本、时点和测量量不能合并成Release83的整景验收**。本页后半部分的旧参考图与旧数值属于修复前／中间版本，不能用作当前误差。
 
 最新[局部换色接收面对照](../local-recolor-response-01/result.md)确认：红墙通过普通MPB改蓝后，材质未变的Floor／White在30帧已明显转蓝，59帧与119帧的平均色向L1差为0.005536／0.001583，没有丢失原有已知点。没有蓝墙独立参考，晚期观测不作正确颜色或绝对旧色残留；首帧颗粒、后续亮度变化和整体动态验收仍保留。
 

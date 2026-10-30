@@ -2,7 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release83](<I:/Unity test/Comparison/Builds/LocalRelease83/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；提供默认关闭的GPU计时、更新预算反馈和进程显存观察。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release84](<I:/Unity test/Comparison/Builds/LocalRelease84/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；提供默认关闭的GPU计时、更新预算反馈和进程显存观察。该路径属于当前开发机，其他工程请按下文集成或构建。
+
+Release84新增[F2运行状态日志快捷键](LocalComparison/Review/keyboard-ledger-01/result.md)，复用原Log ledger功能，GI与默认软件后端保持。在同一个普通Player请求DXR后，[应用Present窗口](LocalComparison/Review/release84-dxr-present-01/result.md)测得平均79.22Hz、间隔p95 14.33ms／p99 14.81ms，本窗口均小于33.33ms；前后日志报告DXR。这支持本机960×540／30FPS方向，不等于实际显示FPS、等画质或完整生产验收。
 
 Release83 整合[刚体同帧更新的历史恢复](LocalComparison/Review/rigid-pose-history-01/result.md)：修复纯平移重传被误加Added、从而错误拒绝可信历史的问题。原场景239帧门面2739个已知点中，2724点恢复短历史复用，门面黑颗粒明显减少，仍有软斑驳；单帧不能证明无拖影或收敛。真正新增、延迟上传、内容变化及不匹配对应仍保守处理。
 
@@ -29,10 +31,11 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 | 形变启停／切换网格与骨骼来源 | 空格 ／ K |
 | 分页组释放与重载 | B |
 | 隐藏面板／退出 | F1 ／ Esc |
+| 导出当前运行状态至Player日志 | F2 |
 
 实际后端以面板诊断为准，选择 DXR 偏好不保证硬件路径被采用。关灯仍保留发光面；停止形变后，异步 GI 快照可能继续追上可见网格。骨骼模式复用现有快照流程，K可切回原网格模式；两种形变均不修改物理碰撞体。用户已根据本机基线选择先以 **960×540／30 FPS** 为开发目标；这是目标，当前尚未完成稳定帧率验收。
 
-点击面板的 **Memory: off** 开启本进程 local/nonlocal 显存用量、OS预算及采样峰值；**Log ledger** 同时导出到Player日志。缺失或旧原生DLL会显示不可用，不影响GI。数据不是GI独占、整机用量或绝对瞬时峰值，也不改变更新配额。
+点击面板的 **Memory: off** 开启本进程 local/nonlocal 显存用量、OS预算及采样峰值；**Log ledger** 或 **F2** 将已有当前状态导出到Player日志。F2不会自动开启计时或显存采样。缺失或旧原生DLL会显示不可用，不影响GI。数据不是GI独占、整机用量或绝对瞬时峰值，也不改变更新配额。
 
 展开 **GPU time / update budget**，先选 **Measure only** 查看已有GI区间；输入有限正数并点击 **Apply feedback** 才启用反馈，**Off** 关闭。输入框获得焦点时暂停导航快捷键。实际状态和配额显示在同一面板，**Log ledger** 导出请求与结果；缺测不当作零成本，最低配额仍可能超目标。详见[用法与范围](Documentation/GpuBudget.md#普通运行入口与公开配置)。
 
