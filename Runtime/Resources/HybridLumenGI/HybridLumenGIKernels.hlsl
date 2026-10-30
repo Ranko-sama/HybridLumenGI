@@ -250,7 +250,9 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                         {
                             bool cacheKnown;float3 cached=CachedIrradiance(match,n,cacheKnown);
                             if(!cacheKnown) { known=false;return true; }
-                            radiance+=diffuse.rgb*materialAO*_HLGI_BounceFeedback*cached;
+                            // Match world hits: damp only recursive cache light,
+                            // while the direct reflection above uses physical rho.
+                            radiance+=min(diffuse.rgb,0.98)*materialAO*_HLGI_BounceFeedback*cached;
                         }
                     }
                     known=all(isfinite(radiance));return true;

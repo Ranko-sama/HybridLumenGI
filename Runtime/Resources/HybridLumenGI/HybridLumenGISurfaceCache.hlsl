@@ -60,7 +60,7 @@ bool HLGILoadSurfaceTexel(int2 pixel,out HLGISurfaceSample sample)
     sample.position=position.xyz;
     sample.normal=normal.xyz*rsqrt(normalLengthSquared);
     sample.geometricNormal=HLGIDecodeSurfaceGeometricNormal(emission.a);
-    sample.diffuse=clamp(diffuse.rgb,0,0.98);
+    sample.diffuse=saturate(diffuse.rgb);
     sample.emission=max(emission.rgb,0);
     sample.occlusion=saturate(diffuse.a);
     sample.roughness=saturate(normal.a);

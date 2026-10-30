@@ -450,7 +450,7 @@ float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFo
         confidence=saturate(surface.confidence);
     }
     else confidence=0.1; // Uncharted analytic/SDF owner-level approximation.
-    if(all(isfinite(diffuse)) && all(clamp(diffuse,0,0.98)==0))
+    if(all(isfinite(diffuse)) && all(saturate(diffuse)==0))
     {
         // Incident light has zero weight, but source validity still matters.
         // Keep the finite-input gates normally supplied by DirectIrradiance.
@@ -473,8 +473,12 @@ float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFo
     float3 direct=DirectIrradiance(hit.position,shadingNormal,biasNormal,_HLGI_LightingPolicies[hit.ownerSlot].xy,
         receivesShadows,incomingDirection,hitFootprint,directKnown);
     if(!directKnown || !all(isfinite(diffuse)) || !all(isfinite(emission)) || !isfinite(ao)) { confidence=0;return 0; }
-    float3 value=max(emission,0)*emissionWeight+clamp(diffuse,0,0.98)*(direct+ao*_HLGI_BounceFeedback*max(cached.irradiance.rgb,0));
-    nonAnalytic=max(emission,0)*emissionWeight+clamp(diffuse,0,0.98)*(ao*_HLGI_BounceFeedback*max(cached.nonAnalyticIrradiance.rgb,0));
+    // Preserve the physical direct reflection. The 0.98 contraction cap belongs
+    // only to recursive cache feedback, not to the material or its direct term.
+    float3 reflectance=saturate(diffuse),feedbackReflectance=min(reflectance,0.98);
+    float3 value=max(emission,0)*emissionWeight+reflectance*direct+
+        feedbackReflectance*(ao*_HLGI_BounceFeedback*max(cached.irradiance.rgb,0));
+    nonAnalytic=max(emission,0)*emissionWeight+feedbackReflectance*(ao*_HLGI_BounceFeedback*max(cached.nonAnalyticIrradiance.rgb,0));
     if(!HLGIHasRadianceMeasurement(float4(value,confidence))) { confidence=0;return 0; }
     return value;
 }

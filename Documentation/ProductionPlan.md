@@ -129,7 +129,7 @@ flowchart TD
 
 漫反射量采用 `D = E/pi`，`Lo = Le + rho_d * (D_direct + D_indirect)`。余弦半球采样 `p(w)=cos(theta)/pi` 时，`D_indirect = mean(Li)`。最终像素仅乘一次 `rho_d`，金属的 diffuse reflectance 应为零。直接光采用 URP 相对单位；对照渲染器必须匹配归一化约定。镜面、透明、体积不应混进漫反射信号；如果“Lumen 等价”还包括 Lumen reflections，需要单独的 specular ray/reconstruction 管线，当前没有实现。
 
-多次反弹读旧世界缓存、写新缓存，不能在同一次 dispatch 读取正在写入的结果。`rho_d≤0.98` 保证理想离散漫反射算子的收缩条件；可选 radiance clamp 有偏，必须作为质量设置报告。atlas发光方向提议与余弦/旧缓存引导共用完整混合PDF。独立面积样本来自当前prepared三角表，与方向命中Le按完整立体角密度配对；反射/cache项不乘这份Le权重。最近屏幕命中胜出的区域抑制对应面积项，未入表或近似端点保持方向估计。面积模式不分别非线性夹取两份估计。见 [EmissiveSampling.md](EmissiveSampling.md)。
+多次反弹读旧世界缓存、写新缓存，不能在同一次 dispatch 读取正在写入的结果。物理材质反射率保留在`[0,1]`，直接反射使用`rho_d * D_direct`；实际缓存近似使用`min(rho_d,0.98) * AO * bounceFeedback * D_cache`，screen/world一致。0.98仅限制递归反馈，在反馈强度不超过1等理想条件下提供收缩余量，不应压低独立直接光源项；它仍会给高反射率的高阶反弹引入偏差，不是无偏物理解。此前直接项也受限的路径差异见[修复记录](../LocalComparison/Review/direct-reflectance-consistency-01/result.md)。可选radiance clamp同样有偏，必须作为质量设置报告。atlas发光方向提议与余弦/旧缓存引导共用完整混合PDF。独立面积样本来自当前prepared三角表，与方向命中Le按完整立体角密度配对；反射/cache项不乘这份Le权重。最近屏幕命中胜出的区域抑制面积项，未入表或近似端点保持方向估计。面积模式不分别非线性夹取两份估计。见[EmissiveSampling.md](EmissiveSampling.md)。
 
 捕获、anchor/发光统计、提议构建和传输按同一 graphics queue 顺序记录，提议只接纳当前 ready 且 published 的 owner，warming 不进入当前发光集合。每帧提议重排不制造 lighting dirty 或新 epoch。默认发光采样权重 0.5、选择 top 16，最多 32；权重为零时有效预算为零，仍清表但跳过候选选择。CPU 采样积分与录制测试不能代替 GPU 图像、方差和时间测量。
 

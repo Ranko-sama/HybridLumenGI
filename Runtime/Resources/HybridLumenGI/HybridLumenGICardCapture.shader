@@ -164,7 +164,7 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 InitializeBRDFData(surface,brdf);
                 half3 normal = hasTangent ? normalize(TransformTangentToWorld(surface.normalTS,tangentToWorld)) : shadingBasisNormal;
                 CardOutput output;
-                output.diffuseOcclusion = half4(clamp(brdf.diffuse*_HLGI_CardTint.rgb,0,0.98),saturate(surface.occlusion));
+                output.diffuseOcclusion = half4(saturate(brdf.diffuse*_HLGI_CardTint.rgb),saturate(surface.occlusion));
                 output.emissionValidity = half4(max(0,(surface.emission+_HLGI_CardExtraEmission.rgb)*_HLGI_CardExtraEmission.w),PackCardGeometricNormal(facet));
                 output.positionDepth = float4(input.positionWS,input.cardPosition.z);
                 output.normalRoughness = half4(normal,saturate(1-surface.smoothness));

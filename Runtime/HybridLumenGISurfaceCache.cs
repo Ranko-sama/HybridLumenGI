@@ -257,8 +257,8 @@ namespace HybridLumenGI
             float fraction = source.IsKeywordEnabled("_SPECULAR_SETUP")
                 ? 1f - Mathf.Clamp01(Mathf.Max(specular.x, Mathf.Max(specular.y, specular.z))) : 0.96f * (1f - Mathf.Clamp01(metallic));
             material.cullMode = (uint)cull;
-            material.diffuse = new Vector4(Mathf.Clamp(albedo.x * tint.r * fraction, 0f, 0.98f),
-                Mathf.Clamp(albedo.y * tint.g * fraction, 0f, 0.98f), Mathf.Clamp(albedo.z * tint.b * fraction, 0f, 0.98f), 1f);
+            material.diffuse = new Vector4(Mathf.Clamp01(albedo.x * tint.r * fraction),
+                Mathf.Clamp01(albedo.y * tint.g * fraction), Mathf.Clamp01(albedo.z * tint.b * fraction), 1f);
             material.emission = new Vector4(Mathf.Max(0f, (emission.x + extra.r) * intensity),
                 Mathf.Max(0f, (emission.y + extra.g) * intensity), Mathf.Max(0f, (emission.z + extra.b) * intensity), 1f);
             return Finite(material.diffuse) && Finite(material.emission);
