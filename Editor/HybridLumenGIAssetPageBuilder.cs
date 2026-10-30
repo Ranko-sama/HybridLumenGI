@@ -5,6 +5,7 @@ using HybridLumenGI;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
+using UnityEngine.Rendering;
 using Object=UnityEngine.Object;
 
 /// <summary>Builds real local LZ4 bundles, one independently addressable resource per page.</summary>
@@ -36,7 +37,7 @@ public static class HybridLumenGIAssetPageBuilder
     /// <summary>
     /// Builds pages in two new project-relative directories and returns an inactive rig.
     /// Source proxies and their bindings are retained; the caller decides when to replace them.
-    /// Renderer property blocks are not serialized; author persistent overrides in material assets first.
+    /// Static ordinary URP Lit property-block values are exported as per-slot material assets.
     /// </summary>
     public static ExportResult Export(IEnumerable<HybridLumenGIProxy> sourceProxies,string assetDirectory,string bundleOutputDirectory)
     {
@@ -54,6 +55,10 @@ public static class HybridLumenGIAssetPageBuilder
             throw new ArgumentException("Source-asset and bundle-output directories must not overlap.");
         var sources=new Dictionary<Object,Page>();
         var renderers=new HashSet<Renderer>();
+        var effectiveMaterials=new Dictionary<Renderer,Material[]>();
+        var temporaryMaterials=new List<Material>();
+        try
+        {
         foreach(var proxy in proxies)
         {
             if(proxy.HLODParent!=null && !proxies.Contains(proxy.HLODParent))
@@ -62,13 +67,16 @@ public static class HybridLumenGIAssetPageBuilder
             MeshFilter filter=renderer!=null?renderer.GetComponent<MeshFilter>():null;
             if(filter==null || filter.sharedMesh==null || renderer.sharedMaterials.Length!=filter.sharedMesh.subMeshCount)
                 throw new InvalidOperationException("Every selected proxy needs a mesh and exactly one material per submesh.");
-            if(renderer.HasPropertyBlock())
-                throw new InvalidOperationException("Asset-page export does not serialize Renderer MaterialPropertyBlocks (including material-slot overrides): "+renderer.name+
-                    ". Author the intended appearance in material assets before exporting, or reapply runtime overrides after page binding.");
             if(!renderers.Add(renderer))throw new InvalidOperationException("Two selected proxies cannot own the same streamed renderer.");
             Collect(filter.sharedMesh,sources);Collect(proxy.MeshSdf,sources);Collect(proxy.SurfaceCharts,sources);
-            foreach(var material in renderer.sharedMaterials)
-            {if(material==null)throw new InvalidOperationException("Null material slots cannot be exported.");Collect(material,sources);}
+            Material[] materials=renderer.sharedMaterials;
+            for(int slot=0;slot<materials.Length;slot++)
+            {
+                if(materials[slot]==null)throw new InvalidOperationException("Null material slots cannot be exported.");
+                if(renderer.HasPropertyBlock())materials[slot]=ExportMaterial(renderer,slot,materials[slot],temporaryMaterials);
+                Collect(materials[slot],sources);
+            }
+            effectiveMaterials.Add(renderer,materials);
         }
         string run=Path.GetFileName(assetRoot);
         string bundleRelative=output.Substring("Assets/StreamingAssets/".Length);
@@ -79,6 +87,7 @@ public static class HybridLumenGIAssetPageBuilder
             page.id=page.kind.ToString().ToLowerInvariant()+"-"+Guid.NewGuid().ToString("N");
             page.path=assetRoot+"/Sources/"+page.id+".asset";page.bundle=page.id+".hlgipage";
             page.copy=Object.Instantiate(page.source);page.copy.name=page.source.name;
+            if(page.source is Material transient && temporaryMaterials.Contains(transient))page.copy.hideFlags=HideFlags.None;
             AssetDatabase.CreateAsset(page.copy,page.path);
             builds.Add(new AssetBundleBuild {assetBundleName=page.bundle,assetNames=new[]{page.path}});
         }
@@ -156,8 +165,9 @@ public static class HybridLumenGIAssetPageBuilder
             renderer.sharedMaterials=Array.Empty<Material>();renderer.enabled=false;
             var proxy=go.AddComponent<HybridLumenGIProxy>();EditorUtility.CopySerialized(original,proxy);
             proxy.SetSources(renderer,null);proxy.SetMeshSdf(null);proxy.SetSurfaceCharts(null);proxy.enabled=false;
-            var materialIds=new string[sourceRenderer.sharedMaterials.Length];
-            for(int i=0;i<materialIds.Length;i++)materialIds[i]=sources[sourceRenderer.sharedMaterials[i]].id;
+            Material[] materials=effectiveMaterials[sourceRenderer];
+            var materialIds=new string[materials.Length];
+            for(int i=0;i<materialIds.Length;i++)materialIds[i]=sources[materials[i]].id;
             var binding=go.AddComponent<HybridLumenGIStreamedRepresentation>();
             binding.Configure(driver,proxy,filter,renderer,sources[sourceMesh].id,
                 original.MeshSdf!=null?sources[original.MeshSdf].id:null,
@@ -173,6 +183,55 @@ public static class HybridLumenGIAssetPageBuilder
             "/Manifest.asset. Inactive streamed rig created; disable originals and enable the rig to test. " +
             "Costs are admission estimates; verify actual GPU time/memory on the target Player. Export must match its build target.",manifest);
         return new ExportResult(manifest,rig);
+        }
+        finally
+        {
+            foreach(var material in temporaryMaterials)if(material!=null)Object.DestroyImmediate(material);
+        }
+    }
+    private static bool IsOverride(HybridLumenGIMaterialValueOrigin origin)
+        => origin==HybridLumenGIMaterialValueOrigin.RendererPropertyBlock || origin==HybridLumenGIMaterialValueOrigin.MaterialPropertyBlock;
+    private static Material ExportMaterial(Renderer renderer,int slot,Material source,List<Material> temporaryMaterials)
+    {
+        var reader=new HybridLumenGIMaterialSource();
+        if(!reader.TryCapture(renderer,slot,source,out var snapshot,out string reason))
+            throw new InvalidOperationException("Cannot export static URP Lit overrides for "+renderer.name+" slot "+slot+": "+reason);
+        var data=snapshot.HitMaterial;
+        // Keep transient snapshots alive while BuildAssetBundles unloads imported assets.
+        // Only the independently saved copy enters the page graph; the caller always disposes this one.
+        Material material=Object.Instantiate(source);material.hideFlags=HideFlags.HideAndDontSave;
+        temporaryMaterials.Add(material);
+        Shader shader=source.shader;
+        for(int property=0;property<shader.GetPropertyCount();property++)
+        {
+            string name=shader.GetPropertyName(property);
+            var type=shader.GetPropertyType(property);
+            if(type==ShaderPropertyType.Texture)
+            {
+                var texture=data.GetTexture(name);
+                if(IsOverride(texture.Origin))material.SetTexture(name,texture.Texture);
+                continue;
+            }
+            if(!data.TryGetVector(name,out Vector4 value,out var origin) || !IsOverride(origin))continue;
+            if(type==ShaderPropertyType.Float || type==ShaderPropertyType.Range)material.SetFloat(name,value.x);
+            else if(type==ShaderPropertyType.Vector)material.SetVector(name,value);
+            else if(type==ShaderPropertyType.Color)
+            {
+                // MPBs contain shader-space vectors; non-HDR Material colors use authoring space.
+                Color color=value;
+                if(QualitySettings.activeColorSpace==ColorSpace.Linear && (shader.GetPropertyFlags(property)&ShaderPropertyFlags.HDR)==0)color=color.gamma;
+                material.SetColor(name,color);
+            }
+        }
+        foreach(string texture in new[]{"_BaseMap","_DetailAlbedoMap"})
+            if(data.TryGetVector(texture+"_ST",out Vector4 transform,out var origin) && IsOverride(origin))
+            {
+                material.SetTextureScale(texture,new Vector2(transform.x,transform.y));
+                material.SetTextureOffset(texture,new Vector2(transform.z,transform.w));
+            }
+        // Keywords and raster state stay cloned from the source Material. The existing
+        // material contract reports raster values with Material origin even if an MPB names them.
+        return material;
     }
     private static bool IsWithin(string child,string parent)
         => string.Equals(child,parent,StringComparison.OrdinalIgnoreCase) ||

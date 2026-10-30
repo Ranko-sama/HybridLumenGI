@@ -1,0 +1,190 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using HybridLumenGI;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
+
+public static class MpbPersistenceCheck
+{
+    [Serializable] private sealed class ColorObservation
+    {
+        public int slot;
+        public string property;
+        public Color originalShaderInput, reloadedShaderInput;
+        public float maximumError;
+    }
+    [Serializable] private sealed class Result
+    {
+        public string status="failed", error, unity, assets, bundles;
+        public bool separateSlotMaterials, texturesAndTransforms, scalarsRasterAndKeywords, sourcePreserved;
+        public string sourceBefore, sourceAfter, scope;
+        public List<ColorObservation> colors=new List<ColorObservation>();
+    }
+    private static void Require(bool condition,string message)
+    {if(!condition)throw new InvalidOperationException(message);}
+    public static void Run()
+    {
+        string[] args=Environment.GetCommandLineArgs();int arg=Array.IndexOf(args,"-mpbPersistenceResult");
+        Require(arg>=0 && arg+1<args.Length,"Missing result path.");string resultPath=args[arg+1];
+        Require(!File.Exists(resultPath),"Preserve existing result.");
+        bool sourceOnly=Array.IndexOf(args,"-sourcePreservationOnly")>=0;
+        string root=sourceOnly?"Assets/HLGIMpbPersistence04":"Assets/HLGIMpbPersistence03";
+        var result=new Result{unity=Application.unityVersion,assets=root+"/Export",bundles="Assets/StreamingAssets/"+Path.GetFileName(root),
+            scope=sourceOnly?"Direct source values and bindings only; no repeat of bundle reload or GPU color observations.":"Original roundtrip and color observation"};
+        var bundles=new List<AssetBundle>();
+        GameObject source=null,rig=null;Material probe=null;RenderTexture target=null;Texture2D readback=null;
+        RenderTexture previous=RenderTexture.active;bool previousSrgb=GL.sRGBWrite;
+        try
+        {
+            Require(QualitySettings.activeColorSpace==ColorSpace.Linear,"Expected the existing Linear project.");
+            Require(!Directory.Exists(root) && !Directory.Exists(result.bundles),"Preserve previous exported assets.");
+            Directory.CreateDirectory(root+"/Inputs");AssetDatabase.Refresh();
+            Shader lit=Shader.Find("Universal Render Pipeline/Lit");Require(lit!=null,"URP Lit missing.");
+            Texture2D originalTexture=Texture(root+"/Inputs/original.asset",Color.red);
+            Texture2D overrideTexture=Texture(root+"/Inputs/override.asset",Color.green);
+            var material=new Material(lit){name="Shared authored material"};
+            material.SetColor("_BaseColor",new Color(.65f,.2f,.1f,.9f));
+            material.SetColor("_SpecColor",new Color(.2f,.3f,.4f,1));
+            material.SetColor("_EmissionColor",new Color(1.5f,.5f,.2f,1));
+            material.SetFloat("_Metallic",.1f);material.SetFloat("_Cull",2);
+            material.EnableKeyword("_EMISSION");
+            material.SetTexture("_BaseMap",originalTexture);
+            material.SetTextureScale("_BaseMap",new Vector2(1.1f,.9f));
+            material.SetTextureOffset("_BaseMap",new Vector2(.1f,.2f));
+            AssetDatabase.CreateAsset(material,root+"/Inputs/material.mat");
+            source=GameObject.CreatePrimitive(PrimitiveType.Cube);source.name="MPB persistence source";
+            var renderer=source.GetComponent<MeshRenderer>();var filter=source.GetComponent<MeshFilter>();
+            Mesh mesh=Object.Instantiate(filter.sharedMesh);int[] triangles=mesh.GetTriangles(0);
+            mesh.subMeshCount=2;mesh.SetTriangles(triangles,1);AssetDatabase.CreateAsset(mesh,root+"/Inputs/mesh.asset");
+            filter.sharedMesh=mesh;renderer.sharedMaterials=new[]{material,material};
+            var proxy=source.AddComponent<HybridLumenGIProxy>();proxy.SetSources(renderer,source.GetComponent<Collider>());
+            var general=new MaterialPropertyBlock();
+            general.SetColor("_BaseColor",new Color(.05f,.15f,.8f,.7f));
+            general.SetColor("_SpecColor",new Color(.12f,.17f,.25f,1));
+            general.SetColor("_EmissionColor",new Color(5,2,.5f,.8f));
+            general.SetFloat("_Metallic",.35f);general.SetFloat("_Cull",0);
+            general.SetTexture("_BaseMap",overrideTexture);
+            general.SetVector("_BaseMap_ST",new Vector4(2,.5f,.3f,.4f));
+            general.SetVector("_DetailAlbedoMap_ST",new Vector4(3,4,.2f,.1f));
+            var indexed=new MaterialPropertyBlock();indexed.SetFloat("_Metallic",.8f);
+            renderer.SetPropertyBlock(general);renderer.SetPropertyBlock(indexed,1);
+            AssetDatabase.SaveAssets();
+            // Asset import can replace the managed wrapper created before CreateAsset.
+            // The snapshot API expects the source currently occupying the renderer slot.
+            material=renderer.sharedMaterials[0];
+            var reader=new HybridLumenGIMaterialSource();
+            bool captured0=reader.TryCapture(renderer,0,material,out var before0,out string reason0);
+            Require(captured0,"Source slot0 capture failed: "+reason0);
+            bool captured1=reader.TryCapture(renderer,1,material,out var before1,out string reason1);
+            Require(captured1,"Source slot1 capture failed: "+reason1);
+            result.sourceBefore=SourceState(renderer,proxy);
+            var exported=HybridLumenGIAssetPageBuilder.Export(new[]{proxy},result.assets,result.bundles);rig=exported.Rig;
+            result.sourceAfter=SourceState(renderer,proxy);
+            result.sourcePreserved=result.sourceBefore==result.sourceAfter;
+            Require(result.sourcePreserved,"Direct source values or bindings changed during export.");
+            if(sourceOnly){result.status="passed";return;}
+            string prefabPath=root+"/Rig.prefab";Require(PrefabUtility.SaveAsPrefabAsset(rig,prefabPath)!=null,"Cannot persist exported rig.");
+            Object.DestroyImmediate(rig);rig=null;
+            var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            var binding=prefab.GetComponentInChildren<HybridLumenGIStreamedRepresentation>(true);
+            var serialized=new SerializedObject(binding);var slots=serialized.FindProperty("materialPages");
+            Require(slots.arraySize==2,"Reloaded rig lost material slots.");
+            string first=slots.GetArrayElementAtIndex(0).stringValue,second=slots.GetArrayElementAtIndex(1).stringValue;
+            result.separateSlotMaterials=first!=second;Require(result.separateSlotMaterials,"Different effective slots share one exported material.");
+            var manifest=AssetDatabase.LoadAssetAtPath<HybridLumenGIAssetPageManifest>(result.assets+"/Manifest.asset");
+            var objects=new Dictionary<string,Object>();var loaded=new Dictionary<string,AssetBundle>();
+            foreach(var page in manifest.Pages)
+            {
+                var bundle=AssetBundle.LoadFromFile(Path.GetFullPath(Path.Combine(result.bundles,page.bundlePath)));
+                Require(bundle!=null,"Bundle did not reload: "+page.id);bundles.Add(bundle);loaded.Add(page.id,bundle);
+            }
+            foreach(var page in manifest.Pages)
+            {Object value=loaded[page.id].LoadAsset(page.assetName);Require(value!=null,"Page did not reload: "+page.id);objects.Add(page.id,value);}
+            var actual=new[]{(Material)objects[first],(Material)objects[second]};
+            var texture0=actual[0].GetTexture("_BaseMap") as Texture2D;var texture1=actual[1].GetTexture("_BaseMap") as Texture2D;
+            result.texturesAndTransforms=texture0!=null && texture1!=null && texture0!=texture1 &&
+                texture0.GetPixel(0,0)==Color.green && texture1.GetPixel(0,0)==Color.red &&
+                actual[0].GetTextureScale("_BaseMap")==new Vector2(2,.5f) && actual[0].GetTextureOffset("_BaseMap")==new Vector2(.3f,.4f) &&
+                actual[1].GetTextureScale("_BaseMap")==new Vector2(1.1f,.9f) && actual[1].GetTextureOffset("_BaseMap")==new Vector2(.1f,.2f) &&
+                actual[0].GetTextureScale("_DetailAlbedoMap")==new Vector2(3,4) && actual[0].GetTextureOffset("_DetailAlbedoMap")==new Vector2(.2f,.1f);
+            Require(result.texturesAndTransforms,"Texture dependency or effective ST lost.");
+            result.scalarsRasterAndKeywords=actual[0].GetFloat("_Metallic")==.35f && actual[1].GetFloat("_Metallic")==.8f;
+            foreach(var value in actual)result.scalarsRasterAndKeywords &= value.GetFloat("_Cull")==2 && new HashSet<string>(value.shaderKeywords).SetEquals(material.shaderKeywords);
+            Require(result.scalarsRasterAndKeywords,"Scalar, raster state or source keyword changed.");
+            Shader probeShader=Resources.Load<Shader>("HybridLumenGI/HybridLumenGIColorContractProbe");
+            Require(probeShader!=null && probeShader.isSupported,"Existing color-contract shader unavailable.");
+            probe=new Material(probeShader);target=new RenderTexture(2,2,0,RenderTextureFormat.ARGBFloat,RenderTextureReadWrite.Linear);
+            readback=new Texture2D(2,2,TextureFormat.RGBAFloat,false,true);Require(target.Create(),"Probe target unavailable.");
+            var names=new[]{"_BaseColor","_SpecColor","_EmissionColor"};
+            for(int slot=0;slot<2;slot++)for(int pass=0;pass<names.Length;pass++)
+            {
+                Color before=Sample(material,slot==0?general:indexed,probe,target,readback,pass);
+                Color after=Sample(actual[slot],null,probe,target,readback,pass);
+                float error=Mathf.Max(Mathf.Abs(before.r-after.r),Mathf.Max(Mathf.Abs(before.g-after.g),Mathf.Max(Mathf.Abs(before.b-after.b),Mathf.Abs(before.a-after.a))));
+                result.colors.Add(new ColorObservation{slot=slot,property=names[pass],originalShaderInput=before,reloadedShaderInput=after,maximumError=error});
+                Require(!float.IsNaN(error) && !float.IsInfinity(error) && error<=.002f*Mathf.Max(1f,before.maxColorComponent),"Persisted shader color changed.");
+            }
+            result.status="passed";
+        }
+        catch(Exception error){result.error=error.ToString();}
+        finally
+        {
+            RenderTexture.active=previous;GL.sRGBWrite=previousSrgb;
+            if(source)Object.DestroyImmediate(source);if(rig)Object.DestroyImmediate(rig);
+            if(probe)Object.DestroyImmediate(probe);if(readback)Object.DestroyImmediate(readback);
+            if(target){target.Release();Object.DestroyImmediate(target);}
+            foreach(var bundle in bundles)if(bundle!=null)bundle.Unload(true);
+            File.WriteAllText(resultPath,JsonUtility.ToJson(result,true));
+        }
+        if(result.status!="passed")throw new InvalidOperationException(result.error);
+        Debug.Log("HLGI_MPB_PERSISTENCE "+JsonUtility.ToJson(result));
+    }
+    [Serializable] private sealed class SourceValues
+    {
+        public string mesh,material0,material1,materialTexture,rendererTexture;
+        public Color[] authoredColors;
+        public Vector4[] rendererVectors,materialTransforms;
+        public float authoredMetallic,authoredCull,rendererMetallic,rendererCull,slotMetallic;
+        public bool slotHasBaseColor,slotHasTexture,proxyBound;
+        public string[] keywords;
+    }
+    private static string SourceState(MeshRenderer renderer,HybridLumenGIProxy proxy)
+    {
+        Material[] slots=renderer.sharedMaterials;Material material=slots[0];
+        var general=new MaterialPropertyBlock();var indexed=new MaterialPropertyBlock();
+        renderer.GetPropertyBlock(general);renderer.GetPropertyBlock(indexed,1);
+        string[] keywords=material.shaderKeywords;Array.Sort(keywords,StringComparer.Ordinal);
+        var scale=material.GetTextureScale("_BaseMap");var offset=material.GetTextureOffset("_BaseMap");
+        var detailScale=material.GetTextureScale("_DetailAlbedoMap");var detailOffset=material.GetTextureOffset("_DetailAlbedoMap");
+        return JsonUtility.ToJson(new SourceValues {
+            mesh=AssetDatabase.GetAssetPath(renderer.GetComponent<MeshFilter>().sharedMesh),
+            material0=AssetDatabase.GetAssetPath(slots[0]),material1=AssetDatabase.GetAssetPath(slots[1]),
+            materialTexture=AssetDatabase.GetAssetPath(material.GetTexture("_BaseMap")),rendererTexture=AssetDatabase.GetAssetPath(general.GetTexture("_BaseMap")),
+            authoredColors=new[]{material.GetColor("_BaseColor"),material.GetColor("_SpecColor"),material.GetColor("_EmissionColor")},
+            rendererVectors=new[]{general.GetVector("_BaseColor"),general.GetVector("_SpecColor"),general.GetVector("_EmissionColor"),general.GetVector("_BaseMap_ST"),general.GetVector("_DetailAlbedoMap_ST")},
+            materialTransforms=new[]{new Vector4(scale.x,scale.y,offset.x,offset.y),new Vector4(detailScale.x,detailScale.y,detailOffset.x,detailOffset.y)},
+            authoredMetallic=material.GetFloat("_Metallic"),authoredCull=material.GetFloat("_Cull"),rendererMetallic=general.GetFloat("_Metallic"),rendererCull=general.GetFloat("_Cull"),
+            slotMetallic=indexed.GetFloat("_Metallic"),slotHasBaseColor=indexed.HasProperty("_BaseColor"),slotHasTexture=indexed.HasProperty("_BaseMap"),
+            proxyBound=proxy.SourceRenderer==renderer,keywords=keywords});
+    }
+    private static Texture2D Texture(string path,Color color)
+    {
+        var texture=new Texture2D(2,2,TextureFormat.RGBA32,false,true);
+        texture.SetPixels(new[]{color,color,color,color});texture.Apply(false,false);AssetDatabase.CreateAsset(texture,path);return texture;
+    }
+    private static Color Sample(Material source,MaterialPropertyBlock block,Material probe,RenderTexture target,Texture2D readback,int pass)
+    {
+        probe.CopyPropertiesFromMaterial(source);
+        GL.sRGBWrite=false;
+        using(var command=new CommandBuffer())
+        {
+            command.SetRenderTarget(target);command.ClearRenderTarget(false,true,Color.clear);
+            command.DrawProcedural(Matrix4x4.identity,probe,pass,MeshTopology.Triangles,3,1,block);Graphics.ExecuteCommandBuffer(command);
+        }
+        RenderTexture.active=target;GL.sRGBWrite=false;
+        readback.ReadPixels(new Rect(0,0,2,2),0,0,false);readback.Apply(false,false);return readback.GetPixel(1,1);
+    }
+}

@@ -1,5 +1,7 @@
 # 资产页导出不再静默丢失MPB覆盖
 
+后续已实现[受支持URP Lit静态覆盖持久化](../asset-page-mpb-persistence-01/result.md)。以下拒绝行为和检查结果保留为该中间版本的实际记录，不代表当前所有MPB输入仍被拒绝。
+
 2026-10-30。直接公开`HybridLumenGIAssetPageBuilder.Export`过去接受带Renderer或材质槽MPB的输入，但只克隆`sharedMaterials`，新rig没有保存覆盖。蓝色等运行时覆盖可能在导出后恢复成共享材质外观。
 
 现在在创建任何输出资产前明确拒绝带MPB的源，并说明应先在材质资产中制作持久外观，或由应用在页绑定后重新施加运行时覆盖。无MPB输入沿用原导出路径；源对象和运行时MPB支持不变。
