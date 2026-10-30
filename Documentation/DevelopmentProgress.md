@@ -2,9 +2,11 @@
 
 用户已明确暂缓G5的CI接线；原CI验收条款保留未完成，不作为继续本机功能开发的前置条件。
 
+当前普通入口为[Release85](<I:/Unity test/Comparison/Builds/LocalRelease85/Start-LocalRelease.cmd>)，关闭原目标4／G4的[本机低成本后端仍需手动选择](../LocalComparison/Review/dxr-local-default-01/result.md)缺口：仅将保存示例启动偏好设为DXR，正常启动且未按5时F2已报告实际DXR、20硬件网格、0fallback／材质unknown。当前静止画面对照保留有效域，Floor后端平均绝对D亮度差约0.00000325，未见明显新增缺损。原自加零容差筛选仍为false；经Astra审查撤销其作为原计划外硬前置，本机采用是独立配置取舍，不冒充数值筛选通过。GI／通用默认不变，无新性能测量或动态等画质承诺，完整G4/G5仍开放。
+
 原目标2／G3补齐[当前门到终点后的画面依据](../LocalComparison/Review/door-stop-response-01/result.md)：179刚到终点、189／209保持同一姿态，旧门屏幕区域未见可辨认的完整门形残影，运动时颗粒／斑驳在停止后减轻。共同已知2737点，未知2／2／1，端点已知未丢失；189→209逐像素平均绝对D亮度变化0.022465，仍不能称精确收敛。关闭的是动停画面依据空白，没有新算法修复或整个G3放行；短前缀观察结束，Release84保持。
 
-当前普通入口升级为[Release84](<I:/Unity test/Comparison/Builds/LocalRelease84/Start-LocalRelease.cmd>)：新增[F2复用既有Log ledger](../LocalComparison/Review/keyboard-ledger-01/result.md)，关闭已有运行状态导出依赖鼠标按钮的使用缺口，没有新观察器或GI修改。同一普通Player内由F2确认DXR端点后，[应用Present窗口](../LocalComparison/Review/release84-dxr-present-01/result.md)得到79.22Hz、间隔p95 14.33ms／p99 14.81ms，窗口内无超过33.33ms间隔。原目标4／G5补齐当前DXR普通运行的呈交依据，支持960×540／30FPS方向，但不是实际显示FPS、逐帧DXR、等画质加速或生产放行。软件默认与旧83结果保持，不追加窗口、成本或软件重测；完整G0–G5继续开放。
+此前普通入口升级为[Release84](<I:/Unity test/Comparison/Builds/LocalRelease84/Start-LocalRelease.cmd>)：新增[F2复用既有Log ledger](../LocalComparison/Review/keyboard-ledger-01/result.md)，关闭已有运行状态导出依赖鼠标按钮的使用缺口，没有新观察器或GI修改。同一普通Player内由F2确认DXR端点后，[应用Present窗口](../LocalComparison/Review/release84-dxr-present-01/result.md)得到79.22Hz、间隔p95 14.33ms／p99 14.81ms，窗口内无超过33.33ms间隔。原目标4／G5补齐当前DXR普通运行的呈交依据，支持960×540／30FPS方向，但不是实际显示FPS、逐帧DXR、等画质加速或生产放行。软件默认与旧83结果保持，不追加窗口、成本或软件重测；完整G0–G5继续开放。
 
 原目标1/2／G3补齐[当前局部墙面换色的接收面响应](../LocalComparison/Review/local-recolor-response-01/result.md)：普通Renderer级MPB将红墙改蓝，材质未变的Floor／White在30帧已明显转蓝，59帧与119帧的平均色向L1差为0.005536／0.001583，无基线已知点丢失。首帧颗粒及后续亮度变化保留；晚239帧不是独立蓝色真值，不给出绝对旧色残留或精确收敛时刻。关闭的是局部换色后“接收面是否实际更新”的当前画面依据空白，没有新增功能修复或完整G1/G3放行。一次静止门的局部事件观察已结束，未重开slot1专项或扩大证明，Release83保持。
 

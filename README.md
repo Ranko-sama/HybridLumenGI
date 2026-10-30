@@ -2,9 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release84](<I:/Unity test/Comparison/Builds/LocalRelease84/Start-LocalRelease.cmd>)。** 同一场景提供导航、分页/HLOD、软件/DXR 偏好、换色、灯光、门和形变操作；提供默认关闭的GPU计时、更新预算反馈和进程显存观察。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release85](<I:/Unity test/Comparison/Builds/LocalRelease85/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
 
-Release84新增[F2运行状态日志快捷键](LocalComparison/Review/keyboard-ledger-01/result.md)，复用原Log ledger功能，GI与默认软件后端保持。在同一个普通Player请求DXR后，[应用Present窗口](LocalComparison/Review/release84-dxr-present-01/result.md)测得平均79.22Hz、间隔p95 14.33ms／p99 14.81ms，本窗口均小于33.33ms；前后日志报告DXR。这支持本机960×540／30FPS方向，不等于实际显示FPS、等画质或完整生产验收。
+Release85仅落实[本机DXR启动偏好](LocalComparison/Review/dxr-local-default-01/result.md)，GI算法不变；普通启动后F2已确认实际DXR。当前静止软件／DXR对照中，Floor已知域的平均绝对D亮度差约0.00000325，White均值RGB和所列误差指标一致，未见明显新增缺损；这不是动态等画质认证。此前Release84的[普通应用Present窗口](LocalComparison/Review/release84-dxr-present-01/result.md)为79.22Hz、间隔p95 14.33ms／p99 14.81ms，作为本机960×540／30FPS方向的依据保留，不冒充Release85新测帧率或完整生产验收。
 
 Release83 整合[刚体同帧更新的历史恢复](LocalComparison/Review/rigid-pose-history-01/result.md)：修复纯平移重传被误加Added、从而错误拒绝可信历史的问题。原场景239帧门面2739个已知点中，2724点恢复短历史复用，门面黑颗粒明显减少，仍有软斑驳；单帧不能证明无拖影或收敛。真正新增、延迟上传、内容变化及不匹配对应仍保守处理。
 

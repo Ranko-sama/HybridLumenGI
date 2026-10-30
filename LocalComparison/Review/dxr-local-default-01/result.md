@@ -30,6 +30,14 @@ Astra独立审查后支持撤除零容差规则作为本机配置的硬前置：
 
 有效域完整保留、图中无明显新增缺损，以及已记录的[DXR成本余量](../release83-dxr-cost-01/result.md)和[普通Present结果](../release84-dxr-present-01/result.md)支持本机960×540／30FPS方向。仅调整本机保存示例的启动偏好，保留按4返回软件和既有硬件准备失败回退；不改通用Feature默认、传输算法或采样参数。不能证明所有微小差异都是舍入误差，也不能声称动态等质量或完整G4通过。
 
+## 可运行交付
+
+[启动Release85](<I:/Unity test/Comparison/Builds/LocalRelease85/Start-LocalRelease.cmd>)现在直接请求DXR，保持960×540窗口、F2状态导出及原有交互。公开`HybridLumenGIPlayerBuild.Build`使用原保存示例，Release／BuildOptions.None，Succeeded、0 errors／23 warnings、native0。构建临时将示例Renderer的`preferHardwareTracing`设为1，随后恢复工程Renderer、QualitySettings和旧初始化器；通用源码未改。构建源码记录5e6b836，运行时仍为a3a570e／GI0181ef2。
+
+唯一普通Player PID14612未按4／5，仅按F2确认：[启动ledger](startup-ledger.json)在engine2392报告请求prefer DXR、实际DXR，20硬件网格、0fallback、0材质unknown，13页就绪、无加载／释放／失败；计时、反馈与进程显存观察均关闭。该日志为前一引擎帧2391的最新CPU诊断，不是GPU完成或逐射线证明。随后Alt+F4正常关闭，native0、watchdog=false。没有截图、性能窗口或既有4／5功能重测；这次只确认新启动配置进入了成品。
+
+原目标4／G4关闭“当前本机交付仍需手动选择已有低成本后端”的使用缺口，并补齐一个当前静止软件／DXR画面时点；不宣称新增算法加速、Release85新测79.22FPS或完整G4/G5放行。颜色、换色／关灯、运动拖影及收敛限制继续保留，不能把软件动停图重新标为DXR结果。
+
 ## 执行范围
 
 唯一Unity PID16208已退出，原图像和票据完整。120个连续逻辑／引擎／GI收据，failures0、backendMismatches0；原720协议failed、native exit1保留。原始目录：`I:/Unity test/Comparison/DxrLocalDefault01/capture/20261030-054912-b7dedf0fb83742408eab7317b252a013`。

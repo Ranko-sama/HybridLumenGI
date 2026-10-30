@@ -34,6 +34,8 @@ Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开�
 
 [普通Release84的DXR应用Present窗口](../LocalComparison/Review/release84-dxr-present-01/result.md)测得79.22Hz，间隔p95 14.33ms／p99 14.81ms，窗口内全部低于33.33ms。同进程F2日志在采集前后报告就绪DXR、计时和反馈关闭；只支持端点状态，不是逐帧后端证明。该有限结果支持当前30FPS方向，仍非实际显示FPS或G5通过；不据与旧83软件运行的差异宣称等画质加速。
 
+当前[Release85本机入口](../LocalComparison/Review/dxr-local-default-01/result.md)已直接采用已有DXR偏好，普通启动F2确认生效，按4仍可回软件。本项无新成本或Present采集；上述数值保留83／84来源，GI与显存正式放行预算仍未确定。
+
 [已有DXR后端的单次同配置成本窗口](../LocalComparison/Review/release83-dxr-cost-01/result.md)实际512源帧均为DXR：GI三区间合计中位13.276ms、p95 14.334ms、p99 14.522ms；相对软件基线中位观察差−52.61%。进程local采样峰值560.941MiB、nonlocal287.691MiB。此处只提供现有后端取舍依据，没有普通显示FPS或等画质声明，也不自动改变默认和预算。
 
 用户选择先完成本机基线，再确定正式目标。当前[Release83起始基线](../LocalComparison/Review/release83-local-baseline-01/result.md)已完成：960×540／480×270 GI、精确软件、RTX2080Ti DX12、反馈关闭。连续源窗口159–670的三个GI区间合计中位28.017ms、p95 31.186ms、p99 31.447ms；Transport中位27.802ms。目标相机回调平均28.982ms／34.505次每秒，p99 33.666ms；它不是实际Present FPS、纯CPU执行或整应用GPU时间。相同源窗口已有DXGI采样全部有效，进程local当前／采样峰值577.449MiB、nonlocal280.664MiB；非GI独占或瞬时／生命周期峰值。VSync=0、targetFrameRate=−1。只做了这一次测量配置运行，普通Release83保持不变；不据历史版本数值推导加速，也不自动扩矩阵。正式分辨率、FPS、GI-ms和显存上限留待据此决定，G0／G5尚未放行。
