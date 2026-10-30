@@ -2,7 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release89](<I:/Unity test/Comparison/Builds/LocalRelease89/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release90](<I:/Unity test/Comparison/Builds/LocalRelease90/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+
+Release90修复[形变快照发布饥饿](LocalComparison/Review/deformed-publication-fairness-01/result.md)：上传额度紧张时，已完成快照按捕获入队顺序争用额度，避免持续完成的新任务反复抢先。未完成头项仍可跳过，失效清理及失败所有权保留。必要组件回归和公开Release构建通过；GI着色器与2射线/DXR配置保持，没有新的Player、画质或性能测量。
 
 Release89新增[可选形变捕获时间准入](LocalComparison/Review/deformed-capture-time-budget-01/result.md)：本帧同步捕获经过时间达到额度后，延后开始下一对象并保留轮次，完成任务的发布／清理照常执行。默认关闭，单次BakeMesh不可抢占。必要组件规则检查与公开Release构建通过；当前2射线/DXR及画质配置保持，没有新增实机性能或画质结论。
 

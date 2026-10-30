@@ -1,6 +1,6 @@
 # GPU 时间反馈与更新预算
 
-当前入口为[Release88](<I:/Unity test/Comparison/Builds/LocalRelease88/Start-LocalRelease.cmd>)，已有限采用[本机每像素2射线配置](../LocalComparison/Review/two-ray-local-quality-01/result.md)。Runtime仍为e352921，只将本机示例构建配置从1 ray改为2 ray，保留DXR偏好；通用默认值2未改。软件149／179／189／209四图有明确颗粒收益，但平均Y分别增加7.892%／8.244%／23.112%／22.425%（约8–23%），不代表颜色更准确，也不构成全过程无拖影或完整720帧通过。
+当前入口由[首页](../README.md)维护；以下成本与画质依据来自[Release88](../LocalComparison/Review/two-ray-local-quality-01/result.md)，其有限采用[本机每像素2射线配置](../LocalComparison/Review/two-ray-local-quality-01/result.md)。当时Runtime为e352921，只将本机示例构建配置从1 ray改为2 ray，保留DXR偏好；通用默认值2未改。软件149／179／189／209四图有明确颗粒收益，但平均Y分别增加7.892%／8.244%／23.112%／22.425%（约8–23%），不代表颜色更准确，也不构成全过程无拖影或完整720帧通过。
 
 成本依据来自独立的普通DXR 2 ray门运动窗口：960×540启动配置下，应用Present平均39.954935Hz，间隔p95为27.8123ms、p99为28.72332ms、最大30.7175ms；1197个间隔没有超过33.333ms。该有限窗口支持30FPS方向，采用后的成本余量较小；软件画质与DXR成本不是同一后端的联合质量／性能验收。Present不是显示FPS、GI专项时间或完整G5放行，不能据此填写正式GI／显存预算；CI接线仍按用户决定暂缓。
 

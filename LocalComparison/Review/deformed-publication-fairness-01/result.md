@@ -6,4 +6,8 @@
 
 这些使用实际组件源码、真实Task屏障以及明确的Unity／烘焙结果适配器，不是GPU、BakeMesh数值或实际动画画质验证。未完成和清理失败保留项仍跳过；大于剩余额度项不阻塞后项。若一份快照永久大于整帧上传额度，仍可能一直等待，不承诺所有任务固定延迟。
 
-公开Release90构建待执行；沿用原统一场景、2ray/DXR及默认关闭的捕获时间门。没有新的Player、图像、性能或颜色／残留／收敛数据。
+源码8f0cdc8已同步本机工程，唯一公开`HybridLumenGI.Editor.HybridLumenGIPlayerBuild.Build`构建成功：Unity6000.0.85f1、Windows64 Mono、Release／None、0错误／23条warning。Unity PID22432、native exit0；原作者Renderer、Quality及初始化器已恢复。[构建来源](build-attempt.json)、[退出记录](build-exit.json)与[BuildReport摘要](<I:/Unity test/Comparison/Builds/LocalRelease90/build-result.json>)保留。
+
+[启动Release90](<I:/Unity test/Comparison/Builds/LocalRelease90/Start-LocalRelease.cmd>)沿用原统一场景、2ray/DXR及默认关闭的捕获时间门。没有新的Player、图像、性能或颜色／残留／收敛数据；Release88的画质／Present依据继续保持其实际来源，完整G0–G5仍未放行。
+
+独立源码审阅无阻断，Astra同意以必要组件规则验证与一次公开构建收束本线，不追加采集或调度框架。
