@@ -2,7 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release91](<I:/Unity test/Comparison/Builds/LocalRelease91/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release92](<I:/Unity test/Comparison/Builds/LocalRelease92/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+
+Release92采用[第4级空间滤波](LocalComparison/Review/four-pass-local-quality-01/result.md)：本机示例filter3→4，2ray／DXR及时间历史保持。[四时点同曝光对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png)中门面、地板和绿墙云斑明显减弱，未见新增持续旧轮廓；代价是同平面明暗过渡更柔。当前静止GI三区间合计p95为24.562ms、local采样峰值565.441MiB，满足25ms／1GiB起始门槛，但GI余量仅约0.438ms。普通Release构建完成；不代表运动最坏情况、颜色准确度或完整验收，旧filter3定量保持原来源。
 
 Release91补齐[表示需求与可用组显示](LocalComparison/Review/sample-representation-status-01/result.md)：普通面板及F2可区分请求细节而聚合体仍在提供覆盖、主动只要聚合体、未评估和未知状态。显示范围为样例CPU请求与Renderer可提交组，不是像素覆盖或GPU完成。独立源码审阅和公开Release构建完成，调度与画质配置保持；没有新增Player或性能／画质测量。
 
@@ -73,10 +75,10 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 
 | 问题 | 当前结论 |
 | --- | --- |
-| 颜色误差 | [Release88软件119独立对照](LocalComparison/Review/release88-color-frame119-01/result.md)：Floor／White平均D偏差−2.776%／−0.938%，逐像素Y-MAE 0.009566／0.017423；比旧1射线结果小，但Floor色向L1由0.004220增至0.007884。限两个ROI和既有近似参考，不解释全部运动亮度变化或整景准确度。 |
-| 换色／关灯残留 | 已修复全局换光后混入旧屏幕历史及缓存首次更新强制混入半份旧值的问题。新增灯表清空时移除旧解析灯缓存贡献；固定场景早期输出变化明显减少，局部换色及任意多跳响应仍未关闭。新的静止例外对无标记变暗消退更慢，有限32步后仍保留初始约6.88%。 |
-| 运动拖影 | Release88／2射线减少软件149／179／189／209的颗粒和暗斑；[当前DXR同场景四图](LocalComparison/Review/release88-dxr-motion-01/result.md)未见相对软件新增明显颗粒回退、边缘缺损或持续旧轮廓。软斑仍在，不是全段无拖影或任意运动等价。 |
-| 收敛时间 | 现有采样只能回答观测时点及区间，最后一帧不是收敛真值；尚不能给出整景达到正确颜色的统一帧数。 |
+| 颜色误差 | 当前filter4没有独立D误差估计。[Release88软件119／filter3](LocalComparison/Review/release88-color-frame119-01/result.md)的Floor／White平均D偏差−2.776%／−0.938%、逐像素Y-MAE 0.009566／0.017423保留历史来源；不能直接标为Release92误差。 |
+| 换色／关灯残留 | filter4未新增事件观察。此前已修复全局换光后混入旧屏幕历史及缓存首次更新强制混入半份旧值的问题。新增灯表清空时移除旧解析灯缓存贡献；固定场景早期输出变化明显减少，局部换色及任意多跳响应仍未关闭。新的静止例外对无标记变暗消退更慢，有限32步后仍保留初始约6.88%。 |
+| 运动拖影 | [Release92／filter4四时点](LocalComparison/Review/four-pass-local-quality-01/comparison.png)比原2ray／DXR／filter3明显减少云斑，边界保持清楚，未见新增持续旧门轮廓；局部明暗过渡更柔。不证明全段或任意运动无拖影。 |
+| 收敛时间 | 当前仍只有停止后10／30帧的普通画面；软化不等于收敛更快，尚不能给出整景达到正确颜色的统一帧数。旧响应数值保留原配置来源。 |
 
 Release83刚体修复的专项只新增正常产品0–239前缀的239帧历史与画面对照，该项验证已结束。后续0–359重新开灯观察见上方链接，复用原独立参考，没有生成新参考或给出精确收敛时刻。首批候选图与动态曲线保持旧来源。Release82修复复用保存场景的一次0–299前缀，D119/239/270/299完整；D240触及已有Capture容量而缺失，原分析失败保留，普通240出射图不能替代D。没有补采，不外推局部换色、任意运动或精确收敛。此前Release76/78的关灯观察运行原序列的 0–299 前缀，保存 239／240／270／299 四帧；其量为乘过反射率、AO 和强度的**间接漫反射出射贡献**，不是参考中的 D=E/π。原序列与 Editor 的 `failed`、native exit 1 因提前结束而保留，不记为 720 帧通过，也不与旧 D 图直接计算物理误差。
 

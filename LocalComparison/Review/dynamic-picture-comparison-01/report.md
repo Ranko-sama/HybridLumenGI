@@ -1,10 +1,10 @@
 # 动态画面对照与当前开发结论
 
-## 当前交付结论（Release91，画质依据保持Release88来源，2026-10-30）
+## 当前交付结论（Release92，filter4四图与历史颜色定量分别标源，2026-10-30）
 
-当前配置的[Release90静止GI基线](../release90-dxr-baseline-01/result.md)另已完成：960×540／GI480×270、2ray/DXR下，GI三区间合计中位21.667ms、p95 22.643ms、p99 23.938ms；进程local采样峰值565.441MiB。它只补齐当前成本决策输入，不改变下述画质结论，也不代表运动最坏情况或整应用GPU时间。
+当前[filter4配置静止预算窗口](../four-pass-local-quality-01/result.md)为960×540／GI480×270、2ray／DXR：GI三区间合计中位23.921ms、p95 24.562ms、p99 24.752ms；进程local／nonlocal采样峰值565.441／289.691MiB。满足25ms／1GiB起始门槛，GI p95余量仅约0.438ms，不代表运动、整应用GPU或完整性能验收；没有新的Present测量。
 
-[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease91/Start-LocalRelease.cmd>)现为Release91，新增[样例表示请求／可用组显示](../sample-representation-status-01/result.md)，保留[完成形变快照的发布修复](../deformed-publication-fairness-01/result.md)和默认关闭的[形变捕获时间准入](../deformed-capture-time-budget-01/result.md)，GI算法与2射线/DXR配置保持；此次只做源码审阅及公开构建，没有新的Player／画质运行。静止成本仍来自上列90基线。以下继续保留Release88实际来源：[四时点软件图](../two-ray-local-quality-01/comparison.png)中门面、地面颗粒和暗斑减少，未见明显新增持续旧轮廓或边缘缺口，软斑仍在；全图平均出射Y较1射线上升7.9–23.1%，这些运动时点没有独立误差估计。[静止119的独立D对照](../release88-color-frame119-01/result.md)显示有限ROI亮度指标改善、Floor色向变差，详见下表。默认DXR普通M门运动Present约39.95Hz，p95／p99间隔27.81／28.72ms、最大30.72ms；支持本机960×540启动配置下的30FPS方向，性能余量变小，不是显示FPS、GI增量成本或91新测值。
+[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease92/Start-LocalRelease.cmd>)现为Release92，只将本机示例空间滤波从3级增加到现成4级，2ray／DXR与时间历史保持。[同曝光四时点对照](../four-pass-local-quality-01/comparison.png)的门面、地板和绿墙云斑明显减弱，未见明显新增轮廓损坏、串色或持续旧门轮廓；代价是同平面明暗过渡更柔。四帧全图出射平均Y变化约−0.051%至+0.031%，不能当作颜色准确度证明。主线程、独立图审及Astra同意有限采用；普通构建完成，未追加其他运行。旧[Release88软件119独立D定量](../release88-color-frame119-01/result.md)与门运动Present均来自filter3，不能重标为92新结果。
 
 Release88沿用Release87的[短历史空间滤波](../short-history-spatial-filter-01/result.md)、F2和空场资源修复；启动优先DXR、按4回软件。后续[当前2射线DXR四时点对照](../release88-dxr-motion-01/result.md)未见相对软件新增明显回退，保留默认配置；画面与普通DXR成本仍是独立运行。**不同版本、时点和测量量不能合并成整景验收**；旧1射线颜色误差、残留与收敛数据保持原来源，不能当作88的新结论。
 
@@ -16,10 +16,10 @@ Release88沿用Release87的[短历史空间滤波](../short-history-spatial-filt
 
 | 用户问题 | 最近结果 | 适用范围与未解决项 |
 | --- | --- | --- |
-| 颜色误差 | [Release88软件119](../release88-color-frame119-01/result.md)的Floor／White平均D偏差−2.776%／−0.938%、逐像素Y-MAE 0.009566／0.017423，比历史1射线结果小；色向L1为0.007884／0.032816，其中Floor较旧0.004220变差。unknown为2／0。 | 限静止119、两个源ROI和既有256spp／8次反弹近似参考；像素标准误不是ROI置信区间，不是同点因果A/B。不解释运动四帧全部7.9–23.1%的亮度变化，旧动态数据保持原来源，整景颜色仍开放。 |
-| 换色／关灯残留 | [Release78来源分离](../cache-source-separation-01/result.md)在上传解析灯表为空时移除旧解析份额并保留发光／环境；同一前缀240→299的出射画面变化降低92.18%。[当前局部换色](../local-recolor-response-01/result.md)使未改材质接收面更新反弹颜色，59帧与119帧平均色向接近。Release82无标记真变黑的有限32步仍留6.88%。 | 出射变化和相对晚帧色向差都不是独立物理误差；当前换色没有蓝墙独立参考，不称旧色完全清除。32步为有限WARP依赖更新，不是真实Unity帧。任意局部换色与变化域外多跳传播仍未关闭。 |
-| 运动拖影 | [Release88的2射线配置](../two-ray-local-quality-01/result.md)减少软件149／179／189／209的颗粒与暗斑；[当前DXR同场景四图](../release88-dxr-motion-01/result.md)未见相对软件新增明显缺失、颗粒回退、边缘异常或持续旧轮廓。 | 限这四个时点，不能证明全段或任意运动后端等价；云状软斑仍有。旧D、相机/TAA及刚体历史专项保持原来源，不升级为整景验收。 |
-| 收敛时间 | Release88只有停止后10／30帧的普通画面，不新增精确收敛量。历史1射线下，Release82在270→299的Floor／White平均绝对D变化0.00025053／0.00079249；重新开灯后59帧恢复到开灯前98.36%／96.78%；旧门停止后10→30帧D变化0.022465。 | **尚不能给出整景达到正确颜色的统一帧数或秒数。** 旧1射线数值不外推88，晚帧不是真值；原D240容量缺口及相应提前结束前缀的未完成状态保留。 |
+| 颜色误差 | 当前filter4没有独立D误差估计。历史[Release88软件119／filter3](../release88-color-frame119-01/result.md)的Floor／White平均D偏差−2.776%／−0.938%、Y-MAE 0.009566／0.017423，色向L1为0.007884／0.032816，其中Floor较旧1ray变差。 | 历史数字限静止119、两个源ROI和既有256spp／8次反弹近似参考，不是filter4误差，也不证明整景准确。当前四图全图均值接近不能替代独立颜色参考。 |
+| 换色／关灯残留 | filter4本次未观察这两类事件。历史[Release78来源分离](../cache-source-separation-01/result.md)在上传解析灯表为空时移除旧解析份额并保留发光／环境；同一前缀240→299的出射画面变化降低92.18%。[当前局部换色](../local-recolor-response-01/result.md)使未改材质接收面更新反弹颜色，59帧与119帧平均色向接近。Release82无标记真变黑的有限32步仍留6.88%。 | 出射变化和相对晚帧色向差都不是独立物理误差；当前换色没有蓝墙独立参考，不称旧色完全清除。32步为有限WARP依赖更新，不是真实Unity帧。任意局部换色与变化域外多跳传播仍未关闭。 |
+| 运动拖影 | [Release92／filter4的DXR四图](../four-pass-local-quality-01/comparison.png)在149／179／189／209较filter3明显减弱较宽云斑，边界仍清楚，未见明显新增持续旧门轮廓。 | 局部明暗过渡更柔；只限这四个时点，不证明全段或任意运动无拖影。旧D、相机/TAA及刚体历史专项保持原来源。 |
+| 收敛时间 | filter4只有停止后10／30帧普通画面，不新增精确收敛量。历史1ray重新开灯后59帧恢复到开灯前98.36%／96.78%；旧门停止后10→30帧D变化0.022465，均保留原来源。 | **尚不能给出整景达到正确颜色的统一帧数或秒数。** 软化不等于收敛更快，旧响应数值不外推92，晚帧不是真值；原D240容量缺口及前缀未完成状态保留。 |
 
 当前可直接查看的画面：[Release82同曝光静止出射对照](../stationary-history-01/static-outgoing.png)、[Release82有限独立D对照](../stationary-history-01/available-comparison.png)、[Release83同曝光运动门对照](../rigid-pose-history-01/comparison.png)。普通出射贡献为上采样D乘反射率／AO／强度，不能替代独立D误差；各图的来源、有效域和显示约定见链接报告。
 

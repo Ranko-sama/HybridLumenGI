@@ -1,6 +1,6 @@
 # 本机统一示例：第4级空间滤波
 
-候选画面收益明确，已通过预先约定的静止预算门；待普通Release92构建整合。仅将本机示例现成`filterIterations`从3设为4，保留2ray／DXR和Runtime算法。第4级空间步长8扩大当前帧滤波支持，不回写时间历史或moments，通用Feature默认仍为3。
+已采用并交付[Release92](<I:/Unity test/Comparison/Builds/LocalRelease92/Start-LocalRelease.cmd>)：画面收益明确，通过预先约定的静止预算门，普通Release构建完成。仅将本机示例现成`filterIterations`从3设为4，保留2ray／DXR和Runtime算法。第4级空间步长8扩大当前帧滤波支持，不回写时间历史或moments，通用Feature默认仍为3。
 
 ## 画面收益与代价
 
@@ -38,3 +38,7 @@
 - 收敛时间：只有停后10／30帧普通画面，不能给出达到正确颜色的统一帧数；软化不等于收敛更快。
 
 本线只采用本机质量配置取舍，不称算法缺陷修复或G1／G3／G4整体放行。按Astra批准范围，预算通过后只做普通构建整合，不追加参考、运动Present、软件、长时或第二预算窗口。
+
+独立结果审阅确认实际配置、连续源帧／票据、逐源合计百分位口径及正常退出支持上述有限预算判断。Astra同意按既定门槛采用，突出约0.438ms余量，不追加采集。
+
+源码／本机配置记录2ec6c71完成唯一公开普通构建：Unity PID22392、native0，Unity6000.0.85f1／Windows64 Mono／Release／None、0错误／23条warning。见[构建来源](build-attempt.json)、[退出记录](build-exit.json)及[BuildReport](<I:/Unity test/Comparison/Builds/LocalRelease92/build-result.json>)。原Renderer、Quality与初始化器已恢复，92成品保留filter4／2ray／DXR，默认计时、反馈及捕获时间门均关闭。没有启动普通92或追加画面／性能运行，本线结束。
