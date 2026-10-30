@@ -16,6 +16,8 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 
 用户确认普通场景显示后，[应用Present窗口](LocalComparison/Review/release83-present-api-02/result.md)测得平均29.15次／秒、间隔p95 38.58ms／p99 41.35ms，该有限窗口尚未达到30FPS。此处关闭显示跟踪，不是显示器实际FPS；与上面的相机回调基线口径不同。
 
+已有[DXR模式的同配置GI成本](LocalComparison/Review/release83-dxr-cost-01/result.md)中位13.28ms、p95 14.33ms，较软件基线有更多时间余量；普通示例可按5请求DXR，并查看面板actual后端。该成本结果不证明等画质或普通显示FPS，默认仍保留软件模式。
+
 点击窗口后操作：
 
 | 操作 | 按键 |
