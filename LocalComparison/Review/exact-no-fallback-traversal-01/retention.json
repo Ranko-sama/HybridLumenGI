@@ -1,0 +1,41 @@
+{
+  "baseline": {
+    "intervals": {
+      "count": 512,
+      "medianMs": 23.920896,
+      "p95Ms": 24.561582400000002,
+      "p99Ms": 24.75164096,
+      "maxMs": 25.158688
+    },
+    "consecutive128FrameBlockMediansMs": [
+      23.711104,
+      23.755344,
+      24.079968,
+      24.004976
+    ],
+    "blockMedianRangeMs": 0.3688640000000021
+  },
+  "candidate": {
+    "intervals": {
+      "count": 512,
+      "medianMs": 18.392832,
+      "p95Ms": 19.2983568,
+      "p99Ms": 19.49825536,
+      "maxMs": 19.970336
+    },
+    "consecutive128FrameBlockMediansMs": [
+      18.58104,
+      18.3956,
+      18.760559999999998,
+      17.678800000000003
+    ],
+    "blockMedianRangeMs": 1.0817599999999956
+  },
+  "medianSavingMs": 5.5280640000000005,
+  "largerBlockMedianRangeMs": 1.0817599999999956,
+  "savingExceedsObservedBlockVariation": true,
+  "p95NoHigherThanBaseline": true,
+  "startingBudgetsPass": true,
+  "scope": "Frozen descriptive retention rule for two finite static windows, not a population confidence bound, image comparison or whole-app performance acceptance.",
+  "retainCandidate": true
+}
