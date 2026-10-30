@@ -1,0 +1,109 @@
+{
+  "product": "Release91 ffb42b1 / GI Runtime e352921 / two-ray DXR / filterIterations=4 candidate",
+  "fullSequencePassed": false,
+  "baselineRun": {
+    "status": "failed",
+    "renderedFrames": 210,
+    "failures": 0,
+    "backendMismatches": 0
+  },
+  "currentRun": {
+    "status": "failed",
+    "renderedFrames": 210,
+    "failures": 0,
+    "backendMismatches": 0
+  },
+  "quantity": "Ordinary outgoing indirect contribution, not independent D or a physical reference",
+  "scope": "Four matched reported-DXR time points, filterIterations 3 versus 4; visual ghosting/softness comparison, not all-frame or exact convergence proof",
+  "frames": [
+    {
+      "frame": 149,
+      "baselineBackend": "reported-hardware",
+      "backend": "reported-hardware",
+      "hardwareMeshes": 20,
+      "hardwareFallbacks": 0,
+      "doorLocalPosition": {
+        "x": -0.018644094467163086,
+        "y": 1.399999976158142,
+        "z": -0.800000011920929
+      },
+      "baselineMeanRGB": [
+        0.07239179480541161,
+        0.029101886321724287,
+        0.014473038482809165
+      ],
+      "currentMeanRGB": [
+        0.0723207441944304,
+        0.0291387515876622,
+        0.01447590686706317
+      ]
+    },
+    {
+      "frame": 179,
+      "baselineBackend": "reported-hardware",
+      "backend": "reported-hardware",
+      "hardwareMeshes": 20,
+      "hardwareFallbacks": 0,
+      "doorLocalPosition": {
+        "x": 1.100000023841858,
+        "y": 1.399999976158142,
+        "z": -0.800000011920929
+      },
+      "baselineMeanRGB": [
+        0.07766816036854897,
+        0.03135151102291717,
+        0.015800253414949388
+      ],
+      "currentMeanRGB": [
+        0.07759133879252494,
+        0.03138595470482124,
+        0.015808172510198674
+      ]
+    },
+    {
+      "frame": 189,
+      "baselineBackend": "reported-hardware",
+      "backend": "reported-hardware",
+      "hardwareMeshes": 20,
+      "hardwareFallbacks": 0,
+      "doorLocalPosition": {
+        "x": 1.100000023841858,
+        "y": 1.399999976158142,
+        "z": -0.800000011920929
+      },
+      "baselineMeanRGB": [
+        0.07588773571382325,
+        0.02982837622432947,
+        0.014872940015153897
+      ],
+      "currentMeanRGB": [
+        0.07577021664708165,
+        0.029836779547808875,
+        0.01486818898700373
+      ]
+    },
+    {
+      "frame": 209,
+      "baselineBackend": "reported-hardware",
+      "backend": "reported-hardware",
+      "hardwareMeshes": 20,
+      "hardwareFallbacks": 0,
+      "doorLocalPosition": {
+        "x": 1.100000023841858,
+        "y": 1.399999976158142,
+        "z": -0.800000011920929
+      },
+      "baselineMeanRGB": [
+        0.0762961628472831,
+        0.029958590822588525,
+        0.015129990450618164
+      ],
+      "currentMeanRGB": [
+        0.07619029084690207,
+        0.029967337430599563,
+        0.015127854030182056
+      ]
+    }
+  ],
+  "visualReview": "Root, independent image review and Astra agree: broader mottling decreases; same-plane transitions become softer; no obvious new silhouette damage, color bleeding or persistent old-door outline in these four outgoing snapshots. Limited visual adoption, not physical color or whole-trajectory proof."
+}
