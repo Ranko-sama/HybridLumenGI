@@ -1,0 +1,21 @@
+{
+  "status": "partial-baseline",
+  "product": "Release83 / 0181ef2",
+  "native": {
+    "status": "incomplete",
+    "completeMeasurement": false,
+    "productionAcceptance": false,
+    "runDirectory": "I:\\Unity test\\Comparison\\Release83DxrCost01\\run\\20261030-014858-1b24454694c54abb9693b4b44fab07e1",
+    "failures": [
+      "FileNotFoundError: [Errno 2] No such file or directory: 'I:\\\\Unity test\\\\Comparison\\\\Release83DxrCost01\\\\run\\\\20261030-014858-1b24454694c54abb9693b4b44fab07e1\\\\run.json'"
+    ],
+    "intervalStatistics": null,
+    "scope": "512 distinct consecutive source frames; native ReceiverCapture, Transport, Composite queue intervals and per-source sum.",
+    "excludes": "CPU preparation, uploads/RenderGraph work outside these intervals, query resolve, full-application GPU time, FPS and total VRAM. Queue intervals may include barriers/waits.",
+    "percentileMethod": "Linear interpolation at (N-1)*q; sum the three intervals for each source frame before percentile.",
+    "memoryInterpretation": "Start/end ledgers are unmodified observations; no growth, leak, total-VRAM or steady-state inference."
+  },
+  "formalTargets": "User target960x540/30FPS; GI-only time and memory limits unset.",
+  "scope": "One current960x540 actual-DXR static window. Backend cost/memory decision only; no equal-image speedup, displayed FPS, default change or lifetime peak claim.",
+  "error": "ValueError('Native source window incomplete; no replacement or partial GPU percentile')"
+}

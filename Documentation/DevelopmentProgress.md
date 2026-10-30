@@ -1,5 +1,7 @@
 # 完整原计划推进表
 
+原目标4／G4补齐[Release83已有DXR后端的成本取舍](../LocalComparison/Review/release83-dxr-cost-01/result.md)：同源窗口与配置仅切换后端偏好，实际DXR的GI合计中位13.28ms、p95 14.33ms／p99 14.52ms；软件基线分别28.02／31.19／31.45ms。进程local采样峰值560.94MiB、nonlocal287.69MiB。现有后端为当前30FPS方向提供更大余量；不是新增算法收益、等画质加速或显示FPS放行，默认与普通版本保持，G4／G5仍开放。
+
 用户重新确认普通场景显示后，原目标4／G5补齐[Release83应用Present节奏](../LocalComparison/Review/release83-present-api-02/result.md)：平均29.15次／秒、间隔p95 38.58ms／p99 41.35ms，该有限普通窗口低于30目标。只记录应用Present，不是实际显示FPS；普通UI及配置收据与测量基线不同，不能据此宣称回退或整机性能。填补的是应用呈交数据缺口，没有性能达标或新功能关闭项。旧无CSV与截图失败保留，未归因；下一项仅比较已有DXR的成本与显存取舍，不改变默认或扩大画质验证。
 
 960×540／30 FPS目标下的[普通Release83呈交采集](../LocalComparison/Review/release83-present-01/result.md)未取得CSV。工具按时正常退出、Player正常关闭，但截图不可用且没有帧记录，实际呈交FPS仍未知；只读核对未定位明确原因，未自动重跑。没有新增功能或验收关闭项，保留当前可运行版本与原GI／回调基线。

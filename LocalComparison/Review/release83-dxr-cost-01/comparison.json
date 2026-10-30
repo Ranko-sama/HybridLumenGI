@@ -1,0 +1,154 @@
+{
+  "settingsDifferences": {
+    "preferHardwareTracing": {
+      "software": false,
+      "dxr": true
+    }
+  },
+  "onlyRequestedBackendChanged": true,
+  "softwareWindow": {
+    "sourceStart": 159,
+    "sourceEnd": 670,
+    "count": 512,
+    "fullWidth": 960,
+    "fullHeight": 540,
+    "giWidth": 480,
+    "giHeight": 270
+  },
+  "dxrWindow": {
+    "sourceStart": 159,
+    "sourceEnd": 670,
+    "count": 512,
+    "fullWidth": 960,
+    "fullHeight": 540,
+    "giWidth": 480,
+    "giHeight": 270
+  },
+  "actualHardwareFrames": 512,
+  "softwareFrames": 0,
+  "hardwareMeshes": [
+    20
+  ],
+  "hardwareFallbacks": [
+    0
+  ],
+  "materialUnknown": [
+    0
+  ],
+  "hardwareCountsMeaning": "Existing backend counts, not proof of each ray using exact DXR geometry.",
+  "performance": {
+    "ReceiverCapture": {
+      "software": {
+        "count": 512,
+        "medianMs": 0.152992,
+        "p95Ms": 0.16384,
+        "p99Ms": 0.17064063999999998,
+        "maxMs": 0.177184
+      },
+      "dxr": {
+        "count": 512,
+        "medianMs": 0.152912,
+        "p95Ms": 0.1624512,
+        "p99Ms": 0.16765312,
+        "maxMs": 0.895328
+      },
+      "observedMedianChangePercent": -0.052290315833503076
+    },
+    "Transport": {
+      "software": {
+        "count": 512,
+        "medianMs": 27.80232,
+        "p95Ms": 30.9692704,
+        "p99Ms": 31.233727039999998,
+        "maxMs": 32.073728
+      },
+      "dxr": {
+        "count": 512,
+        "medianMs": 13.061808,
+        "p95Ms": 14.1131392,
+        "p99Ms": 14.30022464,
+        "maxMs": 14.467072
+      },
+      "observedMedianChangePercent": -53.01899985324967
+    },
+    "Composite": {
+      "software": {
+        "count": 512,
+        "medianMs": 0.064096,
+        "p95Ms": 0.066112,
+        "p99Ms": 0.06729248,
+        "maxMs": 0.335872
+      },
+      "dxr": {
+        "count": 512,
+        "medianMs": 0.06096,
+        "p95Ms": 0.065536,
+        "p99Ms": 0.066848,
+        "maxMs": 0.067456
+      },
+      "observedMedianChangePercent": -4.892661008487265
+    },
+    "perSourceSum": {
+      "software": {
+        "count": 512,
+        "medianMs": 28.017152,
+        "p95Ms": 31.18556,
+        "p99Ms": 31.4469072,
+        "maxMs": 32.297824000000006
+      },
+      "dxr": {
+        "count": 512,
+        "medianMs": 13.276496,
+        "p95Ms": 14.3336976,
+        "p99Ms": 14.52207232,
+        "maxMs": 14.679296
+      },
+      "observedMedianChangePercent": -52.6129707973173
+    }
+  },
+  "memory": {
+    "localSampledPeakMiB": {
+      "software": 577.44921875,
+      "dxr": 560.94140625
+    },
+    "nonlocalSampledPeakMiB": {
+      "software": 280.6640625,
+      "dxr": 287.69140625
+    }
+  },
+  "productionAcceptance": false,
+  "scope": "Observed existing-backend cost/memory tradeoff; not an equal-image speedup, default selection or displayed FPS result.",
+  "callbackCadence": {
+    "software": {
+      "count": 512,
+      "medianMs": 28.82259999999981,
+      "p95Ms": 32.526800000000655,
+      "p99Ms": 33.66628799999937,
+      "maxMs": 35.93400000000102,
+      "meanMs": 28.981564843749993,
+      "frequencyHz": 34.50469308304636,
+      "elapsedSeconds": 14.838561199999997,
+      "sourceStart": 159,
+      "sourceEnd": 670,
+      "precedingAnchorFrame": 158,
+      "timestampCount": 513,
+      "interpretation": "512 target-camera endCamera callback intervals using the immediately preceding stable anchor. Includes application scheduling/waits; not CPU busy time, actual Present FPS or whole-app GPU time."
+    },
+    "dxr": {
+      "count": 512,
+      "medianMs": 14.171699999998566,
+      "p95Ms": 16.376774999995547,
+      "p99Ms": 18.03715499999228,
+      "maxMs": 19.452299999997535,
+      "meanMs": 14.161625976562481,
+      "frequencyHz": 70.61336047534387,
+      "elapsedSeconds": 7.25075249999999,
+      "sourceStart": 159,
+      "sourceEnd": 670,
+      "precedingAnchorFrame": 158,
+      "timestampCount": 513,
+      "interpretation": "512 target-camera endCamera callback intervals using the immediately preceding stable anchor. Includes application scheduling/waits; not CPU busy time, actual Present FPS or whole-app GPU time."
+    },
+    "interpretation": "Not Present or displayed FPS."
+  }
+}
