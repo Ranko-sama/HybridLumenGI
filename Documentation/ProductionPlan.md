@@ -4,13 +4,15 @@
 
 当前入口已整合为[Release93](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)，消除精确后端完整接管全部published owner后仍执行的空回退BVH遍历。混合／非exact路径及原命中资格保持，filter4／2ray／DXR与时间历史不变。同配置有限静止GI合计中位23.921→18.393ms、p95 24.562→19.298ms，通过预定收益及预算门；独立审阅、Astra与普通构建整合完成。运动画质依据保留92四图来源，性能线没有追加图像、Present或第二成本窗口，不外推所有场景收益，完整G0–G5仍未通过。
 
+当前[Release93普通门运动Present](../LocalComparison/Review/release93-motion-present-01/result.md)已取得有限依据：960×540启动配置、2ray／filter4／默认DXR的一次固定30秒窗口平均52.688Hz，间隔p95／p99为21.966／23.567ms，最大25.991ms，全部观测间隔低于33.333ms。普通场景、门位移和两端实际DXR已确认；支持本机30FPS方向，不代表显示FPS、运动GI／显存、最坏负载或整体G5。普通93保持，本观察线结束。
+
 当前另已取得[93／filter4／DXR静止119独立颜色估计](../LocalComparison/Review/release93-color-frame119-01/result.md)：Floor／White均值D亮度偏差−3.075%／−0.831%，Y-MAE 0.010529／0.018576。相较旧软件filter3，两处MAE约增10.1%／6.6%，均值色向偏差略增；保留92已授权减云斑取舍，同时报告颜色指标代价。单点限既有640×360参考网格、两个ROI及近似参考，不是整景／960×540颜色或动态验收；没有修改产品、补采或构建。
 
 此前补齐[Release90／filter3的2射线DXR静止GI基线](../LocalComparison/Review/release90-dxr-baseline-01/result.md)：GI三区间合计中位21.667ms、p95 22.643ms、p99 23.938ms；进程local采样峰值565.441MiB。这是G0的当前预算决策输入，不是整应用GPU或冷／热／高速运动完整验收；该窗口满足随后确认的25ms／1GiB起始口径，普通Release90和画质配置保持。
 
 用户已明确暂缓G5的CI接线；该条款保留未完成，不阻塞其他本机开发。当前有限采用[Release88本机2 ray配置](../LocalComparison/Review/two-ray-local-quality-01/result.md)：Runtime仍为e352921，只将本机示例构建的`raysPerPixel`从1改为2，通用默认值2保持。一次软件149／179／189／209四图有明确颗粒收益；平均Y分别增加7.892%／8.244%／23.112%／22.425%（约8–23%），不当作颜色更准确。四个时点不证明全过程无拖影，原720未完成状态保持。
 
-独立的普通DXR 2 ray门运动成本窗口中，960×540启动配置的应用Present平均39.954935Hz，间隔p95为27.8123ms、p99为28.72332ms、最大30.7175ms，1197个间隔没有超过33.333ms。它支持本机30FPS方向，但成本余量较小；软件质量与DXR成本分别来自不同运行，不能合并为同后端的完整质量／性能放行。Present不是显示FPS或GI专项时间，正式GI／显存预算仍未定，完整G3／G4／G5保持开放。
+独立的普通DXR 2 ray门运动成本窗口中，960×540启动配置的应用Present平均39.954935Hz，间隔p95为27.8123ms、p99为28.72332ms、最大30.7175ms，1197个间隔没有超过33.333ms。它支持本机30FPS方向，但成本余量较小；软件质量与DXR成本分别来自不同运行，不能合并为同后端的完整质量／性能放行。Present不是显示FPS或GI专项时间；该历史窗口采集时GI／显存预算未定，现以首页已确认的25ms／1GiB口径为准，完整G3／G4／G5保持开放。
 
 此前[Release87](../LocalComparison/Review/short-history-spatial-filter-01/result.md)的短历史空间滤波改进保留：唯一软件239帧对照可见黑颗粒减少，已知点和时间统计保持；云状软斑与滤波增量成本未单独测量的边界保留。87的[1 ray门运动Present窗口](../LocalComparison/Review/release87-motion-present-01/result.md)仍属于原配置：960×540启动配置、默认DXR，平均70.85Hz，p95／p99间隔16.73／17.80ms，全部观测间隔低于33.33ms；不改标为88数据，也不据跨窗口差值归算某个滤波步骤成本。86空场资源修复与85本机DXR偏好继续保留。
 
@@ -28,7 +30,7 @@ Release84新增[F2运行状态日志入口](../LocalComparison/Review/keyboard-l
 
 ## 当前支持范围与证据层级
 
-**基线后的用户决定：先以960×540／30 FPS为开发目标。** 整帧约33.33ms，GI专项时间与显存上限仍待单独确定。当前半分辨率GI为开发起点；现有回调频率不是实际呈现FPS验收，完整G0／G5仍开放。
+**基线后的用户决定：先以960×540／30 FPS为开发目标。** 整帧约33.33ms；随后确认的GI三区间合计p95≤25ms及进程local有限采样峰值≤1GiB见当前口径。当前半分辨率GI为开发起点；现有回调频率不是实际呈现FPS验收，完整G0／G5仍开放。
 
 用户确认正常普通场景后，[Release83应用Present窗口](../LocalComparison/Review/release83-present-api-02/result.md)得到平均29.15Hz、间隔p95 38.58ms／p99 41.35ms，该有限窗口未达到30FPS。关闭显示跟踪，实际显示节奏仍未知；测量与UI/input关闭的起始基线口径不同，不据此归因性能回退。
 
@@ -42,7 +44,7 @@ Release84新增[F2运行状态日志入口](../LocalComparison/Review/keyboard-l
 | 已实现、有限验证 | 不变Skinned快照复用、Additive雾衰减、局部灯变化优先调度及现有架构能力 | 分别见[复用](ReviewBrief-SkinnedUnchangedSnapshotReuse01.md)、[原生捕获依赖](ReviewBrief-SkinnedNativeCaptureBoundary01.md)、[雾合成](ReviewBrief-AdditiveFogComposition01.md)、[调度](ReviewBrief-LocalLightSchedulingPriority01.md)；源码适配器、原生依赖与完整功能验收分开，54不补齐未触发条件 |
 | 历史证据 | Release44稳态、早期软件/DXR图像、流式及动态专项 | [44的300秒窗口](ReviewBrief-LocalReleaseSteadyUse01.md)属于5120a8c；其他见[推进表](DevelopmentProgress.md)各自来源，不改旧FAIL、不改标为当前通过 |
 | 代码明确限制/拒绝 | Feature跳过非DX12、非Linear、非Base或立体相机，以及无compute/必要资源的路径；仅Game及显式允许的SceneView、Tex2D目标可进入 | [实际准入代码](../Runtime/HybridLumenGIRendererFeature.cs)；替换原生漫反射还要求普通URP Lit、Forward/Forward+、有符号HDR及MSAA关闭等，失败保留原照明，见[完整替换合同](NativeDiffuseComposition.md)。这些限制不是单纯“尚未测试” |
-| 尚未完成的验收 | 整体图像质量/动态收敛、各功能未覆盖的原生条件、目标规模、总VRAM、GPU p95/p99、完整G0–G5 | 目标分辨率/FPS已定为960×540／30；GI时间和显存预算仍待确定。未采集的资源/退休字段默认值不能当清零；首帧等待不是受控性能改善；不由120帧静态运行推导生产放行 |
+| 尚未完成的验收 | 整体图像质量/动态收敛、各功能未覆盖的原生条件、目标规模、总VRAM、GPU p95/p99、完整G0–G5 | 目标已定为960×540／30FPS、GI三区间合计p95≤25ms及进程local有限采样峰值≤1GiB，nonlocal另列。未采集的资源/退休字段默认值不能当清零；首帧等待不是受控性能改善；不由120帧静态运行推导生产放行 |
 
 以下架构与G0–G5条件继续保留。早期阶段叙述和朋友包只提供历史背景，不决定当前启动步骤。
 

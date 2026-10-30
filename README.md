@@ -4,6 +4,8 @@ Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材�
 
 **当前本机入口：[启动统一交互 Release93](<I:/Unity test/Comparison/Builds/LocalRelease93/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
 
+当前93的[普通门运动窗口](LocalComparison/Review/release93-motion-present-01/result.md)已补齐：按960×540启动、2ray／filter4／默认DXR，应用Present平均52.69Hz，间隔p95／p99为21.97／23.57ms，最大25.99ms，全部观测间隔低于33.33ms。正常场景与门位移已观察，端点DXR及transform更新推进；支持本机30FPS方向，非实际显示FPS、最坏负载或完整G5。普通93不变，没有追加窗口或构建。
+
 当前配置另已补齐[filter4／DXR静止119的独立颜色估计](LocalComparison/Review/release93-color-frame119-01/result.md)：Floor／White平均D亮度偏差−3.075%／−0.831%，Y-MAE为0.010529／0.018576。相较历史软件filter3，两个MAE约增10.1%／6.6%，色向指标也略增；保留运动减云斑取舍，不能称颜色全面更准。限既有640×360参考网格的两个ROI，未扩展参考或重建普通93。
 
 Release93消除[精确后端完整接管后的空回退遍历](LocalComparison/Review/exact-no-fallback-traversal-01/result.md)：没有回退owner时，保留精确查询结果直接返回；有回退时仍走原路径。保持filter4／2ray／DXR，在同配置有限静止窗口中GI合计中位23.921→18.393ms、p95 24.562→19.298ms，local采样峰值567.254MiB；通过预定收益判据及25ms／1GiB起始预算。普通构建完成，画质依据保持92原来源，不外推所有场景、运动FPS或整应用GPU收益。
