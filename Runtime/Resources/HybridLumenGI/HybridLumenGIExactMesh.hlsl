@@ -6,6 +6,7 @@
 
 
 StructuredBuffer<uint> _HLGI_HardwareMeshFlags;
+int _HLGI_ExactCoversPublished;
 // 128B, identical to HybridLumenGIHardwareBackend.InstanceData.
 struct HLGIHardwareInstance
 {

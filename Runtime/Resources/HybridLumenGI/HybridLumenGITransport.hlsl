@@ -130,6 +130,11 @@ bool TraceSceneDetailQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool re
     HLGISoftwareTraceQuery(o,d,maxT,shadowQuery,resolveMaterial,cullingMask,shadowRenderingLayers,useRenderingLayers,
         footprint.valid==1u?footprint.radius:-1,footprint.slope,materialView,result);
 #endif
+#if defined(HLGI_INLINE_RT) || defined(HLGI_SOFTWARE_TRIANGLES)
+    // Bound with this dispatch's mesh flags. With no published fallback owner,
+    // every leaf below would be skipped; retain the exact query's hit/miss/unknown.
+    if(_HLGI_ExactCoversPublished!=0) return HLGIHitHas(result.flags,HLGI_HIT_VALID);
+#endif
     uint cursor=0;
     [loop] while(cursor<(uint)_HLGI_SceneBvhCount)
     {

@@ -49,6 +49,7 @@ namespace HybridLumenGI
 
         private static readonly int AccelerationId = UnityEngine.Shader.PropertyToID("_HLGI_AccelerationStructure");
         private static readonly int FlagsId = UnityEngine.Shader.PropertyToID("_HLGI_HardwareMeshFlags");
+        private static readonly int CoversPublishedId = UnityEngine.Shader.PropertyToID("_HLGI_ExactCoversPublished");
         private static readonly int InstancesId = UnityEngine.Shader.PropertyToID("_HLGI_HardwareInstances");
         private static readonly int NormalsId = UnityEngine.Shader.PropertyToID("_HLGI_HardwareTriangleNormals");
         private static readonly int SurfaceId = UnityEngine.Shader.PropertyToID("_HLGI_HardwareTriangleSurface");
@@ -664,6 +665,7 @@ namespace HybridLumenGI
             if (!CanDispatch) return;
             if(!softwareOnly)compute.SetRayTracingAccelerationStructure(kernel, AccelerationId, acceleration);
             compute.SetBuffer(kernel, FlagsId, flagsBuffer);
+            compute.SetInt(CoversPublishedId, FallbackCount == 0 ? 1 : 0);
             compute.SetBuffer(kernel, InstancesId, instancesBuffer);
             compute.SetBuffer(kernel, NormalsId, normalsBuffer);
             compute.SetBuffer(kernel, SurfaceId, surfaceBuffer);
@@ -677,6 +679,7 @@ namespace HybridLumenGI
             if (!CanDispatch) return;
             if(!softwareOnly)command.SetGlobalRayTracingAccelerationStructure(AccelerationId, acceleration);
             command.SetComputeBufferParam(compute, kernel, FlagsId, flagsBuffer);
+            command.SetComputeIntParam(compute, CoversPublishedId, FallbackCount == 0 ? 1 : 0);
             command.SetComputeBufferParam(compute, kernel, InstancesId, instancesBuffer);
             command.SetComputeBufferParam(compute, kernel, NormalsId, normalsBuffer);
             command.SetComputeBufferParam(compute, kernel, SurfaceId, surfaceBuffer);
