@@ -1,0 +1,415 @@
+{
+  "status": "observed-limited-current-backend-comparison",
+  "product": "0181ef2 GI retained in Release84",
+  "fullSequencePassed": false,
+  "scope": "Only a local startup preference decision; static119 in saved V209 scene, 640x360 outgoing/320x180 D. No dynamic parity, new cost measurement or fullG4 verdict.",
+  "run": {
+    "software": {
+      "directory": "I:\\Unity test\\Comparison\\LightRestoreResponse01\\capture\\20261030-025605-2c271e3b8dc044429f1f1099ed294250",
+      "status": "failed",
+      "renderedFrames": 360,
+      "failures": 0,
+      "backendMismatches": 0
+    },
+    "dxr": {
+      "directory": "I:\\Unity test\\Comparison\\DxrLocalDefault01\\capture\\20261030-054912-b7dedf0fb83742408eab7317b252a013",
+      "status": "failed",
+      "renderedFrames": 120,
+      "failures": 0,
+      "backendMismatches": 0
+    }
+  },
+  "settingsDifferences": {
+    "preferHardwareTracing": [
+      false,
+      true
+    ]
+  },
+  "inputChecks": {
+    "software": {
+      "directory": "I:\\Unity test\\Comparison\\LightRestoreResponse01\\signals",
+      "frame": 119,
+      "oldCaptureFrame": 119,
+      "sourceFormat": "R16G16B16A16_SFloat",
+      "storedFormat": "rgba32f-le",
+      "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+      "metadata": {
+        "invVP": {
+          "same": true,
+          "current": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          },
+          "old": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          }
+        },
+        "giSize": {
+          "same": true,
+          "current": {
+            "x": 320,
+            "y": 180
+          },
+          "old": {
+            "x": 320,
+            "y": 180
+          }
+        },
+        "intensity": {
+          "same": true,
+          "current": 1.0,
+          "old": 1.0
+        }
+      },
+      "materials": {
+        "Floor": {
+          "same": true,
+          "sourcePixels": 13330,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "White receiver": {
+          "same": true,
+          "sourcePixels": 86,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "debugIgnoredForD": {
+        "current": 1,
+        "old": 0
+      },
+      "materialSourceFormats": {
+        "current": "R8G8B8A8_UNorm",
+        "old": "R8G8B8A8_UNorm"
+      }
+    },
+    "dxr": {
+      "directory": "I:\\Unity test\\Comparison\\DxrLocalDefault01\\signals",
+      "frame": 119,
+      "oldCaptureFrame": 119,
+      "sourceFormat": "R16G16B16A16_SFloat",
+      "storedFormat": "rgba32f-le",
+      "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+      "metadata": {
+        "invVP": {
+          "same": true,
+          "current": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          },
+          "old": {
+            "e00": 1.0264004468917847,
+            "e01": 0.0,
+            "e02": 0.0,
+            "e03": 0.0,
+            "e10": 0.0,
+            "e11": -0.574285626411438,
+            "e12": 24.974998474121094,
+            "e13": -0.07789916545152664,
+            "e20": 0.0,
+            "e21": -0.05940885469317436,
+            "e22": -74.92499542236328,
+            "e23": 0.9196918606758118,
+            "e30": 0.0,
+            "e31": 0.0,
+            "e32": 9.989999771118164,
+            "e33": 0.009999994188547134
+          }
+        },
+        "giSize": {
+          "same": true,
+          "current": {
+            "x": 320,
+            "y": 180
+          },
+          "old": {
+            "x": 320,
+            "y": 180
+          }
+        },
+        "intensity": {
+          "same": true,
+          "current": 1.0,
+          "old": 1.0
+        }
+      },
+      "materials": {
+        "Floor": {
+          "same": true,
+          "sourcePixels": 13330,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "White receiver": {
+          "same": true,
+          "sourcePixels": 86,
+          "maxAbsoluteDifferenceRGBA": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "debugIgnoredForD": {
+        "current": 1,
+        "old": 0
+      },
+      "materialSourceFormats": {
+        "current": "R8G8B8A8_UNorm",
+        "old": "R8G8B8A8_UNorm"
+      }
+    }
+  },
+  "backendAt119": {
+    "hardwareBackend": true,
+    "hardwareMeshes": 20,
+    "hardwareFallbacks": 0,
+    "hardwareMaterialUnknownRecords": 0,
+    "exactSoftwareGeometry": false
+  },
+  "rois": {
+    "Floor": {
+      "sourcePixels": 13330,
+      "softwareKnown": 13328,
+      "commonKnown": 13328,
+      "lostSoftwareKnown": 0,
+      "unknown": {
+        "software": 2,
+        "dxr": 2
+      },
+      "metrics": {
+        "software": {
+          "meanRGB": [
+            0.12536460926838996,
+            0.05360707286454621,
+            0.034744817955868874
+          ],
+          "meanY": 0.06750087029959688,
+          "referenceMeanRGB": [
+            0.13361872458728552,
+            0.05682944424413598,
+            0.03652322090808094
+          ],
+          "meanBiasRGB": [
+            -0.008254115318895555,
+            -0.003222371379589771,
+            -0.0017784029522120645
+          ],
+          "absoluteMeanBiasRGB": [
+            0.008254115318895555,
+            0.003222371379589771,
+            0.0017784029522120645
+          ],
+          "referenceMeanY": 0.0716887359202264,
+          "meanBiasY": -0.00418786562062951,
+          "absoluteMeanBiasY": 0.00418786562062951,
+          "relativeMeanBiasY": -0.05841734502460292,
+          "pixelYMAE": 0.01019924678388488,
+          "pixelYRMSE": 0.01963194282399063,
+          "meanChromaL1": 0.0042198220830376165,
+          "meanMomentsX": 0.06951361664999983,
+          "referenceMeanPixelStandardErrorRGB": [
+            0.018481189138846013,
+            0.009217535186712622,
+            0.0064951781660416074
+          ],
+          "referenceMeanPixelConservativeLumaSE": 0.010990433840043713
+        },
+        "dxr": {
+          "meanRGB": [
+            0.12536510385098865,
+            0.053607510203788546,
+            0.034746030370155875
+          ],
+          "meanY": 0.067501375769195,
+          "referenceMeanRGB": [
+            0.13361872458728552,
+            0.05682944424413598,
+            0.03652322090808094
+          ],
+          "meanBiasRGB": [
+            -0.008253620736296874,
+            -0.0032219340403474364,
+            -0.0017771905379250635
+          ],
+          "absoluteMeanBiasRGB": [
+            0.008253620736296874,
+            0.0032219340403474364,
+            0.0017771905379250635
+          ],
+          "referenceMeanY": 0.0716887359202264,
+          "meanBiasY": -0.0041873601510313925,
+          "absoluteMeanBiasY": 0.0041873601510313925,
+          "relativeMeanBiasY": -0.05841029413171676,
+          "pixelYMAE": 0.010199478355917346,
+          "pixelYRMSE": 0.019633987383744406,
+          "meanChromaL1": 0.00422696483868476,
+          "meanMomentsX": 0.06951489581477799,
+          "referenceMeanPixelStandardErrorRGB": [
+            0.018481189138846013,
+            0.009217535186712622,
+            0.0064951781660416074
+          ],
+          "referenceMeanPixelConservativeLumaSE": 0.010990433840043713
+        }
+      },
+      "notWorse": {
+        "absoluteMeanBiasY": true,
+        "pixelYMAE": false,
+        "meanChromaL1": false
+      },
+      "meanAbsoluteBackendYDifference": 3.246832867057956e-06
+    },
+    "White receiver": {
+      "sourcePixels": 86,
+      "softwareKnown": 86,
+      "commonKnown": 86,
+      "lostSoftwareKnown": 0,
+      "unknown": {
+        "software": 0,
+        "dxr": 0
+      },
+      "metrics": {
+        "software": {
+          "meanRGB": [
+            0.38115177598110467,
+            0.17906579305959303,
+            0.1416271121002907
+          ],
+          "meanY": 0.21932620026344476,
+          "referenceMeanRGB": [
+            0.4155668373717818,
+            0.179802808477435,
+            0.1386817782944025
+          ],
+          "meanBiasRGB": [
+            -0.034415061390677126,
+            -0.000737015417841963,
+            0.002945333805888184
+          ],
+          "absoluteMeanBiasRGB": [
+            0.034415061390677126,
+            0.000737015417841963,
+            0.002945333805888184
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "meanBiasY": -0.007631102377713418,
+          "absoluteMeanBiasY": 0.007631102377713418,
+          "relativeMeanBiasY": -0.03362351547585557,
+          "pixelYMAE": 0.02011300027382581,
+          "pixelYRMSE": 0.028394729578953053,
+          "meanChromaL1": 0.04611257389192053,
+          "meanMomentsX": 0.22576293622165225,
+          "referenceMeanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "referenceMeanPixelConservativeLumaSE": 0.01763054075408338
+        },
+        "dxr": {
+          "meanRGB": [
+            0.38115177598110467,
+            0.17906579305959303,
+            0.1416271121002907
+          ],
+          "meanY": 0.21932620026344476,
+          "referenceMeanRGB": [
+            0.4155668373717818,
+            0.179802808477435,
+            0.1386817782944025
+          ],
+          "meanBiasRGB": [
+            -0.034415061390677126,
+            -0.000737015417841963,
+            0.002945333805888184
+          ],
+          "absoluteMeanBiasRGB": [
+            0.034415061390677126,
+            0.000737015417841963,
+            0.002945333805888184
+          ],
+          "referenceMeanY": 0.22695730264115818,
+          "meanBiasY": -0.007631102377713418,
+          "absoluteMeanBiasY": 0.007631102377713418,
+          "relativeMeanBiasY": -0.03362351547585557,
+          "pixelYMAE": 0.02011300027382581,
+          "pixelYRMSE": 0.028394729578953053,
+          "meanChromaL1": 0.04611257389192053,
+          "meanMomentsX": 0.22576293682809487,
+          "referenceMeanPixelStandardErrorRGB": [
+            0.0254822920692248,
+            0.01574886247570123,
+            0.013149847888430332
+          ],
+          "referenceMeanPixelConservativeLumaSE": 0.01763054075408338
+        }
+      },
+      "notWorse": {
+        "absoluteMeanBiasY": true,
+        "pixelYMAE": true,
+        "meanChromaL1": true
+      },
+      "meanAbsoluteBackendYDifference": 0.0
+    }
+  },
+  "numericAdoptionConditionsMet": false,
+  "visualReview": "See result.md; no automatic adoption from numbers alone"
+}
