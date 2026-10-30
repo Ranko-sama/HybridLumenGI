@@ -183,6 +183,21 @@ namespace HybridLumenGI
             [Range(0.01f,1),Tooltip("Minimum fraction of configured patch/capture/brick update limits. Does not change resource capacity, ray counts or the surface draw limit.")]
             public float minimumGpuWorkFraction=0.125f;
             public DebugView debugView;
+
+            internal string TransportSettingsJson()
+            {
+                // Monitoring and update quotas do not change the light-transport
+                // inputs. Keep their own timing/controller generation separate.
+                // Clone so every other serialized field, including future fields,
+                // remains in the comparison without modifying the live settings.
+                var transport=(Settings)MemberwiseClone();
+                transport.adaptiveGpuBudget=false;
+                transport.measureGpuCost=false;
+                transport.preferNativeGpuTiming=false;
+                transport.targetGpuMilliseconds=0;
+                transport.minimumGpuWorkFraction=0;
+                return JsonUtility.ToJson(transport);
+            }
         }
         [SerializeField] private Settings settings=new Settings();
         /// <summary>Requested preference, not proof that this camera is using hardware tracing.</summary>
@@ -199,7 +214,8 @@ namespace HybridLumenGI
         /// Configure the existing per-camera GI-pass timing/feedback on the Unity main thread,
         /// before camera preparation. Invalid input leaves all settings unchanged. These are
         /// feature-wide requests, not a hard deadline or the application's total GPU budget.
-        /// The normal configuration-change path refreshes timing and lighting history.
+        /// Timing/controller state is refreshed independently; these controls alone
+        /// preserve lighting history and HLOD readiness.
         /// </summary>
         public bool TryConfigureGpuBudget(bool measureCost,bool feedback,float targetMilliseconds)
         {
@@ -321,7 +337,8 @@ namespace HybridLumenGI
             internal HybridLumenGILights.SelectionDiagnostics lightSelection;
             internal HybridLumenGILightRelevance.Domain lightDomain;
             internal string lightDomainReason;
-            internal int width,height,capacity,readIndex,cacheRead,frame,epoch=1,cacheCursor,lastUsed,lastLightHash,lastSettingsHash;
+            internal int width,height,capacity,readIndex,cacheRead,frame,epoch=1,cacheCursor,lastUsed,lastLightHash;
+            internal string lastSettingsJson,lastTransportSettingsJson;
             internal int patchGrid,cacheEntryCount,previousLightCount;
             internal int fullWidth,fullHeight,fullPixelBytes;
             internal bool valid,lastHardware,lightingChanged;
@@ -680,11 +697,15 @@ namespace HybridLumenGI
                 int slots=Mathf.Clamp(s.residentProxies,32,256);
                 state.Ensure(w,h,identityEnabled);
                 string serializedSettings=JsonUtility.ToJson(s);
-                int settingsHash=serializedSettings.GetHashCode();
-                if(settingsHash!=state.lastSettingsHash)
+                if(serializedSettings!=state.lastSettingsJson)
                 {
-                    state.lastSettingsHash=settingsHash;state.epoch=state.epoch%8000000+1;state.InvalidateScreenHistory();
-                    state.scene.InvalidateReadiness();state.readiness.Invalidate();
+                    string transportSettings=s.TransportSettingsJson();
+                    if(transportSettings!=state.lastTransportSettingsJson)
+                    {
+                        state.epoch=state.epoch%8000000+1;state.InvalidateScreenHistory();
+                        state.scene.InvalidateReadiness();state.readiness.Invalidate();
+                    }
+                    state.lastSettingsJson=serializedSettings;state.lastTransportSettingsJson=transportSettings;
                 }
                 state.PrepareGpuBudget(s,serializedSettings,Time.frameCount);
                 long fingerprintBudget=(long)Math.Max(1,Math.Min(1024,s.receiverFingerprintBudgetMiB))*1024*1024;

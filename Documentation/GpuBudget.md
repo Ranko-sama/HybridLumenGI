@@ -35,7 +35,7 @@
 - 面板区分请求模式、已配置目标和上次相机诊断；显示已有提供器／状态、耗时观测、源帧／消费帧、实际反馈状态、缩放比例和patch／capture／brick有效配额。缺测显示不可用；历史值明确可能来自先前配置，不能当新样本或零成本。Recorder没有精确源帧时显示unknown。
 - **Log ledger** 沿用原导出入口，额外记录请求的测量／反馈开关与目标，实际结果仍在`cameraGi`。Release84也可按 **F2** 调用同一功能，不自动开启测量。没有新计时或统计管线。
 
-目标只约束既有控制器所观测的GI区间，不是整应用GPU时间、硬截止或G0／G5生产预算。最低更新量下仍超目标会明确显示，不自动降画质或修改资源尺寸。配置在Feature范围生效，各相机独立控制；沿用原配置变化流程刷新计时与光照历史。
+目标只约束既有控制器所观测的GI区间，不是整应用GPU时间、硬截止或G0／G5生产预算。最低更新量下仍超目标会明确显示，不自动降画质或修改资源尺寸。配置在Feature范围生效，各相机独立控制。监测开关、计时提供器偏好、反馈开关、目标毫秒和最低工作比例只刷新独立计时／控制器状态，不再单独撤销世界缓存、屏幕历史或HLOD就绪；完整计时配置仍区分新旧观测，其他设置继续走原传输失效规则。见[职责分离修复](../LocalComparison/Review/gpu-controls-preserve-history-01/result.md)。
 
 自有运行入口可在Unity主线程、相机准备之前调用`TryConfigureGpuBudget(measureCost, feedback, targetMilliseconds)`；有限非负目标是基础要求，启用反馈另须严格大于零。非法输入返回false且三个字段均不变。`RequestedMeasureGpuCost`、`RequestedAdaptiveGpuBudget`、`RequestedTargetGpuMilliseconds`读取请求配置，`GetDiagnostics()`读取实际状态。默认设置保持关闭，不自动选择预算。
 
