@@ -2,7 +2,9 @@
 
 当前起始验收目标已由用户确认：960×540／30FPS，现有GI三个计时区间合计p95≤25ms，进程local有限采样峰值≤1GiB，nonlocal另列。[当前93优化后的静止窗口](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)为19.298ms／567.254MiB，满足两门槛；不代表运动／最坏情况或整体验收。后文历史“预算未定”以[当前口径](GpuBudget.md#当前已确认的起始验收目标)为准。
 
-当前入口已整合为[Release93](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)，消除精确后端完整接管全部published owner后仍执行的空回退BVH遍历。混合／非exact路径及原命中资格保持，filter4／2ray／DXR与时间历史不变。同配置有限静止GI合计中位23.921→18.393ms、p95 24.562→19.298ms，通过预定收益及预算门；独立审阅、Astra与普通构建整合完成。画质依据保留92四图来源，没有追加图像、Present或第二成本窗口，不外推所有场景收益，完整G0–G5仍未通过。
+当前入口已整合为[Release93](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)，消除精确后端完整接管全部published owner后仍执行的空回退BVH遍历。混合／非exact路径及原命中资格保持，filter4／2ray／DXR与时间历史不变。同配置有限静止GI合计中位23.921→18.393ms、p95 24.562→19.298ms，通过预定收益及预算门；独立审阅、Astra与普通构建整合完成。运动画质依据保留92四图来源，性能线没有追加图像、Present或第二成本窗口，不外推所有场景收益，完整G0–G5仍未通过。
+
+当前另已取得[93／filter4／DXR静止119独立颜色估计](../LocalComparison/Review/release93-color-frame119-01/result.md)：Floor／White均值D亮度偏差−3.075%／−0.831%，Y-MAE 0.010529／0.018576。相较旧软件filter3，两处MAE约增10.1%／6.6%，均值色向偏差略增；保留92已授权减云斑取舍，同时报告颜色指标代价。单点限既有640×360参考网格、两个ROI及近似参考，不是整景／960×540颜色或动态验收；没有修改产品、补采或构建。
 
 此前补齐[Release90／filter3的2射线DXR静止GI基线](../LocalComparison/Review/release90-dxr-baseline-01/result.md)：GI三区间合计中位21.667ms、p95 22.643ms、p99 23.938ms；进程local采样峰值565.441MiB。这是G0的当前预算决策输入，不是整应用GPU或冷／热／高速运动完整验收；该窗口满足随后确认的25ms／1GiB起始口径，普通Release90和画质配置保持。
 

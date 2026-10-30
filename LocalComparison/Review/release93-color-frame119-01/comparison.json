@@ -1,0 +1,196 @@
+{
+  "status": "comparison-produced",
+  "qualityVerdict": null,
+  "currentDirectory": "I:\\Unity test\\Comparison\\Release93ColorFrame119\\signals",
+  "oldCaptureDirectory": "I:\\Unity test\\Comparison\\ValidationPackageV209\\capture\\20261029-153518-90ad50e68d454b52b48135246a18dfa5",
+  "referenceDirectory": "I:\\Unity test\\Comparison\\ValidationPackageV209-reference-frame0119-01",
+  "logicalFrame": 119,
+  "quantity": "indirect-irradiance-over-pi",
+  "roiNames": [
+    "Floor",
+    "White receiver"
+  ],
+  "scope": "Existing approximate CPU reference versus current filteredD. Saved-scene reuse is supplied by the run; this script only checks the listed capture inputs, not a new physical-source archive.",
+  "metadataChecks": {
+    "invVP": {
+      "same": true,
+      "old": {
+        "e00": 1.0264004468917847,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": -0.574285626411438,
+        "e12": 24.974998474121094,
+        "e13": -0.07789916545152664,
+        "e20": 0.0,
+        "e21": -0.05940885469317436,
+        "e22": -74.92499542236328,
+        "e23": 0.9196918606758118,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 9.989999771118164,
+        "e33": 0.009999994188547134
+      },
+      "current": {
+        "e00": 1.0264004468917847,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": -0.574285626411438,
+        "e12": 24.974998474121094,
+        "e13": -0.07789916545152664,
+        "e20": 0.0,
+        "e21": -0.05940885469317436,
+        "e22": -74.92499542236328,
+        "e23": 0.9196918606758118,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 9.989999771118164,
+        "e33": 0.009999994188547134
+      }
+    },
+    "giSize": {
+      "same": true,
+      "old": {
+        "x": 320,
+        "y": 180
+      },
+      "current": {
+        "x": 320,
+        "y": 180
+      }
+    },
+    "intensity": {
+      "same": true,
+      "old": 1.0,
+      "current": 1.0
+    }
+  },
+  "materialChecks": {
+    "Floor": {
+      "sourcePixels": 13330,
+      "same": true,
+      "maxAbsoluteDifferenceRGBA": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "White receiver": {
+      "sourcePixels": 86,
+      "same": true,
+      "maxAbsoluteDifferenceRGBA": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "uncertainty": "Mean per-pixel RGB SE and conservative luma SE over paired pixels; not an ROI confidence interval. Model differences remain.",
+  "display": {
+    "exposure": 1,
+    "tonemap": "Reinhard then sRGB",
+    "deltaYScale": 0.05,
+    "standardErrorScale": 0.05,
+    "transform": "PNG vertical flip only; original numeric rows unchanged",
+    "gray": "outside independent Floor/White receiver ROI",
+    "magenta": "current unknown in that ROI"
+  },
+  "modelDifferences": [
+    "Authored Soft shadows use ideal source-triangle hard visibility, not URP PCF/bias/cascades.",
+    "Only metallic-Lit diffuse rho and source emission transport; metal/glossy specular paths are omitted. metalHitFraction is sampled evidence, zero does not prove no specular influence.",
+    "Finite path depth truncates remaining diffuse transport; maxDepthReachedFraction describes sampling, not a bias bound.",
+    "Black environment only; no baked GI, texture, transparency, participating medium, temporal filter or product cache.",
+    "Source float64 pinhole geometry with boundary exclusion; not GPU raster/depth-equivalent. Ray minimum 1e-6*max(1,maxAbsOrigin) metres; finite-precision/model bias is not in Monte Carlo standard error."
+  ],
+  "captureFormat": {
+    "currentSourceFormat": "R16G16B16A16_SFloat",
+    "oldSourceFormat": "R16G16B16A16_SFloat",
+    "storedFormat": "rgba32f-le",
+    "encoding": "same-format CopyTexture; AsyncGPUReadback RGBA32F numeric conversion; no resampling",
+    "reference": "Source float64 geometry/MC computation, stored RGBA32F"
+  },
+  "debugDifferenceIgnoredForD": {
+    "old": 0,
+    "current": 1
+  },
+  "materialSampling": "Source ROI full pixels (2*x+1,2*y+1); captured material RGB/AO, no resampling",
+  "materialSourceFormats": {
+    "current": "R8G8B8A8_UNorm",
+    "old": "R8G8B8A8_UNorm"
+  },
+  "roi": {
+    "Floor": {
+      "sourcePixels": 13330,
+      "pairedPixels": 13328,
+      "unknownPixels": 2,
+      "metrics": {
+        "candidateMeanRGB": [
+          0.12863483864004585,
+          0.05527313846070655,
+          0.03608779060024889
+        ],
+        "referenceMeanRGB": [
+          0.13361872458728552,
+          0.05682944424413598,
+          0.03652322090808094
+        ],
+        "meanBiasRGB": [
+          -0.004983885947239669,
+          -0.0015563057834294333,
+          -0.00043543030783205205
+        ],
+        "candidateMeanY": 0.06948465380330904,
+        "referenceMeanY": 0.0716887359202264,
+        "meanBiasY": -0.0022040821169173608,
+        "relativeMeanBiasY": -0.030745166428516935,
+        "meanChromaL1": 0.007975760164383477,
+        "meanPixelStandardErrorRGB": [
+          0.018481189138846013,
+          0.009217535186712622,
+          0.0064951781660416074
+        ],
+        "meanPixelConservativeLumaSE": 0.010990433840043713
+      }
+    },
+    "White receiver": {
+      "sourcePixels": 86,
+      "pairedPixels": 86,
+      "unknownPixels": 0,
+      "metrics": {
+        "candidateMeanRGB": [
+          0.3975489416787791,
+          0.1819812863372093,
+          0.1440486464389535
+        ],
+        "referenceMeanRGB": [
+          0.4155668373717818,
+          0.179802808477435,
+          0.1386817782944025
+        ],
+        "meanBiasRGB": [
+          -0.018017895693002717,
+          0.0021784778597743193,
+          0.005366868144550979
+        ],
+        "candidateMeanY": 0.22507223326217296,
+        "referenceMeanY": 0.22695730264115818,
+        "meanBiasY": -0.0018850693789852213,
+        "relativeMeanBiasY": -0.008305832670058215,
+        "meanChromaL1": 0.03341472713517596,
+        "meanPixelStandardErrorRGB": [
+          0.0254822920692248,
+          0.01574886247570123,
+          0.013149847888430332
+        ],
+        "meanPixelConservativeLumaSE": 0.01763054075408338
+      }
+    }
+  },
+  "image": "LocalComparison\\Review\\release93-color-frame119-01\\comparison.png",
+  "metricBasis": "Only current-valid pixels inside each independent source ROI. Chroma L1 compares normalized ROI mean RGB. Unknown is not black; no threshold or statistical test."
+}

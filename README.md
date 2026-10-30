@@ -4,6 +4,8 @@ Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材�
 
 **当前本机入口：[启动统一交互 Release93](<I:/Unity test/Comparison/Builds/LocalRelease93/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
 
+当前配置另已补齐[filter4／DXR静止119的独立颜色估计](LocalComparison/Review/release93-color-frame119-01/result.md)：Floor／White平均D亮度偏差−3.075%／−0.831%，Y-MAE为0.010529／0.018576。相较历史软件filter3，两个MAE约增10.1%／6.6%，色向指标也略增；保留运动减云斑取舍，不能称颜色全面更准。限既有640×360参考网格的两个ROI，未扩展参考或重建普通93。
+
 Release93消除[精确后端完整接管后的空回退遍历](LocalComparison/Review/exact-no-fallback-traversal-01/result.md)：没有回退owner时，保留精确查询结果直接返回；有回退时仍走原路径。保持filter4／2ray／DXR，在同配置有限静止窗口中GI合计中位23.921→18.393ms、p95 24.562→19.298ms，local采样峰值567.254MiB；通过预定收益判据及25ms／1GiB起始预算。普通构建完成，画质依据保持92原来源，不外推所有场景、运动FPS或整应用GPU收益。
 
 Release92采用[第4级空间滤波](LocalComparison/Review/four-pass-local-quality-01/result.md)：本机示例filter3→4，2ray／DXR及时间历史保持。[四时点同曝光对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png)中门面、地板和绿墙云斑明显减弱，未见新增持续旧轮廓；代价是同平面明暗过渡更柔。该次静止GI三区间合计p95为24.562ms、local采样峰值565.441MiB，满足25ms／1GiB起始门槛，但GI余量仅约0.438ms。普通Release构建完成；不代表运动最坏情况、颜色准确度或完整验收，旧filter3定量保持原来源。
@@ -77,7 +79,7 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 
 | 问题 | 当前结论 |
 | --- | --- |
-| 颜色误差 | 当前filter4没有独立D误差估计。[Release88软件119／filter3](LocalComparison/Review/release88-color-frame119-01/result.md)的Floor／White平均D偏差−2.776%／−0.938%、逐像素Y-MAE 0.009566／0.017423保留历史来源；不能直接标为Release92误差。 |
+| 颜色误差 | [当前93／filter4／DXR静止119](LocalComparison/Review/release93-color-frame119-01/result.md)：Floor／White平均D偏差−3.075%／−0.831%，Y-MAE 0.010529／0.018576，均值色向L1 0.007976／0.033415。较旧软件filter3两个MAE约增10.1%／6.6%；限两个ROI与既有近似参考，不是整景或960×540颜色验收，也不将跨后端差异单独归因滤波。 |
 | 换色／关灯残留 | filter4未新增事件观察。此前已修复全局换光后混入旧屏幕历史及缓存首次更新强制混入半份旧值的问题。新增灯表清空时移除旧解析灯缓存贡献；固定场景早期输出变化明显减少，局部换色及任意多跳响应仍未关闭。新的静止例外对无标记变暗消退更慢，有限32步后仍保留初始约6.88%。 |
 | 运动拖影 | [Release92／filter4四时点](LocalComparison/Review/four-pass-local-quality-01/comparison.png)比原2ray／DXR／filter3明显减少云斑，边界保持清楚，未见新增持续旧门轮廓；局部明暗过渡更柔。不证明全段或任意运动无拖影。 |
 | 收敛时间 | 当前仍只有停止后10／30帧的普通画面；软化不等于收敛更快，尚不能给出整景达到正确颜色的统一帧数。旧响应数值保留原配置来源。 |
