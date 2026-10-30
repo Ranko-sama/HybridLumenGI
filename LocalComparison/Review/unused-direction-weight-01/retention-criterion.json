@@ -1,0 +1,19 @@
+{
+  "baseline": "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\release83-local-baseline-01\\result.json",
+  "baselineSource": "Release83 / 0181ef2",
+  "baselineMedianMs": 28.017152,
+  "minimumRelativeReduction": 0.05,
+  "baseline64FrameBlockMediansMs": [
+    28.305616,
+    27.9252,
+    28.063423999999998,
+    27.890864,
+    27.777504,
+    27.864672,
+    28.065056,
+    28.038719999999998
+  ],
+  "requires": "Actual HLSL paired semantic check passes; same-configuration complete candidate window; median per-source GI sum reduction >=5%; every candidate 64-frame block median below every baseline block median; p95/p99 do not increase.",
+  "onFailure": "Restore the candidate. No additional cost window, pass probes or parameter search.",
+  "scope": "Finite engineering adoption rule, not statistical significance, actual Present FPS or production acceptance."
+}

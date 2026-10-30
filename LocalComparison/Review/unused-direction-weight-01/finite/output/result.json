@@ -1,0 +1,1156 @@
+{
+  "status": "passed",
+  "baseline": "ff3805d",
+  "commands": [
+    {
+      "name": "read-baseline-HybridLumenGITransport.hlsl",
+      "arguments": [
+        "git",
+        "show",
+        "ff3805d:Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "read-baseline-HybridLumenGIKernels.hlsl",
+      "arguments": [
+        "git",
+        "show",
+        "ff3805d:Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "read-baseline-HybridLumenGIEmissiveSampling.hlsl",
+      "arguments": [
+        "git",
+        "show",
+        "ff3805d:Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "read-baseline-HybridLumenGIEmissiveRecords.hlsl",
+      "arguments": [
+        "git",
+        "show",
+        "ff3805d:Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveRecords.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-baseline",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSUnusedDirectionWeight",
+        "-O3",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\baseline",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\baseline.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\baseline.ll",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\Adapters.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-candidate",
+      "arguments": [
+        "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\dxc.exe",
+        "-HV",
+        "2018",
+        "-T",
+        "cs_6_0",
+        "-E",
+        "CSUnusedDirectionWeight",
+        "-O3",
+        "-I",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\candidate",
+        "-Fo",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\candidate.dxil",
+        "-Fc",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\candidate.ll",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\Adapters.hlsl"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "warp-baseline",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\baseline.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\baseline.bin"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "warp-candidate",
+      "arguments": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\candidate.dxil",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\inputs.bin",
+        "C:\\Users\\Administrator\\Desktop\\test\\HybridLumenGI\\LocalComparison\\Review\\unused-direction-weight-01\\finite\\output\\candidate.bin"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "warpExecuted": true,
+  "scope": "Seven fixed inputs, two real caller prefixes, actual baseline/current sampler and Matched helper. D3D12 WARP; no Unity, transport hits, area-light contribution, physical integration or distribution claim.",
+  "adaptation": [
+    "Emissive StructuredBuffer becomes a fixed 3-record thread-local array; two proposal records come from the 176-byte input.",
+    "Actual record header and sampler/helper bodies are extracted unchanged except resource storage declarations.",
+    "Actual screen/cache sample-Matched-finite prefixes have locals hoisted and observation assignments inserted; break and arithmetic remain.",
+    "PI/TWO_PI use the normal Unity decimal definitions; existing host binds only input/output/count.",
+    "Positive-infinite CDF interval is deliberately outside builder-produced data, testing actual nonfinite-PDF rejection, not supported scene content."
+  ],
+  "equality": "RNG and caller/Matched decisions exact. Direction and accepted final weight bit-exact except NaN payloads may differ when both are NaN. Rejected/unconsumed final weight and preweight are recorded only; no numeric tolerance.",
+  "rows": [
+    {
+      "name": "area-off-emissive-off",
+      "callers": {
+        "screen": {
+          "baseline": {
+            "words": [
+              1052865164,
+              1064014520,
+              1037140300,
+              1058412445,
+              4119957345,
+              1,
+              1,
+              1058412445
+            ],
+            "direction": [
+              0.3778270483016968,
+              0.9202075004577637,
+              0.10229739546775818
+            ],
+            "finalWeight": 0.5862978100776672,
+            "rng": 4119957345,
+            "accepted": true,
+            "matched": true,
+            "preweight": 0.5862978100776672
+          },
+          "candidate": {
+            "words": [
+              1052865164,
+              1064014520,
+              1037140300,
+              1058412445,
+              4119957345,
+              1,
+              1,
+              1058412445
+            ],
+            "direction": [
+              0.3778270483016968,
+              0.9202075004577637,
+              0.10229739546775818
+            ],
+            "finalWeight": 0.5862978100776672,
+            "rng": 4119957345,
+            "accepted": true,
+            "matched": true,
+            "preweight": 0.5862978100776672
+          }
+        },
+        "cache": {
+          "baseline": {
+            "words": [
+              1052865164,
+              1064014520,
+              1037140300,
+              1058412445,
+              4119957345,
+              1,
+              1,
+              1058412445
+            ],
+            "direction": [
+              0.3778270483016968,
+              0.9202075004577637,
+              0.10229739546775818
+            ],
+            "finalWeight": 0.5862978100776672,
+            "rng": 4119957345,
+            "accepted": true,
+            "matched": true,
+            "preweight": 0.5862978100776672
+          },
+          "candidate": {
+            "words": [
+              1052865164,
+              1064014520,
+              1037140300,
+              1058412445,
+              4119957345,
+              1,
+              1,
+              1058412445
+            ],
+            "direction": [
+              0.3778270483016968,
+              0.9202075004577637,
+              0.10229739546775818
+            ],
+            "finalWeight": 0.5862978100776672,
+            "rng": 4119957345,
+            "accepted": true,
+            "matched": true,
+            "preweight": 0.5862978100776672
+          }
+        }
+      }
+    },
+    {
+      "name": "area-on-emissive-off",
+      "callers": {
+        "screen": {
+          "baseline": {
+            "words": [
+              1052865164,
+              1064014520,
+              1037140300,
+              1058412445,
+              4119957345,
+              1,
+              1,
+              1058412445
+            ],
+            "direction": [
+              0.3778270483016968,
+              0.9202075004577637,
+              0.10229739546775818
+            ],
+            "finalWeight": 0.5862978100776672,
+            "rng": 4119957345,
+            "accepted": true,
+            "matched": true,
+            "preweight": 0.5862978100776672
+          },
+          "candidate": {
+            "words": [
+              1052865164,
+              1064014520,
+              1037140300,
+              1058412445,
+              4119957345,
+              1,
+              1,
+              1058412445
+            ],
+            "direction": [
+              0.3778270483016968,
+              0.9202075004577637,
+              0.10229739546775818
+            ],
+            "finalWeight": 0.5862978100776672,
+            "rng": 4119957345,
+            "accepted": true,
+            "matched": true,
+            "preweight": 0.5862978100776672
+          }
+        },
+        "cache": {
+          "baseline": {
+            "words": [
+              1052865164,
+              1064014520,
+              1037140300,
+              1058412445,
+              4119957345,
+              1,
+              1,
+              1058412445
+            ],
+            "direction": [
+              0.3778270483016968,
+              0.9202075004577637,
+              0.10229739546775818
+            ],
+            "finalWeight": 0.5862978100776672,
+            "rng": 4119957345,
+            "accepted": true,
+            "matched": true,
+            "preweight": 0.5862978100776672
+          },
+          "candidate": {
+            "words": [
+              1052865164,
+              1064014520,
+              1037140300,
+              1058412445,
+              4119957345,
+              1,
+              1,
+              1058412445
+            ],
+            "direction": [
+              0.3778270483016968,
+              0.9202075004577637,
+              0.10229739546775818
+            ],
+            "finalWeight": 0.5862978100776672,
+            "rng": 4119957345,
+            "accepted": true,
+            "matched": true,
+            "preweight": 0.5862978100776672
+          }
+        }
+      }
+    },
+    {
+      "name": "area-off-emissive-on",
+      "callers": {
+        "screen": {
+          "baseline": {
+            "words": [
+              3185917638,
+              3193315031,
+              1064874500,
+              1068908278,
+              691692430,
+              1,
+              1,
+              1068908278
+            ],
+            "direction": [
+              -0.11193613708019257,
+              -0.20910201966762543,
+              0.9714663028717041
+            ],
+            "finalWeight": 1.4237964153289795,
+            "rng": 691692430,
+            "accepted": true,
+            "matched": true,
+            "preweight": 1.4237964153289795
+          },
+          "candidate": {
+            "words": [
+              3185917638,
+              3193315031,
+              1064874500,
+              1068908278,
+              691692430,
+              1,
+              1,
+              1068908278
+            ],
+            "direction": [
+              -0.11193613708019257,
+              -0.20910201966762543,
+              0.9714663028717041
+            ],
+            "finalWeight": 1.4237964153289795,
+            "rng": 691692430,
+            "accepted": true,
+            "matched": true,
+            "preweight": 1.4237964153289795
+          }
+        },
+        "cache": {
+          "baseline": {
+            "words": [
+              3185917638,
+              3193315031,
+              1064874500,
+              1068908278,
+              691692430,
+              1,
+              1,
+              1068908278
+            ],
+            "direction": [
+              -0.11193613708019257,
+              -0.20910201966762543,
+              0.9714663028717041
+            ],
+            "finalWeight": 1.4237964153289795,
+            "rng": 691692430,
+            "accepted": true,
+            "matched": true,
+            "preweight": 1.4237964153289795
+          },
+          "candidate": {
+            "words": [
+              3185917638,
+              3193315031,
+              1064874500,
+              1068908278,
+              691692430,
+              1,
+              1,
+              1068908278
+            ],
+            "direction": [
+              -0.11193613708019257,
+              -0.20910201966762543,
+              0.9714663028717041
+            ],
+            "finalWeight": 1.4237964153289795,
+            "rng": 691692430,
+            "accepted": true,
+            "matched": true,
+            "preweight": 1.4237964153289795
+          }
+        }
+      }
+    },
+    {
+      "name": "area-on-emissive-on",
+      "callers": {
+        "screen": {
+          "baseline": {
+            "words": [
+              3185917638,
+              3193315031,
+              1064874500,
+              1068908278,
+              691692430,
+              1,
+              1,
+              1068908278
+            ],
+            "direction": [
+              -0.11193613708019257,
+              -0.20910201966762543,
+              0.9714663028717041
+            ],
+            "finalWeight": 1.4237964153289795,
+            "rng": 691692430,
+            "accepted": true,
+            "matched": true,
+            "preweight": 1.4237964153289795
+          },
+          "candidate": {
+            "words": [
+              3185917638,
+              3193315031,
+              1064874500,
+              1068908278,
+              691692430,
+              1,
+              1,
+              0
+            ],
+            "direction": [
+              -0.11193613708019257,
+              -0.20910201966762543,
+              0.9714663028717041
+            ],
+            "finalWeight": 1.4237964153289795,
+            "rng": 691692430,
+            "accepted": true,
+            "matched": true,
+            "preweight": 0.0
+          }
+        },
+        "cache": {
+          "baseline": {
+            "words": [
+              3185917638,
+              3193315031,
+              1064874500,
+              1068908278,
+              691692430,
+              1,
+              1,
+              1068908278
+            ],
+            "direction": [
+              -0.11193613708019257,
+              -0.20910201966762543,
+              0.9714663028717041
+            ],
+            "finalWeight": 1.4237964153289795,
+            "rng": 691692430,
+            "accepted": true,
+            "matched": true,
+            "preweight": 1.4237964153289795
+          },
+          "candidate": {
+            "words": [
+              3185917638,
+              3193315031,
+              1064874500,
+              1068908278,
+              691692430,
+              1,
+              1,
+              0
+            ],
+            "direction": [
+              -0.11193613708019257,
+              -0.20910201966762543,
+              0.9714663028717041
+            ],
+            "finalWeight": 1.4237964153289795,
+            "rng": 691692430,
+            "accepted": true,
+            "matched": true,
+            "preweight": 0.0
+          }
+        }
+      }
+    },
+    {
+      "name": "area-off-nonfinite-normal",
+      "callers": {
+        "screen": {
+          "baseline": {
+            "words": [
+              2143289344,
+              2143289344,
+              2143289344,
+              0,
+              4119957345,
+              0,
+              1,
+              0
+            ],
+            "direction": [
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            "finalWeight": 0.0,
+            "rng": 4119957345,
+            "accepted": false,
+            "matched": true,
+            "preweight": 0.0
+          },
+          "candidate": {
+            "words": [
+              2143289344,
+              2143289344,
+              2143289344,
+              0,
+              4119957345,
+              0,
+              1,
+              0
+            ],
+            "direction": [
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            "finalWeight": 0.0,
+            "rng": 4119957345,
+            "accepted": false,
+            "matched": true,
+            "preweight": 0.0
+          }
+        },
+        "cache": {
+          "baseline": {
+            "words": [
+              2143289344,
+              2143289344,
+              2143289344,
+              0,
+              4119957345,
+              0,
+              1,
+              0
+            ],
+            "direction": [
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            "finalWeight": 0.0,
+            "rng": 4119957345,
+            "accepted": false,
+            "matched": true,
+            "preweight": 0.0
+          },
+          "candidate": {
+            "words": [
+              2143289344,
+              2143289344,
+              2143289344,
+              0,
+              4119957345,
+              0,
+              1,
+              0
+            ],
+            "direction": [
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            "finalWeight": 0.0,
+            "rng": 4119957345,
+            "accepted": false,
+            "matched": true,
+            "preweight": 0.0
+          }
+        }
+      }
+    },
+    {
+      "name": "area-on-nonfinite-normal",
+      "callers": {
+        "screen": {
+          "baseline": {
+            "words": [
+              2143289344,
+              2143289344,
+              2143289344,
+              0,
+              4119957345,
+              0,
+              1,
+              0
+            ],
+            "direction": [
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            "finalWeight": 0.0,
+            "rng": 4119957345,
+            "accepted": false,
+            "matched": true,
+            "preweight": 0.0
+          },
+          "candidate": {
+            "words": [
+              2143289344,
+              2143289344,
+              2143289344,
+              0,
+              4119957345,
+              0,
+              1,
+              0
+            ],
+            "direction": [
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            "finalWeight": 0.0,
+            "rng": 4119957345,
+            "accepted": false,
+            "matched": true,
+            "preweight": 0.0
+          }
+        },
+        "cache": {
+          "baseline": {
+            "words": [
+              2143289344,
+              2143289344,
+              2143289344,
+              0,
+              4119957345,
+              0,
+              1,
+              0
+            ],
+            "direction": [
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            "finalWeight": 0.0,
+            "rng": 4119957345,
+            "accepted": false,
+            "matched": true,
+            "preweight": 0.0
+          },
+          "candidate": {
+            "words": [
+              2143289344,
+              2143289344,
+              2143289344,
+              0,
+              4119957345,
+              0,
+              1,
+              0
+            ],
+            "direction": [
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            "finalWeight": 0.0,
+            "rng": 4119957345,
+            "accepted": false,
+            "matched": true,
+            "preweight": 0.0
+          }
+        }
+      }
+    },
+    {
+      "name": "area-on-positive-infinite-cdf",
+      "callers": {
+        "screen": {
+          "baseline": {
+            "words": [
+              0,
+              0,
+              1065353216,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "direction": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "finalWeight": 0.0,
+            "rng": 0,
+            "accepted": false,
+            "matched": false,
+            "preweight": 0.0
+          },
+          "candidate": {
+            "words": [
+              0,
+              0,
+              1065353216,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "direction": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "finalWeight": 0.0,
+            "rng": 0,
+            "accepted": false,
+            "matched": false,
+            "preweight": 0.0
+          }
+        },
+        "cache": {
+          "baseline": {
+            "words": [
+              0,
+              0,
+              1065353216,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "direction": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "finalWeight": 0.0,
+            "rng": 0,
+            "accepted": false,
+            "matched": false,
+            "preweight": 0.0
+          },
+          "candidate": {
+            "words": [
+              0,
+              0,
+              1065353216,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "direction": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "finalWeight": 0.0,
+            "rng": 0,
+            "accepted": false,
+            "matched": false,
+            "preweight": 0.0
+          }
+        }
+      }
+    }
+  ],
+  "inputRows": [
+    {
+      "name": "area-off-emissive-off",
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.35,
+        0.6,
+        0,
+        0.8,
+        1,
+        0,
+        2,
+        17,
+        0,
+        1,
+        0,
+        3,
+        0.5,
+        0,
+        0.4,
+        0,
+        0,
+        -1,
+        0,
+        2,
+        0.5,
+        0.4,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedAccepted": true,
+      "expectedMatched": null
+    },
+    {
+      "name": "area-on-emissive-off",
+      "values": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0.35,
+        0.6,
+        0,
+        0.8,
+        1,
+        0,
+        2,
+        17,
+        0,
+        1,
+        0,
+        3,
+        0.5,
+        0,
+        0.4,
+        0,
+        0,
+        -1,
+        0,
+        2,
+        0.5,
+        0.4,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedAccepted": true,
+      "expectedMatched": null
+    },
+    {
+      "name": "area-off-emissive-on",
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.35,
+        0.6,
+        0,
+        0.8,
+        1,
+        0.5,
+        2,
+        17,
+        0,
+        1,
+        0,
+        3,
+        0.5,
+        0,
+        0.4,
+        0,
+        0,
+        -1,
+        0,
+        2,
+        0.5,
+        0.4,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedAccepted": true,
+      "expectedMatched": null
+    },
+    {
+      "name": "area-on-emissive-on",
+      "values": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0.35,
+        0.6,
+        0,
+        0.8,
+        1,
+        0.5,
+        2,
+        17,
+        0,
+        1,
+        0,
+        3,
+        0.5,
+        0,
+        0.4,
+        0,
+        0,
+        -1,
+        0,
+        2,
+        0.5,
+        0.4,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedAccepted": true,
+      "expectedMatched": null
+    },
+    {
+      "name": "area-off-nonfinite-normal",
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        "NaN",
+        0,
+        1,
+        0.35,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        17,
+        0,
+        1,
+        0,
+        3,
+        0.5,
+        0,
+        0.4,
+        0,
+        0,
+        -1,
+        0,
+        2,
+        0.5,
+        0.4,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedAccepted": false,
+      "expectedMatched": null
+    },
+    {
+      "name": "area-on-nonfinite-normal",
+      "values": [
+        0,
+        0,
+        0,
+        1,
+        "NaN",
+        0,
+        1,
+        0.35,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        17,
+        0,
+        1,
+        0,
+        3,
+        0.5,
+        0,
+        0.4,
+        0,
+        0,
+        -1,
+        0,
+        2,
+        0.5,
+        0.4,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedAccepted": false,
+      "expectedMatched": null
+    },
+    {
+      "name": "area-on-positive-infinite-cdf",
+      "values": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0.35,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        1,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0.5,
+        0,
+        "+Infinity",
+        0,
+        0,
+        -1,
+        0,
+        2,
+        0.5,
+        0.4,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedAccepted": false,
+      "expectedMatched": false
+    }
+  ],
+  "existingHost": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\hlgi-receiver-temporal-warp-2a199f6139c04daaa3279ebdecd56fa6\\build\\Release\\ReceiverTemporalWarp.exe",
+  "summary": "Direction, RNG, actual caller rejection and all consumed final weights preserved for the fixed inputs. Unconsumed weight words retained without asserting equality. No performance/distribution claim."
+}

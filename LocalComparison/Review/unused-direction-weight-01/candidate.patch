@@ -1,0 +1,43 @@
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIEmissiveSampling.hlsl
+@@ -127,7 +127,7 @@
+         emissive*HLGIEmissiveDirectionalPdf(origin,direction,count);
+ }
+ 
+-float3 HLGISampleTransportDirection(float3 origin,float3 normal,float4 guide,inout uint rng,out float weight)
++float3 HLGISampleTransportDirection(float3 origin,float3 normal,float4 guide,inout uint rng,out float weight,bool evaluateWeight=true)
+ {
+     uint count=HLGIEmissiveProposalCount();
+     float emissive=count>0u && isfinite(_HLGI_EmissiveWeight)?clamp(_HLGI_EmissiveWeight,0,0.8):0;
+@@ -143,6 +143,9 @@
+     float3 direction;
+     if(branch<emissive) direction=HLGISampleEmissiveDirection(origin,selector,xi,count);
+     else direction=CosineHemisphere(branch<emissive+guided?guideAxis:normal,xi);
++    // Area MIS immediately replaces this weight using its original PDF arithmetic.
++    // Keep the direction and random stream, but skip an unused proposal-PDF sum.
++    if(!evaluateWeight) { weight=0;return direction; }
+     float receiverCosine=saturate(dot(normal,direction));
+     float guideCosine=saturate(dot(guideAxis,direction));
+     // One-sample balance mixture. Sum every overlapping lobe, even if a different
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
+@@ -299,7 +299,7 @@
+         // direction on a visible back face. Bias toward the sampled hemisphere
+         // without changing either normal; otherwise every ray hits its own plane.
+         float3 origin=p+(hasGeometry?HLGIOffsetNormal(geometricNormal,n):n)*_HLGI_RayBias;
+-        float3 dir=HLGISampleTransportDirection(origin,n,receiverCache.guide,rng,sampleWeight);
++        float3 dir=HLGISampleTransportDirection(origin,n,receiverCache.guide,rng,sampleWeight,_HLGI_AreaEmitterCount<=0);
+         if(!HLGIAreaMatchedDirectionWeight(origin,n,receiverCache.guide,dir,sampleWeight)) { estimateKnown=false;break; }
+         if(!all(isfinite(dir))) { estimateKnown=false;break; }
+         HLGIHit hit;
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
+@@ -572,7 +572,7 @@
+         [loop] for(int r=0;r<_HLGI_CacheRays;r++)
+         {
+             float3 origin=position+HLGIOffsetNormal(surface.geometricNormal,n)*_HLGI_RayBias;
+-            float weight;float3 direction=HLGISampleTransportDirection(origin,n,e.guide,rng,weight);
++            float weight;float3 direction=HLGISampleTransportDirection(origin,n,e.guide,rng,weight,_HLGI_AreaEmitterCount<=0);
+             if(!HLGIAreaMatchedDirectionWeight(origin,n,e.guide,direction,weight)) { estimateKnown=false;break; }
+             if(!all(isfinite(direction))) { estimateKnown=false;break; }
+             HLGIHit hit;
