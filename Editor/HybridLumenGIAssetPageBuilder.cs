@@ -36,6 +36,7 @@ public static class HybridLumenGIAssetPageBuilder
     /// <summary>
     /// Builds pages in two new project-relative directories and returns an inactive rig.
     /// Source proxies and their bindings are retained; the caller decides when to replace them.
+    /// Renderer property blocks are not serialized; author persistent overrides in material assets first.
     /// </summary>
     public static ExportResult Export(IEnumerable<HybridLumenGIProxy> sourceProxies,string assetDirectory,string bundleOutputDirectory)
     {
@@ -61,6 +62,9 @@ public static class HybridLumenGIAssetPageBuilder
             MeshFilter filter=renderer!=null?renderer.GetComponent<MeshFilter>():null;
             if(filter==null || filter.sharedMesh==null || renderer.sharedMaterials.Length!=filter.sharedMesh.subMeshCount)
                 throw new InvalidOperationException("Every selected proxy needs a mesh and exactly one material per submesh.");
+            if(renderer.HasPropertyBlock())
+                throw new InvalidOperationException("Asset-page export does not serialize Renderer MaterialPropertyBlocks (including material-slot overrides): "+renderer.name+
+                    ". Author the intended appearance in material assets before exporting, or reapply runtime overrides after page binding.");
             if(!renderers.Add(renderer))throw new InvalidOperationException("Two selected proxies cannot own the same streamed renderer.");
             Collect(filter.sharedMesh,sources);Collect(proxy.MeshSdf,sources);Collect(proxy.SurfaceCharts,sources);
             foreach(var material in renderer.sharedMaterials)

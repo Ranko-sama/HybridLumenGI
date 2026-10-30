@@ -2,6 +2,8 @@
 
 用户已明确暂缓G5的CI接线；原CI验收条款保留未完成，不作为继续本机功能开发的前置条件。
 
+原目标3／工作流8修复[资产页直接导出静默丢失MPB覆盖](../LocalComparison/Review/asset-page-mpb-export-01/result.md)：创建输出前明确拒绝无法序列化的Renderer／材质槽覆盖，实际Editor确认拒绝时无输出且源保持。关闭的是错误处理缺口，不是新增MPB持久化或材质保真验收；运行时MPB、无MPB导出和Release85不变。没有追加Player、图像或性能测试。
+
 当前普通入口为[Release85](<I:/Unity test/Comparison/Builds/LocalRelease85/Start-LocalRelease.cmd>)，关闭原目标4／G4的[本机低成本后端仍需手动选择](../LocalComparison/Review/dxr-local-default-01/result.md)缺口：仅将保存示例启动偏好设为DXR，正常启动且未按5时F2已报告实际DXR、20硬件网格、0fallback／材质unknown。当前静止画面对照保留有效域，Floor后端平均绝对D亮度差约0.00000325，未见明显新增缺损。原自加零容差筛选仍为false；经Astra审查撤销其作为原计划外硬前置，本机采用是独立配置取舍，不冒充数值筛选通过。GI／通用默认不变，无新性能测量或动态等画质承诺，完整G4/G5仍开放。
 
 原目标2／G3补齐[当前门到终点后的画面依据](../LocalComparison/Review/door-stop-response-01/result.md)：179刚到终点、189／209保持同一姿态，旧门屏幕区域未见可辨认的完整门形残影，运动时颗粒／斑驳在停止后减轻。共同已知2737点，未知2／2／1，端点已知未丢失；189→209逐像素平均绝对D亮度变化0.022465，仍不能称精确收敛。关闭的是动停画面依据空白，没有新算法修复或整个G3放行；短前缀观察结束，Release84保持。
