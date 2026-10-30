@@ -1,0 +1,119 @@
+{
+  "status": "observed-limited-door-stop",
+  "product": "0181ef2 GI, retained in Release84",
+  "fullSequencePassed": false,
+  "scope": "Original door reaches its endpoint at179, then remains still through209. Sparse observations, not exact convergence, physical error or performance.",
+  "signalFrames": [
+    179,
+    189,
+    209
+  ],
+  "outgoingFrames": [
+    119,
+    149,
+    179,
+    189,
+    209
+  ],
+  "quantity": "indirect-irradiance-over-pi",
+  "run": {
+    "directory": "I:\\Unity test\\Comparison\\DoorStopResponse01\\capture\\20261030-054201-9675be357e90423daef96e8029fc7496",
+    "status": "failed",
+    "renderedFrames": 210,
+    "failures": 0,
+    "backendMismatches": 0,
+    "nativeExitCode": 1
+  },
+  "doorPositions": {
+    "119": {
+      "x": -1.100000023841858,
+      "y": 1.399999976158142,
+      "z": -0.800000011920929
+    },
+    "149": {
+      "x": -0.018644094467163086,
+      "y": 1.399999976158142,
+      "z": -0.800000011920929
+    },
+    "179": {
+      "x": 1.100000023841858,
+      "y": 1.399999976158142,
+      "z": -0.800000011920929
+    },
+    "189": {
+      "x": 1.100000023841858,
+      "y": 1.399999976158142,
+      "z": -0.800000011920929
+    },
+    "209": {
+      "x": 1.100000023841858,
+      "y": 1.399999976158142,
+      "z": -0.800000011920929
+    }
+  },
+  "regionDefinition": "Frame119 independent primary owner grid selects only the OLD SCREEN FOOTPRINT. It does not label current surface identity. No reference radiance is read.",
+  "oldFootprint": {
+    "screenPixels": 2739,
+    "sameDepthGeometryPixels": 2739,
+    "commonKnownPixels": 2737,
+    "unknownPixels": {
+      "179": 2,
+      "189": 2,
+      "209": 1
+    },
+    "lostEndpointKnownPixels": {
+      "179": 0,
+      "189": 0,
+      "209": 0
+    },
+    "frames": {
+      "179": {
+        "meanRGB": [
+          0.5416705320035623,
+          0.2516379699595531,
+          0.1504509688556129
+        ],
+        "meanY": 0.30599319117040497,
+        "historyMedian": 2.0,
+        "historyMin": 1.0,
+        "historyMax": 2.0
+      },
+      "189": {
+        "meanRGB": [
+          0.5276144053494359,
+          0.23196218237634728,
+          0.1387210911453576
+        ],
+        "meanY": 0.28808583819354844,
+        "historyMedian": 12.0,
+        "historyMin": 1.0,
+        "historyMax": 12.0
+      },
+      "209": {
+        "meanRGB": [
+          0.5296684825424736,
+          0.23298760422137604,
+          0.13860304598656717
+        ],
+        "meanY": 0.28924739384788817,
+        "historyMedian": 32.0,
+        "historyMin": 1.0,
+        "historyMax": 32.0
+      }
+    },
+    "changes": {
+      "179-189": {
+        "meanYChange": -0.017907352976856503,
+        "meanAbsoluteYChange": 0.031045430975549185
+      },
+      "189-209": {
+        "meanYChange": 0.001161555654339691,
+        "meanAbsoluteYChange": 0.022464872853756822
+      },
+      "179-209": {
+        "meanYChange": -0.01674579732251681,
+        "meanAbsoluteYChange": 0.028651926612505565
+      }
+    }
+  }
+}
