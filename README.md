@@ -8,6 +8,8 @@ Release87整合[短历史空间滤波改进](LocalComparison/Review/short-histor
 
 按用户明确的取舍，随后[四时点动停对照](LocalComparison/Review/release87-motion-response-01/result.md)中，149／179帧颗粒减少、画面略柔；停止后10／30帧接近原基线，未见明显新增持续轮廓。仅限该软件场景四个时点，不宣称全过程无拖影；没有修改或重建87。
 
+当前普通Release87的[门运动Present窗口](LocalComparison/Review/release87-motion-present-01/result.md)以960×540参数启动、默认DXR，平均70.85Hz，间隔p95／p99为16.73／17.80ms，2123个观测间隔均小于33.33ms。正常三维画面与M后门移位已观察，两端CPU状态为DXR且transform更新推进；该有限窗口支持30FPS开发方向，不是显示FPS、GI专项/滤波增量成本或完整G5验收。没有追加窗口或重建。
+
 Release86修复[离场后重复分配空几何资源](LocalComparison/Review/empty-geometry-preparation-01/result.md)：无可接纳三角实例时直接退出准备并退休旧资源，重新入场仍可恢复。已完成必要源码回归和普通Release/None构建；没有新增Player、画面或性能采集，图像与帧率结论保留以下实际版本来源。
 
 Release85仅落实[本机DXR启动偏好](LocalComparison/Review/dxr-local-default-01/result.md)，GI算法不变；普通启动后F2已确认实际DXR。当前静止软件／DXR对照中，Floor已知域的平均绝对D亮度差约0.00000325，White均值RGB和所列误差指标一致，未见明显新增缺损；这不是动态等画质认证。此前Release84的[普通应用Present窗口](LocalComparison/Review/release84-dxr-present-01/result.md)为79.22Hz、间隔p95 14.33ms／p99 14.81ms，作为本机960×540／30FPS方向的依据保留，不冒充Release85新测帧率或完整生产验收。
