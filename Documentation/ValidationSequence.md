@@ -5,7 +5,7 @@
 ## 准备一次独立运行
 
 1. 使用 **Tools > Hybrid Lumen GI > Create Validation Scene Assets**。生成器在 `Assets/HybridLumenGIValidation/Run*` 保存独立场景与材质，不替换当前场景。之后单独打开生成的 `Validation.unity`，不要与其它游戏场景一起运行。
-2. 给该相机实际使用的 URP Renderer 添加 `HybridLumenGIRendererFeature`。在根对象的 **Validation Sequence** 上明确指定这个 Feature 资产；生成器只有找到唯一已加载 Feature 时才预填。保持一个非 XR Base 相机、无相机堆栈，使用 Linear / Direct3D 12。组件不会修改 Feature 私有设置，也不反射读取它们。
+2. 给该相机实际使用的 URP Renderer 添加 `HybridLumenGIRendererFeature`。生成器从该相机实际选择的 Renderer Data 中解析唯一启用、持久保存的 GI Feature 并预填 **Validation Sequence**，无关已加载资产不参与选择；无可用或唯一结果时留空并提示，仍生成几何。此时配置 Renderer 后手动指定该 Feature 资产。保持一个非 XR Base 相机、无相机堆栈，使用 Linear / Direct3D 12。组件不会修改 Feature 私有设置，也不反射读取它们。
 3. 生成器现在按唯一源 Mesh 自动烘焙并复用 32³ SDF 和 Surface Charts，全部成功后才绑定 Proxy 并保存场景。取消或失败只清理本次新 Run，恢复原活动场景。更改网格内容后需要重烘焙；薄壁的分辨率、缩放与偏移仍需要实测，资产存在本身不是查询精度通过。
 4. 在 Feature Inspector 选择真实输出模式，如 `IndirectOnly`、`Final`、`Confidence` 或 `SpatialVariance`，并固定光照、缓存、采样和降噪设置。`SpatialVariance` 保留枚举值 3，显示空间亮度方差 `v/(1+v)` 的灰度（零方差为黑、方差 1 为 0.5），不表示历史接受率；旧 `HistoryAcceptance` 名称已纠正。`Expected Backend` 选择 Software、Hardware 或 FeatureDisabled；软件 / 硬件请求还应分别设置 `preferHardwareTracing`。禁用对照需要在 Renderer 资产中关闭 Feature；组件仍需持有该资产以记录配置。`Run Label` 只是人工标签，不能代替实际模式 / 后端证据。
 5. 检查烘焙 GI、Light Probe、Reflection Probe、其它 Renderer Feature、Volume、动态曝光等额外贡献。生成场景设置 ambient 为黑、intensity / reflection intensity 为 0、无 skybox / fog，盒体关闭探针使用，灯为 Realtime。Feature 自己的 `environmentRadiance` 等仍由 Inspector 决定，保存在快照；要做零环境漏光实验应显式设为 0。采集临时禁用该相机后处理、MSAA 与动态分辨率。

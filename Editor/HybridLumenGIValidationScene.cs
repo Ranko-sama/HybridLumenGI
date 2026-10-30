@@ -147,8 +147,14 @@ namespace HybridLumenGI.Editor
                 Transform colorView = View(root.transform, "Color view", camera.transform.position, new Vector3(0f, 1.6f, 1.2f));
                 Transform thinView = View(root.transform, "Thin-wall view", new Vector3(8f, 1.7f, -3f), new Vector3(8f, 1.4f, 0.5f));
                 Transform blackView = View(root.transform, "Sealed-room view", new Vector3(16f, 1.7f, -2.5f), new Vector3(16f, 1.3f, 1f));
-                var features = Resources.FindObjectsOfTypeAll<HybridLumenGIRendererFeature>();
-                HybridLumenGIRendererFeature selectedFeature = features.Length == 1 ? features[0] : null;
+                HybridLumenGIRendererFeature selectedFeature = null;
+                try { selectedFeature = HybridLumenGIUnifiedSampleBuilder.CameraFeature(camera); }
+                catch (InvalidOperationException error)
+                {
+                    // Generating geometry does not require an already configured GI renderer.
+                    // Leave the sequence unbound rather than select an unrelated loaded asset.
+                    Debug.LogWarning("Validation Sequence needs the camera's actual GI feature: " + error.Message);
+                }
                 root.AddComponent<HybridLumenGIValidationSequence>().Configure(camera, motion,
                     new[] { sun, point, spot, thinLight, outsideLight }, colorView, thinView, blackView, selectedFeature);
                 int bakedMeshes = BakeAndBind(root, folder);

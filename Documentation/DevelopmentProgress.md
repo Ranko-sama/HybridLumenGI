@@ -2,6 +2,8 @@
 
 用户已明确暂缓G5的CI接线；原CI验收条款保留未完成，不作为继续本机功能开发的前置条件。
 
+原工作流9关闭[公开验证场景可能自动绑定无关Feature](../LocalComparison/Review/validation-camera-feature-01/result.md)的入口缺口：复用统一示例已有的实际相机Renderer解析，只有唯一启用且持久保存的GI Feature才预填；未配置时保留空绑定并继续生成几何。独立源码审阅及受影响Editor编译通过，两个Editor源已同步本机工程；没有重新生成场景或启动Unity／Player，Release86不变。本次没有新增多房间场景或扩展历史薄壁／内部层验证。
+
 当前入口已整合为[Release86](<I:/Unity test/Comparison/Builds/LocalRelease86/Start-LocalRelease.cmd>)：普通Release/None构建完成（源码00497b2，0错误），将下述空场资源修复交付到原统一场景；本机DXR偏好沿用85。没有追加Player、图像或性能运行，历史画质与成本结果保持原来源。
 
 原目标3／4、工作流8修复[空场反复分配三角后端资源](../LocalComparison/Review/empty-geometry-preparation-01/result.md)：无可接纳三角实例时直接撤销旧几何并按原流程退休，不再每帧创建空RTAS和dummy缓冲；保留退休完成前计账和同revision重新入场恢复。必要实际源码夹具回归通过，独立审阅无阻断；没有新的画质或实测加速声明。[Release85三轮普通使用](../LocalComparison/Review/release85-resource-cycles-01/result.md)补齐重复恢复的有限端点依据，当前页／引用同阶段一致、离场归零，同时揭示上述重复工作。末次记录延迟至271.747秒，不能算三轮均满足原30秒范围或完整G4放行；本条循环观察已结束。

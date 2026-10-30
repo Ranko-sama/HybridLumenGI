@@ -35,7 +35,7 @@ public static class HybridLumenGIUnifiedSampleBuilder
         Debug.Log("Unified sample saved: " + result.ScenePath + ". Open it separately; authoring bindings were retained.", result.Manifest);
     }
 
-    private static HybridLumenGIRendererFeature CameraFeature(Camera camera)
+    internal static HybridLumenGIRendererFeature CameraFeature(Camera camera)
     {
         var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
         if (pipeline == null) throw new InvalidOperationException("The camera requires an active URP pipeline.");
