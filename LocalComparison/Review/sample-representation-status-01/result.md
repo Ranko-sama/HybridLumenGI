@@ -6,4 +6,8 @@
 
 请求是最近一次样例Update的结果，可用集合来自原发布后保留的visible集合和读取当时的绑定／Renderer标志；原publication帧字段继续保留。它不是逐像素覆盖、当前GPU完成、灯光收敛或通用覆盖判定器。没有改动页需求算法、调度、HLOD原子发布、渲染或画质参数；界面只显示已知需求，不推断具体延迟原因。
 
-Astra认可这一明确展示漏接及验证边界：独立源码审阅与一次公开Release91构建足够，不新建镜像断言、不启动Player或重跑路线。独立源码审阅无阻断，确认请求时点、停用撤回与unknown处理保持上述范围，未改变调度及可见集合。构建待执行；原25ms／1GiB起始目标和Release90静止测量、热态路线保持其原来源。
+Astra认可这一明确展示漏接及验证边界：独立源码审阅与一次公开Release91构建足够，不新建镜像断言、不启动Player或重跑路线。独立源码审阅无阻断，确认请求时点、停用撤回与unknown处理保持上述范围，未改变调度及可见集合。
+
+源码7b47406已同步本机工程，一次公开`HybridLumenGI.Editor.HybridLumenGIPlayerBuild.Build`构建成功：Unity6000.0.85f1、Windows64 Mono、Release／None、0错误／23条warning。Unity PID24268、native exit0，原Renderer、Quality及初始化器已恢复。[构建来源](build-attempt.json)、[退出记录](build-exit.json)与[BuildReport摘要](<I:/Unity test/Comparison/Builds/LocalRelease91/build-result.json>)保留。
+
+[启动Release91](<I:/Unity test/Comparison/Builds/LocalRelease91/Start-LocalRelease.cmd>)沿用原统一场景、2ray/DXR及默认关闭的测量／反馈／捕获时间门。没有新的Player、图像或成本运行；原25ms／1GiB起始目标和Release90静止测量、热态路线保持其原来源，画质依据保持Release88来源，完整G0–G5仍未放行。

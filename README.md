@@ -2,7 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release90](<I:/Unity test/Comparison/Builds/LocalRelease90/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release91](<I:/Unity test/Comparison/Builds/LocalRelease91/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+
+Release91补齐[表示需求与可用组显示](LocalComparison/Review/sample-representation-status-01/result.md)：普通面板及F2可区分请求细节而聚合体仍在提供覆盖、主动只要聚合体、未评估和未知状态。显示范围为样例CPU请求与Renderer可提交组，不是像素覆盖或GPU完成。独立源码审阅和公开Release构建完成，调度与画质配置保持；没有新增Player或性能／画质测量。
 
 Release90修复[形变快照发布饥饿](LocalComparison/Review/deformed-publication-fairness-01/result.md)：上传额度紧张时，已完成快照按捕获入队顺序争用额度，避免持续完成的新任务反复抢先。未完成头项仍可跳过，失效清理及失败所有权保留。必要组件回归和公开Release构建通过；GI着色器与2射线/DXR配置保持，没有新的Player、画质或性能测量。
 
@@ -54,6 +56,8 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 实际后端以面板诊断为准，选择 DXR 偏好不保证硬件路径被采用。关灯仍保留发光面；停止形变后，异步 GI 快照可能继续追上可见网格。骨骼模式复用现有快照流程，K可切回原网格模式；两种形变均不修改物理碰撞体。用户已根据本机基线选择先以 **960×540／30 FPS** 为开发目标；这是目标，当前尚未完成稳定帧率验收。
 
 点击面板的 **Memory: off** 开启本进程 local/nonlocal 显存用量、OS预算及采样峰值；**Log ledger** 或 **F2** 将已有当前状态导出到Player日志。F2不会自动开启计时或显存采样。缺失或旧原生DLL会显示不可用，不影响GI。数据不是GI独占、整机用量或绝对瞬时峰值，也不改变更新配额。
+
+面板 **Group request/available** 显示样例请求与当前完整可提交组；例如 `details/aggregate` 表示细节已请求、聚合体仍可用。`unknown` 表示无法确认完整组，不等于已证实画面缺失。F2同时保留请求帧与原发布帧，详见[状态范围](Documentation/HlodStreaming.md)。
 
 展开 **GPU time / update budget**，先选 **Measure only** 查看已有GI区间；输入有限正数并点击 **Apply feedback** 才启用反馈，**Off** 关闭。输入框获得焦点时暂停导航快捷键。实际状态和配额显示在同一面板，**Log ledger** 导出请求与结果；缺测不当作零成本，最低配额仍可能超目标。详见[用法与范围](Documentation/GpuBudget.md#普通运行入口与公开配置)。
 
