@@ -8,4 +8,10 @@
 
 本轮最初核对的两组预算普通离场路径未发现自身请求环：超出表示unloadDistance却仍在某相机GI farDistance内时，仍有真实需求，等待不是此缺陷。未为该正常情况新增测试或候选。
 
-独立源码复核无阻断。必要验证限定一次普通构建以确认当前Unity/URP API及可运行整合；不为少量资格条件新建模拟框架，不新增Player、图像或内存窗口。普通示例为Base相机，不能用它的正常运行冒充此切换的原生验收。构建尚待执行，当前普通交付仍为Release96。
+独立源码复核与Astra范围审查无阻断。必要验证限定一次普通构建以确认当前Unity/URP API及可运行整合；不为少量资格条件新建模拟框架，不新增Player、图像或内存窗口。普通示例为Base相机，不能用它的正常运行冒充此切换的原生验收。
+
+## 普通交付
+
+源码`3de97f42bdedc44ddd63c20bb365f25325334afb`已整合[Release97](<I:/Unity test/Comparison/Builds/LocalRelease97/Start-LocalRelease.cmd>)。唯一Unity6000.0.85f1普通Release／None构建成功，0 errors／23 warnings保留，PID18796、native exit0；原Renderer、QualitySettings与初始化入口恢复。统一场景的2ray／filter4／DXR配置保持，没有额外运行或观察器。
+
+Astra同意有限采用并沿用既有包装发布流程。[Windows实验性演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release97-demo)已发布至授权私有仓库，完整运行依赖、StreamingAssets和许可随包保留；[发布状态](published-release.json)确认prerelease与已上传资产。只关闭Overlay旧GI需求阻止表示卸载的问题及本次整合，不扩大为完整生命周期、总显存或整体G4通过。既有画质与性能数据保持原版本来源。
