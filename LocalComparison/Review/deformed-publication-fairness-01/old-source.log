@@ -1,0 +1,15 @@
+PASS coalesced demand: actual A then C publication, latest-only second cycle/final catch-up, borrowed inputs, one pending worker, unchanged upload/strong-cancel/withdrawal/fence ownership.
+PASS: actual full fingerprint and component skip unchanged automatic captures; same-count UV edit, failed-publication retry, SDF and captured chart settings, explicit strong/coalesced requests still rebuild; old Published/version retained and temporary mesh/quota handled.
+PASS: whole capture may overrun its time allowance; deferred demand/turn/reservation preserved; next-frame rotation and completed-job publication progress; failed and unchanged attempts also charge time.
+Unhandled exception. System.Exception: One-upload ready queue violated capture order: older=False, later=False, refresh=True
+   at Program.Require(Boolean result, String message) in C:\Users\Administrator\AppData\Local\Temp\hlgi-deformed-mesh-2b742a31ed6849e8b79df32a7b6e1e10\Program.cs:line 15
+   at Program.CompletedPublicationIsFair() in C:\Users\Administrator\AppData\Local\Temp\hlgi-deformed-mesh-2b742a31ed6849e8b79df32a7b6e1e10\Program.cs:line 252
+   at Program.Main() in C:\Users\Administrator\AppData\Local\Temp\hlgi-deformed-mesh-2b742a31ed6849e8b79df32a7b6e1e10\Program.cs:line 281
+Exception: C:\Users\Administrator\Desktop\test\HybridLumenGI\Tests\Invoke-CSharpHarness.ps1:69
+Line |
+  69 |  … de -ne 0) { throw "C# harness '$Name' failed with exit code $exitCode …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | C# harness 'deformed-mesh' failed with exit code -532462766; generated sources:
+     | C:\Users\Administrator\AppData\Local\Temp\hlgi-deformed-mesh-2b742a31ed6849e8b79df32a7b6e1e10
+
+

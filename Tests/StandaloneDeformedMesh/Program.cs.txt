@@ -218,6 +218,52 @@ static class Program
         Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Timed unchanged/recovery captures left a reservation.");Defaults();
         Console.WriteLine("PASS: whole capture may overrun its time allowance; deferred demand/turn/reservation preserved; next-frame rotation and completed-job publication progress; failed and unchanged attempts also charge time.");
     }
+    static void CompletedPublicationIsFair()
+    {
+        Defaults();HybridLumenGIDeformedMesh.MaximumWorkers=1;
+        long Upload(Owner owner)
+        {
+            var job=Job(owner);var snapshot=job.GetType().GetField("snapshot",PrivateInstance).GetValue(job);
+            return (long)snapshot.GetType().GetField("uploadBytes",PrivateInstance).GetValue(snapshot);
+        }
+        // Queue an unfinished older job, then a younger job which completes first.
+        var older=Add(1400);Frame();Started(1400);Mesh olderMesh=PendingMesh(older);
+        var refresh=Add(1401);HybridLumenGIDeformedMesh.MaximumWorkers=2;Frame();Started(1401);
+        Mesh firstRefresh=PendingMesh(refresh);long oneUpload=Upload(older);
+        Require(oneUpload>0&&Upload(refresh)==oneUpload,"Fairness inputs must have equal actual upload reservations.");
+        HybridLumenGIDeformedMesh.UploadBudgetBytesPerFrame=oneUpload;
+        Finish(refresh,1401);HybridLumenGIDeformedMesh.MaximumWorkers=0;Frame();
+        Require(Job(older)!=null&&!HybridLumenGIDeformedMesh.HasSnapshot(older.renderer)&&Job(refresh)==null&&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(refresh.renderer),firstRefresh),
+            "An unfinished older worker blocked a later ready snapshot.");
+
+        // The old worker remains queued while a third owner and a newer demand from
+        // the already-published owner both capture. Completion order is deliberately reversed.
+        var later=Add(1402);HybridLumenGIDeformedMesh.MaximumWorkers=2;Frame();Started(1402);
+        Mesh laterMesh=PendingMesh(later);
+        refresh.component.RequestCapture(Mesh(1403));HybridLumenGIDeformedMesh.MaximumWorkers=3;Frame();Started(1403);
+        Mesh refreshedMesh=PendingMesh(refresh);
+        Require(Upload(later)==oneUpload&&Upload(refresh)==oneUpload,"Newer captures changed the one-snapshot upload premise.");
+        Finish(refresh,1403);Finish(later,1402);Finish(older,1400);
+        HybridLumenGIDeformedMesh.MaximumWorkers=0;Frame();
+        bool olderPublished=ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(older.renderer),olderMesh);
+        bool laterPublished=HybridLumenGIDeformedMesh.HasSnapshot(later.renderer);
+        bool refreshPublished=ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(refresh.renderer),refreshedMesh);
+        Require(olderPublished&&!laterPublished&&!refreshPublished&&Job(older)==null&&Job(later)!=null&&Job(refresh)!=null&&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(refresh.renderer),firstRefresh),
+            "One-upload ready queue violated capture order: older="+olderPublished+", later="+laterPublished+", refresh="+refreshPublished);
+
+        // A completed but withdrawn entry precedes the remaining ready refresh.
+        // Its private cleanup must neither consume the upload allowance nor block publication.
+        Disable(later);Frame();
+        Require(laterMesh.Destroyed&&Job(later)==null&&Job(refresh)==null&&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(refresh.renderer),refreshedMesh)&&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(older.renderer),olderMesh),
+            "Invalid completed work blocked or consumed upload allowance before a valid ready snapshot.");
+        Disable(older);Disable(refresh);DrainCompletedRetirements();
+        Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Fair publication/withdrawal left snapshot reservations.");Defaults();
+        Console.WriteLine("PASS: equal actual upload costs: unfinished head does not block ready work; oldest ready capture wins over later owner/new demand; invalid completed entry cleans without spending publication quota.");
+    }
     public static void Main()
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
@@ -232,6 +278,7 @@ static class Program
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
         UnchangedSkinnedCaptureReuse();
         CaptureTimeBudgetDefersAndPublishes();FailedCaptureChargesTimeBudget();UnchangedCaptureChargesTimeBudget();
+        CompletedPublicationIsFair();
         ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
         UnchangedCaptureCleanupFailure();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
@@ -381,12 +428,12 @@ static class Program
         var owner=Add(420);Frame();Started(420);Finish(owner,420);Frame();
         Mesh old=HybridLumenGIDeformedMesh.GetSourceMesh(owner.renderer);
         var oldSdf=HybridLumenGIDeformedMesh.GetSdf(owner.renderer,null);var oldCharts=HybridLumenGIDeformedMesh.GetCharts(owner.renderer,null);
-        healthy.component.RequestCapture(Mesh(411));Frame();Started(411);
         owner.component.RequestCapture(Mesh(421));Frame();Started(421);
+        healthy.component.RequestCapture(Mesh(411));Frame();Started(411);
         var failedJob=Job(owner);Mesh rejected=PendingMesh(owner);var failedSnapshot=failedJob.GetType().GetField("snapshot",PrivateInstance).GetValue(failedJob);
         long failedReservation=(long)failedSnapshot.GetType().GetField("reservation",PrivateInstance).GetValue(failedSnapshot);
         long held=HybridLumenGIDeformedMesh.ReservedBytes;
-        // Complete the healthy job too; process the failed publication first in the reverse loop.
+        // Both are ready; capture order puts the failed publication before the healthy job.
         Finish(healthy,411);Finish(owner,421);
         HybridLumenGISurfaceCharts.BeforeSet=()=>HybridLumenGISurfaceCharts.FailSet=ReferenceEquals(HybridLumenGISurfaceCharts.LastPublishingMesh,rejected);
         CoreUtils.FailDestroy=rejected;Exception escaped=null;

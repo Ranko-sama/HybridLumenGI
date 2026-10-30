@@ -193,7 +193,9 @@ namespace HybridLumenGI
                 foreach(var job in Jobs)if(ReferenceEquals(job.owner,owner))job.cancellation.Cancel();
             }
             long uploadLeft=Math.Max(0,UploadBudgetBytesPerFrame);
-            for(int i=Jobs.Count-1;i>=0;i--)
+            // Spend publication quota in capture order so repeated new completions
+            // cannot starve an older ready snapshot. Unfinished work is still skipped.
+            for(int i=0;i<Jobs.Count;i++)
             {
                 Job job=Jobs[i];if(job.cleanupFailed || !job.work.IsCompleted)continue;
                 bool current=job.owner!=null && job.owner.isActiveAndEnabled && job.owner.generation==job.generation &&
@@ -207,7 +209,7 @@ namespace HybridLumenGI
                 {
                     // A cancelled old-session worker can finish between IdleUpdate and
                     // this callback. Preserve ownership if native cleanup fails here too.
-                    try{job.snapshot.Destroy();job.cancellation.Dispose();Jobs.RemoveAt(i);}
+                    try{job.snapshot.Destroy();job.cancellation.Dispose();Jobs.RemoveAt(i--);}
                     catch(Exception error){job.cleanupFailed=true;Debug.LogException(error);}
                     continue;
                 }
@@ -247,7 +249,7 @@ namespace HybridLumenGI
                     }
                 }
                 // Ownership is now transferred to Published or private cleanup succeeded.
-                job.cancellation.Dispose();Jobs.RemoveAt(i);
+                job.cancellation.Dispose();Jobs.RemoveAt(i--);
             }
             double captureBudget=CaptureBudgetMillisecondsPerFrame;
             bool captureTimeLimited=captureBudget>0 && !double.IsNaN(captureBudget) && !double.IsInfinity(captureBudget);

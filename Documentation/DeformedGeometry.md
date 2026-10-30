@@ -6,7 +6,9 @@
 
 Mesh、SDF、捕获网格和 charts 全部生成成功后，以同一不可变快照替换。Proxy、Scene、SdfAtlas、SurfaceCache 与软件/DXR 三角准备共同读取该来源；不把更新后的 Skinned 绘制与旧 charts 混用。发布触发几何版本及局部缓存失效。这里的发布是 CPU 表示切换，GPU atlas 上传、材质捕获和 HLOD 初始化仍经过原就绪流程。形变更新有采样间隔与处理延迟，不承诺逐动画帧即时重建。
 
-组件设置控制分辨率、更新间隔、单对象顶点/三角上限。共享的 `VertexBudgetPerFrame`、`MaximumWorkers`、`MemoryBudgetBytes`、`UploadBudgetBytesPerFrame` 约束捕获、后台任务、逻辑内存预留和发布。失败捕获也消耗本帧顶点额度，并遵守重试间隔；worker 设为零暂停新任务，仍清理已取消任务。队列按实例轮转，不能让列表开头的对象无限占用机会。
+组件设置控制分辨率、更新间隔、单对象顶点/三角上限。共享的 `VertexBudgetPerFrame`、`MaximumWorkers`、`MemoryBudgetBytes`、`UploadBudgetBytesPerFrame` 约束捕获、后台任务、逻辑内存预留和发布。失败捕获也消耗本帧顶点额度，并遵守重试间隔；worker 设为零暂停新任务，仍清理已取消任务。捕获按实例轮转，不能让列表开头的对象无限占用机会。
+
+完成作业按捕获入队顺序尝试发布，避免后来的快照反复抢占上传额度，使旧的合格ready快照一直等待。未完成或清理失败的条目不会阻挡后续任务；当前剩余额度不足时继续检查后项，失效完成项仍可清理且不扣发布额度。若运行时降低预算，使某份已捕获快照永久大于整帧额度，它仍会等待；此顺序不承诺所有任务有固定等待上限。
 
 可选的共享 `CaptureBudgetMillisecondsPerFrame` 进一步限制同一引擎帧继续开始捕获。默认0；负数或非有限值也关闭。由调用方在主线程按设备需要设置，例如 `HybridLumenGIDeformedMesh.CaptureBudgetMillisecondsPerFrame = 2.0;`，这个示例值不是本项目正式性能预算。关闭时不读取捕获时间戳，原数量／字节准入保持。
 
