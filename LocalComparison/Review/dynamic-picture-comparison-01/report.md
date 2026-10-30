@@ -2,7 +2,7 @@
 
 ## 当前交付结论（Release88，2026-10-30）
 
-[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease88/Start-LocalRelease.cmd>)现为Release88，采用[本机2射线质量配置](../two-ray-local-quality-01/result.md)，Runtime算法不变。[四时点软件图](../two-ray-local-quality-01/comparison.png)中门面、地面颗粒和暗斑减少，未见明显新增持续旧轮廓或边缘缺口，软斑仍在；全图平均出射Y较1射线上升7.9–23.1%，没有新独立误差估计。默认DXR普通M门运动Present约39.95Hz，p95／p99间隔27.81／28.72ms、最大30.72ms；支持本机960×540启动配置下的30FPS方向，性能余量变小，不是显示FPS或GI增量成本。
+[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease88/Start-LocalRelease.cmd>)现为Release88，采用[本机2射线质量配置](../two-ray-local-quality-01/result.md)，Runtime算法不变。[四时点软件图](../two-ray-local-quality-01/comparison.png)中门面、地面颗粒和暗斑减少，未见明显新增持续旧轮廓或边缘缺口，软斑仍在；全图平均出射Y较1射线上升7.9–23.1%，这些运动时点没有独立误差估计。[静止119的独立D对照](../release88-color-frame119-01/result.md)显示有限ROI亮度指标改善、Floor色向变差，详见下表。默认DXR普通M门运动Present约39.95Hz，p95／p99间隔27.81／28.72ms、最大30.72ms；支持本机960×540启动配置下的30FPS方向，性能余量变小，不是显示FPS或GI增量成本。
 
 Release88沿用Release87的[短历史空间滤波](../short-history-spatial-filter-01/result.md)、F2和空场资源修复；启动优先DXR、按4回软件。软件画质与DXR成本独立解释，软件动停图不能重标为DXR动态等画质。**不同版本、时点和测量量不能合并成整景验收**；旧1射线颜色误差、残留与收敛数据保持原来源，不能当作88的新结论。
 
@@ -14,7 +14,7 @@ Release88沿用Release87的[短历史空间滤波](../short-history-spatial-filt
 
 | 用户问题 | 最近结果 | 适用范围与未解决项 |
 | --- | --- | --- |
-| 颜色误差 | Release88没有新的独立误差估计，四时点全图出射Y增加7.9–23.1%不等于正确度提高。历史[Release82](../stationary-history-01/result.md)的1射线119帧Floor／White平均D偏差−5.84%／−3.36%、299为+0.144%／−18.06%；[Release83恢复](../light-restore-response-01/result.md)后59帧为−7.39%／−6.48%。 | 旧结果只覆盖各自ROI／时点和256spp、8次反弹近似参考，不重标为88；像素标准误不是ROI置信区间。整景正确颜色仍开放。 |
+| 颜色误差 | [Release88软件119](../release88-color-frame119-01/result.md)的Floor／White平均D偏差−2.776%／−0.938%、逐像素Y-MAE 0.009566／0.017423，比历史1射线结果小；色向L1为0.007884／0.032816，其中Floor较旧0.004220变差。unknown为2／0。 | 限静止119、两个源ROI和既有256spp／8次反弹近似参考；像素标准误不是ROI置信区间，不是同点因果A/B。不解释运动四帧全部7.9–23.1%的亮度变化，旧动态数据保持原来源，整景颜色仍开放。 |
 | 换色／关灯残留 | [Release78来源分离](../cache-source-separation-01/result.md)在上传解析灯表为空时移除旧解析份额并保留发光／环境；同一前缀240→299的出射画面变化降低92.18%。[当前局部换色](../local-recolor-response-01/result.md)使未改材质接收面更新反弹颜色，59帧与119帧平均色向接近。Release82无标记真变黑的有限32步仍留6.88%。 | 出射变化和相对晚帧色向差都不是独立物理误差；当前换色没有蓝墙独立参考，不称旧色完全清除。32步为有限WARP依赖更新，不是真实Unity帧。任意局部换色与变化域外多跳传播仍未关闭。 |
 | 运动拖影 | [Release88的2射线配置](../two-ray-local-quality-01/result.md)进一步减少软件149／179／189／209的颗粒与暗斑，未见明显新增持续旧轮廓或边缘缺口；沿用87空间滤波。 | 只支持这四个软件时点，不能证明全段或DXR动态等画质；云状软斑仍有。旧D、相机/TAA及刚体历史专项保持原来源，不升级为整景验收。 |
 | 收敛时间 | Release88只有停止后10／30帧的普通画面，不新增精确收敛量。历史1射线下，Release82在270→299的Floor／White平均绝对D变化0.00025053／0.00079249；重新开灯后59帧恢复到开灯前98.36%／96.78%；旧门停止后10→30帧D变化0.022465。 | **尚不能给出整景达到正确颜色的统一帧数或秒数。** 旧1射线数值不外推88，晚帧不是真值；原D240容量缺口及相应提前结束前缀的未完成状态保留。 |
