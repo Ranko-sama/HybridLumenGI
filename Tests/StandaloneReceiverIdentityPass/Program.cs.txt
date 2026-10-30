@@ -122,6 +122,43 @@ class Program
         }
         pass.Dispose();
     }
+    static void NativeSkinBindings()
+    {
+        scenarios++;var pass=new Pass();var skin=new SkinnedMeshRenderer();var mesh=new Mesh();var texture=new Texture2D();
+        var draws=new Frame.Draw[2];
+        for(int i=0;i<draws.Length;i++)draws[i]=new Frame.Draw(new HybridLumenGIReceiverRegistry.Record{
+            Mesh=mesh,Renderer=skin,SkinPose=new HybridLumenGIReceiverSkinPose(),Submesh=i},i,Coverage(i,true,false,texture));
+        var frame=new Frame(new[]{new Frame.Row(1),new Frame.Row(2)},draws,Array.Empty<RectInt>());
+        var data=Record(pass,frame);var cmd=new CommandBuffer();data.graph.Execute(cmd);
+        var native=cmd.Commands.Where(x=>x.Name=="DrawRenderer").Select(x=>(DrawInfo)x.Value).ToArray();
+        Check(data.receipts.SequenceEqual(new[]{true})&&native.Length==2&&!Draws(cmd).Any(),"skin records native renderer draws, never bind-pose DrawMesh");
+        for(int i=0;i<native.Length;i++)
+        {
+            var draw=native[i];
+            Check(ReferenceEquals(draw.Renderer,skin)&&draw.Submesh==i&&draw.Pass==i,"native skin renderer/submesh/cull bindings");
+            Check((int)draw.Values[Id("OwnerIndexPlusOne")]==i+1,"native owner is recorded separately for each draw");
+            var size=(Vector4)draw.Values[Id("FullSize")];var alpha=(Vector4)draw.Values[Id("AlphaParams")];var st=(Vector4)draw.Values[Id("BaseMapST")];
+            Check(size.x==19&&size.y==11&&alpha.x==.7f&&alpha.y==.3f&&alpha.z==1&&alpha.w==0,"native dimensions and alpha contract preserved");
+            Check(st.x==2&&st.y==3&&st.z==.2f&&st.w==.4f&&(float)draw.Values[Id("HasBaseMap")]==1&&ReferenceEquals(draw.Values[Id("BaseMap")],texture),"native alpha texture and UV contract preserved");
+            Check(ReferenceEquals(draw.Values[Id("CameraDepth")],data.graph.Textures[0].handle.Texture)&&ReferenceEquals(draw.Values[Id("CaptureDepth")],data.graph.Textures[1].handle.Texture),"native draw binds this camera's two actual depth handles");
+        }
+        Check(skin.GlobalBlock.isEmpty&&skin.SlotBlocks.Count==0,"native recording leaves source property blocks untouched");
+        pass.Dispose();CompleteFences();
+        // One renderer-level and one slot-level private owner override: neither may authorize history.
+        foreach(bool slot in new[]{false,true})
+        {
+            pass=new Pass();skin=new SkinnedMeshRenderer();var source=new MaterialPropertyBlock();source.SetInteger(Id("OwnerIndexPlusOne"),99);
+            if(slot)skin.SlotBlocks.Add(0,source);else skin.GlobalBlock.CopyFrom(source);
+            frame=new Frame(new[]{new Frame.Row(1)},new[]{new Frame.Draw(new HybridLumenGIReceiverRegistry.Record{
+                Mesh=mesh,Renderer=skin,SkinPose=new HybridLumenGIReceiverSkinPose()},0,Coverage())},Array.Empty<RectInt>());
+            data=Record(pass,frame);cmd=new CommandBuffer();data.graph.Execute(cmd);
+            Check(data.receipts.SequenceEqual(new[]{false})&&(int)Resolve(cmd).Parameters[Id("ObjectCount")]==0,"private source MPB override rejects the identity receipt and resolves unknown");
+            Check(!Draws(cmd).Any()&&!cmd.Commands.Any(x=>x.Name=="DrawRenderer"),"private source binding is rejected before any renderer draw");
+            var retained=slot?skin.SlotBlocks[0]:skin.GlobalBlock;
+            Check(retained.Values.Count==1&&(int)retained.Values[Id("OwnerIndexPlusOne")]==99,"rejected private MPB is not edited");
+            pass.Dispose();CompleteFences();
+        }
+    }
     static void BoundedAndRecovery()
     {
         scenarios++;var pass=new Pass();
@@ -366,7 +403,7 @@ class Program
     }
     static void Main()
     {
-        Basic();RejectAndFailure();EmptyAndHoles();AlphaCoverage();BoundedAndRecovery();DisposeQueuedAndBetweenPasses();MultiCameraAndGuards();AbandonedAndResolveFailure();GraphConstructionFailure();
+        Basic();RejectAndFailure();EmptyAndHoles();AlphaCoverage();NativeSkinBindings();BoundedAndRecovery();DisposeQueuedAndBetweenPasses();MultiCameraAndGuards();AbandonedAndResolveFailure();GraphConstructionFailure();
         TimingOrderAndDependencies();TimingFailuresAndEarlyReturns();TimingObserverIsolation();TimingGraphFailures();TimingEarlyRecordRejections();TimingCancellationAndDuplicates();TimingSeparateCommandBuffers();FenceErrorsAndOwnerCap();
         Console.WriteLine($"ReceiverIdentityPass PASS: {scenarios} scenarios, {checks} checks. Actual recorder source with explicit Unity/RenderGraph/IdentityFrame substitutes.");
         Console.WriteLine("Evidence: recorded API arguments, declared dependencies, four local timing pairs and failure isolation, callback order, frozen MPBs, fallback, and bounded private-resource retirement only. No shader, Unity engine, real fence, driver, GPU execution, native event or Recorder timing behavior.");

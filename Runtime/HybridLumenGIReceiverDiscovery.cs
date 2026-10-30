@@ -186,6 +186,16 @@ namespace HybridLumenGI
                         if(meshRenderer.enlightenVertexStream!=null) issues|=IdentityIssues.EnlightenVertexStream;
                         MeshFilter filter=renderer.GetComponent<MeshFilter>();
                         mesh=filter!=null?filter.sharedMesh:null;
+                    }
+                    else if(renderer is SkinnedMeshRenderer skinned)
+                    {
+                        // The registry additionally freezes the actual bone pose. Identity
+                        // capture draws this Renderer, never its undeformed source mesh.
+                        mesh=skinned.sharedMesh;
+                    }
+                    else issues|=IdentityIssues.NonMeshRenderer;
+                    if(renderer is MeshRenderer || renderer is SkinnedMeshRenderer)
+                    {
                         if(mesh==null) issues|=IdentityIssues.MissingMesh;
                         else
                         {
@@ -194,7 +204,6 @@ namespace HybridLumenGI
                                 if(mesh.GetTopology(submesh)!=MeshTopology.Triangles) issues|=IdentityIssues.NonTriangleTopology;
                         }
                     }
-                    else issues|=IdentityIssues.NonMeshRenderer;
                 }
                 catch(Exception)
                 {

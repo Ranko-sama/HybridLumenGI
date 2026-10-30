@@ -25,18 +25,21 @@ namespace HybridLumenGI
             internal readonly HybridLumenGIMeshSource.Version MeshVersion;
             internal readonly string Fingerprint;
             internal readonly ReceiverContext Context;
+            internal readonly HybridLumenGIReceiverSkinPose SkinPose;
             internal Record(ulong token, ulong geometry, ulong material, Renderer renderer, Mesh mesh,
                 int submesh, Matrix4x4 matrix, HybridLumenGIMaterialSource.Snapshot source,
-                HybridLumenGIMeshSource.Version version, string fingerprint,ReceiverContext context)
+                HybridLumenGIMeshSource.Version version, string fingerprint,ReceiverContext context,
+                HybridLumenGIReceiverSkinPose skinPose=null)
             {
                 Token=token;GeometryGeneration=geometry;MaterialGeneration=material;
                 Renderer=renderer;Mesh=mesh;Submesh=submesh;LocalToWorld=matrix;
-                Material=source;MeshVersion=version;Fingerprint=fingerprint;Context=context;
+                Material=source;MeshVersion=version;Fingerprint=fingerprint;Context=context;SkinPose=skinPose;
             }
             public bool SameSource(Record other) => other!=null && Token==other.Token &&
                 GeometryGeneration==other.GeometryGeneration && MaterialGeneration==other.MaterialGeneration &&
                 ReferenceEquals(Renderer,other.Renderer) && ReferenceEquals(Mesh,other.Mesh) && Submesh==other.Submesh &&
-                Context.Equals(other.Context) && Material.CanReuseHistory && other.Material.CanReuseHistory;
+                Context.Equals(other.Context) && SameSkinPose(SkinPose,other.SkinPose) &&
+                Material.CanReuseHistory && other.Material.CanReuseHistory;
         }
 
         // Per-renderer policy and baked-lighting inputs are not Material properties.
@@ -85,6 +88,7 @@ namespace HybridLumenGI
             internal HybridLumenGIMeshSource.Version version;
             internal HybridLumenGIMaterialSource.Snapshot material;
             internal ReceiverContext context;
+            internal HybridLumenGIReceiverSkinPose skinPose;
         }
         private sealed class Receiver { internal Mesh mesh;internal Slot[] slots=Array.Empty<Slot>(); }
         private sealed class Geometry
@@ -133,6 +137,13 @@ namespace HybridLumenGI
                     checkedMeshes.Add(mesh,geometry); // Remember budget/rejection too; never repeatedly hash shared instances.
                 }
                 if(geometry==null) { untracked++;continue; }
+                HybridLumenGIReceiverSkinPose skinPose=null;
+                if(renderer is SkinnedMeshRenderer skinned)
+                {
+                    if(!HybridLumenGIReceiverSkinPose.TryCapture(skinned,mesh,candidate.LocalToWorld,out skinPose) ||
+                        skinPose.LogicalBytes>remaining) { untracked++;continue; }
+                    remaining-=skinPose.LogicalBytes;
+                }
                 var snapshots=new HybridLumenGIMaterialSource.Snapshot[candidate.Materials.Count];
                 bool supported=true;
                 for(int i=0;i<snapshots.Length;i++)
@@ -150,13 +161,14 @@ namespace HybridLumenGI
                 {
                     Slot slot=receiver.slots[i];
                     if(slot==null) receiver.slots[i]=slot=new Slot{token=Allocate(ref nextIdentity)};
-                    if(!ReferenceEquals(slot.version,geometry.version))
+                    if(!ReferenceEquals(slot.version,geometry.version) || !SameSkinPose(slot.skinPose,skinPose))
                     { slot.version=geometry.version;slot.geometryGeneration=Allocate(ref nextGeneration); }
+                    slot.skinPose=skinPose;
                     if(slot.material==null || !slot.material.Equals(snapshots[i]) || !slot.context.Equals(context))
                     { slot.material=snapshots[i];slot.context=context;slot.materialGeneration=Allocate(ref nextGeneration); }
                     if(slot.token==0 || slot.geometryGeneration==0 || slot.materialGeneration==0) { supported=false;break; }
                     additions.Add(new Record(slot.token,slot.geometryGeneration,slot.materialGeneration,renderer,mesh,i,
-                        candidate.LocalToWorld,snapshots[i],geometry.version,geometry.fingerprint,context));
+                        candidate.LocalToWorld,snapshots[i],geometry.version,geometry.fingerprint,context,skinPose));
                 }
                 if(supported) records.AddRange(additions); else untracked++;
                 }
@@ -181,6 +193,7 @@ namespace HybridLumenGI
             if(snapshot==null || !ReferenceEquals(snapshot.Owner,this) || !SameDiscovery(snapshot.Discovery,fresh)) return false;
             long remaining=Math.Max(0,fingerprintByteBudget);
             var checkedMeshes=new Dictionary<Mesh,Geometry>(ReferenceComparer<Mesh>.Instance);
+            var checkedSkin=new Dictionary<Renderer,HybridLumenGIReceiverSkinPose>(ReferenceComparer<Renderer>.Instance);
             foreach(Record record in snapshot.Records)
             {
                 if(record.Renderer==null || record.Mesh==null || !record.Renderer.localToWorldMatrix.Equals(record.LocalToWorld)) return false;
@@ -191,9 +204,23 @@ namespace HybridLumenGI
                 if(geometry==null || !ReferenceEquals(record.MeshVersion,geometry.version) ||
                     !string.Equals(record.Fingerprint,geometry.fingerprint,StringComparison.Ordinal) ||
                     !materials.IsCurrent(record.Renderer,record.Submesh,record.Material)) return false;
+                if(record.Renderer is SkinnedMeshRenderer skinned)
+                {
+                    if(!checkedSkin.TryGetValue(record.Renderer,out var pose))
+                    {
+                        if(!HybridLumenGIReceiverSkinPose.TryCapture(skinned,record.Mesh,record.LocalToWorld,out pose) ||
+                            pose.LogicalBytes>remaining) return false;
+                        remaining-=pose.LogicalBytes;checkedSkin.Add(record.Renderer,pose);
+                    }
+                    if(record.SkinPose==null || !record.SkinPose.SamePose(pose)) return false;
+                }
+                else if(record.SkinPose!=null) return false;
             }
             return true;
         }
+
+        private static bool SameSkinPose(HybridLumenGIReceiverSkinPose a,HybridLumenGIReceiverSkinPose b)
+            => ReferenceEquals(a,b) || (a!=null && a.SamePose(b));
 
         private Geometry ReadGeometry(Mesh mesh,ref long remaining)
         {

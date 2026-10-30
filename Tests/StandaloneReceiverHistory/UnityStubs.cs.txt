@@ -1,5 +1,5 @@
 // Deliberate CPU dependency substitutes. Actual Registry, ReceiverHistory,
-// HistoryLifecycle and MeshSource are compiled unchanged by the harness.
+// HistoryLifecycle, MeshSource and ReceiverSkinPose are compiled unchanged by the harness.
 // This does not execute Unity discovery, material capture, fingerprinting or GPU work.
 using System;
 using System.Collections.Generic;
@@ -37,6 +37,8 @@ namespace UnityEngine
         public static Matrix4x4 identity=>new Matrix4x4{Value=System.Numerics.Matrix4x4.Identity};
         public static Matrix4x4 Translate(float x)=>new Matrix4x4{Value=System.Numerics.Matrix4x4.CreateTranslation(x,0,0)};
         public static Matrix4x4 Scale(float x)=>new Matrix4x4{Value=System.Numerics.Matrix4x4.CreateScale(x,1,1)};
+        // Value stores the transpose of Unity's column-vector matrix.
+        public static Matrix4x4 operator *(Matrix4x4 a,Matrix4x4 b)=>new Matrix4x4{Value=b.Value*a.Value};
         public float determinant=>Value.GetDeterminant();
         public Matrix4x4 inverse { get { System.Numerics.Matrix4x4.Invert(Value,out var inverse);return new Matrix4x4{Value=inverse}; } }
         public float this[int index]=>index switch {
@@ -63,6 +65,7 @@ namespace UnityEngine
         public int subMeshCount=>Topologies.Length;
         public int[] StreamBytes={96};public int IndexBytes=12,AttributeCount=3,BoneCountBytes,BoneWeights;
         public Matrix4x4[] bindposes=Array.Empty<Matrix4x4>();
+        public int bindposeCount=>bindposes.Length;
         public MeshTopology GetTopology(int i) { if(ThrowTopology) throw new InvalidOperationException("Injected topology read failure");return Topologies[i]; }
         public int[] GetVertexAttributes()=>new int[AttributeCount];
         public byte[] GetBonesPerVertex()=>new byte[BoneCountBytes];
@@ -81,7 +84,7 @@ namespace UnityEngine
         }
     }
     public sealed class Material:Object { public int Value;public bool Supported=true,Reusable=true; }
-    public sealed class Renderer:Object
+    public class Renderer:Object
     {
         public Mesh Mesh=new Mesh();public Material[] Materials={new Material()};
         public GameObject gameObject=new GameObject();
@@ -92,6 +95,21 @@ namespace UnityEngine
         public Bounds Bounds=new Bounds{Extent=1};
         public int[] Mpb={0};public bool ThrowMatrix,ThrowMaterial;
         public Matrix4x4 localToWorldMatrix=>ThrowMatrix?throw new InvalidOperationException("Injected transform read failure"):Matrix;
+    }
+    public sealed class Transform:Object { public Matrix4x4 localToWorldMatrix=Matrix4x4.identity; }
+    public sealed class Cloth:Object { }
+    public enum SkinQuality { Auto=0,Bone1=1,Bone2=2,Bone4=4 }
+    public enum SkinWeights { None=0,OneBone=1,TwoBones=2,FourBones=4,Unlimited=255 }
+    public static class QualitySettings { public static SkinWeights skinWeights=SkinWeights.FourBones; }
+    public sealed class SkinnedMeshRenderer:Renderer
+    {
+        public Mesh sharedMesh { get=>Mesh;set=>Mesh=value; }
+        public Transform rootBone;
+        public SkinQuality quality=SkinQuality.Auto;
+        public Cloth Cloth;
+        private Transform[] boneValues=Array.Empty<Transform>();
+        public Transform[] bones { get=>(Transform[])boneValues.Clone();set=>boneValues=value==null?Array.Empty<Transform>():(Transform[])value.Clone(); }
+        public Object GetComponent(string type)=>type=="Cloth"?Cloth:null;
     }
     public sealed class GameObject { public int layer; }
     public sealed class Camera:Object { public int cullingMask=-1;public Matrix4x4 cullingMatrix=Matrix4x4.identity; }

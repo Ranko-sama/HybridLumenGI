@@ -12,6 +12,15 @@ namespace UnityEngine
     public class Texture : Object { }
     public class Texture2D : Texture { public static readonly Texture2D whiteTexture=new Texture2D(); }
     public class Mesh : Object { }
+    public class Renderer : Object
+    {
+        public readonly MaterialPropertyBlock GlobalBlock=new MaterialPropertyBlock();
+        public readonly Dictionary<int,MaterialPropertyBlock> SlotBlocks=new Dictionary<int,MaterialPropertyBlock>();
+        public void GetPropertyBlock(MaterialPropertyBlock block)=>block.CopyFrom(GlobalBlock);
+        public void GetPropertyBlock(MaterialPropertyBlock block,int index)
+        {block.CopyFrom(SlotBlocks.TryGetValue(index,out var value)?value:null);}
+    }
+    public class SkinnedMeshRenderer : Renderer { }
     public class Camera : Object { }
     public static class Time {public static int frameCount;}
     public enum FilterMode { Point }
@@ -37,6 +46,10 @@ namespace UnityEngine
     public class MaterialPropertyBlock
     {
         public readonly Dictionary<int,object> Values=new Dictionary<int,object>();
+        public bool isEmpty=>Values.Count==0;
+        public bool HasProperty(int id)=>Values.ContainsKey(id);
+        public void CopyFrom(MaterialPropertyBlock source)
+        {Values.Clear();if(source!=null)foreach(var value in source.Values)Values.Add(value.Key,value.Value);}
         public void SetInteger(int id,int v)=>Values[id]=v;
         public void SetMatrix(int id,Matrix4x4 v)=>Values[id]=v;
         public void SetVector(int id,Vector4 v)=>Values[id]=v;
@@ -91,13 +104,14 @@ namespace UnityEngine.Rendering
     }
     public sealed class DrawInfo
     {
-        public Mesh Mesh;public Matrix4x4 Matrix;public Material Material;public int Submesh,Pass;
+        public Mesh Mesh;public Renderer Renderer;public Matrix4x4 Matrix;public Material Material;public int Submesh,Pass;
         public MaterialPropertyBlock Block;public Dictionary<int,object> Values;
     }
     public sealed class CommandBuffer
     {
         public readonly List<RecordedCommand> Commands=new List<RecordedCommand>();
         public readonly Dictionary<int,object> Parameters=new Dictionary<int,object>();
+        public readonly Dictionary<int,object> Globals=new Dictionary<int,object>();
         public static readonly List<FenceState> Fences=new List<FenceState>();
         public int ThrowDrawAt=-1,DrawCount,ThrowClearUavAt=-1,ClearUavCount;public bool ThrowFence,ThrowUpload;public int ThrowDispatchKernel=-1;
         private void Add(string name,int index=0,object value=null){Commands.Add(new RecordedCommand{Name=name,Index=index,Value=value});}
@@ -112,10 +126,22 @@ namespace UnityEngine.Rendering
         public void SetRenderTarget(RenderTargetIdentifier target)=>Add("Target",target.Id);
         public void SetViewport(Rect value)=>Add("Viewport",0,value);
         public void SetRandomWriteTarget(int index,GraphicsBuffer buffer)=>Add("Uav",index,buffer);
+        public void SetGlobalInteger(int id,int value){Globals[id]=value;Add("GlobalInt",id,value);}
+        public void SetGlobalFloat(int id,float value){Globals[id]=value;Add("GlobalFloat",id,value);}
+        public void SetGlobalVector(int id,Vector4 value){Globals[id]=value;Add("GlobalVector",id,value);}
+        public void SetGlobalTexture(int id,Texture value){Globals[id]=value;Add("GlobalTexture",id,value);}
         public void DrawMesh(Mesh mesh,Matrix4x4 matrix,Material material,int submesh,int pass,MaterialPropertyBlock block)
         {
             if(DrawCount++==ThrowDrawAt)throw new Exception("Draw");
             Add("Draw",0,new DrawInfo{Mesh=mesh,Matrix=matrix,Material=material,Submesh=submesh,Pass=pass,Block=block,Values=new Dictionary<int,object>(block.Values)});
+        }
+        public void DrawRenderer(Renderer renderer,Material material,int submesh,int pass)
+        {
+            if(DrawCount++==ThrowDrawAt)throw new Exception("Draw");
+            var values=new Dictionary<int,object>(Globals);var block=new MaterialPropertyBlock();
+            renderer.GetPropertyBlock(block,submesh);if(block.isEmpty)renderer.GetPropertyBlock(block);
+            foreach(var entry in block.Values)values[entry.Key]=entry.Value;
+            Add("DrawRenderer",0,new DrawInfo{Renderer=renderer,Material=material,Submesh=submesh,Pass=pass,Values=values});
         }
         public GraphicsFence CreateGraphicsFence(GraphicsFenceType type,SynchronisationStageFlags stages)
         {
@@ -179,9 +205,11 @@ namespace UnityEngine.Rendering.RenderGraphModule
 }
 namespace HybridLumenGI
 {
+    // Marker only: pose qualification itself uses the real source in ReceiverHistory.
+    internal sealed class HybridLumenGIReceiverSkinPose { }
     public sealed class HybridLumenGIReceiverRegistry
     {
-        public sealed class Record {public UnityEngine.Mesh Mesh;public UnityEngine.Matrix4x4 LocalToWorld=UnityEngine.Matrix4x4.identity;public int Submesh;}
+        public sealed class Record {public UnityEngine.Mesh Mesh;public UnityEngine.Renderer Renderer;internal HybridLumenGIReceiverSkinPose SkinPose;public UnityEngine.Matrix4x4 LocalToWorld=UnityEngine.Matrix4x4.identity;public int Submesh;}
     }
     public sealed class HybridLumenGIMaterialSource
     {

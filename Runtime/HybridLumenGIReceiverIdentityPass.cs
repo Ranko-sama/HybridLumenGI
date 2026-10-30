@@ -34,6 +34,8 @@ namespace HybridLumenGI
         private static readonly int BaseMapStId = Shader.PropertyToID("_HLGI_IdentityBaseMapST");
         private static readonly int AlphaId = Shader.PropertyToID("_HLGI_IdentityAlphaParams");
         private static readonly int HasBaseMapId = Shader.PropertyToID("_HLGI_IdentityHasBaseMap");
+        private static readonly int[] SkinReservedProperties = { CandidatesId, CameraDepthId, CaptureDepthId,
+            OwnerId, FullSizeId, BaseMapId, BaseMapStId, AlphaId, HasBaseMapId };
         private static readonly List<MaterialOwner> Owners = new List<MaterialOwner>(MaxMaterialOwners);
         private static bool collectionRegistered;
 
@@ -295,8 +297,11 @@ namespace HybridLumenGI
                     block.SetTexture(CameraDepthId, (Texture)state.CameraDepth);
                     block.SetTexture(CaptureDepthId, (Texture)state.CaptureDepth);
                     state.Lease.GpuAttempted = true;
-                    cmd.DrawMesh(draw.Record.Mesh, draw.Record.LocalToWorld, state.Material.Material,
-                        draw.Record.Submesh, draw.Coverage.SourceCull, block);
+                    if(draw.Record.SkinPose!=null)
+                        DrawSkin(state,cmd,draw);
+                    else
+                        cmd.DrawMesh(draw.Record.Mesh, draw.Record.LocalToWorld, state.Material.Material,
+                            draw.Record.Submesh, draw.Coverage.SourceCull, block);
                 }
                 state.Captured = true;
             }
@@ -307,6 +312,32 @@ namespace HybridLumenGI
                 catch { state.Failed = true; state.Owner.Status = "Identity UAV cleanup failed."; }
             }
         }
+        private static void DrawSkin(State state,CommandBuffer cmd,HybridLumenGIReceiverIdentityFrame.Draw draw)
+        {
+            var renderer=draw.Record.Renderer as SkinnedMeshRenderer;
+            if(renderer==null) throw new InvalidOperationException("Skinned identity source disappeared.");
+            // DrawRenderer uses the actual skinned vertex stream. A bind-pose DrawMesh
+            // would not establish ownership of the visible depth. Keep source Renderer
+            // and MPBs untouched; only private identity shader uniforms are recorded.
+            var sourceBlock=new MaterialPropertyBlock();
+            renderer.GetPropertyBlock(sourceBlock,draw.Record.Submesh);
+            if(sourceBlock.isEmpty) renderer.GetPropertyBlock(sourceBlock);
+            for(int i=0;i<SkinReservedProperties.Length;i++)
+                if(sourceBlock.HasProperty(SkinReservedProperties[i]))
+                    throw new InvalidOperationException("Source MPB overrides a private identity binding.");
+            cmd.SetGlobalInteger(OwnerId,checked(draw.RowIndex+1));
+            cmd.SetGlobalVector(FullSizeId,new Vector4(state.FullWidth,state.FullHeight,0,0));
+            cmd.SetGlobalVector(BaseMapStId,draw.Coverage.BaseMapST);
+            cmd.SetGlobalVector(AlphaId,new Vector4(draw.Coverage.BaseColorAlpha,draw.Coverage.Cutoff,
+                draw.Coverage.AlphaTest?1:0,draw.Coverage.SmoothnessFromAlbedoAlpha?1:0));
+            bool sampleAlpha=draw.Coverage.AlphaTest && !draw.Coverage.SmoothnessFromAlbedoAlpha && draw.Coverage.BaseMap!=null;
+            cmd.SetGlobalFloat(HasBaseMapId,sampleAlpha?1:0);
+            cmd.SetGlobalTexture(BaseMapId,sampleAlpha?draw.Coverage.BaseMap:Texture2D.whiteTexture);
+            cmd.SetGlobalTexture(CameraDepthId,(Texture)state.CameraDepth);
+            cmd.SetGlobalTexture(CaptureDepthId,(Texture)state.CaptureDepth);
+            cmd.DrawRenderer(renderer,state.Material.Material,draw.Record.Submesh,draw.Coverage.SourceCull);
+        }
+
         private static void Resolve(State state, CommandBuffer cmd)
         {
             if (state.Notified) return;

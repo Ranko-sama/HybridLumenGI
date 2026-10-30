@@ -1,0 +1,11 @@
+# Skinned 停稳后的屏幕历史
+
+原目标2／3的明确能力缺口：开启receiver对象身份后，所有SkinnedRenderer均因NonMeshRenderer拒绝；姿态停稳也无法累计历史。候选只允许普通骨骼来源在相邻成功帧的renderer-local骨矩阵、骨引用、网格与材质等输入完全一致时沿用既有正相似刚体历史。真正形变仍更换几何代次；Cloth、blend shapes、无效骨与不可读来源保持拒绝，不加入通用前帧顶点或拓扑映射。
+
+捕获前重核相机来源；绑定姿态和完整骨权重沿用SurfaceCharts.ComputeContentFingerprint的既有合同。Skin身份通过DrawRenderer实际顶点流；深度、primitive、冲突、f-1与变化域拒绝保持。源Renderer及MPB不修改，覆盖私有identity绑定的MPB不得授权历史。姿态数组逻辑字节计入已有source预算，不是峰值内存保证。
+
+Astra认可两层必要验证：受影响的三个既有源码入口，以及一次保存统一场景的Skin停稳→短运动→停稳。原Mesh/私有绑定回归保留；不重跑刚体门、BakeMesh套件、颜色参考、性能或长时矩阵。
+
+原生运行固定240请求，640×360／半GI／2ray／filter4／偏好DXR。8次Mesh请求后切Skin静止，119后启用形变，127后停止，239后排空读回结束；600秒期限。只在119/120/127/128/159/239记录现成identity与moments，并保留两个静止普通Final画面。确认实际Skin身份、停稳累计以及真实骨变化更换key并拒绝历史；不增设颜色或误差阈值，如实报告覆盖及失败，不把CPU资格当GPU成功。
+
+复用RenderRequest与GPU读回，不新增观测框架或产品诊断接口。首次尝试因Cloth可选模块静态引用而编译失败，改为存在即拒绝的字符串查询；第二次实际完成120请求，但Unity不支持直接读取RGBA32 UInt纹理，故复用既有MovingOccluderIdentityCopy.compute按位拷到uint4 buffer，样点和判据不变。两次失败保留。临时Feature挂钩与工程设置退出后恢复，临时脚本移到工程外保留。通过后才整合普通构建；本功能不证明通用形变无拖影或光照收敛。

@@ -1,5 +1,7 @@
 # 形变几何快照
 
+屏幕历史另有[普通骨骼停稳恢复](GeometryHistoryContracts.md#普通骨骼停稳历史)：满足完整来源与骨姿态稳定条件时，SkinnedMeshRenderer可重新累计历史；真正骨变化继续拒绝旧历史。这与下述异步GI快照各自工作，不承诺跨形变重投影或可见动画与世界GI逐帧同步。有限统一场景使用结果见[Skinned停稳历史](../LocalComparison/Review/skinned-stopped-history-01/result.md)。
+
 给已有 `HybridLumenGIProxy` 的对象添加 `HybridLumenGIDeformedMesh`。SkinnedMeshRenderer 按间隔捕获；可读 MeshFilter 或自定义顶点生产者在主线程调用 `RequestCapture(readableSnapshot)`。后者必须提供完成写入的可读网格，GPU 私有顶点缓冲不会被自动推断。原可见 Renderer 和材质继续保留。
 
 捕获在主线程执行。Skinned 路径调用 `BakeMesh(mesh, false)`，保留局部坐标，实例变换只应用一次；普通可读网格复制 GI 需要的位置、法线、切线、UV0 和原 submesh 索引。后台任务只接触复制后的数组，使用与 Editor 相同的 SDF 数学核及既有 chart 分组核。开放网格继续采用 unsigned shell；闭合网格使用带符号体素。

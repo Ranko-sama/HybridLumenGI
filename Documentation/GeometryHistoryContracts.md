@@ -95,7 +95,7 @@ Feature 现在连接 `Discovery → Registry → ReceiverHistory → ReceiverIde
 
 ### 来源快照、像素身份与录制资源
 
-[Discovery](../Runtime/HybridLumenGIReceiverDiscovery.cs) 每次相机准备扫描普通不透明来源，注册表不依赖 GI proxy、卡片、SDF、BVH 或 DXR 驻留。静态合批、额外顶点流、LODGroup、非普通 MeshRenderer 等保留未知标记。[Registry](../Runtime/HybridLumenGIReceiverRegistry.cs) 按 Renderer/source submesh 保存独立记录和不复用的 geometry/material generation；默认容量1,024条，上限16,384，整 Renderer 超预算时不部分接纳。来源未知、容量或完整指纹预算不足时撤销身份资格，当前 GI 仍可计算。
+[Discovery](../Runtime/HybridLumenGIReceiverDiscovery.cs) 每次相机准备扫描普通不透明MeshRenderer及下述受限SkinnedMeshRenderer来源，注册表不依赖 GI proxy、卡片、SDF、BVH 或 DXR 驻留。静态合批、额外顶点流、LODGroup及其他不支持来源保留未知标记。[Registry](../Runtime/HybridLumenGIReceiverRegistry.cs) 按 Renderer/source submesh 保存独立记录和不复用的 geometry/material generation；默认容量1,024条，上限16,384，整 Renderer 超预算时不部分接纳。来源未知、容量或完整指纹预算不足时撤销身份资格，当前 GI 仍可计算。
 
 每次准备冻结矩阵、源 submesh、完整网格指纹和有效材质快照，并在 Scene/SDF 就绪发布之前完成。原材质捕获和身份捕获回调绘制前重新发现来源，核对同帧 source set、camera culling、矩阵、材质及网格指纹。新建/激活、移除、来源改变或再验证超预算会撤销来源票据；不得拿旧观察补齐。世界材质快照允许当前 RenderTexture 捕获，但这类无法证明稳定的来源不能进入 receiver 可复用记录。
 
@@ -104,6 +104,8 @@ Feature 现在连接 `Discovery → Registry → ReceiverHistory → ReceiverIde
 [IdentityFrame](../Runtime/HybridLumenGIReceiverIdentityFrame.cs) 保留来源记录顺序和 holes，不因不支持条目而压缩后续索引。每行80B：前64B为 currentToPrevious，offset64为 uint2 key，offset72为 flags，offset76的字段名 reserved 现在保存**当前帧 Renderer group**。group 同一 Renderer 跨 submesh 一致，只用于本帧变化域归属；它不是跨帧身份。key 为该 submesh 记录的 max(geometryGeneration, materialGeneration)，代次由注册表全局单调分配、不复用。primitive 是该 submesh draw 内的原始三角序号，因此 key 加 primitive 能区分不同 submesh；ownerIndexPlusOne 只是本帧 row 寻址。
 
 [IdentityPass](../Runtime/HybridLumenGIReceiverIdentityPass.cs) 使用独立私有 Material、每 draw 自有 MPB、显式 object-to-world/view-projection、原 source Mesh 与指定 submesh。[Identity shader](../Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.shader) 的 pass0/1/2 固定为 Cull Off/Front/Back，不能用 MPB_Cull 改原 raster state。raster 尺寸通过可精确表示1..16384整数的 float4 MPB 输入再转 uint2；compute 尺寸使用整数接口。原 Lit/原生漫反射 RendererList 继续负责照明捕获，身份 draw 本身不求光照。
+
+受支持的Skinned来源改用同一私有材质的DrawRenderer，读取实际骨骼顶点流，不能拿bind-pose的DrawMesh代替。冻结的私有identity参数通过CommandBuffer排队；只读检查当前生效的per-slot或renderer MPB，若它覆盖这些私有绑定则拒绝，不修改来源属性块。覆盖参数仍来自已验证快照，额外读取仅用于私有绑定冲突检查。
 
 RenderGraph 录制四阶段：清零候选并上传对象表、按保守矩形写未知遮罩、raster 原子声明、独立 compute resolve。候选为 full-resolution 的12B uint3(ownerIndexPlusOne, conflict, primitivePlusOne)，pixel shader 使用 u1，另有一个 RGBA8 dummy RT。resolve 在完整资源依赖之后，按 ScreenSampling 的实际 full 采样中心读取候选，输出 GI 分辨率 uint4(keyLow, keyHigh, primitivePlusOne, valid=1)；未知为全零。resolve 不要求前帧 eligible：首次有效当前帧也必须能写入下一帧要核对的身份。
 
@@ -115,7 +117,13 @@ CPU 的 global/keyword 检查仅用于提前拒绝，不能证明已经排队的
 
 CAS 从零声明 owner；只有成功者写 primitive。**任何第二个有效 fragment 都使 conflict 永久置位，包括相同 owner、同一 submesh 自重叠与共面对象**；draw 顺序不能清掉冲突。resolve 只接受无冲突、owner 在当前 row 范围内、primitive 非零且 key 非零的候选。多字段写入不是一个原子事务，所以只在 raster UAV 写入和独立 resolve 的资源依赖完成后读取它们。
 
-未参与身份捕获的对象也可能是原画面的共面赢家。Frame 对未知/不完整 Renderer 的冻结 bounds 建立保守投影矩形，按单矩形 compute dispatch 设置 sticky conflict，不能被合格 draw 覆盖。无可靠 bounds、投影 W≤1e-6、来源扫描不完整或未知矩形容量耗尽时使用全屏未知。LODGroup、透明、Skinned、自定义顶点路径、不可验证的静态合批/额外顶点流保持拒绝；source Mesh 不能代替未观察到的实际可见几何。
+未参与身份捕获的对象也可能是原画面的共面赢家。Frame 对未知/不完整 Renderer 的冻结 bounds 建立保守投影矩形，按单矩形 compute dispatch 设置 sticky conflict，不能被合格 draw 覆盖。无可靠 bounds、投影 W≤1e-6、来源扫描不完整或未知矩形容量耗尽时使用全屏未知。LODGroup、透明、不满足以下资格的Skinned、自定义顶点路径、不可验证的静态合批/额外顶点流保持拒绝；source Mesh 不能代替未观察到的实际可见几何。
+
+### 普通骨骼停稳历史
+
+[SkinPose](../Runtime/HybridLumenGIReceiverSkinPose.cs)只支持普通骨骼输入：Renderer/sharedMesh/rootBone与有序bones引用、renderer-local骨矩阵、SkinQuality及全局skinWeights被冻结，并在捕获前重核。矩阵逐元素完全相等才视为未形变；网格bindposes和完整骨权重沿用既有来源检查。绝对Renderer运动仍受原正相似变换门槛约束，不放宽为通用形变重投影。pose变化递增几何代次，稳定后才能恢复相邻成功帧的历史。
+
+Cloth（包括disabled）、blend shapes、无效／缺失骨与不可读网格拒绝；外部GPU写入或自定义顶点变形不在此合同内。姿态数组逻辑字节计入已有来源准备与重新验证预算，不是实际内存或CPU开销保证。一次[统一场景GPU观察](../LocalComparison/Review/skinned-stopped-history-01/result.md)确认骨变化样点历史≤1、停稳后恢复到32；限该简单双骨场景，未补齐任意动画、辐射质量、精确收敛、性能或退出清理验收。
 
 ### f-1 身份、对象重投影与双法线
 

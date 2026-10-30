@@ -2,7 +2,7 @@ param([string]$SourceRoot = (Split-Path -Parent $PSScriptRoot))
 $ErrorActionPreference = 'Stop'
 $SourceRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
 $sources = @{}
-foreach ($name in @('HybridLumenGIReceiverRegistry','HybridLumenGIReceiverHistory','HybridLumenGIHistoryLifecycle','HybridLumenGIMeshSource')) {
+foreach ($name in @('HybridLumenGIReceiverRegistry','HybridLumenGIReceiverHistory','HybridLumenGIHistoryLifecycle','HybridLumenGIMeshSource','HybridLumenGIReceiverSkinPose')) {
     $sources[$name+'.cs'] = Get-Content -LiteralPath (Join-Path $SourceRoot ('Runtime/'+$name+'.cs')) -Raw
 }
 foreach ($name in @('Program','UnityStubs')) {

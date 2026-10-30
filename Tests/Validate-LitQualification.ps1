@@ -36,6 +36,7 @@ namespace UnityEngine {
         public override int GetHashCode() { return identityCode; }
     }
     public class MeshRenderer:Renderer { public Mesh additionalVertexStreams,enlightenVertexStream; }
+    public class SkinnedMeshRenderer:Renderer { public Mesh sharedMesh; }
     public enum MeshTopology { Triangles,Lines }
     public class Mesh { public int subMeshCount=1; public MeshTopology topology=MeshTopology.Triangles; public bool throwTopology; public MeshTopology GetTopology(int index) { if(throwTopology) throw new Exception("injected topology read failure"); return topology; } }
     public class MeshFilter { public Mesh sharedMesh; }

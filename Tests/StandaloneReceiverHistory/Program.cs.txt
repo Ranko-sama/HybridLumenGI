@@ -270,12 +270,36 @@ internal static class HarnessEntry
         var freshHistory=new History();Check(freshHistory.Begin(alternateToken,sourceA),"new camera-state history can bind its own lifecycle");
     }
 
+    private static void StableSkinHistory()
+    {
+        var camera=new Camera();var registry=new Registry();var life=new Lifecycle();var history=new History();
+        var bone=new Transform();var skin=new SkinnedMeshRenderer{rootBone=bone,bones=new[]{bone}};
+        skin.sharedMesh.bindposes=new[]{Matrix4x4.identity};
+        var first=P(registry,camera,skin);var t0=life.BeginFrame(100,Context);
+        Check(first.Records.Count==1&&first.Records[0].SkinPose!=null,"ordinary skin retains a real pose snapshot");
+        Check(history.Begin(t0,first),"first skin receipt begins");Publish(history,life,t0);
+        var same=P(registry,camera,skin);var t1=life.BeginFrame(101,Context);history.Begin(t1,same);
+        Check(history.TryGetPrevious(same.Records[0],out var previous)&&ReferenceEquals(previous,first.Records[0]),"unchanged adjacent skin pose accepts f-1 history");
+        Publish(history,life,t1);
+        bone.localToWorldMatrix=Matrix4x4.Translate(.25f);
+        Check(!registry.IsCurrent(same,D(camera,skin),Budget),"bone change after preparation rejects pending source capture");
+        var changed=P(registry,camera,skin);var t2=life.BeginFrame(102,Context);history.Begin(t2,changed);
+        Check(changed.Records[0].Token==same.Records[0].Token&&changed.Records[0].GeometryGeneration!=same.Records[0].GeometryGeneration,"real bone motion keeps owner identity but changes geometry generation");
+        Check(!history.TryGetPrevious(changed.Records[0],out _),"moving skin cannot reuse different-pose history");Publish(history,life,t2);
+        var stopped=P(registry,camera,skin);var t3=life.BeginFrame(103,Context);history.Begin(t3,stopped);
+        Check(history.TryGetPrevious(stopped.Records[0],out previous)&&ReferenceEquals(previous,changed.Records[0]),"the next unchanged pose restores adjacent-frame history");Publish(history,life,t3);
+        skin.Cloth=new Cloth();
+        Check(!registry.IsCurrent(stopped,D(camera,skin),Budget),"adding Cloth revokes an already prepared skin source");
+        var cloth=P(registry,camera,skin);Check(cloth.Records.Count==0&&cloth.HasUnknownSources,"Cloth remains unsupported instead of inheriting stable bone history");
+    }
+
     private static int Main()
     {
         Case("identity and generations",IdentityAndVersions);Case("budgets and fallback",BudgetsAndFailures);
         Case("source revalidation",Revalidation);Case("source read exceptions",ReadFailuresAreContained);Case("receiver policies and lightmaps",ReceiverPolicies);
         Case("camera receipts",Receipts);Case("multiple cameras and foreign snapshots",MultipleCameras);Case("random frame receipt oracle",RandomFrameOracle);
-        Console.WriteLine("Receiver registry/history: "+checks+" assertions across "+scenarios+" scenarios; failures="+failures+". Four actual source classes; explicit Unity/discovery/material/fingerprint CPU substitutes. No Unity visibility, pixel identity, GPU completion or rendered-motion proof.");
+        Case("stable ordinary skin history",StableSkinHistory);
+        Console.WriteLine("Receiver registry/history: "+checks+" assertions across "+scenarios+" scenarios; failures="+failures+". Five actual source classes; explicit Unity/discovery/material/fingerprint CPU substitutes. No Unity visibility, pixel identity, GPU completion or rendered-motion proof.");
         return failures==0?0:1;
     }
 }
