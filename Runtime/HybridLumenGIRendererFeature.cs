@@ -563,6 +563,12 @@ namespace HybridLumenGI
                 foreach(var state in cameras.Values)
                 {
                     if(state.camera==null || !state.camera.isActiveAndEnabled)continue;
+                    // Overlay cameras stop enqueueing this pass, so their old scene
+                    // cannot keep streamed pages resident indefinitely. URP forces
+                    // Scene View to Base independently of additional-camera data.
+                    if(state.camera.cameraType!=CameraType.SceneView &&
+                        state.camera.TryGetComponent<UniversalAdditionalCameraData>(out var cameraData) &&
+                        cameraData.renderType!=CameraRenderType.Base)continue;
                     for(int slot=0;slot<state.scene.Capacity;slot++)
                         if(ReferenceEquals(state.scene.GetProxy(slot),proxy) &&
                             (state.scene.IsPublished(slot) || state.scene.IsWarming(slot)))return true;

@@ -1,0 +1,11 @@
+# Base转Overlay后的旧页需求不再无限保留
+
+2026-10-31，基线7cbb28e。对应原目标3／工作流8、G4中流式表示消费者生命周期的一处具体遗漏，不关闭完整G4。
+
+活动相机曾使用GI后切为Overlay，AddRenderPasses不再入队，旧CameraState.Scene也不再Prepare。原RequiresRepresentation只检查相机active/enabled，继续凭旧published／warming状态阻止表示卸载。Evict仅由同一Pass的GetCameraState触发；若没有其他合格相机继续准备，120帧旧状态清理条件不会自行运行，页需求可能无限保留。独立审查确认该触发不需要renderer切换或格式变化。
+
+最小修复在消费者查询中读取现有UniversalAdditionalCameraData，排除当前非Base相机。没有附加组件时保留Base语义；SceneView按锁定URP17.0.4的InitializeCameraData优先分支保持强制Base，不错误采用其附加组件状态。TryGetComponent不创建组件。其他相机仍可保留表示，原ReportUnloadSafe、最终context fence及lease退休条件保持；本改动不立即销毁CameraState或释放所有GI资源，也不扩展其他准入门。
+
+本轮最初核对的两组预算普通离场路径未发现自身请求环：超出表示unloadDistance却仍在某相机GI farDistance内时，仍有真实需求，等待不是此缺陷。未为该正常情况新增测试或候选。
+
+独立源码复核无阻断。必要验证限定一次普通构建以确认当前Unity/URP API及可运行整合；不为少量资格条件新建模拟框架，不新增Player、图像或内存窗口。普通示例为Base相机，不能用它的正常运行冒充此切换的原生验收。构建尚待执行，当前普通交付仍为Release96。
