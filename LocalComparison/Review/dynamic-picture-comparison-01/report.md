@@ -1,8 +1,8 @@
 # 动态画面对照与当前开发结论
 
-## 当前交付结论（Release85，2026-10-30）
+## 当前交付结论（Release86，2026-10-30）
 
-[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease85/Start-LocalRelease.cmd>)现为Release85，启动优先DXR、按4回软件，保留F2状态日志；GI延续Release83的静止重建和刚体历史修复。[当前静止软件／DXR对照](../dxr-local-default-01/result.md)中，已知域保留，Floor后端平均绝对D亮度差约0.00000325，未见明显新增缺损；其余本页图像仍保留实际版本及后端来源，软件动停图不能重标为DXR结果。**不同版本、时点和测量量不能合并成整景验收**。本页后半部分的旧参考图与旧数值属于修复前／中间版本，不能用作当前误差。
+[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease86/Start-LocalRelease.cmd>)现为Release86，新增[空场重复分配修复](../empty-geometry-preparation-01/result.md)，没有新增画质或性能采集。启动优先DXR、按4回软件，保留F2状态日志；GI延续Release83的静止重建和刚体历史修复。[既有静止软件／DXR对照](../dxr-local-default-01/result.md)中，已知域保留，Floor后端平均绝对D亮度差约0.00000325，未见明显新增缺损；其余本页图像仍保留实际版本及后端来源，软件动停图不能重标为DXR结果。**不同版本、时点和测量量不能合并成整景验收**。本页后半部分的旧参考图与旧数值属于修复前／中间版本，不能用作当前误差。
 
 最新[门动停对照](../door-stop-response-01/result.md)补齐179刚到终点、其后10／30帧的画面：旧门屏幕区域未见可辨认的完整门形残影，运动颗粒／斑驳停后减轻。189→209平均逐像素绝对D亮度变化仍为0.022465，不能称为精确收敛或全过程无拖影。没有新增算法修改。
 

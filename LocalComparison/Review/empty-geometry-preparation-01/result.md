@@ -8,4 +8,6 @@
 
 首轮[harness-output.txt](harness-output.txt)保留失败：11处旧断言要求空计划也增加重建计数；新增硬件用例另两处复用了前一用例已耗尽构建配额的1700帧。仅将旧计数预期改为不重建、将新用例移到1800起始帧，产品修复未改。第二轮[harness-output-02.txt](harness-output-02.txt)退出0、无失败。夹具使用录制式Unity API和受控退休回调，不是原生GPU执行、显存或帧率测量。
 
-该修复的普通构建整合随后记录于本目录。原三轮观察保持Release85来源和末次记录超过30秒的限制；不重跑三轮、画面或性能采集，不声称实测加速、完整G4或生产长时通过。
+源码00497b2已通过一次公开普通Release/None构建整合到[Release86](<I:/Unity test/Comparison/Builds/LocalRelease86/Start-LocalRelease.cmd>)：Unity PID16088／native exit0，0错误、19条warning，输出102076684字节；见[构建调用](build-attempt.json)、[退出结果](build-exit.json)和[Unity构建报告](<I:/Unity test/Comparison/Builds/LocalRelease86/build-result.json>)。沿用保存统一场景和Release85的本机DXR启动偏好，构建后恢复工程Renderer、Quality和初始化入口。该批处理完成了Unity导入／编译及Player构建，未另启动Player。
+
+原三轮观察保持Release85来源和末次记录超过30秒的限制；不重跑三轮、画面或性能采集，不声称实测加速、完整G4或生产长时通过。
