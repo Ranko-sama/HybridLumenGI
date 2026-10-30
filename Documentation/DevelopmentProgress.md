@@ -1,5 +1,7 @@
 # 完整原计划推进表
 
+用户重新确认普通场景显示后，原目标4／G5补齐[Release83应用Present节奏](../LocalComparison/Review/release83-present-api-02/result.md)：平均29.15次／秒、间隔p95 38.58ms／p99 41.35ms，该有限普通窗口低于30目标。只记录应用Present，不是实际显示FPS；普通UI及配置收据与测量基线不同，不能据此宣称回退或整机性能。填补的是应用呈交数据缺口，没有性能达标或新功能关闭项。旧无CSV与截图失败保留，未归因；下一项仅比较已有DXR的成本与显存取舍，不改变默认或扩大画质验证。
+
 960×540／30 FPS目标下的[普通Release83呈交采集](../LocalComparison/Review/release83-present-01/result.md)未取得CSV。工具按时正常退出、Player正常关闭，但截图不可用且没有帧记录，实际呈交FPS仍未知；只读核对未定位明确原因，未自动重跑。没有新增功能或验收关闭项，保留当前可运行版本与原GI／回调基线。
 
 针对目标4的[未消费方向权重候选](../LocalComparison/Review/unused-direction-weight-01/result.md)已撤回并结束：优化DXIL确认两次求和仍存在，有限真实HLSL对照保持语义，但唯一同配置成本窗口的GI合计中位28.017→30.547ms，未通过事先固定的收益及尾部条件。源码与Unity部署已恢复，Release83保持。没有新增性能关闭项，不追加探针／测量／调参；960×540／30 FPS目标继续有效。
