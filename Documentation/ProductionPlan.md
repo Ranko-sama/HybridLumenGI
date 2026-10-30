@@ -2,6 +2,8 @@
 
 当前入口已整合为[Release90](../LocalComparison/Review/deformed-publication-fairness-01/result.md)，修复完成形变快照被后来任务反复抢占上传额度的问题；原2ray/DXR和默认关闭的捕获时间准入保持。必要组件回归及公开Release构建已完成，不新增实机性能／画质结论，也不关闭下述完整§5或G0–G5条件。
 
+随后补齐[当前2射线DXR静止GI基线](../LocalComparison/Review/release90-dxr-baseline-01/result.md)：GI三区间合计中位21.667ms、p95 22.643ms、p99 23.938ms；进程local采样峰值565.441MiB。这是G0的当前预算决策输入，不是整应用GPU或冷／热／高速运动完整验收；正式GI／显存目标仍待确定，普通Release90和画质配置保持。
+
 用户已明确暂缓G5的CI接线；该条款保留未完成，不阻塞其他本机开发。当前有限采用[Release88本机2 ray配置](../LocalComparison/Review/two-ray-local-quality-01/result.md)：Runtime仍为e352921，只将本机示例构建的`raysPerPixel`从1改为2，通用默认值2保持。一次软件149／179／189／209四图有明确颗粒收益；平均Y分别增加7.892%／8.244%／23.112%／22.425%（约8–23%），不当作颜色更准确。四个时点不证明全过程无拖影，原720未完成状态保持。
 
 独立的普通DXR 2 ray门运动成本窗口中，960×540启动配置的应用Present平均39.954935Hz，间隔p95为27.8123ms、p99为28.72332ms、最大30.7175ms，1197个间隔没有超过33.333ms。它支持本机30FPS方向，但成本余量较小；软件质量与DXR成本分别来自不同运行，不能合并为同后端的完整质量／性能放行。Present不是显示FPS或GI专项时间，正式GI／显存预算仍未定，完整G3／G4／G5保持开放。
