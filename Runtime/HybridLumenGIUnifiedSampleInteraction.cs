@@ -141,6 +141,7 @@ namespace HybridLumenGI
                 if (Input.GetKeyDown(KeyCode.F1)) { showControls = !showControls; sample.ShowControls = showControls; }
                 if (!sample.IsEditingGpuTarget)
                 {
+                    if (Input.GetKeyDown(KeyCode.F2)) sample.LogLedger();
                     if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Alpha1)) { sample.GoNear(); SyncAngles(); }
                     if (Input.GetKeyDown(KeyCode.Alpha2)) { sample.GoFar(); SyncAngles(); }
                     if (Input.GetKeyDown(KeyCode.Alpha3)) { sample.Leave(); SyncAngles(); }
@@ -175,7 +176,7 @@ namespace HybridLumenGI
             if (door && GUILayout.Button(SkinnedDeformation ? "K: use mesh" : "K: use skin")) SetSkinnedDeformation(!SkinnedDeformation);
             if (GUILayout.Button(sample.enabled ? "B: release group" : "B: reload group")) sample.enabled = !sample.enabled;
             GUILayout.EndHorizontal();
-            if (lights.Length > 0) GUILayout.Label("Lights off keeps emissive surfaces.");
+            GUILayout.Label(lights.Length > 0 ? "F2: log current status. Lights off keeps emissive surfaces." : "F2: log current status.");
             if (door) GUILayout.Label((SkinnedDeformation ? "Skinned bones" : "Readable mesh") + ": asynchronous snapshots; lighting may catch up after motion stops.");
             GUILayout.EndArea();
         }
