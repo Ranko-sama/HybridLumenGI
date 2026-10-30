@@ -77,7 +77,7 @@ Feature仅进入Base Game相机及显式允许的Scene View；非DX12、非Linea
 
 精确软件与DXR共用命中材质、alpha/Cull和chart绑定；未知覆盖或材质不能贡献可信辐射。准入失败时保留明确的SDF/解析近似或未知结果。HLOD就绪表示完整组可发布，不表示照明已收敛；资源账目不等于驱动总VRAM。
 
-[原始计划](Documentation/OriginalDevelopmentPlan.md)的四项目标、十条工作流及[生产计划G0–G5](Documentation/ProductionPlan.md)继续约束开发。主要开放项为整景颜色与多跳残留、完整运动和精确收敛，复杂薄壁／凹腔及近远场支持范围，冷／热／高速流送、目标规模与长时负载，以及承诺平台的完整性能／内存和发布验收。实际CI按用户要求暂缓。有限窗口不替代这些条件。
+[原始计划](Documentation/OriginalDevelopmentPlan.md)的四项目标、十条工作流及[生产计划G0–G5](Documentation/ProductionPlan.md)继续约束开发。**[G0本机基线锁定已完成](Documentation/ProductionPlan.md#g0已锁定的本机基线)，G1–G5继续开放。** 主要开放项为整景颜色与多跳残留、完整运动和精确收敛，复杂薄壁／凹腔及近远场支持范围，冷／热／高速流送、目标规模与长时负载，以及承诺平台的完整性能／内存和发布验收。实际CI按用户要求暂缓。有限窗口不替代这些条件。
 
 **已关闭的具体缺口与各阶段历史统一见[完整推进表](Documentation/DevelopmentProgress.md)。** 本页仅维护当前使用入口和结论；历史构建、失败、候选撤回及原始证据保持原来源。
 

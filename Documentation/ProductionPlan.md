@@ -181,20 +181,31 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-2026-10-30 当前交付更新：[Release74](ReviewBrief-CurrentLocalRelease74.md)提供统一普通交互入口；[独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)已给出首批颜色/残留/拖影/收敛量化及模型不确定性，[全局灯变化屏幕历史](ReviewBrief-GlobalLightHistoryReset01.md)已作具体修复。以下表格的旧版本记录保留历史来源，G0–G5的完整放行条件不变。功能开发优先，不把新增证明系统或无关测试变成产品判断前置条件。
+2026-10-30 当前交付更新：[Release94](../LocalComparison/Review/skinned-stopped-history-01/result.md)提供统一普通交互入口及可下载演示；[独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)已给出颜色/残留/拖影/收敛的有限结论及模型不确定性。按下面原始条款逐项核对后，**G0本机基线锁定完成，G1–G5继续开放**；测量和图像保留各自版本，不改标为94全部重新通过。功能开发优先，不把新增证明系统或无关测试变成产品判断前置条件。
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
-| G0：基线锁定 | Unity/URP 精确版本、设备矩阵、目标分辨率/FPS、GI GPU/显存预算、参考场景与图 | 本机导入/Player build及来源一致基线；当前Release72/13f31ec完成Windows x64/Mono/DX12构建及显式后台120帧/HDR；普通Host与71一致且未重复OS按键。Release49/31c9415和3088d41的软件/DXR记录保持历史来源，完整配置/性能预算仍开放 |
+| G0：基线锁定 | Unity/URP 精确版本、设备矩阵、目标分辨率/FPS、GI GPU/显存预算、参考场景与图 | 本机导入/Player build及来源一致基线。**已完成本机基线锁定**：版本、设备、目标、预算、保存场景及参考图已明确，93基线与普通构建使用同一Runtime；依据见下表。后续完整负载／平台验收仍归G4/G5 |
 | G1：传输正确性 | 灯光单位/阴影/材质合约、真实 hit 材质、白炉/黑室/金属/色墙对照 | 线性 HDR 与匹配参考比对；无重复环境/烘焙贡献；能量/关灯衰减通过 |
 | G2：世界表面与几何 | cards/atlas、mesh SDF 资产管线、实例空间加速、global SDF clipmaps、dirty bricks | 复杂多房间、薄壁、凹物体、离屏纹理与材质正确；覆盖 debug 可解释 |
 | G3：动态稳定性 | 局部失效、运动/形变一致性、可见性缓存、引导/MIS、时域重建 | 规定 camera/light/door 序列通过；误差、拖影、收敛时间量化 |
 | G4：规模与后端 | 异步 streaming、原子 HLOD 切换、反馈预算；DXR refit/alpha/纹理支持 | 冷/热/高速移动与长时压力通过，软件/DXR 视觉偏差可解释；无残留引用/增长 |
 | G5：发布 | CI 导入和构建、回归图、GPU/显存报告、支持矩阵、版本迁移、打包清单 | 每一承诺平台完成 p95/p99 与峰值内存验收；无未关闭阻断缺陷 |
 
+### G0已锁定的本机基线
+
+| 原要求 | 锁定内容与已有来源 |
+| --- | --- |
+| 版本／设备矩阵 | 本机基线行：Unity6000.0.85f1、URP17.0.4、Windows x64／Mono／DX12／Linear、RTX2080Ti；[已有构建环境](ReviewBrief-CurrentLocalRelease73.md)及[93实际运行environment](../LocalComparison/Review/exact-no-fallback-traversal-01/result.json)相符。其它设备／平台未据此放行，原承诺平台验收条件保留在G5 |
+| 目标与预算 | 用户已确认960×540／30FPS、GI三个区间合计p95≤25ms、进程local有限采样峰值≤1GiB，nonlocal另列；[口径](GpuBudget.md#当前已确认的起始验收目标)固定，测量不会自动启用预算反馈 |
+| 场景／配置／图 | 保存的`Assets/UnifiedRelease74/Generated/Variant/UnifiedSample.unity`；960×540／半GI／2ray／filter4／DXR基线配置见[构建输入](../LocalComparison/Review/exact-no-fallback-traversal-01/build-attempt.json)。[93的119参考对照图与输入范围](../LocalComparison/Review/release93-color-frame119-01/result.md)采用640×360参考网格，是明确范围的基线图，未冒充960×540整景G1真值 |
+| 导入／构建／同源测量 | [93测量构建](../LocalComparison/Review/exact-no-fallback-traversal-01/build-attempt.json)来源aeb6ba2，[普通93构建](../LocalComparison/Review/exact-no-fallback-traversal-01/release-build-attempt.json)来源818b1e2，两者Runtime无差异；[原测量](../LocalComparison/Review/exact-no-fallback-traversal-01/result.json)记录实际DXR、有限完整区间及local峰值。普通[94构建与产品来源](../LocalComparison/Review/skinned-stopped-history-01/result.md)另列，不修改93测量归属 |
+
+93静止GI合计p95为19.298ms、local采样峰567.254MiB；[独立普通门运动Present](../LocalComparison/Review/release93-motion-present-01/result.md)平均52.69Hz、p95间隔21.97ms。它们分别支持已锁定的本机起点，不能合并成同负载验收。G0关闭不要求这些有限基线先证明显示FPS、最坏负载、长期无增长或整景颜色；这些原要求仍分别保留在G1–G5。本次只核对已有来源，没有新增运行、图像、哈希或重建。
+
 当前G1/G3新增[有限单次颜色参考](ReviewBrief-FiniteWallColorReference02.md)、[变色与关灯](ReviewBrief-FiniteWallDynamicResponse01.md)、[真实有限缓存反馈](ReviewBrief-CacheFeedbackFinite02.md)和[刚体遮挡恢复](ReviewBrief-FiniteWallOcclusionResponse01.md)的来源绑定证据，各自限制见原报告；不合并成默认配置或整景质量认证。
 
-本机已有Unity6000.0.85f1、URP17.0.4、DX12和RTX2080Ti的实际记录；用户已选择960×540／30 FPS目标；起始GI／显存口径已按用户决定锁定为上述25ms／1GiB，nonlocal另列。完整当前进度见[推进表](DevelopmentProgress.md)。G5目前增加了当前本地构建/启动证据，尚未完成CI、承诺平台矩阵、性能或峰值内存放行；上表G0–G5条件不因此降低。当前源码构建和有限运行不等于整个G0完成，**不能跳过 G2–G5 后标注为“完整生产交付”**。开发不再依赖朋友工程反馈。
+完整当前进度见[推进表](DevelopmentProgress.md)。G5已有本地普通构建、启动与可下载演示，CI按用户决定暂缓，承诺平台矩阵、完整负载性能／内存及生产验收仍未完成。G0的逐项关闭依据是上表所列完整基线输入，而非仅一次构建成功；**不能跳过G1–G5后标注为“完整生产交付”**。开发不再依赖朋友工程反馈。
 
 ## 7. 历史朋友工程接入步骤
 
