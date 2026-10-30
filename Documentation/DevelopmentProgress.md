@@ -4,6 +4,8 @@
 
 用户已选择下一阶段的画质取舍：**当前统一示例优先减少运动颗粒，可适度变柔，但不能明显加重拖影。** 正式GI／显存预算仍待答复；这不阻断已有画质问题的功能改进，也不将尚未采集的完整运动表现视为通过。
 
+据此补齐[Release87的有限动停对照](../LocalComparison/Review/release87-motion-response-01/result.md)：同软件、同前史的149／179帧颗粒减少且略柔，189／209接近原基线；主线程、独立图审和Astra均未见明显新增持续轮廓。结论限这四个时点，不是全过程无拖影；云斑、颜色误差及精确收敛仍开放。产品未改、原720未完成保持，没有补帧或重建87，该观察线结束。
+
 当前统一入口已更新为[Release87](<I:/Unity test/Comparison/Builds/LocalRelease87/Start-LocalRelease.cmd>)：源码e352921完成公开Release/None构建（0错误、23条warning），将下述空间滤波改进整合到原场景，并保留空场修复和本机DXR偏好。没有追加Player、DXR动态或成本窗口；四项画质结论及其原来源见[独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)。
 
 原目标1／工作流6采用[短历史空间滤波改进](../LocalComparison/Review/short-history-spatial-filter-01/result.md)：仅对两端有效短历史使用对称的已有噪声尺度，减少单边亮度权重的不对称；时间混合及成熟历史保持。唯一软件239帧同曝光对照中，门及邻近墙地黑颗粒明显减少，未见阻断性边缘劣化，云状软斑仍在；known和门面moments不变，亮度+3.12%不当颜色真值改善。主线程、独立图审和Astra同意有限采用，原720未完成保持，新增读取成本未测；本候选结束，不扩动态/参考/成本验证。
