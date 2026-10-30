@@ -12,6 +12,8 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 
 ## 使用统一示例
 
+已按用户要求完成[Release83本机起始基线](LocalComparison/Review/release83-local-baseline-01/result.md)：当前960×540／半分辨率GI／精确软件下，GI三区间合计中位28.02ms、p95 31.19ms、p99 31.45ms；相机回调平均34.50次／秒，非Present FPS。进程local采样峰值577.45MiB、nonlocal280.66MiB，非GI独占或瞬时峰值。正式性能目标尚未设定，普通入口保持不变。
+
 点击窗口后操作：
 
 | 操作 | 按键 |

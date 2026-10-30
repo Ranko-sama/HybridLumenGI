@@ -26,6 +26,8 @@ Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开�
 
 ## 已有 GPU 时间结果
 
+用户选择先完成本机基线，再确定正式目标。当前[Release83起始基线](../LocalComparison/Review/release83-local-baseline-01/result.md)已完成：960×540／480×270 GI、精确软件、RTX2080Ti DX12、反馈关闭。连续源窗口159–670的三个GI区间合计中位28.017ms、p95 31.186ms、p99 31.447ms；Transport中位27.802ms。目标相机回调平均28.982ms／34.505次每秒，p99 33.666ms；它不是实际Present FPS、纯CPU执行或整应用GPU时间。相同源窗口已有DXGI采样全部有效，进程local当前／采样峰值577.449MiB、nonlocal280.664MiB；非GI独占或瞬时／生命周期峰值。VSync=0、targetFrameRate=−1。只做了这一次测量配置运行，普通Release83保持不变；不据历史版本数值推导加速，也不自动扩矩阵。正式分辨率、FPS、GI-ms和显存上限留待据此决定，G0／G5尚未放行。
+
 Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过未被调用方消费的辐射求值。相同场景、设置和512源帧窗口中，每源帧三个GI范围之和的中位为30.742 ms、p95 31.581 ms、p99 31.819 ms；相对下文Release75基线，中位减少7.563 ms（19.7%），满足运行前固定的5%及64帧分块分离条件。只有这一个候选窗口；[完整对比和边界](../LocalComparison/Review/screen-endpoint-only-01/result.md)不宣称统计显著性、所有场景/DXR性能或生产达标。
 
 2026-10-30已补当前[Release75源码的有限成本结果](../LocalComparison/Review/unified-release75-cost-01/result.json)。使用保存的统一场景、960×540普通backbuffer、480×270 GI与默认精确软件路径，另建Release/None测量配置，只开启既有NativeDX12计时、关闭反馈及输入/UI。普通Release75 EXE未替换。固定相机、灯光和几何，源帧159–670的完成记录完整；进程正常退出。没有采图、哈希或新GPU查询。
