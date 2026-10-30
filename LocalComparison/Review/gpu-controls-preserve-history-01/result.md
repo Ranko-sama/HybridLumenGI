@@ -8,4 +8,10 @@
 
 独立实现复核无阻断。必要验证限定为实际Unity Settings／JsonUtility的控制字段与传输字段区别、原Settings不被修改，再由同一Editor进程调用既有普通Release构建器。临时入口只存在于Editor目录，退出后移出Assets；没有Player、截图、成本窗口、新宿主或哈希校验。该检查不等于渲染后历史／GPU计时的原生整体验收。
 
-构建与设置检查尚待执行；当前可下载普通版本仍为Release95。
+## 采用与交付
+
+源码`171e6fcba3b397e1bf6ceb250aa9c53f05899cde`已通过[实际Unity配置检查](settings-check.json)。临时Editor入口反射调用当前产品的TransportSettingsJson，用实际JsonUtility确认五项控制单独及组合改变完整计时配置而不改变传输配置、活Settings不被修改，ray／bounce变化仍能触发传输差异。独立结果复核确认没有复制被测逻辑；首次及三处失效动作的接线另由源码审阅确认。这不证明渲染后历史连续性或原生GPU计时行为。
+
+同一Unity6000.0.85f1进程PID4260随后调用既有公开构建器，唯一普通Release96／None构建成功，0 errors／23 warnings保留，native exit0。Renderer、QualitySettings及初始化入口恢复，临时Editor目录已移出Assets；未启动Player或新观察器。[本机统一入口](<I:/Unity test/Comparison/Builds/LocalRelease96/Start-LocalRelease.cmd>)保留2ray／filter4／DXR与既有场景。
+
+Astra同意有限采用和沿用既有打包流程。[Windows实验性演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release96-demo)已发布至授权私有仓库，完整运行依赖、StreamingAssets及许可证随包保留；[发布状态](published-release.json)确认prerelease与已上传资产。仅关闭此配置职责混淆及发布整合，G0保持完成、G1–G5整体保持开放。既有画质、颜色和性能数据继续注明原版本，不改标96。

@@ -4,9 +4,9 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行：[下载 Release95 Windows x64 实验性演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release95-demo)。** 选择页面中的 `HybridLumenGI-Release95-Windows-x64.zip`，完整解压后运行 `Start-LocalRelease.cmd`，无需安装Unity编辑器；私有仓库下载需要已有访问权限。保留整个运行文件夹，升级时解压到新目录，不单独覆盖exe或数据文件。包内提供操作与适用范围说明，当前不属于生产稳定版。
+**直接运行：[下载 Release96 Windows x64 实验性演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release96-demo)。** 选择页面中的 `HybridLumenGI-Release96-Windows-x64.zip`，完整解压后运行 `Start-LocalRelease.cmd`，无需安装Unity编辑器；私有仓库下载需要已有访问权限。保留整个运行文件夹，升级时解压到新目录，不单独覆盖exe或数据文件。包内提供操作与适用范围说明，当前不属于生产稳定版。
 
-本开发机仍可[启动统一交互 Release95](<I:/Unity test/Comparison/Builds/LocalRelease95/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
+本开发机仍可[启动统一交互 Release96](<I:/Unity test/Comparison/Builds/LocalRelease96/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
 
 ### 接入自己的工程
 
@@ -44,6 +44,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 实际后端以面板诊断为准，DXR偏好不保证采用硬件路径。关灯仍保留发光面。停止形变后异步GI快照可能继续追上可见网格；K切换的两种形变模式均不修改物理碰撞体。
 
+Release96修复[GPU监测／反馈控制触发无关光照失效](LocalComparison/Review/gpu-controls-preserve-history-01/result.md)：仅测量、提供器偏好、反馈开关、目标毫秒和最低工作比例只刷新计时／控制器状态，不再单独撤销世界缓存、屏幕历史或HLOD就绪；其他设置保持原失效规则。实际Unity配置检查与普通构建通过，未新增Player或画面／成本观察。
+
 Release95修复[高反射率材质的直接反弹路径差异](LocalComparison/Review/direct-reflectance-consistency-01/result.md)：物理rho保留[0,1]，0.98只限制递归缓存反馈，screen/world直接项一致。反馈仍有偏；本次固定函数检查及普通构建不增加整景颜色、运动或成本验收结论。
 
 保留Release94的[普通骨骼停稳历史累计](LocalComparison/Review/skinned-stopped-history-01/result.md)：满足完整来源和局部骨姿态稳定条件时恢复历史，真正骨变化仍拒绝旧历史。统一场景GPU观察支持该能力；Cloth、blend shapes和自定义GPU变形不在合同内，也不代表任意动画无拖影或固定帧数收敛。原生短序列退出仍有待退休资源，此次不算清理验收；普通交付不含临时观察器。
@@ -55,7 +57,7 @@ Release95修复[高反射率材质的直接反弹路径差异](LocalComparison/R
 
 ## 当前画质与性能
 
-当前取舍是减少运动颗粒、允许适度变柔，同时避免明显加重拖影。Release95整合高反射率直接反弹修复，保留94骨骼停稳历史及93的filter4／2ray／DXR配置与空回退遍历消除。以下画质与性能结果保持各自原版本和测量范围，没有因95构建而重测或改标，不能合并为整体验收。
+当前取舍是减少运动颗粒、允许适度变柔，同时避免明显加重拖影。Release96整合GPU控制与光照失效的职责分离，保留95直接反弹修复、94骨骼停稳历史及93的filter4／2ray／DXR配置与空回退遍历消除。以下画质与性能结果保持各自原版本和测量范围，没有因96构建而重测或改标，不能合并为整体验收。
 
 | 问题 | 已有结论与局限 |
 | --- | --- |
