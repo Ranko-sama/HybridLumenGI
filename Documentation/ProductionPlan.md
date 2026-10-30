@@ -4,6 +4,8 @@
 
 当前入口为[Release94](../LocalComparison/Review/skinned-stopped-history-01/result.md)，补齐普通骨骼停稳后的屏幕历史累计，骨变化仍拒绝旧历史。真实统一场景有限GPU观察与普通构建完成；不证明通用跨形变重投影或固定收敛时间，短序列退出清理未通过。保留93的filter4／2ray／DXR与空回退遍历消除，未刷新以下既有颜色／成本／Present结果，完整G0–G5仍未通过。
 
+[普通骨骼运动短历史候选](../LocalComparison/Review/skinned-motion-history-01/result.md)已按预定条件停止且未采用：功能路径可达，但实际A/B轨迹不同，未确认可见减颗粒收益。候选成果保留，产品恢复94，不新增G3通过项、不扩测，也未构建95。
+
 [Release93遍历优化](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)消除精确后端完整接管全部published owner后仍执行的空回退BVH遍历；混合／非exact路径及原命中资格保持。同配置有限静止GI合计中位23.921→18.393ms、p95 24.562→19.298ms，通过预定收益及预算门。运动画质依据保留92四图来源，不外推所有场景收益。
 
 当前[Release93普通门运动Present](../LocalComparison/Review/release93-motion-present-01/result.md)已取得有限依据：960×540启动配置、2ray／filter4／默认DXR的一次固定30秒窗口平均52.688Hz，间隔p95／p99为21.966／23.567ms，最大25.991ms，全部观测间隔低于33.333ms。普通场景、门位移和两端实际DXR已确认；支持本机30FPS方向，不代表显示FPS、运动GI／显存、最坏负载或整体G5。普通93保持，本观察线结束。

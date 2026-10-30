@@ -1,0 +1,15 @@
+PASS: 80-byte row layout zero-based index holes and exact uint key
+PASS: renderer groups are reference-local first-row identities shared across submeshes
+PASS: frozen source group completeness and no live source property access
+PASS: static nonuniform reflected and sheared sources keep identity relative transform
+PASS: qualified skin motion uses the stable surface key and frozen bounds without changing rigid reuse
+PASS: relative reflection nonuniformity shear and invalid matrices reject reuse
+PASS: declared relative numerical tolerances are bounded at both sides
+PASS: random positive similarities recover previous points through arbitrary affine sources
+PASS: motion domains cover old and new bounds even when normal transport is rejected
+PASS: orthographic bounds use conservative pixel rounding expansion and clamping
+PASS: perspective unknown rectangles enclose independent interior samples
+PASS: asymmetric upper and lower masks follow explicit target UV origin
+PASS: near-plane nonfinite scan and exception failures become fullscreen unknown
+PASS: unknown rectangle cap never silently drops an occluder
+PASS: 14 actual identity-frame scenarios, 339719 assertions. Unity values and frozen source/receipt producers are explicit adapters; no registry, Unity raster or GPU execution claim.

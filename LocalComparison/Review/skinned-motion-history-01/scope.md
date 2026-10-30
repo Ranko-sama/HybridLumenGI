@@ -1,0 +1,16 @@
+# 普通骨骼运动历史候选（原定范围，最终不采用）
+
+最终决定见[result.md](result.md)：实际功能可达，但两侧轨迹不匹配且未确认可见收益，按预设条件停止；源码与部署恢复Release94。本页保留当时范围，不是当前产品支持声明。
+
+原目标2／G3：94只恢复停稳Skin历史，运动期间仍逐帧重置。此次新增基于置信度的普通Skin运动重投影，服务减少运动颗粒且不明显加重拖影；不声称等价于原刚体3D位置拒绝，也不扩大到Cloth、自定义GPU变形或任意拓扑变化。
+
+停止私有DrawRenderer previous-position探针：标准URP MotionVectors显式请求PerObjectData.MotionVectors，自定义DrawRenderer没有公开的旧顶点流保证。不存在先建独立表面oracle才能开发产品的要求。本候选直接使用URP现有运动纹理，保留真实两帧owner／primitive身份。
+
+CPU保留GeometryGeneration随骨姿态变化，另区分仅随完整网格来源变化的SourceGeometryGeneration；像素key由后者与材质代次组成。相机成功f-1、相同Renderer／mesh／rig／材质、两帧启用skinnedMotionVectors及Object模式、冻结普通URP Lit材质MotionVectors pass存在，才允许新路径；捕获前同帧来源和骨姿态复核保持严格。Renderer相对变换仍沿原正相似门槛。真实mesh／绑定／骨权重／拓扑／材质变化继续换key。Feature的skinnedMotionHistory允许调用方关闭这一置信度扩展，默认true但仍依赖原receiverObjectHistory开关及所有来源门槛。
+
+flags bit1只选择Skin路径：用已请求URP motion定位f-1，同key／primitive、法线、材质、未知和真实变化域拒绝保持。此路径明确以motion加同primitive关系替代刚体3D位置距离检查；历史长度最多2、继续裁剪、不进入成熟静止保护。骨姿态变化的前后冻结Bounds接入既有MovedBounds，其他receiver仍受潜在遮挡变化影响；不绕过异步世界GI快照发布的Geometry硬失效。
+
+无新增GPU纹理／buffer，80B row与原显存账目保持。世界GI快照与可见骨骼动画仍可能异步，屏幕历史不能把两者冒充同步。开发完成后先独立审查条件与可达性，再按Astra审阅的最小实际对照决定是否采用；首次受影响CPU检查已通过；native01在0请求、native02在8请求因临时驱动前置资格失败。没有有效画质结果，不作采用结论。
+
+2026-10-30资格修正：Unity 6官方motion vectors说明和本机URP17 MaterialPostprocessor.UpgradeV8均规定，普通骨骼动画即使材质MotionVectors开关关闭仍执行对象motion；该开关抑制静止无骨骼对象的绘制。前两次错误要求enabled=true，不能据此声称真实Skin不支持motion。候选改为仅要求固定普通Lit通道存在，pass开关仍参加材质相等/变更失效。临时驱动不再修改White.mat，保留原关闭状态；不变更既定240请求、六观察点、三Final、cap2和画质采用条件。仅重跑受改动的MaterialSource项。
+来源：https://docs.unity.com/en-us/engine/6000.0/manual/cameras/urp/motion-vectors/motion-vectors

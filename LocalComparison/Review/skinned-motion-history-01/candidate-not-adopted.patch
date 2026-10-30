@@ -1,0 +1,753 @@
+diff --git a/Runtime/HybridLumenGIMaterialSource.cs b/Runtime/HybridLumenGIMaterialSource.cs
+index 74b35a5..df221a7 100644
+--- a/Runtime/HybridLumenGIMaterialSource.cs
++++ b/Runtime/HybridLumenGIMaterialSource.cs
+@@ -156,6 +156,7 @@ namespace HybridLumenGI
+             public Shader Shader { get; }
+             public int MaterialIndex { get; }
+             public bool CanReuseHistory { get; }
++            public bool HasMotionVectorsPass { get; }
+             public IdentityCoverageData IdentityCoverage { get; }
+             public HybridLumenGIHitMaterialData HitMaterial { get; }
+             private readonly int materialCount, rawQueue, effectiveQueue, giFlags;
+@@ -177,6 +178,11 @@ namespace HybridLumenGI
+                 // an asmdef can share an assembly with caller scripts.
+                 this.values = (Value[])values.Clone(); this.textures = (TextureValue[])textures.Clone(); CanReuseHistory = reusable;
+                 this.keywords = (string[])keywords.Clone(); this.passes = (string[])passes.Clone(); passEnabled = (bool[])enabled.Clone();
++                int motionPass = Array.IndexOf(this.passes, "MotionVectors");
++                // Ordinary URP Lit skins render object motion even when the material
++                // pass toggle is off (that toggle suppresses stationary mesh draws).
++                // Renderer/skin motion configuration is qualified separately.
++                HasMotionVectorsPass = motionPass >= 0;
+                 IdentityCoverage = new IdentityCoverageData(this.values, this.textures, this.keywords, this.passes, passEnabled);
+                 HitMaterial = new HybridLumenGIHitMaterialData(this.values, this.textures, this.keywords);
+             }
+diff --git a/Runtime/HybridLumenGIReceiverHistory.cs b/Runtime/HybridLumenGIReceiverHistory.cs
+index 2d6c32d..cb0300b 100644
+--- a/Runtime/HybridLumenGIReceiverHistory.cs
++++ b/Runtime/HybridLumenGIReceiverHistory.cs
+@@ -53,11 +53,25 @@ namespace HybridLumenGI
+         }
+ 
+         public bool TryGetPrevious(HybridLumenGIReceiverRegistry.Record current,out HybridLumenGIReceiverRegistry.Record old)
++        {
++            old=null;
++            if(!TryGetPreviousRecord(current,out var value) || !current.SameSource(value))return false;
++            old=value;return true;
++        }
++
++        internal bool TryGetPreviousSkinSurface(HybridLumenGIReceiverRegistry.Record current,out HybridLumenGIReceiverRegistry.Record old)
++        {
++            old=null;
++            if(!TryGetPreviousRecord(current,out var value) || !current.SameSkinSurface(value))return false;
++            old=value;return true;
++        }
++
++        private bool TryGetPreviousRecord(HybridLumenGIReceiverRegistry.Record current,out HybridLumenGIReceiverRegistry.Record old)
+         {
+             old=null;
+             if(pending==null || current==null || pendingToken.Owner==null || !pendingToken.Owner.IsCurrent(pendingToken) ||
+                 !pendingRecords.TryGetValue(current.Token,out var pendingRecord) || !ReferenceEquals(pendingRecord,current) ||
+-                !previousRecords.TryGetValue(current.Token,out var value) || !current.SameSource(value)) return false;
++                !previousRecords.TryGetValue(current.Token,out var value)) return false;
+             // A caller cannot substitute a record from another snapshot/registry that
+             // happens to use the same numeric token.
+             old=value;return true;
+diff --git a/Runtime/HybridLumenGIReceiverIdentityFrame.cs b/Runtime/HybridLumenGIReceiverIdentityFrame.cs
+index ac8ab80..3308658 100644
+--- a/Runtime/HybridLumenGIReceiverIdentityFrame.cs
++++ b/Runtime/HybridLumenGIReceiverIdentityFrame.cs
+@@ -25,8 +25,9 @@ namespace HybridLumenGI
+             // ABI name retained: reserved is the current-frame Renderer group, not
+             // persistent identity. Every submesh shares its first record index+1.
+             public readonly uint keyLow,keyHigh,flags,reserved;
+-            internal Row(ulong key,Matrix4x4 transform,bool reusable,uint rendererGroup)
+-            { currentToPrevious=transform;keyLow=(uint)key;keyHigh=(uint)(key>>32);flags=reusable?1u:0u;reserved=rendererGroup; }
++            // bit0: reusable source; bit1: restricted Skin screen-motion path.
++            internal Row(ulong key,Matrix4x4 transform,bool reusable,uint rendererGroup,bool skinMotion=false)
++            { currentToPrevious=transform;keyLow=(uint)key;keyHigh=(uint)(key>>32);flags=reusable?(skinMotion?3u:1u):0u;reserved=rendererGroup; }
+         }
+ 
+         public readonly struct Draw
+@@ -80,7 +81,8 @@ namespace HybridLumenGI
+         /// post-projection Y flip as the transport ProjectUV convention (DX12: true).
+         /// </summary>
+         public static HybridLumenGIReceiverIdentityFrame Build(HybridLumenGIReceiverRegistry.Snapshot source,
+-            HybridLumenGIReceiverHistory history,Matrix4x4 gpuViewProjection,int fullWidth,int fullHeight,int maxUnknownRects=1024,bool uvStartsAtTop=true)
++            HybridLumenGIReceiverHistory history,Matrix4x4 gpuViewProjection,int fullWidth,int fullHeight,int maxUnknownRects=1024,bool uvStartsAtTop=true,
++            bool allowSkinnedScreenMotion=true)
+         {
+             int count=source==null?0:source.Records.Count;
+             try
+@@ -106,14 +108,14 @@ namespace HybridLumenGI
+                 {
+                     var record=source.Records[i];
+                     if(record==null) return Failed(count,fullWidth,fullHeight);
+-                    ulong key=Math.Max(record.GeometryGeneration,record.MaterialGeneration);
++                    ulong key=Math.Max(record.SourceGeometryGeneration,record.MaterialGeneration);
+                     if(ReferenceEquals(record.Renderer,null) || !candidates.TryGetValue(record.Renderer,out var state))
+                         return Failed(count,fullWidth,fullHeight);
+                     if(!groups.TryGetValue(record.Renderer,out uint group))
+                     { group=(uint)i+1u;groups.Add(record.Renderer,group); }
+                     rows[i]=new Row(key,Matrix4x4.identity,false,group);
+                     var candidate=state.candidate;
+-                    bool normal=record.Token!=0 && record.GeometryGeneration!=0 && record.MaterialGeneration!=0 && keys.Add(key) &&
++                    bool normal=record.Token!=0 && record.GeometryGeneration!=0 && record.SourceGeometryGeneration!=0 && record.MaterialGeneration!=0 && keys.Add(key) &&
+                         ReferenceEquals(record.Mesh,candidate.Mesh) && !ReferenceEquals(record.Mesh,null) &&
+                         record.LocalToWorld.Equals(candidate.LocalToWorld) && ValidAffine(record.LocalToWorld) &&
+                         record.Submesh>=0 && record.Submesh<candidate.Materials.Count && record.Material!=null &&
+@@ -121,7 +123,7 @@ namespace HybridLumenGI
+                         ReferenceEquals(record.Material.SourceMaterial,candidate.Materials[record.Submesh]) &&
+                         record.Material.CanReuseHistory && record.Material.IdentityCoverage.Supported;
+                     if(!normal || state.invalid || !state.submeshes.Add(record.Submesh)) { state.invalid=true;continue; }
+-                    bool reusable=false;
++                    bool reusable=false,skinMotion=false;
+                     Matrix4x4 relative=Matrix4x4.identity;
+                     if(history!=null && history.TryGetPrevious(record,out var old) &&
+                         TryRelative(record.LocalToWorld,old.LocalToWorld,out relative))
+@@ -133,7 +135,17 @@ namespace HybridLumenGI
+                             moved.Add(new MotionBounds(candidate.Bounds,previous,record.Renderer));
+                         }
+                     }
+-                    rows[i]=new Row(key,reusable?relative:Matrix4x4.identity,reusable,group);
++                    if(allowSkinnedScreenMotion && !reusable && history!=null && history.TryGetPreviousSkinSurface(record,out var oldSkin) &&
++                        TryRelative(record.LocalToWorld,oldSkin.LocalToWorld,out var skinRelative) && PositiveSimilarity(skinRelative))
++                    {
++                        // Surface continuity plus valid URP motion inputs, not unchanged 3D pose.
++                        // The shader owns the separate screen-motion/depth/primitive gates.
++                        reusable=true;skinMotion=true;relative=Matrix4x4.identity;
++                        if((!record.SkinPose.SamePose(oldSkin.SkinPose) || !record.LocalToWorld.Equals(oldSkin.LocalToWorld)) &&
++                            movedRenderers.Add(record.Renderer))
++                            moved.Add(new MotionBounds(record.WorldBounds,oldSkin.WorldBounds,record.Renderer));
++                    }
++                    rows[i]=new Row(key,reusable?relative:Matrix4x4.identity,reusable,group,skinMotion);
+                     draws.Add(new Draw(record,i));
+                 }
+                 int cap=Math.Max(0,maxUnknownRects);
+diff --git a/Runtime/HybridLumenGIReceiverRegistry.cs b/Runtime/HybridLumenGIReceiverRegistry.cs
+index 9b37baa..116302f 100644
+--- a/Runtime/HybridLumenGIReceiverRegistry.cs
++++ b/Runtime/HybridLumenGIReceiverRegistry.cs
+@@ -16,11 +16,14 @@ namespace HybridLumenGI
+     {
+         public sealed class Record
+         {
+-            public readonly ulong Token, GeometryGeneration, MaterialGeneration;
++            // GeometryGeneration includes pose; SourceGeometryGeneration excludes pose-only
++            // changes and is usable only with the separate Skin surface/motion qualification.
++            public readonly ulong Token, GeometryGeneration, SourceGeometryGeneration, MaterialGeneration;
+             public readonly Renderer Renderer;
+             public readonly Mesh Mesh;
+             public readonly int Submesh;
+             public readonly Matrix4x4 LocalToWorld;
++            public readonly Bounds WorldBounds;
+             public readonly HybridLumenGIMaterialSource.Snapshot Material;
+             internal readonly HybridLumenGIMeshSource.Version MeshVersion;
+             internal readonly string Fingerprint;
+@@ -29,9 +32,10 @@ namespace HybridLumenGI
+             internal Record(ulong token, ulong geometry, ulong material, Renderer renderer, Mesh mesh,
+                 int submesh, Matrix4x4 matrix, HybridLumenGIMaterialSource.Snapshot source,
+                 HybridLumenGIMeshSource.Version version, string fingerprint,ReceiverContext context,
+-                HybridLumenGIReceiverSkinPose skinPose=null)
++                HybridLumenGIReceiverSkinPose skinPose=null,ulong sourceGeometry=0,Bounds worldBounds=default)
+             {
+                 Token=token;GeometryGeneration=geometry;MaterialGeneration=material;
++                SourceGeometryGeneration=sourceGeometry!=0?sourceGeometry:geometry;WorldBounds=worldBounds;
+                 Renderer=renderer;Mesh=mesh;Submesh=submesh;LocalToWorld=matrix;
+                 Material=source;MeshVersion=version;Fingerprint=fingerprint;Context=context;SkinPose=skinPose;
+             }
+@@ -40,6 +44,14 @@ namespace HybridLumenGI
+                 ReferenceEquals(Renderer,other.Renderer) && ReferenceEquals(Mesh,other.Mesh) && Submesh==other.Submesh &&
+                 Context.Equals(other.Context) && SameSkinPose(SkinPose,other.SkinPose) &&
+                 Material.CanReuseHistory && other.Material.CanReuseHistory;
++
++            internal bool SameSkinSurface(Record other) => other!=null && Token==other.Token &&
++                SourceGeometryGeneration!=0 && SourceGeometryGeneration==other.SourceGeometryGeneration &&
++                MaterialGeneration==other.MaterialGeneration && ReferenceEquals(MeshVersion,other.MeshVersion) &&
++                ReferenceEquals(Renderer,other.Renderer) && ReferenceEquals(Mesh,other.Mesh) && Submesh==other.Submesh &&
++                Context.Equals(other.Context) && SkinPose!=null && SkinPose.SameRig(other.SkinPose) &&
++                Material.CanReuseHistory && other.Material.CanReuseHistory &&
++                Material.HasMotionVectorsPass && other.Material.HasMotionVectorsPass;
+         }
+ 
+         // Per-renderer policy and baked-lighting inputs are not Material properties.
+@@ -84,7 +96,7 @@ namespace HybridLumenGI
+ 
+         private sealed class Slot
+         {
+-            internal ulong token,geometryGeneration,materialGeneration;
++            internal ulong token,geometryGeneration,sourceGeometryGeneration,materialGeneration;
+             internal HybridLumenGIMeshSource.Version version;
+             internal HybridLumenGIMaterialSource.Snapshot material;
+             internal ReceiverContext context;
+@@ -161,14 +173,20 @@ namespace HybridLumenGI
+                 {
+                     Slot slot=receiver.slots[i];
+                     if(slot==null) receiver.slots[i]=slot=new Slot{token=Allocate(ref nextIdentity)};
+-                    if(!ReferenceEquals(slot.version,geometry.version) || !SameSkinPose(slot.skinPose,skinPose))
+-                    { slot.version=geometry.version;slot.geometryGeneration=Allocate(ref nextGeneration); }
++                    bool sourceChanged=!ReferenceEquals(slot.version,geometry.version);
++                    if(sourceChanged || !SameSkinPose(slot.skinPose,skinPose))
++                    {
++                        slot.version=geometry.version;slot.geometryGeneration=Allocate(ref nextGeneration);
++                        // Mesh edits and first observation use this same allocation. Pose-only
++                        // changes advance strict geometry identity but retain the source key.
++                        if(sourceChanged)slot.sourceGeometryGeneration=slot.geometryGeneration;
++                    }
+                     slot.skinPose=skinPose;
+                     if(slot.material==null || !slot.material.Equals(snapshots[i]) || !slot.context.Equals(context))
+                     { slot.material=snapshots[i];slot.context=context;slot.materialGeneration=Allocate(ref nextGeneration); }
+-                    if(slot.token==0 || slot.geometryGeneration==0 || slot.materialGeneration==0) { supported=false;break; }
++                    if(slot.token==0 || slot.geometryGeneration==0 || slot.sourceGeometryGeneration==0 || slot.materialGeneration==0) { supported=false;break; }
+                     additions.Add(new Record(slot.token,slot.geometryGeneration,slot.materialGeneration,renderer,mesh,i,
+-                        candidate.LocalToWorld,snapshots[i],geometry.version,geometry.fingerprint,context,skinPose));
++                        candidate.LocalToWorld,snapshots[i],geometry.version,geometry.fingerprint,context,skinPose,slot.sourceGeometryGeneration,candidate.Bounds));
+                 }
+                 if(supported) records.AddRange(additions); else untracked++;
+                 }
+diff --git a/Runtime/HybridLumenGIReceiverSkinPose.cs b/Runtime/HybridLumenGIReceiverSkinPose.cs
+index 1fe463e..15b0269 100644
+--- a/Runtime/HybridLumenGIReceiverSkinPose.cs
++++ b/Runtime/HybridLumenGIReceiverSkinPose.cs
+@@ -20,17 +20,22 @@ namespace HybridLumenGI
+         private readonly Matrix4x4[] rendererLocalBones;
+         private readonly SkinQuality quality;
+         private readonly SkinWeights skinWeights;
++        private readonly bool skinnedMotionVectors;
++        private readonly MotionVectorGenerationMode motionVectorGenerationMode;
+ 
+         // Logical retained pose matrices/references, not managed/native peak memory.
+         internal long LogicalBytes => 128L + bones.Length * (64L + IntPtr.Size);
+ 
+         private HybridLumenGIReceiverSkinPose(SkinnedMeshRenderer renderer, Mesh mesh,
+             Transform rootBone, Transform[] bones, Matrix4x4[] rendererLocalBones,
+-            SkinQuality quality, SkinWeights skinWeights)
++            SkinQuality quality, SkinWeights skinWeights, bool skinnedMotionVectors,
++            MotionVectorGenerationMode motionVectorGenerationMode)
+         {
+             this.renderer = renderer; this.mesh = mesh; this.rootBone = rootBone;
+             this.bones = bones; this.rendererLocalBones = rendererLocalBones;
+             this.quality = quality; this.skinWeights = skinWeights;
++            this.skinnedMotionVectors = skinnedMotionVectors;
++            this.motionVectorGenerationMode = motionVectorGenerationMode;
+         }
+ 
+         internal static bool TryCapture(SkinnedMeshRenderer renderer, Mesh mesh,
+@@ -50,6 +55,8 @@ namespace HybridLumenGI
+                 if (root == null) return false;
+                 SkinQuality quality = renderer.quality;
+                 SkinWeights weights = QualitySettings.skinWeights;
++                bool motionVectors = renderer.skinnedMotionVectors;
++                MotionVectorGenerationMode motionMode = renderer.motionVectorGenerationMode;
+                 if (!Enum.IsDefined(typeof(SkinQuality), quality) || !Enum.IsDefined(typeof(SkinWeights), weights)) return false;
+                 // bones is the array returned by this getter, retained privately;
+                 // no vertex arrays, BakeMesh, or previous deformed geometry are read.
+@@ -65,7 +72,7 @@ namespace HybridLumenGI
+                     if (!ValidTransform(relative)) return false;
+                     localBones[i] = relative;
+                 }
+-                pose = new HybridLumenGIReceiverSkinPose(renderer, mesh, root, bones, localBones, quality, weights);
++                pose = new HybridLumenGIReceiverSkinPose(renderer, mesh, root, bones, localBones, quality, weights, motionVectors, motionMode);
+                 return true;
+             }
+             catch (Exception)
+@@ -77,12 +84,10 @@ namespace HybridLumenGI
+ 
+         internal bool SamePose(HybridLumenGIReceiverSkinPose other)
+         {
+-            if (other == null || !ReferenceEquals(renderer, other.renderer) || !ReferenceEquals(mesh, other.mesh) ||
+-                !ReferenceEquals(rootBone, other.rootBone) || quality != other.quality || skinWeights != other.skinWeights ||
+-                bones.Length != other.bones.Length) return false;
++            if (!SameBindings(other) || skinnedMotionVectors != other.skinnedMotionVectors ||
++                motionVectorGenerationMode != other.motionVectorGenerationMode) return false;
+             for (int i = 0; i < bones.Length; i++)
+             {
+-                if (!ReferenceEquals(bones[i], other.bones[i])) return false;
+                 // Matrix4x4's == is approximate. Do not let a small real pose
+                 // change pass the unchanged-pose gate through that operator.
+                 for (int element = 0; element < 16; element++)
+@@ -93,6 +98,23 @@ namespace HybridLumenGI
+             return true;
+         }
+ 
++        // Source qualification for the separately gated URP screen-motion path.
++        // This allows changed bone matrices; it is not a previous-vertex proof.
++        internal bool SameRig(HybridLumenGIReceiverSkinPose other) => SameBindings(other) &&
++            skinnedMotionVectors && other.skinnedMotionVectors &&
++            motionVectorGenerationMode == MotionVectorGenerationMode.Object &&
++            other.motionVectorGenerationMode == MotionVectorGenerationMode.Object;
++
++        private bool SameBindings(HybridLumenGIReceiverSkinPose other)
++        {
++            if (other == null || !ReferenceEquals(renderer, other.renderer) || !ReferenceEquals(mesh, other.mesh) ||
++                !ReferenceEquals(rootBone, other.rootBone) || quality != other.quality || skinWeights != other.skinWeights ||
++                bones.Length != other.bones.Length) return false;
++            for (int i = 0; i < bones.Length; i++)
++                if (!ReferenceEquals(bones[i], other.bones[i])) return false;
++            return true;
++        }
++
+         private static bool ValidTransform(Matrix4x4 value)
+         {
+             if (!Finite(value)) return false;
+diff --git a/Runtime/HybridLumenGIRendererFeature.cs b/Runtime/HybridLumenGIRendererFeature.cs
+index 4eda74b..86479f1 100644
+--- a/Runtime/HybridLumenGIRendererFeature.cs
++++ b/Runtime/HybridLumenGIRendererFeature.cs
+@@ -136,6 +136,8 @@ namespace HybridLumenGI
+             public bool receiverSourceTracking;
+             [Tooltip("Experimental per-pixel source/primitive identity and rigid-object history. Requires single-sample DX12 and validated stock Lit coverage; unknown pixels retain current GI.")]
+             public bool receiverObjectHistory;
++            [Tooltip("Allow at most two effective samples of motion history on qualified ordinary skins. Requires object history and skinned motion vectors; stopping still permits normal accumulation.")]
++            public bool skinnedMotionHistory=true;
+             [Range(1,16384)] public int receiverSourceCapacity=1024;
+             [Min(1),Tooltip("Logical mesh bytes fingerprinted per source preparation or capture validation; not a CPU time or peak-memory limit.")]
+             public int receiverFingerprintBudgetMiB=16;
+@@ -789,7 +791,7 @@ namespace HybridLumenGI
+                 if(receiverSources!=null) state.receiverHistory.Begin(historyToken,receiverSources);
+                 else state.receiverHistory.Invalidate();
+                 var identityFrame=identityEnabled?HybridLumenGIReceiverIdentityFrame.Build(receiverSources,state.receiverHistory,vp,fullW,fullH,
+-                    uvStartsAtTop:SystemInfo.graphicsUVStartsAtTop):null;
++                    uvStartsAtTop:SystemInfo.graphicsUVStartsAtTop,allowSkinnedScreenMotion:s.skinnedMotionHistory):null;
+                 if(identityFrame!=null)
+                 {
+                     state.receiverIdentityDraws=identityFrame.Draws.Count;state.receiverUnknownRectangles=identityFrame.UnknownRects.Count;
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
+index 45fefe2..41e876d 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
+@@ -354,7 +354,7 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
+ }
+ // The nearest sample and every prospective reconstruction tap use the same
+ // existing receiver gates. Encoded geometry/material/identity are never blended.
+-bool HLGITemporalTapMatches(int2 pixel,float3 expectedP,float3 expectedNs,float3 expectedNg,float3 rho,float tolerance)
++bool HLGITemporalTapMatches(int2 pixel,float3 expectedP,float3 expectedNs,float3 expectedNg,float3 rho,float tolerance,bool skinScreenMotion)
+ {
+     float4 oldGeometry=_HLGI_PreviousGeometry.Load(int3(pixel,0));
+     float3 oldRho=_HLGI_PreviousMaterial.Load(int3(pixel,0)).rgb;
+@@ -366,13 +366,18 @@ bool HLGITemporalTapMatches(int2 pixel,float3 expectedP,float3 expectedNs,float3
+     // Screen Ng faces its own camera; its sign may differ between rigid poses.
+     geometricAgreement=abs(geometricAgreement);
+ #endif
+-    return oldReceiver && oldHasGeometry && dot(expectedNs,oldShadingNormal)>_HLGI_NormalThreshold &&
++    // Qualified skin motion maps the same source triangle through URP's actual
++    // skinned velocity. It replaces only the rigid world-position prediction;
++    // callers must still match owner/primitive at every reconstruction tap.
++    bool positionMatches=skinScreenMotion ||
++        (abs(dot(expectedP-oldP,expectedNg))<tolerance && abs(dot(expectedP-oldP,oldGeometricNormal))<tolerance &&
++        distance(expectedP,oldP)<tolerance);
++    return oldReceiver && oldHasGeometry && all(isfinite(oldP)) && dot(expectedNs,oldShadingNormal)>_HLGI_NormalThreshold &&
+         geometricAgreement>0.85 &&
+-        abs(dot(expectedP-oldP,expectedNg))<tolerance && abs(dot(expectedP-oldP,oldGeometricNormal))<tolerance &&
+-        distance(expectedP,oldP)<tolerance && max(abs(rho.x-oldRho.x),max(abs(rho.y-oldRho.y),abs(rho.z-oldRho.z)))<0.1;
++        positionMatches && max(abs(rho.x-oldRho.x),max(abs(rho.y-oldRho.y),abs(rho.z-oldRho.z)))<0.1;
+ }
+ bool HLGITrySubpixelHistory(float2 uv,int2 nearestPixel,uint4 identity,
+-    float3 expectedP,float3 expectedNs,float3 expectedNg,float3 rho,float tolerance,
++    float3 expectedP,float3 expectedNs,float3 expectedNg,float3 rho,float tolerance,bool skinScreenMotion,
+     float4 nearestHistory,float4 nearestMoments,out float4 history,out float4 moments)
+ {
+     history=nearestHistory;moments=nearestMoments;
+@@ -391,7 +396,7 @@ bool HLGITrySubpixelHistory(float2 uv,int2 nearestPixel,uint4 identity,
+ #if defined(HLGI_RECEIVER_IDENTITY)
+             if(!HLGISameReceiverPrimitive(identity,_HLGI_IdentityPrevious.Load(int3(q,0)))) return false;
+ #endif
+-            if(!HLGITemporalTapMatches(q,expectedP,expectedNs,expectedNg,rho,tolerance)) return false;
++            if(!HLGITemporalTapMatches(q,expectedP,expectedNs,expectedNg,rho,tolerance,skinScreenMotion)) return false;
+             h=_HLGI_History.Load(int3(q,0));m=_HLGI_PreviousMoments.Load(int3(q,0));
+             if(!HLGIHasTemporalHistory(h,m)) return false;
+         }
+@@ -431,7 +436,7 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
+     { _HLGI_Output[pixel]=currentKnown?current:0; _HLGI_MomentsOut[pixel]=currentKnown?float4(lum,lum*lum,1,0):0; return; }
+     float3 p=WorldPosition(uv,geometry.w,_HLGI_InvVP); float w;
+     float3 expectedP=p,expectedNs=shadingNormal,expectedNg=geometricNormal;
+-    bool identityValid=true;
++    bool identityValid=true,skinScreenMotion=false;
+ #if defined(HLGI_RECEIVER_IDENTITY)
+     uint4 identity=_HLGI_IdentityCurrent.Load(int3(pixel,0));
+     uint receiverGroup=0u;
+@@ -443,6 +448,7 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
+         HLGIReceiverIdentityObject row=_HLGI_IdentityObjects[candidate.x-1u];
+         identityValid=HLGITryReceiverMotion(identity,candidate,row,
+             p,shadingNormal,geometricNormal,expectedP,expectedNs,expectedNg);
++        skinScreenMotion=(row.flags&2u)!=0u;
+         if(identityValid) receiverGroup=row.reserved;
+     }
+ #endif
+@@ -455,13 +461,23 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
+         // previousJitter-currentJitter in GPU UV space; do not apply it twice.
+         float2 motionUV=uv-_HLGI_Motion.Load(int3(fullPixel,0))+_HLGI_JitterDelta.xy;
+ #if defined(HLGI_RECEIVER_IDENTITY)
+-        // A missing/forced-zero object velocity must not override the verified
+-        // rigid pose. Accept motion only when it agrees within one full texel.
+-        if(all(isfinite(motionUV)) && all(abs(motionUV-prevUV)*_HLGI_FullSize.xy<=1)) prevUV=motionUV;
++        if(skinScreenMotion)
++        {
++            // This source qualified both f-1 skin-motion settings on the CPU.
++            // Do not manufacture a rigid previous position for a deforming skin.
++            identityValid=identityValid && all(isfinite(motionUV));prevUV=motionUV;
++        }
++        else
++        {
++            // A missing/forced-zero object velocity must not override the verified
++            // rigid pose. Accept motion only when it agrees within one full texel.
++            if(all(isfinite(motionUV)) && all(abs(motionUV-prevUV)*_HLGI_FullSize.xy<=1)) prevUV=motionUV;
++        }
+ #else
+         prevUV=motionUV;
+ #endif
+     }
++    if(skinScreenMotion && _HLGI_HasMotion==0) identityValid=false;
+     bool valid=_HLGI_HistoryValid!=0 && identityValid && isfinite(w) && w>0 && all(isfinite(prevUV)) && all(prevUV>0) && all(prevUV<1);
+     // Never cast a nonfinite UV to an integer, including on an invalid history.
+     int2 previousPixel=0;
+@@ -472,7 +488,7 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
+     // Previous raw depth belongs to this GI texel's stored full-resolution
+     // sample. Frame-context validation must reject a changed full/low size.
+     float tolerance=_HLGI_DepthThreshold*max(1,abs(mul(_HLGI_View,float4(p,1)).z));
+-    valid=valid && HLGITemporalTapMatches(previousPixel,expectedP,expectedNs,expectedNg,rho,tolerance);
++    valid=valid && HLGITemporalTapMatches(previousPixel,expectedP,expectedNs,expectedNg,rho,tolerance,skinScreenMotion);
+ #if defined(HLGI_RECEIVER_IDENTITY)
+     float2 change=HLGIChangeAtReceiver(p,valid?receiverGroup:0u);
+ #else
+@@ -482,6 +498,9 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
+     float4 history=_HLGI_History.Load(int3(previousPixel,0));
+     float4 moments=_HLGI_PreviousMoments.Load(int3(previousPixel,0));
+     valid=valid && HLGIHasTemporalHistory(history,moments);
++    // Cap the effective length at two, so a known current measurement retains
++    // at least half the weight. This does not bound the age of all EMA inputs.
++    if(skinScreenMotion) moments.z=min(moments.z,1);
+     if(!currentKnown)
+     {
+         float4 retained,retainedMoments;
+@@ -497,7 +516,7 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
+     // bright path is not evidence that an earlier accepted path disappeared.
+     // This is a bounded static-sample policy, not proof of constant lighting:
+     // unmarked transport changes still decay through the existing EMA.
+-    bool stationaryHistory=valid && change.y<0.5 && moments.z>=_HLGI_MaxHistory &&
++    bool stationaryHistory=valid && !skinScreenMotion && change.y<0.5 && moments.z>=_HLGI_MaxHistory &&
+         all(previousPixel==pixel) && all(prevUV==uv) && all(_HLGI_JitterDelta.xy==0) &&
+         (_HLGI_HasMotion==0 || all(_HLGI_Motion.Load(int3(fullPixel,0))==0)) &&
+         all(expectedP==p) && all(expectedNs==shadingNormal) && all(expectedNg==geometricNormal) &&
+@@ -516,10 +535,11 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
+         expectedIdentity=identity;
+ #endif
+         float4 reconstructed,reconstructedMoments;
+-        if(HLGITrySubpixelHistory(prevUV,previousPixel,expectedIdentity,expectedP,expectedNs,expectedNg,rho,tolerance,
++        if(HLGITrySubpixelHistory(prevUV,previousPixel,expectedIdentity,expectedP,expectedNs,expectedNg,rho,tolerance,skinScreenMotion,
+             history,moments,reconstructed,reconstructedMoments))
+         { history=reconstructed;moments=reconstructedMoments; }
+     }
++    if(skinScreenMotion) moments.z=min(moments.z,1);
+     // Invalid/uninitialized textures may contain NaNs; lerp(old,current,1) does not remove NaNs.
+     if(!valid) { history=current; moments=float4(lum,lum*lum,0,0); }
+     float3 mean=current.rgb, second=current.rgb*current.rgb; float count=1;
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl
+index b805cbd..131d233 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIReceiverIdentity.hlsl
+@@ -2,8 +2,10 @@
+ #define HLGI_RECEIVER_IDENTITY_INCLUDED
+ 
+ // 80 bytes. CPU record indices retain holes; index+1 is a transient draw owner,
+-// while key is the non-reused source-generation identity. Flags are consumed by
+-// later temporal transport, never by current-frame identity resolution.
++// while key is the non-reused mesh/material source-generation identity. A skin
++// pose can change without changing its source triangle. flags bit0 permits f-1
++// reuse; bit1 selects bounded URP skin motion instead of a rigid 3D prediction.
++// Flags are consumed by temporal transport, not current-frame identity resolve.
+ struct HLGIReceiverIdentityObject
+ {
+     float4x4 currentToPrevious;
+diff --git a/Tests/StandaloneMaterialSource/Program.cs.txt b/Tests/StandaloneMaterialSource/Program.cs.txt
+index b3fe7b6..3cb1f26 100644
+--- a/Tests/StandaloneMaterialSource/Program.cs.txt
++++ b/Tests/StandaloneMaterialSource/Program.cs.txt
+@@ -74,6 +74,12 @@ static class Program
+             old=Capture(s,r,m);r.Block.Set(name+"_ST",new Vector4(1,2,3,4));Check(!s.IsCurrent(r,0,old),"MPB ST "+name);
+         }
+         var(f,rr,mm)=Fixture();var snap=Capture(f,rr,mm);mm.Enabled["ForwardLit"]=false;Check(!f.IsCurrent(rr,0,snap),"pass enable state");mm.Enabled.Clear();
++        Check(snap.HasMotionVectorsPass,"enabled MotionVectors pass is frozen into the material source");
++        mm.Enabled["MotionVectors"]=false;var motionDisabled=Capture(f,rr,mm);
++        Check(motionDisabled.HasMotionVectorsPass&&snap.HasMotionVectorsPass&&!f.IsCurrent(rr,0,snap),"ordinary skin motion pass remains available when its material toggle is off; toggle changes still invalidate source equality");mm.Enabled.Clear();
++        int motionIndex=Array.IndexOf(mm.Passes,"MotionVectors");mm.Passes[motionIndex]="NoMotionPass";
++        Check(!Capture(f,rr,mm).HasMotionVectorsPass&&motionDisabled.HasMotionVectorsPass&&snap.HasMotionVectorsPass,"missing MotionVectors pass is rejected independently of old snapshots");mm.Passes[motionIndex]="MotionVectors";
++        Check(Capture(f,rr,mm).HasMotionVectorsPass,"restoring the enabled pass creates usable current evidence");
+         mm.Passes[0]="Renamed";Check(!f.IsCurrent(rr,0,snap),"pass identity");mm.Passes[0]="ForwardLit";
+         mm.renderQueue=2001;Check(!f.IsCurrent(rr,0,snap),"queue changes");mm.renderQueue=2000;
+         mm.enableInstancing=true;Check(!f.IsCurrent(rr,0,snap),"instancing flag");mm.enableInstancing=false;
+diff --git a/Tests/StandaloneReceiverHistory/Program.cs.txt b/Tests/StandaloneReceiverHistory/Program.cs.txt
+index 0d15411..56057ce 100644
+--- a/Tests/StandaloneReceiverHistory/Program.cs.txt
++++ b/Tests/StandaloneReceiverHistory/Program.cs.txt
+@@ -277,28 +277,98 @@ internal static class HarnessEntry
+         skin.sharedMesh.bindposes=new[]{Matrix4x4.identity};
+         var first=P(registry,camera,skin);var t0=life.BeginFrame(100,Context);
+         Check(first.Records.Count==1&&first.Records[0].SkinPose!=null,"ordinary skin retains a real pose snapshot");
+-        Check(history.Begin(t0,first),"first skin receipt begins");Publish(history,life,t0);
++        Check(history.Begin(t0,first),"first skin receipt begins");
++        Check(!history.TryGetPreviousSkinSurface(first.Records[0],out _),"first skin frame has no motion receipt");Publish(history,life,t0);
+         var same=P(registry,camera,skin);var t1=life.BeginFrame(101,Context);history.Begin(t1,same);
+         Check(history.TryGetPrevious(same.Records[0],out var previous)&&ReferenceEquals(previous,first.Records[0]),"unchanged adjacent skin pose accepts f-1 history");
+         Publish(history,life,t1);
+         bone.localToWorldMatrix=Matrix4x4.Translate(.25f);
++        skin.Bounds=new Bounds{Center=.5f,Extent=2};
+         Check(!registry.IsCurrent(same,D(camera,skin),Budget),"bone change after preparation rejects pending source capture");
+         var changed=P(registry,camera,skin);var t2=life.BeginFrame(102,Context);history.Begin(t2,changed);
+         Check(changed.Records[0].Token==same.Records[0].Token&&changed.Records[0].GeometryGeneration!=same.Records[0].GeometryGeneration,"real bone motion keeps owner identity but changes geometry generation");
+-        Check(!history.TryGetPrevious(changed.Records[0],out _),"moving skin cannot reuse different-pose history");Publish(history,life,t2);
++        Check(changed.Records[0].SourceGeometryGeneration==same.Records[0].SourceGeometryGeneration&&SourceKey(changed.Records[0])==SourceKey(same.Records[0]),"pose-only motion preserves the surface source key");
++        Check(changed.Records[0].WorldBounds.Center==.5f&&changed.Records[0].WorldBounds.Extent==2&&same.Records[0].WorldBounds.Center==0&&same.Records[0].WorldBounds.Extent==1,"current and prior world bounds remain separate frozen values");
++        Check(!history.TryGetPrevious(changed.Records[0],out _),"moving skin cannot use the strict same-pose history path");
++        Check(history.TryGetPreviousSkinSurface(changed.Records[0],out previous)&&ReferenceEquals(previous,same.Records[0]),"qualified bone motion can find the exact successful f-1 skin surface");
++        var unbound=P(registry,camera,skin);
++        Check(!history.TryGetPreviousSkinSurface(unbound.Records[0],out _),"motion lookup rejects an independently prepared record outside the pending receipt");Publish(history,life,t2);
+         var stopped=P(registry,camera,skin);var t3=life.BeginFrame(103,Context);history.Begin(t3,stopped);
+         Check(history.TryGetPrevious(stopped.Records[0],out previous)&&ReferenceEquals(previous,changed.Records[0]),"the next unchanged pose restores adjacent-frame history");Publish(history,life,t3);
++        bone.localToWorldMatrix=Matrix4x4.Translate(.5f);
++        var skipped=P(registry,camera,skin);var t5=life.BeginFrame(105,Context);history.Begin(t5,skipped);
++        Check(!history.TryGetPreviousSkinSurface(skipped.Records[0],out _),"skin motion does not bridge a missing engine frame");Publish(history,life,t5);
++        var replacementBone=new Transform{localToWorldMatrix=bone.localToWorldMatrix};skin.bones=new[]{replacementBone};
++        var newRig=P(registry,camera,skin);var t6=life.BeginFrame(106,Context);history.Begin(t6,newRig);
++        Check(newRig.Records[0].SourceGeometryGeneration==skipped.Records[0].SourceGeometryGeneration&&!history.TryGetPreviousSkinSurface(newRig.Records[0],out _),"a different bone reference cannot inherit motion even with identical matrices and mesh source");Publish(history,life,t6);
+         skin.Cloth=new Cloth();
+-        Check(!registry.IsCurrent(stopped,D(camera,skin),Budget),"adding Cloth revokes an already prepared skin source");
++        Check(!registry.IsCurrent(newRig,D(camera,skin),Budget),"adding Cloth revokes an already prepared skin source");
+         var cloth=P(registry,camera,skin);Check(cloth.Records.Count==0&&cloth.HasUnknownSources,"Cloth remains unsupported instead of inheriting stable bone history");
+     }
+ 
++    private static ulong SourceKey(Registry.Record record)=>Math.Max(record.SourceGeometryGeneration,record.MaterialGeneration);
++
++    private static void SkinMotionInputs()
++    {
++        // Each case changes one actual captured input; no replacement pose/receipt algorithm.
++        var gates=new (string name,Action<SkinnedMeshRenderer> disable)[]{
++            ("skinned motion disabled",s=>s.skinnedMotionVectors=false),
++            ("camera-only motion",s=>s.motionVectorGenerationMode=MotionVectorGenerationMode.Camera),
++            ("forced no motion",s=>s.motionVectorGenerationMode=MotionVectorGenerationMode.ForceNoMotion),
++            ("missing material motion pass",s=>s.Materials[0].HasMotionVectorsPass=false)};
++        foreach(var gate in gates)
++        {
++            var camera=new Camera();var registry=new Registry();var life=new Lifecycle();var history=new History();
++            var bone=new Transform();var skin=new SkinnedMeshRenderer{rootBone=bone,bones=new[]{bone}};skin.sharedMesh.bindposes=new[]{Matrix4x4.identity};
++            var first=P(registry,camera,skin);var t0=life.BeginFrame(200,Context);history.Begin(t0,first);Publish(history,life,t0);
++            gate.disable(skin);
++            Check(!registry.IsCurrent(first,D(camera,skin),Budget),gate.name+" revokes a pending source");
++            bone.localToWorldMatrix=Matrix4x4.Translate(.25f);
++            var disabled=P(registry,camera,skin);var t1=life.BeginFrame(201,Context);history.Begin(t1,disabled);
++            Check(!history.TryGetPreviousSkinSurface(disabled.Records[0],out _),gate.name+" rejects moving-skin history");
++            var stable=P(registry,camera,skin);
++            Check(stable.Records[0].SameSource(disabled.Records[0]),gate.name+" does not disable the original stable-pose contract");
++            Check(!stable.Records[0].SameSkinSurface(disabled.Records[0]),gate.name+" cannot qualify motion even with matching source generations");Publish(history,life,t1);
++            skin.skinnedMotionVectors=true;skin.motionVectorGenerationMode=MotionVectorGenerationMode.Object;skin.Materials[0].HasMotionVectorsPass=true;
++            bone.localToWorldMatrix=Matrix4x4.Translate(.5f);
++            var restored=P(registry,camera,skin);var t2=life.BeginFrame(202,Context);history.Begin(t2,restored);
++            Check(!history.TryGetPreviousSkinSurface(restored.Records[0],out _),gate.name+" must be valid in the previous frame too");Publish(history,life,t2);
++            bone.localToWorldMatrix=Matrix4x4.Translate(.75f);
++            var moving=P(registry,camera,skin);var t3=life.BeginFrame(203,Context);history.Begin(t3,moving);
++            Check(history.TryGetPreviousSkinSurface(moving.Records[0],out var old)&&ReferenceEquals(old,restored.Records[0]),gate.name+" recovers after two valid adjacent inputs");Publish(history,life,t3);
++        }
++    }
++
++    private static void SkinSourceEdits()
++    {
++        var camera=new Camera();var registry=new Registry();var life=new Lifecycle();var history=new History();
++        var bone=new Transform();var skin=new SkinnedMeshRenderer{rootBone=bone,bones=new[]{bone}};
++        skin.sharedMesh.bindposes=new[]{Matrix4x4.identity};skin.sharedMesh.BoneWeightValues=new[]{.75f,.25f};
++        var before=P(registry,camera,skin);var first=life.BeginFrame(300,Context);history.Begin(first,before);Publish(history,life,first);
++        var edits=new (string name,bool geometry,Action apply)[]{
++            ("mesh content",true,()=>skin.sharedMesh.Content="edited vertices"),
++            ("same-size weight values",true,()=>skin.sharedMesh.BoneWeightValues[0]=.5f),
++            ("effective material",false,()=>skin.Mpb[0]=3)};
++        int frame=300;
++        foreach(var edit in edits)
++        {
++            edit.apply();Check(!registry.IsCurrent(before,D(camera,skin),Budget),edit.name+" invalidates the prepared source");
++            var after=P(registry,camera,skin);var token=life.BeginFrame(++frame,Context);history.Begin(token,after);
++            var current=after.Records[0];var old=before.Records[0];
++            Check(SourceKey(current)!=SourceKey(old),edit.name+" changes the GPU source key");
++            Check((current.SourceGeometryGeneration!=old.SourceGeometryGeneration)==edit.geometry,edit.name+" distinguishes mesh source from material generation");
++            Check(!history.TryGetPreviousSkinSurface(current,out _)&&!history.TryGetPrevious(current,out _),edit.name+" cannot inherit either history path");
++            Publish(history,life,token);before=after;
++        }
++    }
++
+     private static int Main()
+     {
+         Case("identity and generations",IdentityAndVersions);Case("budgets and fallback",BudgetsAndFailures);
+         Case("source revalidation",Revalidation);Case("source read exceptions",ReadFailuresAreContained);Case("receiver policies and lightmaps",ReceiverPolicies);
+         Case("camera receipts",Receipts);Case("multiple cameras and foreign snapshots",MultipleCameras);Case("random frame receipt oracle",RandomFrameOracle);
+         Case("stable ordinary skin history",StableSkinHistory);
++        Case("restricted skin motion input gates",SkinMotionInputs);Case("skin mesh weight and material source edits",SkinSourceEdits);
+         Console.WriteLine("Receiver registry/history: "+checks+" assertions across "+scenarios+" scenarios; failures="+failures+". Five actual source classes; explicit Unity/discovery/material/fingerprint CPU substitutes. No Unity visibility, pixel identity, GPU completion or rendered-motion proof.");
+         return failures==0?0:1;
+     }
+diff --git a/Tests/StandaloneReceiverHistory/UnityStubs.cs.txt b/Tests/StandaloneReceiverHistory/UnityStubs.cs.txt
+index d4dba80..afcabdd 100644
+--- a/Tests/StandaloneReceiverHistory/UnityStubs.cs.txt
++++ b/Tests/StandaloneReceiverHistory/UnityStubs.cs.txt
+@@ -64,12 +64,13 @@ namespace UnityEngine
+         public MeshTopology[] Topologies={MeshTopology.Triangles};
+         public int subMeshCount=>Topologies.Length;
+         public int[] StreamBytes={96};public int IndexBytes=12,AttributeCount=3,BoneCountBytes,BoneWeights;
++        public float[] BoneWeightValues=Array.Empty<float>();
+         public Matrix4x4[] bindposes=Array.Empty<Matrix4x4>();
+         public int bindposeCount=>bindposes.Length;
+         public MeshTopology GetTopology(int i) { if(ThrowTopology) throw new InvalidOperationException("Injected topology read failure");return Topologies[i]; }
+         public int[] GetVertexAttributes()=>new int[AttributeCount];
+         public byte[] GetBonesPerVertex()=>new byte[BoneCountBytes];
+-        public int[] GetAllBoneWeights()=>new int[BoneWeights];
++        public float[] GetAllBoneWeights()=>BoneWeightValues.Length==0?new float[BoneWeights]:(float[])BoneWeightValues.Clone();
+         public static MeshDataArray AcquireReadOnlyMeshData(Mesh mesh)
+         { if(mesh.ThrowAcquire) throw new InvalidOperationException("Injected mesh read failure");return new MeshDataArray(mesh); }
+         public sealed class MeshDataArray:IDisposable
+@@ -83,7 +84,8 @@ namespace UnityEngine
+             public T[] GetIndexData<T>()=>new T[mesh.IndexBytes];
+         }
+     }
+-    public sealed class Material:Object { public int Value;public bool Supported=true,Reusable=true; }
++    public sealed class Material:Object { public int Value;public bool Supported=true,Reusable=true,HasMotionVectorsPass=true; }
++    public enum MotionVectorGenerationMode { Camera=0,Object=1,ForceNoMotion=2 }
+     public class Renderer:Object
+     {
+         public Mesh Mesh=new Mesh();public Material[] Materials={new Material()};
+@@ -92,6 +94,7 @@ namespace UnityEngine
+         public int lightmapIndex=-1,realtimeLightmapIndex=-1;
+         public Vector4 lightmapScaleOffset=new Vector4(1,1,0,0),realtimeLightmapScaleOffset=new Vector4(1,1,0,0);
+         public Matrix4x4 Matrix=Matrix4x4.identity;
++        public MotionVectorGenerationMode motionVectorGenerationMode=MotionVectorGenerationMode.Object;
+         public Bounds Bounds=new Bounds{Extent=1};
+         public int[] Mpb={0};public bool ThrowMatrix,ThrowMaterial;
+         public Matrix4x4 localToWorldMatrix=>ThrowMatrix?throw new InvalidOperationException("Injected transform read failure"):Matrix;
+@@ -106,6 +109,7 @@ namespace UnityEngine
+         public Mesh sharedMesh { get=>Mesh;set=>Mesh=value; }
+         public Transform rootBone;
+         public SkinQuality quality=SkinQuality.Auto;
++        public bool skinnedMotionVectors=true;
+         public Cloth Cloth;
+         private Transform[] boneValues=Array.Empty<Transform>();
+         public Transform[] bones { get=>(Transform[])boneValues.Clone();set=>boneValues=value==null?Array.Empty<Transform>():(Transform[])value.Clone(); }
+@@ -154,9 +158,10 @@ namespace HybridLumenGI
+             private readonly UnityEngine.Material material;
+             private readonly int index,value,mpb;
+             public bool CanReuseHistory { get; }
++            public bool HasMotionVectorsPass { get; }
+             internal Snapshot(UnityEngine.Renderer r,int i,UnityEngine.Material m)
+-            { renderer=r;material=m;index=i;value=m.Value;mpb=r.Mpb[i];CanReuseHistory=m.Reusable; }
+-            public bool Equals(Snapshot other)=>other!=null&&ReferenceEquals(renderer,other.renderer)&&ReferenceEquals(material,other.material)&&index==other.index&&value==other.value&&mpb==other.mpb&&CanReuseHistory==other.CanReuseHistory;
++            { renderer=r;material=m;index=i;value=m.Value;mpb=r.Mpb[i];CanReuseHistory=m.Reusable;HasMotionVectorsPass=m.HasMotionVectorsPass; }
++            public bool Equals(Snapshot other)=>other!=null&&ReferenceEquals(renderer,other.renderer)&&ReferenceEquals(material,other.material)&&index==other.index&&value==other.value&&mpb==other.mpb&&CanReuseHistory==other.CanReuseHistory&&HasMotionVectorsPass==other.HasMotionVectorsPass;
+             public override bool Equals(object other)=>other is Snapshot s&&Equals(s);
+             public override int GetHashCode()=>index;
+         }
+@@ -173,6 +178,12 @@ namespace HybridLumenGI
+     public static class HybridLumenGISurfaceCharts
+     {
+         public static string ComputeContentFingerprint(UnityEngine.Mesh mesh)
+-        { mesh.FingerprintCalls++;if(mesh.ThrowFingerprint) throw new InvalidOperationException("Injected fingerprint failure");return mesh.Content; }
++        {
++            mesh.FingerprintCalls++;if(mesh.ThrowFingerprint) throw new InvalidOperationException("Injected fingerprint failure");
++            // Explicit content substitute, including edited weight values. Native Mesh
++            // extraction/fingerprinting is outside this CPU registry/history harness.
++            string value=mesh.Content;foreach(float weight in mesh.BoneWeightValues)value+="|"+BitConverter.SingleToInt32Bits(weight);
++            return value;
++        }
+     }
+ }
+diff --git a/Tests/StandaloneReceiverIdentityFrame/Adapters.cs.txt b/Tests/StandaloneReceiverIdentityFrame/Adapters.cs.txt
+index 1bf13a4..ab7d37d 100644
+--- a/Tests/StandaloneReceiverIdentityFrame/Adapters.cs.txt
++++ b/Tests/StandaloneReceiverIdentityFrame/Adapters.cs.txt
+@@ -76,11 +76,13 @@ namespace HybridLumenGI
+     {
+         public sealed class Record
+         {
+-            public readonly ulong Token,GeometryGeneration,MaterialGeneration;
++            public readonly ulong Token,GeometryGeneration,SourceGeometryGeneration,MaterialGeneration;
+             public readonly Renderer Renderer;public readonly Mesh Mesh;public readonly int Submesh;
+             public readonly Matrix4x4 LocalToWorld;public readonly HybridLumenGIMaterialSource.Snapshot Material;
+-            public Record(ulong token,ulong geometry,ulong material,Renderer renderer,Mesh mesh,int submesh,Matrix4x4 matrix,HybridLumenGIMaterialSource.Snapshot source)
+-            {Token=token;GeometryGeneration=geometry;MaterialGeneration=material;Renderer=renderer;Mesh=mesh;Submesh=submesh;LocalToWorld=matrix;Material=source;}
++            public readonly Bounds WorldBounds;internal readonly HybridLumenGIReceiverSkinPose SkinPose;
++            internal Record(ulong token,ulong geometry,ulong material,Renderer renderer,Mesh mesh,int submesh,Matrix4x4 matrix,HybridLumenGIMaterialSource.Snapshot source,
++                HybridLumenGIReceiverSkinPose skinPose=null,ulong sourceGeometry=0,Bounds worldBounds=default)
++            {Token=token;GeometryGeneration=geometry;SourceGeometryGeneration=sourceGeometry!=0?sourceGeometry:geometry;MaterialGeneration=material;Renderer=renderer;Mesh=mesh;Submesh=submesh;LocalToWorld=matrix;Material=source;SkinPose=skinPose;WorldBounds=worldBounds;}
+         }
+         public sealed class Snapshot
+         {
+@@ -88,11 +90,18 @@ namespace HybridLumenGI
+             public Snapshot(Record[] records,HybridLumenGIReceiverDiscovery.Snapshot discovery){Records=Array.AsReadOnly((Record[])records.Clone());Discovery=discovery;}
+         }
+     }
++    // Opaque frozen-pose markers only. SameRig/SameSkinSurface and real bone input
++    // qualification are exercised by the actual-source ReceiverHistory suite.
++    internal sealed class HybridLumenGIReceiverSkinPose
++    {internal bool SamePose(HybridLumenGIReceiverSkinPose other)=>ReferenceEquals(this,other);}
+     // Frozen receipt lookup adapter only. The real ReceiverHistory has a separate suite.
+     public sealed class HybridLumenGIReceiverHistory
+     {
+         public bool ThrowOnLookup;public readonly Dictionary<HybridLumenGIReceiverRegistry.Record,HybridLumenGIReceiverRegistry.Record> Previous=new();
++        public readonly Dictionary<HybridLumenGIReceiverRegistry.Record,HybridLumenGIReceiverRegistry.Record> SkinPrevious=new();
+         public bool TryGetPrevious(HybridLumenGIReceiverRegistry.Record current,out HybridLumenGIReceiverRegistry.Record old)
+         {if(ThrowOnLookup)throw new Exception("Receipt adapter failure");return Previous.TryGetValue(current,out old);}
++        internal bool TryGetPreviousSkinSurface(HybridLumenGIReceiverRegistry.Record current,out HybridLumenGIReceiverRegistry.Record old)
++        {if(ThrowOnLookup)throw new Exception("Receipt adapter failure");return SkinPrevious.TryGetValue(current,out old);}
+     }
+ }
+diff --git a/Tests/StandaloneReceiverIdentityFrame/Program.cs.txt b/Tests/StandaloneReceiverIdentityFrame/Program.cs.txt
+index 72a6361..319b63c 100644
+--- a/Tests/StandaloneReceiverIdentityFrame/Program.cs.txt
++++ b/Tests/StandaloneReceiverIdentityFrame/Program.cs.txt
+@@ -116,6 +116,33 @@ static class Program
+                 Check(frame.MovedBounds.Count==0&&frame.UnknownRects.Count==0,"Static source adds no motion domain");
+             }
+         });
++        Scenario("qualified skin motion uses the stable surface key and frozen bounds without changing rigid reuse",()=>
++        {
++            // The history adapter supplies an already qualified f-1 same-rig surface.
++            // The actual qualification and its failures are covered by ReceiverHistory.
++            var matrix=Scale(-2,3,.5);var currentBounds=Box(.5f,0,0,2,3,1);var previousBounds=Box(-.5f,0,0,4,1,2);
++            var f=new Fixture(matrix,currentBounds);var source=f.Records[0];
++            var pose=new HybridLumenGIReceiverSkinPose();var priorPose=new HybridLumenGIReceiverSkinPose();
++            var current=new Registry.Record(source.Token,400,20,f.Renderer,f.Mesh,0,matrix,source.Material,pose,10,currentBounds);
++            var previous=new Registry.Record(source.Token,300,20,f.Renderer,f.Mesh,0,matrix,source.Material,priorPose,10,previousBounds);
++            f.Records[0]=current;var history=new HybridLumenGIReceiverHistory();history.SkinPrevious[current]=previous;
++            var frame=Build(f,history);
++            Check(frame.Rows[0].flags==3&&frame.Rows[0].currentToPrevious.Equals(Matrix4x4.identity),"Qualified changed pose emits screen-motion flags and identity matrix");
++            Check(frame.Rows[0].keyLow==20&&frame.Rows[0].keyHigh==0,"GPU surface key excludes pose-only geometry generation");
++            Check(frame.MovedBounds.Count==1&&frame.MovedBounds[0].Current.Equals(currentBounds)&&frame.MovedBounds[0].Previous.Equals(previousBounds),"Skin motion uses both frozen actual world bounds, not transformed current bounds");
++            Check(ReferenceEquals(frame.MovedBounds[0].SourceRenderer,f.Renderer),"Skin bounds retain the exact renderer group owner");
++            var disabled=Frame.Build(f.Snapshot(),history,Matrix4x4.identity,1921,1079,allowSkinnedScreenMotion:false);
++            Check(disabled.Rows[0].flags==0&&disabled.MovedBounds.Count==0&&disabled.Draws.Count==1,"Disabled feature keeps current identity but does not authorize moving skin history");
++            Check(Build(f,new HybridLumenGIReceiverHistory()).Rows[0].flags==0,"No qualified same-rig receipt cannot select the skin branch");
++            var reflected=Multiply(Scale(-1,1,1),matrix);
++            history.SkinPrevious[current]=new Registry.Record(source.Token,300,20,f.Renderer,f.Mesh,0,reflected,source.Material,priorPose,10,previousBounds);
++            Check(Build(f,history).Rows[0].flags==0,"Skin screen motion retains the original relative reflection rejection");
++            history.SkinPrevious[current]=previous;
++            history.Previous[current]=new Registry.Record(source.Token,400,20,f.Renderer,f.Mesh,0,matrix,source.Material,pose,10,currentBounds);
++            var stopped=Frame.Build(f.Snapshot(),history,Matrix4x4.identity,1921,1079,allowSkinnedScreenMotion:false);
++            Check(stopped.Rows[0].flags==1&&stopped.MovedBounds.Count==0,"Stopping restores the original rigid/same-pose path even with screen motion disabled");
++            Check(Build(f,history).Rows[0].flags==1,"Original qualified path takes precedence over skin screen motion");
++        });
+         Scenario("relative reflection nonuniformity shear and invalid matrices reject reuse",()=>
+         {
+             var shear=Matrix4x4.identity;shear.m01=.01f;var projective=Matrix4x4.identity;projective.m30=.01f;
+diff --git a/Tests/Validate-MaterialSource.ps1 b/Tests/Validate-MaterialSource.ps1
+index 596fab5..97837a1 100644
+--- a/Tests/Validate-MaterialSource.ps1
++++ b/Tests/Validate-MaterialSource.ps1
+@@ -9,5 +9,3 @@ $sources = @{
+     'Program.cs' = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'StandaloneMaterialSource/Program.cs.txt'))
+ }
+ & (Join-Path $PSScriptRoot 'Invoke-CSharpHarness.ps1') -Name 'material-source' -Sources $sources
+-Write-Output ('Runtime source SHA256: ' + (Get-FileHash -LiteralPath $actualPath -Algorithm SHA256).Hash)
+-Write-Output ('Hit input source SHA256: ' + (Get-FileHash -LiteralPath (Join-Path $SourceRoot 'Runtime/HybridLumenGIHitMaterialData.cs') -Algorithm SHA256).Hash)
+diff --git a/Tests/Validate-ReceiverIdentityFrame.ps1 b/Tests/Validate-ReceiverIdentityFrame.ps1
+index 2861e23..b6828b2 100644
+--- a/Tests/Validate-ReceiverIdentityFrame.ps1
++++ b/Tests/Validate-ReceiverIdentityFrame.ps1
+@@ -9,4 +9,3 @@ $source=Join-Path $SourceRoot 'Runtime/HybridLumenGIReceiverIdentityFrame.cs'
+     'Adapters.cs'=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'StandaloneReceiverIdentityFrame/Adapters.cs.txt'))
+     'Program.cs'=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'StandaloneReceiverIdentityFrame/Program.cs.txt'))
+ }
+-Write-Output ('Actual identity-frame SHA256: '+(Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash)
