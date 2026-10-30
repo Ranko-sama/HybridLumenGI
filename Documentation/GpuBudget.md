@@ -1,6 +1,19 @@
 # GPU 时间反馈与更新预算
 
-当前2射线配置已有[Release90静止GI基线](../LocalComparison/Review/release90-dxr-baseline-01/result.md)：960×540／GI480×270、DXR、只测量且反馈关闭，三个既有区间合计中位21.667ms、p95 22.643ms、p99 23.938ms；进程local／nonlocal采样峰值565.441／287.566MiB。它补齐正式预算决策的当前输入，普通90不变；不代表整应用GPU、运动最坏情况或瞬时内存峰值，不自动确定GI／显存门槛。
+## 当前已确认的起始验收目标
+
+用户于2026-10-30取得当前基线后明确采用以下口径；后文历史记录中的“预算未定”保留其当时状态，以本节为准。
+
+| 项目 | 已确认目标 | 当前Release90静止窗口 |
+| --- | --- | --- |
+| 分辨率／帧率方向 | 960×540／30FPS | 本窗口不测Present／显示FPS |
+| 现有GI三个计时区间之和 | p95≤25ms | 22.643ms，满足此窗口门槛 |
+| 本进程local有限采样峰值 | ≤1GiB（1024MiB） | 565.441MiB，满足此窗口门槛 |
+| nonlocal | 单独报告，未设上限 | 287.566MiB |
+
+该决定不自动启用反馈或修改画质，普通Release90配置保持。已有窗口可直接按新门槛判断，不需重跑；不代表整应用GPU、绝对瞬时显存峰值、运动／冷启动／长时负载通过或完整G0/G5放行。p99继续报告，未擅自增加新的p99门槛。
+
+当前2射线配置已有[Release90静止GI基线](../LocalComparison/Review/release90-dxr-baseline-01/result.md)：960×540／GI480×270、DXR、只测量且反馈关闭，三个既有区间合计中位21.667ms、p95 22.643ms、p99 23.938ms；进程local／nonlocal采样峰值565.441／287.566MiB。它补齐正式预算决策的当前输入，普通90不变；不代表整应用GPU、运动最坏情况或瞬时内存峰值，正式门槛来自上述用户决定。
 
 当前入口由[首页](../README.md)维护；以下成本与画质依据来自[Release88](../LocalComparison/Review/two-ray-local-quality-01/result.md)，其有限采用[本机每像素2射线配置](../LocalComparison/Review/two-ray-local-quality-01/result.md)。当时Runtime为e352921，只将本机示例构建配置从1 ray改为2 ray，保留DXR偏好；通用默认值2未改。软件149／179／189／209四图有明确颗粒收益，但平均Y分别增加7.892%／8.244%／23.112%／22.425%（约8–23%），不代表颜色更准确，也不构成全过程无拖影或完整720帧通过。
 
@@ -34,7 +47,7 @@ Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开�
 
 ## 已有 GPU 时间结果
 
-**基线后的目标决定：**用户选择先以960×540／30 FPS为正式开发目标，整帧对应约33.33ms。该数值不是GI三个区间的可用额度；GI专项时间和进程显存上限尚未单独确定。保留当前半分辨率GI作为开发起点，不把回调频率当作实际呈现FPS达标依据。
+**基线后的目标决定：**用户选择先以960×540／30 FPS为正式开发目标，整帧对应约33.33ms。该数值不是GI三个区间的可用额度；随后用户已确认上述25ms／1GiB起始口径，nonlocal另列。保留当前半分辨率GI作为开发起点，不把回调频率当作实际呈现FPS达标依据。
 
 一次[普通Release83呈交采集](../LocalComparison/Review/release83-present-01/result.md)未生成CSV；没有有效Present／显示节奏数据，不代表零FPS，目标仍未据此验收。采集已收尾，未自动重复运行。
 
@@ -42,7 +55,7 @@ Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开�
 
 [普通Release84的DXR应用Present窗口](../LocalComparison/Review/release84-dxr-present-01/result.md)测得79.22Hz，间隔p95 14.33ms／p99 14.81ms，窗口内全部低于33.33ms。同进程F2日志在采集前后报告就绪DXR、计时和反馈关闭；只支持端点状态，不是逐帧后端证明。该有限结果支持当前30FPS方向，仍非实际显示FPS或G5通过；不据与旧83软件运行的差异宣称等画质加速。
 
-[Release87](../LocalComparison/Review/short-history-spatial-filter-01/result.md)的短历史空间滤波改进继续保留在当前Release88，沿用Release85的DXR偏好，按4仍可回软件。87新增邻居moments读取的增量GPU成本尚未单独测量；上文87的1 ray门运动Present与88的2 ray窗口分别保留来源，不能归算为滤波增量成本。83／84静止结果也不改标为当前配置数据。GI与显存正式放行预算仍未确定。
+[Release87](../LocalComparison/Review/short-history-spatial-filter-01/result.md)的短历史空间滤波改进继续保留在当前Release88，沿用Release85的DXR偏好，按4仍可回软件。87新增邻居moments读取的增量GPU成本尚未单独测量；上文87的1 ray门运动Present与88的2 ray窗口分别保留来源，不能归算为滤波增量成本。83／84静止结果也不改标为当前配置数据。当前起始预算以本页顶部用户决定为准，完整负载验收仍开放。
 
 [已有DXR后端的单次同配置成本窗口](../LocalComparison/Review/release83-dxr-cost-01/result.md)实际512源帧均为DXR：GI三区间合计中位13.276ms、p95 14.334ms、p99 14.522ms；相对软件基线中位观察差−52.61%。进程local采样峰值560.941MiB、nonlocal287.691MiB。此处只提供现有后端取舍依据，没有普通显示FPS或等画质声明，也不自动改变默认和预算。
 

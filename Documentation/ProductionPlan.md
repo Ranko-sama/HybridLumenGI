@@ -1,8 +1,10 @@
 # 实时光传输架构与生产交付计划
 
+当前起始验收目标已由用户确认：960×540／30FPS，现有GI三个计时区间合计p95≤25ms，进程local有限采样峰值≤1GiB，nonlocal另列。[当前90静止基线](../LocalComparison/Review/release90-dxr-baseline-01/result.md)满足这两个窗口门槛；不重测、不自动开启反馈，完整负载／平台验收仍保留。后文历史“预算未定”以[当前目标口径](GpuBudget.md#当前已确认的起始验收目标)为准。
+
 当前入口已整合为[Release90](../LocalComparison/Review/deformed-publication-fairness-01/result.md)，修复完成形变快照被后来任务反复抢占上传额度的问题；原2ray/DXR和默认关闭的捕获时间准入保持。必要组件回归及公开Release构建已完成，不新增实机性能／画质结论，也不关闭下述完整§5或G0–G5条件。
 
-随后补齐[当前2射线DXR静止GI基线](../LocalComparison/Review/release90-dxr-baseline-01/result.md)：GI三区间合计中位21.667ms、p95 22.643ms、p99 23.938ms；进程local采样峰值565.441MiB。这是G0的当前预算决策输入，不是整应用GPU或冷／热／高速运动完整验收；正式GI／显存目标仍待确定，普通Release90和画质配置保持。
+随后补齐[当前2射线DXR静止GI基线](../LocalComparison/Review/release90-dxr-baseline-01/result.md)：GI三区间合计中位21.667ms、p95 22.643ms、p99 23.938ms；进程local采样峰值565.441MiB。这是G0的当前预算决策输入，不是整应用GPU或冷／热／高速运动完整验收；该窗口满足随后确认的25ms／1GiB起始口径，普通Release90和画质配置保持。
 
 用户已明确暂缓G5的CI接线；该条款保留未完成，不阻塞其他本机开发。当前有限采用[Release88本机2 ray配置](../LocalComparison/Review/two-ray-local-quality-01/result.md)：Runtime仍为e352921，只将本机示例构建的`raysPerPixel`从1改为2，通用默认值2保持。一次软件149／179／189／209四图有明确颗粒收益；平均Y分别增加7.892%／8.244%／23.112%／22.425%（约8–23%），不当作颜色更准确。四个时点不证明全过程无拖影，原720未完成状态保持。
 
@@ -135,6 +137,8 @@ flowchart TD
 
 按照 near/far clipmap 的连续覆盖范围请求资产，保留重叠与滞回。细节 → HLOD 切换必须等候 HLOD 的几何、材质、照明全部 ready；同一事务中发布新表示并退休旧表示，避免丢洞或重复遮挡。相机高速移动时有可控降级，同时记录 missing coverage。HLOD 是 GI 材质与遮挡代理，不能只用场景包围盒替代。
 
+已有[当前统一示例的热态连续近远路线](../LocalComparison/Review/continuous-near-far-01/result.md)：途中不等ready，真实页IO与目标／发布推进，完整CPU可提交组与发布组保持，回近后细节恢复。路线位于驻留域内，不等于像素无洞、高速穿越未驻留冷区、长时压力或完整G4；不因该有限结果降低上述要求。
+
 完整生产调度目标是以 `可见影响 × 误差 × 变更紧急度 + 等待年龄` 排序，覆盖 CPU 准备、上传字节、SDF brick 合并、RTAS build/refit、射线、材质捕获、滤波与显存，并给任务设置防饥饿保障。当前实现尚未对所有阶段分别施加时间预算；GPU 反馈以滞后观测、平滑和滞回调整三类更新数量，不动态改变 probe 密度或资源分辨率。验收需要记录冷启动和最坏情况，不能只展示稳定相机的平均 FPS。
 
 形变快照已增加默认关闭的[同步捕获经过时间准入](DeformedGeometry.md)：达到本帧额度后不再开始下一份捕获，保留下一对象轮次；失败和未变内容的捕获也计时，已完成作业发布／清理仍正常执行。它不能抢占单次BakeMesh，也不覆盖发布、后台任务或其他CPU准备；是上述CPU准备调度的一项具体能力，不代表全阶段时间预算完成。
@@ -180,7 +184,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 当前G1/G3新增[有限单次颜色参考](ReviewBrief-FiniteWallColorReference02.md)、[变色与关灯](ReviewBrief-FiniteWallDynamicResponse01.md)、[真实有限缓存反馈](ReviewBrief-CacheFeedbackFinite02.md)和[刚体遮挡恢复](ReviewBrief-FiniteWallOcclusionResponse01.md)的来源绑定证据，各自限制见原报告；不合并成默认配置或整景质量认证。
 
-本机已有Unity6000.0.85f1、URP17.0.4、DX12和RTX2080Ti的实际记录；用户已选择960×540／30 FPS目标；GI GPU/显存放行预算仍未确定，不填写虚构阈值。完整当前进度见[推进表](DevelopmentProgress.md)。G5目前增加了当前本地构建/启动证据，尚未完成CI、承诺平台矩阵、性能或峰值内存放行；上表G0–G5条件不因此降低。当前源码构建和有限运行不等于整个G0完成，**不能跳过 G2–G5 后标注为“完整生产交付”**。开发不再依赖朋友工程反馈。
+本机已有Unity6000.0.85f1、URP17.0.4、DX12和RTX2080Ti的实际记录；用户已选择960×540／30 FPS目标；起始GI／显存口径已按用户决定锁定为上述25ms／1GiB，nonlocal另列。完整当前进度见[推进表](DevelopmentProgress.md)。G5目前增加了当前本地构建/启动证据，尚未完成CI、承诺平台矩阵、性能或峰值内存放行；上表G0–G5条件不因此降低。当前源码构建和有限运行不等于整个G0完成，**不能跳过 G2–G5 后标注为“完整生产交付”**。开发不再依赖朋友工程反馈。
 
 ## 7. 历史朋友工程接入步骤
 

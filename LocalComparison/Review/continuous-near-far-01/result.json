@@ -1,0 +1,100 @@
+{
+  "outcome": "complete-limited-hot-route",
+  "error": "",
+  "oneWayDistance": 11.944050788879395,
+  "plannedMotionSeconds": 11.944050788879395,
+  "beginCallbacks": 1273,
+  "endCallbacks": 1273,
+  "targetChanges": 20,
+  "publicationChanges": 19,
+  "actualMotionIoObserved": true,
+  "returnedNear": true,
+  "completeNearRecovered": true,
+  "product": "Release90 / 55b5908",
+  "raw": "I:\\Unity test\\Comparison\\ContinuousNearFar01\\run.json",
+  "nativeExit": 0,
+  "watchdogTerminated": false,
+  "scope": "One resident hot Near/Far route; CPU renderer flags and current published group identities, not pixel coverage or GPU completion.",
+  "phaseRows": {
+    "warmup": 46,
+    "moving": 1219,
+    "settling": 8
+  },
+  "motionBeginGroups": {
+    "details": 264,
+    "root": 955
+  },
+  "motionPublishedGroups": {
+    "details": 263,
+    "root": 956
+  },
+  "motionTargetGroups": {
+    "details": 257,
+    "root": 962
+  },
+  "motionBackends": {
+    "DXR": 1219
+  },
+  "movingLegs": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "motionTransitioningFrames": 294,
+  "motionIoFrames": 30,
+  "motionIoBytesStarted": 168910,
+  "maxMovingPageActiveOperations": 2,
+  "maxMovingPagePending": 5,
+  "motionEngineFrames": [
+    47,
+    1265
+  ],
+  "recoveryEngineFrames": [
+    1266,
+    1273
+  ],
+  "recoveryRecordedSpanSeconds": 0.16230919999999927,
+  "recoveryMeaning": "First settling begin to final end callback span, not exact IO/recovery latency.",
+  "recoveryFirstBeginGroup": "root",
+  "finalPublication": "details",
+  "finalLedger": {
+    "status": "complete details published",
+    "pagesReady": 13,
+    "pagesLoading": 0,
+    "pagesReleasing": 0,
+    "pagesFailed": 0,
+    "pageConsumerReferences": 18,
+    "pageActiveOperations": 0,
+    "pageIoBytesInFlight": 0,
+    "pageRetiringLeases": 0,
+    "visibleMembers": 3,
+    "boundMembers": 4,
+    "actualBackend": "DXR"
+  },
+  "settings": {
+    "raysPerPixel": 2,
+    "resolutionScale": 0.5,
+    "filterIterations": 3,
+    "cacheRaysPerFace": 8,
+    "preferHardwareTracing": true,
+    "measureGpuCost": false,
+    "adaptiveGpuBudget": false
+  }
+}

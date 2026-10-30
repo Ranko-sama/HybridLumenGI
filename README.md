@@ -6,7 +6,9 @@ Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材�
 
 Release90修复[形变快照发布饥饿](LocalComparison/Review/deformed-publication-fairness-01/result.md)：上传额度紧张时，已完成快照按捕获入队顺序争用额度，避免持续完成的新任务反复抢先。未完成头项仍可跳过，失效清理及失败所有权保留。必要组件回归和公开Release构建通过；GI着色器与2射线/DXR配置保持，没有新的Player、画质或性能测量。
 
-随后补齐[当前2射线DXR静止GI基线](LocalComparison/Review/release90-dxr-baseline-01/result.md)：960×540／半分辨率GI，三个已计时区间合计中位21.67ms、p95 22.64ms、p99 23.94ms；进程local显存采样峰值565.44MiB。普通Release90保持不变；这些不是整应用GPU时间、运动最坏情况或生产放行，正式GI／显存预算仍待确定。
+随后补齐[当前2射线DXR静止GI基线](LocalComparison/Review/release90-dxr-baseline-01/result.md)：960×540／半分辨率GI，三个已计时区间合计中位21.67ms、p95 22.64ms、p99 23.94ms；进程local显存采样峰值565.44MiB。普通Release90保持不变；这些不是整应用GPU时间、运动最坏情况或生产放行，用户随后确认GI三区间合计p95≤25ms、进程local有限采样峰值≤1GiB；该静止窗口满足这两个门槛，nonlocal另列。
+
+已补齐[热态连续近远切换](LocalComparison/Review/continuous-near-far-01/result.md)的有限依据：快速往返期间请求与页IO推进，完整CPU可提交组及发布组保持，回近后细节恢复。普通90不变；不代表逐像素无洞、冷区穿越或完整G4。
 
 Release89新增[可选形变捕获时间准入](LocalComparison/Review/deformed-capture-time-budget-01/result.md)：本帧同步捕获经过时间达到额度后，延后开始下一对象并保留轮次，完成任务的发布／清理照常执行。默认关闭，单次BakeMesh不可抢占。必要组件规则检查与公开Release构建通过；当前2射线/DXR及画质配置保持，没有新增实机性能或画质结论。
 
@@ -30,7 +32,7 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 
 ## 使用统一示例
 
-已按用户要求完成[Release83本机起始基线](LocalComparison/Review/release83-local-baseline-01/result.md)：当前960×540／半分辨率GI／精确软件下，GI三区间合计中位28.02ms、p95 31.19ms、p99 31.45ms；相机回调平均34.50次／秒，非Present FPS。进程local采样峰值577.45MiB、nonlocal280.66MiB，非GI独占或瞬时峰值。基线之后用户已选定960×540／30 FPS目标；GI专项时间和显存上限尚未单独确定。
+已按用户要求完成[Release83本机起始基线](LocalComparison/Review/release83-local-baseline-01/result.md)：当时960×540／半分辨率GI／精确软件下，GI三区间合计中位28.02ms、p95 31.19ms、p99 31.45ms；相机回调平均34.50次／秒，非Present FPS。进程local采样峰值577.45MiB、nonlocal280.66MiB，非GI独占或瞬时峰值。随后用户已选定960×540／30 FPS，并根据Release90当前基线确认[25ms／1GiB起始口径](Documentation/GpuBudget.md#当前已确认的起始验收目标)，nonlocal另列。
 
 用户确认普通场景显示后，[应用Present窗口](LocalComparison/Review/release83-present-api-02/result.md)测得平均29.15次／秒、间隔p95 38.58ms／p99 41.35ms，该有限窗口尚未达到30FPS。此处关闭显示跟踪，不是显示器实际FPS；与上面的相机回调基线口径不同。
 
@@ -97,7 +99,7 @@ Release83刚体修复的专项只新增正常产品0–239前缀的239帧历史�
 
 - 整体颜色准确度、局部换色和多跳残留，以及运动后的画质与收敛时间。
 - 复杂薄壁／凹腔覆盖、目标规模、流送压力和各后端未覆盖的实际使用条件。
-- 960×540／30FPS目标下的正式GI时间及显存预算、完整平台验收和发布保障；实际CI按用户要求暂缓。
+- 已确认960×540／30FPS及25ms／1GiB起始口径下的完整负载／平台验收和发布保障；实际CI按用户要求暂缓。
 
 有限场景、短窗口和历史专项不替代上述放行条件。旧成果按各自源码与配置保留，详见[完整进度与历史证据](Documentation/DevelopmentProgress.md)。
 
