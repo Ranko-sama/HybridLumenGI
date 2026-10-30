@@ -1,128 +1,90 @@
 # HybridLumenGI
 
-Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
+Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与世界光照缓存、渐进多次反弹、时域重建、精确软件三角查询、可选 DXR，以及形变快照和分页/HLOD。当前仍在开发，完整 G0–G5 尚未验收，不宣称 UE5 Lumen 等价。
 
-**当前本机入口：[启动统一交互 Release93](<I:/Unity test/Comparison/Builds/LocalRelease93/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+## 开始使用
 
-当前93的[普通门运动窗口](LocalComparison/Review/release93-motion-present-01/result.md)已补齐：按960×540启动、2ray／filter4／默认DXR，应用Present平均52.69Hz，间隔p95／p99为21.97／23.57ms，最大25.99ms，全部观测间隔低于33.33ms。正常场景与门位移已观察，端点DXR及transform更新推进；支持本机30FPS方向，非实际显示FPS、最坏负载或完整G5。普通93不变，没有追加窗口或构建。
+**本开发机已构建的入口：[启动统一交互 Release93](<I:/Unity test/Comparison/Builds/LocalRelease93/Start-LocalRelease.cmd>)。** 这是开发机本地路径，GitHub 下载源码后需按下面步骤接入自己的 Unity 工程。当前本机配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。
 
-当前配置另已补齐[filter4／DXR静止119的独立颜色估计](LocalComparison/Review/release93-color-frame119-01/result.md)：Floor／White平均D亮度偏差−3.075%／−0.831%，Y-MAE为0.010529／0.018576。相较历史软件filter3，两个MAE约增10.1%／6.6%，色向指标也略增；保留运动减云斑取舍，不能称颜色全面更准。限既有640×360参考网格的两个ROI，未扩展参考或重建普通93。
+### 接入自己的工程
 
-Release93消除[精确后端完整接管后的空回退遍历](LocalComparison/Review/exact-no-fallback-traversal-01/result.md)：没有回退owner时，保留精确查询结果直接返回；有回退时仍走原路径。保持filter4／2ray／DXR，在同配置有限静止窗口中GI合计中位23.921→18.393ms、p95 24.562→19.298ms，local采样峰值567.254MiB；通过预定收益判据及25ms／1GiB起始预算。普通构建完成，画质依据保持92原来源，不外推所有场景、运动FPS或整应用GPU收益。
+1. 在 Unity 6 URP 工程中创建 `Assets/HybridLumenGI`，将本仓库的 **`Runtime`、`Editor`、`Shaders` 产品目录及随附 `.meta`** 复制到其中，保留目录结构和 `Runtime/Resources`。`LocalComparison`、`Tests`、`Delivery` 是开发资料，留在工程外；不要把整个仓库放进 `Assets`，也不要同时导入两份产品源码。本仓库没有 UPM `package.json`，此处使用源码目录导入。
+2. 配置 **DX12、Linear 色彩空间、Render Graph**，在相机实际使用的 Universal Renderer Data 中添加一次 `HybridLumenGIRendererFeature`。Shader资源自动加载；Feature请求深度、法线和运动矢量，不要求Opaque Texture。
+3. 使用 **Tools > Hybrid Lumen GI > Setup & Proxies** 注册Renderer。真实网格路径要求源网格保留Read/Write，并烘焙、绑定匹配SDF和surface charts；没有charts时使用六视图近似。编辑几何后可能需要重烘焙。详见[安装与实现](Documentation/Implementation.md)。
+4. 保存普通运行场景后，使用[公开批处理构建入口](Documentation/BatchPlayerBuild.md)构建Player。入口使用现有工程配置，要求Windows x64／Mono／显式DX12／Linear及新输出目录，不注入本机观察器。
 
-Release92采用[第4级空间滤波](LocalComparison/Review/four-pass-local-quality-01/result.md)：本机示例filter3→4，2ray／DXR及时间历史保持。[四时点同曝光对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png)中门面、地板和绿墙云斑明显减弱，未见新增持续旧轮廓；代价是同平面明暗过渡更柔。该次静止GI三区间合计p95为24.562ms、local采样峰值565.441MiB，满足25ms／1GiB起始门槛，但GI余量仅约0.438ms。普通Release构建完成；不代表运动最坏情况、颜色准确度或完整验收，旧filter3定量保持原来源。
+默认 **Additive** 合成保留原生漫反射GI；受控对照需关闭额外环境光、探针、lightmap或其他GI，避免重复计入照明。可选 **Replace Native Diffuse GI** 要求Forward/Forward+、有符号HDR、关闭MSAA和普通URP Lit；其强度设为零也不等于关闭Feature。详见[原生漫反射合成合同](Documentation/NativeDiffuseComposition.md)。
 
-Release91补齐[表示需求与可用组显示](LocalComparison/Review/sample-representation-status-01/result.md)：普通面板及F2可区分请求细节而聚合体仍在提供覆盖、主动只要聚合体、未评估和未知状态。显示范围为样例CPU请求与Renderer可提交组，不是像素覆盖或GPU完成。独立源码审阅和公开Release构建完成，调度与画质配置保持；没有新增Player或性能／画质测量。
+需要原生GPU计时／进程显存观察时，按[可选原生插件说明](Documentation/NativeGpuTiming.md)部署DLL；源码导入不等于安装该DLL。分发原生插件时保留随包的[第三方通知](Documentation/NativeGpuTimingThirdPartyNotices.md)及其引用许可。
 
-Release90修复[形变快照发布饥饿](LocalComparison/Review/deformed-publication-fairness-01/result.md)：上传额度紧张时，已完成快照按捕获入队顺序争用额度，避免持续完成的新任务反复抢先。未完成头项仍可跳过，失效清理及失败所有权保留。必要组件回归和公开Release构建通过；GI着色器与2射线/DXR配置保持，没有新的Player、画质或性能测量。
+运行时原地修改可读网格后，调用 `MarkDirty()` 或 `HybridLumenGIMeshSource.NotifyGeometryChanged(mesh)`；形变使用匹配网格/SDF/charts的快照流程。外部GPU纹理写入需要明确的更新通知和生产者顺序，不能仅凭对象引用推断内容已更新。
 
-随后补齐[当前2射线DXR静止GI基线](LocalComparison/Review/release90-dxr-baseline-01/result.md)：960×540／半分辨率GI，三个已计时区间合计中位21.67ms、p95 22.64ms、p99 23.94ms；进程local显存采样峰值565.44MiB。普通Release90保持不变；这些不是整应用GPU时间、运动最坏情况或生产放行，用户随后确认GI三区间合计p95≤25ms、进程local有限采样峰值≤1GiB；该静止窗口满足这两个门槛，nonlocal另列。
+### 生成统一示例
 
-已补齐[热态连续近远切换](LocalComparison/Review/continuous-near-far-01/result.md)的有限依据：快速往返期间请求与页IO推进，完整CPU可提交组及发布组保持，回近后细节恢复。普通90不变；不代表逐像素无洞、冷区穿越或完整G4。
+保存作者场景，选择至少两个已绑定SDF和surface charts的静态Proxy，执行 **Tools > Hybrid Lumen GI > Create Unified Sample From Selected Static Proxies**。菜单要求一个启用相机，并从该相机实际选择的Universal Renderer Data中解析唯一启用的GI Feature。生成器保留作者场景，创建独立变体与资源页；显式API为 `HybridLumenGIUnifiedSampleBuilder.CreateVariant`。
 
-Release89新增[可选形变捕获时间准入](LocalComparison/Review/deformed-capture-time-budget-01/result.md)：本帧同步捕获经过时间达到额度后，延后开始下一对象并保留轮次，完成任务的发布／清理照常执行。默认关闭，单次BakeMesh不可抢占。必要组件规则检查与公开Release构建通过；当前2射线/DXR及画质配置保持，没有新增实机性能或画质结论。
+生成的资源页位于工程的 `Assets/StreamingAssets`；交付Player时保留这些bundle及对应数据目录。静态网格、材质和HLOD输入限制及生成步骤见[统一示例说明](LocalComparison/Implementation/UnifiedSample/SAMPLE.md#生成及使用)。生成器不会把任意场景自动变成具有换色、灯光或门事件的验证场景；未提供相应输入时只显示可用操作。
 
-Release88采用[本机2射线质量配置](LocalComparison/Review/two-ray-local-quality-01/result.md)：仅将屏幕每像素射线从1增为现成的2，Runtime算法不变。[四时点软件对照](LocalComparison/Review/two-ray-local-quality-01/comparison.png)中颗粒与暗斑减少，未见明显新增持续轮廓，软斑仍在；全图平均出射亮度上升约7.9–23.1%，不能称颜色更准。默认DXR的普通门运动Present约39.95Hz，p95／p99间隔27.81／28.72ms，最大30.72ms，支持本机960×540启动配置下的30FPS方向，性能余量变小。软件画质与DXR成本为独立来源，不是显示FPS或整体G5验收；旧1射线误差和响应数据不得重标为88。
+## 普通示例操作
 
-Release87整合[短历史空间滤波改进](LocalComparison/Review/short-history-spatial-filter-01/result.md)：两端短历史采用对称的已有噪声尺度，时间混合不变。[同曝光软件239帧](LocalComparison/Review/short-history-spatial-filter-01/comparison.png)中，门及邻近墙地的黑颗粒明显减少，云状软斑仍在，未见阻断性边缘损坏；已知点和门面时间统计保持。新增读取成本未测，单帧不证明颜色准确度、全过程无拖影或收敛。普通Release/None构建已完成，未追加Player或成本运行。
-
-按用户明确的取舍，随后[四时点动停对照](LocalComparison/Review/release87-motion-response-01/result.md)中，149／179帧颗粒减少、画面略柔；停止后10／30帧接近原基线，未见明显新增持续轮廓。仅限该软件场景四个时点，不宣称全过程无拖影；没有修改或重建87。
-
-此前普通Release87的[门运动Present窗口](LocalComparison/Review/release87-motion-present-01/result.md)以960×540参数启动、默认DXR，平均70.85Hz，间隔p95／p99为16.73／17.80ms，2123个观测间隔均小于33.33ms。正常三维画面与M后门移位已观察，两端CPU状态为DXR且transform更新推进；该有限窗口支持30FPS开发方向，不是显示FPS、GI专项/滤波增量成本或完整G5验收。没有追加窗口或重建。
-
-Release86修复[离场后重复分配空几何资源](LocalComparison/Review/empty-geometry-preparation-01/result.md)：无可接纳三角实例时直接退出准备并退休旧资源，重新入场仍可恢复。已完成必要源码回归和普通Release/None构建；没有新增Player、画面或性能采集，图像与帧率结论保留以下实际版本来源。
-
-Release85仅落实[本机DXR启动偏好](LocalComparison/Review/dxr-local-default-01/result.md)，GI算法不变；普通启动后F2已确认实际DXR。当前静止软件／DXR对照中，Floor已知域的平均绝对D亮度差约0.00000325，White均值RGB和所列误差指标一致，未见明显新增缺损；这不是动态等画质认证。此前Release84的[普通应用Present窗口](LocalComparison/Review/release84-dxr-present-01/result.md)为79.22Hz、间隔p95 14.33ms／p99 14.81ms，作为本机960×540／30FPS方向的依据保留，不冒充Release85新测帧率或完整生产验收。
-
-Release83 整合[刚体同帧更新的历史恢复](LocalComparison/Review/rigid-pose-history-01/result.md)：修复纯平移重传被误加Added、从而错误拒绝可信历史的问题。原场景239帧门面2739个已知点中，2724点恢复短历史复用，门面黑颗粒明显减少，仍有软斑驳；单帧不能证明无拖影或收敛。真正新增、延迟上传、内容变化及不匹配对应仍保守处理。
-
-Release82 整合[严格静止样本的重建修复](LocalComparison/Review/stationary-history-01/result.md)：避免当前稀疏采样把已积累历史压暗。frame119固定Floor/White平均D偏差由−28.9%/−33.4%降至−5.84%/−3.36%，逐像素误差和色向也改善，未知不增。仅适用于成熟、相机/样本/几何/材质完全未变且无motion/jitter/reactive的条件；无标记真变暗32步仍保留约6.88%的残留，不能称动态不变。原D240采集缺口、运动颗粒和整体收敛限制保留。
-
-Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review/gpu-budget-controls-01/result.md)，允许只测量或显式输入目标后启用已有控制器；关闭可恢复静态配额。同步整合零AO下不必要的缓存依赖修复。没有自动选择生产预算，也不保证达到输入目标。Release80 已修复[零漫反射表面的已知辐射丢失](LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)：有效自发光／黑色不再因无关的阴影或缓存查询未知而被丢弃，正漫反射和来源资格保持。它是局部能量资格修复，没有新增整景颜色、动态质量或性能结论。Release79 已为同一门物体增加[真实 Skinned 骨骼形变模式](LocalComparison/Review/skinned-unified-usage-01/result.md)，保留可读网格模式；沿用 Release78 的[按来源分离的缓存关灯响应](LocalComparison/Review/cache-source-separation-01/result.md)：当前上传的解析灯表为空时，移除其旧多跳贡献，保留自发光／环境贡献。沿用统一交互及默认关闭的[驱动进程显存观察](Documentation/GpuBudget.md#驱动层进程显存观察)，保留此前屏幕历史、缓存首次可信更新和面积光冗余计算修复。[有限成本结果](LocalComparison/Review/screen-endpoint-only-01/result.md)来自 Release76 的固定配置，仅覆盖三个 GI 区间，不代表 Release83 全应用帧率或生产放行。后续源码修改不会自动更新 EXE。
-
-## 使用统一示例
-
-已按用户要求完成[Release83本机起始基线](LocalComparison/Review/release83-local-baseline-01/result.md)：当时960×540／半分辨率GI／精确软件下，GI三区间合计中位28.02ms、p95 31.19ms、p99 31.45ms；相机回调平均34.50次／秒，非Present FPS。进程local采样峰值577.45MiB、nonlocal280.66MiB，非GI独占或瞬时峰值。随后用户已选定960×540／30 FPS，并根据Release90当前基线确认[25ms／1GiB起始口径](Documentation/GpuBudget.md#当前已确认的起始验收目标)，nonlocal另列。
-
-用户确认普通场景显示后，[应用Present窗口](LocalComparison/Review/release83-present-api-02/result.md)测得平均29.15次／秒、间隔p95 38.58ms／p99 41.35ms，该有限窗口尚未达到30FPS。此处关闭显示跟踪，不是显示器实际FPS；与上面的相机回调基线口径不同。
-
-已有[DXR模式的同配置GI成本](LocalComparison/Review/release83-dxr-cost-01/result.md)中位13.28ms、p95 14.33ms，较软件基线有更多时间余量；当前普通示例启动时请求DXR，并可查看面板actual后端。该成本结果不证明等画质或普通显示FPS；通用Feature默认仍为软件偏好。
-
-点击窗口后操作：
+点击Player窗口后操作；以下事件快捷键对应已交付的统一场景。
 
 | 操作 | 按键 |
 | --- | --- |
-| 平移／升降／转向 | WASD ／ Q、E ／ 方向键 |
-| 近景／远景／离开分页范围 | 1 或 R ／ 2 ／ 3 |
-| 软件／DXR 偏好 | 4 ／ 5 |
+| 平移／升降／转向 | WASD ／ Q、E ／方向键 |
+| 近景／远景／离开分页范围 | 1或R ／ 2 ／ 3 |
+| 软件／DXR偏好 | 4 ／ 5 |
 | 墙面换色／灯光开关／门运动 | C ／ L ／ M |
 | 形变启停／切换网格与骨骼来源 | 空格 ／ K |
 | 分页组释放与重载 | B |
 | 隐藏面板／退出 | F1 ／ Esc |
-| 导出当前运行状态至Player日志 | F2 |
+| 导出当前状态到Player日志 | F2 |
 
-实际后端以面板诊断为准，选择 DXR 偏好不保证硬件路径被采用。关灯仍保留发光面；停止形变后，异步 GI 快照可能继续追上可见网格。骨骼模式复用现有快照流程，K可切回原网格模式；两种形变均不修改物理碰撞体。用户已根据本机基线选择先以 **960×540／30 FPS** 为开发目标；这是目标，当前尚未完成稳定帧率验收。
+实际后端以面板诊断为准，DXR偏好不保证采用硬件路径。关灯仍保留发光面。停止形变后异步GI快照可能继续追上可见网格；K切换的两种形变模式均不修改物理碰撞体。
 
-点击面板的 **Memory: off** 开启本进程 local/nonlocal 显存用量、OS预算及采样峰值；**Log ledger** 或 **F2** 将已有当前状态导出到Player日志。F2不会自动开启计时或显存采样。缺失或旧原生DLL会显示不可用，不影响GI。数据不是GI独占、整机用量或绝对瞬时峰值，也不改变更新配额。
+- **Group request/available**：样例请求与完整Renderer可提交组，`details/aggregate`表示细节已请求、聚合体仍可用；`unknown`表示无法确认完整组，不等于已证实画面缺失。见[表示状态范围](Documentation/HlodStreaming.md)。
+- **Memory: off**：开启本进程local/nonlocal显存、OS预算及采样峰值。缺失或旧原生DLL显示不可用，不影响GI；数据不是GI独占、整机用量或绝对瞬时峰值。
+- **GPU time / update budget**：先用 **Measure only** 查看GI区间；输入有限正数并点击 **Apply feedback** 才启用反馈，**Off** 关闭。最低配额仍可能超目标，缺测不当作零成本。见[计时与预算用法](Documentation/GpuBudget.md#普通运行入口与公开配置)。
+- **Log ledger／F2**：导出已有当前状态，不自动开启计时或显存采样。输入框获得焦点时暂停导航快捷键。
 
-面板 **Group request/available** 显示样例请求与当前完整可提交组；例如 `details/aggregate` 表示细节已请求、聚合体仍可用。`unknown` 表示无法确认完整组，不等于已证实画面缺失。F2同时保留请求帧与原发布帧，详见[状态范围](Documentation/HlodStreaming.md)。
+## 当前画质与性能
 
-展开 **GPU time / update budget**，先选 **Measure only** 查看已有GI区间；输入有限正数并点击 **Apply feedback** 才启用反馈，**Off** 关闭。输入框获得焦点时暂停导航快捷键。实际状态和配额显示在同一面板，**Log ledger** 导出请求与结果；缺测不当作零成本，最低配额仍可能超目标。详见[用法与范围](Documentation/GpuBudget.md#普通运行入口与公开配置)。
+当前取舍是减少运动颗粒、允许适度变柔，同时避免明显加重拖影。Release93保留Release92的filter4／2ray／DXR配置，并消除了精确后端完整接管后的空回退遍历。以下结果各自保留场景、版本和测量范围，不能合并为整体验收。
 
-从自己的场景生成示例：保存场景，选择至少两个已绑定 SDF 和 surface charts 的静态 Proxy，执行 **Tools > Hybrid Lumen GI > Create Unified Sample From Selected Static Proxies**。菜单要求一个启用相机，并从该相机实际选择的 Universal Renderer Data 中解析唯一启用的 GI Feature；无关已加载资产不参与选择。显式 `CreateVariant` 仍可使用。生成器保留作者场景，创建独立变体与资源页；静态网格、材质及 HLOD 限制见[统一示例说明](Documentation/ReviewBrief-UnifiedSample02.md)。菜单修复已有 Editor 编译依据，尚未重新生成场景。
-
-## 当前画质结论
-
-最新[局部换色对照](LocalComparison/Review/local-recolor-response-01/result.md)：红墙改蓝后，材质未变的Floor／White在30帧已明显更新反弹色，59与119帧的平均色向接近，原有已知点未丢失。首帧颗粒及后续亮度变化仍在；没有蓝墙独立参考，不把晚帧当作正确颜色或“旧色完全清除”的依据。
-
-此前[重新开灯对照](LocalComparison/Review/light-restore-response-01/result.md)：Release83在恢复后30帧，Floor／White平均间接入射D达到开灯前观测的74.65%／65.68%；59帧为98.36%／96.78%，未知不增。当前照明能恢复，首帧颗粒与响应延迟仍在；这些有限时点不等于精确收敛时间或整体动态验收。
-
-[Release83刚体历史对照](LocalComparison/Review/rigid-pose-history-01/result.md) · [Release82修复与独立对照](LocalComparison/Review/stationary-history-01/result.md) · [修复前frame119对照](LocalComparison/Review/current-color-frame119-01/result.md) · [既有动态对照图与曲线](LocalComparison/Review/dynamic-picture-comparison-01/index.html) · [阅读四项结论及适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md) · [Release76关灯基线](LocalComparison/Review/current-lightoff-prefix-01/result.md) · [Release78缓存改进对照](LocalComparison/Review/cache-source-separation-01/result.md)
-
-| 问题 | 当前结论 |
+| 问题 | 已有结论与局限 |
 | --- | --- |
-| 颜色误差 | [当前93／filter4／DXR静止119](LocalComparison/Review/release93-color-frame119-01/result.md)：Floor／White平均D偏差−3.075%／−0.831%，Y-MAE 0.010529／0.018576，均值色向L1 0.007976／0.033415。较旧软件filter3两个MAE约增10.1%／6.6%；限两个ROI与既有近似参考，不是整景或960×540颜色验收，也不将跨后端差异单独归因滤波。 |
-| 换色／关灯残留 | filter4未新增事件观察。此前已修复全局换光后混入旧屏幕历史及缓存首次更新强制混入半份旧值的问题。新增灯表清空时移除旧解析灯缓存贡献；固定场景早期输出变化明显减少，局部换色及任意多跳响应仍未关闭。新的静止例外对无标记变暗消退更慢，有限32步后仍保留初始约6.88%。 |
-| 运动拖影 | [Release92／filter4四时点](LocalComparison/Review/four-pass-local-quality-01/comparison.png)比原2ray／DXR／filter3明显减少云斑，边界保持清楚，未见新增持续旧门轮廓；局部明暗过渡更柔。不证明全段或任意运动无拖影。 |
-| 收敛时间 | 当前仍只有停止后10／30帧的普通画面；软化不等于收敛更快，尚不能给出整景达到正确颜色的统一帧数。旧响应数值保留原配置来源。 |
+| 颜色误差 | [93／filter4／DXR静止119](LocalComparison/Review/release93-color-frame119-01/result.md)：Floor／White平均D亮度偏差−3.075%／−0.831%，Y-MAE为0.010529／0.018576，均值色向L1为0.007976／0.033415。相较旧软件filter3，两个MAE约增10.1%／6.6%，不能称全面更准或单独归因滤波。限640×360参考网格的两个ROI及近似参考，不是整景或960×540颜色验收。 |
+| 换色／关灯残留 | [83局部换色](LocalComparison/Review/local-recolor-response-01/result.md)中，红墙改蓝后接收面在30帧已明显转蓝；没有独立蓝墙参考，不能量化绝对旧色残留。[78来源分离](LocalComparison/Review/cache-source-separation-01/result.md)在上传解析灯表为空时移除其旧缓存贡献，保留自发光／环境；该条件不等于任意局部灯关闭。当前filter4没有新的事件观察，任意多跳残留仍开放。 |
+| 运动拖影 | [92／filter4四时点对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png)中门面、地板与绿墙云斑减少，未见新增持续旧门轮廓；局部明暗过渡更柔。不证明全过程或任意运动无拖影。 |
+| 收敛时间 | 仍不能给出整景达到正确颜色的统一帧数。[83重新开灯](LocalComparison/Review/light-restore-response-01/result.md)后30帧，Floor／White平均D恢复到开灯前观测的74.65%／65.68%，59帧为98.36%／96.78%；这不是精确收敛时间。无标记变暗的[静止历史有限检查](LocalComparison/Review/stationary-history-01/result.md)在32步后仍留约6.88%，也不是Unity全场景时间。 |
 
-Release83刚体修复的专项只新增正常产品0–239前缀的239帧历史与画面对照，该项验证已结束。后续0–359重新开灯观察见上方链接，复用原独立参考，没有生成新参考或给出精确收敛时刻。首批候选图与动态曲线保持旧来源。Release82修复复用保存场景的一次0–299前缀，D119/239/270/299完整；D240触及已有Capture容量而缺失，原分析失败保留，普通240出射图不能替代D。没有补采，不外推局部换色、任意运动或精确收敛。此前Release76/78的关灯观察运行原序列的 0–299 前缀，保存 239／240／270／299 四帧；其量为乘过反射率、AO 和强度的**间接漫反射出射贡献**，不是参考中的 D=E/π。原序列与 Editor 的 `failed`、native exit 1 因提前结束而保留，不记为 720 帧通过，也不与旧 D 图直接计算物理误差。
+[完整独立画面对照与不确定性](LocalComparison/Review/dynamic-picture-comparison-01/report.md)保留颜色、残留、拖影和收敛的来源及适用范围。晚帧不作为颜色真值，旧版本结果不改标为当前重新通过。
 
-随后尝试的 32 次相机准备响应窗口未达到采用条件，已撤回 Runtime 修改，未成为当前功能，见[未采用候选结果](LocalComparison/Review/global-light-response-window-01/result.md)。Release78采用独立的来源分离实现：关灯首帧→第59帧的平均逐像素绝对Y变化降低92.2%，第30→59帧降低80.0%，同曝光接收面反弹保留。它们是快照变化而非物理误差或收敛速度；缓存存储增加20%，实际带宽/时间增量未测。触发条件是上传灯表为空，不等同于Unity场景中所有灯关闭。
+起始目标为 **960×540／30FPS、GI三区间合计p95≤25ms、进程local有限采样峰值≤1GiB**，nonlocal另列。环境为Unity6000.0.85f1／URP17.0.4、Windows x64／Mono／DX12／Linear、RTX2080Ti。
 
-## 安装与工程集成
+| 当前Release93的独立窗口 | 测量结果 | 适用范围 |
+| --- | --- | --- |
+| [静止GI与显存](LocalComparison/Review/exact-no-fallback-traversal-01/result.md) | GI合计p95为19.298ms；local峰567.254MiB，nonlocal峰289.691MiB | 满足25ms／1GiB起始门槛；有限采样，不是整应用GPU、瞬时显存峰值或运动最坏情况。 |
+| [普通M门运动](LocalComparison/Review/release93-motion-present-01/result.md) | 应用Present平均52.69Hz；间隔p95／p99为21.97／23.57ms，最大25.99ms | 一次固定30秒窗口、960×540启动参数，全部观测间隔低于33.33ms；支持30FPS方向，不是实际显示FPS或完整平台验收。 |
 
-1. 将源码放入 Unity 6 URP 工程的 `Assets/HybridLumenGI`，不要同时导入两份。当前要求 **DX12、Linear 色彩空间、Render Graph**。
-2. 在相机实际使用的 Universal Renderer Data 中添加一次 `HybridLumenGIRendererFeature`。Shader 资源自动加载；Feature 请求深度、法线和运动矢量，不要求 Opaque Texture。
-3. 使用 **Tools > Hybrid Lumen GI > Setup & Proxies** 注册相关 Renderer。使用真实网格 SDF/chart 路径时，源网格需保留 Read/Write，并烘焙、绑定匹配资产；修改几何后旧资产可能需要重烘焙。没有 charts 的对象保留六视图近似。详细步骤见[安装与实现](Documentation/Implementation.md)。
-4. 保存普通运行场景后，可使用[公开批处理构建入口](Documentation/BatchPlayerBuild.md)构建 Player；它使用现有工程配置，不注入本机观察器。
+## 支持边界与原计划进度
 
-默认 Additive 合成会保留原生漫反射 GI。用于受控对照时，应关闭额外环境光、探针、lightmap 或其他 GI，避免重复计入照明。可选 Replace Native Diffuse GI 有更严格的 Forward/Forward+、有符号 HDR、MSAA 关闭及普通 URP Lit 条件，详见[原生漫反射合成合同](Documentation/NativeDiffuseComposition.md)。
+Feature仅进入Base Game相机及显式允许的Scene View；非DX12、非Linear、Overlay、立体/XR和纹理数组目标会被跳过。普通opaque/cutout URP Lit是主要材质路径；Shader Graph、自定义顶点变形、透明、镜面GI和完整软阴影语义不在同一支持承诺内。
 
-运行时原地修改可读网格后需调用 `MarkDirty()` 或 `HybridLumenGIMeshSource.NotifyGeometryChanged(mesh)`；形变使用匹配网格/SDF/charts 的快照流程。外部 GPU 纹理写入也需要明确的更新通知和生产者顺序，不能仅靠对象引用推断内容已更新。
+精确软件与DXR共用命中材质、alpha/Cull和chart绑定；未知覆盖或材质不能贡献可信辐射。准入失败时保留明确的SDF/解析近似或未知结果。HLOD就绪表示完整组可发布，不表示照明已收敛；资源账目不等于驱动总VRAM。
 
-## 支持边界与未关闭缺口
+[原始计划](Documentation/OriginalDevelopmentPlan.md)的四项目标、十条工作流及[生产计划G0–G5](Documentation/ProductionPlan.md)继续约束开发。主要开放项为整景颜色与多跳残留、完整运动和精确收敛，复杂薄壁／凹腔及近远场支持范围，冷／热／高速流送、目标规模与长时负载，以及承诺平台的完整性能／内存和发布验收。实际CI按用户要求暂缓。有限窗口不替代这些条件。
 
-本机已有依据的环境为 Unity 6000.0.85f1 / URP 17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti。Feature 仅进入 Base Game 相机及显式允许的 Scene View；非 DX12、非 Linear、Overlay、立体/XR 和纹理数组目标会被跳过。普通 opaque/cutout URP Lit 是主要材质路径；Shader Graph、自定义顶点变形、透明、镜面 GI 和完整软阴影语义不在同一支持承诺内。
-
-精确软件与 DXR 共用命中材质、alpha/Cull 和 chart 绑定；未知覆盖或材质不能贡献可信辐射。容量、来源或后端准入失败会保留明确的 SDF/解析近似或未知结果。HLOD 就绪表示完整组可发布，不表示照明已经收敛；资源账目也不等于驱动总 VRAM。
-
-[原始计划](Documentation/OriginalDevelopmentPlan.md)的四项目标、十条工作流及[生产计划 G0–G5](Documentation/ProductionPlan.md)仍约束后续开发，主要开放项是：
-
-- 整体颜色准确度、局部换色和多跳残留，以及运动后的画质与收敛时间。
-- 复杂薄壁／凹腔覆盖、目标规模、流送压力和各后端未覆盖的实际使用条件。
-- 已确认960×540／30FPS及25ms／1GiB起始口径下的完整负载／平台验收和发布保障；实际CI按用户要求暂缓。
-
-有限场景、短窗口和历史专项不替代上述放行条件。旧成果按各自源码与配置保留，详见[完整进度与历史证据](Documentation/DevelopmentProgress.md)。
+**已关闭的具体缺口与各阶段历史统一见[完整推进表](Documentation/DevelopmentProgress.md)。** 本页仅维护当前使用入口和结论；历史构建、失败、候选撤回及原始证据保持原来源。
 
 ## 开发文档
 
 - [安装与实现](Documentation/Implementation.md)；[批处理构建](Documentation/BatchPlayerBuild.md)。
 - [几何来源、法线与历史](Documentation/GeometryHistoryContracts.md)；[形变快照](Documentation/DeformedGeometry.md)。
-- [表面缓存](Documentation/SurfaceCache.md)；[SDF 驻留](Documentation/SdfAtlasResidency.md)；[全局 SDF](Documentation/GlobalSdf.md)。
-- [直接光与阴影](Documentation/DirectLighting.md)；[环境辐射输入](Documentation/EnvironmentRadiance.md)；[发光采样与面积 NEE](Documentation/EmissiveSampling.md)。
-- [原生漫反射合成](Documentation/NativeDiffuseComposition.md)；[BVH 与缓存调度](Documentation/SceneBvh.md)。
-- [独立资产页](Documentation/IndependentAssetPages.md)；[HLOD 与异步场景](Documentation/HlodStreaming.md)。
-- [GPU 预算及计账边界](Documentation/GpuBudget.md)；[可选原生 DX12 计时](Documentation/NativeGpuTiming.md)。
-- [固定序列与 HDR 捕获](Documentation/ValidationSequence.md)；[同场景来源包](Documentation/ReviewBrief-ValidationSourcePackageV2.md)；[验收说明](Documentation/Validation.md)。
+- [表面缓存](Documentation/SurfaceCache.md)；[SDF驻留](Documentation/SdfAtlasResidency.md)；[全局SDF](Documentation/GlobalSdf.md)。
+- [直接光与阴影](Documentation/DirectLighting.md)；[环境辐射输入](Documentation/EnvironmentRadiance.md)；[发光采样与面积NEE](Documentation/EmissiveSampling.md)。
+- [原生漫反射合成](Documentation/NativeDiffuseComposition.md)；[BVH与缓存调度](Documentation/SceneBvh.md)。
+- [独立资产页](Documentation/IndependentAssetPages.md)；[HLOD与异步场景](Documentation/HlodStreaming.md)。
+- [GPU预算及计账边界](Documentation/GpuBudget.md)；[可选原生DX12计时](Documentation/NativeGpuTiming.md)。
+- [固定序列与HDR捕获](Documentation/ValidationSequence.md)；[同场景来源包](Documentation/ReviewBrief-ValidationSourcePackageV2.md)；[验收说明](Documentation/Validation.md)。
 - [历史离线验证](Documentation/OfflineValidation.md)；[研究来源](Documentation/Research.md)；[社区来源与许可](Documentation/CommunitySourceAudit.md)。

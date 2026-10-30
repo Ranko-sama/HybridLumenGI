@@ -8,4 +8,4 @@
 
 首次尝试在 Player API 编译时发现来源导出直接访问 Editor 专有的 `Light.lightmapBakeType`。现改为项目已有的 `HybridLumenGILights.GetBakeType`，保留 Editor 语义并支持 Player。失败保留在 unified-sample-01，修复后 native 02 完成整合。
 
-证据：[独立核验](../LocalComparison/Review/unified-sample-02/run-verification-first.json)、[运行来源](../LocalComparison/Review/unified-sample-02/source-freeze.json)、[使用与限制](../LocalComparison/Implementation/UnifiedSample/SAMPLE.md)。普通用户入口暂仍是 [Release73](ReviewBrief-CurrentLocalRelease73.md)，下一步将这套统一示例与交互操作整合为可运行版本。
+证据：[独立核验](../LocalComparison/Review/unified-sample-02/run-verification-first.json)、[运行来源](../LocalComparison/Review/unified-sample-02/source-freeze.json)、[使用与限制](../LocalComparison/Implementation/UnifiedSample/SAMPLE.md)。该专项属于早期统一示例接线；当前普通入口、操作和版本结论统一见[首页](../README.md)，不再使用本段的历史版本作为启动指引。

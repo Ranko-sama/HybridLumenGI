@@ -1,6 +1,6 @@
 # 同场景普通运行样例
 
-当前普通入口：[Release75](<I:/Unity test/Comparison/Builds/LocalRelease75/Start-LocalRelease.cmd>)。公开批处理构建入口已实际使用；本轮复用已保存的统一场景和资源页，没有重新执行下述生成步骤。普通窗口、L关灯和Esc退出完成，颜色误差与收敛结论仍见独立对照的适用范围。
+当前普通入口、快捷键和画质／性能结论统一见[首页](../../../README.md)。本文保留生成/API约束及早期接线来源；下述Release74／75叙述属于历史阶段，不代表当前版本需要重新整合。
 
 公开生成路径现已接入 `HybridLumenGIUnifiedSampleInteraction`：菜单/API 生成的场景自带导航，标准 Validation 场景复用其门与灯引用，并绑定未流出的 Red wall。一般作者场景没有这些事件输入时只显示可用操作，不阻断导航；若 Red wall 被选为流式源，其清空后的壳对象不会接换色按钮。本机构建入口复用生成组件，不再另挂第二份。此次接线已通过受影响 C# 编译，未重跑 Unity 菜单生成/图像验收；已发布 Release74 保持其原构建来源。
 
@@ -13,11 +13,11 @@
 - `Runtime/HybridLumenGIUnifiedSample.cs`：单相机普通控制、可见表示、资源账目。
 - `Editor/HybridLumenGIUnifiedSampleBuilder.cs`：保存独立场景副本，生成 exact aggregate 和真实 AssetBundle 页。
 
-整合先应用 `backend-preference.patch`、`publication-api.patch`、`asset-page-builder-api.patch`，再放入这两个新源。不要将较早的整个 Feature 草稿覆盖当前产品文件。最终 `sample-compile-02/report.json` 是完整 Runtime/Editor 源加两个新样例文件的隔离分程序集编译收据，三个 API 在主代理当前源中已整合，编译器只检查 reverse applicability 而不重复应用。保留的 `sample-compile-01/report.json` 为生命周期审查修正前的首轮编译。未部署、运行 Unity、构建 bundle 或声明原生验收通过。
+以下为历史开发接线记录，当前产品已整合，使用时无需应用补丁或复制草稿。早期接线曾应用 `backend-preference.patch`、`publication-api.patch`、`asset-page-builder-api.patch`，再放入这两个新源。不要将较早的整个 Feature 草稿覆盖当前产品文件。最终 `sample-compile-02/report.json` 是完整 Runtime/Editor 源加两个新样例文件的隔离分程序集编译收据，三个 API 在主代理当前源中已整合，编译器只检查 reverse applicability 而不重复应用。保留的 `sample-compile-01/report.json` 为生命周期审查修正前的首轮编译。未部署、运行 Unity、构建 bundle 或声明原生验收通过。
 
 ## 生成及使用
 
-打开已保存且无未保存修改的原 Validation 场景，保持该场景 active。在同一场景中选择至少两个普通静态代理，例如 White/Metal/Black 三个 receiver，执行 `Tools/Hybrid Lumen GI/Create Unified Sample From Selected Static Proxies`。菜单要求一个 enabled camera 与一个已加载 active GI Feature；自动化可显式调用：
+打开已保存且无未保存修改的原 Validation 场景，保持该场景 active。在同一场景中选择至少两个普通静态代理，例如 White/Metal/Black 三个 receiver，执行 `Tools/Hybrid Lumen GI/Create Unified Sample From Selected Static Proxies`。菜单要求一个 enabled camera，并从该相机实际使用的Universal Renderer Data解析唯一启用的GI Feature；无关已加载资产不参与选择。自动化可显式调用：
 
 ```csharp
 HybridLumenGIUnifiedSampleBuilder.Result result = HybridLumenGIUnifiedSampleBuilder.CreateVariant(
