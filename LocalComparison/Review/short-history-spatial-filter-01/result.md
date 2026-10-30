@@ -13,3 +13,5 @@
 Unity PID17940已终止，240渲染帧、failures0、backendMismatches0，239票据complete、readbacksCompleted、retainedBytes0。原720协议仍为failed，native exit1按主动前缀保留；不是完整序列通过。Unity导入完成受影响shader编译，临时Kernel、Sequence、Quality及场景副本已经恢复。没有新探针、单元矩阵、参考积分、哈希校验或成本窗口。
 
 独立源码审阅指出的新分支中心统计有限性门已在唯一运行前补齐，没有运行后调参。采用本候选后仅做一次公开普通构建整合，不追加Player、DXR动态或采图；这条候选线到此结束。
+
+已交付[Release87](<I:/Unity test/Comparison/Builds/LocalRelease87/Start-LocalRelease.cmd>)，源码e352921，Unity PID16336／native exit0；Release/None，0错误、23条warning、102084860字节。见[调用](build-attempt.json)、[退出](build-exit.json)和[构建结果](<I:/Unity test/Comparison/Builds/LocalRelease87/build-result.json>)。保存统一场景及本机DXR启动偏好沿用，构建后工程Renderer、Quality和初始化入口恢复；候选Kernel作为已采用产品源码留在本机工程。没有追加Player运行。
