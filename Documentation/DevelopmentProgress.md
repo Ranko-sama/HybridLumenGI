@@ -1,5 +1,9 @@
 # 完整原计划推进表
 
+原目标2／工作流6补上[同Feature双Base相机切镜的原生依据](../LocalComparison/Review/multi-camera-history-01/result.md)：B切镜后重置自己的历史，随后A的46705个预先固定成熟点全部保持，零已知丢失或历史缩短。它与旧双相机detail驻留记录不同；没有产品修改，Release83保持。仅这一有限精确软件情形，完整G3仍开放，确认已结束。用户已回答生产预算问题：**先完成本机基线测量，再确定正式目标**；不代填FPS／GI-ms／总显存阈值。
+
+Release83后的颜色候选筛选已收束：既有299帧White的filteredY为0.0082913、raw亮度时间统计为0.0084646、参考为0.0101188；后处理差距不足以支持再次修改重建，也不能直接归咎追踪或缓存。Astra同意结束此方向，不再读更多纹理、调参或补采。Cookie仍属明确未覆盖的支持扩展，暂不作为约定范围的必做项；旧静态300秒、基础软件/DXR及分页/HLOD/Skinned操作不因版本更新而重跑。本次筛选没有新增功能关闭项。
+
 原目标2／工作流6新增关闭“受保护刚体在同帧更新后仍全部丢失历史”的功能缺口：[刚体历史恢复](../LocalComparison/Review/rigid-pose-history-01/result.md)修正Transform在清除／重传过程中被错误合并Added，保留真正新增、延迟及内容变化的拒绝。一次实际门控定位后停止诊断，主线程实现0181ef2；必要的现有Scene检查和唯一正常产品239帧确认后，2739已知门点中2724点恢复长度2历史，黑颗粒明显减少，软斑驳仍在。单帧不证明无拖影、物理误差或收敛。Astra与独立审查同意有限采用，验证结束；[Release83](<I:/Unity test/Comparison/Builds/LocalRelease83/Start-LocalRelease.cmd>)已由公开Release/None构建整合统一入口，无追加Player／性能运行。G1/G3仍开放，原720前缀failed与已有颜色／残留证据边界保留。
 
 原目标1/2、工作流6有限关闭“成熟且严格静止的历史仍被单帧稀疏邻域裁暗”的功能缺口：[重建修复](../LocalComparison/Review/stationary-history-01/result.md)保留同位置可信历史，其余路径保持。frame119固定Floor/White的平均D偏差从−28.9%/−33.4%降至−5.84%/−3.36%，MAE与色向均改善，未知不增；不是调亮强度。代价明确：无标记真变黑32步仍保留6.88%，运动阶段239仍有颗粒/斑驳，整体G1/G3不关闭。唯一300前缀中D240因已有Capture容量缺失，原分析失败保持，普通240仅用于图审，未补采；299偏差+0.144%/−18.06%，精确收敛仍未知。Astra同意有限采用与收束；[Release82](<I:/Unity test/Comparison/Builds/LocalRelease82/Start-LocalRelease.cmd>)已通过公开Release/None构建，产品来源5e714f6，普通入口延续，无追加Player/性能/画质运行。总进度按这项重建缺口的有限关闭报告，不把采集完整性或构建数量当作生产验收。

@@ -1,0 +1,207 @@
+$ErrorActionPreference = 'Stop'
+$project = 'I:/Unity test/Project'
+$archive = 'I:/Unity test/Comparison/ValidationPackageV209/project-archive/Assets/ValidationPackageV201'
+$ownedRoot = [IO.Path]::GetFullPath("$project/Assets/ValidationPackageV201")
+$output = 'I:/Unity test/Comparison/MultiCameraHistory01'
+$sequencePath = "$project/Assets/HybridLumenGI/Runtime/HybridLumenGIValidationSequence.cs"
+$qualityPath = "$project/ProjectSettings/QualitySettings.asset"
+$attempt = Join-Path $PSScriptRoot 'attempt.json'
+if ((Test-Path -LiteralPath $attempt) -or (Test-Path -LiteralPath $output) -or
+    (Test-Path -LiteralPath $ownedRoot) -or (Test-Path -LiteralPath "$ownedRoot.meta")) {
+    throw 'Preserve existing run or project inputs.'
+}
+if (Get-Process Unity,HybridLumenGIPlayer -ErrorAction SilentlyContinue) { throw 'An existing rendering process is active.' }
+$sequenceBytes = [IO.File]::ReadAllBytes($sequencePath)
+$qualityBytes = [IO.File]::ReadAllBytes($qualityPath)
+$backup = Join-Path $env:TEMP ('hlgi-multi-camera-history-' + [guid]::NewGuid().ToString('N'))
+[IO.Directory]::CreateDirectory($backup) | Out-Null
+[IO.File]::WriteAllBytes((Join-Path $backup 'ValidationSequence.cs'), $sequenceBytes)
+[IO.File]::WriteAllBytes((Join-Path $backup 'QualitySettings.asset'), $qualityBytes)
+$nativeExit = $null
+try {
+    Copy-Item -LiteralPath $archive -Destination $ownedRoot -Recurse
+    Copy-Item -LiteralPath "$archive.meta" -Destination "$ownedRoot.meta"
+    $hostPath = Join-Path $ownedRoot 'ValidationPackageV2Host.cs'
+    $hostText = [IO.File]::ReadAllText($hostPath)
+    $hostAnchor = '            string status = sequence.CaptureStatus;'
+    if (-not $hostText.Contains($hostAnchor)) { throw 'Original host stop location missing.' }
+    $hostText = $hostText.Replace($hostAnchor, "            if (sequence.RenderedFrames >= 105 && sequence.enabled) { colorCapture?.Seal(); secondaryCapture?.Seal(); sequence.enabled = false; }`n" + $hostAnchor)
+    $hostText = $hostText.Replace('    private bool began, finished;', '    private bool began, finished;
+    private int colorRequested = -1;
+    private HybridLumenGIValidationCapture.Session colorCapture;')
+    $cameraAnchor = '    private void BeginCamera(ScriptableRenderContext context, Camera camera) { if (ReferenceEquals(camera, targetCamera)) Observe("begin-camera"); }'
+    if (-not $hostText.Contains($cameraAnchor)) { throw 'Original begin-camera hook missing.' }
+    $cameraHook = @'
+    private void BeginCamera(ScriptableRenderContext context, Camera camera)
+    {
+        if (!ReferenceEquals(camera, targetCamera)) return;
+        int frame = sequence.RenderedFrames;
+        if (began && frame != colorRequested && (frame == 95 || frame == 104))
+        { colorCapture.Request(frame, Time.frameCount); colorRequested = frame; }
+        Observe("begin-camera");
+    }
+'@
+    $hostText = $hostText.Replace($cameraAnchor, $cameraHook)
+    $hostText = $hostText.Replace('began = true; sequence.BeginCapture();',
+        'began = true; colorCapture = HybridLumenGIValidationCapture.Begin(targetCamera, observedFeature, Path.Combine(receiptDirectory, "signals")); sequence.BeginCapture();')
+    $hostText = $hostText.Replace('if (!sequence.ReferenceCaptureDrained) return;',
+        'if (!sequence.ReferenceCaptureDrained || (colorCapture != null && !colorCapture.IsDrained)) return;')
+    $hostText = $hostText.Replace('{ RenderPipelineManager.beginCameraRendering -= BeginCamera;',
+        '{ colorCapture?.Close(); RenderPipelineManager.beginCameraRendering -= BeginCamera;')
+
+    $hostText = $hostText.Replace('sequence.BeginCapture();', 'sequence.BeginCapture(); InitializeSecondary();')
+    $hostText = $hostText.Replace('            if (sequence.RenderedFrames >= 105',
+        '            if (began && sequence.enabled) RenderSecondary();' + "`n" + '            if (sequence.RenderedFrames >= 105')
+    $hostText = $hostText.Replace('!colorCapture.IsDrained)) return;',
+        '!colorCapture.IsDrained) || (secondaryCapture != null && !secondaryCapture.IsDrained)) return;')
+    $hostText = $hostText.Replace('colorCapture?.Close(); RenderPipelineManager',
+        'colorCapture?.Close(); secondaryCapture?.Close(); if (secondaryCamera != null) Destroy(secondaryCamera.gameObject); if (secondaryOutput != null) { secondaryOutput.Release(); Destroy(secondaryOutput); } RenderPipelineManager')
+    $hostText = $hostText.Replace('        if (targetCamera != null) targetCamera.enabled = false;',
+        '        if (targetCamera != null) targetCamera.enabled = false; if (secondaryCamera != null) secondaryCamera.enabled = false;')
+    $hostText = $hostText.Replace('public int renderedFrames;', 'public int renderedFrames, secondaryRenderedFrames;')
+    $hostText = $hostText.Replace('renderedFrames = sequence.RenderedFrames,',
+        'renderedFrames = sequence.RenderedFrames, secondaryRenderedFrames = lastSecondaryFrame + 1,')
+    $secondaryMethods = @'
+    private Camera secondaryCamera;
+    private RenderTexture secondaryOutput;
+    private HybridLumenGIValidationCapture.Session secondaryCapture;
+    private int lastSecondaryFrame = -1, lastSecondaryEngine = -1, lastSecondaryGi = -1;
+    [Serializable] private sealed class PairInfo
+    {
+        public int primaryCamera, secondaryCamera, primaryTarget, secondaryTarget, feature;
+        public string primaryType, secondaryType;
+        public bool sameRenderer;
+    }
+    [Serializable] private sealed class SecondaryFrame
+    {
+        public int logicalFrame, engineFrame, giFrame;
+        public Vector3 position;
+        public Quaternion rotation;
+        public bool hardwareBackend;
+    }
+    private void InitializeSecondary()
+    {
+        if (targetCamera.targetTexture == null) throw new InvalidOperationException("Primary target missing.");
+        secondaryCamera = Instantiate(targetCamera.gameObject).GetComponent<Camera>();
+        secondaryCamera.name = "Validation Camera B";
+        secondaryCamera.tag = "Untagged";
+        secondaryCamera.enabled = false;
+        secondaryOutput = new RenderTexture(targetCamera.targetTexture.descriptor) { name = "HLGI camera B HDR" };
+        if (!secondaryOutput.Create()) throw new InvalidOperationException("Camera B target creation failed.");
+        secondaryCamera.targetTexture = secondaryOutput;
+        var a = targetCamera.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+        var b = secondaryCamera.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+        if (a == null || b == null || a.renderType != UnityEngine.Rendering.Universal.CameraRenderType.Base ||
+            b.renderType != UnityEngine.Rendering.Universal.CameraRenderType.Base || !ReferenceEquals(a.scriptableRenderer, b.scriptableRenderer))
+            throw new InvalidOperationException("Two Base cameras must use the same existing renderer.");
+        var pair = new PairInfo { primaryCamera = targetCamera.GetInstanceID(), secondaryCamera = secondaryCamera.GetInstanceID(),
+            primaryTarget = targetCamera.targetTexture.GetInstanceID(), secondaryTarget = secondaryOutput.GetInstanceID(),
+            feature = observedFeature.GetInstanceID(), primaryType = a.renderType.ToString(), secondaryType = b.renderType.ToString(), sameRenderer = true };
+        File.WriteAllText(Path.Combine(receiptDirectory, "camera-pair.json"), JsonUtility.ToJson(pair, true));
+        secondaryCapture = HybridLumenGIValidationCapture.Begin(secondaryCamera, observedFeature, Path.Combine(receiptDirectory, "signals-B"));
+    }
+    private void RenderSecondary()
+    {
+        int frame = sequence.RenderedFrames - 1;
+        if (frame < 0 || frame == lastSecondaryFrame) return;
+        if (secondaryCamera == null || frame != lastSecondaryFrame + 1 ||
+            (lastSecondaryEngine >= 0 && Time.frameCount != lastSecondaryEngine + 1))
+            throw new InvalidOperationException("Camera B skipped or repeated a frame; stop this run.");
+        secondaryCamera.transform.SetPositionAndRotation(targetCamera.transform.position +
+            (frame >= 103 ? targetCamera.transform.forward * 4f : Vector3.zero), targetCamera.transform.rotation);
+        if (frame == 95 || frame == 103) secondaryCapture.Request(frame, Time.frameCount);
+        var request = new RenderPipeline.StandardRequest { destination = secondaryOutput };
+        if (!RenderPipeline.SupportsRenderRequest(secondaryCamera, request))
+            throw new InvalidOperationException("Camera B StandardRequest unsupported.");
+        RenderPipeline.SubmitRenderRequest(secondaryCamera, request);
+        HybridLumenGIRendererFeature.CameraDiagnostics match = null;
+        foreach (var d in observedFeature.GetDiagnostics())
+            if (d.camera == secondaryCamera.name) { if (match != null) throw new InvalidOperationException("Ambiguous camera B diagnostics."); match = d; }
+        if (match == null || match.frame <= lastSecondaryGi || (lastSecondaryGi >= 0 && match.frame != lastSecondaryGi + 1))
+            throw new InvalidOperationException("Camera B GI did not advance exactly once.");
+        lastSecondaryFrame = frame; lastSecondaryEngine = Time.frameCount; lastSecondaryGi = match.frame;
+        var receipt = new SecondaryFrame { logicalFrame = frame, engineFrame = Time.frameCount, giFrame = match.frame,
+            position = secondaryCamera.transform.position, rotation = secondaryCamera.transform.rotation, hardwareBackend = match.hardwareBackend };
+        File.AppendAllText(Path.Combine(receiptDirectory, "secondary-frames.jsonl"), JsonUtility.ToJson(receipt) + "\n");
+        Observe("after-secondary");
+    }
+'@
+    $insert = $hostText.IndexOf('    private float started;')
+    if ($insert -lt 0) { throw 'Existing host field insertion anchor missing.' }
+    $hostText = $hostText.Insert($insert, $secondaryMethods + "`n")
+
+    [IO.File]::WriteAllText($hostPath, $hostText, [Text.UTF8Encoding]::new($false))
+
+    $editorPath = Join-Path $ownedRoot 'Editor/ValidationPackageV2Editor.cs'
+    $editorText = [IO.File]::ReadAllText($editorPath)
+    $editorText = $editorText.Replace('!Directory.Exists(Generated) && SystemInfo.graphicsDeviceType', 'Directory.Exists(Generated) && SystemInfo.graphicsDeviceType')
+    $start = $editorText.IndexOf('            AssetDatabase.CreateFolder(Root, "Generated");')
+    $end = $editorText.IndexOf('            SessionState.SetString(Key + "scene", scenePath);', $start)
+    if ($start -lt 0 -or $end -le $start) { throw 'Original editor preparation block missing.' }
+    $savedSceneBlock = @'
+            string scenePath = Generated + "/Scenes/Run/Validation.unity";
+            var pipeline = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(Generated + "/Pipeline.asset");
+            Require(pipeline != null, "Saved physical scene pipeline is missing.");
+            QualitySettings.renderPipeline = pipeline;
+            var scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+            var sequence = UnityEngine.Object.FindFirstObjectByType<HybridLumenGIValidationSequence>();
+            Require(sequence != null, "Saved sequence is missing.");
+            var sequenceSettings = new SerializedObject(sequence);
+            var camera = sequenceSettings.FindProperty("targetCamera").objectReferenceValue as Camera;
+            var feature = sequenceSettings.FindProperty("feature").objectReferenceValue as HybridLumenGIRendererFeature;
+            Require(camera != null && feature != null, "Saved camera/feature binding is missing.");
+            var featureSettings = new SerializedObject(feature);
+            featureSettings.FindProperty("settings.debugView").enumValueIndex = (int)HybridLumenGIRendererFeature.DebugView.IndirectOnly;
+            featureSettings.ApplyModifiedPropertiesWithoutUndo();
+            sequenceSettings.FindProperty("runOnStart").boolValue = false;
+            sequenceSettings.FindProperty("exportReferencePackage").boolValue = false;
+            sequenceSettings.FindProperty("referenceSourcePackage").stringValue = "";
+            sequenceSettings.FindProperty("outputRoot").stringValue = Path.Combine(output, "capture");
+            sequenceSettings.FindProperty("runLabel").stringValue = "multi-camera-history-incomplete-prefix";
+            sequenceSettings.ApplyModifiedPropertiesWithoutUndo();
+            var hosts = UnityEngine.Object.FindObjectsByType<ValidationPackageV2Host>(FindObjectsSortMode.None);
+            Require(hosts.Length == 1, "Exactly one saved host is required.");
+            hosts[0].sequence = sequence; hosts[0].targetCamera = camera; hosts[0].receiptDirectory = output;
+            EditorUtility.SetDirty(hosts[0]);
+            EditorSceneManager.MarkSceneDirty(scene);
+            Require(EditorSceneManager.SaveScene(scene), "Cannot save the temporary scene settings.");
+            AssetDatabase.SaveAssets();
+
+'@
+    $editorText = $editorText.Substring(0, $start) + $savedSceneBlock + $editorText.Substring($end)
+    [IO.File]::WriteAllText($editorPath, $editorText, [Text.UTF8Encoding]::new($false))
+
+    # Product transport is unchanged. The original 720-frame
+    # completion/failed protocol and all transport code remain unchanged.
+    $sequenceText = [Text.Encoding]::UTF8.GetString($sequenceBytes)
+    $captureAnchor = '                if (!IsCaptureFrame(logicalFrame, captureEvery)) return;'
+    if (-not $sequenceText.Contains($captureAnchor)) { throw 'Original ordinary capture selection missing.' }
+    $sequenceText = $sequenceText.Replace($captureAnchor,
+        '                if (logicalFrame != 95 && logicalFrame != 104) return;')
+    [IO.File]::WriteAllText($sequencePath, $sequenceText, [Text.UTF8Encoding]::new($false))
+    [ordered]@{ startedUtc=[DateTime]::UtcNow.ToString('o'); source='Release83 / product0181ef2; no product transport edit; existing Capture API with one session per Base camera';
+        frames=@('A95','B95','B103','A104'); output=$output; quantity='Existing API filteredD and validity; ordinary IndirectOnly output separately retained';
+        expectedCompletion='Original sequence and Editor result remain failed/incomplete after an intentional 105-frame prefix.';
+        scope='One Unity process and existing Capture API; saved scene0-104; no source package, new integration, hash verification, steady-state or performance claim.'
+    } | ConvertTo-Json | Set-Content -LiteralPath $attempt -Encoding utf8
+    & 'I:/Unity test/Start-Unity.ps1' -Batch -KeepRunning -LogName 'MultiCameraHistory01' `
+        -ExecuteMethod 'ValidationPackageV2Editor.Run' -ExtraArguments @('-validationPackageOutput', $output)
+    $nativeExit = $LASTEXITCODE
+    [ordered]@{ exitCode=$nativeExit; endedUtc=[DateTime]::UtcNow.ToString('o');
+        expectedExit=1; expectedReason='A deliberate 105-frame prefix does not satisfy the unchanged 720-frame/candidate-package completion gate. Inspect receipts to distinguish an earlier failure.'
+    } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $PSScriptRoot 'native-exit.json') -Encoding utf8
+}
+finally {
+    if (Get-Process Unity -ErrorAction SilentlyContinue) { throw "Unity still owns the staged scene; preserve it and the backup at $backup until the process ends." }
+    [IO.File]::WriteAllBytes($sequencePath, $sequenceBytes)
+    [IO.File]::WriteAllBytes($qualityPath, $qualityBytes)
+    if (Test-Path -LiteralPath $ownedRoot) {
+        $resolvedOwnedRoot = (Resolve-Path -LiteralPath $ownedRoot).Path
+        $expectedOwnedRoot = [IO.Path]::GetFullPath('I:/Unity test/Project/Assets/ValidationPackageV201')
+        if (-not $resolvedOwnedRoot.Equals($expectedOwnedRoot, [StringComparison]::OrdinalIgnoreCase)) { throw 'Unsafe cleanup target.' }
+        Remove-Item -LiteralPath $resolvedOwnedRoot -Recurse -Force
+    }
+    if (Test-Path -LiteralPath "$ownedRoot.meta") { Remove-Item -LiteralPath "$ownedRoot.meta" }
+    Write-Output "Restored original capture source and quality settings; removed only the new scene copy. Backup: $backup"
+}
+if ($null -ne $nativeExit) { exit $nativeExit }
