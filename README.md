@@ -2,7 +2,9 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release88](<I:/Unity test/Comparison/Builds/LocalRelease88/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release89](<I:/Unity test/Comparison/Builds/LocalRelease89/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+
+Release89新增[可选形变捕获时间准入](LocalComparison/Review/deformed-capture-time-budget-01/result.md)：本帧同步捕获经过时间达到额度后，延后开始下一对象并保留轮次，完成任务的发布／清理照常执行。默认关闭，单次BakeMesh不可抢占。必要组件规则检查与公开Release构建通过；当前2射线/DXR及画质配置保持，没有新增实机性能或画质结论。
 
 Release88采用[本机2射线质量配置](LocalComparison/Review/two-ray-local-quality-01/result.md)：仅将屏幕每像素射线从1增为现成的2，Runtime算法不变。[四时点软件对照](LocalComparison/Review/two-ray-local-quality-01/comparison.png)中颗粒与暗斑减少，未见明显新增持续轮廓，软斑仍在；全图平均出射亮度上升约7.9–23.1%，不能称颜色更准。默认DXR的普通门运动Present约39.95Hz，p95／p99间隔27.81／28.72ms，最大30.72ms，支持本机960×540启动配置下的30FPS方向，性能余量变小。软件画质与DXR成本为独立来源，不是显示FPS或整体G5验收；旧1射线误差和响应数据不得重标为88。
 

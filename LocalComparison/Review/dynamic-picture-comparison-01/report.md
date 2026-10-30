@@ -1,8 +1,8 @@
 # 动态画面对照与当前开发结论
 
-## 当前交付结论（Release88，2026-10-30）
+## 当前交付结论（Release89，画质依据保持Release88来源，2026-10-30）
 
-[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease88/Start-LocalRelease.cmd>)现为Release88，采用[本机2射线质量配置](../two-ray-local-quality-01/result.md)，Runtime算法不变。[四时点软件图](../two-ray-local-quality-01/comparison.png)中门面、地面颗粒和暗斑减少，未见明显新增持续旧轮廓或边缘缺口，软斑仍在；全图平均出射Y较1射线上升7.9–23.1%，这些运动时点没有独立误差估计。[静止119的独立D对照](../release88-color-frame119-01/result.md)显示有限ROI亮度指标改善、Floor色向变差，详见下表。默认DXR普通M门运动Present约39.95Hz，p95／p99间隔27.81／28.72ms、最大30.72ms；支持本机960×540启动配置下的30FPS方向，性能余量变小，不是显示FPS或GI增量成本。
+[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease89/Start-LocalRelease.cmd>)现为Release89，新增默认关闭的[形变捕获时间准入](../deformed-capture-time-budget-01/result.md)，GI算法与2射线/DXR配置保持；本次没有新的画质或性能运行。以下继续保留Release88实际来源：[四时点软件图](../two-ray-local-quality-01/comparison.png)中门面、地面颗粒和暗斑减少，未见明显新增持续旧轮廓或边缘缺口，软斑仍在；全图平均出射Y较1射线上升7.9–23.1%，这些运动时点没有独立误差估计。[静止119的独立D对照](../release88-color-frame119-01/result.md)显示有限ROI亮度指标改善、Floor色向变差，详见下表。默认DXR普通M门运动Present约39.95Hz，p95／p99间隔27.81／28.72ms、最大30.72ms；支持本机960×540启动配置下的30FPS方向，性能余量变小，不是显示FPS、GI增量成本或89新测值。
 
 Release88沿用Release87的[短历史空间滤波](../short-history-spatial-filter-01/result.md)、F2和空场资源修复；启动优先DXR、按4回软件。后续[当前2射线DXR四时点对照](../release88-dxr-motion-01/result.md)未见相对软件新增明显回退，保留默认配置；画面与普通DXR成本仍是独立运行。**不同版本、时点和测量量不能合并成整景验收**；旧1射线颜色误差、残留与收敛数据保持原来源，不能当作88的新结论。
 
