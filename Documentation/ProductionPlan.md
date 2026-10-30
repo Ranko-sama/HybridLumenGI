@@ -4,6 +4,8 @@
 
 当前入口为[Release94](../LocalComparison/Review/skinned-stopped-history-01/result.md)，补齐普通骨骼停稳后的屏幕历史累计，骨变化仍拒绝旧历史。真实统一场景有限GPU观察与普通构建完成；不证明通用跨形变重投影或固定收敛时间，短序列退出清理未通过。保留93的filter4／2ray／DXR与空回退遍历消除，未刷新以下既有颜色／成本／Present结果，完整G0–G5仍未通过。
 
+现成普通Release94另已提供[Windows x64可下载演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release94-demo)，完整解压后无需Unity编辑器即可运行；这是私有仓库的实验性prerelease，关闭本机路径之外无法直接体验的交付缺口，不构成新增生产验收。具体包装与来源见[交付记录](../LocalComparison/Review/release94-download-01/result.md)。
+
 [普通骨骼运动短历史候选](../LocalComparison/Review/skinned-motion-history-01/result.md)已按预定条件停止且未采用：功能路径可达，但实际A/B轨迹不同，未确认可见减颗粒收益。候选成果保留，产品恢复94，不新增G3通过项、不扩测，也未构建95。
 
 [Release93遍历优化](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)消除精确后端完整接管全部published owner后仍执行的空回退BVH遍历；混合／非exact路径及原命中资格保持。同配置有限静止GI合计中位23.921→18.393ms、p95 24.562→19.298ms，通过预定收益及预算门。运动画质依据保留92四图来源，不外推所有场景收益。

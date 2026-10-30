@@ -4,7 +4,9 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**本开发机已构建的入口：[启动统一交互 Release94](<I:/Unity test/Comparison/Builds/LocalRelease94/Start-LocalRelease.cmd>)。** 这是开发机本地路径，GitHub 下载源码后需按下面步骤接入自己的 Unity 工程。当前本机配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。
+**直接运行：[下载 Release94 Windows x64 实验性演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release94-demo)。** 选择页面中的 `HybridLumenGI-Release94-Windows-x64.zip`，完整解压后运行 `Start-LocalRelease.cmd`，无需安装Unity编辑器；私有仓库下载需要已有访问权限。保留整个运行文件夹，升级时解压到新目录，不单独覆盖exe或数据文件。包内提供操作与适用范围说明，当前不属于生产稳定版。
+
+本开发机仍可[启动统一交互 Release94](<I:/Unity test/Comparison/Builds/LocalRelease94/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
 
 ### 接入自己的工程
 
