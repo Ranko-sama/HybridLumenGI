@@ -1,6 +1,6 @@
 # 精确后端完整接管时跳过空的回退遍历
 
-唯一成本窗口通过预先固定的保留规则，待普通Release93整合。当前统一场景的精确后端已接管所有published owner，但每次查询仍遍历scene BVH并逐个跳过这些mesh。现在复用已有FallbackCount：有效快照无回退owner时直接保留精确查询结果，有回退或无精确后端时仍完整执行原循环。
+已采用并交付[Release93](<I:/Unity test/Comparison/Builds/LocalRelease93/Start-LocalRelease.cmd>)，唯一成本窗口通过预先固定的保留规则。当前统一场景的精确后端已接管所有published owner，但每次查询仍遍历scene BVH并逐个跳过这些mesh。现在复用已有FallbackCount：有效快照无回退owner时直接保留精确查询结果，有回退或无精确后端时仍完整执行原循环。
 
 修改仅涉及两种Bind中随meshFlags写入一个私有uniform、exact头文件声明及精确查询后的宏内提前返回。重建／复用路径中，FallbackCount为零对应所有published owner的mesh flag非零；warming和无效slot本来跳过。独立源码审阅确认时点、两种Bind、失败后无exact shader回退以及unknown／miss／valid语义保持。没有改变射线、filter4、材质资格、场景集合、时间累计或预算控制。
 
@@ -31,3 +31,5 @@ Astra批准以直接源码等价审阅加一次既有成本窗口收束，不为
 独立结果复核无阻断：配置、连续来源、退出及预定采用规则一致，现有起末端点均为published20／hardwareMeshes20／fallback0。Astra同意保留并整合93，不追加任何运行；这不是逐像素相同或混合场景加速证明。
 
 画质设置及估计规则保持Release92。**颜色误差**没有新的filter4独立参考；**换色／关灯残留**没有新的事件观察；**运动拖影**沿用92四时点未见新增持续旧轮廓的有限图审；**收敛时间**仍无统一正确颜色时长。本轮没有新图像等价或完整G0–G5结论。
+
+普通公开构建来源818b1e2（Runtime修复aeb6ba2），Unity PID22564／native0，Unity6000.0.85f1／Windows64 Mono／Release／None、0错误／23条warning。见[整合来源](release-build-attempt.json)、[退出记录](release-build-exit.json)与[BuildReport](<I:/Unity test/Comparison/Builds/LocalRelease93/build-result.json>)。原Renderer、Quality及初始化器已恢复；93成品保留filter4／2ray／DXR及默认关闭的计时、反馈和捕获时间门。没有启动普通93或追加采集，本候选线结束。

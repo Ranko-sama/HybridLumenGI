@@ -1,10 +1,10 @@
 # 动态画面对照与当前开发结论
 
-## 当前交付结论（Release92，filter4四图与历史颜色定量分别标源，2026-10-30）
+## 当前交付结论（Release93，画质保持92来源，历史颜色定量另列，2026-10-30）
 
-当前[filter4配置静止预算窗口](../four-pass-local-quality-01/result.md)为960×540／GI480×270、2ray／DXR：GI三区间合计中位23.921ms、p95 24.562ms、p99 24.752ms；进程local／nonlocal采样峰值565.441／289.691MiB。满足25ms／1GiB起始门槛，GI p95余量仅约0.438ms，不代表运动、整应用GPU或完整性能验收；没有新的Present测量。
+当前[93空回退遍历优化的静止成本窗口](../exact-no-fallback-traversal-01/result.md)保持960×540／GI480×270、filter4／2ray／DXR：GI三区间合计中位18.393ms、p95 19.298ms、p99 19.498ms，local／nonlocal采样峰值567.254／289.691MiB。相较既有92静止窗口，中位下降5.528ms，超过预定波动判据；满足25ms／1GiB起始门槛，不代表运动、整应用GPU或完整性能验收，没有新的Present测量。
 
-[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease92/Start-LocalRelease.cmd>)现为Release92，只将本机示例空间滤波从3级增加到现成4级，2ray／DXR与时间历史保持。[同曝光四时点对照](../four-pass-local-quality-01/comparison.png)的门面、地板和绿墙云斑明显减弱，未见明显新增轮廓损坏、串色或持续旧门轮廓；代价是同平面明暗过渡更柔。四帧全图出射平均Y变化约−0.051%至+0.031%，不能当作颜色准确度证明。主线程、独立图审及Astra同意有限采用；普通构建完成，未追加其他运行。旧[Release88软件119独立D定量](../release88-color-frame119-01/result.md)与门运动Present均来自filter3，不能重标为92新结果。
+[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease93/Start-LocalRelease.cmd>)现为Release93，省去全精确覆盖时无候选的回退BVH遍历，filter4／2ray／DXR及时间历史保持。93没有新图像运行，画质继续依据[92的同曝光四时点](../four-pass-local-quality-01/comparison.png)：门面、地板和绿墙云斑明显减弱，未见明显新增轮廓损坏、串色或持续旧门轮廓；代价是同平面明暗过渡更柔。其四帧全图出射平均Y变化约−0.051%至+0.031%，不能当颜色准确度证明。旧[Release88软件119独立D定量](../release88-color-frame119-01/result.md)与门运动Present仍属于filter3，不能重标为92／93新结果。
 
 Release88沿用Release87的[短历史空间滤波](../short-history-spatial-filter-01/result.md)、F2和空场资源修复；启动优先DXR、按4回软件。后续[当前2射线DXR四时点对照](../release88-dxr-motion-01/result.md)未见相对软件新增明显回退，保留默认配置；画面与普通DXR成本仍是独立运行。**不同版本、时点和测量量不能合并成整景验收**；旧1射线颜色误差、残留与收敛数据保持原来源，不能当作88的新结论。
 

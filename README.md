@@ -2,9 +2,11 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI。包含真实网格 SDF、表面材质与世界光照缓存、精确软件三角查询、可选 DXR、时域重建、形变快照和分页/HLOD。当前仍在开发，不宣称 UE5 Lumen 等价或生产验收完成。
 
-**当前本机入口：[启动统一交互 Release92](<I:/Unity test/Comparison/Builds/LocalRelease92/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
+**当前本机入口：[启动统一交互 Release93](<I:/Unity test/Comparison/Builds/LocalRelease93/Start-LocalRelease.cmd>)。** 启动时优先DXR，按4可切回软件，保留既有硬件准备失败回退。同一场景提供导航、分页/HLOD、换色、灯光、门和形变操作；GPU计时、更新预算反馈和进程显存观察默认关闭。该路径属于当前开发机，其他工程请按下文集成或构建。
 
-Release92采用[第4级空间滤波](LocalComparison/Review/four-pass-local-quality-01/result.md)：本机示例filter3→4，2ray／DXR及时间历史保持。[四时点同曝光对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png)中门面、地板和绿墙云斑明显减弱，未见新增持续旧轮廓；代价是同平面明暗过渡更柔。当前静止GI三区间合计p95为24.562ms、local采样峰值565.441MiB，满足25ms／1GiB起始门槛，但GI余量仅约0.438ms。普通Release构建完成；不代表运动最坏情况、颜色准确度或完整验收，旧filter3定量保持原来源。
+Release93消除[精确后端完整接管后的空回退遍历](LocalComparison/Review/exact-no-fallback-traversal-01/result.md)：没有回退owner时，保留精确查询结果直接返回；有回退时仍走原路径。保持filter4／2ray／DXR，在同配置有限静止窗口中GI合计中位23.921→18.393ms、p95 24.562→19.298ms，local采样峰值567.254MiB；通过预定收益判据及25ms／1GiB起始预算。普通构建完成，画质依据保持92原来源，不外推所有场景、运动FPS或整应用GPU收益。
+
+Release92采用[第4级空间滤波](LocalComparison/Review/four-pass-local-quality-01/result.md)：本机示例filter3→4，2ray／DXR及时间历史保持。[四时点同曝光对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png)中门面、地板和绿墙云斑明显减弱，未见新增持续旧轮廓；代价是同平面明暗过渡更柔。该次静止GI三区间合计p95为24.562ms、local采样峰值565.441MiB，满足25ms／1GiB起始门槛，但GI余量仅约0.438ms。普通Release构建完成；不代表运动最坏情况、颜色准确度或完整验收，旧filter3定量保持原来源。
 
 Release91补齐[表示需求与可用组显示](LocalComparison/Review/sample-representation-status-01/result.md)：普通面板及F2可区分请求细节而聚合体仍在提供覆盖、主动只要聚合体、未评估和未知状态。显示范围为样例CPU请求与Renderer可提交组，不是像素覆盖或GPU完成。独立源码审阅和公开Release构建完成，调度与画质配置保持；没有新增Player或性能／画质测量。
 

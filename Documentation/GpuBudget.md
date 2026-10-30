@@ -4,14 +4,16 @@
 
 用户于2026-10-30取得当前基线后明确采用以下口径；后文历史记录中的“预算未定”保留其当时状态，以本节为准。
 
-| 项目 | 已确认目标 | 当前filter4／Release92配置静止窗口 |
+| 项目 | 已确认目标 | 当前Release93／filter4静止窗口 |
 | --- | --- | --- |
 | 分辨率／帧率方向 | 960×540／30FPS | 本窗口不测Present／显示FPS |
-| 现有GI三个计时区间之和 | p95≤25ms | 24.562ms，满足门槛，余量约0.438ms |
-| 本进程local有限采样峰值 | ≤1GiB（1024MiB） | 565.441MiB，满足此窗口门槛 |
+| 现有GI三个计时区间之和 | p95≤25ms | 19.298ms，满足门槛，余量约5.702ms |
+| 本进程local有限采样峰值 | ≤1GiB（1024MiB） | 567.254MiB，满足此窗口门槛 |
 | nonlocal | 单独报告，未设上限 | 289.691MiB |
 
-当前表来自[filter4配置的唯一静止成本窗口](../LocalComparison/Review/four-pass-local-quality-01/result.md)，GI合计中位23.921ms、p99 24.752ms、最大25.159ms；最大值超过25ms不违反已选p95门槛，也不能称硬时间上限。采用更多空间滤波是独立的画质决定，预算确认本身不自动开启反馈。不代表整应用GPU、瞬时显存峰值、运动／冷启动／长时负载通过或完整G0/G5放行；本次未测Present，不把旧filter3运动数据重标。
+当前表来自[93空回退遍历优化的唯一静止成本窗口](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)：GI合计中位18.393ms、p99 19.498ms、最大19.970ms，保留filter4／2ray／DXR。相较既有92配置窗口，中位下降5.528ms，超过两侧块变化最大1.082ms；这是本候选固定规则下的有限收益，不是总体统计或全部场景保证。默认反馈仍关闭；本次未测Present，不代表整应用GPU、瞬时显存峰值、运动／冷启动／长时负载或完整G0/G5放行。
+
+此前[Release92采用filter4时的静止窗口](../LocalComparison/Review/four-pass-local-quality-01/result.md)为GI中位23.921ms、p95 24.562ms、local／nonlocal采样峰值565.441／289.691MiB。本次保持这组质量参数，仅消除全精确覆盖时无候选的回退遍历；不把回调节奏当FPS。
 
 此前[Release90／filter3静止GI基线](../LocalComparison/Review/release90-dxr-baseline-01/result.md)为用户预算决策提供输入：GI三区间合计中位21.667ms、p95 22.643ms、p99 23.938ms，local／nonlocal采样峰值565.441／287.566MiB。它保留原来源；与当前独立filter4窗口之差不能直接当作单级滤波的精确增量成本。
 
