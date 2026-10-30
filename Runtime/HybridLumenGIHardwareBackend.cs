@@ -242,13 +242,32 @@ namespace HybridLumenGI
             try
             {
                 long planTriangles=0,planInstances=0;
+                int publishedCount=0;
                 for(int slot=0;slot<scene.Capacity;slot++)
                 {
                     if(!Published(scene.Data[slot].identity.w))continue;
+                    publishedCount++;
                     Renderer candidate=scene.GetRenderer(slot);Mesh source=HybridLumenGIDeformedMesh.GetSourceMesh(candidate);
                     if(!Eligible(source,candidate,slot,surfaceCache,out long total) || total>triangleBudget-planTriangles)continue;
                     planTriangles+=total;
                     for(int submesh=0;submesh<source.subMeshCount;submesh++)if(source.GetIndexCount(submesh)>=3)planInstances++;
+                }
+                if(planInstances==0)
+                {
+                    // An empty plan uses the existing software fallback. Do not allocate an
+                    // empty RTAS and dummy attributes just to retire them again this frame.
+                    // Keep scanning eligibility above so returning/newly supported geometry
+                    // can rebuild normally, even without a proxy revision change.
+                    IsReady=buildPending=false;
+                    CancelBuildDemand();RetireResources();
+                    if(instances.Count>0)GeometryVersion++;
+                    normals.Clear();surfaces.Clear();instances.Clear();objectToWorld.Clear();bindings.Clear();
+                    meshTangents.Clear();sharedMaterials.Clear();
+                    meshStates=Array.Empty<MeshState>();meshFlags=Array.Empty<uint>();
+                    MeshCount=0;FallbackCount=publishedCount;
+                    preparedRevision=revision;preparedBudget=-1;preparedSurfaceCache=null;
+                    BudgetStatus="No eligible triangle geometry; using software fallback";
+                    return false;
                 }
                 // Reserve the complete replacement peak before changing identities or allocating
                 // any attributes. Old buffers remain counted until their Release succeeds.

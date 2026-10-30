@@ -156,7 +156,7 @@ Require(((HybridLumenGISurfaceCache.TriangleChartBinding)bindingBuffer.data[1]).
 // Every eligibility condition is re-evaluated without a revision bump.
 void Eligibility(Action disable,Action restore,string label)
 {
-    disable();int before=backend.SceneRebuildCount;Require(!Prepare(backend,scene,4)&&backend.MeshCount==0&&backend.FallbackCount==1&&backend.SceneRebuildCount==before+1,label+" did not immediately fall back.");
+    disable();int before=backend.SceneRebuildCount;Require(!Prepare(backend,scene,4)&&backend.MeshCount==0&&backend.FallbackCount==1&&backend.SceneRebuildCount==before,label+" did not immediately fall back without an empty rebuild.");
     Require(!backend.RecordBuild(command),label+" retained ready hardware traversal.");
     restore();Require(Prepare(backend,scene,4)&&backend.MeshCount==1,label+" did not recover after eligibility returned.");
     native=RayTracingAccelerationStructure.Last;
@@ -180,7 +180,7 @@ var originalMaterial=renderer.Materials[0];Eligibility(()=>renderer.Materials[0]
 var matrix=renderer.localToWorldMatrix;Eligibility(()=>renderer.localToWorldMatrix=Matrix4x4.Scale(new Vector3(0,1,1)),()=>renderer.localToWorldMatrix=matrix,"Singular transform");
 
 int oldRebuild=backend.SceneRebuildCount;scene.Data[0].identity.w=2;Require(!Prepare(backend,scene,5)&&backend.MeshCount==0&&backend.FallbackCount==0,"Published-to-warming instance remained in RTAS.");
-scene.Data[0].identity.w=1;Require(Prepare(backend,scene,6)&&backend.SceneRebuildCount==oldRebuild+2,"Warming-to-published instance failed to join RTAS.");
+scene.Data[0].identity.w=1;Require(Prepare(backend,scene,6)&&backend.SceneRebuildCount==oldRebuild+1,"Warming-to-published instance failed to join RTAS.");
 native=RayTracingAccelerationStructure.Last;
 foreach(var kind in new[]{HybridLumenGIScene.ChangeKind.Manual,HybridLumenGIScene.ChangeKind.Topology,
     HybridLumenGIScene.ChangeKind.Manual|HybridLumenGIScene.ChangeKind.Transform,
@@ -715,6 +715,59 @@ HybridLumenGIResourceRetirement.Complete();
 Require(replacedNormals.Released&&attributeQuotaBackend.AttributeBytes==thirdSet&&attributeQuotaBackend.RetiredAttributeBytes==0,"Completed replacement did not release only the retired bytes.");
 attributeQuotaBackend.Dispose();Require(attributeQuotaBackend.CurrentAttributeBytes==0&&attributeQuotaBackend.AttributeBytes==thirdSet,"Dispose removed live attributes from budget before release.");
 HybridLumenGIResourceRetirement.Complete();Require(attributeQuotaBackend.AttributeBytes==0,"Dispose callback did not clear released attribute allocation accounting.");
+
+// Empty streaming regions must release the old representation without constructing
+// dummy resources every Prepare. Exercise both consumers of this shared backend.
+foreach(bool softwareOnly in new[]{false,true})
+{
+    HybridLumenGIRtasBudget.BeginFrame(1800+(softwareOnly?10:0),Quota(rate:100,burst:100,builds:100));
+    var emptyCamera=BudgetCamera(1,softwareOnly);var emptyBackend=emptyCamera.backend;
+    emptyCamera.scene.Data[0].identity.w=0;
+    int emptyAllocations=ComputeBuffer.AllocationCount;
+    var beforeEmptyNative=RayTracingAccelerationStructure.Last;
+    long emptyMemory=HybridLumenGIRtasBudget.AccountedBytes;
+    Require(!Prepare(emptyBackend,emptyCamera.scene,1)&&!Prepare(emptyBackend,emptyCamera.scene,1)&&
+        ComputeBuffer.AllocationCount==emptyAllocations&&ReferenceEquals(beforeEmptyNative,RayTracingAccelerationStructure.Last)&&
+        emptyBackend.SceneRebuildCount==0&&HybridLumenGIRtasBudget.AccountedBytes==emptyMemory,
+        "Repeated cold empty preparation allocated geometry or reserved RTAS memory.");
+    emptyCamera.scene.Data[0].identity.w=1;
+    Require(Prepare(emptyBackend,emptyCamera.scene,1)&&emptyBackend.RecordBuild(new CommandBuffer()),
+        "Eligible geometry did not recover from an empty plan with the same proxy revision.");
+    long emptyHeldBytes=emptyBackend.AttributeBytes,emptyHeldMemory=HybridLumenGIRtasBudget.AccountedBytes;
+    var populatedNative=RayTracingAccelerationStructure.Last;
+    var populatedNormals=Buffer(emptyBackend,"normalsBuffer");
+    int emptyRebuilds=emptyBackend.SceneRebuildCount,emptyUploads=emptyBackend.TriangleUploadCount;
+    ulong populatedVersion=emptyBackend.GeometryVersion;
+    emptyAllocations=ComputeBuffer.AllocationCount;
+    emptyCamera.scene.Data[0].identity.w=0;
+    // Zero admission budget must not prevent withdrawal of now-unused geometry.
+    Require(!emptyBackend.Prepare(emptyCamera.scene,1,250000,Cache(emptyCamera.scene),0)&&
+        !emptyBackend.CanDispatch&&emptyBackend.MeshCount==0&&emptyBackend.InstanceCount==0&&emptyBackend.TriangleCount==0&&
+        emptyBackend.GeometryVersion!=populatedVersion&&!emptyBackend.TryGetTriangle(0,0,out _),
+        "Empty withdrawal retained dispatchable or provider-visible geometry.");
+    Require(emptyBackend.CurrentAttributeBytes==0&&emptyBackend.RetiredAttributeBytes==emptyHeldBytes&&
+        !populatedNormals.Released&&HybridLumenGIRtasBudget.AccountedBytes==emptyHeldMemory&&
+        (softwareOnly||!populatedNative.Disposed),"Empty withdrawal dropped accounting before retirement completion.");
+    int emptyRetirements=HybridLumenGIResourceRetirement.Pending.Count;
+    ulong emptyVersion=emptyBackend.GeometryVersion;
+    Require(!Prepare(emptyBackend,emptyCamera.scene,1)&&ComputeBuffer.AllocationCount==emptyAllocations&&
+        ReferenceEquals(populatedNative,RayTracingAccelerationStructure.Last)&&
+        emptyBackend.SceneRebuildCount==emptyRebuilds&&emptyBackend.TriangleUploadCount==emptyUploads&&
+        emptyBackend.GeometryVersion==emptyVersion&&HybridLumenGIResourceRetirement.Pending.Count==emptyRetirements,
+        "Repeated empty preparation rebuilt/uploaded geometry or queued duplicate retirement.");
+    HybridLumenGIResourceRetirement.Complete();
+    Require(populatedNormals.Released&&emptyBackend.AttributeBytes==0&&HybridLumenGIRtasBudget.AccountedBytes==emptyMemory,
+        "Completed empty withdrawal retained resource accounting.");
+    emptyCamera.scene.Data[0].identity.w=1;
+    emptyCamera.renderer.Materials[0].renderQueue=3000;
+    Require(!Prepare(emptyBackend,emptyCamera.scene,1)&&emptyBackend.FallbackCount==1&&
+        ComputeBuffer.AllocationCount==emptyAllocations,"Unsupported published geometry allocated empty resources or lost fallback count.");
+    emptyCamera.renderer.Materials[0].renderQueue=2000;
+    Require(Prepare(emptyBackend,emptyCamera.scene,1)&&emptyBackend.RecordBuild(new CommandBuffer())&&
+        emptyBackend.MeshCount==1&&emptyBackend.FallbackCount==0&&emptyBackend.SceneRebuildCount==emptyRebuilds+1,
+        "Returning eligibility with the same revision did not rebuild the released geometry.");
+    emptyBackend.Dispose();HybridLumenGIResourceRetirement.Complete();
+}
 HybridLumenGIResourceRetirement.Immediate=true;
 Console.WriteLine($"Shared RTAS budget integration: {checks-quotaStart} checks; recorded API/retirement adapters, no GPU completion claims.");
 

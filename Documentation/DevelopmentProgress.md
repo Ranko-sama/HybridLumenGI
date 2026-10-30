@@ -2,6 +2,8 @@
 
 用户已明确暂缓G5的CI接线；原CI验收条款保留未完成，不作为继续本机功能开发的前置条件。
 
+原目标3／4、工作流8修复[空场反复分配三角后端资源](../LocalComparison/Review/empty-geometry-preparation-01/result.md)：无可接纳三角实例时直接撤销旧几何并按原流程退休，不再每帧创建空RTAS和dummy缓冲；保留退休完成前计账和同revision重新入场恢复。必要实际源码夹具回归通过，独立审阅无阻断；没有新的画质或实测加速声明。[Release85三轮普通使用](../LocalComparison/Review/release85-resource-cycles-01/result.md)补齐重复恢复的有限端点依据，当前页／引用同阶段一致、离场归零，同时揭示上述重复工作。末次记录延迟至271.747秒，不能算三轮均满足原30秒范围或完整G4放行；本条循环观察已结束。
+
 原目标1／3、工作流7／8补齐[普通URP Lit静态MPB覆盖随资产页保存](../LocalComparison/Review/asset-page-mpb-persistence-01/result.md)：有效材质按槽独立保存，保留slot优先级、纹理/ST、颜色空间、关键词和源栅格状态。真实导出／保存／bundle加载与已有shader输入对照已取得相符结果，补充直接源值比较确认导出不改源；原准备失败及过强历史身份检查的FAIL保留。该能力取代先前“一律拒绝MPB”的有限保护，不是通用MPB序列化、动态材质或完整G4/G5验收；本机Editor已更新，Release85运行时不变。
 
 原目标3／工作流8修复[资产页直接导出静默丢失MPB覆盖](../LocalComparison/Review/asset-page-mpb-export-01/result.md)：创建输出前明确拒绝无法序列化的Renderer／材质槽覆盖，实际Editor确认拒绝时无输出且源保持。关闭的是错误处理缺口，不是新增MPB持久化或材质保真验收；运行时MPB、无MPB导出和Release85不变。没有追加Player、图像或性能测试。
