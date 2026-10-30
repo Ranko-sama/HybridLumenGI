@@ -4,7 +4,7 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**本开发机已构建的入口：[启动统一交互 Release93](<I:/Unity test/Comparison/Builds/LocalRelease93/Start-LocalRelease.cmd>)。** 这是开发机本地路径，GitHub 下载源码后需按下面步骤接入自己的 Unity 工程。当前本机配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。
+**本开发机已构建的入口：[启动统一交互 Release94](<I:/Unity test/Comparison/Builds/LocalRelease94/Start-LocalRelease.cmd>)。** 这是开发机本地路径，GitHub 下载源码后需按下面步骤接入自己的 Unity 工程。当前本机配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。
 
 ### 接入自己的工程
 
@@ -42,6 +42,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 实际后端以面板诊断为准，DXR偏好不保证采用硬件路径。关灯仍保留发光面。停止形变后异步GI快照可能继续追上可见网格；K切换的两种形变模式均不修改物理碰撞体。
 
+Release94补齐[普通骨骼停稳后的历史累计](LocalComparison/Review/skinned-stopped-history-01/result.md)：满足完整来源和局部骨姿态稳定条件时恢复历史，真正骨变化仍拒绝旧历史。统一场景GPU观察支持该能力；Cloth、blend shapes和自定义GPU变形不在合同内，也不代表任意动画无拖影或固定帧数收敛。原生短序列退出仍有待退休资源，此次不算清理验收；普通交付不含临时观察器。
+
 - **Group request/available**：样例请求与完整Renderer可提交组，`details/aggregate`表示细节已请求、聚合体仍可用；`unknown`表示无法确认完整组，不等于已证实画面缺失。见[表示状态范围](Documentation/HlodStreaming.md)。
 - **Memory: off**：开启本进程local/nonlocal显存、OS预算及采样峰值。缺失或旧原生DLL显示不可用，不影响GI；数据不是GI独占、整机用量或绝对瞬时峰值。
 - **GPU time / update budget**：先用 **Measure only** 查看GI区间；输入有限正数并点击 **Apply feedback** 才启用反馈，**Off** 关闭。最低配额仍可能超目标，缺测不当作零成本。见[计时与预算用法](Documentation/GpuBudget.md#普通运行入口与公开配置)。
@@ -49,7 +51,7 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 当前画质与性能
 
-当前取舍是减少运动颗粒、允许适度变柔，同时避免明显加重拖影。Release93保留Release92的filter4／2ray／DXR配置，并消除了精确后端完整接管后的空回退遍历。以下结果各自保留场景、版本和测量范围，不能合并为整体验收。
+当前取舍是减少运动颗粒、允许适度变柔，同时避免明显加重拖影。Release94整合骨骼停稳历史，保留Release93的filter4／2ray／DXR配置及空回退遍历消除。以下画质与性能结果保持各自原版本和测量范围，没有因94构建而重测或改标，不能合并为整体验收。
 
 | 问题 | 已有结论与局限 |
 | --- | --- |
@@ -62,7 +64,7 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 起始目标为 **960×540／30FPS、GI三区间合计p95≤25ms、进程local有限采样峰值≤1GiB**，nonlocal另列。环境为Unity6000.0.85f1／URP17.0.4、Windows x64／Mono／DX12／Linear、RTX2080Ti。
 
-| 当前Release93的独立窗口 | 测量结果 | 适用范围 |
+| Release93的独立窗口 | 测量结果 | 适用范围 |
 | --- | --- | --- |
 | [静止GI与显存](LocalComparison/Review/exact-no-fallback-traversal-01/result.md) | GI合计p95为19.298ms；local峰567.254MiB，nonlocal峰289.691MiB | 满足25ms／1GiB起始门槛；有限采样，不是整应用GPU、瞬时显存峰值或运动最坏情况。 |
 | [普通M门运动](LocalComparison/Review/release93-motion-present-01/result.md) | 应用Present平均52.69Hz；间隔p95／p99为21.97／23.57ms，最大25.99ms | 一次固定30秒窗口、960×540启动参数，全部观测间隔低于33.33ms；支持30FPS方向，不是实际显示FPS或完整平台验收。 |

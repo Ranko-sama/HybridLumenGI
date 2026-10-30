@@ -33,4 +33,8 @@
 
 三次原生日志及attempt/exit均保留；临时观察器、Renderer配置、QualitySettings及初始化入口已恢复。普通交付构建不包含该观察器或拷贝buffer。采用仅限此停稳历史能力，完整G0–G5仍开放；此线不追加运行。
 
+## 普通交付
+
+独立源码／结果复核及Astra阶段审查同意有限采用。产品提交`65c36ef`已通过普通Release／None构建并整合为[Release94](<I:/Unity test/Comparison/Builds/LocalRelease94/Start-LocalRelease.cmd>)，Unity PID21276、native exit0。保存示例保持960×540启动、半GI、2ray／filter4／DXR，计时／反馈关闭，既有receiverObjectHistory=1。未额外启动Player或刷新93颜色、成本与普通运动结果；原生功能观察来自上述临时统一场景序列，不把构建等同所有运行验收。
+
 API依据：[Unity6 DrawRenderer](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Rendering.CommandBuffer.DrawRenderer.html)、[可选模块无静态引用的GetComponent(string)](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Component.GetComponent.html)。
