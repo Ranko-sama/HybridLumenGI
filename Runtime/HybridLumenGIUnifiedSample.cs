@@ -30,6 +30,8 @@ namespace HybridLumenGI
         private string status = "cold: waiting for complete page bindings and GI publication";
         private int lastReceiptEngine = -1, lastReceiptWork = -1;
         private bool subscribed, detailsWanted, singleCameraSupported = true;
+        private bool residentWanted;
+        private int requestEngineFrame = -1;
         private double nextOverlay;
         private string overlay;
         private bool showGpuControls, gpuTargetFocused;
@@ -90,6 +92,7 @@ namespace HybridLumenGI
                 ? requestedTarget.ToString("R", CultureInfo.InvariantCulture) : "";
             gpuTargetControlName = "HLGI GPU target " + GetInstanceID();
             gpuTargetFocused = false; gpuInputMessage = null; nextOverlay = 0;
+            requestEngineFrame = -1; residentWanted = false;
             HybridLumenGIResourceRetirement.Register(RequiresVisible);
             RenderPipelineManager.beginCameraRendering += BeforeCamera;
             RenderPipelineManager.endCameraRendering += AfterCamera;
@@ -99,6 +102,7 @@ namespace HybridLumenGI
         private void OnDisable()
         {
             gpuTargetFocused = false;
+            residentWanted = false; requestEngineFrame = Time.frameCount;
             videoMemory.Sample(Time.frameCount, false);
             if (!subscribed) return;
             RenderPipelineManager.beginCameraRendering -= BeforeCamera;
@@ -117,12 +121,13 @@ namespace HybridLumenGI
         {
             if (!subscribed || !KeepRunning()) return;
             float distance = Mathf.Sqrt(groupBounds.SqrDistance(targetCamera.transform.position));
-            bool residentWanted = distance <= farDistance + 5f;
+            residentWanted = distance <= farDistance + 5f;
             if (!residentWanted) detailsWanted = false;
             else if (distance < nearDistance * 1.2f) detailsWanted = true;
             else if (distance > nearDistance * 1.4f) detailsWanted = false;
             aggregate.SetWanted(residentWanted);
             foreach (var item in details) item.SetWanted(residentWanted && detailsWanted);
+            requestEngineFrame = Time.frameCount;
         }
         private void LateUpdate()
         {
@@ -187,6 +192,11 @@ namespace HybridLumenGI
         {
             public string scope = "Page admission estimates; per-camera GI estimates; global RTAS/material pool and retirement once. Not total VRAM and not additive.";
             public string status, requestedBackend, actualBackend, diagnosticsStatus;
+            // Request is the latest sample Update; availability uses the current
+            // renderer flags of the retained publication-based visible set.
+            public string representationScope = "Sample request and renderer-submittable group; not pixel coverage or GPU completion.";
+            public string requestedRepresentation, availableRepresentation, representationStatus;
+            public int requestEngineFrame;
             public int engineFrame, publicationEngineFrame, publicationWorkFrame, visibleMembers, boundMembers;
             public int pagesReady, pagesLoading, pagesReleasing, pagesFailed, pageConsumerReferences, budgetBlockedGroups;
             public long pageBundleBytes, pageResidentBytes, pageIoBytesInFlight, pageIoBytesStartedThisStep, pageUploadBytesStartedThisStep;
@@ -246,7 +256,49 @@ namespace HybridLumenGI
                 result.actualBackend = !feature.isActive ? "GI disabled" : result.cameraGi.hardwareBackend ? "DXR" : result.cameraGi.exactSoftwareGeometry ? "exact software" : "SDF/analytic software";
             }
             else { result.cameraGi = null; if (matches > 1) result.diagnosticsStatus = "ambiguous camera name"; }
+            CaptureRepresentationState(result);
             return result;
+        }
+        private void CaptureRepresentationState(Ledger result)
+        {
+            result.requestEngineFrame = requestEngineFrame;
+            result.requestedRepresentation = !subscribed || !isActiveAndEnabled ? "none" :
+                requestEngineFrame < 0 ? "not evaluated" : residentWanted ? (detailsWanted ? "details" : "aggregate") : "none";
+            result.availableRepresentation = "unknown";
+            if (HasInputs() && singleCameraSupported)
+            {
+                int submitted = 0, submittedDetails = 0; bool rootSubmitted = false, invalid = false;
+                var sources = new HashSet<Renderer>();
+                var proxies = new HashSet<HybridLumenGIProxy>();
+                foreach (var item in Bindings())
+                {
+                    Renderer renderer = item.SourceRenderer;
+                    if (!renderer.enabled || !renderer.gameObject.activeInHierarchy || renderer.forceRenderingOff) continue;
+                    submitted++;
+                    invalid |= !sources.Add(renderer) || !proxies.Add(item.Proxy) ||
+                        !item.HasBoundAssets || !visible.Contains(item.Proxy) || item.Proxy.SourceRenderer != renderer;
+                    if (item == aggregate) rootSubmitted = true;
+                    else submittedDetails++;
+                }
+                // Identity comes from the authored root/detail bindings, not a
+                // global renderer count. Incomplete/mixed sets remain unknown.
+                if (!invalid)
+                    result.availableRepresentation = submitted == 0 ? "none" : rootSubmitted && submitted == 1 ? "aggregate" :
+                        !rootSubmitted && submittedDetails == details.Length && submitted == details.Length ? "details" : "unknown";
+            }
+            if (result.requestedRepresentation == "not evaluated")
+                result.representationStatus = "Representation request not evaluated yet";
+            else if (result.availableRepresentation == "unknown")
+                result.representationStatus = "Representation availability unknown";
+            else if (result.requestedRepresentation == "none")
+                result.representationStatus = result.availableRepresentation == "none" ? "No representation requested" : "Request withdrawn; previous representation still available";
+            else if (result.availableRepresentation == "none")
+                result.representationStatus = "Representation requested; no complete renderer group available";
+            else if (result.requestedRepresentation == result.availableRepresentation)
+                result.representationStatus = "Requested representation available";
+            else
+                result.representationStatus = result.availableRepresentation == "aggregate" ?
+                    "Aggregate available; details requested" : "Details retained; aggregate requested";
         }
         public void LogLedger() => Debug.Log("HLGI_UNIFIED_SAMPLE " + JsonUtility.ToJson(CaptureLedger()), this);
         private void OnGUI()
@@ -258,6 +310,8 @@ namespace HybridLumenGI
                 nextOverlay = Time.realtimeSinceStartupAsDouble + .5;
                 var row = CaptureLedger();
                 overlay = row.status + "\nRequested " + row.requestedBackend + "; actual " + row.actualBackend +
+                    "\nGroup request/available: " + row.requestedRepresentation + "/" + row.availableRepresentation +
+                    "; " + row.representationStatus +
                     "\nVisible/bound " + row.visibleMembers + "/" + row.boundMembers +
                     "; pages ready/loading/releasing/failed " + row.pagesReady + "/" + row.pagesLoading + "/" + row.pagesReleasing + "/" + row.pagesFailed +
                     "\nPage resident/bundle/IO-inflight estimates (bytes): " + row.pageResidentBytes + "/" + row.pageBundleBytes + "/" + row.pageIoBytesInFlight +
@@ -265,7 +319,7 @@ namespace HybridLumenGI
                     "\n" + VideoMemoryLabel(row.processVideoMemory);
                 gpuOverlay = GpuTimingLabel(row.cameraGi);
             }
-            float desiredHeight = showGpuControls ? 400 : measureVideoMemory ? 295 : 255;
+            float desiredHeight = showGpuControls ? 400 : measureVideoMemory ? 335 : 295;
             // The ordinary interaction strip starts at Screen.height - 115.
             float height = Mathf.Min(desiredHeight, Mathf.Max(80, Screen.height - 139));
             GUILayout.BeginArea(new Rect(12, 12, Mathf.Min(760, Screen.width - 24), height), GUI.skin.box);
