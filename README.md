@@ -40,7 +40,9 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 
 ## 当前画质结论
 
-最新[重新开灯对照](LocalComparison/Review/light-restore-response-01/result.md)：Release83在恢复后30帧，Floor／White平均间接入射D达到开灯前观测的74.65%／65.68%；59帧为98.36%／96.78%，未知不增。当前照明能恢复，首帧颗粒与响应延迟仍在；这些有限时点不等于精确收敛时间或整体动态验收。
+最新[局部换色对照](LocalComparison/Review/local-recolor-response-01/result.md)：红墙改蓝后，材质未变的Floor／White在30帧已明显更新反弹色，59与119帧的平均色向接近，原有已知点未丢失。首帧颗粒及后续亮度变化仍在；没有蓝墙独立参考，不把晚帧当作正确颜色或“旧色完全清除”的依据。
+
+此前[重新开灯对照](LocalComparison/Review/light-restore-response-01/result.md)：Release83在恢复后30帧，Floor／White平均间接入射D达到开灯前观测的74.65%／65.68%；59帧为98.36%／96.78%，未知不增。当前照明能恢复，首帧颗粒与响应延迟仍在；这些有限时点不等于精确收敛时间或整体动态验收。
 
 [Release83刚体历史对照](LocalComparison/Review/rigid-pose-history-01/result.md) · [Release82修复与独立对照](LocalComparison/Review/stationary-history-01/result.md) · [修复前frame119对照](LocalComparison/Review/current-color-frame119-01/result.md) · [既有动态对照图与曲线](LocalComparison/Review/dynamic-picture-comparison-01/index.html) · [阅读四项结论及适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md) · [Release76关灯基线](LocalComparison/Review/current-lightoff-prefix-01/result.md) · [Release78缓存改进对照](LocalComparison/Review/cache-source-separation-01/result.md)
 
