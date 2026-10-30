@@ -1,0 +1,97 @@
+{
+  "product": "Release87 product / local raysPerPixel=2",
+  "fullSequencePassed": false,
+  "baselineRun": {
+    "status": "failed",
+    "renderedFrames": 210,
+    "failures": 0,
+    "backendMismatches": 0
+  },
+  "currentRun": {
+    "status": "failed",
+    "renderedFrames": 210,
+    "failures": 0,
+    "backendMismatches": 0
+  },
+  "quantity": "Ordinary outgoing indirect contribution, not independent D or a physical reference",
+  "scope": "Four matched software time points; visual ghosting/softness comparison, not all-frame or exact convergence proof",
+  "frames": [
+    {
+      "frame": 149,
+      "backend": "reported-software",
+      "doorLocalPosition": {
+        "x": -0.018644094467163086,
+        "y": 1.399999976158142,
+        "z": -0.800000011920929
+      },
+      "baselineMeanRGB": [
+        0.06762709614389936,
+        0.026833433148241756,
+        0.013239762526042682
+      ],
+      "currentMeanRGB": [
+        0.07239247309388032,
+        0.02910227053038871,
+        0.014473071680716569
+      ]
+    },
+    {
+      "frame": 179,
+      "backend": "reported-software",
+      "doorLocalPosition": {
+        "x": 1.100000023841858,
+        "y": 1.399999976158142,
+        "z": -0.800000011920929
+      },
+      "baselineMeanRGB": [
+        0.07284674295829645,
+        0.02866583290650976,
+        0.014334925658942567
+      ],
+      "currentMeanRGB": [
+        0.07766914438879036,
+        0.03135210277264592,
+        0.01580053271909599
+      ]
+    },
+    {
+      "frame": 189,
+      "backend": "reported-software",
+      "doorLocalPosition": {
+        "x": 1.100000023841858,
+        "y": 1.399999976158142,
+        "z": -0.800000011920929
+      },
+      "baselineMeanRGB": [
+        0.0627747046232168,
+        0.023942114869779957,
+        0.011588658247159331
+      ],
+      "currentMeanRGB": [
+        0.07588838295929223,
+        0.029828901004116802,
+        0.014873232786430384
+      ]
+    },
+    {
+      "frame": 209,
+      "backend": "reported-software",
+      "doorLocalPosition": {
+        "x": 1.100000023841858,
+        "y": 1.399999976158142,
+        "z": -0.800000011920929
+      },
+      "baselineMeanRGB": [
+        0.0625472205749822,
+        0.024434048430065015,
+        0.01206198944391954
+      ],
+      "currentMeanRGB": [
+        0.07629674140650713,
+        0.029959069604460827,
+        0.015130277991166029
+      ]
+    }
+  ],
+  "visualReview": "Root, independent image review and Astra: consistent speckle reduction, no obvious new persistent outline or edge damage in these four software instants. Mean outgoing Y rises 7.9-23.1%, not a physical-accuracy claim. The one separately scoped default-DXR motion Present window supports the local 30FPS direction. Adopted as Release88 local two-ray configuration; Runtime unchanged. No further capture, ray-count search or build."
+}

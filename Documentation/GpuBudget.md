@@ -1,6 +1,10 @@
 # GPU 时间反馈与更新预算
 
-当前[Release87普通门运动窗口](../LocalComparison/Review/release87-motion-present-01/result.md)补齐已交付降噪使用条件的有限性能依据：以960×540窗口参数启动、默认DXR、计时与反馈关闭，应用Present平均70.85Hz，间隔p95／p99为16.73／17.80ms，全部2123个间隔小于33.33ms。它支持用户30FPS方向，但不是显示FPS、GI GPU时间或滤波增量开销；不据此填写GI／显存预算，也不与旧静止窗口相减归因。普通门循环包含保持阶段，未增加逐帧渲染尺寸或后端跟踪。该次窗口已收束，无追加矩阵。
+当前入口为[Release88](<I:/Unity test/Comparison/Builds/LocalRelease88/Start-LocalRelease.cmd>)，已有限采用[本机每像素2射线配置](../LocalComparison/Review/two-ray-local-quality-01/result.md)。Runtime仍为e352921，只将本机示例构建配置从1 ray改为2 ray，保留DXR偏好；通用默认值2未改。软件149／179／189／209四图有明确颗粒收益，但平均Y分别增加7.892%／8.244%／23.112%／22.425%（约8–23%），不代表颜色更准确，也不构成全过程无拖影或完整720帧通过。
+
+成本依据来自独立的普通DXR 2 ray门运动窗口：960×540启动配置下，应用Present平均39.954935Hz，间隔p95为27.8123ms、p99为28.72332ms、最大30.7175ms；1197个间隔没有超过33.333ms。该有限窗口支持30FPS方向，采用后的成本余量较小；软件画质与DXR成本不是同一后端的联合质量／性能验收。Present不是显示FPS、GI专项时间或完整G5放行，不能据此填写正式GI／显存预算；CI接线仍按用户决定暂缓。
+
+此前[Release87普通门运动窗口](../LocalComparison/Review/release87-motion-present-01/result.md)补齐已交付降噪使用条件的有限性能依据：以960×540窗口参数启动、默认DXR、计时与反馈关闭，应用Present平均70.85Hz，间隔p95／p99为16.73／17.80ms，全部2123个间隔小于33.33ms。它支持用户30FPS方向，但不是显示FPS、GI GPU时间或滤波增量开销；不据此填写GI／显存预算，也不与旧静止窗口相减归因。普通门循环包含保持阶段，未增加逐帧渲染尺寸或后端跟踪。该次窗口已收束，无追加矩阵。
 
 ## 普通运行入口与公开配置
 
@@ -36,7 +40,7 @@ Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开�
 
 [普通Release84的DXR应用Present窗口](../LocalComparison/Review/release84-dxr-present-01/result.md)测得79.22Hz，间隔p95 14.33ms／p99 14.81ms，窗口内全部低于33.33ms。同进程F2日志在采集前后报告就绪DXR、计时和反馈关闭；只支持端点状态，不是逐帧后端证明。该有限结果支持当前30FPS方向，仍非实际显示FPS或G5通过；不据与旧83软件运行的差异宣称等画质加速。
 
-当前[Release87本机入口](../LocalComparison/Review/short-history-spatial-filter-01/result.md)已整合短历史空间滤波改进，沿用Release85的DXR偏好，按4仍可回软件。87新增邻居moments读取的增量GPU成本尚未单独测量；本页开头给出的87门运动Present是独立的新窗口，上述83／84静止结果继续保留旧来源。GI与显存正式放行预算仍未确定。
+[Release87](../LocalComparison/Review/short-history-spatial-filter-01/result.md)的短历史空间滤波改进继续保留在当前Release88，沿用Release85的DXR偏好，按4仍可回软件。87新增邻居moments读取的增量GPU成本尚未单独测量；上文87的1 ray门运动Present与88的2 ray窗口分别保留来源，不能归算为滤波增量成本。83／84静止结果也不改标为当前配置数据。GI与显存正式放行预算仍未确定。
 
 [已有DXR后端的单次同配置成本窗口](../LocalComparison/Review/release83-dxr-cost-01/result.md)实际512源帧均为DXR：GI三区间合计中位13.276ms、p95 14.334ms、p99 14.522ms；相对软件基线中位观察差−52.61%。进程local采样峰值560.941MiB、nonlocal287.691MiB。此处只提供现有后端取舍依据，没有普通显示FPS或等画质声明，也不自动改变默认和预算。
 
