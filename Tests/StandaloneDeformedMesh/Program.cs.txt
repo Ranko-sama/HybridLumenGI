@@ -10,6 +10,7 @@ static class Program
 {
     const BindingFlags PrivateInstance=BindingFlags.NonPublic|BindingFlags.Instance;
     const BindingFlags PrivateStatic=BindingFlags.NonPublic|BindingFlags.Static;
+    static readonly FieldInfo CaptureTimeBudget=typeof(HybridLumenGIDeformedMesh).GetField("CaptureBudgetMillisecondsPerFrame",BindingFlags.Public|BindingFlags.Static);
     sealed class Owner {public HybridLumenGIDeformedMesh component;public HybridLumenGIProxy proxy;public Renderer renderer;public Mesh original;}
     static void Require(bool result,string message){if(!result)throw new Exception(message);}
     static Mesh Mesh(int marker)
@@ -56,6 +57,8 @@ static class Program
     {
         HybridLumenGIDeformedMesh.VertexBudgetPerFrame=65536;HybridLumenGIDeformedMesh.MaximumWorkers=2;
         HybridLumenGIDeformedMesh.MemoryBudgetBytes=128L<<20;HybridLumenGIDeformedMesh.UploadBudgetBytesPerFrame=8L<<20;
+        // Keep historical source/control entry points compilable without the new optional API.
+        if(CaptureTimeBudget!=null)CaptureTimeBudget.SetValue(null,0d);
     }
     static void AtomicGenerationAndRetirement()
     {
@@ -122,6 +125,99 @@ static class Program
         Disable(bad);Disable(good);Finish(good,200);HybridLumenGIDeformedMesh.MaximumWorkers=0;Frame();
         Require(Job(good)==null && !HybridLumenGIDeformedMesh.HasSnapshot(good.renderer) && HybridLumenGIDeformedMesh.ReservedBytes==0,"Cancelled disabled worker published or leaked while new workers were paused.");
     }
+    static void LimitCaptureTime()
+    {
+        Require(CaptureTimeBudget!=null,"Current source lacks the capture-time budget API.");
+        CaptureTimeBudget.SetValue(null,.1d);
+    }
+    static void SpendCaptureTime()
+    {
+        // A lower-bound delay inside the existing capture hook, not a performance assertion
+        // or an injected product clock. One whole attempt exceeds the 0.1 ms allowance.
+        var elapsed=System.Diagnostics.Stopwatch.StartNew();
+        while(elapsed.Elapsed.TotalMilliseconds<1)System.Threading.Thread.SpinWait(32);
+    }
+    static void CaptureTimeBudgetDefersAndPublishes()
+    {
+        Defaults();LimitCaptureTime();HybridLumenGIDeformedMesh.VertexBudgetPerFrame=6;
+        var first=Add(1100,true);var second=Add(1101,true);
+        var firstSkin=(SkinnedMeshRenderer)first.renderer;var secondSkin=(SkinnedMeshRenderer)second.renderer;
+        var requested=typeof(HybridLumenGIDeformedMesh).GetField("requested",PrivateInstance);
+        var generation=typeof(HybridLumenGIDeformedMesh).GetField("generation",PrivateInstance);
+        var lastCapture=typeof(HybridLumenGIDeformedMesh).GetField("lastCapture",PrivateInstance);
+        object oldRequest=requested.GetValue(second.component),oldGeneration=generation.GetValue(second.component),oldCapture=lastCapture.GetValue(second.component);
+        string oldStatus=second.component.Status;long firstReservation=0;int publications=0;Mesh firstMesh=null;
+        firstSkin.Captured=_=>{firstReservation=HybridLumenGIDeformedMesh.ReservedBytes;SpendCaptureTime();};
+        secondSkin.Captured=_=>
+        {
+            Require(publications==1&&Job(first)==null&&ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(first.renderer),firstMesh),
+                "New capture ran before the previously completed job was published.");
+            SpendCaptureTime();
+        };
+        typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).SetValue(null,0);
+        Frame();Started(1100);firstMesh=PendingMesh(first);
+        Require(firstSkin.BakeCount==1&&first.component.PendingFrame==Time.frameCount&&Job(second)==null&&secondSkin.BakeCount==0&&
+            second.component.PendingFrame==-1&&second.component.Status==oldStatus&&
+            object.Equals(requested.GetValue(second.component),oldRequest)&&object.Equals(generation.GetValue(second.component),oldGeneration)&&
+            object.Equals(lastCapture.GetValue(second.component),oldCapture)&&
+            (int)typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).GetValue(null)==1&&
+            firstReservation>0&&HybridLumenGIDeformedMesh.ReservedBytes==firstReservation&&
+            HybridLumenGIDeformedMesh.VertexBudgetPerFrame==6&&HybridLumenGIDeformedMesh.MaximumWorkers==2,
+            "Exceeded allowance consumed the deferred owner's turn, request, interval or reservation.");
+        RenderPipelineManager.Begin();
+        Require(firstSkin.BakeCount==1&&secondSkin.BakeCount==0,"Another camera context reopened the exhausted engine-frame allowance.");
+        Finish(first,1100);
+        // Publication itself exceeds the capture allowance, but is outside that allowance.
+        first.proxy.OnDirty=()=>{publications++;SpendCaptureTime();};
+        Frame();Started(1101);
+        Require(publications==1&&firstSkin.BakeCount==1&&secondSkin.BakeCount==1&&second.component.PendingFrame==Time.frameCount&&
+            (int)typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).GetValue(null)==2,
+            "Next frame failed to publish completed work and resume the deferred owner's turn.");
+        PublishCompleted(second,1101);
+        Require(Job(second)==null&&HybridLumenGIDeformedMesh.HasSnapshot(second.renderer),
+            "Enabled time allowance or paused new captures blocked completed-job publication.");
+        Disable(first);Disable(second);DrainCompletedRetirements();
+        Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Time-limited successful captures failed normal retirement.");Defaults();
+    }
+    static void FailedCaptureChargesTimeBudget()
+    {
+        Defaults();LimitCaptureTime();
+        var first=Add(1200,true);var second=Add(1201,true);first.component.updateIntervalFrames=4;
+        var firstSkin=(SkinnedMeshRenderer)first.renderer;var secondSkin=(SkinnedMeshRenderer)second.renderer;
+        firstSkin.Captured=_=>{SpendCaptureTime();throw new InvalidOperationException("Controlled failure after timed capture");};
+        secondSkin.Captured=_=>SpendCaptureTime();
+        typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).SetValue(null,0);
+        Frame();
+        Require(firstSkin.BakeCount==1&&firstSkin.LastCaptured.Destroyed&&Job(first)==null&&
+            first.component.Status=="Geometry capture failed: InvalidOperationException"&&
+            secondSkin.BakeCount==0&&Job(second)==null&&second.component.PendingFrame==-1&&HybridLumenGIDeformedMesh.ReservedBytes==0,
+            "Failed capture did not charge elapsed time before the next owner, or lost private cleanup.");
+        Frame();Started(1201);
+        Require(firstSkin.BakeCount==1&&secondSkin.BakeCount==1,"Deferred owner did not progress after a timed failed capture.");
+        PublishCompleted(second,1201);Disable(first);Disable(second);DrainCompletedRetirements();
+        Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Timed failure/recovery left a reservation.");Defaults();
+    }
+    static void UnchangedCaptureChargesTimeBudget()
+    {
+        Defaults();var first=Add(1300,true);var firstSkin=(SkinnedMeshRenderer)first.renderer;
+        Frame();Started(1300);PublishCompleted(first,1300);
+        Mesh published=HybridLumenGIDeformedMesh.GetSourceMesh(first.renderer);
+        int publishedFrame=first.component.PublishedFrame;long held=HybridLumenGIDeformedMesh.ReservedBytes;
+        var second=Add(1301,true);var secondSkin=(SkinnedMeshRenderer)second.renderer;
+        firstSkin.Captured=_=>SpendCaptureTime();secondSkin.Captured=_=>SpendCaptureTime();
+        ResetBake(1300);LimitCaptureTime();
+        typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).SetValue(null,0);
+        Frame();
+        Require(firstSkin.BakeCount==2&&firstSkin.LastCaptured.Destroyed&&Job(first)==null&&!ControlledBake.For(1300).Started.IsSet&&
+            first.component.PublishedFrame==publishedFrame&&ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(first.renderer),published)&&
+            HybridLumenGIDeformedMesh.ReservedBytes==held&&secondSkin.BakeCount==0&&Job(second)==null&&second.component.PendingFrame==-1,
+            "Unchanged-capture continue skipped elapsed-time charging or disturbed the published snapshot.");
+        Frame();Started(1301);
+        Require(firstSkin.BakeCount==2&&secondSkin.BakeCount==1,"Unchanged capture consumed the deferred owner's next-frame turn.");
+        PublishCompleted(second,1301);Disable(first);Disable(second);DrainCompletedRetirements();
+        Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Timed unchanged/recovery captures left a reservation.");Defaults();
+        Console.WriteLine("PASS: whole capture may overrun its time allowance; deferred demand/turn/reservation preserved; next-frame rotation and completed-job publication progress; failed and unchanged attempts also charge time.");
+    }
     public static void Main()
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
@@ -132,8 +228,10 @@ static class Program
         // The failed snapshot is intentionally retained: isolate this case from success-suite accounting.
         if(Environment.GetEnvironmentVariable("HLGI_PUBLICATION_CLEANUP_CASE")=="1")
         {PublicationCleanupFailure();return;}
+        Require(CaptureTimeBudget!=null&&(double)CaptureTimeBudget.GetValue(null)==0d,"Optional capture-time allowance must default to disabled.");
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
         UnchangedSkinnedCaptureReuse();
+        CaptureTimeBudgetDefersAndPublishes();FailedCaptureChargesTimeBudget();UnchangedCaptureChargesTimeBudget();
         ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
         UnchangedCaptureCleanupFailure();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace HybridLumenGI
 {
@@ -28,6 +29,15 @@ namespace HybridLumenGI
         // and cancelled workers until they actually finish; these are logical byte estimates.
         public static int VertexBudgetPerFrame=65536,MaximumWorkers=2;
         public static long MemoryBudgetBytes=128L*1024*1024,UploadBudgetBytesPerFrame=8L*1024*1024;
+        /// <summary>
+        /// Optional shared elapsed-time allowance for main-thread capture per engine frame. Zero, negative or
+        /// nonfinite values disable it. After complete synchronous capture attempts
+        /// consume this time, defer starting another capture without advancing its turn.
+        /// Includes copy/BakeMesh, captured-content checks, job setup and failed/unchanged
+        /// attempt cleanup; excludes scheduling scans, completed-job publication and workers.
+        /// A single capture is not preemptible and may exceed this allowance.
+        /// </summary>
+        public static double CaptureBudgetMillisecondsPerFrame;
         public static long ReservedBytes { get; private set; }
         public static int PendingWorkerCount=>Jobs.Count;
         public static int PublishedSnapshotCount=>Published.Count;
@@ -239,9 +249,15 @@ namespace HybridLumenGI
                 // Ownership is now transferred to Published or private cleanup succeeded.
                 job.cancellation.Dispose();Jobs.RemoveAt(i);
             }
+            double captureBudget=CaptureBudgetMillisecondsPerFrame;
+            bool captureTimeLimited=captureBudget>0 && !double.IsNaN(captureBudget) && !double.IsInfinity(captureBudget);
+            double captureMilliseconds=0;
             int verticesLeft=Math.Max(0,VertexBudgetPerFrame),visits=Active.Count;
             while(visits-->0 && Active.Count>0 && Jobs.Count<Math.Max(0,MaximumWorkers))
             {
+                // Leave the next owner's turn and demand untouched. At least one
+                // otherwise eligible capture can start even with a very small allowance.
+                if(captureTimeLimited && captureMilliseconds>=captureBudget)break;
                 cursor%=Active.Count;var owner=Active[cursor++];
                 if(owner==null || !owner.isActiveAndEnabled || owner.source==null || owner.proxy==null)continue;
                 bool pending=false;foreach(var job in Jobs)pending|=ReferenceEquals(job.owner,owner);
@@ -267,6 +283,7 @@ namespace HybridLumenGI
                 var next=new Snapshot{owner=owner,reservation=reservation,uploadBytes=uploadBytes};ReservedBytes+=reservation;
                 // Failed capture attempts consume the same frame quota and retry interval.
                 verticesLeft-=vertices;owner.lastCapture=Time.frameCount;
+                long captureStarted=captureTimeLimited?Stopwatch.GetTimestamp():0;
                 try
                 {
                     bool skinCapture=owner.explicitSource==null && owner.source is SkinnedMeshRenderer;
@@ -330,6 +347,13 @@ namespace HybridLumenGI
                     owner.requested=false;owner.Status="Captured; SDF/chart worker pending";
                 }
                 catch(Exception ex) { next.Destroy();owner.Status="Geometry capture failed: "+ex.GetType().Name; }
+                finally
+                {
+                    // Finally also accounts for failed attempts and the unchanged-skin
+                    // early continue; neither can bypass the next-capture allowance.
+                    if(captureTimeLimited)
+                        captureMilliseconds+=(Stopwatch.GetTimestamp()-captureStarted)*(1000.0/Stopwatch.Frequency);
+                }
             }
         }
     }
