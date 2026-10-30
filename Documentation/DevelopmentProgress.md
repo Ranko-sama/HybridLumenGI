@@ -2,6 +2,8 @@
 
 用户已明确暂缓G5的CI接线；原CI验收条款保留未完成，不作为继续本机功能开发的前置条件。
 
+原目标1／工作流6采用[短历史空间滤波改进](../LocalComparison/Review/short-history-spatial-filter-01/result.md)：仅对两端有效短历史使用对称的已有噪声尺度，减少单边亮度权重的不对称；时间混合及成熟历史保持。唯一软件239帧同曝光对照中，门及邻近墙地黑颗粒明显减少，未见阻断性边缘劣化，云状软斑仍在；known和门面moments不变，亮度+3.12%不当颜色真值改善。主线程、独立图审和Astra同意有限采用，原720未完成保持，新增读取成本未测；本候选结束，不扩动态/参考/成本验证。
+
 原工作流9关闭[公开验证场景可能自动绑定无关Feature](../LocalComparison/Review/validation-camera-feature-01/result.md)的入口缺口：复用统一示例已有的实际相机Renderer解析，只有唯一启用且持久保存的GI Feature才预填；未配置时保留空绑定并继续生成几何。独立源码审阅及受影响Editor编译通过，两个Editor源已同步本机工程；没有重新生成场景或启动Unity／Player，Release86不变。本次没有新增多房间场景或扩展历史薄壁／内部层验证。
 
 G5接入说明同步消除了两处过时交付信息：[Implementation](Implementation.md)不再把Release76称为当前入口，改由首页维护唯一入口；不再将已有真实shader输入观察的本机描述为source-only。验证场景说明与当前Feature选择一致，保留有限证据边界；没有新增支持承诺或运行检查。

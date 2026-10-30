@@ -576,6 +576,20 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
     _HLGI_Output[pixel]=resolved;
     _HLGI_MomentsOut[pixel]=resolvedMoments;
 }
+float HLGILuminanceFilterSigma(float4 moments)
+{
+    float variance=max(moments.y-moments.x*moments.x,0);
+    float sigma=max(sqrt(variance)*4,0.05);
+    // Preserve first-frame spatial support and mature temporal filtering, while
+    // tapering their sigma difference across the existing four-frame window.
+    if(moments.z<4)
+    {
+        float spatialSigma=max(sqrt(max(variance,moments.w*(4/max(moments.z,1))))*4,0.05);
+        sigma=lerp(sigma,spatialSigma,saturate((4-moments.z)/3));
+    }
+    return sigma;
+}
+
 [numthreads(8,8,1)]
 void CSFilter(uint3 id:SV_DispatchThreadID)
 {
@@ -591,15 +605,8 @@ void CSFilter(uint3 id:SV_DispatchThreadID)
     float3 p=WorldPosition(HLGIGiSampleUv((uint2)pixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),g.w,_HLGI_InvVP);
     float3 rho=_HLGI_Material.Load(int3(pixel,0)).rgb;
     float4 moments=_HLGI_Moments.Load(int3(pixel,0));
-    float variance=max(moments.y-moments.x*moments.x,0);
-    float sigma=max(sqrt(variance)*4,0.05);
-    // Preserve first-frame spatial support and mature temporal filtering, while
-    // tapering their sigma difference across the existing four-frame window.
-    if(moments.z<4)
-    {
-        float spatialSigma=max(sqrt(max(variance,moments.w*(4/max(moments.z,1))))*4,0.05);
-        sigma=lerp(sigma,spatialSigma,saturate((4-moments.z)/3));
-    }
+    float sigma=HLGILuminanceFilterSigma(moments);
+    bool shortHistory=all(isfinite(moments)) && isfinite(sigma) && moments.z>0 && moments.z<4;
     float3 sum=center.rgb*4; float weight=4;
     [unroll] for(int y=-1;y<=1;y++) [unroll] for(int x=-1;x<=1;x++)
     {
@@ -615,8 +622,22 @@ void CSFilter(uint3 id:SV_DispatchThreadID)
         float3 qrho=_HLGI_Material.Load(int3(q,0)).rgb;
         float normalWeight=pow(saturate(dot(shadingNormal,neighborShadingNormal)),32);
         float planeDistance=max(abs(dot(qp-p,geometricNormal)),abs(dot(qp-p,neighborGeometricNormal)));
+        float pairSigma=sigma;
+        if(shortHistory)
+        {
+            float4 neighborMoments=_HLGI_Moments.Load(int3(q,0));
+            if(all(isfinite(neighborMoments)) && neighborMoments.z>0 && neighborMoments.z<4)
+            {
+                // Short histories have noisy current-frame edges. Use the same
+                // width in either direction instead of letting a quiet dark tap
+                // reject a noisy bright tap that accepts it in return. Mature
+                // histories and incomplete neighbor statistics retain the old rule.
+                float neighborSigma=HLGILuminanceFilterSigma(neighborMoments);
+                if(isfinite(neighborSigma))pairSigma=0.5*sigma+0.5*neighborSigma;
+            }
+        }
         float w=exp(-planeDistance/max(_HLGI_DepthThreshold,0.001)-length(qrho-rho)*8-
-            abs(LuminanceGI(sampleGI.rgb)-LuminanceGI(center.rgb))/sigma)*normalWeight;
+            abs(LuminanceGI(sampleGI.rgb)-LuminanceGI(center.rgb))/pairSigma)*normalWeight;
         w*= (x==0?2:1)*(y==0?2:1);
         sum+=sampleGI.rgb*w; weight+=w;
     }
