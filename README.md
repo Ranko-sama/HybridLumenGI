@@ -40,6 +40,8 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 
 ## 当前画质结论
 
+最新[重新开灯对照](LocalComparison/Review/light-restore-response-01/result.md)：Release83在恢复后30帧，Floor／White平均间接入射D达到开灯前观测的74.65%／65.68%；59帧为98.36%／96.78%，未知不增。当前照明能恢复，首帧颗粒与响应延迟仍在；这些有限时点不等于精确收敛时间或整体动态验收。
+
 [Release83刚体历史对照](LocalComparison/Review/rigid-pose-history-01/result.md) · [Release82修复与独立对照](LocalComparison/Review/stationary-history-01/result.md) · [修复前frame119对照](LocalComparison/Review/current-color-frame119-01/result.md) · [既有动态对照图与曲线](LocalComparison/Review/dynamic-picture-comparison-01/index.html) · [阅读四项结论及适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md) · [Release76关灯基线](LocalComparison/Review/current-lightoff-prefix-01/result.md) · [Release78缓存改进对照](LocalComparison/Review/cache-source-separation-01/result.md)
 
 | 问题 | 当前结论 |
@@ -49,7 +51,7 @@ Release81 接通[普通Player的GPU计时与反馈入口](LocalComparison/Review
 | 运动拖影 | Release83修复刚体同帧重传的错误硬拒绝；239帧门面2724／2739点恢复短历史，黑颗粒明显减少，软斑驳仍在。单帧不能证明全过程无拖影；限定相机/TAA场景的显露拒绝证据保留原来源。 |
 | 收敛时间 | 现有采样只能回答观测时点及区间，最后一帧不是收敛真值；尚不能给出整景达到正确颜色的统一帧数。 |
 
-Release83仅新增正常产品0–239前缀的239帧历史与画面对照，不新增颜色参考或收敛结论；本项验证已结束。首批候选图与动态曲线保持旧来源。Release82修复复用保存场景的一次0–299前缀，D119/239/270/299完整；D240触及已有Capture容量而缺失，原分析失败保留，普通240出射图不能替代D。没有补采，不外推局部换色、任意运动或精确收敛。此前Release76/78的关灯观察运行原序列的 0–299 前缀，保存 239／240／270／299 四帧；其量为乘过反射率、AO 和强度的**间接漫反射出射贡献**，不是参考中的 D=E/π。原序列与 Editor 的 `failed`、native exit 1 因提前结束而保留，不记为 720 帧通过，也不与旧 D 图直接计算物理误差。
+Release83刚体修复的专项只新增正常产品0–239前缀的239帧历史与画面对照，该项验证已结束。后续0–359重新开灯观察见上方链接，复用原独立参考，没有生成新参考或给出精确收敛时刻。首批候选图与动态曲线保持旧来源。Release82修复复用保存场景的一次0–299前缀，D119/239/270/299完整；D240触及已有Capture容量而缺失，原分析失败保留，普通240出射图不能替代D。没有补采，不外推局部换色、任意运动或精确收敛。此前Release76/78的关灯观察运行原序列的 0–299 前缀，保存 239／240／270／299 四帧；其量为乘过反射率、AO 和强度的**间接漫反射出射贡献**，不是参考中的 D=E/π。原序列与 Editor 的 `failed`、native exit 1 因提前结束而保留，不记为 720 帧通过，也不与旧 D 图直接计算物理误差。
 
 随后尝试的 32 次相机准备响应窗口未达到采用条件，已撤回 Runtime 修改，未成为当前功能，见[未采用候选结果](LocalComparison/Review/global-light-response-window-01/result.md)。Release78采用独立的来源分离实现：关灯首帧→第59帧的平均逐像素绝对Y变化降低92.2%，第30→59帧降低80.0%，同曝光接收面反弹保留。它们是快照变化而非物理误差或收敛速度；缓存存储增加20%，实际带宽/时间增量未测。触发条件是上传灯表为空，不等同于Unity场景中所有灯关闭。
 
