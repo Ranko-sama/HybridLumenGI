@@ -43,7 +43,7 @@ namespace HybridLumenGI
         public UnityEngine.Mesh SourceMesh=new();public UnityEngine.Texture3D DistanceTexture=new();
         public UnityEngine.Bounds LocalBounds;public int Resolution=16;public bool Watertight=true;public float InterpolationError=.1f;
     }
-    public sealed class HybridLumenGIProxy{public HybridLumenGIMeshSdf MeshSdf;public int StableId,Revision=3;public UnityEngine.Matrix4x4 SdfLocalToWorld;}
+    public sealed class HybridLumenGIProxy{public string name;public HybridLumenGIMeshSdf MeshSdf;public int StableId,Revision=3;public UnityEngine.Matrix4x4 SdfLocalToWorld;}
     public sealed class HybridLumenGIScene
     {
         public struct ProxyGpuData{public UnityEngine.Vector4 identity;}
@@ -54,7 +54,7 @@ namespace HybridLumenGI
         public HybridLumenGIScene(int count)
         {
             Data=new ProxyGpuData[count];Proxies=new HybridLumenGIProxy[count];
-            for(int i=0;i<count;i++){Data[i].identity=new UnityEngine.Vector4(101+i,3,0,2);Proxies[i]=new HybridLumenGIProxy{StableId=101+i};}
+            for(int i=0;i<count;i++){Data[i].identity=new UnityEngine.Vector4(101+i,3,0,2);Proxies[i]=new HybridLumenGIProxy{StableId=101+i,name="Owner "+(101+i)};}
         }
         public bool IsWarming(int slot)=>slot>=0&&slot<Data.Length&&Data[slot].identity.w==2;
         public HybridLumenGIProxy GetProxy(int slot)=>Proxies[slot];

@@ -11,6 +11,15 @@ namespace HybridLumenGI
     {
         [StructLayout(LayoutKind.Sequential)]
         public struct CacheEntry { public Vector4 irradiance,tag,anchor,normal,guide,nonAnalyticIrradiance; }
+        [Serializable]
+        public struct CoverageBlock
+        {
+            public bool observed, requiresEachChart;
+            public int sourceWorkFrame, ownerId, ownerRevision, cardOrdinal, physicalCard, patch;
+            public string ownerName, reason;
+        }
+        /// <summary>First coverage blocker in the most recent usable callback, at its recorded work frame.</summary>
+        public CoverageBlock LastCoverageBlock { get; private set; }
         private sealed class Snapshot
         {
             internal int slot,id,revision;
@@ -34,13 +43,15 @@ namespace HybridLumenGI
         public int CompletedReadbacks { get; private set; }
         public int FailedReadbacks { get; private set; }
         public int AcceptedTickets { get; private set; }
-        public void Invalidate() { invalidationSerial++; }
+        public void Invalidate() { invalidationSerial++; LastCoverageBlock=default; }
 
         public void Record(CommandBuffer command,HybridLumenGIScene scene,HybridLumenGISdfAtlas sdf,
             HybridLumenGISurfaceCache surface,ComputeBuffer cache,int grid,int epoch,int frame,int requiredSamples=2)
         {
             if(scene==null || sdf==null || surface==null || cache==null || command==null) throw new ArgumentNullException();
             if(grid<1 || grid>4) throw new ArgumentOutOfRangeException(nameof(grid));
+            if(currentEpoch!=epoch || currentGrid!=grid || scene.WarmingCount==0 || !SystemInfo.supportsAsyncGPUReadback)
+                LastCoverageBlock=default;
             currentEpoch=epoch;currentGrid=grid;
             if(disposed || pending || scene.WarmingCount==0 || frame-lastRequestFrame<4 || !SystemInfo.supportsAsyncGPUReadback) return;
             var snapshots=new List<Snapshot>();
@@ -73,7 +84,7 @@ namespace HybridLumenGI
                 if(!valid) { scene.ReportReadiness(id,revision,geometryReady,false,false);continue; }
                 snapshots.Add(snapshot);
             }
-            if(snapshots.Count==0) return;
+            if(snapshots.Count==0) { LastCoverageBlock=default;return; }
             uint atlasGeneration=surface.AtlasGeneration;int serial=invalidationSerial;
             int perCard=grid*grid;
             pending=true;lastRequestFrame=frame;
@@ -84,6 +95,7 @@ namespace HybridLumenGI
             command.RequestAsyncReadback(cache,request=>
             {
                 pending=false;
+                LastCoverageBlock=default;
                 // Cache buffers normally alternate every frame. Their replacement/disposal must
                 // invalidate this coordinator or advance the epoch; buffer identity is not a version.
                 if(disposed || serial!=invalidationSerial || currentEpoch!=epoch || currentGrid!=grid ||
@@ -95,29 +107,49 @@ namespace HybridLumenGI
                 {
                     if(!CurrentSnapshot(scene,surface,snapshot)) continue;
                     bool ready=true,anyCovered=false;
+                    string reason=null;
+                    int blockedOrdinal=-1,blockedPatch=-1;
                     for(int ordinal=0;ordinal<snapshot.cards.Length && ready;ordinal++)
                     {
                         int card=snapshot.cards[ordinal];bool cardCovered=false;
                         for(int local=0;local<perCard;local++)
                         {
                             long index=(long)card*perCard+local;
-                            if(index>=data.Length || !ValidatePatch(data[(int)index],snapshot.id,snapshot.revision,epoch,snapshot.generations[ordinal],requiredSamples,out bool covered))
-                            { ready=false;break; }
+                            if(index>=data.Length)
+                            { ready=false;reason="Missing cache entry";blockedOrdinal=ordinal;blockedPatch=local;break; }
+                            if(!ValidatePatch(data[(int)index],snapshot.id,snapshot.revision,epoch,snapshot.generations[ordinal],requiredSamples,out bool covered))
+                            {
+                                ready=false;blockedOrdinal=ordinal;blockedPatch=local;
+                                reason=covered?"Covered patch below required sample age":"Invalid cache entry or tag mismatch";
+                                break;
+                            }
                             cardCovered|=covered;
                         }
                         anyCovered|=cardCovered;
                         // Authored charts are required surface domains: every chart needs a real
                         // covered patch. Legacy six-view fallback only promises object-level coverage.
-                        if(snapshot.requireEachCard && !cardCovered) ready=false;
+                        if(ready && snapshot.requireEachCard && !cardCovered)
+                        { ready=false;reason="Required chart has no covered cache patch";blockedOrdinal=ordinal; }
                     }
                     bool geometryReady=GeometryReady(scene,sdf,snapshot.slot,snapshot.id,snapshot.revision) &&
                         SameGeometrySource(snapshot,scene.GetProxy(snapshot.slot));
                     // An entirely empty card set is not evidence of initialized lighting.
-                    if(scene.ReportReadiness(snapshot.id,snapshot.revision,geometryReady,true,ready&&anyCovered) && geometryReady&&ready&&anyCovered) AcceptedTickets++;
+                    if(!scene.ReportReadiness(snapshot.id,snapshot.revision,geometryReady,true,ready&&anyCovered) || !geometryReady) continue;
+                    if(ready && anyCovered) AcceptedTickets++;
+                    else if(!LastCoverageBlock.observed)
+                    {
+                        LastCoverageBlock=new CoverageBlock
+                        {
+                            observed=true,sourceWorkFrame=frame,ownerId=snapshot.id,ownerRevision=snapshot.revision,
+                            ownerName=scene.GetProxy(snapshot.slot).name,requiresEachChart=snapshot.requireEachCard,
+                            cardOrdinal=blockedOrdinal,physicalCard=blockedOrdinal<0?-1:snapshot.cards[blockedOrdinal],
+                            patch=blockedPatch,reason=reason??"Fallback owner has no covered cache patch"
+                        };
+                    }
                 }
             });
             }
-            catch(Exception) { pending=false;FailedReadbacks++; }
+            catch(Exception) { pending=false;LastCoverageBlock=default;FailedReadbacks++; }
         }
 
         private static bool ValidCardOwner(HybridLumenGISurfaceCache surface,int card,int slot)
@@ -181,6 +213,6 @@ namespace HybridLumenGI
             return entry.irradiance.w>=Mathf.Max(1,requiredSamples);
         }
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
-        public void Dispose() { disposed=true;invalidationSerial++; }
+        public void Dispose() { disposed=true;Invalidate(); }
     }
 }

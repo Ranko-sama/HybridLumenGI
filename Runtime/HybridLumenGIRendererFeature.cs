@@ -37,6 +37,7 @@ namespace HybridLumenGI
             public int proposalCapacity,proposalBudget;
             public int globalReadyBricks,globalPendingBricks,globalUpdatedBricks;
             public int completedHlodReadbacks,failedHlodReadbacks,acceptedInitializationTickets;
+            public HybridLumenGIHlodReadback.CoverageBlock lastHlodCoverageBlock;
             public bool hlodReadbackPending,hardwareBackend;
             public int hardwareMeshes,hardwareFallbacks,hardwareSceneRebuilds,hardwareTransformUpdates,hardwareTriangleUploads,hardwareBindingUploads;
             public string hardwareMaterialStatus;
@@ -1438,6 +1439,7 @@ namespace HybridLumenGI
                         proposalCapacity=HybridLumenGIEmissiveSampling.ProposalCapacity,proposalBudget=EffectiveEmissiveBudget,
                         cachePatchesScheduled=c.scheduler.SelectedCount,globalReadyBricks=c.globalSdf.ReadyBrickCount,globalPendingBricks=c.globalSdf.PendingBrickCount,globalUpdatedBricks=c.globalSdf.UpdatedBrickCount,
                         completedHlodReadbacks=c.readiness.CompletedReadbacks,failedHlodReadbacks=c.readiness.FailedReadbacks,acceptedInitializationTickets=c.readiness.AcceptedTickets,hlodReadbackPending=c.readiness.Pending,
+                        lastHlodCoverageBlock=c.readiness.LastCoverageBlock,
                         hardwareBackend=c.lastHardware,hardwareMeshes=c.hardware.MeshCount,hardwareFallbacks=c.hardware.FallbackCount,
                         hardwareSceneRebuilds=c.hardware.SceneRebuildCount,hardwareTransformUpdates=c.hardware.TransformUpdateCount,hardwareTriangleUploads=c.hardware.TriangleUploadCount,
                         hardwareBindingUploads=c.hardware.BindingUploadCount,surfaceTriangleMappingCpuBytes=c.surfaceCache.TriangleMappingBytes,

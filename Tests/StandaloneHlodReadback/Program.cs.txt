@@ -28,8 +28,9 @@ void Layout(HybridLumenGISurfaceCache surface,int[][] cards,int capacity)
         foreach(int card in cards[slot])surface.CardOwners[card]=slot;
     }
 }
-Require(Marshal.SizeOf<Entry>()==80,"Readback CacheEntry stride differs from GPU cache.");
-Require((int)Marshal.OffsetOf<Entry>("tag")==16&&(int)Marshal.OffsetOf<Entry>("guide")==64,"Readback cache offsets differ from GPU cache.");
+Require(Marshal.SizeOf<Entry>()==96,"Readback CacheEntry stride differs from GPU cache.");
+Require((int)Marshal.OffsetOf<Entry>("tag")==16&&(int)Marshal.OffsetOf<Entry>("guide")==64&&
+    (int)Marshal.OffsetOf<Entry>(nameof(Entry.nonAnalyticIrradiance))==80,"Readback cache offsets differ from GPU cache.");
 Require(HybridLumenGIHlodReadback.ValidatePatch(default,101,3,7,10,2,out bool empty)&&!empty,"Explicitly cleared uncovered patch was rejected.");
 Require(HybridLumenGIHlodReadback.ValidatePatch(Valid(),101,3,7,10,2,out bool covered)&&covered,"Two-sample current patch was rejected.");
 Require(!HybridLumenGIHlodReadback.ValidatePatch(Valid(count:1),101,3,7,10,2,out covered)&&covered,"One-sample covered patch passed two-sample readiness.");
@@ -109,12 +110,20 @@ for(int slot=0;slot<3;slot++)foreach(int emptyCard in variableCards[slot])
     Array.Clear(data,emptyCard*4,4);f.command.Complete(0,data);
     Require(f.readback.AcceptedTickets==2&&!f.scene.Ready(101+slot,3),"A required chart was entirely empty but its owner was accepted: "+emptyCard);
 }
-var mixed=Setup(2);Layout(mixed.surface,new[]{new[]{2,5},new[]{0,3,7}},8);mixed.surface.RequiredCoverage[1]=false;Record(mixed);
+var mixed=Setup(2);Layout(mixed.surface,new[]{new[]{2,5},new[]{0,3,7}},8);mixed.surface.RequiredCoverage[1]=false;Record(mixed,frame:21);
 var mixedData=new Entry[32];mixedData[2*4]=Valid(generation:mixed.surface.Generations[2]);mixedData[7*4]=Valid(102,generation:mixed.surface.Generations[7]);
 mixed.command.Complete(0,mixedData);
 Require(mixed.readback.AcceptedTickets==1&&!mixed.scene.Ready(101,3)&&mixed.scene.Ready(102,3),"Required chart completeness and legacy object-level coverage were conflated.");
-var underSampled=Setup();Layout(underSampled.surface,new[]{new[]{5,2}},8);Record(underSampled);var underData=Data(underSampled.surface);underData[5*4+3].irradiance.w=1;underSampled.command.Complete(0,underData);
+var emptyChart=mixed.readback.LastCoverageBlock;
+Require(emptyChart.observed && emptyChart.sourceWorkFrame==21 && emptyChart.ownerId==101 && emptyChart.ownerRevision==3 &&
+    emptyChart.ownerName=="Owner 101" && emptyChart.requiresEachChart && emptyChart.cardOrdinal==1 && emptyChart.physicalCard==5 &&
+    emptyChart.patch==-1 && emptyChart.reason=="Required chart has no covered cache patch","Empty authored chart was not identified in the source frame.");
+var underSampled=Setup();Layout(underSampled.surface,new[]{new[]{5,2}},8);Record(underSampled,frame:37);var underData=Data(underSampled.surface);underData[5*4+3].irradiance.w=1;underSampled.command.Complete(0,underData);
 Require(!underSampled.scene.Ready(101,3),"One initialized patch hid another covered but undersampled patch in the same chart.");
+var youngPatch=underSampled.readback.LastCoverageBlock;
+Require(youngPatch.observed && youngPatch.sourceWorkFrame==37 && youngPatch.ownerId==101 && youngPatch.cardOrdinal==0 &&
+    youngPatch.physicalCard==5 && youngPatch.patch==3 && youngPatch.reason=="Covered patch below required sample age",
+    "An identified covered patch below the age threshold was reported as an empty chart or lost its address.");
 
 foreach(string mutation in new[]{"layout","order","missing","added","owner","generation","policy","pool shrink","source"})
 {
@@ -166,8 +175,10 @@ Require(cacheReplaced.readback.AcceptedTickets==0&&cacheReplaced.scene.Reports.C
 var gridChanged=Setup();Record(gridChanged);Record(gridChanged,1,grid:4);gridChanged.command.Complete(0,Data(gridChanged.surface));
 Require(gridChanged.readback.AcceptedTickets==0&&gridChanged.scene.Reports.Count==0,"Changed patch grid accepted old addressing without an epoch change.");
 var recoveredLayout=Setup();Layout(recoveredLayout.surface,new[]{new[]{2,5}},8);Record(recoveredLayout);var staleData=Data(recoveredLayout.surface);
+Array.Clear(staleData,5*4,4); // This empty chart belongs exclusively to the old mapping.
 Layout(recoveredLayout.surface,new[]{new[]{7,0,4}},8);recoveredLayout.command.Complete(0,staleData);
-Require(recoveredLayout.readback.AcceptedTickets==0,"Old-layout callback passed during card pool reuse.");
+Require(recoveredLayout.readback.AcceptedTickets==0&&recoveredLayout.scene.Reports.Count==0&&!recoveredLayout.readback.LastCoverageBlock.observed,
+    "Old-layout callback published coverage or a ticket during card pool reuse.");
 Record(recoveredLayout,4);recoveredLayout.command.Complete(1,Data(recoveredLayout.surface));
 Require(recoveredLayout.readback.AcceptedTickets==1&&recoveredLayout.scene.Ready(101,3),"Current variable layout did not recover after stale callback rejection.");
 
