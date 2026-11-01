@@ -2,6 +2,8 @@
 
 ## 当前总进度：Release101，G0本机基线锁定完成，G1–G5未整体放行
 
+G2 已补齐可读网格在既有 Prefab 实例上烘焙、保存与重开的依据，SDF 和 surface charts 引用均保留在实例上。SDF 烘焙入口另修复了未识别磁盘上已有但尚未导入的目标文件的问题。[作者工具实测](../LocalComparison/Review/baker-path-and-prefab-01/result.md)
+
 G5 已补齐普通门持续运动时的 GI 专项成本与同窗显存。源帧 159–670 的门位移横跨 2.2 个本地单位，逐帧三段合计 p95 为 16.984 ms，同窗 local 峰值为 568.816 MiB，均达到本机起始目标。[逐帧配对、门位移及显存](../LocalComparison/Review/door-motion-budget-01/result.md)
 
 G4 的半小时跨驻留范围使用已在 Release100 专项构建上完成。每次离场，组页、引用和驻留估算字节均归零；每次返近都重新发布完整 DXR 细节组。进程 local / nonlocal 有限采样峰值分别为 574.508 / 288.359 MiB。[30 分钟路线与原始账目](../LocalComparison/Review/streaming-sustained-30m-01/result.md)

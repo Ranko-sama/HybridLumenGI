@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using HybridLumenGI;
@@ -34,7 +34,7 @@ public sealed class HybridLumenGIMeshSdfBaker : EditorWindow
         }
         string path = EditorUtility.SaveFilePanelInProject("Save mesh distance field", mesh.name + "_SDF", "asset", "Choose a new mesh-SDF asset path.");
         if (string.IsNullOrEmpty(path)) return;
-        if (AssetDatabase.LoadMainAssetAtPath(path) != null)
+        if (File.Exists(path) || AssetDatabase.LoadMainAssetAtPath(path) != null)
         {
             Debug.LogError("[HybridLumenGI] Choose a new asset path to preserve existing baked data.");
             return;
