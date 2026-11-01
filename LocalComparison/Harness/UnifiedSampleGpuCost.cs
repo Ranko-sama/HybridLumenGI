@@ -1,5 +1,5 @@
 // Temporary Player observer. Reuses the product's completed native timestamp records.
-// No render target, image readback, new GPU query, transport change or scene event.
+// The optional door workload runs the ordinary sample interaction on the existing backbuffer.
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,10 +20,14 @@ public sealed class UnifiedSampleGpuCost : MonoBehaviour
     HybridLumenGIStreamedRepresentation aggregate;HybridLumenGIStreamedRepresentation[] details;
     HashSet<HybridLumenGIProxy> visible;List<HybridLumenGIProxy> published,target;
     HybridLumenGIUnifiedSample.Ledger startLedger,endLedger;
+    HybridLumenGIUnifiedSampleInteraction interaction;
+    Transform door;
+    bool doorMotion, memoryWindowCaptured;
+    HybridLumenGIVideoMemory.Snapshot memoryWindow;
     object state;FieldInfo[] fields;HybridLumenGINativeGpuTiming timing;
     HybridLumenGIGpuBudgetController controller;HybridLumenGIScene scene;
     HybridLumenGISurfaceCache surface;HybridLumenGIGlobalSdf global;
-    HybridLumenGIHardwareBackend software;HybridLumenGIReceiverHistory receiver;
+    HybridLumenGIHardwareBackend geometry;HybridLumenGIReceiverHistory receiver;
     HybridLumenGICacheScheduler scheduler;
     string outputRoot,directory,settingsBefore,settingsJson,failure;
     Vector3 cameraPosition;Quaternion cameraRotation;Matrix4x4 cameraProjection;
@@ -41,6 +45,8 @@ public sealed class UnifiedSampleGpuCost : MonoBehaviour
 
     [Serializable] struct Frame
     {
+        public bool doorMoving;
+        public Vector3 doorPosition;
         public int index,engineFrame,giFrame,width,height,fullWidth,fullHeight,generation,stage;
         public ulong token,owner,deviceEpoch;public long epoch;
         public bool native,hardware,exactSoftware,identity,published,feedback,ready,groupPublished,groupTransitioning;
@@ -65,7 +71,8 @@ public sealed class UnifiedSampleGpuCost : MonoBehaviour
         public string status,error,unity,gpu,api,driver,scene,scope,outputDirectory;
         public int warmupLimit=WarmupLimit,window=Window,drainLimit=Drain,frameLimit=Limit,frames,completions,windowCompletions,
             sourceStart,sourceEnd,firstEngineFrame,backbufferWidth=960,backbufferHeight=540,vSyncCount,targetFrameRate;
-        public bool measureOnly,adaptive;public float targetMs;
+        public bool measureOnly,adaptive,doorMotion,memoryWindowCaptured;public float targetMs;
+        public HybridLumenGIVideoMemory.Snapshot memoryWindow;
         public string[] scopes={"ReceiverCapture","Transport","Composite"};
         public string scopeExclusions="CPU preparation, uploads outside scopes, query resolve, whole-app GPU time and total driver VRAM. Queue intervals can include barriers/waits. Ledger estimates are not additive or a total-VRAM measurement.";
     }
@@ -84,8 +91,19 @@ public sealed class UnifiedSampleGpuCost : MonoBehaviour
         {
             var samples=UnityEngine.Object.FindObjectsByType<HybridLumenGIUnifiedSample>(FindObjectsSortMode.None);
             Require(samples.Length==1,"Exactly one existing UnifiedSample is required");host.sample=samples[0];
-            // AfterSceneLoad precedes Start. Disabling these never creates a producer mesh or moves the scene.
-            foreach(var input in UnityEngine.Object.FindObjectsByType<HybridLumenGIUnifiedSampleInteraction>(FindObjectsSortMode.None))input.enabled=false;
+            var inputs=UnityEngine.Object.FindObjectsByType<HybridLumenGIUnifiedSampleInteraction>(FindObjectsSortMode.None);
+            host.doorMotion=Array.IndexOf(args,"-hlgiDoorMotion")>=0;
+            if(host.doorMotion)
+            {
+                Require(inputs.Length==1 && inputs[0].isActiveAndEnabled,"Expected one ordinary interaction");
+                host.interaction=inputs[0];
+                var motion=Field(host.interaction,"door") as HybridLumenGIValidationMotion;
+                Require(motion,"The sample has no moving door");
+                host.door=motion.transform;
+                typeof(HybridLumenGIUnifiedSampleInteraction).GetField("showControls",Fields).SetValue(host.interaction,false);
+                host.sample.MeasureVideoMemory=false;
+            }
+            else foreach(var input in inputs)input.enabled=false;
             host.sample.ShowControls=false;
         }
         catch(Exception error){host.Fail(error.ToString());}
@@ -106,7 +124,7 @@ public sealed class UnifiedSampleGpuCost : MonoBehaviour
             Require(targetCamera&&feature&&feature.isActive&&streamer&&aggregate&&details!=null&&details.Length>0&&visible!=null,"Existing sample references missing");
             published=new List<HybridLumenGIProxy>(details.Length+1);target=new List<HybridLumenGIProxy>(details.Length+1);
             settings=Field(feature,"settings") as HybridLumenGIRendererFeature.Settings;
-            Require(settings!=null&&!settings.preferHardwareTracing&&settings.exactSoftwareTracing,"Keep the authored exact-software preference; do not force DXR");
+            Require(settings!=null&&settings.preferHardwareTracing==doorMotion&&settings.exactSoftwareTracing,"Unexpected authored backend preference");
             settingsBefore=JsonUtility.ToJson(settings,true);
             settings.measureGpuCost=true;settings.preferNativeGpuTiming=true;settings.adaptiveGpuBudget=false;settings.targetGpuMilliseconds=0;
             settingsJson=JsonUtility.ToJson(settings);
@@ -132,7 +150,7 @@ public sealed class UnifiedSampleGpuCost : MonoBehaviour
         fields=new FieldInfo[Names.Length];for(int i=0;i<Names.Length;i++)fields[i]=state.GetType().GetField(Names[i],Fields)??throw new Exception("Missing field "+Names[i]);
         timing=(HybridLumenGINativeGpuTiming)Field(state,"nativeGpuTiming");controller=(HybridLumenGIGpuBudgetController)Field(state,"gpuBudget");
         scene=(HybridLumenGIScene)Field(state,"scene");surface=(HybridLumenGISurfaceCache)Field(state,"surfaceCache");global=(HybridLumenGIGlobalSdf)Field(state,"globalSdf");
-        software=(HybridLumenGIHardwareBackend)Field(state,"softwareGeometry");receiver=(HybridLumenGIReceiverHistory)Field(state,"receiverHistory");
+        geometry=(HybridLumenGIHardwareBackend)Field(state,doorMotion?"hardware":"softwareGeometry");receiver=(HybridLumenGIReceiverHistory)Field(state,"receiverHistory");
         scheduler=(HybridLumenGICacheScheduler)Field(state,"scheduler");
     }
     void Rendered(ScriptableRenderContext context,Camera camera)
@@ -149,7 +167,8 @@ public sealed class UnifiedSampleGpuCost : MonoBehaviour
                 published=receiver.IsPublished,feedback=controller.FeedbackActive,instances=scene.PublishedCount,warming=scene.WarmingCount,
                 capacityPending=scene.PendingCapacity,cards=surface.ReadyCards,cardPending=surface.PendingCards,
                 globalReady=global.ReadyBrickCount,globalPending=global.PendingBrickCount,globalUpdated=global.UpdatedBrickCount,
-                meshes=software.MeshCount,unrepresented=software.FallbackCount,patchQuota=budget.CachePatches,captureQuota=budget.SurfaceCaptures,
+                meshes=geometry.MeshCount,unrepresented=geometry.FallbackCount,patchQuota=budget.CachePatches,captureQuota=budget.SurfaceCaptures,
+                doorMoving=doorMotion&&interaction.DoorMoving,doorPosition=doorMotion?door.localPosition:default,
                 brickQuota=budget.GlobalBricks,scale=budget.Scale,patchesScheduled=scheduler.SelectedCount,
                 uploadBytes=HybridLumenGIRayTexturePool.UploadBytesUsed,timingStatus=timing.Status.ToString(),visibleMembers=visible.Count};
             bool publicationKnown=feature.TryGetHlodPublication(camera,aggregate.Proxy,published,target,out var publication);
@@ -176,29 +195,42 @@ public sealed class UnifiedSampleGpuCost : MonoBehaviour
             {Require(sampleCount<completions.Length,"Completion export overflow");completions[sampleCount++]=value;}
             r.completed=timing.CompletedResults;r.exported=timing.ExportedResults;r.unexported=timing.UnexportedResults;r.invalid=timing.InvalidCompletedResults;
             r.cancelled=timing.CancelledSubmissions;r.timedOut=timing.TimedOutSubmissions;r.feedbackRejected=timing.RejectedResults;r.buffered=timing.BufferedCompletedRecords;r.pending=timing.PendingCount;
-            r.ready=token.IsValid&&token.EngineFrame==Time.frameCount&&r.native&&!r.hardware&&r.exactSoftware&&r.instances>0&&r.warming==0&&r.capacityPending==0&&
-                r.cards>0&&r.cardPending==0&&(!settings.globalSdfEnabled||r.globalPending==0)&&r.groupPublished&&!r.groupTransitioning&&streamer.Available&&pages!=null&&
-                r.pagePending==0&&r.pageFailed==0&&r.pageActiveOperations==0&&r.pageIoBytesInFlight==0&&r.pageRetiringLeases==0&&
+            bool settled=r.warming==0&&r.capacityPending==0&&r.cardPending==0&&(!settings.globalSdfEnabled||r.globalPending==0)&&
                 (!settings.receiverObjectHistory||r.identity&&r.published&&r.identityDraws>0&&r.identityUnknown==0)&&r.materialUnknown==0&&r.uploadBytes==0;
+            bool movingWindow=doorMotion&&start>=0;
+            // Retain the cost of recaptures, dirty bricks and uploads caused by motion.
+            r.ready=token.IsValid&&token.EngineFrame==Time.frameCount&&r.native&&r.hardware==doorMotion&&r.exactSoftware!=doorMotion&&
+                r.instances>0&&r.cards>0&&r.groupPublished&&!r.groupTransitioning&&streamer.Available&&pages!=null&&
+                r.pagePending==0&&r.pageFailed==0&&r.pageActiveOperations==0&&r.pageIoBytesInFlight==0&&r.pageRetiringLeases==0&&
+                (movingWindow ? r.doorMoving && r.groupMembers==details.Length : settled);
             r.stage=start<0?0:Time.frameCount<=end?1:2;frames[count++]=r;lastEngine=Time.frameCount;
             bool initialization=start<0&&!token.IsValid&&timing.Status==HybridLumenGINativeGpuTiming.TimingStatus.Invalidated;
             Require(r.native&&timing.Available&&((token.IsValid&&token.EngineFrame==Time.frameCount)||initialization),"NativeDX12 submission unavailable: "+r.timingStatus);
             Require(!settings.adaptiveGpuBudget&&settings.measureGpuCost&&settings.preferNativeGpuTiming&&settings.targetGpuMilliseconds==0&&!r.feedback&&r.scale==1&&
                 r.patchQuota==Mathf.Clamp(settings.cachePatchesPerFrame,1,4096)&&r.captureQuota==Mathf.Clamp(settings.surfaceCapturesPerFrame,1,96)&&
                 r.brickQuota==(settings.globalSdfEnabled?Mathf.Clamp(settings.globalSdfBricksPerFrame,1,128):0),"Static measurement-only quotas changed");
-            Require(sample.isActiveAndEnabled&&!sample.ShowControls&&feature.isActive&&!settings.preferHardwareTracing&&settings.exactSoftwareTracing&&
+            Require(sample.isActiveAndEnabled&&!sample.ShowControls&&feature.isActive&&settings.preferHardwareTracing==doorMotion&&settings.exactSoftwareTracing&&
                 camera.targetTexture==null&&camera.transform.position==cameraPosition&&camera.transform.rotation==cameraRotation&&camera.projectionMatrix==cameraProjection&&
                 camera.pixelWidth==960&&camera.pixelHeight==540&&r.fullWidth==960&&r.fullHeight==540&&Read<string>(15)==settingsJson,"Authored camera/backend/settings changed");
             if(start<0)
             {
                 readyStreak=r.ready&&(readyStreak==0||SameIdentity(r,anchor))?readyStreak+1:0;anchor=r;
-                if(readyStreak==16){start=Time.frameCount+1;end=start+Window-1;startLedger=sample.CaptureLedger();}
+                if(readyStreak==16)
+                {
+                    start=Time.frameCount+1;end=start+Window-1;startLedger=sample.CaptureLedger();
+                    if(doorMotion){interaction.SetDoorMoving(true);sample.MeasureVideoMemory=true;}
+                }
                 else Require(count<WarmupLimit,"No stable readiness within 256 target-camera frames");
             }
             else
             {
                 Require(r.ready&&SameIdentity(r,anchor),"Window/drain readiness, backend, size or submission identity changed");
                 Require(r.invalid==anchor.invalid&&r.unexported==anchor.unexported&&r.timedOut==anchor.timedOut&&r.cancelled==anchor.cancelled,"Window/drain invalid, unexported, timed out or cancelled submission");
+                if(doorMotion && Time.frameCount==end)
+                {
+                    memoryWindow=sample.CaptureLedger().processVideoMemory;memoryWindowCaptured=true;
+                    sample.MeasureVideoMemory=false;
+                }
                 if(Time.frameCount==end+Drain)finishing=true;
             }
         }
@@ -247,7 +279,8 @@ public sealed class UnifiedSampleGpuCost : MonoBehaviour
         {
             var run=new Run{status=failure==null?"collected":"failed",error=failure,unity=Application.unityVersion,gpu=SystemInfo.graphicsDeviceName,
                 api=SystemInfo.graphicsDeviceType.ToString(),driver=SystemInfo.graphicsDeviceVersion,scene=sample?sample.gameObject.scene.path:ExpectedScene,
-                scope="Fixed authored UnifiedSample; 960x540 ordinary backbuffer; exact-software transport; existing native ReceiverCapture/Transport/Composite completions only. No image or per-frame file IO.",
+                scope=doorMotion?"Ordinary M door cycle, fixed camera, DXR. Native GI intervals and process memory over the same source window.":"Fixed authored UnifiedSample; 960x540 ordinary backbuffer; exact-software transport; existing native ReceiverCapture/Transport/Composite completions only. No image or per-frame file IO.",
+                doorMotion=doorMotion,memoryWindow=memoryWindow,memoryWindowCaptured=memoryWindowCaptured,
                 outputDirectory=directory,frames=count,completions=sampleCount,windowCompletions=windowCompletions,sourceStart=start,sourceEnd=end,
                 firstEngineFrame=count==0?-1:frames[0].engineFrame,measureOnly=settings!=null&&settings.measureGpuCost,adaptive=settings!=null&&settings.adaptiveGpuBudget,
                 targetMs=settings==null?-1:settings.targetGpuMilliseconds,vSyncCount=QualitySettings.vSyncCount,targetFrameRate=Application.targetFrameRate};
