@@ -4,11 +4,11 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release99](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release99-demo)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release100](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release100-demo)
 
-**离线看画面对照**　打开同一包内的 `PictureComparison/index.html`，即可看原图、版本和适用范围。只想看图也可以单独下载已有附件，解压后打开 `index.html`。[单独下载画面对照（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)
+**离线看画面对照**　打开运行包内的 `PictureComparison/index.html`，可查看颜色、残留、拖影、收敛，以及白炉与零漫反射材质的对照，并保存白炉的原始线性 EXR。只需前四问时也可单独下载原版五图附件。[原版离线附件（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)
 
-本开发机仍可[启动统一交互 Release99](<I:/Unity test/Comparison/Builds/LocalRelease99/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
+本开发机仍可[启动统一交互 Release100](<I:/Unity test/Comparison/Builds/LocalRelease100/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
 
 ### 接入自己的工程
 
@@ -57,7 +57,7 @@ Release95修复[高反射率材质的直接反弹路径差异](LocalComparison/R
 - **Group request/available**：样例请求与完整Renderer可提交组，`details/aggregate`表示细节已请求、聚合体仍可用；`unknown`表示无法确认完整组，不等于已证实画面缺失。见[表示状态范围](Documentation/HlodStreaming.md)。
 - **Memory: off**：开启本进程local/nonlocal显存、OS预算及采样峰值。缺失或旧原生DLL显示不可用，不影响GI；数据不是GI独占、整机用量或绝对瞬时峰值。
 - **GPU time / update budget**：先用 **Measure only** 查看GI区间；输入有限正数并点击 **Apply feedback** 才启用反馈，**Off** 关闭。自96起，这些控制只刷新计时／控制器，不再单独撤销已有光照与HLOD就绪。最低配额仍可能超目标，缺测不当作零成本。见[计时与预算用法](Documentation/GpuBudget.md#普通运行入口与公开配置)。
-- **Log ledger／F2**：导出已有当前状态，不自动开启计时或显存采样。输入框获得焦点时暂停导航快捷键。
+- **Log ledger／F2** 将当前状态写入日志。Release100 遇到 HLOD 预热时，可在 `cameraGi.lastHlodCoverageBlock` 查看最近有效回读里的首个覆盖阻断，区分整张必需 chart 无可用覆盖与某个 patch 的样本年龄不足。[字段与适用范围](LocalComparison/Review/hlod-coverage-diagnostic-01/result.md)
 
 ## 当前画质与性能
 

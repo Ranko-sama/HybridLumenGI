@@ -21,10 +21,10 @@
 </style>
 <main>
 <header>
-  <small>HybridLumenGI　/　Windows 统一示例　/　Release78–93 实测画面</small>
+  <small>HybridLumenGI　/　Windows 统一示例　/　线性 HDR 画面对照</small>
   <h1>颜色反弹与动态响应</h1>
   <p>运行示例时，按 C 切换红墙和蓝墙，L 开关选定的灯，M 启停门运动，F1 隐藏面板。下列画面取自有固定相机、事件与采样帧的历史运行。各节标有实际测量版本。普通示例启动窗口为 960×540，这组画面对照使用 640×360 相机和 320×180 GI。</p>
-  <nav aria-label="四项画面对照"><a href="#color">颜色误差</a><a href="#residual">换色与关灯</a><a href="#motion">运动拖影</a><a href="#recovery">收敛时间</a></nav>
+  <nav aria-label="画面对照"><a href="#color">颜色误差</a><a href="#residual">换色与关灯</a><a href="#motion">运动拖影</a><a href="#recovery">收敛时间</a><a href="#energy">白炉与零漫反射</a></nav>
 </header>
 <section id="color">
   <h2>1. 静止时的反弹颜色有多准？</h2>
@@ -52,6 +52,13 @@
   <p>Release83 软件路径恢复五盏选定灯后，第 30 帧地面和白色接收体只恢复到各自此前亮灯观测值的 <strong>74.65% 和 65.68%</strong>。到第 59 帧，两者分别达到 <strong>98.36% 和 96.78%</strong>。此时与独立亮灯参考相比，平均 D 亮度仍分别低 7.39% 和 6.48%。</p>
   <figure><img src="light-restore-response-01/comparison.png" alt="开灯前的稳定观测、重新开灯后30和59帧的D，与独立亮灯参考比较"><figcaption>Release83，逻辑帧 119 为此前亮灯观测，300 重新开灯，330 和 359 为恢复后的采样点。相机、门位姿、灯状态和比较区域在三张亮灯观测中匹配。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/light-restore-response-01/result.md">恢复数据与参考 ↗</a></figcaption></figure>
   <p>可报告的是上述已采样帧的恢复程度。稀疏观测无法给出首次稳定帧、实测秒数或整景达到正确颜色的时间。</p>
+</section>
+<section id="energy">
+  <h2>5. 白色平面能反射多少光，黑色与金属表面又会增加多少漫反射？</h2>
+  <p><strong>均匀白环境。</strong> Release99 的无遮挡平面使用单位漫反射率、AO 和强度，环境入射辐亮度 RGB 均为 1，理论间接出射 RGB 因此也均为 1。真实相机中央 64×64 像素的三个通道均值都为 <strong>0.99902347</strong>，相对偏差为 −0.09765%。每个样点的 R、G、B 相等。该单帧观测覆盖这个平面的出射贡献，偏差产生的具体阶段仍未知。</p>
+  <figure><img src="white-furnace-ordinary-01/frame-0000.png" alt="普通相机拍摄的无遮挡白色漫反射平面与黑色背景"><figcaption>Release99，软件追踪。预览采用 Reinhard 与 sRGB 显示映射，统计取自映射前的浮点像素。<a href="white-furnace-ordinary-01/frame-0000.exr" download>保存原始线性 EXR</a>　<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/357a0b5/LocalComparison/Review/white-furnace-ordinary-01/result.md">输入与数值 ↗</a></figcaption></figure>
+  <p><strong>零漫反射材质。</strong> 历史 V209 第 119 帧的普通加法合成中，全金属接收面的 298 个内部采样点和黑色接收面的 473 个内部采样点，合成前后线性 RGB 逐点相同。全部金属样点和 446 个黑色样点原本已有非零颜色，这部分颜色完整保留。这里观察的是净增量，直接光与镜面分量合并在原生相机颜色中。</p>
+  <figure><img src="zero-diffuse-composite-v209/comparison.png" alt="两种零漫反射接收面在加法合成前和合成后的实际画面、对应的独立几何样点"><figcaption>V209，第 119 帧，左为合成前，中为合成后，右为按源几何选出的内部采样点。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/a07a2a9/LocalComparison/Review/zero-diffuse-composite-v209/result.md">同帧对照与边界 ↗</a></figcaption></figure>
 </section>
 <footer><p><small>图像保留原记录中的曝光、图例与显示映射。阅读本页和图片可离线完成。带 ↗ 的链接指向私有仓库中的原记录。</small></p></footer>
 </main>
