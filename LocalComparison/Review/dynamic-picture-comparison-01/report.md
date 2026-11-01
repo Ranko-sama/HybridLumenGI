@@ -2,7 +2,7 @@
 
 ## 统一示例与画面对照
 
-Release98 的 Windows x64 运行包内含完整离线画面对照。解压后打开 `PictureComparison/index.html`，即可查看静止颜色、换色与关灯、门运动及重新开灯的原图。每张图标有测量版本、物理量和适用范围。[统一示例与画面包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release98-demo) · [单独下载画面对照](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip) · [仓库内的读图页](../picture-comparison.html)
+Release99 的 Windows x64 运行包内含完整离线画面对照。解压后打开 `PictureComparison/index.html`，即可查看静止颜色、换色与关灯、门运动及重新开灯的原图。每张图标有测量版本、物理量和适用范围。[统一示例与画面包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release99-demo) · [单独下载画面对照](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip) · [仓库内的读图页](../picture-comparison.html)
 
 ## 画质和成本的测量来源（静止颜色93／动停画面92，2026-10-30）
 

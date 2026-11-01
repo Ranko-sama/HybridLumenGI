@@ -27,7 +27,7 @@
 
 ## 普通运行入口与公开配置
 
-Release98 下载包的 GPU 面板仍显示调整设置会刷新光照历史的旧提示。从 Release96 起，单独更改这些控制只重置计时与反馈状态，保留光照历史。仓库中的面板提示已与实现对齐。输入的毫秒数是当次运行的反馈目标，顶部表格的 25 ms 则用于比较固定观测窗口内的 GI p95。[设置隔离记录](../LocalComparison/Review/gpu-controls-preserve-history-01/result.md)
+Release98 下载包的 GPU 面板仍显示调整设置会刷新光照历史的旧提示。从 Release96 起，单独更改这些控制只重置计时与反馈状态，保留光照历史。Release99 已将修正后的面板提示整合进普通运行包。输入的毫秒数是当次运行的反馈目标，顶部表格的 25 ms 则用于比较固定观测窗口内的 GI p95。[设置隔离记录](../LocalComparison/Review/gpu-controls-preserve-history-01/result.md)
 
 [Release81](<I:/Unity test/Comparison/Builds/LocalRelease81/Start-LocalRelease.cmd>)已接入现有计时／反馈能力，并完成一次普通使用，见[结果与范围](../LocalComparison/Review/gpu-budget-controls-01/result.md)。在原面板展开 **GPU time / update budget**：
 
