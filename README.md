@@ -29,6 +29,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 保存作者场景，选择至少两个已绑定SDF和surface charts的静态Proxy，执行 **Tools > Hybrid Lumen GI > Create Unified Sample From Selected Static Proxies**。菜单要求一个启用相机，并从该相机实际选择的Universal Renderer Data中解析唯一启用的GI Feature。生成器保留作者场景，创建独立变体与资源页；显式API为 `HybridLumenGIUnifiedSampleBuilder.CreateVariant`。
 
+在自己的工程中运行示例键盘交互时，打开 **Edit > Project Settings > Player > Other Settings > Configuration > Active Input Handling**。示例通过 `UnityEngine.Input` 读取按键，请选择 **Input Manager (Old)**，若项目也使用新版 Input System 则选择 **Both**，并按 Unity 提示重启编辑器。此设置只涉及示例交互，单独接入 GI Renderer Feature 可沿用工程的输入方案。
+
 生成的资源页位于工程的 `Assets/StreamingAssets`；交付Player时保留这些bundle及对应数据目录。静态网格、材质和HLOD输入限制及生成步骤见[统一示例说明](LocalComparison/Implementation/UnifiedSample/SAMPLE.md#生成及使用)。生成器不会把任意场景自动变成具有换色、灯光或门事件的验证场景；未提供相应输入时只显示可用操作。
 
 ## 普通示例操作

@@ -49,7 +49,11 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             #pragma multi_compile_local_fragment _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma multi_compile_local_fragment _ _RECEIVE_SHADOWS_OFF
             #pragma multi_compile_local _ _PARALLAXMAP
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/ParallaxMapping.hlsl"
             #include "HybridLumenGIReceiverPolicyCapture.hlsl"
             #include "HybridLumenGIScreenMaterial.hlsl"
@@ -138,6 +142,9 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                 #endif
                 #if defined(_ALPHATEST_ON)
                     clip(coverage - _Cutoff);
+                #endif
+                #if defined(LOD_FADE_CROSSFADE)
+                    LODFadeCrossFade(input.positionCS);
                 #endif
 
                 half3 albedo = baseSample.rgb * _BaseColor.rgb;
