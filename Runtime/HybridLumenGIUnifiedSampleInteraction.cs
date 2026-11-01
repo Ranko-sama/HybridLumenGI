@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HybridLumenGI
@@ -14,6 +15,7 @@ namespace HybridLumenGI
         [SerializeField] private Light[] lights = Array.Empty<Light>();
         private bool[] originalLights;
         private MaterialPropertyBlock originalBlock, changedBlock;
+        private readonly List<(int index, MaterialPropertyBlock original, MaterialPropertyBlock changed)> wallSlotBlocks = new();
         private float yaw, pitch, doorTime;
         private bool initialized, closed, showControls = true;
         private MeshFilter filter;
@@ -47,20 +49,42 @@ namespace HybridLumenGI
             if (!targetCamera || !sample) throw new InvalidOperationException("Incomplete sample navigation references.");
             originalLights = new bool[lights.Length];
             for (int i = 0; i < lights.Length; i++) originalLights[i] = lights[i] && lights[i].enabled;
-            if (colorWall)
-            {
-                originalBlock = new MaterialPropertyBlock(); colorWall.GetPropertyBlock(originalBlock);
-                changedBlock = new MaterialPropertyBlock(); colorWall.GetPropertyBlock(changedBlock);
-                changedBlock.SetColor("_BaseColor", new Color(.05f, .15f, .8f, 1));
-            }
+            if (colorWall) CaptureWallBlocks();
             HybridLumenGIResourceRetirement.RegisterShutdownOwner(Close);
             initialized = true; SyncAngles(); Application.runInBackground = true;
         }
         private void SyncAngles()
         { var angles = targetCamera.transform.eulerAngles; yaw = angles.y; pitch = Mathf.DeltaAngle(0, angles.x); }
         private static float Keys(KeyCode positive, KeyCode negative) => (Input.GetKey(positive) ? 1 : 0) - (Input.GetKey(negative) ? 1 : 0);
+        private void CaptureWallBlocks()
+        {
+            var blue = new Color(.05f, .15f, .8f, 1);
+            originalBlock = new MaterialPropertyBlock(); colorWall.GetPropertyBlock(originalBlock);
+            if (originalBlock.isEmpty) originalBlock = null;
+            changedBlock = new MaterialPropertyBlock(); colorWall.GetPropertyBlock(changedBlock);
+            changedBlock.SetColor("_BaseColor", blue);
+            if (!colorWall.HasPropertyBlock()) return;
+
+            // Only authored slot blocks override the renderer block. Leave inheriting slots alone.
+            int slotCount = colorWall.sharedMaterials.Length;
+            for (int i = 0; i < slotCount; i++)
+            {
+                var original = new MaterialPropertyBlock(); colorWall.GetPropertyBlock(original, i);
+                if (original.isEmpty) continue;
+                var changed = new MaterialPropertyBlock(); colorWall.GetPropertyBlock(changed, i);
+                changed.SetColor("_BaseColor", blue);
+                wallSlotBlocks.Add((i, original, changed));
+            }
+        }
+        private void ApplyWallColor(bool value)
+        {
+            colorWall.SetPropertyBlock(value ? changedBlock : originalBlock);
+            foreach (var block in wallSlotBlocks)
+                colorWall.SetPropertyBlock(value ? block.changed : block.original, block.index);
+            ColorChanged = value;
+        }
         public void SetColorChanged(bool value)
-        { if (!initialized || closed || !colorWall) return; ColorChanged = value; colorWall.SetPropertyBlock(value ? changedBlock : originalBlock); }
+        { if (initialized && !closed && colorWall) ApplyWallColor(value); }
         public void SetLightsEnabled(bool value)
         {
             if (!initialized || closed) return; LightsEnabled = value;
@@ -185,7 +209,7 @@ namespace HybridLumenGI
             if (closed) return; closed = true; DoorMoving = DeformationRunning = false;
             HybridLumenGIResourceRetirement.UnregisterShutdownOwner(Close);
             if (!initialized) return;
-            if (colorWall) colorWall.SetPropertyBlock(originalBlock);
+            if (colorWall) ApplyWallColor(false);
             for (int i = 0; i < lights.Length; i++) if (lights[i]) lights[i].enabled = originalLights[i];
             if (door) door.Restore();
             // Withdraw/cancel GI snapshots before restoring and retiring the producer-owned mesh.
