@@ -2,7 +2,7 @@
 
 The generated scene and mathematical checks are test inputs, not evidence that every image-quality, hardware or performance requirement has passed. This repository is the source package rather than a standalone Unity project. The development machine has a Unity project at `I:/Unity test/Project`, local Player builds, HDR captures and limited GPU observations. Use the [current runnable entry](../README.md), [progress and evidence](DevelopmentProgress.md) and [production gates](ProductionPlan.md) for their actual versions and scope; local binaries are not embedded in this source package.
 
-The matrix below retains the original acceptance requirements. Existing scoped evidence does not automatically pass an entire row, and a documented unsupported configuration does not by itself close the corresponding production requirement. New checks should answer a concrete remaining implementation or acceptance question; do not rerun the matrix merely because this document previously described all engine work as unexecuted. Production resolution, FPS and GPU/memory budgets are still unresolved.
+The matrix below retains the original acceptance requirements. Scoped results refer to their recorded scenes and versions. The agreed starting target on the development machine is 960×540 at 30 FPS, with p95 of the three GI intervals summed per frame at most 25 ms and a sampled process-local memory peak at most 1 GiB. Nonlocal memory is reported separately. [Budget and workload scope](GpuBudget.md)
 
 ## Create the scene
 
@@ -40,6 +40,7 @@ Record the actual result and evidence path for each row; do not mark rows passed
 | --- | --- | --- |
 | Unity import and standalone build | No C# or shader errors; all used variants survive stripping | Editor log, player log |
 | Black receiver | No reflected diffuse GI | Linear HDR pixel dump |
+| Open white furnace | Under uniform unit incident radiance, a unit diffuse receiver with unit AO and intensity should have unit indirect outgoing RGB | [Release99 ordinary linear HDR and analytic comparison](../LocalComparison/Review/white-furnace-ordinary-01/result.md). Central 64×64 mean 0.99902347 per channel. Applies to the unobstructed receiver and this configuration. |
 | Metallic=1 receiver | No diffuse GI; URP direct/specular remain intact | Indirect-only and final frame |
 | Red/green wall | Corresponding color bounce on adjacent white geometry | Fixed-exposure comparison |
 | Untextured vs white metallic texture | Slider/map behavior agrees with URP Lit semantics | Material test grid |
