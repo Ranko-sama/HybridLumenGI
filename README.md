@@ -74,6 +74,8 @@ Release95修复[高反射率材质的直接反弹路径差异](LocalComparison/R
 
 Release99 另有一项可直接与理论值比较的白炉观测。在均匀单位白环境下，无遮挡白色平面中央区域的普通间接出射 RGB 均值为 (0.99902347, 0.99902347, 0.99902347)，各通道较理论值 1 低 0.09765%。该结果限单帧、单接收面。[原始线性 HDR、预览图与比较口径](LocalComparison/Review/white-furnace-ordinary-01/result.md)
 
+黑色和全金属接收面使用历史 V209 的同帧加法合成对照。两个内区的漫反射率为零，合成前已有的非零颜色得到保留，逐像素 RGB 最大变化为零。[实测对照与适用范围](LocalComparison/Review/zero-diffuse-composite-v209/result.md)
+
 起始目标为 **960×540／30FPS、GI三区间合计p95≤25ms、进程local有限采样峰值≤1GiB**，nonlocal另列。环境为Unity6000.0.85f1／URP17.0.4、Windows x64／Mono／DX12／Linear、RTX2080Ti。
 
 | Release93的独立窗口 | 测量结果 | 适用范围 |

@@ -39,9 +39,9 @@ Record the actual result and evidence path for each row; do not mark rows passed
 | Test | Expected result | Evidence |
 | --- | --- | --- |
 | Unity import and standalone build | No C# or shader errors; all used variants survive stripping | Editor log, player log |
-| Black receiver | No reflected diffuse GI | Linear HDR pixel dump |
+| Black receiver | No reflected diffuse GI | Linear HDR pixel dump. [V209 frame 119, black receiver](../LocalComparison/Review/zero-diffuse-composite-v209/result.md). All 473 paired interior samples kept the same linear RGB across additive composition. |
 | Open white furnace | Under uniform unit incident radiance, a unit diffuse receiver with unit AO and intensity should have unit indirect outgoing RGB | [Release99 ordinary linear HDR and analytic comparison](../LocalComparison/Review/white-furnace-ordinary-01/result.md). Central 64×64 mean 0.99902347 per channel. Applies to the unobstructed receiver and this configuration. |
-| Metallic=1 receiver | No diffuse GI; URP direct/specular remain intact | Indirect-only and final frame |
+| Metallic=1 receiver | No diffuse GI; URP direct/specular remain intact | Indirect-only and final frame. Available [V209 frame 119 composite comparison](../LocalComparison/Review/zero-diffuse-composite-v209/result.md) shows nonzero native color and zero RGB change at all 298 metallic interior samples. Direct and specular terms were observed together. |
 | Red/green wall | Corresponding color bounce on adjacent white geometry | Fixed-exposure comparison |
 | Untextured vs white metallic texture | Slider/map behavior agrees with URP Lit semantics | Material test grid |
 | Metallic/specular workflows | Correct diffuse energy split in each workflow | Material-buffer capture |
