@@ -12,6 +12,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ### 接入自己的工程
 
+已有 Unity 工程升级时，先保存作者资产和原有引用，再按版本差异替换源码。升级与回退步骤包括旧设置、SDF／charts、分页资产及可选插件的处理。[升级已有 Unity 工程与回退](Documentation/Implementation.md#升级已有-unity-工程与回退)
+
 1. 在 Unity 6 URP 工程中创建 `Assets/HybridLumenGI`，将本仓库的 **`Runtime`、`Editor`、`Shaders` 产品目录及随附 `.meta`** 复制到其中，保留目录结构和 `Runtime/Resources`。`LocalComparison`、`Tests`、`Delivery` 是开发资料，留在工程外；不要把整个仓库放进 `Assets`，也不要同时导入两份产品源码。本仓库没有 UPM `package.json`，此处使用源码目录导入。
 2. 配置 **DX12、Linear 色彩空间、Render Graph**，在相机实际使用的 Universal Renderer Data 中添加一次 `HybridLumenGIRendererFeature`。Shader资源自动加载；Feature请求深度、法线和运动矢量，不要求Opaque Texture。
 3. 使用 **Tools > Hybrid Lumen GI > Setup & Proxies** 注册Renderer。真实网格路径要求源网格保留Read/Write，并烘焙、绑定匹配SDF和surface charts；没有charts时使用六视图近似。编辑几何后可能需要重烘焙。详见[安装与实现](Documentation/Implementation.md)。

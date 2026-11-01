@@ -368,7 +368,7 @@ namespace HybridLumenGI
             gpuTargetFocused = GUI.GetNameOfFocusedControl() == gpuTargetControlName;
             if (!string.IsNullOrEmpty(gpuInputMessage)) GUILayout.Label(gpuInputMessage);
             GUILayout.Label(gpuOverlay ?? "GPU timing: no camera diagnostic yet.");
-            GUILayout.Label("Target is user supplied, not a hard deadline. Applying settings refreshes existing timing and lighting history.");
+            GUILayout.Label("The target guides GI updates. Changing these controls resets timing and feedback while preserving lighting history.");
         }
         private void ConfigureGpuMode(bool measure, bool feedback, float targetMs)
         {
