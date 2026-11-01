@@ -4,11 +4,11 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行：[下载 Release97 Windows x64 实验性演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release97-demo)。** 选择页面中的 `HybridLumenGI-Release97-Windows-x64.zip`，完整解压后运行 `Start-LocalRelease.cmd`，无需安装Unity编辑器；私有仓库下载需要已有访问权限。保留整个运行文件夹，升级时解压到新目录，不单独覆盖exe或数据文件。包内提供操作与适用范围说明，当前不属于生产稳定版。
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release98](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release98-demo)
 
-**离线看画面对照**　下载同一发布页的画面对照附件，完整解压后打开 `index.html`。图中给出静止颜色偏差、换色与关灯残留、门运动拖影和开灯恢复时间，并标出各自的测量版本和不确定性。[下载离线画面对照（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)
+**离线看画面对照**　打开同一包内的 `PictureComparison/index.html`，即可看原图、版本和适用范围。只想看图也可以单独下载已有附件，解压后打开 `index.html`。[单独下载画面对照（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)
 
-本开发机仍可[启动统一交互 Release97](<I:/Unity test/Comparison/Builds/LocalRelease97/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
+本开发机仍可[启动统一交互 Release98](<I:/Unity test/Comparison/Builds/LocalRelease98/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
 
 ### 接入自己的工程
 
@@ -59,7 +59,7 @@ Release95修复[高反射率材质的直接反弹路径差异](LocalComparison/R
 
 ## 当前画质与性能
 
-当前取舍是减少运动颗粒、允许适度变柔，同时避免明显加重拖影。Release97整合当前Base相机资格修复，保留96计时控制隔离、95直接反弹修复、94骨骼停稳历史及93的filter4／2ray／DXR配置与遍历优化。以下画质与性能结果保持各自原版本和测量范围，没有因97构建而重测或改标，不能合并为整体验收。
+当前取舍是减少运动颗粒，允许局部变柔，同时避免明显加重拖影。Release98 修复了自定义静态红墙带材质槽属性块时，按 C 后部分墙面仍显示原色的问题。表中的画质和成本读数注明各自采集版本。[换色与复原的适用范围](LocalComparison/Review/sample-wall-slot-color-01/result.md)
 
 | 问题 | 已有结论与局限 |
 | --- | --- |
