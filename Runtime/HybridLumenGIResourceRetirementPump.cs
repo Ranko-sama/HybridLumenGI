@@ -9,12 +9,19 @@ namespace HybridLumenGI
     [DefaultExecutionOrder(-32000)]
     internal sealed class HybridLumenGIResourceRetirementPump : MonoBehaviour
     {
+#if UNITY_EDITOR
+        // The Play-only root lives in DontDestroyOnLoad's scene. Let the Editor
+        // unload it with that scene when Play ends.
+        internal const HideFlags HostFlags = HideFlags.HideInHierarchy;
+#else
+        internal const HideFlags HostFlags = HideFlags.HideAndDontSave;
+#endif
         private static HybridLumenGIResourceRetirementPump instance;
         internal static void EnsureExists()
         {
             InstallFrameBoundary();
             if(instance!=null)return;
-            var go=new GameObject("HybridLumenGI Resource Retirement"){hideFlags=HideFlags.HideAndDontSave};
+            var go=new GameObject("HybridLumenGI Resource Retirement"){hideFlags=HostFlags};
             DontDestroyOnLoad(go);instance=go.AddComponent<HybridLumenGIResourceRetirementPump>();
         }
         private void Update()=>HybridLumenGIResourceRetirement.IdleUpdate();

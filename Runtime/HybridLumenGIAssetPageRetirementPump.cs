@@ -10,7 +10,7 @@ namespace HybridLumenGI
         internal static void EnsureExists()
         {
             if(instance!=null)return;
-            var go=new GameObject("HybridLumenGI Asset Page Retirement") { hideFlags=HideFlags.HideAndDontSave };
+            var go=new GameObject("HybridLumenGI Asset Page Retirement") { hideFlags=HybridLumenGIResourceRetirementPump.HostFlags };
             DontDestroyOnLoad(go);instance=go.AddComponent<HybridLumenGIAssetPageRetirementPump>();
         }
         private void Update()

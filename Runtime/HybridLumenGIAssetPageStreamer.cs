@@ -12,6 +12,15 @@ namespace HybridLumenGI
         [SerializeField] private HybridLumenGIAssetPageManifest manifest;
         [SerializeField] private HybridLumenGIAssetPageStreaming.Budgets budgets=HybridLumenGIAssetPageStreaming.Budgets.Default;
         private static HybridLumenGIAssetPageStreamer owner;
+#if UNITY_EDITOR
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void ResumeRetirement()
+        {
+            // Disabling domain reload can preserve an old managed owner whose
+            // native requests or leases still need the next Play loop to drain.
+            if (!ReferenceEquals(owner, null)) HybridLumenGIAssetPageRetirementPump.EnsureExists();
+        }
+#endif
         private readonly Dictionary<object,RequestSet> requests=new Dictionary<object,RequestSet>();
         private bool failed, destroyed;
         private sealed class RequestSet { internal string[] ids;internal int priority;internal long requestedAt,sequence; }

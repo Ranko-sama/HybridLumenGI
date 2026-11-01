@@ -2,6 +2,10 @@
 
 当前起始验收目标已由用户确认：960×540／30FPS，现有GI三个计时区间合计p95≤25ms，进程local有限采样峰值≤1GiB，nonlocal另列。[当前93优化后的静止窗口](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)为19.298ms／567.254MiB，满足两门槛；不代表运动／最坏情况或整体验收。后文历史“预算未定”以[当前口径](GpuBudget.md#当前已确认的起始验收目标)为准。
 
+2026-11-02，G4 的 30 分钟近场／离场流式使用取得实机结果，离场页与引用排空，返近完整组恢复，稳定端点的资源占用无累积。其余 G4/G5 负载继续开放。[实际路线与显存范围](../LocalComparison/Review/streaming-sustained-30m-01/result.md)
+
+当前源码另已修复 Unity Editor 退出 Play 后保留两个隐藏回收宿主的问题。实测快照中两个宿主及组件合计由 6 个残留降至 0。[适用范围](../LocalComparison/Review/streaming-sustained-30m-01/result.md#editor-退出-play-后的原生对象)
+
 Release101 修复了默认 Additive 相机材质捕获遗漏原生 LOD 淡变裁切的问题，已整合进统一示例。实际 LOD 过渡画面仍待观察。[修复范围与编译依据](DevelopmentProgress.md)
 
 Release100 把 HLOD 已有读回的首个覆盖阻断接入 F2／编辑器相机诊断。作者可以定位对象和 chart，区分整张必需 chart 无可用覆盖与已覆盖 patch 的采样年龄不足。离线包同时收录 Release99 白炉原始 EXR 和历史 V209 零漫反射材质对照。G0 本机基线已锁定，完整 G1–G5 继续开放。[Release100 交付](../LocalComparison/Review/hlod-coverage-diagnostic-01/result.md)

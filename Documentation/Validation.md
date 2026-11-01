@@ -57,7 +57,7 @@ Record the actual result and evidence path for each row; do not mark rows passed
 | 1919×1079 and low render scale | No edge pixels omitted; safe dispatch bounds | Player screenshots |
 | Scene load/unload and far-field boundary | No stale entries, missing coverage, or simultaneous near/HLOD double lighting | Streaming capture + cache stats |
 | Hardware backend enabled/unsupported | Real backend dispatch on supported device; clear fallback on unsupported device | GPU capture and capability log |
-| 30-minute runtime/domain reload | Stable memory and proper resource release | Memory Profiler comparison |
+| 30-minute runtime/domain reload | Stable memory and proper resource release | [Release100 streaming workload and separate before/after Editor Memory Profiler snapshots](../LocalComparison/Review/streaming-sustained-30m-01/result.md). The Player recovered after every return. Under default Editor reload, both retirement hosts and their components were released after the fix. The snapshots cover named native objects. |
 
 ## Triangle surface-chart acceptance
 
