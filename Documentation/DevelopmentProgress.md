@@ -1,8 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度：Release100，G0本机基线锁定完成，G1–G5未整体放行
+## 当前总进度：Release101，G0本机基线锁定完成，G1–G5未整体放行
 
 以下按原计划缺口报告，避免用运行或归档数量代替完成度。具体实现与有限证据的版本、输入和边界保持各自来源；后文逐阶段记录不是当前版本全部重新通过的声明。
+
+G1/G3 修复了默认 Additive 相机材质捕获在原生 LOD 交叉淡变时取错颜色的路径。比如共面重叠的红、蓝两级不透明 Lit，URP 会在同一像素裁掉其中一级，而旧 GI 捕获允许两级都写入。现在捕获调用 URP 的 `LODFadeCrossFade`。DXC 编译确认开启时抖动纹理与淡变量参与裁切，关闭时没有这项纹理依赖。产品提交 `ed391bb` 已整合进普通 Win64 Release 构建，Unity 报告 0 错误、23 警告。实际 LOD 过渡画面与拖影量仍待观察。G4 的 30 分钟流式运行继续沿用已准备的 Release100 测量构建。[捕获着色器](../Runtime/Resources/HybridLumenGI/HybridLumenGISurface.shader) · [Release101 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release101-demo)
 
 G5 的源码工程升级与回退说明已交付，覆盖同源 GUID、旧序列化设置、烘焙资产和资源页的重建条件，以及可选原生插件。97 到 98 的产品改动限于示例换色脚本。更早或自定义工程的实际迁移结果仍须按工程确认。[升级已有 Unity 工程与回退](Implementation.md#升级已有-unity-工程与回退)
 
