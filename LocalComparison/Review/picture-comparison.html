@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HybridLumenGI · 统一示例画面对照</title>
+<style>
+  * { box-sizing: border-box }
+  body { max-width: 960px; margin: auto; padding: 28px clamp(16px, 4vw, 48px) 60px;
+    font: 16px/1.65 system-ui, "Microsoft YaHei", sans-serif; color: #20282c; background: #fafaf7 }
+  h1, h2 { line-height: 1.25; color: #183d3a }
+  h1 { font-size: clamp(1.7rem, 4vw, 2.5rem); margin: .25em 0 }
+  h2 { border-top: 1px solid #bac8c3; padding-top: 1em; margin-top: 1.8em }
+  nav, small, figcaption { font-size: .9rem; color: #425451 }
+  nav a { display: inline-block; margin-right: 1.1em }
+  a { color: #066455; text-underline-offset: .2em }
+  figure { margin: 1.2em 0 }
+  img { display: block; max-width: 100%; height: auto; margin-bottom: .5em }
+  table { border-collapse: collapse; font-variant-numeric: tabular-nums }
+  th, td { padding: .35em .7em; border-bottom: 1px solid #cdd6d1; text-align: right }
+  th:first-child, td:first-child { text-align: left }
+</style>
+<main>
+<header>
+  <small>HybridLumenGI　/　Windows 统一示例　/　Release97 随附读图说明</small>
+  <h1>颜色反弹与动态响应</h1>
+  <p>运行示例时，按 C 切换红墙和蓝墙，L 开关选定的灯，M 启停门运动，F1 隐藏面板。下列画面取自有固定相机、事件与采样帧的历史运行。各节标有实际测量版本。Release97 的普通运行窗口为 960×540，这组画面对照使用 640×360 相机和 320×180 GI。</p>
+  <nav aria-label="四项画面对照"><a href="#color">颜色误差</a><a href="#residual">换色与关灯</a><a href="#motion">运动拖影</a><a href="#recovery">收敛时间</a></nav>
+</header>
+<section id="color">
+  <h2>1. 静止时的反弹颜色有多准？</h2>
+  <p>Release93 在第 119 帧的地面与白色接收体上，平均间接亮度分别比独立参考低 <strong>3.075%</strong> 和 <strong>0.831%</strong>。比较量 D 为间接漫反射辐照度除以 π，取自滤波后、乘接收面反射率之前。</p>
+  <table><thead><tr><th>接收区域</th><th>已知点 / 源点</th><th>平均 D 亮度</th><th>参考</th><th>逐点亮度 MAE</th></tr></thead>
+  <tbody><tr><td>地面</td><td>13,328 / 13,330</td><td>0.069485</td><td>0.071689</td><td>0.010529</td></tr>
+  <tr><td>白色接收体</td><td>86 / 86</td><td>0.225072</td><td>0.226957</td><td>0.018576</td></tr></tbody></table>
+  <figure><img src="release93-color-frame119-01/comparison.png" alt="第119帧的候选间接光、独立参考、亮度差和参考采样误差"><figcaption>Release93，DXR，2 条射线，4 级空间滤波。差值图红色表示偏亮，蓝色表示偏暗，量程 0.05。棋盘为区域外，洋红为未知。</figcaption></figure>
+  <p>CPU 参考使用独立源几何，每点 256 个样本，最多 8 次反弹，黑环境，只计算漫反射和发光。图中标准误描述参考的逐像素采样噪声。弹射截断、射线偏移与产品的缓存和滤波也会影响差值。相比旧软件路径的 3 级滤波，这两个区域的 MAE 分别高约 10.1% 和 6.6%，同时发生了后端与版本变化。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/release93-color-frame119-01/result.md">颜色数据与估计范围 ↗</a></p>
+</section>
+<section id="residual">
+  <h2>2. 墙换色或灯关闭后，还剩多少旧光？</h2>
+  <p><strong>换色。</strong> Release83 软件路径把红墙改蓝，地面和白色接收体都保持原材质。第 30 帧，两处反弹已明显转蓝。第 59 帧与第 119 帧的区域平均 RGB 归一化色向 L1 距离分别为 0.005536 和 0.001583。蓝墙状态缺少独立参考，绝对旧色份额仍未知。</p>
+  <figure><img src="local-recolor-response-01/comparison.png" alt="墙换色前后地面及白色接收体的间接入射量"><figcaption>Release83，换色前和换色后 30、59、119 帧。比较相同已知点的 D。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/local-recolor-response-01/result.md">换色记录 ↗</a></figcaption></figure>
+  <p><strong>关灯。</strong> 在 Release78 对应的修复中，相机上传的解析灯表清空后，缓存单独使用发光面和环境的份额。在这个事件中，关灯当帧到第 59 帧的逐像素出射亮度绝对变化均值从 0.006379 降到 0.000499，减少 92.18%。该数值衡量两张画面之间的变化。部分灯仍开启时的多跳残留及物理误差仍待确定。</p>
+  <figure><img src="cache-source-separation-01/comparison.png" alt="关灯前、关灯当帧及随后两个时点，修复前后同曝光的间接出射贡献"><figcaption>Release78 候选与原版本。发光面继续照亮房间，图中显示乘过接收材质的间接出射贡献。图内候选标签沿用采集时的名称，最终采用结论见<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/cache-source-separation-01/result.md">关灯记录 ↗</a>。</figcaption></figure>
+</section>
+<section id="motion">
+  <h2>3. 运动颗粒减少后，门有没有留下拖影？</h2>
+  <p>在门运动中、刚到终点和停后 10、30 帧，4 级滤波使门面、地板和绿墙上的云斑减弱。门和墙地交界仍可辨认，同平面的明暗过渡更柔。四个观测点均未见明显新增的持续旧门轮廓。观测点之间的运动和其他速度仍有不确定性。</p>
+  <figure><img src="four-pass-local-quality-01/comparison.png" alt="四个逻辑时点的门、地板和墙，对比左侧三级滤波和右侧四级滤波"><figcaption>左为已有 Release88 的 DXR／3 级滤波，右为 Release92 采用的 DXR／4 级滤波。两侧均为 2 条射线，第 149、179、189、209 帧，同曝光的间接出射贡献。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/four-pass-local-quality-01/result.md">运动图来源 ↗</a></figcaption></figure>
+</section>
+<section id="recovery">
+  <h2>4. 重新开灯后，多久恢复？</h2>
+  <p>Release83 软件路径恢复五盏选定灯后，第 30 帧地面和白色接收体只恢复到各自此前亮灯观测值的 <strong>74.65% 和 65.68%</strong>。到第 59 帧，两者分别达到 <strong>98.36% 和 96.78%</strong>。此时与独立亮灯参考相比，平均 D 亮度仍分别低 7.39% 和 6.48%。</p>
+  <figure><img src="light-restore-response-01/comparison.png" alt="开灯前的稳定观测、重新开灯后30和59帧的D，与独立亮灯参考比较"><figcaption>Release83，逻辑帧 119 为此前亮灯观测，300 重新开灯，330 和 359 为恢复后的采样点。相机、门位姿、灯状态和比较区域在三张亮灯观测中匹配。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/light-restore-response-01/result.md">恢复数据与参考 ↗</a></figcaption></figure>
+  <p>可报告的是上述已采样帧的恢复程度。稀疏观测无法给出首次稳定帧、实测秒数或整景达到正确颜色的时间。</p>
+</section>
+<footer><p><small>图像保留原记录中的曝光、图例与显示映射。阅读本页和图片可离线完成。带 ↗ 的链接指向私有仓库中的原记录。</small></p></footer>
+</main>
+</html>

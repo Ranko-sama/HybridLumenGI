@@ -1,10 +1,14 @@
 # 动态画面对照与当前开发结论
 
-## 当前交付结论（Release93：静止颜色93／动停画面92分别标源，2026-10-30）
+## 统一示例与画面对照
+
+Release97 提供 Windows x64 统一示例和单独的画面对照附件。完整解压画面对照 ZIP 后打开 `index.html`，即可离线查看静止颜色、换色与关灯、门运动及重新开灯的原图。每张图标有测量版本、物理量和适用范围。[统一示例发布页](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release97-demo) · [下载离线画面对照](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip) · [仓库内的读图页](../picture-comparison.html)
+
+## 画质和成本的测量来源（静止颜色93／动停画面92，2026-10-30）
 
 当前[93空回退遍历优化的静止成本窗口](../exact-no-fallback-traversal-01/result.md)保持960×540／GI480×270、filter4／2ray／DXR：GI三区间合计中位18.393ms、p95 19.298ms、p99 19.498ms，local／nonlocal采样峰值567.254／289.691MiB。相较既有92静止窗口，中位下降5.528ms，超过预定波动判据；满足25ms／1GiB起始门槛，不代表运动、整应用GPU或完整性能验收，没有新的Present测量。
 
-[统一可运行入口](<I:/Unity test/Comparison/Builds/LocalRelease93/Start-LocalRelease.cmd>)仍为Release93，省去全精确覆盖时无候选的回退BVH遍历，filter4／2ray／DXR及时间历史保持。运动画质继续依据[92的同曝光四时点](../four-pass-local-quality-01/comparison.png)：门面、地板和绿墙云斑明显减弱，未见明显新增轮廓损坏、串色或持续旧门轮廓；代价是同平面明暗过渡更柔。其全图均值接近不能当颜色准确度证明；当前93单独的119颜色估计见下，历史filter3／1ray数据保留各自来源。
+Release93 省去了全精确覆盖时无候选的回退 BVH 遍历。运动画质的依据来自 Release92 在 filter4／2ray／DXR 下的四个时点，门面、地板和绿墙云斑明显减弱，局部明暗过渡更柔，未见明显新增的持续旧门轮廓。静止颜色的独立估计来自下一段所列的 Release93 第119帧。[同曝光运动对照](../four-pass-local-quality-01/comparison.png)
 
 当前[93／filter4／DXR静止119独立D对照](../release93-color-frame119-01/result.md)已复用同一参考和ROI完成：Floor／White均值D-Y偏差−3.075%／−0.831%，Y-MAE为0.010529／0.018576，较历史软件filter3约增10.1%／6.6%，均值色向L1也略增。保持已明确的运动减云斑取舍，不能称颜色全面改善。结果限640×360／GI320×180参考网格，普通93未改或重建。
 
