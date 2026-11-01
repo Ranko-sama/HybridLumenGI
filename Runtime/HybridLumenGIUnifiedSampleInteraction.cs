@@ -13,6 +13,8 @@ namespace HybridLumenGI
         [SerializeField] private HybridLumenGIValidationMotion door;
         [SerializeField] private Renderer colorWall;
         [SerializeField] private Light[] lights = Array.Empty<Light>();
+        [SerializeField] private GameObject connectedRooms;
+        [SerializeField] private HybridLumenGIValidationMotion roomPortal;
         private bool[] originalLights;
         private MaterialPropertyBlock originalBlock, changedBlock;
         private readonly List<(int index, MaterialPropertyBlock original, MaterialPropertyBlock changed)> wallSlotBlocks = new();
@@ -35,6 +37,9 @@ namespace HybridLumenGI
         public bool SkinnedDeformation { get; private set; }
         public float Shear { get; private set; }
         public float BendDegrees { get; private set; }
+        public bool HasConnectedRooms => connectedRooms && roomPortal;
+        public bool RoomsEnabled => HasConnectedRooms && connectedRooms.activeSelf;
+        public bool PortalOpen { get; private set; }
 
         public void Configure(Camera camera, HybridLumenGIUnifiedSample controller,
             HybridLumenGIValidationMotion movingDoor, Renderer wall, Light[] sceneLights)
@@ -43,6 +48,16 @@ namespace HybridLumenGI
             if (!camera || !controller) throw new ArgumentException("A camera and sample controller are required.");
             targetCamera = camera; sample = controller; door = movingDoor; colorWall = wall;
             lights = sceneLights == null ? Array.Empty<Light>() : (Light[])sceneLights.Clone();
+        }
+        public void ConfigureConnectedRooms(GameObject root, HybridLumenGIValidationMotion portal)
+        {
+            if (Application.isPlaying) throw new InvalidOperationException("Configure before Play.");
+            if (!root || !portal || !root.scene.IsValid() || root.scene != gameObject.scene || root.activeSelf ||
+                portal.gameObject == root || !portal.transform.IsChildOf(root.transform) || (door && door.transform.IsChildOf(root.transform)) ||
+                transform.IsChildOf(root.transform) || (targetCamera && targetCamera.transform.IsChildOf(root.transform)))
+                throw new ArgumentException("Use an inactive room root in this scene and a portal below it. Keep the original door, controls and camera outside.");
+            connectedRooms = root;
+            roomPortal = portal;
         }
         private void Start()
         {
@@ -91,6 +106,28 @@ namespace HybridLumenGI
             for (int i = 0; i < lights.Length; i++) if (lights[i]) lights[i].enabled = value && originalLights[i];
         }
         public void SetDoorMoving(bool value) { if (initialized && !closed && door) DoorMoving = value; }
+        public void SetConnectedRooms(bool value)
+        {
+            if (!initialized || closed || !HasConnectedRooms || RoomsEnabled == value) return;
+            if (!value) { RestoreRooms(); return; }
+            ApplyPortalPose(true);
+            connectedRooms.SetActive(true);
+            sample.GoNear();
+            SyncAngles();
+        }
+        public void SetPortalOpen(bool value)
+        {
+            if (!initialized || closed || !RoomsEnabled) return;
+            ApplyPortalPose(value);
+        }
+        private void ApplyPortalPose(bool open)
+        { roomPortal.ApplyFrame(open ? 179 : 120); PortalOpen = open; }
+        private void RestoreRooms()
+        {
+            if (roomPortal) roomPortal.Restore();
+            if (connectedRooms && connectedRooms.activeSelf) connectedRooms.SetActive(false);
+            PortalOpen = false;
+        }
         public void SetDeformationRunning(bool value)
         {
             if (!initialized || closed || !door || DeformationRunning == value) return;
@@ -166,6 +203,8 @@ namespace HybridLumenGI
                 if (!sample.IsEditingGpuTarget)
                 {
                     if (Input.GetKeyDown(KeyCode.F2)) sample.LogLedger();
+                    if (HasConnectedRooms && Input.GetKeyDown(KeyCode.F3)) SetConnectedRooms(!RoomsEnabled);
+                    if (RoomsEnabled && Input.GetKeyDown(KeyCode.O)) SetPortalOpen(!PortalOpen);
                     if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Alpha1)) { sample.GoNear(); SyncAngles(); }
                     if (Input.GetKeyDown(KeyCode.Alpha2)) { sample.GoFar(); SyncAngles(); }
                     if (Input.GetKeyDown(KeyCode.Alpha3)) { sample.Leave(); SyncAngles(); }
@@ -200,7 +239,14 @@ namespace HybridLumenGI
             if (door && GUILayout.Button(SkinnedDeformation ? "K: use mesh" : "K: use skin")) SetSkinnedDeformation(!SkinnedDeformation);
             if (GUILayout.Button(sample.enabled ? "B: release group" : "B: reload group")) sample.enabled = !sample.enabled;
             GUILayout.EndHorizontal();
+            if (HasConnectedRooms)
+            {
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button(RoomsEnabled ? "F3: hide connected rooms" : "F3: explore connected rooms")) SetConnectedRooms(!RoomsEnabled);
+                if (RoomsEnabled && GUILayout.Button(PortalOpen ? "O: close room door" : "O: open room door")) SetPortalOpen(!PortalOpen);
+            }
             GUILayout.Label(lights.Length > 0 ? "F2: log current status. Lights off keeps emissive surfaces." : "F2: log current status.");
+            if (HasConnectedRooms) GUILayout.EndHorizontal();
             if (door) GUILayout.Label((SkinnedDeformation ? "Skinned bones" : "Readable mesh") + ": asynchronous snapshots; lighting may catch up after motion stops.");
             GUILayout.EndArea();
         }
@@ -209,6 +255,7 @@ namespace HybridLumenGI
             if (closed) return; closed = true; DoorMoving = DeformationRunning = false;
             HybridLumenGIResourceRetirement.UnregisterShutdownOwner(Close);
             if (!initialized) return;
+            RestoreRooms();
             if (colorWall) ApplyWallColor(false);
             for (int i = 0; i < lights.Length; i++) if (lights[i]) lights[i].enabled = originalLights[i];
             if (door) door.Restore();
