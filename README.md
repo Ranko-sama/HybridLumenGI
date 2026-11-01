@@ -10,6 +10,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 本开发机仍可[启动统一交互 Release101](<I:/Unity test/Comparison/Builds/LocalRelease101/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
 
+**视锥外纹理反弹**　相机只能看到白地板。交换画面外墙上的红蓝纹理后，地板左右两处的反弹颜色也会交换。[成对画面、线性读数与适用范围](LocalComparison/Review/offscreen-wall-texture-01/result.md)
+
 ### 接入自己的工程
 
 当前源码包含一项 Editor 修复，在正常退出 Play 后释放跨场景的两个资源回收宿主。普通 Windows 下载入口仍为上方的 Release101。[实机快照与范围](LocalComparison/Review/streaming-sustained-30m-01/result.md#editor-退出-play-后的原生对象)
