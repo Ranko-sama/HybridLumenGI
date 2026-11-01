@@ -1162,7 +1162,8 @@ namespace HybridLumenGI
                 // RecordCapture would starve continuously moving objects whose pages invalidate every frame.
                 state.scheduler.Prepare(state.scene,state.surfaceCache,state.patchGrid,d.frame,Mathf.Clamp(d.cachePatchBudget,1,state.cacheEntryCount),
                     state.lightingChanged,Mathf.Max(s.shadowDistance,s.traceDistance)+Mathf.Max(1,s.traceDistance),
-                    localLightChanges:state.localLightChangeBounds);
+                    upload:true,localLightChanges:state.localLightChangeBounds,changedSurfaces:state.surfaceCache.ChangedBounds,
+                    surfaceInfluenceRadius:Mathf.Max(1,s.traceDistance));
                 if(d.geometry!=null)
                 {
                     string reason=null;

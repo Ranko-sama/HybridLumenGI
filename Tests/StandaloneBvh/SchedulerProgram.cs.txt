@@ -94,6 +94,31 @@ Require(scheduler.UnscheduledEntryCount==liveCards*4,"Reallocated atlas inherite
 surface=new HybridLumenGISurfaceCache(Array.Empty<int>(),scene.Capacity);
 scheduler.Prepare(scene,surface,2,frame++,0,false,0,true);
 Require(scheduler.EntryCount==0&&scheduler.ValidEntryCount==0&&scheduler.SelectedCount==0&&scheduler.UpdateMask!=null,"Empty card pool failed safe zero-work upload.");
+
+// All four cards have one ready patch and the same service age. The wall is at x=60,
+// its neighbour at x=80, and the competing remote receiver at x=100. The fourth
+// receiver at x=140 takes the oldest-service slot by its lower physical card index.
+PrepareScene();
+Require(scene.DirtyRegions.Count==0,"The material-only recapture must have no scene geometry event.");
+int[] regionalOwners=new[]{8,6,4,5}.Select(id=>Array.FindIndex(scene.Data,data=>(int)data.identity.x==id)).ToArray();
+Require(regionalOwners.All(index=>index>=0),"The four published owners must be present.");
+var regionalSurface=new HybridLumenGISurfaceCache(regionalOwners,scene.Capacity);
+using var noSurfaceRegion=new HybridLumenGICacheScheduler();
+using var withSurfaceRegion=new HybridLumenGICacheScheduler();
+const float traceDistance=20f, sceneInfluenceRadius=70f;
+foreach(var current in new[]{noSurfaceRegion,withSurfaceRegion})
+{
+    current.Prepare(scene,regionalSurface,1,0,4,false,sceneInfluenceRadius,false);
+    Require(current.Mask.All(value=>value==1),"Warm-up must service all four patches together.");
+}
+regionalSurface.Generations[2]++; // The selected wall capture completes before cache scheduling.
+var changedSurfaces=new[]{scene.GetProxy(regionalOwners[2]).GetWorldBounds()};
+noSurfaceRegion.Prepare(scene,regionalSurface,1,1,3,true,sceneInfluenceRadius,false);
+withSurfaceRegion.Prepare(scene,regionalSurface,1,1,3,true,sceneInfluenceRadius,upload:false,
+    localLightChanges:null,changedSurfaces:changedSurfaces,surfaceInfluenceRadius:traceDistance);
+Require(noSurfaceRegion.Mask.SequenceEqual(new uint[]{1,1,1,0}),"Without the wall domain the remote receiver should win the tie.");
+Require(withSurfaceRegion.Mask.SequenceEqual(new uint[]{1,0,1,1}),"The oldest patch, recaptured wall and receiver within trace distance should be selected.");
+Console.WriteLine($"Surface change mask (oldest, remote, wall, near): {string.Join(",",noSurfaceRegion.Mask)} -> {string.Join(",",withSurfaceRegion.Mask)}");
 Console.WriteLine("PASS: actual cache scheduler source hard/zero budgets, >=25% oldest quota, static/lighting coverage, dynamic revision and card-generation fairness, variable/noncontiguous cards, invalid owners, ID/owner/card/layout reuse, pool/grid resize, and absent/partial/missing page readiness. Unity resource/surface adapters; scheduling coverage is not rendered-light convergence.");
 
 namespace HybridLumenGI

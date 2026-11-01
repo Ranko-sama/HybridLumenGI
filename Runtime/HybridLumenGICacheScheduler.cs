@@ -25,6 +25,9 @@ namespace HybridLumenGI
         }
         private static readonly OldestComparer Oldest = new OldestComparer();
         private static readonly PriorityComparer Priority = new PriorityComparer();
+        private const float GlobalLightingPriority = 750f;
+        // Rank affected neighbours before the global backlog but after changed source cards (1000).
+        private const float NearbySurfacePriority = GlobalLightingPriority + 1f;
         public ComputeBuffer UpdateMask { get; private set; }
         public uint[] Mask { get; private set; } = Array.Empty<uint>();
         public int EntryCount => Mask.Length;
@@ -52,6 +55,10 @@ namespace HybridLumenGI
 
         public void Prepare(HybridLumenGIScene scene, HybridLumenGISurfaceCache surface, int grid, int frame, int budget, bool lightingChanged,
             float influenceRadius = 50f, bool upload = true, IReadOnlyList<Bounds> localLightChanges = null)
+            => Prepare(scene, surface, grid, frame, budget, lightingChanged, influenceRadius, upload, localLightChanges, null, 0f);
+
+        internal void Prepare(HybridLumenGIScene scene, HybridLumenGISurfaceCache surface, int grid, int frame, int budget, bool lightingChanged,
+            float influenceRadius, bool upload, IReadOnlyList<Bounds> localLightChanges, IList<Bounds> changedSurfaces, float surfaceInfluenceRadius)
         {
             if (scene == null) throw new ArgumentNullException(nameof(scene));
             if (surface == null) throw new ArgumentNullException(nameof(surface));
@@ -65,10 +72,13 @@ namespace HybridLumenGI
             SelectedCount = FairnessSelectedCount = ValidEntryCount = UnscheduledEntryCount = 0;
             MaxFramesSinceUpdate = 0;
             influenceRadius = Mathf.Max(0f, influenceRadius);
+            surfaceInfluenceRadius = Mathf.Max(0f, surfaceInfluenceRadius);
+            float surfaceRadiusSquared = surfaceInfluenceRadius * surfaceInfluenceRadius;
             for (int slot = 0; slot < scene.Capacity; slot++)
             {
                 int id = scene.Data[slot].identity.w > 0.5f ? (int)scene.Data[slot].identity.x : 0;
-                ownerPriorities[slot] = id == 0 ? 0f : DirtyPriority(scene, slot, id, influenceRadius, localLightChanges);
+                ownerPriorities[slot] = id == 0 ? 0f : DirtyPriority(scene, slot, id, influenceRadius, localLightChanges,
+                    changedSurfaces, surfaceRadiusSquared);
             }
             int candidateCount = 0;
             int[] cardOwners = surface.CardOwners;
@@ -110,7 +120,7 @@ namespace HybridLumenGI
                     // Keep dirtiness until this particular patch is serviced, not merely for one frame.
                     pendingPriority[entry] = Mathf.Max(pendingPriority[entry], changePriority);
                     if (changePriority > 0f) coveredRevision[entry] = false;
-                    if (lightingChanged) { pendingPriority[entry] = Mathf.Max(pendingPriority[entry], 750f); coveredRevision[entry] = false; }
+                    if (lightingChanged) { pendingPriority[entry] = Mathf.Max(pendingPriority[entry], GlobalLightingPriority); coveredRevision[entry] = false; }
                     if (readyCards == null || card >= readyCards.Length || !readyCards[card])
                     {
                         // Page misses consume no update work. Preserve dirtiness until capture makes
@@ -155,7 +165,8 @@ namespace HybridLumenGI
             Mask[entry] = 1; SelectedCount++; lastService[entry] = tick;
             lastScheduledFrame[entry] = frame; pendingPriority[entry] = 0f; coveredRevision[entry] = true;
         }
-        private static float DirtyPriority(HybridLumenGIScene scene, int slot, int id, float radius, IReadOnlyList<Bounds> localLightChanges)
+        private static float DirtyPriority(HybridLumenGIScene scene, int slot, int id, float radius, IReadOnlyList<Bounds> localLightChanges,
+            IList<Bounds> changedSurfaces, float surfaceRadiusSquared)
         {
             HybridLumenGIScene.ProxyGpuData data = scene.Data[slot];
             var center = new Vector3(data.centerShape.x, data.centerShape.y, data.centerShape.z);
@@ -178,7 +189,13 @@ namespace HybridLumenGI
             if (localLightChanges != null)
                 for (int i = 0; i < localLightChanges.Count; i++)
                     if (BoundsDistanceSquared(bounds, localLightChanges[i]) <= 0f)
-                        value = Mathf.Max(value, 1000f);
+                        return 1000f;
+            // Surface capture already supplies the published old/new bounds. Use the GI trace
+            // radius for these sources, independently of the larger shadow/geometry radius.
+            if (changedSurfaces != null)
+                for (int i = 0; i < changedSurfaces.Count; i++)
+                    if (BoundsDistanceSquared(bounds, changedSurfaces[i]) <= surfaceRadiusSquared)
+                        return NearbySurfacePriority;
             return value;
         }
         private static float BoundsDistanceSquared(Bounds a, Bounds b)
