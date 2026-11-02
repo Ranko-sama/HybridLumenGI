@@ -1,0 +1,161 @@
+{
+  "sourceDirectory": "I:\\Unity test\\Comparison\\AnalyticBounce111",
+  "scene": "Assets/HLGIAnalyticBounce111/PointReceiver.unity",
+  "logicalIndirectFrame": 30,
+  "indirectDiagnosticFrame": 30,
+  "matchedDiagnosticFrames": [
+    1,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "requestsPerEndpoint": 32,
+  "conditions": {
+    "pointPosition": {
+      "x": 1.0,
+      "y": 1.5,
+      "z": 0.0
+    },
+    "pointIntensity": 1.75,
+    "pointRange": 8.0,
+    "cameraPosition": {
+      "x": 0.8500000238418579,
+      "y": 1.5,
+      "z": 0.0
+    },
+    "wallInFrustum": false,
+    "floorInFrustum": true,
+    "hardwareMeshes": 2,
+    "chartedOwners": 2,
+    "hardwareFallbacks": 0,
+    "screenSteps": 0,
+    "raysPerPixel": 8,
+    "cacheBounceFeedback": 0,
+    "temporalAccumulation": false,
+    "filterIterations": 0
+  },
+  "signal": "Linear camera outgoing RGB, 640x360. Native direct is stock forward with the GI feature off. IndirectOnly is outgoing diffuse indirect (not receiver E/pi).",
+  "regionsHalfOpenXYXY": {
+    "left": [
+      80,
+      90,
+      240,
+      270
+    ],
+    "right": [
+      400,
+      90,
+      560,
+      270
+    ]
+  },
+  "pixelsPerRegion": 28800,
+  "regionMeanLinearRGB": {
+    "0": {
+      "native-direct": {
+        "left": [
+          0.5676311982278195,
+          0.5676311982278195,
+          0.5676311982278195
+        ],
+        "right": [
+          0.5676313443274962,
+          0.5676313443274962,
+          0.5676313443274962
+        ]
+      },
+      "indirect": {
+        "left": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "right": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "1": {
+      "native-direct": {
+        "left": [
+          0.5676311982278195,
+          0.5676311982278195,
+          0.5676311982278195
+        ],
+        "right": [
+          0.5676313443274962,
+          0.5676313443274962,
+          0.5676313443274962
+        ]
+      },
+      "indirect": {
+        "left": [
+          0.09387646946611211,
+          0.008165862704538288,
+          0.042362938446226
+        ],
+        "right": [
+          0.04258752043276723,
+          0.008170635321196945,
+          0.0937313481007954
+        ]
+      }
+    }
+  },
+  "fullImage": {
+    "allRgbFinite": true,
+    "nativeDirectRgbIdenticalBits": true,
+    "nativeDirectMaxAbsChannelDelta": 0.0,
+    "bounce0IndirectMaxAbsChannel": 0.0,
+    "bounce1IndirectPeakChannel": 0.6985389590263367
+  },
+  "effectiveLightTable": {
+    "selectedAtRenderedValue0And1": [
+      0,
+      1
+    ],
+    "isolatedCollectorCountAtZero": 0,
+    "rgbAtOne": [
+      1.75,
+      1.75,
+      1.75
+    ],
+    "rgbAtTwo": [
+      3.5,
+      3.5,
+      3.5
+    ],
+    "pointRotationChangeEntries": 0,
+    "spotRotationChangeEntries": 2
+  },
+  "display": "All panels exposure 1, component-wise Reinhard then sRGB; preview only vertically flipped. ROI lines are annotations."
+}

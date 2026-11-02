@@ -213,7 +213,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release110。统一示例整合了粗根页预取、静止斜面历史修复、工作纹理复用及形变任务退出清理。颜色误差、换色残留、拖影、恢复时间及世界空间遮挡的独立画面对照随包提供。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量保留原采集版本及适用范围。[Release110](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release110-demo) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
+当前交付为 Release111。统一示例支持逐灯间接倍率，修复了点光原地旋转造成的局部照明历史失效，并保留粗根页预取。离线画册包含直射与反弹分离、颜色误差、换色与关灯残留、运动拖影和恢复时间的分项对照。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量保留原采集版本及适用范围。[Release111](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release111-demo) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

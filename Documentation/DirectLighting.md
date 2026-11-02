@@ -6,6 +6,8 @@
 
 ## 灯光快照与照明
 
+方向、点和聚光灯的 `Light.bounceIntensity` 控制这盏灯注入次级命中表面的照明。倍率 1 使用原强度，正倍率只在灯源处乘一次，倍率 0 让灯退出 GI 灯表。相机所见的原生 URP 直射仍由该灯的颜色与强度决定。无 cookie 点光的朝向也不参与 GI 灯表比较，原地旋转不会重置附近的照明历史。聚光灯方向仍参与比较。[固定点光与离屏色墙的画面对照](../LocalComparison/Review/analytic-light-bounce-01/result.md) · [Unity 6 灯光间接倍率](https://docs.unity.com/en-us/engine/6000.0/script-reference/unityengine/light/bounceintensity)
+
 可选 `environmentCubemap` 为确定逃逸的世界射线提供方向性环境辐亮度Li；它只接受静态、未编码线性RGBAHalf/RGBAFloat，以LOD0读取，并替代原常量环境。空引用保留 `environmentRadiance` 的原转换与行为，不支持的格式会警告后回退常量。原权重继续计算D=E/π，不额外乘反射率、曝光或π。调用方持有资产并保证使用期间内容不可原地修改；引用切换沿用设置失效。完整输入及有限compute证据见[环境合同](EnvironmentRadiance.md)。
 
 输入Cube不改变可见skybox、环境SH、lightmap或反射。默认Additive仍保留原URP漫反射GI，可能重复计能；指定Cube不会自动切换到 `ReplaceNativeDiffuseGI` 或清空全局Lighting设置。选择替换模式须满足其独立[合成合同](NativeDiffuseComposition.md)，本轮Cube验证不扩大支持范围。

@@ -34,6 +34,10 @@
   <tr><td>白色接收体</td><td>86 / 86</td><td>0.225072</td><td>0.226957</td><td>0.018576</td></tr></tbody></table>
   <figure><img src="release93-color-frame119-01/comparison.png" alt="第119帧的候选间接光、独立参考、亮度差和参考采样误差"><figcaption>Release93，DXR，2 条射线，4 级空间滤波。差值图红色表示偏亮，蓝色表示偏暗，量程 0.05。棋盘为区域外，洋红为未知。</figcaption></figure>
   <p>CPU 参考使用独立源几何，每点 256 个样本，最多 8 次反弹，黑环境，只计算漫反射和发光。图中标准误描述参考的逐像素采样噪声。弹射截断、射线偏移与产品的缓存和滤波也会影响差值。相比旧软件路径的 3 级滤波，这两个区域的 MAE 分别高约 10.1% 和 6.6%，同时发生了后端与版本变化。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/release93-color-frame119-01/result.md">颜色数据与估计范围 ↗</a></p>
+  <h3>逐灯间接倍率会改变相机看见的直射吗？</h3>
+  <p>同一盏白点光、同一块白地板。两次独立启动的 Unity 中，倍率 0 和 1 的原生直射全图一致。间接光在倍率 0 时全图为零，倍率 1 时左侧地板偏红、右侧偏蓝，颜色来自视锥外的墙。</p>
+  <figure><img src="analytic-light-bounce-01/comparison.png" alt="上排两张相同的原生直射图，下排为倍率零时的黑图与倍率一时的红蓝地板反弹"><figcaption>Release111 产品源码，固定机位实际 DXR。为单独观察一次反弹，采用全分辨率、8 条射线并关闭时间累积和空间滤波。图的颗粒不代表统一示例的默认画质。<a href="analytic-light-bounce-01/result.json">线性读数与灯表</a></figcaption></figure>
+  <p>原始 EXR　<a href="analytic-light-bounce-01/bounce-0-indirect.exr">倍率 0 间接</a> · <a href="analytic-light-bounce-01/bounce-1-indirect.exr">倍率 1 间接</a> · <a href="analytic-light-bounce-01/bounce-0-native-direct.exr">倍率 0 直射</a> · <a href="analytic-light-bounce-01/bounce-1-native-direct.exr">倍率 1 直射</a></p>
 </section>
 <section id="residual">
   <h2>2. 墙换色或灯关闭后，还剩多少旧光？</h2>
