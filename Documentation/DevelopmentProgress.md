@@ -6,7 +6,7 @@ G1 修复了解析灯忽略逐灯间接倍率的问题。同一盏点光的倍�
 
 G1 已确认单盏 Mixed 主灯在静态 Forward Lit 接收面上的 Shadowmask 直射能被保留。Replace 移除烘焙漫反射后，受遮和未遮内部区域的亮度分别为 0 和 0.488486，与保留同一遮罩的独立原生直射一致。世界空间反弹的烘焙遮挡仍开放。[画面、原始 HDR 与范围](../LocalComparison/Review/mixed-shadowmask-01/result.md)
 
-G2／G5 修复了作者工具可能静默丢弃额外顶点流的问题。公开分页导出和统一变体生成都在创建输出前拒绝了带 UV0 覆盖的 White receiver，真实已合批的 Renderer 也在分页导出时被识别。作者源保留。此项随仓库编辑器源码提供。[输入和修复方式](IndependentAssetPages.md#build-and-use)
+G2／G5 的分页导出和统一变体生成现在可保留静态 Lit 接收面的独立 UV0 覆盖。重新加载实际资源包后，同一白色接收面三角形在独立页、近景和远景聚合网格及其表面卡上都采到覆盖后的红色 (225, 35, 12)。基础 UV 原会采到蓝色 (20, 65, 210)。共享原网格的另一个接收面仍使用原坐标，作者资产完好。此项通过仓库 Editor 源码交付。已静态合批、额外位置或法线等输入继续由导出保护处理。[支持范围](IndependentAssetPages.md#build-and-use) · [实际页和三角形的读数](../LocalComparison/Review/static-uv0-export.json)
 
 G4 改进了从域外高速进入统一示例时的首次显示。Release110 只提前加载接近方向的粗根页。与 Release109 相同的冷入路线相比，首个完整可提交组由回程 7.39 单位处的根，前移到回程 1.78 单位处的三个细节。最近点仍为空，两次在域外终点均排空。[冷入折返、实际提交与未覆盖范围](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 

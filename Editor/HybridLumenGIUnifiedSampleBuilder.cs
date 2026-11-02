@@ -89,6 +89,7 @@ public static class HybridLumenGIUnifiedSampleBuilder
         int[][] detailAddresses = originals.Select(p => Address(p.transform)).ToArray();
         string scenePath = assetDirectory + "/UnifiedSample.unity";
         Scene previous = SceneManager.GetActiveScene(), variant = default;
+        var temporaryGeometry = new List<Object>();
         Directory.CreateDirectory(assetDirectory); AssetDatabase.Refresh();
         try
         {
@@ -97,6 +98,17 @@ public static class HybridLumenGIUnifiedSampleBuilder
             SceneManager.SetActiveScene(variant);
             var target = Resolve(variant, cameraAddress).GetComponent<Camera>();
             var details = detailAddresses.Select(p => Resolve(variant, p).GetComponent<HybridLumenGIProxy>()).ToArray();
+            // Both the far aggregate and the near pages must see the same authored UVs.
+            foreach (var detail in details)
+            {
+                var renderer = (MeshRenderer)detail.SourceRenderer;
+                if (!renderer.additionalVertexStreams) continue;
+                var geometry = HybridLumenGIAssetPageBuilder.PrepareGeometry(detail, temporaryGeometry);
+                renderer.additionalVertexStreams = null;
+                renderer.GetComponent<MeshFilter>().sharedMesh = geometry.mesh;
+                detail.SetMeshSdf(geometry.sdf);
+                detail.SetSurfaceCharts(geometry.charts);
+            }
             // This is the same scene at rest. The finite-validation camera/light driver must not own it in ordinary use.
             foreach (var root in variant.GetRootGameObjects())
             {
@@ -131,6 +143,7 @@ public static class HybridLumenGIUnifiedSampleBuilder
         {
             EditorUtility.ClearProgressBar();
             if (variant.IsValid() && variant.isLoaded) EditorSceneManager.CloseScene(variant, true);
+            foreach (var asset in temporaryGeometry) if (asset) Object.DestroyImmediate(asset);
             if (previous.IsValid() && previous.isLoaded) SceneManager.SetActiveScene(previous);
             // New owned paths are retained on failure for inspection. Never delete/overwrite authoring assets.
         }

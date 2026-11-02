@@ -24,6 +24,15 @@ public static class HybridLumenGIAssetPageBuilder
         internal string id,path,bundle;
         internal HybridLumenGIAssetPageStreaming.Kind kind;
     }
+    internal readonly struct ExportGeometry
+    {
+        internal readonly Mesh mesh;
+        internal readonly HybridLumenGIMeshSdf sdf;
+        internal readonly HybridLumenGISurfaceCharts charts;
+
+        internal ExportGeometry(Mesh mesh, HybridLumenGIMeshSdf sdf, HybridLumenGISurfaceCharts charts)
+        { this.mesh = mesh; this.sdf = sdf; this.charts = charts; }
+    }
     [MenuItem("Tools/Hybrid Lumen GI/Export Selected Proxies As Asset Pages")]
     private static void ExportSelection()
     {
@@ -54,9 +63,9 @@ public static class HybridLumenGIAssetPageBuilder
         if(IsWithin(assetFull,outputFull) || IsWithin(outputFull,assetFull))
             throw new ArgumentException("Source-asset and bundle-output directories must not overlap.");
         var sources=new Dictionary<Object,Page>();
-        var renderers=new HashSet<Renderer>();
         var effectiveMaterials=new Dictionary<Renderer,Material[]>();
-        var temporaryMaterials=new List<Material>();
+        var geometries=new Dictionary<Renderer,ExportGeometry>();
+        var temporarySources=new List<Object>();
         try
         {
         foreach(var proxy in proxies)
@@ -68,13 +77,15 @@ public static class HybridLumenGIAssetPageBuilder
             MeshFilter filter=renderer!=null?renderer.GetComponent<MeshFilter>():null;
             if(filter==null || filter.sharedMesh==null || renderer.sharedMaterials.Length!=filter.sharedMesh.subMeshCount)
                 throw new InvalidOperationException("Every selected proxy needs a mesh and exactly one material per submesh.");
-            if(!renderers.Add(renderer))throw new InvalidOperationException("Two selected proxies cannot own the same streamed renderer.");
-            Collect(filter.sharedMesh,sources);Collect(proxy.MeshSdf,sources);Collect(proxy.SurfaceCharts,sources);
+            if(geometries.ContainsKey(renderer))throw new InvalidOperationException("Two selected proxies cannot own the same streamed renderer.");
+            var geometry=PrepareGeometry(proxy,temporarySources);
+            geometries.Add(renderer,geometry);
+            Collect(geometry.mesh,sources);Collect(geometry.sdf,sources);Collect(geometry.charts,sources);
             Material[] materials=renderer.sharedMaterials;
             for(int slot=0;slot<materials.Length;slot++)
             {
                 if(materials[slot]==null)throw new InvalidOperationException("Null material slots cannot be exported.");
-                if(renderer.HasPropertyBlock())materials[slot]=ExportMaterial(renderer,slot,materials[slot],temporaryMaterials);
+                if(renderer.HasPropertyBlock())materials[slot]=ExportMaterial(renderer,slot,materials[slot],temporarySources);
                 Collect(materials[slot],sources);
             }
             effectiveMaterials.Add(renderer,materials);
@@ -88,7 +99,7 @@ public static class HybridLumenGIAssetPageBuilder
             page.id=page.kind.ToString().ToLowerInvariant()+"-"+Guid.NewGuid().ToString("N");
             page.path=assetRoot+"/Sources/"+page.id+".asset";page.bundle=page.id+".hlgipage";
             page.copy=Object.Instantiate(page.source);page.copy.name=page.source.name;
-            if(page.source is Material transient && temporaryMaterials.Contains(transient))page.copy.hideFlags=HideFlags.None;
+            if((page.source.hideFlags & HideFlags.DontSave)!=0)page.copy.hideFlags=HideFlags.None;
             AssetDatabase.CreateAsset(page.copy,page.path);
             builds.Add(new AssetBundleBuild {assetBundleName=page.bundle,assetNames=new[]{page.path}});
         }
@@ -103,12 +114,12 @@ public static class HybridLumenGIAssetPageBuilder
             }
             else if(page.copy is HybridLumenGIMeshSdf || page.copy is HybridLumenGISurfaceCharts)
             {
-                var serialized=new SerializedObject(page.copy);
+                using var origin=new SerializedObject(page.source);
+                using var serialized=new SerializedObject(page.copy);
                 foreach(string field in new[]{"sourceMesh","captureMesh","distanceTexture"})
                 {
-                    var property=serialized.FindProperty(field);
-                    if(property!=null && property.objectReferenceValue!=null)
-                        property.objectReferenceValue=sources[property.objectReferenceValue].copy;
+                    var original=origin.FindProperty(field)?.objectReferenceValue;
+                    if(original!=null)serialized.FindProperty(field).objectReferenceValue=sources[original].copy;
                 }
                 serialized.ApplyModifiedPropertiesWithoutUndo();
             }
@@ -152,7 +163,7 @@ public static class HybridLumenGIAssetPageBuilder
         foreach(var original in proxies)
         {
             var sourceRenderer=(MeshRenderer)original.SourceRenderer;
-            Mesh sourceMesh=sourceRenderer.GetComponent<MeshFilter>().sharedMesh;
+            var geometry=geometries[sourceRenderer];
             GameObject go=CloneTransform(sourceRenderer.transform,rig.transform,transforms).gameObject;
             var filter=go.AddComponent<MeshFilter>();var renderer=go.AddComponent<MeshRenderer>();
             // Copy public rendering policy without inheriting the original static-batch mesh or
@@ -170,9 +181,9 @@ public static class HybridLumenGIAssetPageBuilder
             var materialIds=new string[materials.Length];
             for(int i=0;i<materialIds.Length;i++)materialIds[i]=sources[materials[i]].id;
             var binding=go.AddComponent<HybridLumenGIStreamedRepresentation>();
-            binding.Configure(driver,proxy,filter,renderer,sources[sourceMesh].id,
-                original.MeshSdf!=null?sources[original.MeshSdf].id:null,
-                original.SurfaceCharts!=null?sources[original.SurfaceCharts].id:null,materialIds,sourceMesh.bounds);
+            binding.Configure(driver,proxy,filter,renderer,sources[geometry.mesh].id,
+                geometry.sdf!=null?sources[geometry.sdf].id:null,
+                geometry.charts!=null?sources[geometry.charts].id:null,materialIds,geometry.mesh.bounds);
             bool aggregate=original.FarFieldOnly;
             foreach(var candidate in proxies)aggregate|=candidate.HLODParent==original;
             if(aggregate)binding.ConfigureDistances(200f,240f);
@@ -187,12 +198,12 @@ public static class HybridLumenGIAssetPageBuilder
         }
         finally
         {
-            foreach(var material in temporaryMaterials)if(material!=null)Object.DestroyImmediate(material);
+            foreach(var source in temporarySources)if(source!=null)Object.DestroyImmediate(source);
         }
     }
     private static bool IsOverride(HybridLumenGIMaterialValueOrigin origin)
         => origin==HybridLumenGIMaterialValueOrigin.RendererPropertyBlock || origin==HybridLumenGIMaterialValueOrigin.MaterialPropertyBlock;
-    private static Material ExportMaterial(Renderer renderer,int slot,Material source,List<Material> temporaryMaterials)
+    private static Material ExportMaterial(Renderer renderer,int slot,Material source,List<Object> temporarySources)
     {
         var reader=new HybridLumenGIMaterialSource();
         if(!reader.TryCapture(renderer,slot,source,out var snapshot,out string reason))
@@ -201,7 +212,7 @@ public static class HybridLumenGIAssetPageBuilder
         // Keep transient snapshots alive while BuildAssetBundles unloads imported assets.
         // Only the independently saved copy enters the page graph; the caller always disposes this one.
         Material material=Object.Instantiate(source);material.hideFlags=HideFlags.HideAndDontSave;
-        temporaryMaterials.Add(material);
+        temporarySources.Add(material);
         Shader shader=source.shader;
         for(int property=0;property<shader.GetPropertyCount();property++)
         {
@@ -242,8 +253,65 @@ public static class HybridLumenGIAssetPageBuilder
         if (renderer == null) return;
         if (renderer.isPartOfStaticBatch)
             throw new InvalidOperationException($"Renderer '{renderer.name}' is part of a static batch. Export the authoring renderer before batching.");
-        if (renderer.additionalVertexStreams != null)
-            throw new InvalidOperationException($"Renderer '{renderer.name}' uses additional vertex streams. Merge them into its mesh and rebake dependent assets before export.");
+        var stream = renderer.additionalVertexStreams;
+        if (!stream) return;
+        var mesh = renderer.GetComponent<MeshFilter>()?.sharedMesh;
+        if (!mesh || !mesh.isReadable || !stream.isReadable || stream.vertexCount != mesh.vertexCount ||
+            renderer.enlightenVertexStream || stream.vertexAttributeCount != 1 ||
+            !stream.HasVertexAttribute(VertexAttribute.TexCoord0) ||
+            stream.GetVertexAttributeFormat(VertexAttribute.TexCoord0) != VertexAttributeFormat.Float32 ||
+            stream.GetVertexAttributeDimension(VertexAttribute.TexCoord0) != 2)
+            throw new InvalidOperationException($"Renderer '{renderer.name}' uses unsupported additional vertex streams. Export requires a readable Float32 UV0 pair per source vertex and no other override.");
+        foreach (var material in renderer.sharedMaterials)
+            if (!material || !material.shader || material.shader.name != "Universal Render Pipeline/Lit")
+                throw new InvalidOperationException($"Renderer '{renderer.name}' needs ordinary URP Lit materials to export a UV0 override.");
+    }
+
+    // Callers own these temporary objects through the bundle build. Authoring assets are shared read-only.
+    internal static ExportGeometry PrepareGeometry(HybridLumenGIProxy proxy, List<Object> temporarySources)
+    {
+        var renderer = (MeshRenderer)proxy.SourceRenderer;
+        var source = renderer.GetComponent<MeshFilter>().sharedMesh;
+        var sdf = proxy.MeshSdf;
+        var charts = proxy.SurfaceCharts;
+        var stream = renderer.additionalVertexStreams;
+        if (!stream) return new ExportGeometry(source, sdf, charts);
+        if ((sdf && !sdf.MatchesSource(source)) || (charts && !charts.MatchesSource(source)))
+            throw new InvalidOperationException($"Renderer '{renderer.name}' has stale source bakes. Rebake the base mesh before exporting its UV0 override.");
+
+        var uv = stream.uv;
+        if (uv.Length != source.vertexCount)
+            throw new InvalidOperationException($"Renderer '{renderer.name}' does not supply a UV0 value for every source vertex.");
+        foreach (var value in uv)
+            if (!float.IsFinite(value.x) || !float.IsFinite(value.y))
+                throw new InvalidOperationException($"Renderer '{renderer.name}' has a non-finite UV0 override.");
+        var mesh = KeepTemporary(Object.Instantiate(source), temporarySources);
+        mesh.name = source.name + " (" + renderer.name + " UV0)";
+        mesh.uv = uv;
+        if (sdf)
+        {
+            // UV changes leave the signed distances, local bounds and triangle topology intact.
+            var rebound = KeepTemporary(ScriptableObject.CreateInstance<HybridLumenGIMeshSdf>(), temporarySources);
+            rebound.name = sdf.name;
+            rebound.SetBakedData(mesh, sdf.DistanceTexture, sdf.LocalBounds, sdf.Resolution, sdf.Watertight);
+            sdf = rebound;
+        }
+        if (charts)
+        {
+            var capture = KeepTemporary(HybridLumenGISurfaceCharts.CreateCaptureMesh(mesh, charts.Charts), temporarySources);
+            var rebound = KeepTemporary(ScriptableObject.CreateInstance<HybridLumenGISurfaceCharts>(), temporarySources);
+            rebound.name = charts.name;
+            rebound.SetBakedData(mesh, capture, charts.Charts);
+            charts = rebound;
+        }
+        return new ExportGeometry(mesh, sdf, charts);
+    }
+
+    private static T KeepTemporary<T>(T value, List<Object> temporarySources) where T : Object
+    {
+        temporarySources.Add(value);
+        value.hideFlags = HideFlags.HideAndDontSave;
+        return value;
     }
 
     private static string ValidateNewDirectory(string path,bool bundles)

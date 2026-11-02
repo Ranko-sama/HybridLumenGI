@@ -36,6 +36,8 @@ Release103 修复了颜色全黑的解析灯占据有限灯表名额的问题。
 
 ### 接入自己的工程
 
+分页作者工具支持静态 Lit 网格通过单独的 UV0 顶点流覆盖基础贴图坐标。Unity 重开实际导出包后，独立页、统一近景和远景聚合中的同一三角形均采到了覆盖后的贴图颜色。该功能随仓库 Editor 源码提供。[导出条件与原始读数](Documentation/IndependentAssetPages.md#build-and-use)
+
 当前源码包含一项 Editor 修复，在正常退出 Play 后释放跨场景的两个资源回收宿主。[实机快照与范围](LocalComparison/Review/streaming-sustained-30m-01/result.md#editor-退出-play-后的原生对象)
 
 已有 Unity 工程升级时，先保存作者资产和原有引用，再按版本差异替换源码。升级与回退步骤包括旧设置、SDF／charts、分页资产及可选插件的处理。[升级已有 Unity 工程与回退](Documentation/Implementation.md#升级已有-unity-工程与回退)
