@@ -4,17 +4,19 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release101](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release101-demo)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release102](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release102-demo)
 
-**离线看画面对照**　打开运行包内的 `PictureComparison/index.html`，可查看颜色、残留、拖影、收敛，以及白炉与零漫反射材质的对照，并保存白炉的原始线性 EXR。只需前四问时也可单独下载原版五图附件。[原版离线附件（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)
+**离线看画面对照**　打开运行包内的 `PictureComparison/index.html`，可查看颜色、残留、拖影、收敛，以及白炉、零漫反射、离屏纹理及两室门洞遮挡的对照，并查看附带的原始线性 EXR。只需前四问时也可单独下载原版五图附件。[原版离线附件（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)
 
-本开发机仍可[启动统一交互 Release101](<I:/Unity test/Comparison/Builds/LocalRelease101/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
+本开发机仍可[启动统一交互 Release102](<I:/Unity test/Comparison/Builds/LocalRelease102/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
+
+**进入相邻两室**　启动后按 F3 切换布局，O 全开／全闭共用隔墙上的门，WASD 可穿过门洞，自由探索前室和光源室。离线画册里可查看同机位的开门／关门地板图。[布局与实测](LocalComparison/Review/connected-rooms-01/result.md)
 
 **视锥外纹理反弹**　相机只能看到白地板。交换画面外墙上的红蓝纹理后，地板左右两处的反弹颜色也会交换。[成对画面、线性读数与适用范围](LocalComparison/Review/offscreen-wall-texture-01/result.md)
 
 ### 接入自己的工程
 
-当前源码包含一项 Editor 修复，在正常退出 Play 后释放跨场景的两个资源回收宿主。普通 Windows 下载入口仍为上方的 Release101。[实机快照与范围](LocalComparison/Review/streaming-sustained-30m-01/result.md#editor-退出-play-后的原生对象)
+当前源码包含一项 Editor 修复，在正常退出 Play 后释放跨场景的两个资源回收宿主。[实机快照与范围](LocalComparison/Review/streaming-sustained-30m-01/result.md#editor-退出-play-后的原生对象)
 
 已有 Unity 工程升级时，先保存作者资产和原有引用，再按版本差异替换源码。升级与回退步骤包括旧设置、SDF／charts、分页资产及可选插件的处理。[升级已有 Unity 工程与回退](Documentation/Implementation.md#升级已有-unity-工程与回退)
 
@@ -37,6 +39,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 生成的资源页位于工程的 `Assets/StreamingAssets`；交付Player时保留这些bundle及对应数据目录。静态网格、材质和HLOD输入限制及生成步骤见[统一示例说明](LocalComparison/Implementation/UnifiedSample/SAMPLE.md#生成及使用)。生成器不会把任意场景自动变成具有换色、灯光或门事件的验证场景；未提供相应输入时只显示可用操作。
 
+如需在自己的 Unity 工程中生成两室版本，打开由标准彩墙场景生成的统一示例，保存后执行 **Tools > Hybrid Lumen GI > Create Connected Rooms Copy of Unified Sample**。生成器会在同目录保存场景副本，复用原有分页组和烘焙资产。
+
 ## 普通示例操作
 
 点击Player窗口后操作；以下事件快捷键对应已交付的统一场景。
@@ -46,6 +50,7 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 | 平移／升降／转向 | WASD ／ Q、E ／方向键 |
 | 近景／远景／离开分页范围 | 1或R ／ 2 ／ 3 |
 | 软件／DXR偏好 | 4 ／ 5 |
+| 进入两室／返回原布局，开关分隔门 | F3 ／ O |
 | 墙面换色／灯光开关／门运动 | C ／ L ／ M |
 | 形变启停／切换网格与骨骼来源 | 空格 ／ K |
 | 分页组释放与重载 | B |

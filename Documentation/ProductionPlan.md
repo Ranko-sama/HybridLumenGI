@@ -2,6 +2,8 @@
 
 当前起始验收目标已由用户确认：960×540／30FPS，现有GI三个计时区间合计p95≤25ms，进程local有限采样峰值≤1GiB，nonlocal另列。[当前93优化后的静止窗口](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)为19.298ms／567.254MiB，满足两门槛；不代表运动／最坏情况或整体验收。后文历史“预算未定”以[当前口径](GpuBudget.md#当前已确认的起始验收目标)为准。
 
+Release102 将连通两室整合进普通 Windows 入口。F3 进入或返回，O 开关分隔门；关闭解析灯后，前室固定地板随共用门洞的开闭呈现明确的暖色间接光差异。复杂多房间的完整验收仍开放。[实测与布局范围](../LocalComparison/Review/connected-rooms-01/result.md)
+
 2026-11-02，G2 在已保存的有限墙／地板场景补齐离屏纹理依据。相机固定俯视，交换完整位于视锥外的墙纹理两色后，可见白地板左右区域的反弹色向均随之反转。[离屏纹理实机对照与原始 EXR](../LocalComparison/Review/offscreen-wall-texture-01/result.md)
 
 2026-11-02，G5 普通门运动窗口已取得同帧 GI 与显存依据，三段合计 p95 为 16.984 ms，进程 local 峰值为 568.816 MiB。[逐帧配对、门位移及显存](../LocalComparison/Review/door-motion-budget-01/result.md)
@@ -14,7 +16,7 @@ Release101 修复了默认 Additive 相机材质捕获遗漏原生 LOD 淡变裁
 
 Release100 把 HLOD 已有读回的首个覆盖阻断接入 F2／编辑器相机诊断。作者可以定位对象和 chart，区分整张必需 chart 无可用覆盖与已覆盖 patch 的采样年龄不足。离线包同时收录 Release99 白炉原始 EXR 和历史 V209 零漫反射材质对照。G0 本机基线已锁定，完整 G1–G5 继续开放。[Release100 交付](../LocalComparison/Review/hlod-coverage-diagnostic-01/result.md)
 
-完整解压后，使用 `Start-LocalRelease.cmd` 启动，使用 `PictureComparison/index.html` 离线看图。画质读数和不确定性按原采集版本注明。[Release101 Windows x64 实验性发布](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release101-demo)
+完整解压后，使用 `Start-LocalRelease.cmd` 启动，使用 `PictureComparison/index.html` 离线看图。画质读数和不确定性按原采集版本注明。[Release102 Windows x64 实验性发布](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release102-demo)
 
 [普通骨骼运动短历史候选](../LocalComparison/Review/skinned-motion-history-01/result.md)已按预定条件停止且未采用：功能路径可达，但实际A/B轨迹不同，未确认可见减颗粒收益。候选成果保留，产品恢复94，不新增G3通过项、不扩测，未为该撤回候选构建95；现有95只包含另外的直接反射率修复。
 
@@ -32,7 +34,7 @@ Release100 把 HLOD 已有读回的首个覆盖阻断接入 F2／编辑器相机
 
 此前[Release87](../LocalComparison/Review/short-history-spatial-filter-01/result.md)的短历史空间滤波改进保留：唯一软件239帧对照可见黑颗粒减少，已知点和时间统计保持；云状软斑与滤波增量成本未单独测量的边界保留。87的[1 ray门运动Present窗口](../LocalComparison/Review/release87-motion-present-01/result.md)仍属于原配置：960×540启动配置、默认DXR，平均70.85Hz，p95／p99间隔16.73／17.80ms，全部观测间隔低于33.33ms；不改标为88数据，也不据跨窗口差值归算某个滤波步骤成本。86空场资源修复与85本机DXR偏好继续保留。
 
-状态：**持续本机开发；当前入口 Release101，完整生产验收尚未完成。** 更新：2026-11-01。[统一交互入口](<I:/Unity test/Comparison/Builds/LocalRelease101/Start-LocalRelease.cmd>)包含导航、分页/HLOD、软件/DXR、换色、灯、门和形变，包含可由K切换的[真实Skinned与可读网格形变](../LocalComparison/Review/skinned-unified-usage-01/result.md)，并保留默认关闭的[驱动进程显存观察](GpuBudget.md#驱动层进程显存观察)。[独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)给出颜色、残留、拖影与收敛结论及其边界。Release78新增[来源分离缓存关灯响应](../LocalComparison/Review/cache-source-separation-01/result.md)，当前上传解析灯表为空时移除其旧贡献并保留自发光／环境；全局屏幕历史、缓存首次可信响应及面积光冗余计算优化已保留；约19.7%的[有限成本收益](../LocalComparison/Review/screen-endpoint-only-01/result.md)仍属于Release76来源。Release80修复[零漫反射已知辐射丢失](../LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)：无关入射查询不再撤销已知Le／黑色；原资格、正漫反射和采样保持，仅有固定函数依据及普通构建，不增加整景画质或加速声明。Release81接通[普通GPU计时／反馈操作](../LocalComparison/Review/gpu-budget-controls-01/result.md)，一次实际Player完成测量、非法输入拒绝、显式目标启用反馈和关闭恢复；并整合零AO源码修复。临时20ms目标在最低配额下仍超出，不是生产预算或性能放行。修复前[35fddaa的frame119独立颜色对照](../LocalComparison/Review/current-color-frame119-01/result.md)确认Floor／White平均D仍比既有参考低28.9%／33.4%；仅有限ROI与时点，保留MC／模型局限，不是稳态或G1通过。默认多跳残留与整体颜色仍开放。完整目标由[原始计划](OriginalDevelopmentPlan.md)约束；后续源码提交不改变已构建EXE来源。不使用 Codex with ChatGPT，阶段下一步由独立 Astra Max 审查是否漂移，功能实现优先。
+状态：**持续本机开发；当前入口 Release102，完整生产验收尚未完成。** 更新：2026-11-01。[统一交互入口](<I:/Unity test/Comparison/Builds/LocalRelease102/Start-LocalRelease.cmd>)包含导航、分页/HLOD、软件/DXR、换色、灯、门和形变，包含可由K切换的[真实Skinned与可读网格形变](../LocalComparison/Review/skinned-unified-usage-01/result.md)，并保留默认关闭的[驱动进程显存观察](GpuBudget.md#驱动层进程显存观察)。[独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)给出颜色、残留、拖影与收敛结论及其边界。Release78新增[来源分离缓存关灯响应](../LocalComparison/Review/cache-source-separation-01/result.md)，当前上传解析灯表为空时移除其旧贡献并保留自发光／环境；全局屏幕历史、缓存首次可信响应及面积光冗余计算优化已保留；约19.7%的[有限成本收益](../LocalComparison/Review/screen-endpoint-only-01/result.md)仍属于Release76来源。Release80修复[零漫反射已知辐射丢失](../LocalComparison/Review/zero-diffuse-known-radiance-01/result.md)：无关入射查询不再撤销已知Le／黑色；原资格、正漫反射和采样保持，仅有固定函数依据及普通构建，不增加整景画质或加速声明。Release81接通[普通GPU计时／反馈操作](../LocalComparison/Review/gpu-budget-controls-01/result.md)，一次实际Player完成测量、非法输入拒绝、显式目标启用反馈和关闭恢复；并整合零AO源码修复。临时20ms目标在最低配额下仍超出，不是生产预算或性能放行。修复前[35fddaa的frame119独立颜色对照](../LocalComparison/Review/current-color-frame119-01/result.md)确认Floor／White平均D仍比既有参考低28.9%／33.4%；仅有限ROI与时点，保留MC／模型局限，不是稳态或G1通过。默认多跳残留与整体颜色仍开放。完整目标由[原始计划](OriginalDevelopmentPlan.md)约束；后续源码提交不改变已构建EXE来源。不使用 Codex with ChatGPT，阶段下一步由独立 Astra Max 审查是否漂移，功能实现优先。
 
 Release84新增[F2运行状态日志入口](../LocalComparison/Review/keyboard-ledger-01/result.md)，复用已有功能，GI与软件默认保持。同一普通Player请求DXR后，[应用Present窗口](../LocalComparison/Review/release84-dxr-present-01/result.md)为平均79.22Hz、间隔p95 14.33ms／p99 14.81ms，全部观测间隔小于33.33ms；前后CPU日志报告就绪DXR。该有限结果支持本机960×540／30FPS方向，不证明实际显示FPS、逐帧后端、等画质或完整G5，软件83结果保留原来源。
 
@@ -191,7 +193,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-2026-11-01 当前交付更新。Release101 的可运行示例内附离线画面对照，以及颜色、残留、拖影、恢复时间的适用范围。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量与图像保留原来源。[Release101](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release101-demo) · [独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)
+2026-11-01 当前交付更新。Release102 的可运行示例内附离线画面对照，以及颜色、残留、拖影、恢复时间的适用范围。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量与图像保留原来源。[Release102](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release102-demo) · [独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
