@@ -445,7 +445,20 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
         HLGIReceiverIdentityObject row=_HLGI_IdentityObjects[candidate.x-1u];
         identityValid=HLGITryReceiverMotion(identity,candidate,row,
             p,shadingNormal,geometricNormal,expectedP,expectedNs,expectedNg);
-        if(identityValid) receiverGroup=row.reserved;
+        if(identityValid)
+        {
+            receiverGroup=row.reserved;
+            // The decoded normals already describe the previous frame under an
+            // exact identity transform. Renormalizing them can change their bits
+            // and make a stationary receiver clip its mature history to sparse rays.
+            if(all(row.currentToPrevious[0]==float4(1,0,0,0)) && all(row.currentToPrevious[1]==float4(0,1,0,0)) &&
+                all(row.currentToPrevious[2]==float4(0,0,1,0)) && all(row.currentToPrevious[3]==float4(0,0,0,1)))
+            {
+                expectedP=p;
+                expectedNs=shadingNormal;
+                expectedNg=geometricNormal;
+            }
+        }
     }
 #endif
     float2 prevUV=ProjectUV(expectedP,_HLGI_PreviousVP,w);
