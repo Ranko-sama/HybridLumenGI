@@ -215,7 +215,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release119。统一示例可按 F5 查看间接光。调光、切视图的固定地板对照确认成熟 GI 历史被保留，可读网格门在末姿已捕获后停下只发布一次正确终姿。两项归于 G3。G1 已有单主灯 Shadowmask 世界反弹的限定对照。普通三室从同版可编辑工程 ZIP 构建。**G0 本机基线已锁定，G1–G5 继续开放。** [119 动态稳定性](../LocalComparison/Review/display-and-door-stability-119/result.md) · [118 遮罩反弹](../LocalComparison/Review/mixed-static-world-bounce-01/result.md) · [Release119](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release119-demo)
+当前交付为 Release120。G2 修复无 Renderer 时无法使用作者为本物体 MeshFilter 烘焙的距离场，实测的两条 GI 射线分别穿过洞口、命中门柱。G1 的解析灯表也会跳过没有可照接收面的灯。普通三室从同版可编辑工程 ZIP 构建，按 M 启停门，按 F5 查看间接光。**G0 本机基线已锁定，G1–G5 继续开放。** [120 洞口与门柱](../LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [119 动态稳定性](../LocalComparison/Review/display-and-door-stability-119/result.md) · [120 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release120-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

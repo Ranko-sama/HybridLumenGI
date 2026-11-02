@@ -4,9 +4,11 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release119](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release119-demo)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release120](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release120-demo)
 
-**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release119 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release119-demo/HybridLumenGI-Release119-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release120 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release120-demo/HybridLumenGI-Release120-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+
+Release120 让没有 Renderer 的 MeshFilter 也能使用作者烘焙的距离场。实测中，穿门洞的 GI 射线到达后墙，打门柱的射线仍命中实体。本版也修复了没有可照接收面的灯挤占 GI 灯槽的问题。[门洞与实壁对照](LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [灯表规则](Documentation/DirectLighting.md)
 
 **只看间接光**　按 F5 单独观察墙面反弹，再按一次回到原视图。Release119 修复了调光和切视图时清空 GI 历史的问题，普通可读网格门停下时也会沿用最后一次姿态请求。固定地板上，三次显示操作后全部 64 个采样点的历史保持 32 帧。[同曝光画面与停门实测](LocalComparison/Review/display-and-door-stability-119/result.md)
 

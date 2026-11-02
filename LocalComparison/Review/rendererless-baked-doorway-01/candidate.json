@@ -1,0 +1,125 @@
+{
+    "status": "collected",
+    "error": "",
+    "api": "Direct3D12",
+    "device": "NVIDIA GeForce RTX 2080 Ti",
+    "scope": "Two rays through the production world fallback BVH, with PhysX collider distances. Signed SDF distances are sampled from 32 cubed voxels.",
+    "resolution": 32,
+    "sourceTriangles": 36,
+    "frameId": 1,
+    "rearId": 2,
+    "residentSdfAssets": 1,
+    "uploadedVoxels": 32768,
+    "rejectedSources": 0,
+    "bvhNodes": 3,
+    "meshFilterAndColliderMatch": true,
+    "hasRenderer": false,
+    "convex": false,
+    "bakedSourceMatches": true,
+    "closed": true,
+    "proxySourceMatches": true,
+    "proxyExposesBakedAsset": true,
+    "wrongFilterExposesOriginalSdf": false,
+    "originalFilterRestored": true,
+    "bothOwnersMatch": true,
+    "restored": true,
+    "meshBounds": {
+        "m_Center": {
+            "x": 0.0,
+            "y": 2.0,
+            "z": 0.0
+        },
+        "m_Extent": {
+            "x": 3.25,
+            "y": 2.0,
+            "z": 0.5
+        }
+    },
+    "bakedBounds": {
+        "m_Center": {
+            "x": 0.0,
+            "y": 2.0,
+            "z": 0.0
+        },
+        "m_Extent": {
+            "x": 3.7142856121063234,
+            "y": 2.4642856121063234,
+            "z": 0.9642857313156128
+        }
+    },
+    "voxelSize": {
+        "x": 0.2321428507566452,
+        "y": 0.1540178507566452,
+        "z": 0.0602678582072258
+    },
+    "rays": [
+        {
+            "ray": "opening",
+            "physicsOwner": "Rear wall",
+            "gpuOwner": "Rear wall",
+            "origin": {
+                "x": 0.125,
+                "y": 1.25,
+                "z": -4.0
+            },
+            "direction": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "gpuNormal": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "nearBoundsHit": true,
+            "nearPhysicsHit": false,
+            "farPhysicsHit": true,
+            "gpuHit": true,
+            "ownerMatches": true,
+            "boundsDistance": 3.5,
+            "physicsDistance": 8.75,
+            "gpuDistance": 8.75,
+            "distanceDifference": 0.0,
+            "physicsId": 2,
+            "gpuId": 2,
+            "gpuSlot": 1,
+            "gpuRepresentation": 4,
+            "gpuFlags": 271
+        },
+        {
+            "ray": "right post",
+            "physicsOwner": "Baked doorway",
+            "gpuOwner": "Baked doorway",
+            "origin": {
+                "x": 2.25,
+                "y": 1.25,
+                "z": -4.0
+            },
+            "direction": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "gpuNormal": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -0.9999999403953552
+            },
+            "nearBoundsHit": true,
+            "nearPhysicsHit": true,
+            "farPhysicsHit": true,
+            "gpuHit": true,
+            "ownerMatches": true,
+            "boundsDistance": 3.5,
+            "physicsDistance": 3.5,
+            "gpuDistance": 3.4996626377105715,
+            "distanceDifference": -0.00033736228942871094,
+            "physicsId": 1,
+            "gpuId": 1,
+            "gpuSlot": 0,
+            "gpuRepresentation": 2,
+            "gpuFlags": 259
+        }
+    ]
+}

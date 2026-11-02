@@ -82,6 +82,8 @@
 </section>
 <section id="world">
   <h2>6. 看不见的表面能否影响眼前的地板？</h2>
+  <h3>没有 Renderer 的烘焙门框会挡住洞口吗？</h3>
+  <p>同一面墙包含门洞和两根实柱。旧版把穿洞射线挡在 3.5 单位处，Release120 改为命中 8.75 单位外的后墙，与 PhysX 一致。打右门柱的射线仍命中实体，距离场读数 3.49966，物理三角查询为 3.5。这里测量的是两条世界射线；门框由作者为可读 MeshFilter 明确烘焙了 32³ 距离场。<a href="rendererless-baked-doorway-01/baseline.json">修复前命中</a> · <a href="rendererless-baked-doorway-01/candidate.json">修复后命中与物理对照</a></p>
   <h3>材质关闭接收阴影后，次级受光面仍会变黑吗？</h3>
   <p>白色单槽 Lit 面走无卡解析回退。保持点灯和遮板不动，只改同一材质的接收阴影关键字，沿同一光路读取受光点反射的线性漫射 RGB。</p>
   <table><thead><tr><th>接收实时阴影</th><th>Release115</th><th>Release116</th><th>该点计算值</th></tr></thead><tbody>
