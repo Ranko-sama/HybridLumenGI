@@ -1,5 +1,7 @@
 # 实时光传输架构与生产交付计划
 
+Release105 让用户可以在统一示例内连续穿过三个空间。原 186 张近场卡与完整聚合体的 20 张预热需求无法同时容纳；三室布局将地板和侧墙改为连续表面后，192 张预算内的 Far 完整聚合与 Near 完整细节都已在普通 Player 观察到。原中性两室及其他布局的容量边界单列。[普通三室实走与完整近远表示](../LocalComparison/Review/three-room-passage-01/result.md)
+
 Release104 关闭了 G4 首次只进入远场时的 HLOD 组识别缺口。细节全程未加载时，真实相机在根完成预热后取得完整发布回执，远景聚合体成为唯一可提交的表示。此前从零页连续穿入近场的路线完成了离场排空，但首次完整表示在回程才出现。[冷远场修复](../LocalComparison/Review/cold-far-root-01/result.md) · [高速穿行范围](../LocalComparison/Review/cold-crossing-01/result.md)
 
 G2 在现有两室中取得了发光面完全被实墙遮住的地板对照。保持光源和相机不动，分隔门开／闭的间接亮度均值分别为 0.01979983／0.00007467。此观测限于隔墙后方的一处地板。[原始 HDR 与遮挡范围](../LocalComparison/Review/shaded-room-floor-01/result.md)
@@ -203,7 +205,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release104。统一示例内附颜色误差、残留、拖影、恢复时间及世界空间遮挡的独立画面对照。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量保留原采集版本及适用范围。[Release104](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release104-demo) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
+当前交付为 Release105。统一示例内附颜色误差、残留、拖影、恢复时间及世界空间遮挡的独立画面对照。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量保留原采集版本及适用范围。[Release105](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release105-demo) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
