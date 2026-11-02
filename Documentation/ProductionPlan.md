@@ -207,7 +207,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release107。统一示例包含退出时取消形变 CPU 任务的清理修复和方向光照贴图对照。颜色误差、残留、拖影、恢复时间及世界空间遮挡的独立画面对照随包提供。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量保留原采集版本及适用范围。[Release107](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release107-demo) · [退出清理范围](../LocalComparison/Review/cancelled-worker-shutdown-01/result.md) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
+当前交付为 Release108。统一示例使用按滤波级数计费的工作纹理，也包含退出时取消形变 CPU 任务的清理修复。颜色误差、残留、拖影、恢复时间及世界空间遮挡的独立画面对照随包提供。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量保留原采集版本及适用范围。[Release108](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release108-demo) · [工作纹理与预算](../LocalComparison/Review/filter-work-texture-01/result.md) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
