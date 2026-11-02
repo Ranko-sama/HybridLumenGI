@@ -4,9 +4,11 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release120](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release120-demo)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release121](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release121-demo/HybridLumenGI-Release121-Windows-x64.zip)
 
-**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release120 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release120-demo/HybridLumenGI-Release120-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release121 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release121-demo/HybridLumenGI-Release121-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+
+Release121 修复了精确软件追踪在大网格换小、预算降低后持续回退的问题。同一相机改用两个三角形后，在 1 MiB 预算下恢复了精确追踪，软件几何实际计账为 1,056 B。本版也整合了非均匀缩放下折面图卡的方向修复。[预算恢复与后端报告](LocalComparison/Review/software-budget-recovery-121/result.md) · [折面法线与材质查找](LocalComparison/Review/folded-chart-facing-01/result.md)
 
 Release120 让没有 Renderer 的 MeshFilter 也能使用作者烘焙的距离场。实测中，穿门洞的 GI 射线到达后墙，打门柱的射线仍命中实体。本版也修复了没有可照接收面的灯挤占 GI 灯槽的问题。[门洞与实壁对照](LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [灯表规则](Documentation/DirectLighting.md)
 
@@ -107,7 +109,7 @@ Release103 修复了颜色全黑的解析灯占据有限灯表名额的问题。
 | 隐藏面板／退出 | F1 ／ Esc |
 | 导出当前状态到Player日志 | F2 |
 
-实际后端以面板诊断为准，DXR偏好不保证采用硬件路径。关灯仍保留发光面。停止形变后异步GI快照可能继续追上可见网格；K切换的两种形变模式均不修改物理碰撞体。
+按 4 或 5 后，面板会分别显示请求和目标相机最近录制的后端。新请求还没有对应的传输记录时，实际后端显示 `unknown` 并给出原因。F2 日志带有录制时的引擎帧与 GI 工作帧；DXR 请求也可能实际使用软件。关灯后发光材质仍亮。停止形变后异步 GI 快照可能继续追上可见网格，K 切换的两种形变模式均沿用原物理碰撞体。
 
 Release97修复[Base转Overlay后的旧GI页需求残留](LocalComparison/Review/overlay-camera-page-retention-01/result.md)：卸载判断排除当前非Base相机的旧场景，保留URP Scene View的Base语义。其他相机及原GPU退休条件保持；源码审阅与普通构建通过，不代表该切换完整生命周期的实机验收。
 

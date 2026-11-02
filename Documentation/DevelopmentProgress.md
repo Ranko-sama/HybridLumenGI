@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release120，G0 本机基线已锁定，G2 本机代表场景已验收
+## 当前总进度　Release121，G0 本机基线已锁定，G2 本机代表场景已验收
+
+G4 关闭软件几何降预算后无法恢复精确查询的缺口。静态可读网格从 10,000 三角换为 2 三角、预算从 64 MiB 降到 1 MiB 后，旧版在 48 个渲染回调中一直回退。121 通过现有栅栏释放旧 BVH，第三个低预算回调为新网格录制精确追踪，软件几何占用 1,056 B。F2 与面板现在只将与当前请求相符的近期 CPU 传输记录标为实际后端。[同相机对照](../LocalComparison/Review/software-budget-recovery-121/result.md)
 
 120 之后的主干关闭了 G2 中非均匀缩放会翻反折面法线、使同卡三角取不到自己图卡的缺口。一个 X 轴压缩为 0.1 的两三角折面上，第二片的捕获法线与源几何法线点积从 −0.99923 变为 +0.99732，按三角绑定和按位置查找都恢复。更强缩放的倾斜单平面保持原命中与置信度。修复已同步本地可编辑工程。[现场读数与限制](../LocalComparison/Review/folded-chart-facing-01/result.md)
 G2 第 6 节的代表场景补上了凹物体内表面的普通反弹画面。红色前框和蓝色内板属于同一视锥外网格；白地板左区平均 R/B 为 0.11972/0.02984，右区为 0.04056/0.10396。结合三室、薄壁、离屏纹理与覆盖诊断，可以收束这一组场景。第 8、9 节的接缝及变换后采样等专项继续开放，G1–G5 整体生产验收尚未完成。[凹口画面与线性读数](../LocalComparison/Review/recessed-wall-material-120/result.md) · [按原条款列出的各项依据](ProductionPlan.md#6-按依赖交付的关卡)
@@ -101,8 +103,8 @@ G1 的黑色及全金属接收面另有同帧合成依据。历史 V209 第 119 
 | G1 传输正确性 | 本机普通 Forward Lit 的 Replace 合成通过了环境 SH、两类静态光照贴图和单一 Mixed 主方向灯遮罩的[去除原生漫反射对照](NativeDiffuseComposition.md#support-matrix-and-rejection-conditions)。已修复反射率、发光、逐灯间接倍率与单槽材质覆盖问题。116 修复 Lit 回退忽略实时阴影关键字，118 修复静态图卡世界命中丢失烘焙遮挡。Release93 固定红墙第 119 帧与参考的地板／白块平均亮度偏差为 −3.075%／−0.831% | 整景物理颜色、默认多跳稳态及更广材质／灯光条件仍开放。固定红墙的定量参考限于 640×360 中的指定区域 |
 | G2 世界表面与几何 | 本机代表场景已有三室、薄壁、门洞、离屏纹理、[凹入内板的分色反弹](../LocalComparison/Review/recessed-wall-material-120/result.md)和可定位的覆盖阻断。实现包含可变图卡、实例 BVH、对象／全局 SDF 与形变快照 | 原计划第 8、9 节的接缝图集与锚点、负／非均匀缩放后的采样等仍有未验收范围；近远场交接和成本保留各自条件 |
 | G3 动态稳定性 | 2 射线和 4 级滤波减少了既有四时点的运动云斑。112 走通规定 DXR 完整路线并修复全局换灯跨未知采样的历史错误。114 修复无图卡单槽材质换色，并量化唯一发光源改蓝后的旧绿，在第 +30 帧剩 0.285%。普通蒙皮停稳后可恢复历史 | 明暗过渡更柔。通用跨形变历史、可见拖影的纯幅度及持续帧数、其他光路的多跳残留与新颜色的准确稳态仍开放 |
-| G4 规模与后端 | 已观察 30 分钟离场排空、三室完整远近交接、切到软件后归还 RTAS 额度及解析 Box 与硬件网格的混合遮挡。117 在首个出域相机帧隐藏旧组，保留加载带内的绑定。[相机边界](../LocalComparison/Review/outside-group-visibility-01/result.md) | 冷入最近点仍有首显空档。更大负载、最坏显存、切换耗时及其他混合回退几何下的后端偏差仍开放。[高速路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) |
-| G5 发布 | [Release120 运行包及可编辑工程](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release120-demo)提供统一示例与离线画册。默认静止场景和 F4 中室各有 GI 时间与显存预算结果，普通门运动和 F4 中室分别有应用 Present 记录 | CI 已由用户暂缓。更大负载下的性能与峰值显存、原生退出的完整所有权账目及生产验收仍开放 |
+| G4 规模与后端 | 已观察 30 分钟离场排空、三室完整远近交接、切到软件后归还 RTAS 额度及解析 Box 与硬件网格的混合遮挡。117 在首个出域相机帧隐藏旧组。121 修复降预算后小网格的精确软件准入。[相机边界](../LocalComparison/Review/outside-group-visibility-01/result.md) · [预算恢复](../LocalComparison/Review/software-budget-recovery-121/result.md) | 冷入最近点仍有首显空档。更大负载、最坏显存、切换耗时及其他混合回退几何下的后端偏差仍开放。[高速路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) |
+| G5 发布 | [Release121 运行包及可编辑工程](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release121-demo)提供统一示例与离线画册。默认静止场景和 F4 中室各有 GI 时间与显存预算结果，普通门运动和 F4 中室分别有应用 Present 记录 | CI 已由用户暂缓。更大负载下的性能与峰值显存、原生退出的完整所有权账目及生产验收仍开放 |
 
 G0／G5有限关闭[当前filter4／2ray交付配置缺少普通运动Present依据](../LocalComparison/Review/release93-motion-present-01/result.md)的缺口：Release93一次固定30秒M门运动窗口，按960×540参数启动、实际DXR，应用Present平均52.688Hz，间隔p95／p99为21.966／23.567ms，最大25.991ms，全部观测间隔低于33.333ms。普通三维场景与门位移已观察，端点完整details且transform更新推进；支持本机30FPS方向，不是显示FPS、运动GI／显存或最坏负载验收。正常退出，普通93不改、不重建，本线结束。
 

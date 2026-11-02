@@ -1,5 +1,7 @@
 # 降低预算后，小网格能否恢复精确软件追踪？
 
+此修复已整合到 Release121。普通 Windows x64 Player 从同版工程 ZIP 的独立解压目录构建，场景为 `NeutralThreeRooms.unity`，Release／None，0 个错误、6 条警告。下述运行读数来自 Unity Editor Play。[运行包及可编辑工程](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release121-demo)
+
 同一台相机先以 64 MiB 软件几何预算渲染一个 10,000 三角形的平面，再将网格换成相同外形的两个三角形，同时把预算降到 1 MiB。普通 URP Lit 材质、Renderer、GI Proxy、相机和软件后端偏好保持一致。旧版在降预算后的 48 次渲染中一直使用 SDF／解析回退。修复后，第三次低预算渲染已为新网格录制精确软件追踪，此后保持到窗口结束。
 
 | 同一相机的状态 | 旧版软件几何计账 | 修复后软件几何计账 | 修复后录制的后端 |

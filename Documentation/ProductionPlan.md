@@ -215,7 +215,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release120。G2 修复无 Renderer 时无法使用作者为本物体 MeshFilter 烘焙的距离场，实测的两条 GI 射线分别穿过洞口、命中门柱。G1 的解析灯表也会跳过没有可照接收面的灯。普通三室从同版可编辑工程 ZIP 构建，按 M 启停门，按 F5 查看间接光。**G0 本机基线已锁定，G1–G5 继续开放。** [120 洞口与门柱](../LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [119 动态稳定性](../LocalComparison/Review/display-and-door-stability-119/result.md) · [120 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release120-demo)
+当前交付为 Release121。G4 关闭了降低软件几何预算后，小网格被旧 BVH 一直挡在精确追踪之外的缺口。普通三室版本从同版可编辑工程 ZIP 构建，也整合了 G2 的非均匀缩放折面图卡修复。按 M 启停门，按 F5 查看间接光，按 4／5 请求软件或 DXR。**G0 本机基线已锁定，G1–G5 仍有生产条款未完成。** [121 预算与后端记录](../LocalComparison/Review/software-budget-recovery-121/result.md) · [折面图卡](../LocalComparison/Review/folded-chart-facing-01/result.md) · [120 洞口与门柱](../LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [121 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release121-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

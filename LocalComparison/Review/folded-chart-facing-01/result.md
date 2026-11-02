@@ -12,4 +12,4 @@
 
 **测量范围。** Unity 6000.0.85f1、RTX 2080 Ti、D3D12。Unity 的 MeshCollider 提供三个内部取样点与三角序号，源顶点绕序和对象变换提供比较法线。生产图卡捕获着色器写入图集，随后直接读取捕获纹素，并调用生产的三角绑定查找与按位置查找。结果覆盖这两个实际烘焙对象上的静态不透明 Lit，未测整景颜色、完整 DXR 遍历、负缩放组合或视差贴图的像素输出。[旧版 GPU 读数](baseline.json) · [修复后 GPU 读数](candidate.json)
 
-此修复已进入开发源码。可下载的 Release120 对应表中旧版。
+Release120 对应表中旧版。[Release121 运行包与可编辑工程](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release121-demo)已整合此修复。
