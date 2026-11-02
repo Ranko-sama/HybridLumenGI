@@ -785,7 +785,7 @@ namespace HybridLumenGI
                     TriangleBurstCapacity=Math.Max(1,s.rtasTriangleBurstCapacity),InstanceBurstCapacity=Math.Max(1,s.rtasInstanceBurstCapacity),
                     BaseEstimateBytes=65536,BytesPerTriangle=192,BytesPerInstance=1024
                 });
-                if(!s.preferHardwareTracing)state.hardware.CancelBuildDemand();
+                if(!s.preferHardwareTracing)state.hardware.Deactivate();
                 bool hardware=s.preferHardwareTracing && state.hardware.Prepare(state.scene,state.scene.Revision,
                     Mathf.Clamp(s.meshTriangleBudget,1024,1000000),state.surfaceCache,
                     Math.Max(1L,s.hardwareGeometryBudgetMiB)*1024*1024);

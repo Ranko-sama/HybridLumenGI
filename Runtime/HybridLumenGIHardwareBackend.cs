@@ -259,14 +259,9 @@ namespace HybridLumenGI
                     // empty RTAS and dummy attributes just to retire them again this frame.
                     // Keep scanning eligibility above so returning/newly supported geometry
                     // can rebuild normally, even without a proxy revision change.
-                    IsReady=buildPending=false;
-                    CancelBuildDemand();RetireResources();
-                    if(instances.Count>0)GeometryVersion++;
-                    normals.Clear();surfaces.Clear();instances.Clear();objectToWorld.Clear();bindings.Clear();
-                    meshTangents.Clear();sharedMaterials.Clear();
-                    meshStates=Array.Empty<MeshState>();meshFlags=Array.Empty<uint>();
-                    MeshCount=0;FallbackCount=publishedCount;
-                    preparedRevision=revision;preparedBudget=-1;preparedSurfaceCache=null;
+                    Deactivate();
+                    FallbackCount=publishedCount;
+                    preparedRevision=revision;
                     BudgetStatus="No eligible triangle geometry; using software fallback";
                     return false;
                 }
@@ -697,14 +692,23 @@ namespace HybridLumenGI
             Debug.LogWarning($"HybridLumenGI disabled its optional triangle DXR backend; software tracing remains available. {exception.Message}");
         }
 
-        public void Dispose()
+        // A camera that explicitly stops using this backend must return its
+        // reservation. Retiring GPU allocations still count until destruction.
+        internal void Deactivate()
         {
             CancelBuildDemand();RetireResources();
-            meshTangents.Clear();
+            if(instances.Count>0)GeometryVersion++;
+            normals.Clear();surfaces.Clear();instances.Clear();objectToWorld.Clear();bindings.Clear();
+            meshTangents.Clear();sharedMaterials.Clear();
+            meshStates=Array.Empty<MeshState>();meshFlags=Array.Empty<uint>();
+            MeshCount=FallbackCount=0;
             preparedSurfaceCache=null;
             IsReady = buildPending = false;
-            preparedRevision = -1;
+            preparedRevision=preparedBudget=-1;
+            BudgetStatus="Inactive";
         }
+
+        public void Dispose() => Deactivate();
 
         /// <summary>Withdraw scheduling priority when this camera no longer requests hardware.</summary>
         public void CancelBuildDemand()
