@@ -8,7 +8,7 @@ G3 关闭两个可复现的无效更新。运行时把合成强度减半、切�
 
 G1 关闭单一 Mixed 主方向灯照射静态烘焙表面时，世界命中忽略 Shadowmask、向另一张白色接收面提供多余反弹的缺口。原遮区在真实／白遮罩下的平均间接亮度从旧版相同，变为 0.000000／0.478625。受光侧仍亮，两处各有 256 个共同有效点。[普通间接光对照、来源与边界](../LocalComparison/Review/mixed-static-world-bounce-01/result.md)
 
-G5 补齐本机普通三室中室的预算依据。已知步行机位上，三个细节完整可提交，中央门全开。逐源帧 GI 合计 p95／p99 为 16.170／16.729 ms，同窗进程 local／nonlocal 采样峰值为 566.191／287.438 MiB，满足该机位的 25 ms／1 GiB 预算。原预算反馈关闭，三室 Present 和最坏负载仍开放。[运行条件与原始计时](../LocalComparison/Review/three-room-middle-budget-117/result.md)
+G5 补齐普通三室中室的应用呈交依据。Release119 在 960×540 固定中室机位的 30 秒窗口内平均 56.44 Hz，Present 间隔 p95／p99 为 20.278／21.652 ms，最长 23.894 ms。随后按 Esc 正常退出，退出码为 0，普通日志没有 HLGI 未释放警告；逐个资源的退出账目只在开发构建或 Editor 中输出。邻近机位的 GI 三段合计 p95／p99（16.170／16.729 ms）和进程 local／nonlocal 峰值（566.191／287.438 MiB）属于 Release117 的独立测量。[119 呈交与退出记录](../LocalComparison/Review/three-room-middle-present-119/result.json) · [117 GI 与显存](../LocalComparison/Review/three-room-middle-budget-117/result.md)
 
 G4 关闭统一示例在首个域外相机帧仍可提交旧组的问题。同一远景根在域内可提交，下一帧跨至 41 单位时已隐藏，加载带内仍绑定。冷入首显仍开放。提高首次照明更新优先级的候选到最近点仍无完整组，本版保留原缓存调度。[相机边界、长回调间隔与未覆盖的入程](../LocalComparison/Review/outside-group-visibility-01/result.md)
 
@@ -95,7 +95,7 @@ G1 的黑色及全金属接收面另有同帧合成依据。历史 V209 第 119 
 | G2 世界表面与几何 | 已有真实 charts／atlas、实例 BVH、global SDF 与形变快照。有限实景已覆盖薄壁、封闭房间、离屏墙纹理及隔墙后的接收区；[105 三室路线](../LocalComparison/Review/three-room-passage-01/result.md)补齐连续穿过错位门洞时的遮挡与显露。已修复[旋转盒形代理的空角误挡](../LocalComparison/Review/oriented-collider-box-01/result.md)。既有 HLOD 读回可定位覆盖阻断 | 更广的凹面、接缝、薄层与近远场支持条件仍开放。三室通行并未给出整景能量误差 |
 | G3 动态稳定性 | 2 射线和 4 级滤波减少了既有四时点的运动云斑。112 走通规定 DXR 完整路线并修复全局换灯跨未知采样的历史错误。114 修复无图卡单槽材质换色，并量化唯一发光源改蓝后的旧绿，在第 +30 帧剩 0.285%。普通蒙皮停稳后可恢复历史 | 明暗过渡更柔。通用跨形变历史、可见拖影的纯幅度及持续帧数、其他光路的多跳残留与新颜色的准确稳态仍开放 |
 | G4 规模与后端 | 已观察 30 分钟离场排空、三室完整远近交接、切到软件后归还 RTAS 额度及解析 Box 与硬件网格的混合遮挡。117 在首个出域相机帧隐藏旧组，保留加载带内的绑定。[相机边界](../LocalComparison/Review/outside-group-visibility-01/result.md) | 冷入最近点仍有首显空档。更大负载、最坏显存、切换耗时及其他混合回退几何下的后端偏差仍开放。[高速路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) |
-| G5 发布 | [Release119 运行包及可编辑工程](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release119-demo)提供统一示例与离线画册，Windows 包来自所发工程 ZIP 的干净解压构建。默认静止场景和 F4 中室各有 GI 时间与显存预算结果。普通门运动另有应用 Present 间隔记录 | CI 已由用户暂缓。三室 Present、承诺平台完整性能与峰值显存、原生退出清理及生产验收仍开放 |
+| G5 发布 | [Release119 运行包及可编辑工程](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release119-demo)提供统一示例与离线画册。默认静止场景和 F4 中室各有 GI 时间与显存预算结果，普通门运动和 F4 中室分别有应用 Present 记录 | CI 已由用户暂缓。更大负载下的性能与峰值显存、原生退出的完整所有权账目及生产验收仍开放 |
 
 G0／G5有限关闭[当前filter4／2ray交付配置缺少普通运动Present依据](../LocalComparison/Review/release93-motion-present-01/result.md)的缺口：Release93一次固定30秒M门运动窗口，按960×540参数启动、实际DXR，应用Present平均52.688Hz，间隔p95／p99为21.966／23.567ms，最大25.991ms，全部观测间隔低于33.333ms。普通三维场景与门位移已观察，端点完整details且transform更新推进；支持本机30FPS方向，不是显示FPS、运动GI／显存或最坏负载验收。正常退出，普通93不改、不重建，本线结束。
 

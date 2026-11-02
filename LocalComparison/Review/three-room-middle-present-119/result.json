@@ -1,0 +1,89 @@
+{
+  "release": 119,
+  "productCommit": "e228fc82e35991ffb1ff180f1635e3c2d03a9a73",
+  "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+  "requestedClient": [
+    960,
+    540
+  ],
+  "tool": "PresentMon 2.6.0",
+  "source": "I:\\Unity test\\Comparison\\ThreeRoomPresent119\\present.csv",
+  "scope": "Application Present of the ordinary Win64 Player; no display/input/GPU tracking. First CSV row has no preceding time anchor.",
+  "identity": {
+    "pid": "10396",
+    "swapChain": "0x000001DD6569E010",
+    "runtime": "DXGI",
+    "application": "HybridLumenGIPlayer.exe"
+  },
+  "before": {
+    "engineFrame": 8913,
+    "cameraPosition": {
+      "x": 0.30961668491363525,
+      "y": 1.5,
+      "z": -5.974571228027344
+    },
+    "backend": "DXR",
+    "representation": "details",
+    "visible": 3,
+    "bound": 4,
+    "readyCards": 168,
+    "requiredCards": 168,
+    "requestedMeasure": false,
+    "requestedFeedback": false,
+    "memorySampling": false
+  },
+  "after": {
+    "engineFrame": 12082,
+    "cameraPosition": {
+      "x": 0.30961668491363525,
+      "y": 1.5,
+      "z": -5.974571228027344
+    },
+    "backend": "DXR",
+    "representation": "details",
+    "visible": 3,
+    "bound": 4,
+    "readyCards": 168,
+    "requiredCards": 168,
+    "requestedMeasure": false,
+    "requestedFeedback": false,
+    "memorySampling": false
+  },
+  "intervals": 1692,
+  "spanSeconds": 29.978837799999997,
+  "meanHz": 56.439813020369996,
+  "meanMs": 17.717989243498817,
+  "medianMs": 17.5786,
+  "p95Ms": 20.27831,
+  "p99Ms": 21.652024,
+  "maxMs": 23.8939,
+  "above33ms": 0,
+  "measurement": {
+    "command": [
+      "I:/Unity test/Tools/PresentMon-2.6.0/PresentMon-2.6.0-x64.exe",
+      "--process_id",
+      "10396",
+      "--output_file",
+      "I:\\Unity test\\Comparison\\ThreeRoomPresent119\\present.csv",
+      "--session_name",
+      "HLGI-Middle119",
+      "--delay",
+      "10",
+      "--timed",
+      "30",
+      "--terminate_after_timed",
+      "--no_console_stats",
+      "--no_track_display",
+      "--no_track_input",
+      "--no_track_gpu",
+      "--v1_metrics"
+    ],
+    "startedUtc": "2026-11-02T14:16:25.027293+08:00",
+    "exitCode": 0
+  },
+  "playerExit": {
+    "pid": 10396,
+    "exitCode": 0,
+    "endedUtc": "2026-11-02T06:17:30.4893016Z"
+  }
+}

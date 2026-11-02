@@ -1,6 +1,6 @@
 # 实时光传输架构与生产交付计划
 
-Release117 已有普通三室 F4 中室的 G5 本机预算行。固定视点 960×540、2 射线、4 级滤波、实际 DXR 的 GI 三段合计 p95／p99 为 16.170／16.729 ms，进程 local 峰值为 566.191 MiB，同一窗口满足既定预算。首次入场、全应用提交间隔及更大负载继续开放。[三室中室预算与原始票据](../LocalComparison/Review/three-room-middle-budget-117/result.md)
+G5 的三室中室已有两项本机依据。Release117 在固定视点的三段 GI 合计 p95／p99 为 16.170／16.729 ms，进程 local 采样峰值为 566.191 MiB。Release119 普通 Windows 包在邻近的中室机位，30 秒内的应用 Present 间隔 p95／p99 为 20.278／21.652 ms，最长 23.894 ms，支持该视点的 960×540／30 FPS 目标。首次入场、显示器实际帧率与更大负载继续开放。[117 GI 和显存](../LocalComparison/Review/three-room-middle-budget-117/result.md) · [119 应用 Present](GpuBudget.md#当前已确认的起始验收目标)
 
 G1 相机合成在单盏 Mixed 主灯和真实 Shadowmask 下新增一项实机依据。HLGI 间接强度为零时，受遮和受光区域与保留原烘焙遮罩的独立原生直射相符。118 的静态世界图卡反弹结果见第 6 节，其他混合模式和动态接收体仍开放。[原始图与边界](../LocalComparison/Review/mixed-shadowmask-01/result.md)
 
