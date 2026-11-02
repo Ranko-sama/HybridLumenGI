@@ -9,6 +9,8 @@ namespace UnityEngine
     public enum LightType { Directional, Point, Spot, Area }
     public enum LightShadows { None, Hard, Soft }
     public enum LightmapBakeType { Realtime, Mixed, Baked }
+    public enum MixedLightingMode { IndirectOnly, Subtractive, Shadowmask }
+    public static class RenderSettings { public static Light sun { get; set; } }
     public enum ColorSpace { Gamma, Linear }
     public class Object
     {
@@ -23,7 +25,13 @@ namespace UnityEngine
     {
         public bool isActiveAndEnabled=true,useColorTemperature;
         public LightmapBakeType lightmapBakeType; public LightType type=LightType.Point;
-        public struct BakingOutput { public LightmapBakeType lightmapBakeType; }
+        public struct BakingOutput
+        {
+            public LightmapBakeType lightmapBakeType;
+            public MixedLightingMode mixedLightingMode;
+            public int occlusionMaskChannel;
+            public bool isBaked;
+        }
         public BakingOutput bakingOutput=>new BakingOutput{lightmapBakeType=lightmapBakeType};
         public float intensity=1,bounceIntensity=1,range=10,spotAngle=60,innerSpotAngle=30,shadowStrength=1,colorTemperature=6500;
         public int cullingMask=-1; public uint renderingLayerMask=1;

@@ -161,7 +161,7 @@ static class Program
         int count=collector.Update(root.GetProperty("engine").GetInt32(),false,table,2,0,changes,out int hash,true,combined,out var stats);
         Check(count==1 && table[0].Equals(expected[2]),"Saved actual collector did not admit exact relevant record");
         Check(stats.ValidCandidates==3&&stats.OutsideDomain==2&&stats.Selected==1&&stats.CapacityOmitted==0,"Saved admission diagnostics mismatch");
-        TraceTable("saved-native-input",table,count,hash,changes);
+        TraceTable("saved-native-input",table,count,hash,changes,archivedDigest:true);
         Console.WriteLine($"PASS saved native input: {checks} checks; {unions} sequential in-place traversal/capture unions; 22 extents; effective point-light records preserved; 3/2/1/0 admission.");
         Console.WriteLine("Input SHA256: "+Convert.ToHexString(SHA256.HashData(input)));
         Console.WriteLine($"Domain minimum=({combined.Minimum.x:R},{combined.Minimum.y:R},{combined.Minimum.z:R}); maximum=({combined.Maximum.x:R},{combined.Maximum.y:R},{combined.Maximum.z:R}). Actual-source replay only; no native Feature/GPU claim.");
@@ -172,15 +172,19 @@ static class Program
         var farA=Point(1000000);var farB=Point(2000000);var relevant=Point(0);
         UO.Found=new[]{farA,farB,relevant};var collector=new L();var table=new L.Data[2];var changes=new List<L.Data>();
         int count=collector.Update(300,true,table,2,0,changes,out int hash);
-        TraceTable("relevance-legacy",table,count,hash,changes);
+        TraceTable("relevance-legacy",table,count,hash,changes,archivedDigest:true);
         Check(count==2&&table[0].Equals(Pack(farA))&&table[1].Equals(Pack(farB)),"unexpected legacy admission");
         Check(!table[0].Equals(Pack(relevant))&&!table[1].Equals(Pack(relevant)),"baseline already admitted relevant third light");
         Console.WriteLine("CAPABILITY GAP: domain=[-2,2]^3; range=10; input x=[1000000,2000000,0]; capacity=2; admitted x=[1000000,2000000]; relevant third light omitted. Legacy policy is preserved, not classified as an existing image defect.");
     }
-    static void TraceTable(string label,L.Data[] table,int count,int hash,List<L.Data> changes)
+    static void TraceTable(string label,L.Data[] table,int count,int hash,List<L.Data> changes,bool archivedDigest=false)
     {
-        string digest=Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(table.AsSpan(0,count))));
-        Console.WriteLine($"TABLE {label}: count={count}; hash={hash}; sha256={digest}");
+        if(archivedDigest)
+        {
+            string digest=Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(table.AsSpan(0,count))));
+            Console.WriteLine($"TABLE {label}: count={count}; hash={hash}; sha256={digest}");
+        }
+        else Console.WriteLine($"TABLE {label}: count={count}");
         Console.WriteLine($"CHANGES {label}: count={changes.Count}; types="+string.Join(",",changes.ConvertAll(d=>d.positionType.w==0?"directional":"local")));
     }
     static void CompactionChanges()
