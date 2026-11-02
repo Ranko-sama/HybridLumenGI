@@ -226,6 +226,8 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 | G4：规模与后端 | 异步 streaming、原子 HLOD 切换、反馈预算；DXR refit/alpha/纹理支持 | 冷/热/高速移动与长时压力通过，软件/DXR 视觉偏差可解释；无残留引用/增长 |
 | G5：发布 | CI 导入和构建、回归图、GPU/显存报告、支持矩阵、版本迁移、打包清单 | 每一承诺平台完成 p95/p99 与峰值内存验收；无未关闭阻断缺陷 |
 
+**G1 的环境光／烘焙光重复计入检查，已通过本机普通 Forward Lit 的代表配置。** 在有可信 GI 的接收区域，把替换强度设为零后，地板与红墙和关闭环境 SH 的原生对照吻合。静态非方向、方向贴图的两处内部区域均保留独立测得的实时直射；单盏 Mixed 主方向灯的遮罩也保留了原生阴影。此判定适用于相机的 Replace 合成。Replace 会一起扣除烘入贴图的直射。默认 Additive 保留原生光。HLGI 自身的多跳能量和动态收敛仍按各自关卡验收。[合成配置、定量对照与边界](NativeDiffuseComposition.md#support-matrix-and-rejection-conditions)
+
 **G2 第 6 节的本机代表场景已通过。** 多房间有三室实际通行和相邻房间地板的开关门对照；3 cm 薄壁的遮挡与畅通连接均与独立几何查询相符。烘焙门框能区分洞口和实壁。离屏纹理换位改变地板反弹，单个凹形网格的红前框与蓝内板也在白地板上产生可区分的非零贡献。F2 的覆盖记录能指出首个受阻图卡或采样块及其原因。第 8、9 节单列的材质／UV 接缝和负／非均匀缩放检查仍开放。[三室](../LocalComparison/Review/three-room-passage-01/result.md) · [隔墙受光](../LocalComparison/Review/shaded-room-floor-01/result.md) · [薄壁光路](ReviewBrief-ThinWallTransport01-Completed.md) · [烘焙门框](../LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [离屏纹理](../LocalComparison/Review/offscreen-wall-texture-01/result.md) · [凹面材质](../LocalComparison/Review/recessed-wall-material-120/result.md) · [覆盖诊断](../LocalComparison/Review/hlod-coverage-diagnostic-01/result.md)
 
 ### G0已锁定的本机基线

@@ -73,7 +73,9 @@ Release103 修复了颜色全黑的解析灯占据有限灯表名额的问题。
 3. 使用 **Tools > Hybrid Lumen GI > Setup & Proxies** 注册Renderer。真实网格路径要求源网格保留Read/Write，并烘焙、绑定匹配SDF和surface charts；没有charts时使用六视图近似。编辑几何后可能需要重烘焙。详见[安装与实现](Documentation/Implementation.md)。
 4. 保存普通运行场景后，使用[公开批处理构建入口](Documentation/BatchPlayerBuild.md)构建Player。入口使用现有工程配置，要求Windows x64／Mono／显式DX12／Linear及新输出目录，不注入本机观察器。
 
-默认 **Additive** 合成保留原生漫反射GI；受控对照需关闭额外环境光、探针、lightmap或其他GI，避免重复计入照明。可选 **Replace Native Diffuse GI** 要求Forward/Forward+、有符号HDR、关闭MSAA和普通URP Lit；其强度设为零也不等于关闭Feature。详见[原生漫反射合成合同](Documentation/NativeDiffuseComposition.md)。
+**已有环境光或烘焙光的工程**　在相机使用的 Renderer Feature 中，将 **Settings → Composition** 设为 **Replace Native Diffuse GI**，让 HLGI 接管普通不透明 URP Lit 接收面的漫反射 GI。用 Forward、关闭 MSAA、启用 HDR，并在 URP Asset 上选 **HDR Precision → 64 Bits**。如果相机直接渲染到 Render Texture，选择 RGBA16F 或 RGBA32F。默认 **Additive** 会保留原生环境光和光照贴图，适用于需要叠加贡献的场景。
+
+替换会扣除完整的原生漫反射项，包括已烘进贴图的直射。把 **Indirect Intensity** 设为 0 可以观察扣除后的画面；要恢复完整原生画面，请关闭 Feature。本机对照覆盖环境 SH、静态非方向与方向光照贴图，以及一盏 Mixed 主方向灯对静态地面的烘焙遮挡。[适用范围与独立画面对照](Documentation/NativeDiffuseComposition.md#support-matrix-and-rejection-conditions)
 
 需要原生GPU计时／进程显存观察时，按[可选原生插件说明](Documentation/NativeGpuTiming.md)部署DLL；源码导入不等于安装该DLL。分发原生插件时保留随包的[第三方通知](Documentation/NativeGpuTimingThirdPartyNotices.md)及其引用许可。
 

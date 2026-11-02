@@ -166,7 +166,7 @@ namespace HybridLumenGI
             public int hardwareMaterialBudgetMiB=256;
             [Min(1),Tooltip("Shared bytes of original-texture copies admitted during actual GPU command recording each engine frame. Stable pages can finish over several frames.")]
             public int materialTextureUploadMiBPerFrame=16;
-            [Tooltip("Experimental replacement requires stock URP Lit, Forward/Forward+, signed HDR and matching material keywords. Unsupported paths preserve native lighting.")]
+            [Tooltip("Additive keeps URP ambient and baked diffuse. Choose Replace Native Diffuse GI to substitute HLGI for that term on opaque stock Lit receivers. Requires Forward/Forward+, signed RGBA float HDR and MSAA off. Zero indirect intensity removes the captured native term.")]
             public CompositionMode composition=CompositionMode.Additive;
             [Tooltip("Only standard opaque URP Lit material layers are supported.")]
             public LayerMask materialLayers=-1;
@@ -697,7 +697,15 @@ namespace HybridLumenGI
                     bool signedHDR=target==GraphicsFormat.R16G16B16A16_SFloat || target==GraphicsFormat.R32G32B32A32_SFloat;
                     if(nativeDiffuse==null || !(cameraData.renderer is UniversalRenderer) || deferred || !signedHDR || cameraData.cameraTargetDescriptor.msaaSamples>1)
                     {
-                        if(!warnedComposition) { Debug.LogWarning("[HybridLumenGI] Native diffuse replacement requires stock URP Forward/Forward+, a signed floating-point HDR target, MSAA off and the native capture shader. This camera keeps its original lighting.");warnedComposition=true; }
+                        if(!warnedComposition)
+                        {
+                            Debug.LogWarning($"[HybridLumenGI] Native diffuse replacement skipped for {cameraData.camera.name} " +
+                                $"(target {target}, MSAA {cameraData.cameraTargetDescriptor.msaaSamples}x). " +
+                                "Use Universal Renderer Forward/Forward+, MSAA off and the native capture shader. " +
+                                "For the camera buffer, enable HDR and set the URP Asset's HDR Precision to 64 Bits. " +
+                                "For a target texture, use RGBA16F or RGBA32F.");
+                            warnedComposition=true;
+                        }
                         return;
                     }
                     if(!litQualification.Validate(discovered,out string reason))

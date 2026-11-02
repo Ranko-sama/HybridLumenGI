@@ -1,6 +1,6 @@
 # Native URP Lit diffuse-GI replacement
 
-The default additive mode adds HLGI to the native URP result. It can double-count ambient probes or lightmaps that are already contributing diffuse illumination. The optional **Replace Native Diffuse GI** mode captures the ordinary Lit shader's native diffuse term and applies a signed difference. A limited Unity 6000.0.85f1 / URP 17.0.4 Forward/SH check now passes representative receiving surfaces; the broader matrix below remains experimental. See [the runtime evidence](LocalRuntimeFunctionalAudit.md). The feature changes no global Lighting settings and does not estimate any component from camera color.
+The default **Additive** mode keeps URP's diffuse lighting and adds HLGI. When HLGI should replace ambient or baked diffuse on ordinary opaque Lit surfaces, select **Replace Native Diffuse GI** in the Renderer Feature. With a valid receiver capture and GI estimate, this mode subtracts the captured native term and adds HLGI. An unresolved pixel keeps its native lighting. The local Forward comparisons below cover ambient SH, two types of static lightmap and a Mixed main light with a baked Shadowmask.
 
 ## Lighting contract
 
@@ -49,16 +49,17 @@ The gate deliberately uses `Resources.FindObjectsOfTypeAll<Renderer>()`: [FindOb
 
 ## Support matrix and rejection conditions
 
-The entries below describe implemented source paths, not GPU certification.
+The measured cases below used Unity 6000.0.85f1 and URP 17.0.4 on Windows D3D12. For the camera buffer, enable HDR, select **HDR Precision → 64 Bits** in the active URP Asset and disable MSAA. An explicit camera target must use RGBA16F or RGBA32F. The default 32-bit HDR setting can select an unsigned packed format that cannot receive the signed lighting difference.
 
 | Configuration | Current behavior / condition |
 | --- | --- |
-| Ordinary opaque Lit, Forward | Source path implemented; explicit opt-in and Unity parity qualification required |
+| Ordinary opaque Lit, Forward | Replacement verified on the measured receiver regions below. The result covers subtraction of native diffuse and preservation of the measured realtime direct light. |
 | Forward+ | Source path implemented; test clustered-light state and source keywords; same diffuse formula |
 | Metallic/specular workflow, normal/detail/parallax maps, alpha test | Native Lit sampling reused; keyword and MPB parity not yet verified in Unity |
-| Ambient SH / legacy Light Probes | Native SH evaluation reused, including vertex/mixed/pixel modes; renderer probe bindings required |
-| Static/dynamic, directional/non-directional lightmaps | Native UV and decode branches reused; replace the complete native term, not a physically separated baked-indirect component |
-| Shadowmask / Baked Indirect mixed lighting | Native GI and shadowmask setup reused; native realtime direct lighting remains in camera color |
+| Ambient SH | With zero HLGI intensity, floor and red-wall regions matched the native zero-ambient control to mean RGB errors of about 6.1 × 10⁻¹⁰ and 3.1 × 10⁻⁷. [Ambient SH comparison](LocalRuntimeFunctionalAudit.md) |
+| Static lightmaps | On surface interiors, replacement at zero intensity matched a separate realtime-only control to a maximum absolute linear channel difference of 5.96 × 10⁻⁸ for a non-directional map and 0.000488 for a directional map. [Non-directional](../LocalComparison/Review/baked-lightmap-01/result.md) · [Directional](../LocalComparison/Review/directional-lightmap-01/result.md) |
+| Static Shadowmask, single Mixed main directional light | Replacement matched the direct-only control in the lit and shaded interior regions. Both retained the real mask. [Masked and unmasked controls](../LocalComparison/Review/mixed-shadowmask-01/result.md) |
+| Local Light Probes, dynamic lightmaps and other Mixed lighting configurations | Renderer bindings and native GI evaluation depend on the configuration. The comparisons above qualify only their stated inputs. |
 | Baked-only lights or historical baked direct illumination | No claim of preserving baked direct lighting: it can be inseparable from the replaced native term; scene qualification must exclude it when preserving all direct light is required |
 | Subtractive | Rejected in shader; baked direct and shadow subtraction make the physical separation ambiguous |
 | APV L1/L2 | Rejected in shader; no silent fallback to SH |
