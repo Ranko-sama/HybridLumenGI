@@ -18,6 +18,8 @@ Release110 已随包收录 Release109 的同版换色对照。红墙改蓝后第
 
 只需最初四问的画面时，也可单独下载[原版离线附件（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)。
 
+仓库画册另有单盏 Mixed 主灯的 Shadowmask 对照。替换漫反射后，保留烘焙遮罩的区域仍是阴影，只把遮罩换为全白时该区才重新受光。[四张实机画面与原始 EXR](LocalComparison/Review/mixed-shadowmask-01/result.md)
+
 Release107 画册包含方向贴图对照。转动接收面法线能改变暖、冷烘焙光斑。替换后与仅保留实时直射的独立画面相差最多 0.000488 个线性通道单位。[方向贴图四图与原始 EXR](LocalComparison/Review/directional-lightmap-01/result.md)
 
 本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。Release109 修复了静止斜面的成熟历史被错误压暗的问题，并保留 Release108 的滤波纹理复用。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release110](<I:/Unity test/Comparison/Builds/LocalRelease110/Start-LocalRelease.cmd>) · [静止斜面对照](LocalComparison/Review/stationary-tilted-normal-01/result.md) · [屏幕纹理账目](LocalComparison/Review/filter-work-texture-01/result.md)

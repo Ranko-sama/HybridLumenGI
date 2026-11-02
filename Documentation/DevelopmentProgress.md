@@ -2,6 +2,10 @@
 
 ## 当前总进度　Release110，G0 本机基线已锁定，G1–G5 继续开放
 
+G1 已确认单盏 Mixed 主灯在静态 Forward Lit 接收面上的 Shadowmask 直射能被保留。Replace 移除烘焙漫反射后，受遮和未遮内部区域的亮度分别为 0 和 0.488486，与保留同一遮罩的独立原生直射一致。世界空间反弹的烘焙遮挡仍开放。[画面、原始 HDR 与范围](../LocalComparison/Review/mixed-shadowmask-01/result.md)
+
+G2／G5 修复了作者工具可能静默丢弃额外顶点流的问题。公开分页导出和统一变体生成都在创建输出前拒绝了带 UV0 覆盖的 White receiver，真实已合批的 Renderer 也在分页导出时被识别。作者源保留。此项随仓库编辑器源码提供。[输入和修复方式](IndependentAssetPages.md#build-and-use)
+
 G4 改进了从域外高速进入统一示例时的首次显示。Release110 只提前加载接近方向的粗根页。与 Release109 相同的冷入路线相比，首个完整可提交组由回程 7.39 单位处的根，前移到回程 1.78 单位处的三个细节。最近点仍为空，两次在域外终点均排空。[冷入折返、实际提交与未覆盖范围](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
 G3 的局部换色已有相同最终材质、不同起始墙色的配对。在同版 DXR 的第 +30 帧，红墙改蓝路径的地板与白色接收块分别较首帧蓝墙的平均间接亮度低 12.34% 和 11.59%。两处红色占比一降一升。该时点的亮度差可量化，精确收敛时间仍开放。[同曝光画面、原始线性值与未知点](../LocalComparison/Review/blue-wall-history-01/result.md)

@@ -1,5 +1,7 @@
 # 实时光传输架构与生产交付计划
 
+G1 相机合成在单盏 Mixed 主灯和真实 Shadowmask 下新增一项实机依据。HLGI 间接强度为零时，受遮和受光区域与保留原烘焙遮罩的独立原生直射相符。世界端烘焙可见性、其他混合光模式和动态接收体仍开放。[原始图与边界](../LocalComparison/Review/mixed-shadowmask-01/result.md)
+
 G4 的统一示例使用有界的相机位移预测先请求粗根页。Release110 在每秒 20 世界单位的冷入折返中，回程 1.78 单位时首次取得可提交的完整近景细节；Release109 在回程 7.39 单位时首次取得远景根。两次最近点仍无完整表示。[对照条件、页状态和剩余空档](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
 G3 的局部材质换色已取得同版蓝墙对照。换色后第 30 帧，先红后蓝路径在两个未改材质的区域均比首帧蓝墙对照暗，平均红色占比在两个区域的变化方向不同。该时点仍有对颜色前史的依赖，尚不能确定收敛时间或修复所需的具体缓存层。[配对读数和范围](../LocalComparison/Review/blue-wall-history-01/result.md)
