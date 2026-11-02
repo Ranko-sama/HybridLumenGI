@@ -129,10 +129,11 @@ Release99 另有一项可直接与理论值比较的白炉观测。在均匀单�
 
 起始目标为 **960×540／30FPS、GI三区间合计p95≤25ms、进程local有限采样峰值≤1GiB**，nonlocal另列。环境为Unity6000.0.85f1／URP17.0.4、Windows x64／Mono／DX12／Linear、RTX2080Ti。
 
-| Release93的独立窗口 | 测量结果 | 适用范围 |
+| 本机实测窗口 | 测量结果 | 适用范围 |
 | --- | --- | --- |
-| [静止GI与显存](LocalComparison/Review/exact-no-fallback-traversal-01/result.md) | GI合计p95为19.298ms；local峰567.254MiB，nonlocal峰289.691MiB | 满足25ms／1GiB起始门槛；有限采样，不是整应用GPU、瞬时显存峰值或运动最坏情况。 |
-| [普通M门运动](LocalComparison/Review/release93-motion-present-01/result.md) | 应用Present平均52.69Hz；间隔p95／p99为21.97／23.57ms，最大25.99ms | 一次固定30秒窗口、960×540启动参数，全部观测间隔低于33.33ms；支持30FPS方向，不是实际显示FPS或完整平台验收。 |
+| [Release117 三室中室](LocalComparison/Review/three-room-middle-budget-117/result.md) | GI 合计 p95／p99 为 16.170／16.729 ms，进程 local／nonlocal 峰值为 566.191／287.438 MiB | F4 中室固定机位，五灯、开门、完整近景细节。满足该窗口的 25 ms／1 GiB 预算，三室 Present 未测。 |
+| [Release93 默认场景静止](LocalComparison/Review/exact-no-fallback-traversal-01/result.md) | GI 合计 p95 为 19.298 ms，local 峰值为 567.254 MiB，nonlocal 峰值为 289.691 MiB | 满足该机位的 25 ms／1 GiB 起始预算。 |
+| [Release93 普通 M 键门运动](LocalComparison/Review/release93-motion-present-01/result.md) | 应用 Present 平均 52.69 Hz，间隔 p95／p99 为 21.97／23.57 ms，最大 25.99 ms | 固定 30 秒窗口，960×540 启动参数。全部观测间隔低于 30 FPS 对应的 33.33 ms，实际显示节奏未测。 |
 
 ## 支持边界与原计划进度
 

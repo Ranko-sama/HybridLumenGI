@@ -4,6 +4,8 @@ Release108 的屏幕预算根据该相机实际执行的空间滤波级数计入
 
 ## 当前已确认的起始验收目标
 
+Release117 普通三室在已有 F4 中室机位取得同窗结果。960×540、半分辨率 GI、2 射线、4 级滤波、实际 DXR，中央门全开，三个近景细节均可提交。逐源帧三段 GI 合计 p95／p99 为 16.170／16.729 ms，进程 local／nonlocal 有限采样峰值为 566.191／287.438 MiB。该机位满足 25 ms／1 GiB 起始预算。三室 Present 与冷入延迟单列。[实际预算窗口及原始计时](../LocalComparison/Review/three-room-middle-budget-117/result.md)
+
 显式切到软件追踪后，摄像机原有的 RTAS 预约与硬件几何属性继续计入退休中的资源，直到最后读者完成并销毁。Release113 普通 Player 已在固定机位观察到这两项归零，再次选择 DXR 时重新取得额度。[三次端点的实际逻辑账目](../LocalComparison/Review/disabled-dxr-retirement-01/result.md)
 
 用户于2026-10-30取得当前基线后明确采用以下口径；后文历史记录中的“预算未定”保留其当时状态，以本节为准。

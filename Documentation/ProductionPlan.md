@@ -1,5 +1,7 @@
 # 实时光传输架构与生产交付计划
 
+Release117 已有普通三室 F4 中室的 G5 本机预算行。固定视点 960×540、2 射线、4 级滤波、实际 DXR 的 GI 三段合计 p95／p99 为 16.170／16.729 ms，进程 local 峰值为 566.191 MiB，同一窗口满足既定预算。首次入场、全应用提交间隔及更大负载继续开放。[三室中室预算与原始票据](../LocalComparison/Review/three-room-middle-budget-117/result.md)
+
 G1 相机合成在单盏 Mixed 主灯和真实 Shadowmask 下新增一项实机依据。HLGI 间接强度为零时，受遮和受光区域与保留原烘焙遮罩的独立原生直射相符。世界端烘焙可见性、其他混合光模式和动态接收体仍开放。[原始图与边界](../LocalComparison/Review/mixed-shadowmask-01/result.md)
 
 G4 的统一示例使用有界的相机位移预测先请求粗根页。Release110 在每秒 20 世界单位的冷入折返中，回程 1.78 单位时首次取得可提交的完整近景细节；Release109 在回程 7.39 单位时首次取得远景根。两次最近点仍无完整表示。[对照条件、页状态和剩余空档](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
