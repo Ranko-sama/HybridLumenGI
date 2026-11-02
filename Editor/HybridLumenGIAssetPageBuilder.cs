@@ -64,6 +64,7 @@ public static class HybridLumenGIAssetPageBuilder
             if(proxy.HLODParent!=null && !proxies.Contains(proxy.HLODParent))
                 throw new InvalidOperationException("Include each selected proxy's HLOD parent in the export selection.");
             var renderer=proxy.SourceRenderer as MeshRenderer;
+            ValidateStandaloneMesh(renderer);
             MeshFilter filter=renderer!=null?renderer.GetComponent<MeshFilter>():null;
             if(filter==null || filter.sharedMesh==null || renderer.sharedMaterials.Length!=filter.sharedMesh.subMeshCount)
                 throw new InvalidOperationException("Every selected proxy needs a mesh and exactly one material per submesh.");
@@ -236,6 +237,15 @@ public static class HybridLumenGIAssetPageBuilder
     private static bool IsWithin(string child,string parent)
         => string.Equals(child,parent,StringComparison.OrdinalIgnoreCase) ||
             child.StartsWith(parent+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase);
+    internal static void ValidateStandaloneMesh(MeshRenderer renderer)
+    {
+        if (renderer == null) return;
+        if (renderer.isPartOfStaticBatch)
+            throw new InvalidOperationException($"Renderer '{renderer.name}' is part of a static batch. Export the authoring renderer before batching.");
+        if (renderer.additionalVertexStreams != null)
+            throw new InvalidOperationException($"Renderer '{renderer.name}' uses additional vertex streams. Merge them into its mesh and rebake dependent assets before export.");
+    }
+
     private static string ValidateNewDirectory(string path,bool bundles)
     {
         string prefix=bundles?"Assets/StreamingAssets/":"Assets/";

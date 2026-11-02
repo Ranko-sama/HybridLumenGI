@@ -164,6 +164,7 @@ public static class HybridLumenGIUnifiedSampleBuilder
         if (proxy == null || proxy.gameObject.scene != scene || !proxy.isActiveAndEnabled || proxy.HLODParent != null || proxy.FarFieldOnly)
             throw new InvalidOperationException("Details must be enabled, ungrouped proxies in the authoring scene.");
         var renderer = proxy.SourceRenderer as MeshRenderer; Mesh mesh = proxy.SourceMesh;
+        HybridLumenGIAssetPageBuilder.ValidateStandaloneMesh(renderer);
         if (renderer == null || renderer.gameObject != proxy.gameObject || !renderer.enabled || mesh == null || !mesh.isReadable || mesh.subMeshCount != renderer.sharedMaterials.Length)
             throw new InvalidOperationException("A detail needs a readable static mesh, matching material slots and a same-object MeshRenderer.");
         if (renderer.HasPropertyBlock() || renderer.lightmapIndex >= 0 || renderer.realtimeLightmapIndex >= 0 || renderer.localToWorldMatrix.determinant <= 0f)
