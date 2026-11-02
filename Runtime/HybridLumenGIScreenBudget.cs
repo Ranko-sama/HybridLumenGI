@@ -23,6 +23,11 @@ namespace HybridLumenGI
             }
         }
 
+        /// <summary>Plans for the maximum supported filter count when the caller does not supply it.</summary>
+        public static Result Plan(int fullWidth, int fullHeight, float resolutionScale, long budgetBytes,
+            bool replaceNative, bool identityRequested, int receiverCapacity)
+            => Plan(fullWidth, fullHeight, resolutionScale, budgetBytes, replaceNative, identityRequested, receiverCapacity, 4);
+
         /// <summary>
         /// The longest GI dimension is an integer no larger than the requested scale (clamped
         /// to 1/4..1). The other dimension follows that ratio, rounded down, with the same
@@ -32,27 +37,29 @@ namespace HybridLumenGI
         /// snapshot still needs one 80-byte dummy object row; capacity reserves up to 16384.
         /// </summary>
         public static Result Plan(int fullWidth, int fullHeight, float resolutionScale, long budgetBytes,
-            bool replaceNative, bool identityRequested, int receiverCapacity)
+            bool replaceNative, bool identityRequested, int receiverCapacity, int filterIterations)
         {
             if (fullWidth < 1 || fullHeight < 1 || fullWidth > 16384 || fullHeight > 16384 ||
                 budgetBytes < 0 || float.IsNaN(resolutionScale) || float.IsInfinity(resolutionScale)) return default;
             double scale = Math.Max(.25, Math.Min(1, (double)resolutionScale));
+            filterIterations = Math.Max(0, Math.Min(4, filterIterations));
+            int workingBytes = filterIterations >= 2 ? 16 : 8;
             if (identityRequested)
             {
-                Result identity = Fit(fullWidth, fullHeight, scale, budgetBytes, replaceNative, true, false, receiverCapacity);
+                Result identity = Fit(fullWidth, fullHeight, scale, budgetBytes, replaceNative, true, false, receiverCapacity, workingBytes);
                 if (identity.Fits) return identity;
             }
-            return Fit(fullWidth, fullHeight, scale, budgetBytes, replaceNative, false, identityRequested, 0);
+            return Fit(fullWidth, fullHeight, scale, budgetBytes, replaceNative, false, identityRequested, 0, workingBytes);
         }
 
         private static Result Fit(int fullWidth, int fullHeight, double scale, long budgetBytes,
-            bool replaceNative, bool identity, bool fallback, int receiverCapacity)
+            bool replaceNative, bool identity, bool fallback, int receiverCapacity, int workingBytes)
         {
             long fullPixels = (long)fullWidth * fullHeight;
             int fullBytes = (replaceNative ? 36 : 24) + (identity ? 4 : 0);
-            // Base: three half-float working targets (24), two half histories (16),
-            // two float geometries (32), two UNorm materials (8), two float moments (32).
-            int lowBytes = identity ? 144 : 112;
+            // History pairs: radiance (16), geometry (32), material (8), moments (32).
+            // Spatial filtering reuses raw. A second half-float target is needed from pass two.
+            int lowBytes = 88 + workingBytes + (identity ? 32 : 0);
             int rows = identity ? Math.Max(1, Math.Min(16384, receiverCapacity)) : 0;
             long identityBuffers = identity ? fullPixels * 12 + rows * 80L : 0;
             long fixedBytes = fullPixels * fullBytes + identityBuffers;

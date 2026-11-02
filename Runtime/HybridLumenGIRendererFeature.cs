@@ -311,7 +311,7 @@ namespace HybridLumenGI
             internal long receiverFingerprintBytes;
             internal bool receiverIdentityEnabled;
             internal string receiverIdentityStatus;
-            internal int receiverIdentityDraws,receiverUnknownRectangles,lowPixelBytes=112;
+            internal int receiverIdentityDraws,receiverUnknownRectangles,lowPixelBytes;
             internal long receiverIdentityBufferBytes;
             internal string hardwareMaterialStatus="Hardware materials inactive";
             internal int hardwareMaterialUnknownRecords;
@@ -602,12 +602,14 @@ namespace HybridLumenGI
                 internal BufferHandle softwareNodes,softwareLeaves;
                 internal BufferHandle areaEmitters;
                 internal HybridLumenGIAreaEmission.Layout areaLayout;
-                internal TextureHandle depth,captureDepth,normals,motion,diffuse,emission,receiverPolicy,raw,tempA,tempB;
+                internal TextureHandle depth,captureDepth,normals,motion,diffuse,emission,receiverPolicy,raw,tempA;
+                // Temporal consumes raw before the first filter dispatch. It can then serve as destination B.
+                internal TextureHandle tempB => raw;
                 internal TextureHandle historyRead,historyWrite,geometryRead,geometryWrite,materialRead,materialWrite,momentsRead,momentsWrite;
                 internal Matrix4x4 vp,invVP,view,previousVP,previousInvVP;
                 internal Vector4 materialView;
                 internal Vector2 jitterDelta;
-                internal int read,cacheRead,cacheStart,frame,epoch,lightCount;
+                internal int read,cacheRead,cacheStart,frame,epoch,lightCount,filterIterations;
                 internal bool valid,hasMotion,hardware;
                 internal Rect viewport;
                 internal HybridLumenGIGpuFrameTiming frameTiming;
@@ -687,8 +689,9 @@ namespace HybridLumenGI
                 state.receiverIdentityDraws=state.receiverUnknownRectangles=0;
                 // Optional identity must not consume the baseline's ability to render current GI.
                 // The helper first reserves all identity resources, then retries without them.
+                int filterIterations=Mathf.Clamp(s.filterIterations,0,4);
                 var screenBudget=HybridLumenGIScreenBudget.Plan(fullW,fullH,s.resolutionScale,
-                    (long)Math.Max(32,s.textureBudgetMiB)*1024*1024,replace,identityEnabled,s.receiverSourceCapacity);
+                    (long)Math.Max(32,s.textureBudgetMiB)*1024*1024,replace,identityEnabled,s.receiverSourceCapacity,filterIterations);
                 identityEnabled=screenBudget.IdentityEnabled && screenBudget.Fits;
                 if(screenBudget.IdentityBudgetFallback)
                     state.receiverIdentityStatus="Identity budget fallback: object history disabled; baseline current GI retained when affordable.";
@@ -915,6 +918,7 @@ namespace HybridLumenGI
                     // Its incomplete measured chain must never become budget feedback.
                     if(!identity.IsValid) frameTiming.Invalidate();
                 }
+                var raw=CreateTexture(graph,w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI raw");
                 var work=new Work
                 {
                     owner=this,state=state,compute=hardware?state.hardware.Shader:softwareExact?exactSoftware:software,hardware=hardware,
@@ -922,9 +926,8 @@ namespace HybridLumenGI
                     depth=resources.cameraDepthTexture,captureDepth=captureDepth,normals=resources.cameraNormalsTexture,
                     motion=resources.motionVectorColor.IsValid()?resources.motionVectorColor:resources.cameraNormalsTexture,
                     hasMotion=resources.motionVectorColor.IsValid(),diffuse=diffuse,emission=emission,receiverPolicy=receiverPolicy,
-                    raw=CreateTexture(graph,w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI raw"),
-                    tempA=CreateTexture(graph,w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI filter A"),
-                    tempB=CreateTexture(graph,w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI filter B"),
+                    raw=raw,filterIterations=filterIterations,
+                    tempA=filterIterations>1?CreateTexture(graph,w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI filter A"):raw,
                     historyRead=graph.ImportTexture(state.history[state.readIndex]),historyWrite=graph.ImportTexture(state.history[write]),
                     geometryRead=graph.ImportTexture(state.geometry[state.readIndex]),geometryWrite=graph.ImportTexture(state.geometry[write]),
                     materialRead=graph.ImportTexture(state.material[state.readIndex]),materialWrite=graph.ImportTexture(state.material[write]),
@@ -951,7 +954,8 @@ namespace HybridLumenGI
                     if(work.softwareLayout!=null)
                     { builder.UseBuffer(work.softwareNodes,AccessFlags.ReadWrite);builder.UseBuffer(work.softwareLeaves,AccessFlags.ReadWrite); }
                     foreach(var t in new[]{work.depth,captureDepth,work.normals,work.motion,diffuse,emission,receiverPolicy,work.historyRead,work.geometryRead,work.materialRead,work.momentsRead}) builder.UseTexture(t,AccessFlags.Read);
-                    foreach(var t in new[]{work.raw,work.tempA,work.tempB,work.historyWrite,work.geometryWrite,work.materialWrite,work.momentsWrite}) builder.UseTexture(t,AccessFlags.ReadWrite);
+                    foreach(var t in new[]{work.raw,work.historyWrite,work.geometryWrite,work.materialWrite,work.momentsWrite}) builder.UseTexture(t,AccessFlags.ReadWrite);
+                    if(filterIterations>1) builder.UseTexture(work.tempA,AccessFlags.ReadWrite);
                     if(work.useIdentity)
                     {
                         builder.UseTexture(identityRead,AccessFlags.Read);builder.UseTexture(identityWrite,AccessFlags.Read);
@@ -969,7 +973,7 @@ namespace HybridLumenGI
                     builder.AllowGlobalStateModification(true);
                     builder.SetRenderFunc(static(Work d,UnsafeGraphContext ctx)=>d.owner.Execute(d,CommandBufferHelpers.GetNativeCommandBuffer(ctx.cmd)));
                 }
-                TextureHandle filtered=s.filterIterations<=0?work.historyWrite:(Mathf.Clamp(s.filterIterations,0,4)%2==1?work.tempA:work.tempB);
+                TextureHandle filtered=filterIterations==0?work.historyWrite:(filterIterations%2==1?work.tempA:work.tempB);
                 HybridLumenGIValidationCapture.Ticket validationTicket=null;
                 if(HybridLumenGIValidationCapture.TryClaim(camera,validationOwner,Time.frameCount,work.frame,work.epoch,
                     cameraData.cameraTargetDescriptor,resources.isActiveTargetBackBuffer,camera.stereoEnabled,out validationTicket))
@@ -1075,7 +1079,7 @@ namespace HybridLumenGI
                 b.geometryVersion=a.geometryVersion;
                 b.areaEmitters=a.areaEmitters;b.areaLayout=a.areaLayout;
                 b.owner=a.owner;b.state=a.state;b.compute=a.compute;b.hardware=a.hardware;b.depth=a.depth;b.captureDepth=a.captureDepth;b.normals=a.normals;b.motion=a.motion;b.diffuse=a.diffuse;b.emission=a.emission;b.receiverPolicy=a.receiverPolicy;
-                b.raw=a.raw;b.tempA=a.tempA;b.tempB=a.tempB;b.historyRead=a.historyRead;b.historyWrite=a.historyWrite;b.geometryRead=a.geometryRead;b.geometryWrite=a.geometryWrite;
+                b.raw=a.raw;b.tempA=a.tempA;b.filterIterations=a.filterIterations;b.historyRead=a.historyRead;b.historyWrite=a.historyWrite;b.geometryRead=a.geometryRead;b.geometryWrite=a.geometryWrite;
                 b.materialRead=a.materialRead;b.materialWrite=a.materialWrite;b.momentsRead=a.momentsRead;b.momentsWrite=a.momentsWrite;b.vp=a.vp;b.invVP=a.invVP;b.view=a.view;
                 b.previousVP=a.previousVP;b.previousInvVP=a.previousInvVP;b.materialView=a.materialView;b.jitterDelta=a.jitterDelta;b.read=a.read;b.cacheRead=a.cacheRead;b.cacheStart=a.cacheStart;b.frame=a.frame;
                 b.epoch=a.epoch;b.lightCount=a.lightCount;b.valid=a.valid;b.hasMotion=a.hasMotion;
@@ -1281,7 +1285,7 @@ namespace HybridLumenGI
                 SetTexture(cmd,c,filter,"_HLGI_Geometry",d.geometryWrite);SetTexture(cmd,c,filter,"_HLGI_Material",d.materialWrite);SetTexture(cmd,c,filter,"_HLGI_Moments",d.momentsWrite);
                 using(d.frameTiming.Profile(cmd,"HLGI Atrous"))
                 {
-                    for(int i=0;i<Mathf.Clamp(s.filterIterations,0,4);i++)
+                    for(int i=0;i<d.filterIterations;i++)
                     {
                         SetTexture(cmd,c,filter,"_HLGI_Input",i==0?d.historyWrite:(i%2==1?d.tempA:d.tempB));
                         SetTexture(cmd,c,filter,"_HLGI_Output",i%2==0?d.tempA:d.tempB);cmd.SetComputeIntParam(c,"_HLGI_FilterStep",1<<i);Dispatch(cmd,c,filter,state);
