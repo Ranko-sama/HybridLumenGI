@@ -1,5 +1,7 @@
 # 形变几何快照
 
+自 Release107 起，通用退休队列已经排空时，退出流程会在原有共享期限内等待已取消的后台 CPU 烘焙结束，再由主线程销毁未发布的私有网格。超时或销毁失败的对象继续保留所有权。[退出时序与适用范围](../LocalComparison/Review/cancelled-worker-shutdown-01/result.md)
+
 本机 Win64 的统一示例两骨门另有原生上一帧顶点观测。连续渲染的同一三角形上，第 4 帧 previous 与第 3 帧实际 current 的三个顶点逐点相同，独立骨姿态换算的最大差为 1.26 × 10⁻⁷ 米。该观测区分了真实前帧与绑定姿态，颗粒和拖影仍需由实际画面判断。[坐标空间、原始读回和适用范围](../LocalComparison/Review/skinned-previous-vertices-01/result.md)
 
 屏幕历史另有[普通骨骼停稳恢复](GeometryHistoryContracts.md#普通骨骼停稳历史)：满足完整来源与骨姿态稳定条件时，SkinnedMeshRenderer可重新累计历史；真正骨变化继续拒绝旧历史。这与下述异步GI快照各自工作，不承诺跨形变重投影或可见动画与世界GI逐帧同步。有限统一场景使用结果见[Skinned停稳历史](../LocalComparison/Review/skinned-stopped-history-01/result.md)。

@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release106，G0 本机基线已锁定，G1–G5 继续开放
+## 当前总进度　Release107，G0 本机基线已锁定，G1–G5 继续开放
+
+G5 修复了退出回调错过已取消的形变 CPU 任务、遗留未发布网格的时序问题。用相同任务且不再驱动主循环，旧版留存一个作业和 38,592 字节预留，修复后私有网格得到清理，作业和预留均为零。Release107 普通 Windows 包整合了该修复和方向贴图画册。[受控时序及原生验证边界](../LocalComparison/Review/cancelled-worker-shutdown-01/result.md)
 
 G1 补齐普通 Forward Lit 使用真实方向光照贴图时的替换合成对照。两个接收区随法线倾向出现可辨别的烘焙光变化。替换后保留实时直射，与解绑贴图的独立相机画面对比，内部像素的最大绝对通道差为 0.000488。本项在 Release106 源码上观察，运行包继续使用该版本。[方向贴图四图与适用范围](../LocalComparison/Review/directional-lightmap-01/result.md)
 
@@ -8,7 +10,7 @@ G2 修复了表面卡烘焙时将共边误判为重叠的问题。真实聚合�
 
 Release105 已交付可步行通过两道错位门洞的三室路线。该版本三室 Near 用 168 张卡，Far 的唯一完整聚合体发布时用 170 张，返回 Near 后三个细节恢复。普通 Player 的实走坐标和相同机位的 Editor Final 已各自标明来源。[三室路线与观察](../LocalComparison/Review/three-room-passage-01/result.md)
 
-G3 已取得统一两骨门真实前帧蒙皮几何的来源依据。前帧几何候选在相同骨姿的运动末帧取得 CPU 资格，但 2722 个可见门像素均未累计上一帧历史，未确认运动画质改善。候选已经撤回，运行版本保持 Release104。[来源、配对画面及判据](../LocalComparison/Review/skinned-previous-vertices-01/result.md)
+G3 已取得统一两骨门真实前帧蒙皮几何的来源依据。前帧几何候选在相同骨姿的运动末帧取得 CPU 资格，但 2722 个可见门像素均未累计上一帧历史，未确认运动画质改善。该候选已经撤回。[来源、配对画面及判据](../LocalComparison/Review/skinned-previous-vertices-01/result.md)
 
 G4 已关闭首次只进入远场时，已绑定聚合体无法作为完整 HLOD 组发布的缺口。Release104 复用已保存的作者关系，在细节页全程未加载的场景中，先进入预热，再发布唯一的远景表示。[冷远场确认](../LocalComparison/Review/cold-far-root-01/result.md) · [运行包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release104-demo)
 
@@ -51,7 +53,7 @@ G1 的黑色及全金属接收面另有同帧合成依据。历史 V209 第 119 
 | G2 世界表面与几何 | 已有真实 charts／atlas、实例 BVH、global SDF 与形变快照。有限实景已覆盖薄壁、封闭房间、离屏墙纹理及隔墙后的接收区；[105 三室路线](../LocalComparison/Review/three-room-passage-01/result.md)补齐连续穿过错位门洞时的遮挡与显露。既有 HLOD 读回可定位覆盖阻断 | 更广的凹面、接缝、薄层与近远场支持条件仍开放。三室通行并未给出整景能量误差 |
 | G3 动态稳定性 | 99接通已发布表面变化范围，紧预算下受影响的就绪接收面可优先于无关远端更新。[固定反例与范围](../LocalComparison/Review/surface-change-cache-order-01/result.md)。96修复GPU监测／反馈控制触发无关世界缓存、屏幕历史及HLOD就绪失效；刚体pose分类及全局关灯缓存来源已修复；87短历史滤波、88本机2ray减少颗粒；92第4级空间滤波减少四时点云斑；94补齐普通Skinned停稳后的历史累计，真实骨变化样点仍拒绝旧历史 | 明暗过渡更柔；通用跨形变重投影、多跳残留、完整运动及精确收敛仍开放；93静止119的MAE较旧软件filter3增约10.1%／6.6%，整景准确未关闭；94短序列退出资源未清理完成 |
 | G4 规模与后端 | 普通示例已有分页、HLOD 原子交接、软件／DXR 及分项预算。已修复重复准备、完整硬件接管后遍历空回退 BVH、冷远场缺少组根、旧相机与退休资源保留。已观察 30 分钟离场排空、冷入高速折返，以及 192 卡预算下的三室与[中性两室远近交接](../LocalComparison/Review/neutral-room-chart-fit-01/result.md) | 更多规模负载、最坏显存和完整后端偏差仍开放。冷入高速首显延迟的读数来自 103 |
-| G5 发布 | [Release106 普通 Windows 运行包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release106-demo)包含重烘的聚合资源页、可切换的两室与三室和离线画册。画面的采集版本见各节。本机静止与普通移动门窗口已按各自配置对照 25 ms／1 GiB 起始预算 | CI 已由用户暂缓。承诺平台完整性能、显存、退出清理及生产验收仍未完成 |
+| G5 发布 | [Release107 普通 Windows 运行包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release107-demo)包含关闭时的形变 CPU 任务清理、两室与三室、独立离线画册。本机静止与普通移动门窗口已按各自配置对照 25 ms／1 GiB 起始预算 | CI 已由用户暂缓。承诺平台完整性能、显存、原生退出清理及生产验收仍未完成 |
 
 G0／G5有限关闭[当前filter4／2ray交付配置缺少普通运动Present依据](../LocalComparison/Review/release93-motion-present-01/result.md)的缺口：Release93一次固定30秒M门运动窗口，按960×540参数启动、实际DXR，应用Present平均52.688Hz，间隔p95／p99为21.966／23.567ms，最大25.991ms，全部观测间隔低于33.333ms。普通三维场景与门位移已观察，端点完整details且transform更新推进；支持本机30FPS方向，不是显示FPS、运动GI／显存或最坏负载验收。正常退出，普通93不改、不重建，本线结束。
 
