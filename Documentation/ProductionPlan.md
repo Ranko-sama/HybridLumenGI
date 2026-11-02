@@ -226,6 +226,8 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 | G4：规模与后端 | 异步 streaming、原子 HLOD 切换、反馈预算；DXR refit/alpha/纹理支持 | 冷/热/高速移动与长时压力通过，软件/DXR 视觉偏差可解释；无残留引用/增长 |
 | G5：发布 | CI 导入和构建、回归图、GPU/显存报告、支持矩阵、版本迁移、打包清单 | 每一承诺平台完成 p95/p99 与峰值内存验收；无未关闭阻断缺陷 |
 
+**G2 第 6 节的本机代表场景已通过。** 多房间有三室实际通行和相邻房间地板的开关门对照；3 cm 薄壁的遮挡与畅通连接均与独立几何查询相符。烘焙门框能区分洞口和实壁。离屏纹理换位改变地板反弹，单个凹形网格的红前框与蓝内板也在白地板上产生可区分的非零贡献。F2 的覆盖记录能指出首个受阻图卡或采样块及其原因。第 8、9 节单列的材质／UV 接缝和负／非均匀缩放检查仍开放。[三室](../LocalComparison/Review/three-room-passage-01/result.md) · [隔墙受光](../LocalComparison/Review/shaded-room-floor-01/result.md) · [薄壁光路](ReviewBrief-ThinWallTransport01-Completed.md) · [烘焙门框](../LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [离屏纹理](../LocalComparison/Review/offscreen-wall-texture-01/result.md) · [凹面材质](../LocalComparison/Review/recessed-wall-material-120/result.md) · [覆盖诊断](../LocalComparison/Review/hlod-coverage-diagnostic-01/result.md)
+
 ### G0已锁定的本机基线
 
 | 原要求 | 锁定内容与已有来源 |
@@ -266,7 +268,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 这些接线不证明所有三角在有限纹理分辨率下都有覆盖，更不证明照明已收敛。静态资产原地变化需要重烘焙；持续形变由 `HybridLumenGIDeformedMesh` 捕获Skinned或显式可读快照，在后台生成匹配的SDF/charts，完整后原子切换。私有GPU顶点缓冲必须由生产者提供已完成的可读快照。
 
-剩余验收包含：Unity 导入与 Player API/变体检查；凹房间、壳内壁、平行薄层、材质/UV 接缝、负/非均匀缩放的 atlas 与 anchor 图像检查；极小/全裁剪 chart 的阻塞和恢复；可变 owner 增删、池复用、旧回读、HLOD 容量压力；后台形变与大网格烘焙时间、capture mesh 内存、每帧查卡/捕获成本；真实 GPU 同队列资源顺序和耗时。自适应分辨率与任意GPU私有形变不属于当前支持范围。
+图集与锚点的原检查范围包括凹房间、壳内壁、平行薄层、材质／UV 接缝和负／非均匀缩放。已取得壳内两层的命中、图卡与锚点归属读回。普通画面另已确认不同槽的凹面和前表面能参与反弹，未逐纹素观测该凹口的锚点。接缝两侧及变换后图集／锚点的正确性仍待验收。其余专项保留原条件，包括极小／全裁剪 chart 的阻塞与恢复、可变 owner 增删与池复用、旧回读、HLOD 容量压力、大网格烘焙与后台形变成本、capture mesh 内存、每帧查卡与捕获成本、GPU 同队列顺序及耗时。平台导入、Player API 和变体范围归 G5。自适应分辨率与任意 GPU 私有形变不属于当前支持范围。[内层采样读回](ReviewBrief-InteriorSurfaceCacheChain01.md) · [凹面普通画面](../LocalComparison/Review/recessed-wall-material-120/result.md)
 
 离线检查的具体结果以 `Tests/Validate-Offline.ps1` 生成、与源码哈希一致的统一 JSON 报告为准，不沿用上一候选的测试总数。交付源码归档由 `SOURCE-MANIFEST.json` 绑定实际报告；可选原生计时归档由 `NATIVE-MANIFEST.json` 绑定同一源码包及已测试 DLL。任何统一离线回归或归档完整性结果都不改变 G0–G5 的放行条件。
 

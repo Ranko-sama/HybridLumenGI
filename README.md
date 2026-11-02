@@ -10,6 +10,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 Release120 让没有 Renderer 的 MeshFilter 也能使用作者烘焙的距离场。实测中，穿门洞的 GI 射线到达后墙，打门柱的射线仍命中实体。本版也修复了没有可照接收面的灯挤占 GI 灯槽的问题。[门洞与实壁对照](LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [灯表规则](Documentation/DirectLighting.md)
 
+使用同版源码的另一张普通间接光画面展示了凹面反弹。相机只看白地板，视野外同一网格的红色前框、蓝色内板分别使地板两侧偏红和偏蓝。[墙体截面、实机画面与原始 EXR](LocalComparison/Review/recessed-wall-material-120/result.md)
+
 **只看间接光**　按 F5 单独观察墙面反弹，再按一次回到原视图。Release119 修复了调光和切视图时清空 GI 历史的问题，普通可读网格门停下时也会沿用最后一次姿态请求。固定地板上，三次显示操作后全部 64 个采样点的历史保持 32 帧。[同曝光画面与停门实测](LocalComparison/Review/display-and-door-stability-119/result.md)
 
 Release118 让静态烘焙遮罩参与世界空间反弹。使用真实遮罩时，原遮区上方的白色接收面间接亮度为 0.000000，换成全白遮罩后为 0.478625。旧版两幅画面在该区域逐像素相同。[同曝光对照与适用范围](LocalComparison/Review/mixed-static-world-bounce-01/result.md)

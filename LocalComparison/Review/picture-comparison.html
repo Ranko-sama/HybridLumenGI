@@ -82,6 +82,9 @@
 </section>
 <section id="world">
   <h2>6. 看不见的表面能否影响眼前的地板？</h2>
+  <h3>视锥外凹口的内板会把颜色反弹到地板吗？</h3>
+  <p>同一个三槽网格包含红色前框、后退 0.06 单位的蓝色内板和黑色回边。相机只看白地板。左区平均红／蓝为 0.11972／0.02984，右区为 0.04056／0.10396，绿通道均为零。</p>
+  <figure><img src="recessed-wall-material-120/comparison.png" alt="凹口墙的截面与实际白地板，靠前框侧偏红，靠内板侧偏蓝"><figcaption>使用 Release120 源码在单次反弹、8 条射线和无滤波的条件下采集。材质为常量颜色，接缝误差另计。<a href="recessed-wall-material-120/result.json">区域与设置</a> · <a href="recessed-wall-material-120/frame-0030.exr">原始 EXR</a></figcaption></figure>
   <h3>没有 Renderer 的烘焙门框会挡住洞口吗？</h3>
   <p>同一面墙包含门洞和两根实柱。旧版把穿洞射线挡在 3.5 单位处，Release120 改为命中 8.75 单位外的后墙，与 PhysX 一致。打右门柱的射线仍命中实体，距离场读数 3.49966，物理三角查询为 3.5。这里测量的是两条世界射线；门框由作者为可读 MeshFilter 明确烘焙了 32³ 距离场。<a href="rendererless-baked-doorway-01/baseline.json">修复前命中</a> · <a href="rendererless-baked-doorway-01/candidate.json">修复后命中与物理对照</a></p>
   <h3>材质关闭接收阴影后，次级受光面仍会变黑吗？</h3>

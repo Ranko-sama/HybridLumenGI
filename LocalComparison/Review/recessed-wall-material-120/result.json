@@ -1,0 +1,161 @@
+{
+  "sourceCommit": "4cd0f236183cbcac4b944f300f4c4885ee0775dd",
+  "runFolder": "I:\\Unity test\\Comparison\\RecessedWall120\\20261102-065459-a6c60e8f103d4465b944467ce6f124c5",
+  "setup": {
+    "scene": "Assets/HLGIRecessedWall120/Generated/FiniteWall.unity",
+    "materialOrder": "Front red, Inner blue, Black returns",
+    "eye": {
+      "x": 0.8500000238418579,
+      "y": 1.5,
+      "z": 0.0
+    },
+    "forward": {
+      "x": 0.0,
+      "y": -1.0,
+      "z": 0.0
+    },
+    "up": {
+      "x": -1.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "setback": 0.05999999865889549,
+    "apertureZ0": 0.0,
+    "apertureZ1": 1.7999999523162842,
+    "apertureY0": 0.07999999821186066,
+    "apertureY1": 1.9199999570846558,
+    "wallIntersectsFrustum": false,
+    "floorIntersectsFrustum": true,
+    "triangles": 42,
+    "submeshes": 3,
+    "charts": 6,
+    "chartSubmeshes": [
+      0,
+      1,
+      2,
+      2,
+      2,
+      2
+    ],
+    "slotColors": [
+      {
+        "r": 0.800000011920929,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 1.0
+      },
+      {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.800000011920929,
+        "a": 1.0
+      },
+      {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 1.0
+      }
+    ]
+  },
+  "geometry": "Single wall MeshRenderer. Front red x=0 and continuous blue backing x=-0.06, y=[0,2], z=[-2,2]. Front opening y=[0.08,1.92], z=[0,1.8]. Four black returns join the rim to the back. White floor is a separate owner.",
+  "signal": "frame-0030 indirect-only HDR outgoing RGB, before display mapping; rectangles use the same half-open coordinates as the earlier offscreen-wall experiment",
+  "engineFrame": 31,
+  "logicalFrame": 30,
+  "light": [
+    {
+      "name": "WhiteDirectionalToPositiveX",
+      "type": "Directional",
+      "enabled": true,
+      "intensity": 1.0,
+      "range": 10.0,
+      "color": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": -0.7071068286895752,
+        "z": 0.0,
+        "w": 0.7071068286895752
+      }
+    }
+  ],
+  "regions": {
+    "left": {
+      "rectangleXYXY": [
+        80,
+        90,
+        240,
+        270
+      ],
+      "pixels": 28800,
+      "meanRGB": [
+        0.1197171840356249,
+        0.0,
+        0.029841379647453627
+      ]
+    },
+    "right": {
+      "rectangleXYXY": [
+        400,
+        90,
+        560,
+        270
+      ],
+      "pixels": 28800,
+      "meanRGB": [
+        0.040562411333537766,
+        0.0,
+        0.10396452207376973
+      ]
+    }
+  },
+  "wholeImageGreenMinMax": [
+    0.0,
+    0.0
+  ],
+  "run": {
+    "status": "incomplete-probe",
+    "requestedFrames": 31,
+    "renderedFrames": 31,
+    "errors": 0,
+    "width": 640,
+    "height": 360,
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12"
+  },
+  "configuration": {
+    "resolutionScale": 1.0,
+    "raysPerPixel": 8,
+    "screenSteps": 0,
+    "bounceFeedback": 0.0,
+    "filterIterations": 0,
+    "temporalAccumulation": false,
+    "debugView": 1,
+    "environmentRadiance": {
+      "r": 0.0,
+      "g": 0.0,
+      "b": 0.0,
+      "a": 1.0
+    }
+  },
+  "diagnostics": {
+    "frame": 30,
+    "publishedInstances": 2,
+    "chartedOwners": 2,
+    "readyCards": 7,
+    "hardwareBackend": true,
+    "hardwareMeshes": 2,
+    "hardwareFallbacks": 0,
+    "hardwareMaterialUnknownRecords": 0
+  }
+}
