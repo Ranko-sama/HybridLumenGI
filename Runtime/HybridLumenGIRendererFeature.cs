@@ -187,11 +187,11 @@ namespace HybridLumenGI
 
             internal string TransportSettingsJson()
             {
-                // Monitoring and update quotas do not change the light-transport
-                // inputs. Keep their own timing/controller generation separate.
-                // Clone so every other serialized field, including future fields,
-                // remains in the comparison without modifying the live settings.
+                // Composite controls, monitoring and update quotas do not change
+                // transport inputs. Future fields stay in the comparison by default.
                 var transport=(Settings)MemberwiseClone();
+                transport.indirectIntensity=1f;
+                transport.debugView=DebugView.Final;
                 transport.adaptiveGpuBudget=false;
                 transport.measureGpuCost=false;
                 transport.preferNativeGpuTiming=false;
@@ -208,6 +208,22 @@ namespace HybridLumenGI
         /// applies configuration/backend invalidation and retains normal software fallback.
         /// </summary>
         public void SetPreferHardwareTracing(bool value) => settings.preferHardwareTracing=value;
+        public float RequestedIndirectIntensity => settings.indirectIntensity;
+        public DebugView RequestedDebugView => settings.debugView;
+        /// <summary>Set the composite intensity before camera preparation, preserving accumulated GI.</summary>
+        public bool SetIndirectIntensity(float value)
+        {
+            if(float.IsNaN(value) || float.IsInfinity(value) || value<0f) return false;
+            settings.indirectIntensity=value;
+            return true;
+        }
+        /// <summary>Select a composite view before camera preparation, preserving accumulated GI.</summary>
+        public bool SetDebugView(DebugView value)
+        {
+            if((uint)value>(uint)DebugView.DiffuseReflectance) return false;
+            settings.debugView=value;
+            return true;
+        }
         public bool RequestedMeasureGpuCost => settings.measureGpuCost;
         public bool RequestedAdaptiveGpuBudget => settings.adaptiveGpuBudget;
         public float RequestedTargetGpuMilliseconds => settings.targetGpuMilliseconds;

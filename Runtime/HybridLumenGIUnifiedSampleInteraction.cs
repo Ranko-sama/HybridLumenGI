@@ -233,7 +233,7 @@ namespace HybridLumenGI
             if (!initialized || closed || !door || DeformationRunning == value) return;
             if (value && !producer) CreateProducer();
             DeformationRunning = value;
-            if (!value && producer && !SkinnedDeformation) deformation.RequestCoalescedCapture(producer);
+            // Each readable pose already requested its capture, including the last pose before stopping.
         }
         public void SetSkinnedDeformation(bool value)
         {
@@ -305,6 +305,7 @@ namespace HybridLumenGI
                     if (Input.GetKeyDown(KeyCode.F2)) sample.LogLedger();
                     if (HasConnectedRooms && Input.GetKeyDown(KeyCode.F3)) SetConnectedRooms(!RoomsEnabled);
                     if (RoomsEnabled && Input.GetKeyDown(KeyCode.F4)) SetTurnedPassage(!TurnedPassage);
+                    if (Input.GetKeyDown(KeyCode.F5)) sample.ToggleIndirectView();
                     if (RoomsEnabled && Input.GetKeyDown(KeyCode.O)) SetPortalOpen(!PortalOpen);
                     if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Alpha1)) { sample.GoNear(); SyncAngles(); }
                     if (Input.GetKeyDown(KeyCode.Alpha2)) { sample.GoFar(); SyncAngles(); }

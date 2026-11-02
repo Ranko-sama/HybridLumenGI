@@ -39,6 +39,7 @@ namespace HybridLumenGI
         private double nextOverlay;
         private string overlay;
         private bool showGpuControls, gpuTargetFocused;
+        private HybridLumenGIRendererFeature.DebugView? viewBeforeIndirect;
         private string gpuTargetText = "", gpuTargetControlName, gpuInputMessage, gpuOverlay;
         private Vector2 controlsScroll;
         public bool ShowControls
@@ -105,6 +106,9 @@ namespace HybridLumenGI
         }
         private void OnDisable()
         {
+            if (feature && viewBeforeIndirect.HasValue && feature.RequestedDebugView == HybridLumenGIRendererFeature.DebugView.IndirectOnly)
+                feature.SetDebugView(viewBeforeIndirect.Value);
+            viewBeforeIndirect = null;
             gpuTargetFocused = false;
             residentWanted = false; requestEngineFrame = Time.frameCount;
             videoMemory.Sample(Time.frameCount, false);
@@ -207,6 +211,20 @@ namespace HybridLumenGI
                     item.SourceRenderer.forceRenderingOff = !item.HasBoundAssets || !visible.Contains(item.Proxy);
         }
         public void SetHardwarePreference(bool value) => feature.SetPreferHardwareTracing(value);
+        public void ToggleIndirectView()
+        {
+            if (!subscribed || !feature) return;
+            if (feature.RequestedDebugView == HybridLumenGIRendererFeature.DebugView.IndirectOnly)
+            {
+                feature.SetDebugView(viewBeforeIndirect ?? HybridLumenGIRendererFeature.DebugView.Final);
+                viewBeforeIndirect = null;
+            }
+            else
+            {
+                viewBeforeIndirect = feature.RequestedDebugView;
+                feature.SetDebugView(HybridLumenGIRendererFeature.DebugView.IndirectOnly);
+            }
+        }
         private void GoTo(Vector3 position, Quaternion rotation)
         {
             previousCameraTime = -1;
@@ -366,7 +384,11 @@ namespace HybridLumenGI
             if (GUILayout.Button(measureVideoMemory ? "Memory: on" : "Memory: off"))
             { measureVideoMemory = !measureVideoMemory; nextOverlay = 0; }
             GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(feature.RequestedDebugView == HybridLumenGIRendererFeature.DebugView.IndirectOnly ?
+                    "F5: return to scene view" : "F5: show indirect light")) ToggleIndirectView();
             bool expanded = GUILayout.Toggle(showGpuControls, "GPU time / update budget", GUI.skin.button);
+            GUILayout.EndHorizontal();
             if (expanded != showGpuControls)
             {
                 showGpuControls = expanded;
