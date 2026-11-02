@@ -17,6 +17,10 @@ namespace HybridLumenGI
         [Serializable] public sealed class CameraDiagnostics
         {
             public string camera;
+            // Last successful CPU transport recording for this camera, after runtime fallback.
+            public string recordedTransportBackend;
+            public int transportRecordedEngineFrame = -1, transportRecordedWorkFrame = -1;
+            public bool transportMatchesBackendRequest;
             public long sceneLightingPolicyBytes;
             public int frame,publishedInstances,warmingInstances,pendingCapacity,bvhNodes;
             public int readyCards,pendingCards,warmupBudgetBlockedCards,cachePatchesScheduled;
@@ -65,6 +69,7 @@ namespace HybridLumenGI
         [Serializable] private sealed class DiagnosticReport
         { public string scope="CPU resource estimates plus optional delayed GPU observations for the three GI render passes; excludes preparation uploads outside those passes and RTAS/driver allocation; not a hard GPU deadline";public CameraDiagnostics[] cameras; }
         public CameraDiagnostics[] GetDiagnostics() => pass!=null?pass.GetDiagnostics():Array.Empty<CameraDiagnostics>();
+        internal CameraDiagnostics GetCameraDiagnostics(Camera camera) => pass?.GetCameraDiagnostics(camera);
         /// <summary>Read-only latest Prepare snapshot for this exact camera and proxy, on the main thread.
         /// A snapshot is not page readiness, GPU completion, or permission to unload resources.</summary>
         public bool TryGetPublication(Camera camera, HybridLumenGIProxy proxy, out HybridLumenGIScene.PublicationSnapshot value)
@@ -207,7 +212,12 @@ namespace HybridLumenGI
         /// Call on the Unity main thread before camera preparation. The existing render path
         /// applies configuration/backend invalidation and retains normal software fallback.
         /// </summary>
-        public void SetPreferHardwareTracing(bool value) => settings.preferHardwareTracing=value;
+        public void SetPreferHardwareTracing(bool value)
+        {
+            if (settings.preferHardwareTracing == value) return;
+            settings.preferHardwareTracing = value;
+            pass?.BackendRequestChanged();
+        }
         public float RequestedIndirectIntensity => settings.indirectIntensity;
         public DebugView RequestedDebugView => settings.debugView;
         /// <summary>Set the composite intensity before camera preparation, preserving accumulated GI.</summary>
@@ -359,6 +369,10 @@ namespace HybridLumenGI
             internal int patchGrid,cacheEntryCount,previousLightCount;
             internal int fullWidth,fullHeight,fullPixelBytes;
             internal bool valid,lastHardware,lightingChanged;
+            internal string recordedTransportBackend;
+            internal int transportRecordedEngineFrame = -1, transportRecordedWorkFrame = -1;
+            internal ulong recordedBackendRequest;
+            internal bool recordedHardwarePreference;
             private (Texture2D texture,uint version)[] shadowmaskSlots;
             internal Matrix4x4 previousVP=Matrix4x4.identity,previousInvVP=Matrix4x4.identity;
             internal Vector2 previousJitter;
@@ -528,8 +542,16 @@ namespace HybridLumenGI
             private long SoftwareBufferBytes => retainedSoftwareNodes==null?0:
                 (long)retainedSoftwareNodes.count*HybridLumenGISoftwareTriangleBvh.NodeStride+(long)retainedSoftwareLeaves.count*HybridLumenGISoftwareTriangleBvh.LeafStride;
             internal long SoftwareResidentBytes => softwareGeometry.AttributeBytes+SoftwareBufferBytes+retiredSoftwareBytes;
-            internal long AvailableSoftwareAttributeBytes(long totalBudget) =>
-                Math.Max(0,totalBudget-SoftwareBufferBytes-retiredSoftwareBytes);
+            internal bool PrepareSoftwareAttributes(int triangleLimit,long byteLimit)
+            {
+                long available=Math.Max(0,byteLimit-SoftwareBufferBytes-retiredSoftwareBytes);
+                if(softwareGeometry.Prepare(scene,scene.Revision,triangleLimit,surfaceCache,available))return true;
+                // The old BVH cannot trace this scene without its attributes. If we keep it,
+                // its capacity can prevent even a smaller replacement from ever being admitted.
+                RetireSoftwareBuffers();
+                retainedSoftwareLayout=null;
+                return false;
+            }
             internal void RecordSoftwareGeometry(CommandBuffer cmd,ulong version,HybridLumenGISoftwareTriangleBvh.Layout layout,
                 BufferHandle nodes,BufferHandle leaves)
             {
@@ -584,6 +606,8 @@ namespace HybridLumenGI
             private readonly List<ShaderTagId> tags=new List<ShaderTagId>{new ShaderTagId("UniversalForward"),new ShaderTagId("UniversalForwardOnly"),new ShaderTagId("UniversalGBuffer")};
             private readonly HybridLumenGILights worldLights=new HybridLumenGILights();
             private bool warnedBudget,warnedComposition,admissionStopped;
+            private ulong backendRequest;
+            internal void BackendRequestChanged() { unchecked { backendRequest++; } }
             private Cubemap rejectedEnvironment;
             internal void StopAdmission()=>admissionStopped=true;
             internal TransportPass(ComputeShader shader,Material composite,Shader surface,Shader nativeDiffuse,Settings settings,Func<bool> featureActive,HybridLumenGIRendererFeature validationOwner=null)
@@ -651,6 +675,8 @@ namespace HybridLumenGI
                 internal Vector2 jitterDelta;
                 internal int read,cacheRead,cacheStart,frame,epoch,lightCount,filterIterations;
                 internal bool valid,hasMotion,hardware,staticShadowmask;
+                internal ulong backendRequest;
+                internal bool hardwarePreference;
                 internal Rect viewport;
                 internal HybridLumenGIGpuFrameTiming frameTiming;
                 internal HybridLumenGIHistoryLifecycle.FrameToken historyToken;
@@ -840,15 +866,16 @@ namespace HybridLumenGI
                     TriangleBurstCapacity=Math.Max(1,s.rtasTriangleBurstCapacity),InstanceBurstCapacity=Math.Max(1,s.rtasInstanceBurstCapacity),
                     BaseEstimateBytes=65536,BytesPerTriangle=192,BytesPerInstance=1024
                 });
-                if(!s.preferHardwareTracing)state.hardware.Deactivate();
-                bool hardware=s.preferHardwareTracing && state.hardware.Prepare(state.scene,state.scene.Revision,
+                bool hardwarePreference=s.preferHardwareTracing;
+                ulong preparedBackendRequest=backendRequest;
+                if(!hardwarePreference)state.hardware.Deactivate();
+                bool hardware=hardwarePreference && state.hardware.Prepare(state.scene,state.scene.Revision,
                     Mathf.Clamp(s.meshTriangleBudget,1024,1000000),state.surfaceCache,
                     Math.Max(1L,s.hardwareGeometryBudgetMiB)*1024*1024);
                 int softwareTriangles=(int)Math.Min(Mathf.Clamp(s.meshTriangleBudget,1024,HybridLumenGISoftwareTriangleBvh.MaxTriangles),
                     Math.Max(1024,(Math.Max(1L,s.softwareGeometryBudgetMiB)*1024*1024-4096)/512));
                 bool softwareExact=!hardware && s.exactSoftwareTracing && exactSoftware!=null &&
-                    state.softwareGeometry.Prepare(state.scene,state.scene.Revision,softwareTriangles,state.surfaceCache,
-                        state.AvailableSoftwareAttributeBytes(Math.Max(1L,s.softwareGeometryBudgetMiB)*1024*1024));
+                    state.PrepareSoftwareAttributes(softwareTriangles,Math.Max(1L,s.softwareGeometryBudgetMiB)*1024*1024);
                 if(hardware!=state.lastHardware)
                 {
                     // Preparation already consumed this frame's bounded quotas. Reject its
@@ -982,6 +1009,7 @@ namespace HybridLumenGI
                 var work=new Work
                 {
                     owner=this,state=state,compute=hardware?state.hardware.Shader:softwareExact?exactSoftware:software,hardware=hardware,
+                    backendRequest=preparedBackendRequest,hardwarePreference=hardwarePreference,
                     geometry=hardware?state.hardware:softwareExact?state.softwareGeometry:null,
                     depth=resources.cameraDepthTexture,captureDepth=captureDepth,normals=resources.cameraNormalsTexture,
                     motion=resources.motionVectorColor.IsValid()?resources.motionVectorColor:resources.cameraNormalsTexture,
@@ -1137,6 +1165,7 @@ namespace HybridLumenGI
             private static void Copy(Work a,Work b)
             {
                 b.hitMaterials=a.hitMaterials;
+                b.backendRequest=a.backendRequest;b.hardwarePreference=a.hardwarePreference;
                 b.geometry=a.geometry;b.softwareLayout=a.softwareLayout;b.softwareNodes=a.softwareNodes;b.softwareLeaves=a.softwareLeaves;
                 b.geometryVersion=a.geometryVersion;
                 b.areaEmitters=a.areaEmitters;b.areaLayout=a.areaLayout;
@@ -1170,6 +1199,12 @@ namespace HybridLumenGI
                     }
                     finally { d.frameTiming.End(HybridLumenGIGpuFrameTiming.Phase.Transport,cmd); }
                 }
+                var state = d.state;
+                state.recordedTransportBackend = d.hardware ? "DXR" : d.geometry != null ? "exact software" : "SDF/analytic software";
+                state.transportRecordedEngineFrame = d.historyToken.EngineFrame;
+                state.transportRecordedWorkFrame = d.frame;
+                state.recordedBackendRequest = d.backendRequest;
+                state.recordedHardwarePreference = d.hardwarePreference;
             }
             private void PrepareHardwareMaterials(RenderGraph graph,Work d)
             {
@@ -1483,12 +1518,23 @@ namespace HybridLumenGI
             internal CameraDiagnostics[] GetDiagnostics()
             {
                 var values=new CameraDiagnostics[cameras.Count];int i=0;
-                foreach(var pair in cameras)
-                {
-                    var c=pair.Value;
-                    values[i++]=new CameraDiagnostics
+                foreach(var state in cameras.Values) values[i++]=DescribeCamera(state);
+                return values;
+            }
+            internal CameraDiagnostics GetCameraDiagnostics(Camera camera)
+            {
+                return camera!=null && cameras.TryGetValue(camera.GetInstanceID(),out var state) && ReferenceEquals(state.camera,camera)
+                    ? DescribeCamera(state) : null;
+            }
+            private CameraDiagnostics DescribeCamera(CameraState c)
+            {
+                return new CameraDiagnostics
                     {
                         camera=c.camera!=null?c.camera.name:"destroyed",frame=c.frame,
+                        recordedTransportBackend=c.recordedTransportBackend,transportRecordedEngineFrame=c.transportRecordedEngineFrame,
+                        transportRecordedWorkFrame=c.transportRecordedWorkFrame,
+                        transportMatchesBackendRequest=c.transportRecordedEngineFrame>=0 && c.recordedBackendRequest==backendRequest &&
+                            c.recordedHardwarePreference==s.preferHardwareTracing,
                         sceneLightingPolicyBytes=(long)c.scene.Capacity*HybridLumenGIScene.LightingPolicyStride,
                         publishedInstances=c.scene.PublishedCount,warmingInstances=c.scene.WarmingCount,pendingCapacity=c.scene.PendingCapacity,bvhNodes=c.scene.Bvh.NodeCount,
                         readyCards=c.surfaceCache.ReadyCards,pendingCards=c.surfaceCache.PendingCards,warmupBudgetBlockedCards=c.surfaceCache.WarmupBudgetBlockedCards,
@@ -1536,8 +1582,6 @@ namespace HybridLumenGI
                         effectiveGlobalBrickBudget=c.effectiveBudget.GlobalBricks,gpuAcceptedObservations=(long)Math.Min(c.gpuBudget.AcceptedSamples,(ulong)long.MaxValue),
                         gpuRejectedObservations=(long)Math.Min(c.gpuBudget.RejectedSamples,(ulong)long.MaxValue)
                     };
-                }
-                return values;
             }
             public void Dispose()
             {

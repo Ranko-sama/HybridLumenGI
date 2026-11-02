@@ -210,7 +210,11 @@ namespace HybridLumenGI
                 if (item.SourceRenderer != null)
                     item.SourceRenderer.forceRenderingOff = !item.HasBoundAssets || !visible.Contains(item.Proxy);
         }
-        public void SetHardwarePreference(bool value) => feature.SetPreferHardwareTracing(value);
+        public void SetHardwarePreference(bool value)
+        {
+            feature.SetPreferHardwareTracing(value);
+            nextOverlay = 0;
+        }
         public void ToggleIndirectView()
         {
             if (!subscribed || !feature) return;
@@ -296,15 +300,26 @@ namespace HybridLumenGI
                     }
                 }
             }
-            // Existing diagnostics identify cameras by name. Ambiguous names remain unknown.
-            int matches = 0;
-            foreach (var row in feature.GetDiagnostics()) if (row.camera == targetCamera.name) { result.cameraGi = row; matches++; }
-            if (matches == 1)
+            var diagnostic = result.cameraGi = feature.GetCameraDiagnostics(targetCamera);
+            if (!feature.isActive)
             {
-                result.diagnosticsStatus = "latest CPU diagnostic; not GPU completion";
-                result.actualBackend = !feature.isActive ? "GI disabled" : result.cameraGi.hardwareBackend ? "DXR" : result.cameraGi.exactSoftwareGeometry ? "exact software" : "SDF/analytic software";
+                result.actualBackend = "GI disabled";
+                result.diagnosticsStatus = "renderer feature disabled";
             }
-            else { result.cameraGi = null; if (matches > 1) result.diagnosticsStatus = "ambiguous camera name"; }
+            else if (diagnostic != null)
+            {
+                // F2 runs in Update, normally just before this camera's next render.
+                long age = (long)result.engineFrame - diagnostic.transportRecordedEngineFrame;
+                if (!diagnostic.transportMatchesBackendRequest)
+                    result.diagnosticsStatus = "awaiting transport for this camera and backend request";
+                else if (age < 0 || age > 1)
+                    result.diagnosticsStatus = "no recent transport recording for this camera";
+                else
+                {
+                    result.actualBackend = diagnostic.recordedTransportBackend;
+                    result.diagnosticsStatus = "CPU transport commands recorded at engine frame " + diagnostic.transportRecordedEngineFrame + "; GPU completion unconfirmed";
+                }
+            }
             CaptureRepresentationState(result);
             return result;
         }
@@ -360,6 +375,7 @@ namespace HybridLumenGI
                 nextOverlay = Time.realtimeSinceStartupAsDouble + .5;
                 var row = CaptureLedger();
                 overlay = row.status + "\nRequested " + row.requestedBackend + "; actual " + row.actualBackend +
+                    (row.actualBackend == "unknown" ? " (" + row.diagnosticsStatus + ")" : "") +
                     "\nGroup request/available: " + row.requestedRepresentation + "/" + row.availableRepresentation +
                     "; " + row.representationStatus +
                     "\nVisible/bound " + row.visibleMembers + "/" + row.boundMembers +
