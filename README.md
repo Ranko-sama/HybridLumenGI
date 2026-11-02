@@ -4,7 +4,9 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release109](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release109-demo)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release110](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release110-demo)
+
+Release110 会在相机从域外接近时提前请求聚合体的页，进入实际加载范围后才绑定。在一次 20 单位／秒的冷入折返中，首个可提交组由回程 7.39 单位处的远景根，前移到回程 1.78 单位处的三个完整细节。两次在折返点都尚无可提交组。[冷入路线与资源边界](LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
 **在中性两室切换远近景**　按 F3 进入两室，按 2 切到远景，按 1 返回近景。Release106 修复了聚合网格沿共边多拆两张表面卡的问题。两室共用连续的地板和顶棚后，远景聚合体可在原 192 张卡预算内完成发布，返回近景可恢复全部三个细节。[实际 Player 的远近切换](LocalComparison/Review/neutral-room-chart-fit-01/result.md)
 
@@ -12,13 +14,13 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 **离线看画面对照**　打开运行包内的 `PictureComparison/index.html` 可查看颜色误差、换色与关灯残留、运动拖影和收敛时间。其他章节包含白炉、零漫反射、离屏纹理、两室关门后的暖光衰减，以及静态烘焙贴图替换与独立直射基准。包内附原始线性 EXR。[真实烘焙三方对照](LocalComparison/Review/baked-lightmap-01/result.md)
 
-Release109 的换色对照另有可单独查看的附件。解压后可直接看同曝光图，也可将其中的 `PictureComparison` 并入运行包以更新画册。红墙改蓝后第 30 帧，地板与白色接收块相对首帧蓝墙分别暗 12.34% 和 11.59%。[下载换色对照与原始数据](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release109-demo/HybridLumenGI-Release109-RecolorComparison.zip) · [条件与读数](LocalComparison/Review/blue-wall-history-01/result.md)
+Release110 已随包收录 Release109 的同版换色对照。红墙改蓝后第 30 帧，地板与白色接收块相对首帧蓝墙分别暗 12.34% 和 11.59%。这组图与数据也可单独下载。[下载换色对照与原始数据](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release109-demo/HybridLumenGI-Release109-RecolorComparison.zip) · [条件与读数](LocalComparison/Review/blue-wall-history-01/result.md)
 
 只需最初四问的画面时，也可单独下载[原版离线附件（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)。
 
 Release107 画册包含方向贴图对照。转动接收面法线能改变暖、冷烘焙光斑。替换后与仅保留实时直射的独立画面相差最多 0.000488 个线性通道单位。[方向贴图四图与原始 EXR](LocalComparison/Review/directional-lightmap-01/result.md)
 
-本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。Release109 修复了静止斜面的成熟历史被错误压暗的问题，并保留 Release108 的滤波纹理复用。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release109](<I:/Unity test/Comparison/Builds/LocalRelease109/Start-LocalRelease.cmd>) · [静止斜面对照](LocalComparison/Review/stationary-tilted-normal-01/result.md) · [屏幕纹理账目](LocalComparison/Review/filter-work-texture-01/result.md)
+本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。Release109 修复了静止斜面的成熟历史被错误压暗的问题，并保留 Release108 的滤波纹理复用。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release110](<I:/Unity test/Comparison/Builds/LocalRelease110/Start-LocalRelease.cmd>) · [静止斜面对照](LocalComparison/Review/stationary-tilted-normal-01/result.md) · [屏幕纹理账目](LocalComparison/Review/filter-work-texture-01/result.md)
 
 Release104 修复了冷启动只进入远场时，已加载的聚合体无法显示的问题。离线画册新增门框后地板的对照，两块发光面到该地板的直线都被实墙遮住。[远景发布条件与实测](LocalComparison/Review/cold-far-root-01/result.md) · [遮挡后的地板与原始 EXR](LocalComparison/Review/shaded-room-floor-01/result.md)
 

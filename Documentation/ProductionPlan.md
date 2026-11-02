@@ -1,5 +1,7 @@
 # 实时光传输架构与生产交付计划
 
+G4 的统一示例使用有界的相机位移预测先请求粗根页。Release110 在每秒 20 世界单位的冷入折返中，回程 1.78 单位时首次取得可提交的完整近景细节；Release109 在回程 7.39 单位时首次取得远景根。两次最近点仍无完整表示。[对照条件、页状态和剩余空档](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
+
 G3 的局部材质换色已取得同版蓝墙对照。换色后第 30 帧，先红后蓝路径在两个未改材质的区域均比首帧蓝墙对照暗，平均红色占比在两个区域的变化方向不同。该时点仍有对颜色前史的依赖，尚不能确定收敛时间或修复所需的具体缓存层。[配对读数和范围](../LocalComparison/Review/blue-wall-history-01/result.md)
 
 Release106 关闭了中性两室的远景预热容量缺口。真实聚合网格重烘后用 18 张卡承载全部 36 个三角形，两室共用地板与顶棚后近景占用 174 张。在配置上限 192 张的普通 DXR Player 内，从两室近景直接请求远景能发布完整聚合体，切回后恢复三个细节。交接瞬间的实际占用峰值未采集。[中性两室的烘焙与交接](../LocalComparison/Review/neutral-room-chart-fit-01/result.md)
@@ -209,7 +211,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release109。统一示例整合了静止斜面时间历史修复、按滤波级数计费的工作纹理及形变任务退出清理。颜色误差、残留、拖影、恢复时间及世界空间遮挡的独立画面对照随包提供。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量保留原采集版本及适用范围。[Release109](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release109-demo) · [斜面历史修复](../LocalComparison/Review/stationary-tilted-normal-01/result.md) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
+当前交付为 Release110。统一示例整合了粗根页预取、静止斜面历史修复、工作纹理复用及形变任务退出清理。颜色误差、换色残留、拖影、恢复时间及世界空间遮挡的独立画面对照随包提供。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量保留原采集版本及适用范围。[Release110](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release110-demo) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

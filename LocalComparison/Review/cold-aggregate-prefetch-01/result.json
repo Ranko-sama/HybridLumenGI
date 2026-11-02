@@ -1,0 +1,29 @@
+{
+  "scope": "One cold process per variant. CPU submission eligibility at camera begin, current HLOD publication at camera end and page state.",
+  "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+  "roomsEnabled": false,
+  "worldUnitsPerSecond": 20,
+  "oneWayWorldUnits": 53.94404983520508,
+  "baseline109": {
+    "source": "I:/Unity test/Comparison/ColdCrossing109/run.json",
+    "outcome": "complete-limited-cold-crossing",
+    "inboundCompleteBegin": false,
+    "turn": {"engineFrame": 296, "beginGroup": "none", "boundMembers": 0, "pagesReady": 8},
+    "firstCompleteEnd": {"engineFrame": 326, "group": "root"},
+    "firstCompleteBegin": {"engineFrame": 327, "group": "root", "returnWorldUnits": 7.393824742917135, "routeSecondsAfterTurn": 0.3696912},
+    "maxAdjacentBeginSeconds": 1.6066332,
+    "outsideReleased": true
+  },
+  "candidate110": {
+    "source": "I:/Unity test/Comparison/ColdCrossing110/run.json",
+    "outcome": "complete-limited-cold-crossing",
+    "inboundCompleteBegin": false,
+    "prefetchOnly": {"callbacks": 300, "maxPagesReady": 8, "maxBoundMembers": 0, "maxVisibleMembers": 0},
+    "turn": {"engineFrame": 328, "beginGroup": "none", "boundMembers": 4, "pagesReady": 13},
+    "firstCompleteEnd": {"engineFrame": 332, "group": "details"},
+    "firstCompleteBegin": {"engineFrame": 333, "group": "details", "members": 3, "returnWorldUnits": 1.7751983032275689, "routeSecondsAfterTurn": 0.08876},
+    "laterRootBeginEngineFrame": 365,
+    "maxAdjacentBeginSeconds": 1.4486495,
+    "outsideReleased": true
+  }
+}
