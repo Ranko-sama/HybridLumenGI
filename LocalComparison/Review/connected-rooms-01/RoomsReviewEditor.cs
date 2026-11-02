@@ -32,7 +32,9 @@ public static class RoomsReviewEditor
         var renderer = AssetDatabase.LoadAssetAtPath<UniversalRendererData>("Assets/UnifiedRelease74/Generated/Renderer.asset");
         var feature = renderer.rendererFeatures.OfType<HybridLumenGIRendererFeature>().Single();
         var view = new GameObject("Entry floor view").transform;
-        view.SetPositionAndRotation(new Vector3(0, 1.3f, -5.55f), Quaternion.LookRotation(Vector3.down, Vector3.forward));
+        bool shadedCorner = Array.IndexOf(args, "-shadedCorner") >= 0;
+        Vector3 position = shadedCorner ? new Vector3(-3.1f, 1.3f, -4.75f) : new Vector3(0, 1.3f, -5.55f);
+        view.SetPositionAndRotation(position, Quaternion.LookRotation(Vector3.down, Vector3.forward));
         camera.transform.SetPositionAndRotation(view.position, view.rotation);
         var capture = camera.gameObject.AddComponent<ComparisonCapture>();
         capture.camera = camera; capture.feature = feature; capture.door = view;
@@ -41,7 +43,8 @@ public static class RoomsReviewEditor
         capture.lights = Array.Empty<Light>();
         bool closeDuringRun = Array.IndexOf(args, "-closePortalAt120") >= 0;
         capture.indirectOnly = true; capture.totalFrames = closeDuringRun ? 240 : 120; capture.outputRoot = output;
-        capture.label = "Connected rooms, entry floor"; capture.quitWhenComplete = true;
+        capture.label = shadedCorner ? "Connected rooms, floor behind left jamb" : "Connected rooms, entry floor";
+        capture.quitWhenComplete = true;
         var driver = camera.gameObject.AddComponent<RoomsCaptureRequest>();
         driver.closeDuringRun = closeDuringRun;
         driver.open = closeDuringRun || Array.IndexOf(args, "-openPortal") >= 0; driver.output = output;

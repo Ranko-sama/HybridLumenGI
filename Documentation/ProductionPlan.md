@@ -1,5 +1,7 @@
 # 实时光传输架构与生产交付计划
 
+G2 在现有两室中取得了发光面完全被实墙遮住的地板对照。保持光源和相机不动，分隔门开／闭的间接亮度均值分别为 0.01979983／0.00007467。此观测限于隔墙后方的一处地板。[原始 HDR 与遮挡范围](../LocalComparison/Review/shaded-room-floor-01/result.md)
+
 Release103 修复正强度、全黑 RGB 的解析灯仍占有效灯表名额的问题。最后一盏有效灯改为黑色后会留下空表，允许现有缓存清理解析光份额。普通两室版本及对应离线画册已发布。[实际准入与恢复](../LocalComparison/Review/black-light-admission-01/result.md) · [Windows 运行包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release103-demo)
 
 G1 的原生烘焙合成已有一项实机结果。普通 Forward Lit 的两块静态表面共享非方向光照贴图，替换后保留实时直射，两处内部区域与独立直射基准的最大绝对通道差为 5.96 × 10⁻⁸。方向贴图及混合灯光仍开放。[画面对照与条件](../LocalComparison/Review/baked-lightmap-01/result.md)

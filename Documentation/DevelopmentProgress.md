@@ -2,6 +2,8 @@
 
 ## 当前总进度：Release103，G0本机基线锁定完成，G1–G5未整体放行
 
+G2 已补齐接收面与两块暖色发光面之间的直线均被隔墙阻断时的画面对照。在现有两室中只移动机位，同一受遮地板的间接出射亮度在开门时为 0.01979983，闭门时为 0.00007467。连续穿越多房间的观察仍开放。[左右墙面位置、同曝光图片与原始 EXR](../LocalComparison/Review/shaded-room-floor-01/result.md)
+
 G1／G3 关闭了纯黑解析灯占用名额、阻止灯表变空的缺口。实际 Unity 收集器在容量为 1 时保留了排在黑灯之后的微弱红光，将红光改黑后正确移除旧项，恢复微弱红光后重新入表。普通两室 Release103 已整合该修复。画面残留和收敛时间仍按各次实测版本报告。[功能结果](../LocalComparison/Review/black-light-admission-01/result.md) · [运行包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release103-demo)
 
 G1 已确认普通 Forward Lit 在一张真实的非方向 lightmap 上可用替换模式移除烘焙漫反射。暖、冷两块地面保留了同一盏实时直射灯，中心区域与单独关闭贴图的基准最大线性通道差为 5.96 × 10⁻⁸。[同机位三图与原始 EXR](../LocalComparison/Review/baked-lightmap-01/result.md)

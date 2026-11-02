@@ -21,7 +21,7 @@ public sealed class RoomsCaptureRequest : MonoBehaviour
         public int logicalFrame, engineFrame;
         public double secondsSinceClose;
         public Vector3 cameraPosition, doorPosition;
-        public string[] published;
+        public string[] published, emissiveProxies;
     }
     void Start()
     {
@@ -58,7 +58,12 @@ public sealed class RoomsCaptureRequest : MonoBehaviour
             roomsEnabled = controls.RoomsEnabled, doorOpen = controls.PortalOpen,
             cameraPosition = capture.camera.transform.position, doorPosition = group.transform.Find("Sliding partition door").localPosition,
             enabledLights = FindObjectsByType<Light>(FindObjectsSortMode.None).Count(l => l.isActiveAndEnabled),
-            published = names };
+            published = names,
+            emissiveProxies = FindObjectsByType<HybridLumenGIProxy>(FindObjectsSortMode.None)
+                .Where(p => feature.TryGetPublication(capture.camera, p, out var s) && s.phase == HybridLumenGIScene.PublicationPhase.Published &&
+                    (p.GetEmissionLinear().maxColorComponent > 0 || (p.SourceRenderer && p.SourceRenderer.sharedMaterials.Any(m => m &&
+                        m.IsKeywordEnabled("_EMISSION") && m.HasProperty("_EmissionColor") && m.GetColor("_EmissionColor").maxColorComponent > 0))))
+                .Select(p => p.name).ToArray() };
         if (eventFrame) File.AppendAllText(Path.Combine(output, "events.jsonl"), JsonUtility.ToJson(receipt) + "\n");
         if (requests == capture.totalFrames) File.WriteAllText(Path.Combine(output, "room-state.json"), JsonUtility.ToJson(receipt, true));
     }
