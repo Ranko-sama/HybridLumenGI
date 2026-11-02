@@ -213,7 +213,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release114。单槽普通 Lit 的均匀材质回退支持运行时颜色覆盖及其移除，实机地板反弹与三个连续工作帧的有效发光颜色一致。普通 Windows 运行包从可编辑 Unity 工程 ZIP 的独立解压目录构建，离线画册同时收录这次换色、混合回退遮挡和完整门灯路线。**G0 本机基线已锁定，G1–G5 继续开放。** 各项结果保留原采集版本及适用范围。[Release114](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release114-demo) · [工程重建步骤](UnifiedUnityProject.md) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
+当前交付为 Release115。无 Renderer 的旋转 BoxCollider 已按实际板面参与解析求交。两条穿过同一包围盒的 GPU 射线分别命中板身与后墙，距离和法线与独立碰撞查询相符。普通 Windows 运行包从可编辑工程 ZIP 的独立解压目录构建，离线画册保留各版本的画面对照。**G0 本机基线已锁定，G1–G5 继续开放。** [旋转盒的适用范围](../LocalComparison/Review/oriented-collider-box-01/result.md) · [Release115](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release115-demo) · [工程重建步骤](UnifiedUnityProject.md)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

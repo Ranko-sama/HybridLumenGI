@@ -4,9 +4,11 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release114](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release114-demo)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release115](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release115-demo)
 
-**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release114 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release114-demo/HybridLumenGI-Release114-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release115 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release115-demo/HybridLumenGI-Release115-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+
+Release115 修复了旋转的 BoxCollider 代理把外包围盒空角误当成实体的问题。同一姿态下，两条实际 GPU 光线分别命中近板与后墙，与独立碰撞查询一致。此项限没有 Renderer 的盒形代理。[俯视命中对照和适用范围](LocalComparison/Review/oriented-collider-box-01/result.md)
 
 Release114 修复了单槽 Lit 物体在解析回退时一直沿用共享材质颜色的问题。对同一块发光板连续设置 Renderer 绿色、槽 0 蓝色、清除槽 0，白地板的反弹会依次变为绿、蓝、绿。[同曝光六图与实际线性读数](LocalComparison/Review/uniform-fallback-mpb-01/result.md)
 
@@ -36,7 +38,7 @@ Release111 的离线画册也包含单盏 Mixed 主灯的 Shadowmask 对照。�
 
 Release107 画册包含方向贴图对照。转动接收面法线能改变暖、冷烘焙光斑。替换后与仅保留实时直射的独立画面相差最多 0.000488 个线性通道单位。[方向贴图四图与原始 EXR](LocalComparison/Review/directional-lightmap-01/result.md)
 
-本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。Release109 修复了静止斜面的成熟历史被错误压暗的问题，并保留 Release108 的滤波纹理复用。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release114](<I:/Unity test/Comparison/Builds/LocalRelease114/Start-LocalRelease.cmd>) · [静止斜面对照](LocalComparison/Review/stationary-tilted-normal-01/result.md) · [屏幕纹理账目](LocalComparison/Review/filter-work-texture-01/result.md)
+本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。Release109 修复了静止斜面的成熟历史被错误压暗的问题，并保留 Release108 的滤波纹理复用。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release115](<I:/Unity test/Comparison/Builds/LocalRelease115/Start-LocalRelease.cmd>) · [静止斜面对照](LocalComparison/Review/stationary-tilted-normal-01/result.md) · [屏幕纹理账目](LocalComparison/Review/filter-work-texture-01/result.md)
 
 Release104 修复了冷启动只进入远场时，已加载的聚合体无法显示的问题。离线画册新增门框后地板的对照，两块发光面到该地板的直线都被实墙遮住。[远景发布条件与实测](LocalComparison/Review/cold-far-root-01/result.md) · [遮挡后的地板与原始 EXR](LocalComparison/Review/shaded-room-floor-01/result.md)
 
@@ -111,11 +113,11 @@ Release95修复[高反射率材质的直接反弹路径差异](LocalComparison/R
 | 问题 | 已有结论与局限 |
 | --- | --- |
 | 颜色误差 | [93／filter4／DXR静止119](LocalComparison/Review/release93-color-frame119-01/result.md)：Floor／White平均D亮度偏差−3.075%／−0.831%，Y-MAE为0.010529／0.018576，均值色向L1为0.007976／0.033415。相较旧软件filter3，两个MAE约增10.1%／6.6%，不能称全面更准或单独归因滤波。限640×360参考网格的两个ROI及近似参考，不是整景或960×540颜色验收。 |
-| 换色／关灯残留 | [83局部换色](LocalComparison/Review/local-recolor-response-01/result.md)中，红墙改蓝后接收面在30帧已明显转蓝；没有独立蓝墙参考，不能量化绝对旧色残留。[78来源分离](LocalComparison/Review/cache-source-separation-01/result.md)在上传解析灯表为空时移除其旧缓存贡献，保留自发光／环境；该条件不等于任意局部灯关闭。当前filter4没有新的事件观察，任意多跳残留仍开放。 |
-| 运动拖影 | [92／filter4四时点对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png)中门面、地板与绿墙云斑减少，未见新增持续旧门轮廓；局部明暗过渡更柔。不证明全过程或任意运动无拖影。 |
-| 收敛时间 | 仍不能给出整景达到正确颜色的统一帧数。[83重新开灯](LocalComparison/Review/light-restore-response-01/result.md)后30帧，Floor／White平均D恢复到开灯前观测的74.65%／65.68%，59帧为98.36%／96.78%；这不是精确收敛时间。无标记变暗的[静止历史有限检查](LocalComparison/Review/stationary-history-01/result.md)在32步后仍留约6.88%，也不是Unity全场景时间。 |
+| 换色／关灯残留 | Release114 将唯一发光源从绿切蓝，27 个地板采样点的旧绿当帧剩 7.46%，第 +30 帧剩 0.285%。另一次 Release112 五灯全关时，自发光面仍亮，普通相机全图平均亮度当帧为 0.010839，第 +59 帧为 0.010817，其中旧灯间接光的份额未分离。[单源换色](LocalComparison/Review/green-emission-decay-114/result.md) · [五灯开关](LocalComparison/Review/full-dxr-sequence-112/result.md) |
+| 运动拖影 | 在门运动中、到终点、停止后 10 帧和 30 帧，4 级滤波减弱了门、地板和墙面上的云斑，局部明暗过渡更柔。这四帧未见明显加重的旧门轮廓，拖影幅度及连续持续帧数仍未知。[同曝光 3 级／4 级滤波对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png) |
+| 收敛时间 | Release114 单源换色后，旧绿在第 +10 帧仍有 1.43%，第 +30 帧首次采样低于 1%。新蓝光的稳态误差和精确收敛帧仍未知。另一次 Release83 重新开灯后第 +59 帧，地板和白色接收体的平均间接亮度分别恢复到关灯前的 98.36% 和 96.78%。[旧绿衰减](LocalComparison/Review/green-emission-decay-114/result.md) · [重新开灯](LocalComparison/Review/light-restore-response-01/result.md) |
 
-[完整独立画面对照与不确定性](LocalComparison/Review/dynamic-picture-comparison-01/report.md)保留颜色、残留、拖影和收敛的来源及适用范围。晚帧不作为颜色真值，旧版本结果不改标为当前重新通过。
+各组原图、采样版本和适用范围见[统一示例画册](LocalComparison/Review/picture-comparison.html)。
 
 Release99 另有一项可直接与理论值比较的白炉观测。在均匀单位白环境下，无遮挡白色平面中央区域的普通间接出射 RGB 均值为 (0.99902347, 0.99902347, 0.99902347)，各通道较理论值 1 低 0.09765%。该结果限单帧、单接收面。[原始线性 HDR、预览图与比较口径](LocalComparison/Review/white-furnace-ordinary-01/result.md)
 

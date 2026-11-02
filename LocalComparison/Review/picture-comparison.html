@@ -78,6 +78,9 @@
 </section>
 <section id="world">
   <h2>6. 看不见的表面能否影响眼前的地板？</h2>
+  <h3>旋转薄板的空角会挡光吗？</h3>
+  <p>穿过同一世界包围盒的两条光线，一条撞上板身，一条穿过空角。Release114 将两条都判给近板。Release115 在板身处命中倾斜板面，空角光线继续到达后墙，两者的距离与法线均与 Unity 的碰撞查询相符。</p>
+  <figure><img src="oriented-collider-box-01/comparison.svg" alt="具备 45 度旋转的薄板、世界包围盒及两条光路的实际命中位置示意"><figcaption>图按 GPU 读回位置绘制。两件对象均为只有 BoxCollider 的解析代理，取样未涉及 DXR 三角或相机像素亮度。<a href="oriented-collider-box-01/baseline.json">旧版命中</a> · <a href="oriented-collider-box-01/candidate.json">本版命中与独立碰撞查询</a></figcaption></figure>
   <h3>近处的解析遮板能否截住更远的 DXR 色墙？</h3>
   <p>地板与暖色墙使用精确硬件网格；绿色遮板只有 BoxCollider 和 GI Proxy。在同一机位把遮板移入光路，27 个固定白地板采样点的平均间接 RGB 从 (0.11553, 0.05776, 0.02888) 变为 (0, 0.30093, 0)。遮板没有可供普通相机绘制的网格，屏幕射线也已关闭。</p>
   <figure><img src="mixed-fallback-occluder-01/comparison.png" alt="解析绿板移开与移入后，固定白地板的间接光由暖色变绿"><figcaption>两程各为 2 个硬件网格、1 个解析回退，均取 GI 工作帧 31。数值是乘接收面反射率之前的间接漫反射辐照度除以 π。<a href="mixed-fallback-occluder-01/result.json">线性读数、采样点和几何条件</a></figcaption></figure>

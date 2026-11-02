@@ -1,0 +1,166 @@
+{
+    "status": "collected",
+    "error": "",
+    "device": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "traversal": "Real HLGI scene BVH, SDF atlas and TraceSceneDetailQuery; analytic fallback for both owners, no RTAS or software triangles.",
+    "published": 2,
+    "bvhNodes": 3,
+    "sdfAssets": 0,
+    "nearId": 1,
+    "farId": 2,
+    "nearCards": 0,
+    "farCards": 0,
+    "nearCenter": {
+        "x": 0.25,
+        "y": 1.0,
+        "z": 0.0
+    },
+    "nearSize": {
+        "x": 0.03999999910593033,
+        "y": 2.200000047683716,
+        "z": 4.199999809265137
+    },
+    "nearBoundsCenter": {
+        "x": 0.25,
+        "y": 0.9999999403953552,
+        "z": 0.0
+    },
+    "nearBoundsSize": {
+        "x": 2.9981329441070558,
+        "y": 2.1999998092651369,
+        "z": 2.9981324672698976
+    },
+    "farCenter": {
+        "x": -4.0,
+        "y": 1.0,
+        "z": 0.0
+    },
+    "farSize": {
+        "x": 0.10000000149011612,
+        "y": 2.200000047683716,
+        "z": 14.0
+    },
+    "nearRotation": {
+        "x": 0.0,
+        "y": 0.3826834559440613,
+        "z": 0.0,
+        "w": 0.9238795042037964
+    },
+    "restored": true,
+    "allNearestMatches": true,
+    "rays": [
+        {
+            "name": "through-solid",
+            "origin": {
+                "x": 3.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "direction": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "nearBoundsHit": true,
+            "nearColliderHit": true,
+            "farColliderHit": true,
+            "matchesCollider": true,
+            "nearBoundsT": 1.2509335279464722,
+            "expected": {
+                "owner": "green rotated panel",
+                "stableId": 1,
+                "slot": 0,
+                "found": true,
+                "t": 2.7217156887054445,
+                "representation": 0.0,
+                "normal": {
+                    "x": 0.7071067094802856,
+                    "y": 0.0,
+                    "z": -0.7071068286895752
+                },
+                "ownerEmission": {
+                    "x": 0.0,
+                    "y": 1.0,
+                    "z": 0.0,
+                    "w": 1.0
+                }
+            },
+            "gpu": {
+                "owner": "green rotated panel",
+                "stableId": 1,
+                "slot": 0,
+                "found": true,
+                "t": 2.7217156887054445,
+                "representation": 4.0,
+                "normal": {
+                    "x": 0.7071067094802856,
+                    "y": 0.0,
+                    "z": -0.7071068286895752
+                },
+                "ownerEmission": {
+                    "x": 0.0,
+                    "y": 1.0,
+                    "z": 0.0,
+                    "w": 1.0
+                }
+            }
+        },
+        {
+            "name": "through-AABB-empty-corner",
+            "origin": {
+                "x": 3.0,
+                "y": 1.0,
+                "z": 2.0
+            },
+            "direction": {
+                "x": -0.7071067690849304,
+                "y": 0.0,
+                "z": -0.7071067690849304
+            },
+            "nearBoundsHit": true,
+            "nearColliderHit": false,
+            "farColliderHit": true,
+            "matchesCollider": true,
+            "nearBoundsT": 1.7690870761871338,
+            "expected": {
+                "owner": "warm wall",
+                "stableId": 2,
+                "slot": 1,
+                "found": true,
+                "t": 9.828783988952637,
+                "representation": 0.0,
+                "normal": {
+                    "x": 1.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ownerEmission": {
+                    "x": 1.0,
+                    "y": 0.21404114365577699,
+                    "z": 0.05087608844041824,
+                    "w": 1.0
+                }
+            },
+            "gpu": {
+                "owner": "warm wall",
+                "stableId": 2,
+                "slot": 1,
+                "found": true,
+                "t": 9.828783988952637,
+                "representation": 4.0,
+                "normal": {
+                    "x": 1.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ownerEmission": {
+                    "x": 1.0,
+                    "y": 0.21404114365577699,
+                    "z": 0.05087608844041824,
+                    "w": 1.0
+                }
+            }
+        }
+    ]
+}
