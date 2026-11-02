@@ -167,7 +167,7 @@ namespace HybridLumenGI
             foreach (Camera other in Camera.allCameras)
                 if (other != camera && other.isActiveAndEnabled && other.cameraType == CameraType.Game)
                 { singleCameraSupported = false; status = "unsupported: another Game camera is enabled"; visible.Clear(); ApplyVisibility(); return; }
-            ApplyVisibility();
+            ApplyVisibility(camera);
         }
         private void AfterCamera(ScriptableRenderContext context, Camera camera)
         {
@@ -177,9 +177,7 @@ namespace HybridLumenGI
                 publication.preparedEngineFrame != Time.frameCount)
             {
                 status = "waiting: no current complete publication; previous visible set retained while bound";
-                // Outside the GI domain there is deliberately no visible representation and no visual consumer.
-                if (groupBounds.SqrDistance(camera.transform.position) > farDistance * farDistance) visible.Clear();
-                ApplyVisibility(); return;
+                ApplyVisibility(camera); return;
             }
             lastReceiptEngine = publication.preparedEngineFrame; lastReceiptWork = publication.preparedWorkFrame;
             bool rootPublished = published.Count == 1 && published[0] == aggregate.Proxy && aggregate.HasBoundAssets;
@@ -193,10 +191,17 @@ namespace HybridLumenGI
             }
             else status = "waiting: publication does not equal the complete authored root/detail set";
             // This applies at the completed camera boundary, before retirement examines ordinary URP consumers.
-            ApplyVisibility();
+            ApplyVisibility(camera);
         }
-        private void ApplyVisibility()
+        private void ApplyVisibility(Camera renderingCamera = null)
         {
+            // The previous publication can still be bound in the page-loading band.
+            // Use this render's pose before submission and before retaining a visual consumer.
+            if (renderingCamera != null && groupBounds.SqrDistance(renderingCamera.transform.position) > farDistance * farDistance)
+            {
+                visible.Clear();
+                status = "outside GI distance";
+            }
             foreach (var item in Bindings())
                 if (item.SourceRenderer != null)
                     item.SourceRenderer.forceRenderingOff = !item.HasBoundAssets || !visible.Contains(item.Proxy);

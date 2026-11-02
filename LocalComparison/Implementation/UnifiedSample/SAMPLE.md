@@ -45,6 +45,8 @@ aggregate 通过 Unity `Mesh.CombineMeshes` 保留每个原 submesh 的三角形
 
 每次指定相机 endCamera 边界读取真实 preparedEngineFrame 和发布状态，决定下一相机帧的 URP 可见表示。使用 `forceRenderingOff`，保持静态 renderer/proxy 能作为 GI exact geometry / 显式 surface capture 来源；不会用 renderer.enabled 当视觉开关。初次无发布时不可见。此处不是相机 culling 前的当帧发布 hook，不承诺 GI/URP 在同一帧中途无过渡差异。
 
+相机开始渲染时还会按它的实际位置复核组的可见距离。越过 `farDistance` 后，上次发布的完整表示立即退出本帧提交。处于 `farDistance` 到 `farDistance + 5` 的加载带内时，页和成员可以继续绑定，返回域内仍按完整组的发布规则显示。
+
 可见集合额外注册为普通 URP retirement consumer。新 root/detail 发布后才撤销旧视觉引用；最终解绑、全相机依赖判断和 GPU fence 仍由现有 ResourceRetirement 执行。控制器不调用 ReportUnloadSafe，不构造“已完成”票据。Leave 将相机移出 far domain 并撤销页需求，场景已不选择这些代理后才允许现有退休链释放。Unknown 不按超时强制释放。单独停用控制器会隐藏并禁用本样例 proxy，撤销新读者，仍交既有退休链处理；重新启用时恢复已绑定 root，并重新等待完整 detail 集合/发布，不直接恢复旧可见集合。
 
 这是单 enabled Game camera 样例；发现第二个 Game camera 时隐藏组并报告 unsupported。SceneView/反射/用户自定义显式渲染的 renderer-wide 可见性仲裁不属于本样例，Player 使用范围为单相机。重复手工 render 或修改源对象需另行定义渲染边界，不能借本样例作并发证明。
