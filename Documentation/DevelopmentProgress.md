@@ -2,6 +2,8 @@
 
 ## 当前总进度：Release102，G0本机基线锁定完成，G1–G5未整体放行
 
+G1 已确认普通 Forward Lit 在一张真实的非方向 lightmap 上可用替换模式移除烘焙漫反射。暖、冷两块地面保留了同一盏实时直射灯，中心区域与单独关闭贴图的基准最大线性通道差为 5.96 × 10⁻⁸。[同机位三图与原始 EXR](../LocalComparison/Review/baked-lightmap-01/result.md)
+
 G3 已量化 Release102 同一运行中关上分隔门后的前室暖光。首个闭门帧还保留开闭亮度差的 47.45%，第 +30／+59／+119 帧分别为 14.33%／9.38%／6.34%。最后一个时点仍有残留。局部缓存替换候选在相同时点没有改善，已撤回。[关门响应与适用范围](../LocalComparison/Review/portal-close-response-01/result.md)
 
 Release102 在统一示例内交付可步行探索的相邻两室，F3 切换布局，O 操作分隔门。固定前室地板的第 119 帧平均线性亮度由开门的 0.11809 降到闭门的 0.00000530。关闭了同一真实门洞两侧的遮挡与间接光响应缺口。[普通版本与实测](../LocalComparison/Review/connected-rooms-01/result.md)

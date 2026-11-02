@@ -1,5 +1,7 @@
 # 实时光传输架构与生产交付计划
 
+G1 的原生烘焙合成已有一项实机结果。普通 Forward Lit 的两块静态表面共享非方向光照贴图，替换后保留实时直射，两处内部区域与独立直射基准的最大绝对通道差为 5.96 × 10⁻⁸。方向贴图及混合灯光仍开放。[画面对照与条件](../LocalComparison/Review/baked-lightmap-01/result.md)
+
 当前起始验收目标已由用户确认：960×540／30FPS，现有GI三个计时区间合计p95≤25ms，进程local有限采样峰值≤1GiB，nonlocal另列。[当前93优化后的静止窗口](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)为19.298ms／567.254MiB，满足两门槛；不代表运动／最坏情况或整体验收。后文历史“预算未定”以[当前口径](GpuBudget.md#当前已确认的起始验收目标)为准。
 
 Release102 两室的实际关门过程已有 G3 读数。同一前室地板在闭门第 +59 帧降至开闭差的 9.38%，第 +119 帧仍有 6.34%。精确收敛时间仍未知。[同曝光过程与候选结果](../LocalComparison/Review/portal-close-response-01/result.md)
