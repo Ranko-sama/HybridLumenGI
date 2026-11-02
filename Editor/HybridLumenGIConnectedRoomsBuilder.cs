@@ -15,7 +15,7 @@ namespace HybridLumenGI.Editor
         {
             string path = CreateCopy(SceneManager.GetActiveScene());
             Selection.activeObject = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
-            Debug.Log("Open " + path + " and enter Play. F3 shows the adjoining room. O opens or closes its door.");
+            Debug.Log("Open " + path + " and enter Play. F3 shows the adjoining room, F4 switches to the turned passage, and O operates the sliding door.");
         }
 
         /// <summary>Extend the open end of the standard validation color room in a new, independently saved scene.</summary>
@@ -73,18 +73,31 @@ namespace HybridLumenGI.Editor
                     return go;
                 }
 
-                Box("Entry floor", new Vector3(0, -.15f, -7), new Vector3(8, .3f, 6), neutral);
-                Box("Entry ceiling", new Vector3(0, 4, -7), new Vector3(8.3f, .3f, 6), neutral);
-                Box("Source room ceiling", new Vector3(0, 4, -2), new Vector3(8.3f, .3f, 4), neutral);
-                Box("Entry left", new Vector3(-4, 2, -7), new Vector3(.3f, 4.3f, 6), neutral);
-                Box("Entry right", new Vector3(4, 2, -7), new Vector3(.3f, 4.3f, 6), neutral);
+                var entryFloor = Box("Entry floor", new Vector3(0, -.15f, -7), new Vector3(8, .3f, 6), neutral);
+                var entryCeiling = Box("Entry ceiling", new Vector3(0, 4, -7), new Vector3(8.3f, .3f, 6), neutral);
+                var sourceCeiling = Box("Source room ceiling", new Vector3(0, 4, -2), new Vector3(8.3f, .3f, 4), neutral);
+                var entryLeft = Box("Entry left", new Vector3(-4, 2, -7), new Vector3(.3f, 4.3f, 6), neutral);
+                var entryRight = Box("Entry right", new Vector3(4, 2, -7), new Vector3(.3f, 4.3f, 6), neutral);
                 Box("Entry end wall", new Vector3(0, 2, -10), new Vector3(8.3f, 4.3f, .3f), neutral);
                 Box("Partition left", new Vector3(-2.5f, 2, -4), new Vector3(3, 4, .2f), neutral);
                 Box("Partition right", new Vector3(2.5f, 2, -4), new Vector3(3, 4, .2f), neutral);
                 Box("Doorway lintel", new Vector3(0, 3.4f, -4), new Vector3(2, 1.2f, .2f), neutral);
                 var door = Box("Sliding partition door", new Vector3(0, 1.45f, -3.8f), new Vector3(2.18f, 2.92f, .18f), neutral);
                 Box("Source room warm panel", new Vector3(0, 1.55f, -2.5f), new Vector3(2.3f, 2.3f, .12f), emitter.SourceRenderer.sharedMaterial);
-                controls.ConfigureConnectedRooms(room, door.AddComponent<HybridLumenGIValidationMotion>());
+                var portal = door.AddComponent<HybridLumenGIValidationMotion>();
+                HybridLumenGIProxy SideWall(string name, float x) => proxies.FirstOrDefault(p => p.name == name && p.isActiveAndEnabled &&
+                    p.SourceRenderer && p.SourceRenderer.enabled && p.SourceMesh == floor.SourceMesh && p.HLODParent == null &&
+                    p.transform.rotation == room.transform.rotation && (p.transform.lossyScale - new Vector3(.3f, 4, 8)).sqrMagnitude < .0001f &&
+                    (p.transform.position - room.transform.TransformPoint(x, 2, 0)).sqrMagnitude < .0001f);
+                var left = SideWall("Red wall", -4);
+                var right = SideWall("Green wall", 4);
+                if (left && right)
+                    controls.ConfigureConnectedRooms(room, portal, entryCeiling.transform, sourceCeiling.transform, new[] {
+                        new HybridLumenGIUnifiedSampleInteraction.PassageSpan(floor.transform, entryFloor),
+                        new HybridLumenGIUnifiedSampleInteraction.PassageSpan(left.transform, entryLeft),
+                        new HybridLumenGIUnifiedSampleInteraction.PassageSpan(right.transform, entryRight)
+                    });
+                else controls.ConfigureConnectedRooms(room, portal);
                 EditorSceneManager.MarkSceneDirty(copy);
                 if (!EditorSceneManager.SaveScene(copy)) throw new IOException("Could not save the connected rooms.");
                 complete = true;

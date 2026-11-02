@@ -15,6 +15,9 @@ namespace HybridLumenGI
         [SerializeField] private Light[] lights = Array.Empty<Light>();
         [SerializeField] private GameObject connectedRooms;
         [SerializeField] private HybridLumenGIValidationMotion roomPortal;
+        [SerializeField] private Transform entryCeiling, sourceCeiling;
+        [SerializeField] private PassageSpan[] passageSpans;
+        private Vector3 entryCeilingPosition, entryCeilingScale, sourceCeilingPosition, sourceCeilingScale;
         private bool[] originalLights;
         private MaterialPropertyBlock originalBlock, changedBlock;
         private readonly List<(int index, MaterialPropertyBlock original, MaterialPropertyBlock changed)> wallSlotBlocks = new();
@@ -40,6 +43,35 @@ namespace HybridLumenGI
         public bool HasConnectedRooms => connectedRooms && roomPortal;
         public bool RoomsEnabled => HasConnectedRooms && connectedRooms.activeSelf;
         public bool PortalOpen { get; private set; }
+        public bool HasTurnedPassage => HasConnectedRooms && entryCeiling && sourceCeiling && passageSpans?.Length == 3;
+        public bool TurnedPassage { get; private set; }
+
+        // One continuous floor or side wall can cover both the color room and its extension.
+        [Serializable]
+        public struct PassageSpan
+        {
+            [SerializeField] private Transform source;
+            [SerializeField] private GameObject entryPiece;
+            [NonSerialized] private Vector3 originalPosition, originalScale;
+            [NonSerialized] private bool wasActive;
+            public PassageSpan(Transform source, GameObject entryPiece) : this()
+            { this.source = source; this.entryPiece = entryPiece; }
+            internal bool Matches(Transform room) => source && entryPiece && entryPiece.transform.parent == room &&
+                !source.IsChildOf(room) && source.gameObject.scene == room.gameObject.scene;
+            internal void Join(Vector3 forward)
+            {
+                originalPosition = source.localPosition; originalScale = source.localScale;
+                wasActive = entryPiece.activeSelf;
+                source.position -= 3f * forward;
+                source.localScale = new Vector3(originalScale.x, originalScale.y, originalScale.z * (14f / 8f));
+                entryPiece.SetActive(false);
+            }
+            internal void Restore()
+            {
+                if (source) { source.localPosition = originalPosition; source.localScale = originalScale; }
+                if (entryPiece) entryPiece.SetActive(wasActive);
+            }
+        }
 
         public void Configure(Camera camera, HybridLumenGIUnifiedSample controller,
             HybridLumenGIValidationMotion movingDoor, Renderer wall, Light[] sceneLights)
@@ -50,14 +82,26 @@ namespace HybridLumenGI
             lights = sceneLights == null ? Array.Empty<Light>() : (Light[])sceneLights.Clone();
         }
         public void ConfigureConnectedRooms(GameObject root, HybridLumenGIValidationMotion portal)
+            => ConfigureConnectedRooms(root, portal, null, null, null);
+
+        public void ConfigureConnectedRooms(GameObject root, HybridLumenGIValidationMotion portal,
+            Transform entryRoof, Transform sourceRoof, PassageSpan[] spans)
         {
             if (Application.isPlaying) throw new InvalidOperationException("Configure before Play.");
             if (!root || !portal || !root.scene.IsValid() || root.scene != gameObject.scene || root.activeSelf ||
                 portal.gameObject == root || !portal.transform.IsChildOf(root.transform) || (door && door.transform.IsChildOf(root.transform)) ||
                 transform.IsChildOf(root.transform) || (targetCamera && targetCamera.transform.IsChildOf(root.transform)))
                 throw new ArgumentException("Use an inactive room root in this scene and a portal below it. Keep the original door, controls and camera outside.");
+            if ((entryRoof || sourceRoof) && (!entryRoof || !sourceRoof || entryRoof == sourceRoof ||
+                entryRoof.parent != root.transform || sourceRoof.parent != root.transform || entryRoof == portal.transform || sourceRoof == portal.transform))
+                throw new ArgumentException("The turned passage needs the two separate ceiling pieces of the generated rooms.");
+            if (spans != null && (spans.Length != 3 || Array.Exists(spans, span => !span.Matches(root.transform))))
+                throw new ArgumentException("Use the generated floor and both side walls with their matching entry pieces.");
             connectedRooms = root;
             roomPortal = portal;
+            entryCeiling = entryRoof;
+            sourceCeiling = sourceRoof;
+            passageSpans = spans == null ? null : (PassageSpan[])spans.Clone();
         }
         private void Start()
         {
@@ -109,7 +153,7 @@ namespace HybridLumenGI
         public void SetConnectedRooms(bool value)
         {
             if (!initialized || closed || !HasConnectedRooms || RoomsEnabled == value) return;
-            if (!value) { RestoreRooms(); return; }
+            if (!value) { if (TurnedPassage) SetTurnedPassage(false); RestoreRooms(); return; }
             ApplyPortalPose(true);
             connectedRooms.SetActive(true);
             sample.GoNear();
@@ -120,10 +164,43 @@ namespace HybridLumenGI
             if (!initialized || closed || !RoomsEnabled) return;
             ApplyPortalPose(value);
         }
+        public void SetTurnedPassage(bool value)
+        {
+            if (!initialized || closed || !RoomsEnabled || !HasTurnedPassage || value == TurnedPassage) return;
+            if (value)
+            {
+                if (Array.Exists(passageSpans, span => !span.Matches(connectedRooms.transform))) return;
+                entryCeilingPosition = entryCeiling.localPosition; entryCeilingScale = entryCeiling.localScale;
+                sourceCeilingPosition = sourceCeiling.localPosition; sourceCeilingScale = sourceCeiling.localScale;
+                // The single roof covers both straight ceiling spans. Reuse the other cube for the offset opening.
+                entryCeiling.localPosition = new Vector3(0, 4, -5);
+                entryCeiling.localScale = new Vector3(8.3f, .3f, 10);
+                sourceCeiling.localPosition = new Vector3(-1.25f, 2, -7);
+                sourceCeiling.localScale = new Vector3(5.5f, 4, .2f);
+                for (int i = 0; i < passageSpans.Length; i++) passageSpans[i].Join(connectedRooms.transform.forward);
+                TurnedPassage = true;
+                targetCamera.transform.SetPositionAndRotation(connectedRooms.transform.TransformPoint(2.65f, 1.5f, -8.8f), connectedRooms.transform.rotation);
+            }
+            else
+            {
+                RestoreStraightLayout();
+                sample.GoNear();
+            }
+            SyncAngles();
+        }
+        private void RestoreStraightLayout()
+        {
+            if (!TurnedPassage) return;
+            if (entryCeiling) { entryCeiling.localPosition = entryCeilingPosition; entryCeiling.localScale = entryCeilingScale; }
+            if (sourceCeiling) { sourceCeiling.localPosition = sourceCeilingPosition; sourceCeiling.localScale = sourceCeilingScale; }
+            for (int i = 0; i < passageSpans.Length; i++) passageSpans[i].Restore();
+            TurnedPassage = false;
+        }
         private void ApplyPortalPose(bool open)
         { roomPortal.ApplyFrame(open ? 179 : 120); PortalOpen = open; }
         private void RestoreRooms()
         {
+            RestoreStraightLayout();
             if (roomPortal) roomPortal.Restore();
             if (connectedRooms && connectedRooms.activeSelf) connectedRooms.SetActive(false);
             PortalOpen = false;
@@ -204,6 +281,7 @@ namespace HybridLumenGI
                 {
                     if (Input.GetKeyDown(KeyCode.F2)) sample.LogLedger();
                     if (HasConnectedRooms && Input.GetKeyDown(KeyCode.F3)) SetConnectedRooms(!RoomsEnabled);
+                    if (RoomsEnabled && Input.GetKeyDown(KeyCode.F4)) SetTurnedPassage(!TurnedPassage);
                     if (RoomsEnabled && Input.GetKeyDown(KeyCode.O)) SetPortalOpen(!PortalOpen);
                     if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Alpha1)) { sample.GoNear(); SyncAngles(); }
                     if (Input.GetKeyDown(KeyCode.Alpha2)) { sample.GoFar(); SyncAngles(); }
@@ -243,6 +321,7 @@ namespace HybridLumenGI
             {
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button(RoomsEnabled ? "F3: hide connected rooms" : "F3: explore connected rooms")) SetConnectedRooms(!RoomsEnabled);
+                if (RoomsEnabled && HasTurnedPassage && GUILayout.Button(TurnedPassage ? "F4: two rooms" : "F4: three rooms")) SetTurnedPassage(!TurnedPassage);
                 if (RoomsEnabled && GUILayout.Button(PortalOpen ? "O: close room door" : "O: open room door")) SetPortalOpen(!PortalOpen);
             }
             GUILayout.Label(lights.Length > 0 ? "F2: log current status. Lights off keeps emissive surfaces." : "F2: log current status.");

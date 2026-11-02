@@ -197,6 +197,7 @@ namespace HybridLumenGI
             public string representationScope = "Sample request and renderer-submittable group; not pixel coverage or GPU completion.";
             public string requestedRepresentation, availableRepresentation, representationStatus;
             public int requestEngineFrame;
+            public Vector3 cameraPosition;
             public int engineFrame, publicationEngineFrame, publicationWorkFrame, visibleMembers, boundMembers;
             public int pagesReady, pagesLoading, pagesReleasing, pagesFailed, pageConsumerReferences, budgetBlockedGroups;
             public long pageBundleBytes, pageResidentBytes, pageIoBytesInFlight, pageIoBytesStartedThisStep, pageUploadBytesStartedThisStep;
@@ -212,6 +213,7 @@ namespace HybridLumenGI
         public Ledger CaptureLedger()
         {
             var result = new Ledger { status = status, engineFrame = Time.frameCount,
+                cameraPosition = targetCamera ? targetCamera.transform.position : default,
                 processVideoMemory = videoMemory.Current,
                 publicationEngineFrame = lastReceiptEngine, publicationWorkFrame = lastReceiptWork,
                 visibleMembers = visible.Count, requestedBackend = feature.RequestedPreferHardwareTracing ? "prefer DXR" : "software",
