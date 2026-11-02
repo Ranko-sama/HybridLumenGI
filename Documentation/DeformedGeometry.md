@@ -1,5 +1,7 @@
 # 形变几何快照
 
+本机 Win64 的统一示例两骨门另有原生上一帧顶点观测。连续渲染的同一三角形上，第 4 帧 previous 与第 3 帧实际 current 的三个顶点逐点相同，独立骨姿态换算的最大差为 1.26 × 10⁻⁷ 米。该观测区分了真实前帧与绑定姿态，颗粒和拖影仍需由实际画面判断。[坐标空间、原始读回和适用范围](../LocalComparison/Review/skinned-previous-vertices-01/result.md)
+
 屏幕历史另有[普通骨骼停稳恢复](GeometryHistoryContracts.md#普通骨骼停稳历史)：满足完整来源与骨姿态稳定条件时，SkinnedMeshRenderer可重新累计历史；真正骨变化继续拒绝旧历史。这与下述异步GI快照各自工作，不承诺跨形变重投影或可见动画与世界GI逐帧同步。有限统一场景使用结果见[Skinned停稳历史](../LocalComparison/Review/skinned-stopped-history-01/result.md)。
 
 给已有 `HybridLumenGIProxy` 的对象添加 `HybridLumenGIDeformedMesh`。SkinnedMeshRenderer 按间隔捕获；可读 MeshFilter 或自定义顶点生产者在主线程调用 `RequestCapture(readableSnapshot)`。后者必须提供完成写入的可读网格，GPU 私有顶点缓冲不会被自动推断。原可见 Renderer 和材质继续保留。
