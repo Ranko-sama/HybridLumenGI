@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release118，G0 本机基线已锁定，G1–G5 继续开放
+## 当前总进度　Release119，G0 本机基线已锁定，G1–G5 继续开放
+
+G3 关闭两个可复现的无效更新。运行时把合成强度减半、切到间接光、返回最终画面，旧版每步都把地板历史清到 1；119 同一批 64 个点始终保持 32 帧。普通可读网格门在末姿已被捕获后停止，两版都发布了正确终姿，119 省去一次相同顶点的再发布。统一示例提供 F5 和对应按钮，画册同时列出已有颜色、残留、拖影与收敛边界。[本版画面与终姿](../LocalComparison/Review/display-and-door-stability-119/result.md) · [四个画质问题](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)
 
 G1 关闭单一 Mixed 主方向灯照射静态烘焙表面时，世界命中忽略 Shadowmask、向另一张白色接收面提供多余反弹的缺口。原遮区在真实／白遮罩下的平均间接亮度从旧版相同，变为 0.000000／0.478625。受光侧仍亮，两处各有 256 个共同有效点。[普通间接光对照、来源与边界](../LocalComparison/Review/mixed-static-world-bounce-01/result.md)
 

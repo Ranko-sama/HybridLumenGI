@@ -1,0 +1,300 @@
+{
+  "scope": "Ordinary static colored room; intensity 1 to 0.5 and Final to IndirectOnly to Final. Fixed mature floor ROI and same-frame camera outputs. This portion contains no door motion.",
+  "imageSignal": "cameraAfterHLGI, ordinary camera RGB; exposure 1, componentwise Reinhard then sRGB and display-only vertical flip.",
+  "sources": {
+    "Baseline": "I:\\Unity test\\Comparison\\DisplayStability119Baseline",
+    "Candidate": "I:\\Unity test\\Comparison\\DisplayStability119Candidate"
+  },
+  "observations": {
+    "Baseline": {
+      "variant": "Baseline",
+      "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+      "fixedGiXYXY": [
+        129,
+        33,
+        137,
+        41
+      ],
+      "floorPixels": 64,
+      "commonKnown": 64,
+      "matureAt119AmongCommon": 64,
+      "scope": "Preselected old primary Floor; live depth, position, +Y normal checked; common known pixels at the original maxHistory=32 before the display edits. Odd full-pixel centers match their GI source texels.",
+      "supportedMatureCohort": true,
+      "states": [
+        {
+          "workFrame": 119,
+          "engineFrame": 123,
+          "operation": "none",
+          "view": "Final",
+          "intensity": 1.0,
+          "epoch": 5,
+          "group": "details",
+          "actualBackend": "DXR",
+          "unknownD": 0,
+          "ageHistogram": {
+            "32.0": 64
+          },
+          "meanBeforeCameraRGB": [
+            0.4650038657709956,
+            0.4650038657709956,
+            0.4650038657709956
+          ],
+          "meanAfterCameraRGB": [
+            0.5417951894924045,
+            0.5112723484635353,
+            0.5087524289265275
+          ],
+          "meanFilteredDRGB": [
+            0.1529827117919922,
+            0.09217548370361328,
+            0.08715534210205078
+          ],
+          "observedIndirectY": 0.05257570050470531,
+          "unscaledDYAfterReceiver": 0.05257570001108086,
+          "observedIntensityRatio": 1.0000000093888326
+        },
+        {
+          "workFrame": 120,
+          "engineFrame": 124,
+          "operation": "settings.indirectIntensity",
+          "view": "Final",
+          "intensity": 0.5,
+          "epoch": 6,
+          "group": "details",
+          "actualBackend": "DXR",
+          "unknownD": 0,
+          "ageHistogram": {
+            "1.0": 64
+          },
+          "meanBeforeCameraRGB": [
+            0.4650038657709956,
+            0.4650038657709956,
+            0.4650038657709956
+          ],
+          "meanAfterCameraRGB": [
+            0.4915417144075036,
+            0.48365369625389576,
+            0.48310210602357984
+          ],
+          "meanFilteredDRGB": [
+            0.10573673248291016,
+            0.07430791854858398,
+            0.07211017608642578
+          ],
+          "observedIndirectY": 0.02028699832772836,
+          "unscaledDYAfterReceiver": 0.04057399826347546,
+          "observedIntensityRatio": 0.4999999801841227
+        },
+        {
+          "workFrame": 121,
+          "engineFrame": 125,
+          "operation": "settings.debugView",
+          "view": "IndirectOnly",
+          "intensity": 0.5,
+          "epoch": 7,
+          "group": "details",
+          "actualBackend": "DXR",
+          "unknownD": 0,
+          "ageHistogram": {
+            "1.0": 64
+          },
+          "meanBeforeCameraRGB": [
+            0.4650038657709956,
+            0.4650038657709956,
+            0.4650038657709956
+          ],
+          "meanAfterCameraRGB": [
+            0.03248195466585457,
+            0.016538852811208926,
+            0.016094492966658436
+          ],
+          "meanFilteredDRGB": [
+            0.12942028045654297,
+            0.06589698791503906,
+            0.06412649154663086
+          ],
+          "observedIndirectY": 0.019896273484730047,
+          "unscaledDYAfterReceiver": 0.03979254701666381,
+          "observedIntensityRatio": 0.49999999940687745
+        },
+        {
+          "workFrame": 122,
+          "engineFrame": 126,
+          "operation": "settings.debugView",
+          "view": "Final",
+          "intensity": 0.5,
+          "epoch": 8,
+          "group": "details",
+          "actualBackend": "DXR",
+          "unknownD": 0,
+          "ageHistogram": {
+            "1.0": 64
+          },
+          "meanBeforeCameraRGB": [
+            0.4650038657709956,
+            0.4650038657709956,
+            0.4650038657709956
+          ],
+          "meanAfterCameraRGB": [
+            0.4944694875739515,
+            0.4860267648473382,
+            0.4849760076031089
+          ],
+          "meanFilteredDRGB": [
+            0.1174020767211914,
+            0.08376312255859375,
+            0.07957649230957031
+          ],
+          "observedIndirectY": 0.022741957254987212,
+          "unscaledDYAfterReceiver": 0.04548391899272184,
+          "observedIntensityRatio": 0.499999950721623
+        }
+      ]
+    },
+    "Candidate": {
+      "variant": "Candidate",
+      "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+      "fixedGiXYXY": [
+        129,
+        33,
+        137,
+        41
+      ],
+      "floorPixels": 64,
+      "commonKnown": 64,
+      "matureAt119AmongCommon": 64,
+      "scope": "Preselected old primary Floor; live depth, position, +Y normal checked; common known pixels at the original maxHistory=32 before the display edits. Odd full-pixel centers match their GI source texels.",
+      "supportedMatureCohort": true,
+      "states": [
+        {
+          "workFrame": 119,
+          "engineFrame": 123,
+          "operation": "none",
+          "view": "Final",
+          "intensity": 1.0,
+          "epoch": 5,
+          "group": "details",
+          "actualBackend": "DXR",
+          "unknownD": 0,
+          "ageHistogram": {
+            "32.0": 64
+          },
+          "meanBeforeCameraRGB": [
+            0.4650038657709956,
+            0.4650038657709956,
+            0.4650038657709956
+          ],
+          "meanAfterCameraRGB": [
+            0.5407908661291003,
+            0.5101502584293485,
+            0.5076394421048462
+          ],
+          "meanFilteredDRGB": [
+            0.15098190307617188,
+            0.08994007110595703,
+            0.08493804931640625
+          ],
+          "observedIndirectY": 0.05147930491669103,
+          "unscaledDYAfterReceiver": 0.05147930336612466,
+          "observedIntensityRatio": 1.0000000301201895
+        },
+        {
+          "workFrame": 120,
+          "engineFrame": 124,
+          "operation": "Feature.SetIndirectIntensity",
+          "view": "Final",
+          "intensity": 0.5,
+          "epoch": 5,
+          "group": "details",
+          "actualBackend": "DXR",
+          "unknownD": 0,
+          "ageHistogram": {
+            "32.0": 64
+          },
+          "meanBeforeCameraRGB": [
+            0.4650038657709956,
+            0.4650038657709956,
+            0.4650038657709956
+          ],
+          "meanAfterCameraRGB": [
+            0.5030151293613017,
+            0.487793673761189,
+            0.48650356149300933
+          ],
+          "meanFilteredDRGB": [
+            0.15145111083984375,
+            0.09080314636230469,
+            0.085662841796875
+          ],
+          "observedIndirectY": 0.02593274334501475,
+          "unscaledDYAfterReceiver": 0.05186548943369371,
+          "observedIntensityRatio": 0.4999999735501946
+        },
+        {
+          "workFrame": 121,
+          "engineFrame": 125,
+          "operation": "Feature.SetDebugView",
+          "view": "IndirectOnly",
+          "intensity": 0.5,
+          "epoch": 5,
+          "group": "details",
+          "actualBackend": "DXR",
+          "unknownD": 0,
+          "ageHistogram": {
+            "32.0": 64
+          },
+          "meanBeforeCameraRGB": [
+            0.4650038657709956,
+            0.4650038657709956,
+            0.4650038657709956
+          ],
+          "meanAfterCameraRGB": [
+            0.038226679782383144,
+            0.022754386242013425,
+            0.021446797996759415
+          ],
+          "meanFilteredDRGB": [
+            0.15230941772460938,
+            0.09066200256347656,
+            0.08545207977294922
+          ],
+          "observedIndirectY": 0.025949387977388688,
+          "unscaledDYAfterReceiver": 0.05189877595144042,
+          "observedIntensityRatio": 0.5000000000321487
+        },
+        {
+          "workFrame": 122,
+          "engineFrame": 126,
+          "operation": "UnifiedSample.ToggleIndirectView",
+          "view": "Final",
+          "intensity": 0.5,
+          "epoch": 5,
+          "group": "details",
+          "actualBackend": "DXR",
+          "unknownD": 0,
+          "ageHistogram": {
+            "32.0": 64
+          },
+          "meanBeforeCameraRGB": [
+            0.4650038657709956,
+            0.4650038657709956,
+            0.4650038657709956
+          ],
+          "meanAfterCameraRGB": [
+            0.5031620915979147,
+            0.4877462824806571,
+            0.4864121275022626
+          ],
+          "meanFilteredDRGB": [
+            0.1520366668701172,
+            0.09061431884765625,
+            0.08529853820800781
+          ],
+          "observedIndirectY": 0.025923491738550367,
+          "unscaledDYAfterReceiver": 0.05184698567953569,
+          "observedIntensityRatio": 0.49999997876024105
+        }
+      ]
+    }
+  }
+}

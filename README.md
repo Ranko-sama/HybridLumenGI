@@ -4,9 +4,11 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release118](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release118-demo)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release119](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release119-demo)
 
-**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release118 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release118-demo/HybridLumenGI-Release118-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release119 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release119-demo/HybridLumenGI-Release119-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+
+**只看间接光**　按 F5 单独观察墙面反弹，再按一次回到原视图。Release119 修复了调光和切视图时清空 GI 历史的问题，普通可读网格门停下时也会沿用最后一次姿态请求。固定地板上，三次显示操作后全部 64 个采样点的历史保持 32 帧。[同曝光画面与停门实测](LocalComparison/Review/display-and-door-stability-119/result.md)
 
 Release118 让静态烘焙遮罩参与世界空间反弹。使用真实遮罩时，原遮区上方的白色接收面间接亮度为 0.000000，换成全白遮罩后为 0.478625。旧版两幅画面在该区域逐像素相同。[同曝光对照与适用范围](LocalComparison/Review/mixed-static-world-bounce-01/result.md)
 

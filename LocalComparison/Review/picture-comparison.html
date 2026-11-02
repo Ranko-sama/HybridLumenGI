@@ -23,7 +23,7 @@
 <header>
   <small>HybridLumenGI　/　Windows 统一示例　/　线性 HDR 画面对照</small>
   <h1>颜色反弹与动态响应</h1>
-  <p>普通示例以 960×540 启动。C 切换墙色，L 开关灯，M 启停门运动，F1 隐藏面板。F3 切换两室布局，F4 在室内切换三室路线，O 开关分隔门。各节标明实际采集版本、机位与适用范围。</p>
+  <p>普通示例以 960×540 启动。C 切换墙色，L 开关灯，M 启停门运动，F1 隐藏面板。F3 切换两室布局，F4 在室内切换三室路线，O 开关分隔门。F5 只看间接光，再按一次返回。各节标明实际采集版本、机位与适用范围。</p>
   <nav aria-label="画面对照"><a href="#color">颜色误差</a><a href="#residual">换色与关灯</a><a href="#motion">运动拖影</a><a href="#recovery">收敛时间</a><a href="#energy">白炉与零漫反射</a><a href="#world">离屏纹理与连通房间</a><a href="#baked">烘焙光与实时直射</a><a href="#passage">三室步行路线</a></nav>
 </header>
 <section id="color">
@@ -54,10 +54,14 @@
 </section>
 <section id="motion">
   <h2>3. 运动颗粒减少后，门有没有留下拖影？</h2>
-  <p>Release112 首次在这套 2 射线、4 级滤波、DXR 配置上连续完成规定路线。门移动并返回原位，五盏解析灯关闭、重新开启，随后切换薄壁和封闭房间。图为普通相机 Final，同一曝光。下方的间接光专项目视对照另用于判断颗粒和旧门轮廓。</p>
+  <p>看图中第一行的前三格。门从左侧移到右侧，第 239 帧回到起始位置，机位和五盏灯保持不变。此时右侧黑色接收块重新露出，原门位看不到可辨认的第二道门轮廓。这是含直射的普通画面，较弱的间接光拖尾仍可能被掩盖。</p>
   <figure><img src="full-dxr-sequence-112/comparison.png" alt="同一连续路线中开门、回位、关灯、重新开灯及两个机位的实际普通相机画面"><figcaption>640×360，半分辨率 GI。关灯后左侧发光面仍可见。全程功能记录及各时点的普通画面不能给出纯拖影量或精确收敛时间。<a href="full-dxr-sequence-112/result.json">路线与帧记录</a></figcaption></figure>
   <p>在门运动中、刚到终点和停后 10、30 帧，4 级滤波使门面、地板和绿墙上的云斑减弱。门和墙地交界仍可辨认，同平面的明暗过渡更柔。四个观测点均未见明显新增的持续旧门轮廓。观测点之间的运动和其他速度仍有不确定性。</p>
   <figure><img src="four-pass-local-quality-01/comparison.png" alt="四个逻辑时点的门、地板和墙，对比左侧三级滤波和右侧四级滤波"><figcaption>左为已有 Release88 的 DXR／3 级滤波，右为 Release92 采用的 DXR／4 级滤波。两侧均为 2 条射线，第 149、179、189、209 帧，同曝光的间接出射贡献。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/four-pass-local-quality-01/result.md">运动图来源 ↗</a></figcaption></figure>
+  <h3>按 F5 查看间接光会让它重新累积吗？</h3>
+  <p>在同一固定机位把强度减半，切到仅间接光，再切回最终画面。Release118 每次操作都把地板历史清到 1 帧。Release119 白框内的 64 个有效点始终保持 32 帧，实测合成强度从 1 降至 0.5。</p>
+  <figure><img src="display-and-door-stability-119/comparison.png" alt="上下两版在相同三次显示操作前后的八张画面，框出地板历史观测位置"><figcaption>Editor Play 的普通 DXR 路径，曝光相同。第三列只显示间接光。<a href="display-and-door-stability-119/result-display.json">相机线性 RGB、强度与历史</a></figcaption></figure>
+  <p>普通可读网格门还有一项独立修复。最后一帧的 24 个顶点已被捕获后按停，旧版在引擎帧 16 与 27 两次发布相同终姿，新版只在第 16 帧发布。此项记录几何提交；运动拖影仍见上方画面。<a href="display-and-door-stability-119/result-door.json">停姿与发布记录</a></p>
 </section>
 <section id="recovery">
   <h2>4. 重新开灯后，多久恢复？</h2>
