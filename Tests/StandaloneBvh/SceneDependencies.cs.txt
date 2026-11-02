@@ -75,6 +75,12 @@ namespace HybridLumenGI
         public Texture3D DistanceTexture=new Texture3D();
         public int GetInstanceID()=>101;
     }
+    public class HybridLumenGIStreamedRepresentation
+    {
+        public static readonly List<HybridLumenGIStreamedRepresentation> Active = new();
+        public bool isActiveAndEnabled = true, IsUnavailable;
+        public HybridLumenGIProxy Proxy;
+    }
     // Dependency adapter: the actual scene residency/BVH source is compiled unchanged.
     public class HybridLumenGIProxy
     {

@@ -233,6 +233,16 @@ namespace HybridLumenGI
                 HybridLumenGIProxy parent = proxy.HLODParent;
                 if (parent != null && parent.isActiveAndEnabled) aggregates.Add(parent.StableId);
             }
+            // A cold Far view only loads the root. The enabled detail bindings still
+            // carry its authored identity even while their geometry proxies are disabled.
+            var bindings = HybridLumenGIStreamedRepresentation.Active;
+            for (int i = 0; i < bindings.Count; i++)
+            {
+                var binding = bindings[i];
+                if (binding == null || !binding.isActiveAndEnabled || binding.IsUnavailable || binding.Proxy == null) continue;
+                var root = binding.Proxy.HLODParent;
+                if (root != null && root.isActiveAndEnabled && root.HLODParent == null) aggregates.Add(root.StableId);
+            }
             retiredIds.Clear();
             foreach (int id in farStates.Keys) if (!liveIds.Contains(id)) retiredIds.Add(id);
             for (int i = 0; i < retiredIds.Count; i++) farStates.Remove(retiredIds[i]);
