@@ -9,7 +9,7 @@ namespace HybridLumenGI
 {
     /// <summary>
     /// Adds a lightweight world-space SDF proxy to the independent HybridLumenGI scene representation.
-    /// Box proxies use world-space bounds; sphere proxies use a world-space sphere. This is not a mesh voxelizer.
+    /// Collider-only boxes retain their orientation. Other box proxies use world bounds.
     /// </summary>
     [ExecuteAlways, DisallowMultipleComponent]
     public sealed class HybridLumenGIProxy : MonoBehaviour
@@ -51,6 +51,7 @@ namespace HybridLumenGI
         private HybridLumenGIMeshSource.Version lastMeshSourceVersion;
         private int lastVertexCount;
         private Bounds lastLocalMeshBounds;
+        private Bounds lastColliderShape;
         private int lastObjectLayer;
         private uint lastRenderingLayerMask;
         private ShadowCastingMode lastShadowCastingMode;
@@ -98,7 +99,17 @@ namespace HybridLumenGI
                 return candidate!=null && SourceMesh==candidate.SourceMesh?candidate:null;
             }
         }
-        public Matrix4x4 SdfLocalToWorld => sourceRenderer != null ? sourceRenderer.localToWorldMatrix : transform.localToWorldMatrix;
+        private BoxCollider ColliderBox => shape == Shape.Box && sourceRenderer == null ? sourceCollider as BoxCollider : null;
+        private Bounds ColliderShape
+        {
+            get
+            {
+                var box = ColliderBox;
+                return box != null && box.enabled && box.gameObject.activeInHierarchy ? new Bounds(box.center, box.size) : default;
+            }
+        }
+        public Matrix4x4 SdfLocalToWorld => sourceRenderer != null ? sourceRenderer.localToWorldMatrix :
+            ColliderBox != null ? sourceCollider.transform.localToWorldMatrix : transform.localToWorldMatrix;
 
         public static int Version => version;
         public static IReadOnlyList<HybridLumenGIProxy> ActiveProxies => Active;
@@ -168,7 +179,8 @@ namespace HybridLumenGI
             int vertices = mesh != null ? mesh.vertexCount : 0;
             Bounds localBounds=mesh!=null?mesh.bounds:default;
             bool sameMesh=ReferenceEquals(mesh,lastMesh);
-            bool contentChanged=!sameMesh || vertices!=lastVertexCount || localBounds!=lastLocalMeshBounds;
+            bool contentChanged=!sameMesh || vertices!=lastVertexCount || localBounds!=lastLocalMeshBounds ||
+                !ColliderShape.Equals(lastColliderShape);
             bool sourceNotified=sameMesh && !ReferenceEquals(HybridLumenGIMeshSource.GetVersion(mesh),lastMeshSourceVersion);
             int objectLayer = sourceRenderer != null ? sourceRenderer.gameObject.layer : gameObject.layer;
             uint renderingLayers = sourceRenderer != null ? sourceRenderer.renderingLayerMask : 1u;
@@ -207,6 +219,7 @@ namespace HybridLumenGI
             lastMeshSourceVersion = HybridLumenGIMeshSource.GetVersion(lastMesh);
             lastVertexCount = lastMesh != null ? lastMesh.vertexCount : 0;
             lastLocalMeshBounds=lastMesh!=null?lastMesh.bounds:default;
+            lastColliderShape = ColliderShape;
             lastObjectLayer = sourceRenderer != null ? sourceRenderer.gameObject.layer : gameObject.layer;
             lastRenderingLayerMask = sourceRenderer != null ? sourceRenderer.renderingLayerMask : 1u;
             lastShadowCastingMode = sourceRenderer != null ? sourceRenderer.shadowCastingMode : ShadowCastingMode.On;
@@ -263,11 +276,43 @@ namespace HybridLumenGI
             return value;
         }
 
+        // Use one pose for residency, BVH traversal and the final box hit. A collider on
+        // a different object has its own transform, and a partial collider never replaces a renderer.
+        internal bool TryGetColliderBox(out Bounds world, out Matrix4x4 worldToAxes, out Vector3 halfSize)
+        {
+            world = default;
+            worldToAxes = default;
+            halfSize = default;
+            var box = ColliderBox;
+            if (box == null || !box.enabled || !box.gameObject.activeInHierarchy) return false;
+            var pose = box.transform;
+            Matrix4x4 localToWorld = pose.localToWorldMatrix;
+            Matrix4x4 axes = Matrix4x4.Rotate(pose.rotation);
+            Vector3 size = box.size;
+            Vector3 worldExtent = Vector3.zero;
+            for (int i = 0; i < 3; i++)
+            {
+                Vector3 axis = axes.GetColumn(i);
+                Vector3 column = localToWorld.GetColumn(i);
+                float scale = Vector3.Dot(column, axis);
+                // A sheared hierarchy does not supply an unambiguous rigid physics box.
+                if (!((column - scale * axis).sqrMagnitude <= 1e-10f * scale * scale)) return false;
+                float extent = 0.5f * size[i] * Mathf.Abs(scale);
+                if (!(extent > 0f) || float.IsInfinity(extent)) return false;
+                halfSize[i] = extent;
+                worldExtent += extent * new Vector3(Mathf.Abs(axis.x), Mathf.Abs(axis.y), Mathf.Abs(axis.z));
+            }
+            world = new Bounds(localToWorld.MultiplyPoint3x4(box.center), worldExtent * 2f);
+            worldToAxes = axes.transpose;
+            return true;
+        }
+
         public Bounds GetWorldBounds()
         {
             if(HybridLumenGIDeformedMesh.HasSnapshot(sourceRenderer))return HybridLumenGIDeformedMesh.BoundsOf(sourceRenderer);
             // A collider may cover only part of a renderer. Mesh tracing needs conservative renderer bounds.
             if (sourceRenderer is MeshRenderer || (meshSdf != null && meshSdf.IsValid && sourceRenderer != null)) return sourceRenderer.bounds;
+            if (TryGetColliderBox(out Bounds box, out _, out _)) return box;
             if (sourceCollider != null) return sourceCollider.bounds;
             if (sourceRenderer != null) return sourceRenderer.bounds;
             return new Bounds(transform.position, Vector3.one);

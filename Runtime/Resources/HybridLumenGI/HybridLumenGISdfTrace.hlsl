@@ -9,11 +9,25 @@ struct HLGISdfMetadata
     float4 boundsMinResolution;
     float4 boundsSizeMinScale;
     float4 voxelSizeError;
-    uint distanceOffset, stableId, revision, valid; // valid bit 1: signed/watertight
+    uint distanceOffset, stableId, revision, valid; // bits 0/1: mesh SDF/signed, bit 2: collider-only box
 };
 StructuredBuffer<HLGISdfMetadata> _HLGI_SdfMetadata;
 StructuredBuffer<float> _HLGI_SdfDistances;
 int _HLGI_SdfSlotCount, _HLGI_SdfVoxelCount, _HLGI_SdfTraceSteps;
+
+// This slot owns either a mesh volume or a collider box frame. Box coordinates
+// are relative to the published proxy center and retain world distance units.
+bool HLGIColliderBoxFrame(int slot, HLGIProxy p, out float3x3 worldToAxes, out float3 halfSize)
+{
+    worldToAxes = (float3x3)0;
+    halfSize = p.extentsRoughness.xyz;
+    if (slot < 0 || slot >= _HLGI_SdfSlotCount) return false;
+    HLGISdfMetadata m = _HLGI_SdfMetadata[slot];
+    if ((m.valid & 4u) == 0u || m.stableId != (uint)p.identity.x || m.revision != (uint)p.identity.y) return false;
+    worldToAxes = (float3x3)m.worldToLocal;
+    halfSize = m.boundsSizeMinScale.xyz;
+    return true;
+}
 
 bool HLGIHasMeshSdf(int slot)
 {

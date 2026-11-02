@@ -2,6 +2,8 @@
 
 `HybridLumenGISdfAtlas` owns bounded voxel storage and per-instance metadata for already-loaded baked object SDF assets. Multiple instances of one asset share uploaded voxel storage. Invalid, pending and over-budget assets retain the analytic software representation. Upload completion is tracked independently from a scene revision; a static pending asset can become ready in a later frame's upload budget.
 
+For a Box proxy with an active BoxCollider and no source Renderer, the analytic hit follows the collider's center, orientation and scaled dimensions. This applies to transforms with orthogonal axes aligned with the collider rotation. The scene BVH encloses the box in world space. The final hit and global distance calculation use its oriented faces. The box frame occupies the existing metadata slot and needs no voxel storage. Sheared or degenerate collider transforms and Renderer-backed Box fallbacks use their world bounds.
+
 ## Source validity and asset migration
 
 A baked asset now includes a versioned SHA-256 fingerprint of the source vertex positions and triangle indices. The baker records it before generating voxels and checks it again when assigning the result, rejecting a source that changed during baking. A matching Mesh reference alone is insufficient. Runtime source validation requires a readable source Mesh as well as the readable RFloat distance texture.

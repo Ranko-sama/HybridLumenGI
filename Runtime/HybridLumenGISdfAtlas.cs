@@ -176,7 +176,19 @@ namespace HybridLumenGI
                     worldBounds = new Bounds(new Vector3(data.centerShape.x, data.centerShape.y, data.centerShape.z),
                         new Vector3(data.extentsRoughness.x, data.extentsRoughness.y, data.extentsRoughness.z) * 2f)
                 };
-                if (proxy == null || proxy.MeshSdf == null) continue;
+                if (proxy == null) continue;
+                if (proxy.TryGetColliderBox(out _, out Matrix4x4 worldToAxes, out Vector3 halfSize))
+                {
+                    // Collider-only owners have no mesh SDF. Reuse their slot metadata
+                    // without allocating voxels or changing mesh residency/readiness.
+                    nextMetadata[slot] = new SdfMetadata
+                    {
+                        worldToLocal = worldToAxes, boundsSizeMinScale = halfSize,
+                        stableId = (uint)data.identity.x, revision = (uint)data.identity.y, valid = 4u
+                    };
+                    continue;
+                }
+                if (proxy.MeshSdf == null) continue;
                 FallbackCount++;
                 HybridLumenGIMeshSdf asset = proxy.MeshSdf;
                 if (!asset.MatchesSource(asset.SourceMesh)) { RejectedSourceCount++; continue; }

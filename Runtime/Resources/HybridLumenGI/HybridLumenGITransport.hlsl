@@ -75,8 +75,9 @@ float3 HLGISampleDirection(float3 n,float4 guide,inout uint rng,out float weight
 #include "HybridLumenGIEmissiveSampling.hlsl"
 #include "HybridLumenGIAreaEmission.hlsl"
 uint _HLGI_AreaMaterialGeneration;
-bool IntersectProxy(float3 o, float3 d, HLGIProxy p, float limit, out float t, out float3 n)
+bool IntersectProxy(float3 o, float3 d, int slot, float limit, out float t, out float3 n)
 {
+    HLGIProxy p = _HLGI_Proxies[slot];
     t = limit; n = 0;
     float3 local = o - p.centerShape.xyz;
     if (p.centerShape.w > 0.5)
@@ -90,17 +91,25 @@ bool IntersectProxy(float3 o, float3 d, HLGIProxy p, float limit, out float t, o
         if (t <= 1e-4 || t >= limit) return false;
         n = normalize(local + d*t); return true;
     }
+    float3x3 worldToAxes;
+    float3 halfSize;
+    bool oriented = HLGIColliderBoxFrame(slot, p, worldToAxes, halfSize);
+    if (oriented)
+    {
+        local = mul(worldToAxes, local);
+        d = mul(worldToAxes, d);
+    }
     float enter = -1e20, leave = 1e20;
     float3 enterN = 0, leaveN = 0;
     [unroll] for (int axis=0; axis<3; axis++)
     {
         if (abs(d[axis]) < 1e-7)
         {
-            if (abs(local[axis]) > p.extentsRoughness[axis]) return false;
+            if (abs(local[axis]) > halfSize[axis]) return false;
             continue;
         }
-        float a = (-p.extentsRoughness[axis]-local[axis])/d[axis];
-        float b = ( p.extentsRoughness[axis]-local[axis])/d[axis];
+        float a = (-halfSize[axis]-local[axis])/d[axis];
+        float b = ( halfSize[axis]-local[axis])/d[axis];
         float3 axisN = 0; axisN[axis] = d[axis]>0 ? -1 : 1;
         if (min(a,b)>enter) { enter=min(a,b); enterN=axisN; }
         if (max(a,b)<leave) { leave=max(a,b); leaveN=-axisN; }
@@ -108,6 +117,7 @@ bool IntersectProxy(float3 o, float3 d, HLGIProxy p, float limit, out float t, o
     if (leave < max(enter,0)) return false;
     bool inside = enter <= 1e-4;
     t = inside ? leave : enter; n = inside ? leaveN : enterN;
+    if (oriented) n = mul(n, worldToAxes);
     return t > 1e-4 && t < limit;
 }
 #if defined(HLGI_INLINE_RT)
@@ -151,7 +161,7 @@ bool TraceSceneDetailQuery(float3 o,float3 d,float maxT,bool shadowQuery,bool re
         else
         {
             float distanceHit;float3 normal;
-            found=IntersectProxy(o,d,_HLGI_Proxies[i],result.t,distanceHit,normal);
+            found=IntersectProxy(o,d,i,result.t,distanceHit,normal);
             if(found)
             {
                 candidate.t=distanceHit;candidate.position=o+d*distanceHit;
