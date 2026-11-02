@@ -1,0 +1,130 @@
+{
+  "product": "7a76bfa99607625e6460a09e99b501bffd9bafee",
+  "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+  "relativeBundleRoot": "UnifiedNeutral106",
+  "chartBake": {
+    "old": 20,
+    "rebakedOldMesh": 18,
+    "newAggregate": 18,
+    "sourceTriangles": 36,
+    "rebakedOldMeshBySubmesh": [
+      6,
+      6,
+      6
+    ],
+    "newAggregateBySubmesh": [
+      6,
+      6,
+      6
+    ],
+    "exportedPageBySubmesh": [
+      6,
+      6,
+      6
+    ],
+    "retainedSourcesUnchanged": true
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "options": "None",
+    "errors": 0,
+    "warnings": 19,
+    "bytes": 102338275
+  },
+  "playerExitCode": 0,
+  "configuredCardCapacity": 192,
+  "estimatedNeutralOverlapCards": 192,
+  "cardCapacityNote": "Capacity and overlap arithmetic. F2 reports five endpoints only.",
+  "endpoints": [
+    {
+      "operation": "F3 neutral Near before F4",
+      "engineFrame": 1353,
+      "publicationEngineFrame": 1352,
+      "requested": "details",
+      "available": "details",
+      "visible": 3,
+      "bound": 4,
+      "readyCards": 174,
+      "requiredCards": 174,
+      "pendingCards": 0,
+      "hardwareMeshes": 29,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "pagesFailed": 0
+    },
+    {
+      "operation": "F3 neutral Far",
+      "engineFrame": 2274,
+      "publicationEngineFrame": 2273,
+      "requested": "aggregate",
+      "available": "aggregate",
+      "visible": 1,
+      "bound": 1,
+      "readyCards": 174,
+      "requiredCards": 174,
+      "pendingCards": 0,
+      "hardwareMeshes": 27,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "pagesFailed": 0
+    },
+    {
+      "operation": "F3 neutral Near returned",
+      "engineFrame": 3027,
+      "publicationEngineFrame": 3026,
+      "requested": "details",
+      "available": "details",
+      "visible": 3,
+      "bound": 4,
+      "readyCards": 174,
+      "requiredCards": 174,
+      "pendingCards": 0,
+      "hardwareMeshes": 29,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "pagesFailed": 0
+    },
+    {
+      "operation": "F4 three-room Near",
+      "engineFrame": 3622,
+      "publicationEngineFrame": 3621,
+      "requested": "details",
+      "available": "details",
+      "visible": 3,
+      "bound": 4,
+      "readyCards": 168,
+      "requiredCards": 168,
+      "pendingCards": 0,
+      "hardwareMeshes": 28,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "pagesFailed": 0
+    },
+    {
+      "operation": "F3 off default Near",
+      "engineFrame": 4146,
+      "publicationEngineFrame": 4145,
+      "requested": "details",
+      "available": "details",
+      "visible": 3,
+      "bound": 4,
+      "readyCards": 120,
+      "requiredCards": 120,
+      "pendingCards": 0,
+      "hardwareMeshes": 20,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "pagesFailed": 0
+    }
+  ],
+  "evidence": {
+    "localRoot": "I:/Unity test/Comparison",
+    "chart": "Neutral106Build/chart-check.json",
+    "build": "Builds/LocalRelease106/build-result.json",
+    "endpointLines": "Neutral106Run/player.log, HLGI_UNIFIED_SAMPLE entries at lines 32–36",
+    "operations": "Ordinary Player keyboard operation observed by operator; phase labels supplied in this order."
+  }
+}

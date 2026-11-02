@@ -4,7 +4,9 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release105](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release105-demo)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release106](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release106-demo)
+
+**在中性两室切换远近景**　按 F3 进入两室，按 2 切到远景，按 1 返回近景。Release106 修复了聚合网格沿共边多拆两张表面卡的问题。两室共用连续的地板和顶棚后，远景聚合体可在原 192 张卡预算内完成发布，返回近景可恢复全部三个细节。[实际 Player 的远近切换](LocalComparison/Review/neutral-room-chart-fit-01/result.md)
 
 **步行穿过三室**　按 F3、F4，从右侧开口进入中室，向左对准中央门，再穿入源室。O 开关中央滑门，F4 恢复原两室。三室复用连续地板与红绿侧墙，在 192 张卡预算内完成了远近切换。[实际键盘路线、三室画面与发布状态](LocalComparison/Review/three-room-passage-01/result.md)
 
@@ -12,7 +14,7 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 只需最初四问的画面时，也可单独下载[原版离线附件（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)。
 
-本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release105](<I:/Unity test/Comparison/Builds/LocalRelease105Passage/Start-LocalRelease.cmd>)
+本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release106](<I:/Unity test/Comparison/Builds/LocalRelease106/Start-LocalRelease.cmd>)
 
 Release104 修复了冷启动只进入远场时，已加载的聚合体无法显示的问题。离线画册新增门框后地板的对照，两块发光面到该地板的直线都被实墙遮住。[远景发布条件与实测](LocalComparison/Review/cold-far-root-01/result.md) · [遮挡后的地板与原始 EXR](LocalComparison/Review/shaded-room-floor-01/result.md)
 
