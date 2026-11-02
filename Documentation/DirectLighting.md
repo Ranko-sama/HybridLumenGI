@@ -76,6 +76,8 @@ Replace  = 36 * fullWidth * fullHeight + 112 * giWidth * giHeight
 
 ## 尚未完成的合同与验收
 
+非三角的世界命中可以采用受光面的材质阴影策略。启用材质读取、只有一个材质槽及子网格的普通不透明 URP Lit MeshRenderer 使用材质的 `_RECEIVE_SHADOWS_OFF` 关键字。关闭接收实时阴影后，该面仍可受到被遮灯的直接照明并将其反射给其他表面。物体自身投射阴影仍由投射策略决定。手动代理材质及来源不唯一的多槽回退保留接收阴影，精确三角命中沿用其实际子网格材质。
+
 当前仍无软阴影／半影、shadowmask 与完整 Mixed Lighting、cookie／IES、完整 `receiveShadows` 材质／Renderer 语义、原生 hit-UV alpha-test 阴影或 SDF 三角 Cull。方向光阴影距离与场景驻留也会限制遮挡范围。以上缺口不能通过 layer mask 接线宣称已关闭；G0–G5 生产关卡保持开放。
 
 朋友应测试 shadow strength 0／0.5／1、Off 保留 GI 可见性、前方不投影而后方仍遮挡、TwoSided 只影响阴影、GameObject bit31、已定义 rendering bit31、空 mask 与功能禁用、独立 custom shadow layers 及之后直接覆盖原生 shadow mask、同帧激活旧灯／创建新灯，以及多相机之间的灯和对象层变更。保存独立 Lit 对照、线性 HDR 图像、Console／Player 日志及 profiler capture。CPU adapter、录制测试和 DXC 通过均不能代替这些引擎与实体 GPU 结果。

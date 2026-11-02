@@ -59,6 +59,8 @@ namespace HybridLumenGI
         [StructLayout(LayoutKind.Sequential)]
         public struct LightingPolicyData
         {
+            // The fourth word retains its public field name. Bit 0 disables received
+            // realtime shadows for an unambiguous single-slot Lit fallback.
             public uint objectLayerBit, renderingLayerMask, shadowCastingMode, reserved;
         }
 
@@ -613,7 +615,8 @@ namespace HybridLumenGI
             if (before.meshId != after.meshId || before.vertexCount != after.vertexCount || before.sdfId != after.sdfId ||
                 before.textureId != after.textureId || (int)old.centerShape.w != (int)proxy.ProxyShape) kind |= ChangeKind.Topology;
             Color diffuse = proxy.GetDiffuseReflectanceLinear(), emission = proxy.GetEmissionLinear();
-            if (old.albedo.x != diffuse.r || old.albedo.y != diffuse.g || old.albedo.z != diffuse.b ||
+            if (before.lighting.reserved != after.lighting.reserved ||
+                old.albedo.x != diffuse.r || old.albedo.y != diffuse.g || old.albedo.z != diffuse.b ||
                 old.emission.x != emission.r || old.emission.y != emission.g || old.emission.z != emission.b ||
                 old.extentsRoughness.w != proxy.Roughness) kind |= ChangeKind.Material;
             // MarkDirty also covers in-place vertex edits and unknown external dependencies.
@@ -629,7 +632,7 @@ namespace HybridLumenGI
                 objectLayerBit = 1u << layer,
                 renderingLayerMask = renderer != null ? renderer.renderingLayerMask : 1u,
                 shadowCastingMode = (uint)(renderer != null ? renderer.shadowCastingMode : ShadowCastingMode.On),
-                reserved = 0u
+                reserved = proxy.UniformShadowsOff ? 1u : 0u
             };
         }
 

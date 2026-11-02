@@ -47,6 +47,7 @@ namespace HybridLumenGI
         private Color lastAlbedo;
         private Color lastEmission;
         private float lastDiffuseFraction;
+        internal bool UniformShadowsOff { get; private set; }
         private Mesh lastMesh;
         private HybridLumenGIMeshSource.Version lastMeshSourceVersion;
         private int lastVertexCount;
@@ -173,7 +174,7 @@ namespace HybridLumenGI
             if (!isActiveAndEnabled) return false;
             if (Volatile.Read(ref validationPending)!=0)
             { MarkDirty(); return true; }
-            ReadMaterialInputs(true, out Color albedo, out Color emission, out float diffuseFraction);
+            ReadMaterialInputs(true, out Color albedo, out Color emission, out float diffuseFraction, out bool shadowsOff);
             Bounds bounds = GetWorldBounds();
             Mesh mesh = RefreshSourceMesh();
             int vertices = mesh != null ? mesh.vertexCount : 0;
@@ -186,7 +187,7 @@ namespace HybridLumenGI
             uint renderingLayers = sourceRenderer != null ? sourceRenderer.renderingLayerMask : 1u;
             ShadowCastingMode casting = sourceRenderer != null ? sourceRenderer.shadowCastingMode : ShadowCastingMode.On;
             if (SdfLocalToWorld != lastMatrix || bounds != lastBounds ||
-                !albedo.Equals(lastAlbedo) || !emission.Equals(lastEmission) || diffuseFraction != lastDiffuseFraction ||
+                !albedo.Equals(lastAlbedo) || !emission.Equals(lastEmission) || diffuseFraction != lastDiffuseFraction || shadowsOff != UniformShadowsOff ||
                 objectLayer != lastObjectLayer || renderingLayers != lastRenderingLayerMask || casting != lastShadowCastingMode ||
                 contentChanged || sourceNotified)
             {
@@ -214,7 +215,8 @@ namespace HybridLumenGI
         {
             lastMatrix = SdfLocalToWorld;
             lastBounds = GetWorldBounds();
-            ReadMaterialInputs(true, out lastAlbedo, out lastEmission, out lastDiffuseFraction);
+            ReadMaterialInputs(true, out lastAlbedo, out lastEmission, out lastDiffuseFraction, out bool shadowsOff);
+            UniformShadowsOff = shadowsOff;
             lastMesh = SourceMesh;
             lastMeshSourceVersion = HybridLumenGIMeshSource.GetVersion(lastMesh);
             lastVertexCount = lastMesh != null ? lastMesh.vertexCount : 0;
@@ -320,34 +322,38 @@ namespace HybridLumenGI
 
         public Color GetAlbedo()
         {
-            ReadMaterialInputs(false, out Color albedo, out _, out _);
+            ReadMaterialInputs(false, out Color albedo, out _, out _, out _);
             return albedo;
         }
 
         public Color GetEmission()
         {
-            ReadMaterialInputs(false, out _, out Color emission, out _);
+            ReadMaterialInputs(false, out _, out Color emission, out _, out _);
             return emission;
         }
 
         /// <summary>Linear uniform fallback. Texture detail requires a resolved surface or triangle hit.</summary>
         public Color GetDiffuseReflectanceLinear()
         {
-            ReadMaterialInputs(true, out Color tint, out _, out float fraction);
+            ReadMaterialInputs(true, out Color tint, out _, out float fraction, out _);
             return new Color(Mathf.Clamp01(tint.r) * fraction, Mathf.Clamp01(tint.g) * fraction,
                 Mathf.Clamp01(tint.b) * fraction, 1f);
         }
 
         public Color GetEmissionLinear()
         {
-            ReadMaterialInputs(true, out _, out Color emission, out _);
+            ReadMaterialInputs(true, out _, out Color emission, out _, out _);
             return emission;
         }
 
-        private MaterialPropertyBlock GetUniformBlock(Material material)
+        private MaterialPropertyBlock GetUniformBlock(Material material, out bool shadowsOff)
         {
-            if (!(sourceRenderer is MeshRenderer renderer) || !renderer.HasPropertyBlock() ||
-                material.shader == null || material.shader.name != "Universal Render Pipeline/Lit" || material.renderQueue > 2500)
+            shadowsOff = false;
+            if (!(sourceRenderer is MeshRenderer renderer)) return null;
+            bool hasBlock = renderer.HasPropertyBlock();
+            bool keywordOff = material.IsKeywordEnabled("_RECEIVE_SHADOWS_OFF");
+            if ((!hasBlock && !keywordOff) || material.shader == null ||
+                material.shader.name != "Universal Render Pipeline/Lit" || material.renderQueue > 2500)
                 return null;
             Mesh mesh = SourceMesh;
             if (mesh == null || mesh.subMeshCount != 1) return null;
@@ -356,23 +362,32 @@ namespace HybridLumenGI
             bool single = uniformSlots.Count == 1;
             uniformSlots.Clear();
             if (!single) return null;
-            uniformBlock ??= new MaterialPropertyBlock();
-            renderer.GetPropertyBlock(uniformBlock, 0);
-            if (uniformBlock.isEmpty) renderer.GetPropertyBlock(uniformBlock);
-            if (ReadFloat(material, uniformBlock, "_Surface", 0f) < 0.5f) return uniformBlock;
-            uniformBlock.Clear();
+            MaterialPropertyBlock block = null;
+            if (hasBlock)
+            {
+                block = uniformBlock ??= new MaterialPropertyBlock();
+                renderer.GetPropertyBlock(block, 0);
+                if (block.isEmpty) renderer.GetPropertyBlock(block);
+            }
+            if (ReadFloat(material, block, "_Surface", 0f) < 0.5f)
+            {
+                shadowsOff = keywordOff;
+                return block;
+            }
+            block?.Clear();
             return null;
         }
 
-        private void ReadMaterialInputs(bool linear, out Color albedo, out Color emission, out float diffuseFraction)
+        private void ReadMaterialInputs(bool linear, out Color albedo, out Color emission, out float diffuseFraction, out bool shadowsOff)
         {
             albedo = linear ? albedoTint.linear : albedoTint;
             emission = linear ? emissionOverride.linear : emissionOverride;
             diffuseFraction = 0.96f;
+            shadowsOff = false;
             Material material = readMaterialProperties && sourceRenderer != null ? sourceRenderer.sharedMaterial : null;
             if (material != null)
             {
-                var block = GetUniformBlock(material);
+                var block = GetUniformBlock(material, out shadowsOff);
                 string baseName = material.HasProperty("_BaseColor") ? "_BaseColor" : "_Color";
                 if (material.HasProperty(baseName))
                 {

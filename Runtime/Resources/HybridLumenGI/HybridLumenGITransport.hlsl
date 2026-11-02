@@ -442,7 +442,8 @@ float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFo
     HLGISurfaceSample surface;
     float3 diffuse=proxy.albedo.rgb,emission=proxy.emission.rgb;
     float3 shadingNormal=HLGIHitHas(hit.flags,HLGI_HIT_SHADING_NORMAL)?hit.shadingNormal:hit.rawNg;
-    float3 biasNormal=hit.rawNg;float ao=1;bool receivesShadows=true;
+    float3 biasNormal=hit.rawNg;float ao=1;
+    bool receivesShadows=(_HLGI_LightingPolicies[hit.ownerSlot].w&1u)==0;
     bool materialResolved=HLGITrySurfaceMaterialHit(hit,surface);
     if(HLGIHitHas(hit.flags,HLGI_HIT_TRIANGLE))
     {

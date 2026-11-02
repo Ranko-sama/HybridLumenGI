@@ -1,7 +1,7 @@
 #ifndef HLGI_LIGHTING_POLICY_INCLUDED
 #define HLGI_LIGHTING_POLICY_INCLUDED
 // Same slot/snapshot as _HLGI_Proxies. Integer fields retain all 32 mask bits.
-// x: GameObject layer bit; y: rendering layers; z: ShadowCastingMode; w: reserved.
+// x: GameObject layer bit; y: rendering layers; z: ShadowCastingMode; w bit 0: uniform Lit disables shadow receiving.
 StructuredBuffer<uint4> _HLGI_LightingPolicies;
 bool HLGILightAffectsReceiver(uint2 receiver,uint cullingMask,uint renderingLayers,bool useRenderingLayers)
 {
