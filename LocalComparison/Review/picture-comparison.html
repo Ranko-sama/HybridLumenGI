@@ -78,6 +78,11 @@
 </section>
 <section id="world">
   <h2>6. 看不见的表面能否影响眼前的地板？</h2>
+  <h3>材质关闭接收阴影后，次级受光面仍会变黑吗？</h3>
+  <p>白色单槽 Lit 面走无卡解析回退。保持点灯和遮板不动，只改同一材质的接收阴影关键字，沿同一光路读取受光点反射的线性漫射 RGB。</p>
+  <table><thead><tr><th>接收实时阴影</th><th>Release115</th><th>Release116</th><th>该点计算值</th></tr></thead><tbody>
+  <tr><td>开启</td><td>0</td><td>0</td><td>0</td></tr><tr><td>关闭</td><td>0</td><td>0.328887</td><td>0.328888</td></tr></tbody></table>
+  <p><small>三个通道读数相同。遮板在两次查询中都挡住灯到受光点的路径。这里测的是受光点的反射贡献，整景最终亮度没有单独测量。<a href="fallback-lit-shadow-receiving-01/baseline.json">旧版读回</a> · <a href="fallback-lit-shadow-receiving-01/candidate.json">修复后读回</a></small></p>
   <h3>旋转薄板的空角会挡光吗？</h3>
   <p>穿过同一世界包围盒的两条光线，一条撞上板身，一条穿过空角。Release114 将两条都判给近板。Release115 在板身处命中倾斜板面，空角光线继续到达后墙，两者的距离与法线均与 Unity 的碰撞查询相符。</p>
   <figure><img src="oriented-collider-box-01/comparison.svg" alt="具备 45 度旋转的薄板、世界包围盒及两条光路的实际命中位置示意"><figcaption>图按 GPU 读回位置绘制。两件对象均为只有 BoxCollider 的解析代理，取样未涉及 DXR 三角或相机像素亮度。<a href="oriented-collider-box-01/baseline.json">旧版命中</a> · <a href="oriented-collider-box-01/candidate.json">本版命中与独立碰撞查询</a></figcaption></figure>

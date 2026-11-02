@@ -213,7 +213,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release115。无 Renderer 的旋转 BoxCollider 已按实际板面参与解析求交。两条穿过同一包围盒的 GPU 射线分别命中板身与后墙，距离和法线与独立碰撞查询相符。普通 Windows 运行包从可编辑工程 ZIP 的独立解压目录构建，离线画册保留各版本的画面对照。**G0 本机基线已锁定，G1–G5 继续开放。** [旋转盒的适用范围](../LocalComparison/Review/oriented-collider-box-01/result.md) · [Release115](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release115-demo) · [工程重建步骤](UnifiedUnityProject.md)
+当前交付为 Release116。实际普通不透明 Lit 单槽材质关闭接收阴影后，无卡世界回退受光点可提供与独立计算相符的直接反射，开启时同一处被遮点光仍为黑。运行包同时保留旋转盒形代理的正确空角遮挡，普通三室 Player 从同版可编辑工程构建。**G0 本机基线已锁定，G1–G5 继续开放。** [世界回退受光面](../LocalComparison/Review/fallback-lit-shadow-receiving-01/result.md) · [旋转盒形代理](../LocalComparison/Review/oriented-collider-box-01/result.md) · [Release116](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release116-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

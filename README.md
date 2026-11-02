@@ -4,9 +4,11 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release115](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release115-demo)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release116](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release116-demo)
 
-**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release115 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release115-demo/HybridLumenGI-Release115-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release116 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release116-demo/HybridLumenGI-Release116-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+
+Release116 修复了单槽普通 Lit 材质关闭接收阴影后，世界回退仍把受光点压黑的问题。同一处被遮点光照到的表面，开启接收阴影得到黑色，关闭后每通道恢复到预期的 0.328887。[实际受光点与遮板查询](LocalComparison/Review/fallback-lit-shadow-receiving-01/result.md)
 
 Release115 修复了旋转的 BoxCollider 代理把外包围盒空角误当成实体的问题。同一姿态下，两条实际 GPU 光线分别命中近板与后墙，与独立碰撞查询一致。此项限没有 Renderer 的盒形代理。[俯视命中对照和适用范围](LocalComparison/Review/oriented-collider-box-01/result.md)
 
@@ -38,7 +40,7 @@ Release111 的离线画册也包含单盏 Mixed 主灯的 Shadowmask 对照。�
 
 Release107 画册包含方向贴图对照。转动接收面法线能改变暖、冷烘焙光斑。替换后与仅保留实时直射的独立画面相差最多 0.000488 个线性通道单位。[方向贴图四图与原始 EXR](LocalComparison/Review/directional-lightmap-01/result.md)
 
-本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。Release109 修复了静止斜面的成熟历史被错误压暗的问题，并保留 Release108 的滤波纹理复用。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release115](<I:/Unity test/Comparison/Builds/LocalRelease115/Start-LocalRelease.cmd>) · [静止斜面对照](LocalComparison/Review/stationary-tilted-normal-01/result.md) · [屏幕纹理账目](LocalComparison/Review/filter-work-texture-01/result.md)
+本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。Release109 修复了静止斜面的成熟历史被错误压暗的问题，并保留 Release108 的滤波纹理复用。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release116](<I:/Unity test/Comparison/Builds/LocalRelease116/Start-LocalRelease.cmd>) · [静止斜面对照](LocalComparison/Review/stationary-tilted-normal-01/result.md) · [屏幕纹理账目](LocalComparison/Review/filter-work-texture-01/result.md)
 
 Release104 修复了冷启动只进入远场时，已加载的聚合体无法显示的问题。离线画册新增门框后地板的对照，两块发光面到该地板的直线都被实墙遮住。[远景发布条件与实测](LocalComparison/Review/cold-far-root-01/result.md) · [遮挡后的地板与原始 EXR](LocalComparison/Review/shaded-room-floor-01/result.md)
 
