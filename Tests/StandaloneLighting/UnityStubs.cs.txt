@@ -25,7 +25,7 @@ namespace UnityEngine
         public LightmapBakeType lightmapBakeType; public LightType type=LightType.Point;
         public struct BakingOutput { public LightmapBakeType lightmapBakeType; }
         public BakingOutput bakingOutput=>new BakingOutput{lightmapBakeType=lightmapBakeType};
-        public float intensity=1,range=10,spotAngle=60,innerSpotAngle=30,shadowStrength=1,colorTemperature=6500;
+        public float intensity=1,bounceIntensity=1,range=10,spotAngle=60,innerSpotAngle=30,shadowStrength=1,colorTemperature=6500;
         public int cullingMask=-1; public uint renderingLayerMask=1;
         public LightShadows shadows=LightShadows.Hard; public Color color=Color.white;
         public Transform transform=new(); public object additional;

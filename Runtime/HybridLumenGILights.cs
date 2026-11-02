@@ -148,12 +148,17 @@ namespace HybridLumenGI
             if (light == null || !light.isActiveAndEnabled || GetBakeType(light) == LightmapBakeType.Baked ||
                 !Finite(light.intensity) || light.intensity <= 0 ||
                 (light.type != LightType.Directional && light.type != LightType.Point && light.type != LightType.Spot)) return false;
+            float bounceIntensity = light.bounceIntensity;
+            if (!Finite(bounceIntensity) || bounceIntensity <= 0f) return false;
             bool directional = light.type == LightType.Directional;
             Vector3 p = directional ? Vector3.zero : light.transform.position;
-            Vector3 dir = directional ? -light.transform.forward : light.transform.forward;
+            Vector3 dir = light.type == LightType.Point ? Vector3.zero : light.transform.forward;
+            if (directional) dir = -dir;
             Color color = (QualitySettings.activeColorSpace == ColorSpace.Linear ? light.color.linear : light.color) * light.intensity;
             if (GraphicsSettings.lightsUseColorTemperature && light.useColorTemperature)
                 color *= Mathf.CorrelatedColorTemperatureToRGB(light.colorTemperature);
+            // This table lights secondary hits. Apply the per-light indirect multiplier once at its source.
+            color *= bounceIntensity;
             // A black light contributes nothing but would occupy a slot and keep the analytic cache alive.
             if (color.r == 0f && color.g == 0f && color.b == 0f) return false;
             float range = directional ? 0 : light.range;

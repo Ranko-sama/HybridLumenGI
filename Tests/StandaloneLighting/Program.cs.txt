@@ -84,10 +84,19 @@ static class Program
         {
             light.type=type;light.intensity=1;light.range=10;light.isActiveAndEnabled=true;light.color=new(.5f,.25f,.75f);
             var d=Pack(light);Check(MathF.Abs(d.color.x-.21404114f)<1e-6,"linear light color");
+            light.bounceIntensity=2;
+            Check(Pack(light).color.x==2*d.color.x,"indirect multiplier scales the analytic source");
+            light.bounceIntensity=1;
             GraphicsSettings.lightsUseColorTemperature=true;light.useColorTemperature=true;
             Check(MathF.Abs(Pack(light).color.x-d.color.x*.9f)<1e-6,"temperature path");
             GraphicsSettings.lightsUseColorTemperature=false;light.useColorTemperature=false;
         }
+        var point=Point(0);var pointBefore=Pack(point);
+        point.transform.forward=new Vector3(1,0,0);
+        Check(pointBefore.Equals(Pack(point)),"rotating an isotropic point light must not invalidate lighting");
+        foreach(float invalid in new[]{0f,-1f,float.NaN,float.PositiveInfinity})
+        {light.bounceIntensity=invalid;Check(!L.TryPack(light,true,out _),"inactive or invalid bounce strength");}
+        light.bounceIntensity=1;
         foreach(float invalid in new[]{0f,-1f,float.NaN,float.PositiveInfinity}){light.intensity=invalid;Check(!L.TryPack(light,true,out _),"invalid intensity");}
         light.intensity=1;light.type=LightType.Area;Check(!L.TryPack(light,true,out _),"unsupported light");
         light.type=LightType.Point;light.lightmapBakeType=LightmapBakeType.Baked;Check(!L.TryPack(light,true,out _),"baked excluded");
@@ -134,11 +143,14 @@ static class Program
         foreach(var source in root.GetProperty("sources").EnumerateArray())
         {
             byte[] bytes=Convert.FromBase64String(source.GetProperty("packedBase64").GetString());Check(bytes.Length==80,"Saved packed record size");
-            var data=MemoryMarshal.Read<L.Data>(bytes);expected[i]=data;
+            var data=MemoryMarshal.Read<L.Data>(bytes);
             Check(data.positionType.w==1 && data.color.Equals(new Vector4(1,1,1,1)),"Expected fixed white point fixture");
             var light=new Light{type=LightType.Point,range=data.directionRange.w,intensity=1,color=Color.white,shadows=LightShadows.None,cullingMask=unchecked((int)data.cullingMask)};
             light.transform.position=new(data.positionType.x,data.positionType.y,data.positionType.z);light.transform.forward=new(data.directionRange.x,data.directionRange.y,data.directionRange.z);lights[i]=light;
-            Check(L.TryPack(light,false,out var packed) && packed.Equals(data),"Native record not reconstructed exactly by actual packer");
+            // Older captures stored each point light's unused transform direction.
+            data.directionRange=new Vector4(0,0,0,data.directionRange.w);
+            expected[i]=data;
+            Check(L.TryPack(light,false,out var packed) && packed.Equals(data),"Effective point-light record differs from the saved input");
             double distance=DistanceToBox(data,combined),scale=Math.Max(1,data.directionRange.w);
             for(int axis=0;axis<3;axis++)scale=Math.Max(scale,Math.Max(Math.Abs((double)light.transform.position[axis]),Math.Max(Math.Abs((double)combined.Minimum[axis]),Math.Abs((double)combined.Maximum[axis]))));
             if(i<2)Check(distance>data.directionRange.w+64*(1d/16777216)*scale,"Independent saved remote-light distance proof failed");
@@ -150,7 +162,7 @@ static class Program
         Check(count==1 && table[0].Equals(expected[2]),"Saved actual collector did not admit exact relevant record");
         Check(stats.ValidCandidates==3&&stats.OutsideDomain==2&&stats.Selected==1&&stats.CapacityOmitted==0,"Saved admission diagnostics mismatch");
         TraceTable("saved-native-input",table,count,hash,changes);
-        Console.WriteLine($"PASS saved native input: {checks} checks; {unions} sequential in-place traversal/capture unions; 22 extents; native packed records preserved; 3/2/1/0 admission.");
+        Console.WriteLine($"PASS saved native input: {checks} checks; {unions} sequential in-place traversal/capture unions; 22 extents; effective point-light records preserved; 3/2/1/0 admission.");
         Console.WriteLine("Input SHA256: "+Convert.ToHexString(SHA256.HashData(input)));
         Console.WriteLine($"Domain minimum=({combined.Minimum.x:R},{combined.Minimum.y:R},{combined.Minimum.z:R}); maximum=({combined.Maximum.x:R},{combined.Maximum.y:R},{combined.Maximum.z:R}). Actual-source replay only; no native Feature/GPU claim.");
     }
