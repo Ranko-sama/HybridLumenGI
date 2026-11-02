@@ -33,7 +33,7 @@ namespace HybridLumenGI
         private HybridLumenGISurfaceCharts loadedCharts;
         private RetireCompletion retirement;
         private string[] pageIds;
-        private bool wanted,manualWanted,manualMode,unavailable,bound,failed;
+        private bool wanted,manualWanted,manualPrefetch,manualMode,unavailable,bound,failed;
         public static IReadOnlyList<HybridLumenGIStreamedRepresentation> Active=>active;
         public uint Generation { get; private set; }
         public bool WantsUnload=>bound && (!wanted || unavailable);
@@ -49,7 +49,9 @@ namespace HybridLumenGI
             streamer=owner;proxy=source;meshFilter=filter;targetRenderer=renderer;
             geometryPage=mesh;sdfPage=sdf;chartPage=charts;materialPages=materials??Array.Empty<string>();localBounds=bounds;pageIds=null;
         }
-        public void SetWanted(bool value){manualMode=true;manualWanted=value;}
+        public void SetWanted(bool value)=>SetWanted(value,false);
+        internal void SetWanted(bool value,bool prefetchPages)
+        {manualMode=true;manualWanted=value;manualPrefetch=prefetchPages && !value;}
         public void UseDistanceRequests(){manualMode=false;}
         /// <summary>Copies additional viewpoints without changing manual-mode priority.
         /// Null/empty removes the additions, retaining the legacy observer/main-camera behavior.</summary>
@@ -105,9 +107,11 @@ namespace HybridLumenGI
                     }
                 }
             }
-            if(!wanted){if(!bound)RemoveRequests();return;}
-            if(!streamer.SetRequests(this,pageIds,priority)){Fail("A requested asset page is absent from the manifest.");return;}
-            if(bound)return;
+            bool prefetchOnly=manualMode && manualPrefetch && !wanted && !bound;
+            if(!wanted && !prefetchOnly){if(!bound)RemoveRequests();return;}
+            if(!streamer.SetRequests(this,pageIds,prefetchOnly?int.MinValue:priority)){Fail("A requested asset page is absent from the manifest.");return;}
+            // Speculative demand may load pages. Only current demand acquires leases and binds the renderer.
+            if(prefetchOnly || bound)return;
             pageState=streamer.State;
             // Acquire only when the entire group is ready. No partial renderer is ever visible.
             foreach(string id in pageIds)if(pageState.GetState(id)?.Status!=HybridLumenGIAssetPageStreaming.Phase.Ready)return;

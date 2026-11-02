@@ -17,6 +17,8 @@ namespace HybridLumenGI
         [SerializeField] private HybridLumenGIStreamedRepresentation[] details = Array.Empty<HybridLumenGIStreamedRepresentation>();
         [SerializeField] private Bounds groupBounds;
         [SerializeField] private float nearDistance, farDistance;
+        [SerializeField, Min(0f), Tooltip("How far ahead in seconds to request approaching aggregate pages. Zero disables prefetch.")]
+        private float aggregatePrefetchSeconds = 1f;
         [SerializeField] private Vector3 nearPosition, farPosition, outsidePosition;
         [SerializeField] private Quaternion nearRotation, farRotation, outsideRotation;
         [SerializeField] private bool showControls = true;
@@ -30,7 +32,9 @@ namespace HybridLumenGI
         private string status = "cold: waiting for complete page bindings and GI publication";
         private int lastReceiptEngine = -1, lastReceiptWork = -1;
         private bool subscribed, detailsWanted, singleCameraSupported = true;
-        private bool residentWanted;
+        private bool residentWanted, prefetchingAggregatePages;
+        private Vector3 previousCameraPosition;
+        private double previousCameraTime;
         private int requestEngineFrame = -1;
         private double nextOverlay;
         private string overlay;
@@ -92,7 +96,7 @@ namespace HybridLumenGI
                 ? requestedTarget.ToString("R", CultureInfo.InvariantCulture) : "";
             gpuTargetControlName = "HLGI GPU target " + GetInstanceID();
             gpuTargetFocused = false; gpuInputMessage = null; nextOverlay = 0;
-            requestEngineFrame = -1; residentWanted = false;
+            requestEngineFrame = -1; residentWanted = false; prefetchingAggregatePages = false; previousCameraTime = -1;
             HybridLumenGIResourceRetirement.Register(RequiresVisible);
             RenderPipelineManager.beginCameraRendering += BeforeCamera;
             RenderPipelineManager.endCameraRendering += AfterCamera;
@@ -120,12 +124,26 @@ namespace HybridLumenGI
         private void Update()
         {
             if (!subscribed || !KeepRunning()) return;
-            float distance = Mathf.Sqrt(groupBounds.SqrDistance(targetCamera.transform.position));
-            residentWanted = distance <= farDistance + 5f;
+            Vector3 position = targetCamera.transform.position;
+            float distance = Mathf.Sqrt(groupBounds.SqrDistance(position));
+            float loadDistance = farDistance + 5f;
+            residentWanted = distance <= loadDistance;
+            double now = Time.unscaledTimeAsDouble;
+            Vector3 travel = position - previousCameraPosition;
+            prefetchingAggregatePages = false;
+            if (!residentWanted && !aggregate.HasBoundAssets && aggregatePrefetchSeconds > 0f &&
+                previousCameraTime >= 0 && now > previousCameraTime && travel.sqrMagnitude > 0 &&
+                travel.sqrMagnitude <= farDistance * farDistance)
+            {
+                Vector3 lead = travel * (aggregatePrefetchSeconds / (float)(now - previousCameraTime));
+                Vector3 predicted = position + Vector3.ClampMagnitude(lead, farDistance);
+                prefetchingAggregatePages = groupBounds.SqrDistance(predicted) <= loadDistance * loadDistance;
+            }
+            previousCameraPosition = position; previousCameraTime = now;
             if (!residentWanted) detailsWanted = false;
             else if (distance < nearDistance * 1.2f) detailsWanted = true;
             else if (distance > nearDistance * 1.4f) detailsWanted = false;
-            aggregate.SetWanted(residentWanted);
+            aggregate.SetWanted(residentWanted, prefetchingAggregatePages);
             foreach (var item in details) item.SetWanted(residentWanted && detailsWanted);
             requestEngineFrame = Time.frameCount;
         }
@@ -184,9 +202,14 @@ namespace HybridLumenGI
                     item.SourceRenderer.forceRenderingOff = !item.HasBoundAssets || !visible.Contains(item.Proxy);
         }
         public void SetHardwarePreference(bool value) => feature.SetPreferHardwareTracing(value);
-        public void GoNear() => targetCamera.transform.SetPositionAndRotation(nearPosition, nearRotation);
-        public void GoFar() => targetCamera.transform.SetPositionAndRotation(farPosition, farRotation);
-        public void Leave() => targetCamera.transform.SetPositionAndRotation(outsidePosition, outsideRotation);
+        private void GoTo(Vector3 position, Quaternion rotation)
+        {
+            previousCameraTime = -1;
+            targetCamera.transform.SetPositionAndRotation(position, rotation);
+        }
+        public void GoNear() => GoTo(nearPosition, nearRotation);
+        public void GoFar() => GoTo(farPosition, farRotation);
+        public void Leave() => GoTo(outsidePosition, outsideRotation);
 
         [Serializable] public sealed class Ledger
         {
@@ -196,6 +219,7 @@ namespace HybridLumenGI
             // renderer flags of the retained publication-based visible set.
             public string representationScope = "Sample request and renderer-submittable group; not pixel coverage or GPU completion.";
             public string requestedRepresentation, availableRepresentation, representationStatus;
+            public bool aggregatePagePrefetch;
             public int requestEngineFrame;
             public Vector3 cameraPosition;
             public int engineFrame, publicationEngineFrame, publicationWorkFrame, visibleMembers, boundMembers;
@@ -266,6 +290,7 @@ namespace HybridLumenGI
             result.requestEngineFrame = requestEngineFrame;
             result.requestedRepresentation = !subscribed || !isActiveAndEnabled ? "none" :
                 requestEngineFrame < 0 ? "not evaluated" : residentWanted ? (detailsWanted ? "details" : "aggregate") : "none";
+            result.aggregatePagePrefetch = prefetchingAggregatePages;
             result.availableRepresentation = "unknown";
             if (HasInputs() && singleCameraSupported)
             {
