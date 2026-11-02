@@ -100,6 +100,8 @@ When this camera's **currently uploaded analytic-light table is empty** (`_HLGI_
 
 The [four-frame light-off comparison](../LocalComparison/Review/cache-source-separation-01/result.md) shows reduced subsequent image change while retaining visible emissive bounce on receiving surfaces. It does not establish physical color error, a universal convergence time or performance. Screen-history handling and local material/light changes keep their existing contracts; this cache change does not promise immediate removal of every screen-history residual.
 
+For analytic light admission, an effective RGB of exactly `(0, 0, 0)` consumes no slot. This applies after color-space conversion, intensity and optional color temperature. Setting the last contributing light to black therefore permits the same empty-table cache handling as disabling it. Dim nonzero lights remain eligible.
+
 ## Required validation
 
 Use `Tests/Validate-Offline.ps1` and its source-hashed report for the exact checks and outcomes of the current candidate. Relevant suites exercise chart partitioning, capture-mesh/source identity, variable residency, source/readiness guards, scheduling/readback and selected shader entries. CPU adapters and numerical or standalone DXC checks do not validate Unity API compatibility, ShaderLab state, native material/MPB binding, raster output, compute hazards, GPU readback ordering or driver behavior. Do not carry a previous six-card build's test totals forward as evidence for this layout.

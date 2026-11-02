@@ -154,6 +154,8 @@ namespace HybridLumenGI
             Color color = (QualitySettings.activeColorSpace == ColorSpace.Linear ? light.color.linear : light.color) * light.intensity;
             if (GraphicsSettings.lightsUseColorTemperature && light.useColorTemperature)
                 color *= Mathf.CorrelatedColorTemperatureToRGB(light.colorTemperature);
+            // A black light contributes nothing but would occupy a slot and keep the analytic cache alive.
+            if (color.r == 0f && color.g == 0f && color.b == 0f) return false;
             float range = directional ? 0 : light.range;
             if (!Finite(p.x) || !Finite(p.y) || !Finite(p.z) || !Finite(dir.x) || !Finite(dir.y) || !Finite(dir.z) ||
                 !Finite(color.r) || !Finite(color.g) || !Finite(color.b) || !Finite(range) || (!directional && range <= 0)) return false;
