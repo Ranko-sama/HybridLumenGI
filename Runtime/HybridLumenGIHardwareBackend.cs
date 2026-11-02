@@ -622,8 +622,11 @@ namespace HybridLumenGI
         }
 
         /// <summary>Record before the first hardware dispatch, on the graphics queue.</summary>
-        public bool RecordBuild(CommandBuffer command)
+        public bool RecordBuild(CommandBuffer command) => RecordBuild(command,out _);
+
+        internal bool RecordBuild(CommandBuffer command,out bool deferredByQuota)
         {
+            deferredByQuota=false;
             if (!IsReady) return false;
             try
             {
@@ -632,10 +635,18 @@ namespace HybridLumenGI
                     // Charge every dirty build/refit, not only changes in GetSize. Use all
                     // prepared triangles/instances conservatively for Unity's opaque build work.
                     if(!HybridLumenGIRtasBudget.TryReserve(TriangleCount,InstanceCount,reservation,out var admitted,out string memoryReason))
-                    {BudgetStatus=memoryReason;return false;}
+                    {
+                        BudgetStatus=memoryReason;
+                        deferredByQuota=reservation!=null && !reservation.IsRetired;
+                        return false;
+                    }
                     reservation=admitted;
                     if(!HybridLumenGIRtasBudget.TryConsumeBuild(budgetOwner,preparedRtasFrame,TriangleCount,InstanceCount,out string reason))
-                    {BudgetStatus=reason;return false;}
+                    {
+                        BudgetStatus=reason;
+                        deferredByQuota=preparedRtasFrame==HybridLumenGIRtasBudget.Frame;
+                        return false;
+                    }
                     command.BuildRayTracingAccelerationStructure(acceleration);
                     buildPending = false;
                     if(!HybridLumenGIRtasBudget.Observe(reservation,acceleration.GetSize()))

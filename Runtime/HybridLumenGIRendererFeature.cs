@@ -416,6 +416,11 @@ namespace HybridLumenGI
             }
             internal void InvalidateScreenHistory()
             { valid=false;historyLifecycle.Invalidate();receiverHistory.Invalidate(); }
+            internal void InvalidateWorldHistory()
+            {
+                epoch=epoch%8000000+1;
+                scene.InvalidateReadiness();readiness.Invalidate();
+            }
             internal void InvalidateFailedRender()
             { uploadedSoftwareVersion=0;globalSdf.InvalidateAll();surfaceCache.InvalidateRecordedCapture();InvalidateScreenHistory();InvalidateGpuFeedback(); }
             internal void PrepareHistoryTarget(RenderTexture target)
@@ -661,6 +666,9 @@ namespace HybridLumenGI
                 internal ComputeShader compute;
                 internal HybridLumenGIHitMaterialPass hitMaterials;
                 internal HybridLumenGIHardwareBackend geometry;
+                internal bool ExactSoftware => geometry!=null && !hardware;
+                internal bool sourceUncertain;
+                internal HybridLumenGIValidationCapture.Ticket validationTicket;
                 internal ulong geometryVersion;
                 internal HybridLumenGISoftwareTriangleBvh.Layout softwareLayout;
                 internal BufferHandle softwareNodes,softwareLeaves;
@@ -876,14 +884,6 @@ namespace HybridLumenGI
                     Math.Max(1024,(Math.Max(1L,s.softwareGeometryBudgetMiB)*1024*1024-4096)/512));
                 bool softwareExact=!hardware && s.exactSoftwareTracing && exactSoftware!=null &&
                     state.PrepareSoftwareAttributes(softwareTriangles,Math.Max(1L,s.softwareGeometryBudgetMiB)*1024*1024);
-                if(hardware!=state.lastHardware)
-                {
-                    // Preparation already consumed this frame's bounded quotas. Reject its
-                    // timing and restore static quotas next frame; do not rerun preparation.
-                    state.InvalidateGpuFeedback();
-                    state.InvalidateScreenHistory();state.epoch=state.epoch%8000000+1;state.lastHardware=hardware;
-                    state.scene.InvalidateReadiness();state.readiness.Invalidate();
-                }
                 // Freeze the observer with this graph's camera matrices. In view
                 // space +Z points toward the viewer; orthographic rays share it.
                 Vector4 materialView=view.inverse.GetColumn(camera.orthographic?2:3);
@@ -1035,6 +1035,8 @@ namespace HybridLumenGI
                 // is not portable merely because a runtime count happens to be zero.
                 work.areaEmitters=graph.CreateBuffer(new BufferDesc(Math.Max(1,work.areaLayout?.Count??0),HybridLumenGIAreaEmission.Stride)
                     {name="HLGI exact area emitters"});
+                HybridLumenGIValidationCapture.TryClaim(camera,validationOwner,Time.frameCount,work.frame,work.epoch,
+                    cameraData.cameraTargetDescriptor,resources.isActiveTargetBackBuffer,camera.stereoEnabled,out work.validationTicket);
                 using(var builder=graph.AddUnsafePass<Work>("HLGI Cache, trace and denoise",out var data))
                 {
                     Copy(work,data);
@@ -1064,9 +1066,8 @@ namespace HybridLumenGI
                     builder.SetRenderFunc(static(Work d,UnsafeGraphContext ctx)=>d.owner.Execute(d,CommandBufferHelpers.GetNativeCommandBuffer(ctx.cmd)));
                 }
                 TextureHandle filtered=filterIterations==0?work.historyWrite:(filterIterations%2==1?work.tempA:work.tempB);
-                HybridLumenGIValidationCapture.Ticket validationTicket=null;
-                if(HybridLumenGIValidationCapture.TryClaim(camera,validationOwner,Time.frameCount,work.frame,work.epoch,
-                    cameraData.cameraTargetDescriptor,resources.isActiveTargetBackBuffer,camera.stereoEnabled,out validationTicket))
+                var validationTicket=work.validationTicket;
+                if(validationTicket!=null)
                 {
                     validationTicket.SetCamera(HybridLumenGIValidationSourceState.CameraDescriptor.FromMatrices(
                         view,GL.GetGPUProjectionMatrix(cameraData.GetProjectionMatrix(),true),jitter,fullW,fullH));
@@ -1165,6 +1166,7 @@ namespace HybridLumenGI
             private static void Copy(Work a,Work b)
             {
                 b.hitMaterials=a.hitMaterials;
+                b.sourceUncertain=a.sourceUncertain;b.validationTicket=a.validationTicket;
                 b.backendRequest=a.backendRequest;b.hardwarePreference=a.hardwarePreference;
                 b.geometry=a.geometry;b.softwareLayout=a.softwareLayout;b.softwareNodes=a.softwareNodes;b.softwareLeaves=a.softwareLeaves;
                 b.geometryVersion=a.geometryVersion;
@@ -1181,26 +1183,33 @@ namespace HybridLumenGI
             }
             private void Execute(Work d,CommandBuffer cmd)
             {
+                var state=d.state;
+                bool current=state.scenePreparedEngineFrame==d.historyToken.EngineFrame && state.scenePreparedWorkFrame==d.frame;
                 d.frameTiming.Begin(HybridLumenGIGpuFrameTiming.Phase.Transport,cmd);
                 try
                 {
-                    ExecuteTransport(d,cmd);
-                }
-                catch { d.state.InvalidateFailedRender();throw; }
-                finally
-                {
-                    try
+                    try { ExecuteTransport(d,cmd,current); }
+                    finally
                     {
-                        if(d.hitMaterials!=null)
+                        try
                         {
-                            if(!d.hitMaterials.Finish(cmd,out string reason))d.state.hardwareMaterialStatus=reason;
-                            materialPasses.Remove(d.hitMaterials);
+                            if(d.hitMaterials!=null)
+                            {
+                                if(!d.hitMaterials.Finish(cmd,out string reason))state.hardwareMaterialStatus=reason;
+                                materialPasses.Remove(d.hitMaterials);
+                            }
                         }
+                        finally { d.frameTiming.End(HybridLumenGIGpuFrameTiming.Phase.Transport,cmd); }
                     }
-                    finally { d.frameTiming.End(HybridLumenGIGpuFrameTiming.Phase.Transport,cmd); }
                 }
-                var state = d.state;
-                state.recordedTransportBackend = d.hardware ? "DXR" : d.geometry != null ? "exact software" : "SDF/analytic software";
+                catch
+                {
+                    if(current){state.InvalidateFailedRender();state.InvalidateWorldHistory();}
+                    throw;
+                }
+                if(!current)return;
+                state.lastHardware=d.hardware;state.exactSoftwareGeometry=d.ExactSoftware;
+                state.recordedTransportBackend = d.hardware ? "DXR" : d.ExactSoftware ? "exact software" : "SDF/analytic software";
                 state.transportRecordedEngineFrame = d.historyToken.EngineFrame;
                 state.transportRecordedWorkFrame = d.frame;
                 state.recordedBackendRequest = d.backendRequest;
@@ -1210,11 +1219,12 @@ namespace HybridLumenGI
             {
                 var state=d.state;
                 state.hardwareMaterialFrameBytes=0;state.hardwareMaterialUnknownRecords=0;
-                state.softwareGeometryBytes=state.areaEmitterBytes=0;state.exactSoftwareGeometry=false;
+                state.softwareGeometryBytes=state.areaEmitterBytes=0;
                 state.hardwareMaterialStatus=d.geometry!=null?"Preparing immutable hit materials":"SDF/analytic software tracing";
                 if(d.geometry==null){state.areaEmissionCache.Clear();return;}
-                if(!d.geometry.TryCaptureHitMaterialSources(state.scene,out var sources,out string reason) ||
-                    !HybridLumenGIHitMaterialPass.TryCreate(graph,sources,Math.Max(1L,s.hardwareMaterialBudgetMiB)*1024*1024,
+                if(!d.geometry.TryCaptureHitMaterialSources(state.scene,out var sources,out string reason))
+                { FallBackToSoftware(d,reason,sourceUncertain:true);return; }
+                if(!HybridLumenGIHitMaterialPass.TryCreate(graph,sources,Math.Max(1L,s.hardwareMaterialBudgetMiB)*1024*1024,
                         out d.hitMaterials,out reason))
                 { FallBackToSoftware(d,reason);return; }
                 materialPasses.Add(d.hitMaterials);
@@ -1231,17 +1241,15 @@ namespace HybridLumenGI
                 state.hardwareMaterialFrameBytes=d.hitMaterials.ByteCount;
                 state.hardwareMaterialStatus="Prepared; GPU upload not yet recorded";
             }
-            private void FallBackToSoftware(Work d,string reason)
+            private void FallBackToSoftware(Work d,string reason,bool sourceUncertain=false)
             {
                 var state=d.state;
                 state.areaEmissionCache.Clear();
                 state.hardwareMaterialStatus=string.IsNullOrEmpty(reason)?"Hardware preparation failed; software tracing":reason;
-                state.InvalidateGpuFeedback();d.frameTiming.Invalidate();
-                d.compute=software;d.hardware=false;d.geometry=null;d.softwareLayout=null;d.valid=false;state.InvalidateScreenHistory();
-                state.epoch=state.epoch%8000000+1;d.epoch=state.epoch;state.lastHardware=false;
-                state.scene.InvalidateReadiness();state.readiness.Invalidate();
+                d.compute=software;d.hardware=false;d.geometry=null;d.softwareLayout=null;
+                d.sourceUncertain=sourceUncertain;
             }
-            private void ExecuteTransport(Work d,CommandBuffer cmd)
+            private void ExecuteTransport(Work d,CommandBuffer cmd,bool current)
             {
                 var c=d.compute; var state=d.state;
                 HybridLumenGIRayTexturePool.BeginFrame(Time.frameCount,Math.Max(1L,s.materialTextureUploadMiBPerFrame)*1024*1024);
@@ -1272,12 +1280,12 @@ namespace HybridLumenGI
                     bool materialsCurrent=d.hitMaterials!=null && d.geometry.GeometryVersion==d.geometryVersion &&
                         d.geometry.TryCaptureHitMaterialSources(state.scene,out var currentSources,out reason) &&
                         d.hitMaterials.MatchesSources(currentSources);
-                    if(!materialsCurrent)FallBackToSoftware(d,reason??"Hardware geometry or material sources changed before recording");
-                    else if(!d.geometry.RecordBuild(cmd))FallBackToSoftware(d,"Exact geometry recording deferred or failed: "+d.geometry.BudgetStatus);
+                    if(!materialsCurrent)FallBackToSoftware(d,reason??"Hardware geometry or material sources changed before recording",sourceUncertain:true);
+                    else if(!d.geometry.RecordBuild(cmd,out bool deferred))FallBackToSoftware(d,"Exact geometry recording deferred or failed: "+d.geometry.BudgetStatus,sourceUncertain:!deferred);
                     else
                     {
                         int hardwareUpdate=c.FindKernel("CSUpdateCache"),hardwareTrace=c.FindKernel("CSTrace");
-                        if(!d.hitMaterials.RecordAndBind(cmd,c,hardwareUpdate,hardwareTrace,out reason))FallBackToSoftware(d,reason);
+                        if(!d.hitMaterials.RecordAndBind(cmd,c,hardwareUpdate,hardwareTrace,out reason))FallBackToSoftware(d,reason,sourceUncertain:true);
                         else
                         {
                             state.hardwareMaterialUnknownRecords=d.hitMaterials.UnknownRecords;
@@ -1286,10 +1294,25 @@ namespace HybridLumenGI
                     }
                     c=d.compute;
                 }
+                // Compare the representation that will actually trace against the last successful
+                // recording. A rejected material allocation can select the same fallback every frame.
+                if(!current)
+                {
+                    d.valid=false;d.epoch=0; // Superseded work cannot publish cache entries in the active epoch.
+                }
+                else if(d.sourceUncertain || state.lastHardware!=d.hardware || state.exactSoftwareGeometry!=d.ExactSoftware)
+                {
+                    d.valid=false;
+                    // A normal switch can publish this frame's fresh output. A source that
+                    // changed before recording also revokes the current receiver/history receipt.
+                    if(d.sourceUncertain)state.InvalidateScreenHistory();
+                    state.InvalidateWorldHistory();d.epoch=state.epoch;
+                    state.InvalidateGpuFeedback();d.frameTiming.Invalidate();
+                }
+                if(d.validationTicket!=null && !d.validationTicket.IsComplete)d.validationTicket.receipt.epoch=d.epoch;
                 int update=c.FindKernel("CSUpdateCache"),trace=c.FindKernel("CSTrace"),
                     temporal=c.FindKernel(d.useIdentity?"CSTemporalIdentity":"CSTemporal"),filter=c.FindKernel("CSFilter");
-                state.exactSoftwareGeometry=d.geometry!=null && !d.hardware;
-                if(state.exactSoftwareGeometry)
+                if(d.ExactSoftware)
                 {
                     state.RecordSoftwareGeometry(cmd,d.geometryVersion,d.softwareLayout,d.softwareNodes,d.softwareLeaves);
                     cmd.SetComputeIntParam(c,"_HLGI_SoftwareBvhNodeCount",d.softwareLayout.NodeCount);
@@ -1346,7 +1369,7 @@ namespace HybridLumenGI
                     cmd.SetComputeBufferParam(c,k,"_HLGI_AreaEmitters",(GraphicsBuffer)d.areaEmitters);
                     state.globalSdf.Bind(cmd,c,k);
                     if(d.geometry!=null)d.geometry.Bind(cmd,c,k);
-                    if(state.exactSoftwareGeometry)
+                    if(d.ExactSoftware)
                     {
                         cmd.SetComputeBufferParam(c,k,"_HLGI_SoftwareTriangleNodes",(GraphicsBuffer)d.softwareNodes);
                         cmd.SetComputeBufferParam(c,k,"_HLGI_SoftwareTriangleLeaves",(GraphicsBuffer)d.softwareLeaves);
@@ -1389,7 +1412,7 @@ namespace HybridLumenGI
                         SetTexture(cmd,c,filter,"_HLGI_Output",i%2==0?d.tempA:d.tempB);cmd.SetComputeIntParam(c,"_HLGI_FilterStep",1<<i);Dispatch(cmd,c,filter,state);
                     }
                 }
-                state.readiness.Record(cmd,state.scene,state.sdf,state.surfaceCache,state.cache[1-d.cacheRead],state.patchGrid,d.epoch,d.frame);
+                if(current)state.readiness.Record(cmd,state.scene,state.sdf,state.surfaceCache,state.cache[1-d.cacheRead],state.patchGrid,d.epoch,d.frame);
             }
             private static void SetTexture(CommandBuffer cmd,ComputeShader c,int kernel,string name,TextureHandle handle)
             { RTHandle rt=handle;cmd.SetComputeTextureParam(c,kernel,name,rt.nameID); }
