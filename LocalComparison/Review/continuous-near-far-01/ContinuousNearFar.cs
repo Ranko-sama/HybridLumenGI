@@ -14,6 +14,7 @@ public sealed class ContinuousNearFar : MonoBehaviour
     const int RoundTrips = 10, ReadyFrames = 16, MaxCallbacks = 4096;
     const double Speed = 20, WarmLimit = 30, SettleLimit = 30;
     const string ExpectedScene = "Assets/UnifiedRelease74/Generated/Variant/UnifiedSample.unity";
+    const string ColdScene = "Assets/UnifiedRelease74/Generated/Variant/ConnectedRooms.unity";
     const BindingFlags Fields = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
     HybridLumenGIUnifiedSample sample;
     HybridLumenGIRendererFeature feature;
@@ -25,8 +26,8 @@ public sealed class ContinuousNearFar : MonoBehaviour
     readonly List<HybridLumenGIProxy> published = new List<HybridLumenGIProxy>();
     readonly List<HybridLumenGIProxy> target = new List<HybridLumenGIProxy>();
     readonly List<Frame> records = new List<Frame>();
-    Vector3 nearPosition, farPosition;
-    Quaternion nearRotation, farRotation;
+    Vector3 nearPosition, farPosition, outsidePosition;
+    Quaternion nearRotation, farRotation, outsideRotation;
     Bounds groupBounds;
     Matrix4x4 projection;
     double startTime, motionStart, settleStart, distance, duration, pathSeconds;
@@ -35,6 +36,9 @@ public sealed class ContinuousNearFar : MonoBehaviour
     int[] previousTarget, previousPublished;
     string directory, settingsJson, failure, phase = "warmup";
     bool initialized, subscribed, startMoving, finishing, finished, motionIoObserved;
+    bool coldCrossing, nearRendered, outsideReleased;
+    int requestedFrames, requestedWithoutRepresentation;
+    double turnTime;
     Frame pending;
     HybridLumenGIUnifiedSample.Ledger startLedger, endLedger;
 
@@ -74,6 +78,10 @@ public sealed class ContinuousNearFar : MonoBehaviour
         public float farDistance;
         public int beginCallbacks, endCallbacks, targetChanges, publicationChanges;
         public bool actualMotionIoObserved, returnedNear, completeNearRecovered;
+        public bool coldCrossing, nearTurnRendered, outsideReleased;
+        public int requestedFrames, requestedWithoutRepresentation;
+        public Vector3 outsidePosition;
+        public Quaternion outsideRotation;
         public HybridLumenGIUnifiedSample.Ledger start, end;
         public Frame[] frames;
     }
@@ -95,6 +103,7 @@ public sealed class ContinuousNearFar : MonoBehaviour
         var host = new GameObject("Continuous near/far observer").AddComponent<ContinuousNearFar>();
         DontDestroyOnLoad(host.gameObject);
         host.directory = index + 1 < args.Length ? args[index + 1] : null;
+        host.coldCrossing = Array.IndexOf(args, "-coldCrossing") >= 0;
         Application.runInBackground = true;
         try
         {
@@ -102,6 +111,8 @@ public sealed class ContinuousNearFar : MonoBehaviour
             Require(samples.Length == 1, "Exactly one existing UnifiedSample is required.");
             host.sample = samples[0];
             host.inputs = UnityEngine.Object.FindObjectsByType<HybridLumenGIUnifiedSampleInteraction>(FindObjectsSortMode.None);
+            if (host.coldCrossing) Require(host.inputs.Length == 1 && host.inputs[0].HasConnectedRooms && !host.inputs[0].RoomsEnabled,
+                "The cold route requires the saved connected rooms sample with F3 off.");
             // Before Start: do not initialize the ordinary deformation/input producer.
             foreach (var input in host.inputs) input.enabled = false;
             host.sample.ShowControls = false;
@@ -117,7 +128,7 @@ public sealed class ContinuousNearFar : MonoBehaviour
                 "An existing absolute -continuousNearFarOutput directory is required.");
             Require(!File.Exists(Path.Combine(directory, "run.json")), "Refusing to overwrite run.json.");
             if (failure != null) return;
-            Require(sample && sample.isActiveAndEnabled && sample.gameObject.scene.path == ExpectedScene, "Expected active saved sample required.");
+            Require(sample && sample.isActiveAndEnabled && sample.gameObject.scene.path == (coldCrossing ? ColdScene : ExpectedScene), "Expected active saved sample required.");
             targetCamera = Field<Camera>(sample, "targetCamera");
             feature = Field<HybridLumenGIRendererFeature>(sample, "feature");
             streamer = Field<HybridLumenGIAssetPageStreamer>(sample, "streamer");
@@ -138,6 +149,16 @@ public sealed class ContinuousNearFar : MonoBehaviour
             Require(Finite(distance) && distance > 0 && Finite(farDistance) && farDistance > 0 &&
                 groupBounds.SqrDistance(nearPosition) <= farDistance * farDistance && groupBounds.SqrDistance(farPosition) <= farDistance * farDistance,
                 "Finite distinct Near/Far endpoints must stay inside the existing resident domain.");
+            if (coldCrossing)
+            {
+                outsidePosition = Field<Vector3>(sample, "outsidePosition"); outsideRotation = Field<Quaternion>(sample, "outsideRotation");
+                distance = Vector3.Distance(outsidePosition, nearPosition);
+                duration = 2 * distance / Speed;
+                Require(Finite(distance) && distance > 0 && groupBounds.SqrDistance(outsidePosition) > (farDistance + 5) * (farDistance + 5),
+                    "Authored Outside must be beyond the sample page request distance.");
+                foreach (var other in Camera.allCameras)
+                    Require(other == targetCamera || other.cameraType != CameraType.Game, "Cold route requires one enabled Game camera.");
+            }
             settings = Field<HybridLumenGIRendererFeature.Settings>(feature, "settings");
             Require(settings != null && settings.preferHardwareTracing && settings.raysPerPixel == 2 && settings.resolutionScale == .5f &&
                 !settings.measureGpuCost && !settings.adaptiveGpuBudget, "Expected 2-ray half-resolution DXR preference with measurement/feedback off.");
@@ -149,7 +170,7 @@ public sealed class ContinuousNearFar : MonoBehaviour
             Require(Screen.width == 960 && Screen.height == 540 && targetCamera.pixelWidth == 960 && targetCamera.pixelHeight == 540,
                 "Launch at 960x540; observer does not resize.");
             projection = targetCamera.projectionMatrix;
-            targetCamera.transform.SetPositionAndRotation(nearPosition, nearRotation);
+            if (coldCrossing) sample.Leave(); else targetCamera.transform.SetPositionAndRotation(nearPosition, nearRotation);
             startTime = Time.realtimeSinceStartupAsDouble;
             // Start follows scene OnEnable, so sample.BeforeCamera/AfterCamera run before these observations.
             RenderPipelineManager.beginCameraRendering += Began;
@@ -168,9 +189,10 @@ public sealed class ContinuousNearFar : MonoBehaviour
         {
             double now = Time.realtimeSinceStartupAsDouble;
             if (startMoving) { startMoving = false; phase = "moving"; motionStart = now; }
-            if (phase == "warmup") Require(now - startTime <= WarmLimit, "Initial complete Near readiness exceeded 30 seconds.");
+            if (phase == "warmup") Require(now - startTime <= WarmLimit, "Initial endpoint exceeded 30 seconds.");
             else if (phase == "moving")
             {
+                if (coldCrossing) { MoveCold(now); return; }
                 pathSeconds = Math.Min(now - motionStart, duration);
                 double travel = pathSeconds * Speed / distance;
                 leg = Math.Min(2 * RoundTrips, (int)Math.Floor(travel));
@@ -178,9 +200,69 @@ public sealed class ContinuousNearFar : MonoBehaviour
                 if (pathSeconds >= duration) { phase = "settling"; settleStart = now; pathFraction = 0; leg = 2 * RoundTrips; }
                 targetCamera.transform.SetPositionAndRotation(Vector3.Lerp(nearPosition, farPosition, pathFraction), Quaternion.Slerp(nearRotation, farRotation, pathFraction));
             }
-            else Require(now - settleStart <= SettleLimit, "Near recovery exceeded 30 seconds.");
+            else Require(now - settleStart <= SettleLimit, "Final endpoint exceeded 30 seconds.");
         }
         catch (Exception error) { Fail(error.ToString()); }
+    }
+    void MoveCold(double now)
+    {
+        double oneWay = distance / Speed;
+        if (leg == 0)
+        {
+            pathSeconds = Math.Min(now - motionStart, oneWay);
+            pathFraction = (float)(pathSeconds / oneWay);
+            if (pathSeconds >= oneWay) { leg = 1; turnTime = now; }
+        }
+        else
+        {
+            double returning = Math.Min(now - turnTime, oneWay);
+            pathSeconds = oneWay + returning; pathFraction = (float)(1 - returning / oneWay);
+            if (returning >= oneWay) { leg = 2; phase = "settling"; settleStart = now; }
+        }
+        if (pathFraction == 1) targetCamera.transform.SetPositionAndRotation(nearPosition, nearRotation);
+        else if (pathFraction == 0) targetCamera.transform.SetPositionAndRotation(outsidePosition, outsideRotation);
+        else targetCamera.transform.SetPositionAndRotation(Vector3.Lerp(outsidePosition, nearPosition, pathFraction),
+            Quaternion.Slerp(outsideRotation, nearRotation, pathFraction));
+    }
+    void ObserveCold(Frame row, bool complete, double now)
+    {
+        var ledger = row.ledger;
+        Require(inputs[0] && !inputs[0].RoomsEnabled, "The rooms extension changed during the cold route.");
+        bool current = streamer.Available && ledger.requestEngineFrame == row.engineFrame;
+        if (phase != "warmup") Require(current, "Missing current sample/page owner during crossing or release.");
+        Require(ledger.pagesFailed == 0, "A page load or release failed.");
+        string endGroup = SubmissionGroup(row.endMembers);
+        Require((row.beginGroup == "none" || Complete(row.beginGroup)) && (endGroup == "none" || Complete(endGroup)) &&
+            ledger.availableRepresentation != "unknown", "Invalid source or partial/mixed renderer submission group.");
+        // A stale receipt is recorded, but cannot assert a current publication at this distance.
+        if (row.publicationCurrent)
+            Require(row.publishedGroup == "none" || complete, "Current publication was partial, foreign or unbound.");
+        if (current && (ledger.requestedRepresentation == "details" || ledger.requestedRepresentation == "aggregate"))
+        {
+            requestedFrames++;
+            if (ledger.availableRepresentation == "none") requestedWithoutRepresentation++;
+        }
+        if (phase == "moving")
+        {
+            nearRendered |= row.leg == 1 && row.pathFraction == 1 && row.position.Equals(nearPosition);
+            return;
+        }
+        bool emptyOutside = current && row.position.Equals(outsidePosition) && row.beginGroup == "none" && endGroup == "none" &&
+            ledger.requestedRepresentation == "none" && ledger.availableRepresentation == "none" &&
+            ledger.visibleMembers == 0 && ledger.boundMembers == 0 && row.pagePending == 0 && ledger.pagesReady == 0 &&
+            ledger.pagesLoading == 0 && ledger.pagesReleasing == 0 && ledger.pageConsumerReferences == 0 &&
+            ledger.pageBundleBytes == 0 && ledger.pageResidentBytes == 0 && ledger.pageActiveOperations == 0 &&
+            ledger.pageIoBytesInFlight == 0 && ledger.pageRetiringLeases == 0;
+        if (phase == "warmup")
+        {
+            Require(now - startTime <= WarmLimit, "Initial cold Outside exceeded 30 seconds.");
+            if (emptyOutside) { startLedger = ledger; previousTarget = row.targetIds; previousPublished = row.publishedIds; startMoving = true; }
+        }
+        else
+        {
+            Require(now - settleStart <= SettleLimit, "Outside release exceeded 30 seconds.");
+            if (emptyOutside) { outsideReleased = true; finishing = true; }
+        }
     }
     Member[] ReadMembers()
     {
@@ -279,14 +361,7 @@ public sealed class ContinuousNearFar : MonoBehaviour
                 !row.transitioning && row.targetWarmingCount == 0 && row.targetUnknownCount == 0 && row.pagePending == 0 && streamer.Available &&
                 row.ledger.pagesFailed == 0 && row.ledger.pageActiveOperations == 0 && row.ledger.pageIoBytesInFlight == 0 && row.ledger.pageRetiringLeases == 0;
             double now = Time.realtimeSinceStartupAsDouble;
-            if (phase == "warmup")
-            {
-                Require(now - startTime <= WarmLimit, "Initial complete Near readiness exceeded 30 seconds.");
-                readyStreak = nearReady ? readyStreak + 1 : 0;
-                if (readyStreak == ReadyFrames)
-                { startLedger = row.ledger; previousTarget = row.targetIds; previousPublished = row.publishedIds; startMoving = true; }
-            }
-            else
+            if (phase != "warmup")
             {
                 if (phase == "moving")
                 {
@@ -295,6 +370,17 @@ public sealed class ContinuousNearFar : MonoBehaviour
                     motionIoObserved |= row.ledger.pageIoBytesStartedThisStep > 0 || row.ledger.pageIoBytesInFlight > 0;
                 }
                 previousTarget = row.targetIds; previousPublished = row.publishedIds;
+            }
+            if (coldCrossing) ObserveCold(row, complete, now);
+            else if (phase == "warmup")
+            {
+                Require(now - startTime <= WarmLimit, "Initial complete Near readiness exceeded 30 seconds.");
+                readyStreak = nearReady ? readyStreak + 1 : 0;
+                if (readyStreak == ReadyFrames)
+                { startLedger = row.ledger; previousTarget = row.targetIds; previousPublished = row.publishedIds; startMoving = true; }
+            }
+            else
+            {
                 Require(Complete(row.beginGroup), "No complete bound root/details renderer submission group at beginCamera.");
                 Require(complete, "No current complete bound root/details publication at endCamera.");
                 if (phase == "settling")
@@ -320,7 +406,7 @@ public sealed class ContinuousNearFar : MonoBehaviour
             Application.logMessageReceived -= Log; subscribed = false;
         }
         bool recovered = failure == null && phase == "settling" && records.Count > 0 && records[records.Count - 1].ended;
-        if (!recovered && failure == null) failure = "Run ended without complete Near recovery.";
+        if (!recovered && failure == null) failure = coldCrossing ? "Run ended without release at Outside." : "Run ended without complete Near recovery.";
         int exit = failure == null ? 0 : 1;
         try
         {
@@ -331,8 +417,18 @@ public sealed class ContinuousNearFar : MonoBehaviour
                 oneWayDistance = distance, plannedMotionSeconds = duration, nearPosition = nearPosition, farPosition = farPosition,
                 nearRotation = nearRotation, farRotation = farRotation, groupBounds = groupBounds, farDistance = farDistance,
                 beginCallbacks = beginCount, endCallbacks = endCount, targetChanges = targetChanges, publicationChanges = publicationChanges,
-                actualMotionIoObserved = motionIoObserved, returnedNear = phase == "settling", completeNearRecovered = recovered,
+                actualMotionIoObserved = motionIoObserved, returnedNear = !coldCrossing && phase == "settling", completeNearRecovered = !coldCrossing && recovered,
                 start = startLedger, end = endLedger, frames = records.ToArray() };
+            if (coldCrossing)
+            {
+                run.coldCrossing = true; run.roundTrips = 1; run.readyFrames = 1;
+                run.outsidePosition = outsidePosition; run.outsideRotation = outsideRotation;
+                run.nearTurnRendered = nearRendered; run.outsideReleased = outsideReleased;
+                run.requestedFrames = requestedFrames; run.requestedWithoutRepresentation = requestedWithoutRepresentation;
+                run.coverage = "Outside to Near and back without waiting for publication. A requested frame with no renderer group available at endCamera is retained. Only current HLOD receipts describe a current publication.";
+                run.outcome = failure != null ? "failed" : nearRendered && requestedFrames > 0 && motionIoObserved ?
+                    "complete-limited-cold-crossing" : "complete-cold-crossing-scope-insufficient";
+            }
             // CreateNew protects an earlier result, including failures. No per-frame file writes.
             using (var file = new FileStream(Path.Combine(directory, "run.json"), FileMode.CreateNew, FileAccess.Write))
             using (var writer = new StreamWriter(file)) writer.Write(JsonUtility.ToJson(run, true));

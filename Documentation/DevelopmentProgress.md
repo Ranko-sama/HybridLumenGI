@@ -1,6 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度：Release103，G0本机基线锁定完成，G1–G5未整体放行
+## 当前总进度：Release104，G0本机基线锁定完成，G1–G5未整体放行
+
+G4 已关闭首次只进入远场时，已绑定聚合体无法作为完整 HLOD 组发布的缺口。Release104 复用已保存的作者关系，在细节页全程未加载的场景中，先进入预热，再发布唯一的远景表示。[冷远场确认](../LocalComparison/Review/cold-far-root-01/result.md) · [运行包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release104-demo)
+
+G4 的冷区高速穿行已取得一条独立观测。Release103 从零驻留进入近场并立即返回，途中无半组或双组，离场后资源排空；首次可提交的完整表示延迟到回程。104 的定点远场修复并未重测该路线。[位置与首显边界](../LocalComparison/Review/cold-crossing-01/result.md)
 
 G2 已补齐接收面与两块暖色发光面之间的直线均被隔墙阻断时的画面对照。在现有两室中只移动机位，同一受遮地板的间接出射亮度在开门时为 0.01979983，闭门时为 0.00007467。连续穿越多房间的观察仍开放。[左右墙面位置、同曝光图片与原始 EXR](../LocalComparison/Review/shaded-room-floor-01/result.md)
 

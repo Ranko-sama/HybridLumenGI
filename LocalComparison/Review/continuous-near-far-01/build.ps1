@@ -1,10 +1,15 @@
+param([switch]$ColdCrossing)
 $ErrorActionPreference = 'Stop'
 $project = 'I:/Unity test/Project'
-$output = 'I:/Unity test/Comparison/Builds/LocalRelease90ContinuousNearFar01'
+$name = if ($ColdCrossing) { 'LocalRelease103ColdCrossing01' } else { 'LocalRelease90ContinuousNearFar01' }
+$output = "I:/Unity test/Comparison/Builds/$name"
+$record = if ($ColdCrossing) { Join-Path $PSScriptRoot '../cold-crossing-01' } else { $PSScriptRoot }
+$sceneName = if ($ColdCrossing) { 'ConnectedRooms.unity' } else { 'UnifiedSample.unity' }
+$scene = "Assets/UnifiedRelease74/Generated/Variant/$sceneName"
 $qualityPath = "$project/ProjectSettings/QualitySettings.asset"
 $auditPath = "$project/Assets/ComparisonHarness/RuntimeAuditEntry.cs"
 $rendererPath = "$project/Assets/UnifiedRelease74/Generated/Renderer.asset"
-$attempt = Join-Path $PSScriptRoot 'build-attempt.json'
+$attempt = Join-Path $record 'build-attempt.json'
 if ((Test-Path -LiteralPath $output) -or (Test-Path -LiteralPath $attempt)) {
     throw 'Preserve existing build output and attempt.'
 }
@@ -19,6 +24,8 @@ $backup = Join-Path $env:TEMP ('hlgi-continuous-near-far-build-' + [guid]::NewGu
 [IO.File]::WriteAllBytes((Join-Path $backup 'QualitySettings.asset'), $qualityBytes)
 [IO.File]::WriteAllBytes((Join-Path $backup 'RuntimeAuditEntry.cs'), $auditBytes)
 [IO.File]::WriteAllBytes((Join-Path $backup 'Renderer.asset'), $rendererBytes)
+$sceneSetupPath = "$project/Library/LastSceneManagerSetup.txt"
+if (Test-Path -LiteralPath $sceneSetupPath) { Copy-Item -LiteralPath $sceneSetupPath -Destination $backup }
 $observer = "$project/Assets/ComparisonHarness/ContinuousNearFar.cs"
 $observerSource = Join-Path $PSScriptRoot 'ContinuousNearFar.cs'
 if ((Test-Path -LiteralPath $observer) -or (Test-Path -LiteralPath "$observer.meta")) { throw 'Preserve existing observer staging.' }
@@ -32,6 +39,11 @@ try {
     $raysPattern = '(?m)^    raysPerPixel: 1(?=\r?$)'
     if ([regex]::Matches($rendererText, $raysPattern).Count -ne 1) { throw 'Expected exactly one raysPerPixel: 1 setting.' }
     $rendererText = [regex]::Replace($rendererText, $raysPattern, '    raysPerPixel: 2')
+    if ($ColdCrossing) {
+        $filter = '(?m)^    filterIterations: 3(?=\r?$)'
+        if ([regex]::Matches($rendererText,$filter).Count -ne 1) { throw 'Expected the saved filter setting.' }
+        $rendererText = [regex]::Replace($rendererText,$filter,'    filterIterations: 4')
+    }
     [IO.File]::WriteAllText($rendererPath, $rendererText, [Text.UTF8Encoding]::new($false))
     $qualityText = [Text.Encoding]::UTF8.GetString($qualityBytes)
     $oldPipeline = 'c4904ab5031e93c4a8f8e6ca539e4152'
@@ -44,24 +56,25 @@ try {
     [ordered]@{
         startedUtc = [DateTime]::UtcNow.ToString('o')
         source = (git -C (Join-Path $PSScriptRoot '../../..') rev-parse HEAD).Trim()
-        scene = 'Assets/UnifiedRelease74/Generated/Variant/UnifiedSample.unity'
+        scene = $scene
         output = $output
         localOverrides = @{ raysPerPixel = 2; preferHardwareTracing = $true }; observer = $observerSource
-        scope = 'One temporary Release/None build of current Release90 product for the fixed hot near/far route: 20 units/second, ten round trips, no intermediate readiness wait, up to 30 seconds final recovery. Existing CPU publication/renderer/IO records only. Ordinary Release90 unchanged.'
+        scope = if ($ColdCrossing) { 'Release103 cold outside/near/outside, 20 units/s, immediate reversal, filter4, one round trip. CPU submission, publication and page state.' } else { 'Release90 hot near/far, 20 units/s, ten round trips. CPU submission, publication and page state.' }
         backup = $backup
     } | ConvertTo-Json | Set-Content -LiteralPath $attempt -Encoding utf8
-    & 'I:/Unity test/Start-Unity.ps1' -Batch -LogName 'LocalRelease90ContinuousNearFar01Build' `
+    & 'I:/Unity test/Start-Unity.ps1' -Batch -LogName ($name + 'Build') `
         -ExecuteMethod 'HybridLumenGI.Editor.HybridLumenGIPlayerBuild.Build' `
-        -ExtraArguments @('-buildTarget', 'StandaloneWindows64', '-hlgiScene', 'Assets/UnifiedRelease74/Generated/Variant/UnifiedSample.unity', '-hlgiOutput', $output)
+        -ExtraArguments @('-buildTarget', 'StandaloneWindows64', '-hlgiScene', $scene, '-hlgiOutput', $output)
     $nativeExit = $LASTEXITCODE
     [ordered]@{ exitCode = $nativeExit; endedUtc = [DateTime]::UtcNow.ToString('o') } |
-        ConvertTo-Json | Set-Content -LiteralPath (Join-Path $PSScriptRoot 'build-exit.json') -Encoding utf8
+        ConvertTo-Json | Set-Content -LiteralPath (Join-Path $record 'build-exit.json') -Encoding utf8
 }
 finally {
     if (Get-Process Unity -ErrorAction SilentlyContinue) { throw "Unity still owns the project. Preserve backup at $backup until it exits." }
     [IO.File]::WriteAllBytes($qualityPath, $qualityBytes)
     [IO.File]::WriteAllBytes($auditPath, $auditBytes)
     [IO.File]::WriteAllBytes($rendererPath, $rendererBytes)
+    if (Test-Path -LiteralPath "$backup/LastSceneManagerSetup.txt") { Copy-Item -LiteralPath "$backup/LastSceneManagerSetup.txt" -Destination $sceneSetupPath }
     # Only the two fresh observer files owned by this script are removed.
     Remove-Item -LiteralPath $observer -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath "$observer.meta" -ErrorAction SilentlyContinue

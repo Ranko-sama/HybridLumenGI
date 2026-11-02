@@ -1,5 +1,7 @@
 # 实时光传输架构与生产交付计划
 
+Release104 关闭了 G4 首次只进入远场时的 HLOD 组识别缺口。细节全程未加载时，真实相机在根完成预热后取得完整发布回执，远景聚合体成为唯一可提交的表示。此前从零页连续穿入近场的路线完成了离场排空，但首次完整表示在回程才出现。[冷远场修复](../LocalComparison/Review/cold-far-root-01/result.md) · [高速穿行范围](../LocalComparison/Review/cold-crossing-01/result.md)
+
 G2 在现有两室中取得了发光面完全被实墙遮住的地板对照。保持光源和相机不动，分隔门开／闭的间接亮度均值分别为 0.01979983／0.00007467。此观测限于隔墙后方的一处地板。[原始 HDR 与遮挡范围](../LocalComparison/Review/shaded-room-floor-01/result.md)
 
 Release103 修复正强度、全黑 RGB 的解析灯仍占有效灯表名额的问题。最后一盏有效灯改为黑色后会留下空表，允许现有缓存清理解析光份额。普通两室版本及对应离线画册已发布。[实际准入与恢复](../LocalComparison/Review/black-light-admission-01/result.md) · [Windows 运行包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release103-demo)
@@ -201,7 +203,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-2026-11-01 当前交付更新。Release102 的可运行示例内附离线画面对照，以及颜色、残留、拖影、恢复时间的适用范围。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量与图像保留原来源。[Release102](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release102-demo) · [独立画面对照](../LocalComparison/Review/dynamic-picture-comparison-01/report.md)
+当前交付为 Release104。统一示例内附颜色误差、残留、拖影、恢复时间及世界空间遮挡的独立画面对照。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项测量保留原采集版本及适用范围。[Release104](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release104-demo) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
