@@ -12,7 +12,8 @@ uint _HLGI_IdentityObjectCount;
 Texture2D<float> _HLGI_Depth;
 Texture2D<float> _HLGI_CaptureDepth;
 Texture2D<float4> _HLGI_Normals, _HLGI_Diffuse, _HLGI_Emission;
-Texture2D<uint2> _HLGI_ReceiverPolicy;
+Texture2D<uint4> _HLGI_ReceiverPolicy;
+int _HLGI_ScreenStaticShadowmask;
 Texture2D<float2> _HLGI_Motion;
 Texture2D<float4> _HLGI_History, _HLGI_PreviousGeometry, _HLGI_PreviousMaterial, _HLGI_PreviousMoments;
 Texture2D<float4> _HLGI_Input, _HLGI_Geometry, _HLGI_Material, _HLGI_Moments;
@@ -227,7 +228,10 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                     // No lit camera color or screen-history feedback enters the transport equation.
                     uint policyWidth,policyHeight;_HLGI_ReceiverPolicy.GetDimensions(policyWidth,policyHeight);
                     uint2 policyPixel=min((uint2)(uv*float2(policyWidth,policyHeight)),uint2(policyWidth-1,policyHeight-1));
-                    uint2 receiverLayers=_HLGI_ReceiverPolicy.Load(int3(policyPixel,0));
+                    uint4 policy=_HLGI_ReceiverPolicy.Load(int3(policyPixel,0));
+                    float4 bakedMask=1;
+                    if(_HLGI_ScreenStaticShadowmask!=0)
+                        bakedMask=f16tof32(uint4(policy.z & 0xffffu,policy.z>>16,policy.w & 0xffffu,policy.w>>16));
                     // Captured material represents this camera pixel. Express
                     // its spatial support perpendicular to the camera ray before
                     // projecting it onto each light connection in DirectIrradiance.
@@ -235,7 +239,7 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                     HLGIRayFootprint screenFootprint;
                     HLGITryScreenRayFootprint(uv,raw,p,cameraRay,screenFootprint);
                     bool directKnown;
-                    float3 direct=DirectIrradiance(p,n,biasNormal,receiverLayers,HLGIScreenReceivesShadows(emission.a),cameraRay,screenFootprint,directKnown);
+                    float3 direct=DirectIrradiance(p,n,biasNormal,policy.xy,HLGIScreenReceivesShadows(emission.a),bakedMask,cameraRay,screenFootprint,directKnown);
                     // A captured surface with unknown incident light is still a
                     // hit. Never continue behind it or reinterpret it as a miss.
                     distanceHit=surfaceT;

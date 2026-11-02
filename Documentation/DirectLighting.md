@@ -49,7 +49,7 @@
 | --- | --- | --- |
 | 灯记录 | 80B：四个 float4，加 culling／照明层／阴影层／flag 四个 uint | 每相机保留 32 项 buffer，即 2,560B；有效项按当前灯快照更新 |
 | owner 策略 | 16B/scene slot：GameObject layer bit、rendering mask、shadow mode、保留零 | 与 80B ProxyGpuData 共用槽位、dirty 上传区间和相机生命周期；未驻留／等待上传槽清零 |
-| 屏幕接收面策略 | 全分辨率 `R32G32_UInt`，8B/pixel | 当前帧捕获，两个 uint 分别保存 GameObject layer bit 和 rendering mask |
+| 屏幕接收面策略 | 通常为全分辨率 `R32G32_UInt`，8B/pixel | 活动的静态 Shadowmask 使用 RGBA32 UInt，前两个字保留完整层掩码，新增两个字存四个半精度遮罩通道 |
 
 UnityPerDraw 不提供 GameObject layer。当前捕获将材质层与相机 culling mask 相交，建立最多 32 个互不重叠的单层 RendererList；每次 draw 前只传 0–31 的 layer index，shader 转成 uint bit。`GetMeshRenderingLayer()` 从当前 draw／instance 的数据读取完整 uint mask。普通捕获使用 MRT Target2，原生漫反射替换使用 Target3；fragment 的 instance setup 在读取策略之前完成。mask 不经过 half、颜色编码或浮点整数往返。平台必须支持该整数格式的 render/sample 用法，且普通／替换模式分别至少支持 3／4 个同时 MRT，否则跳过此 GI 路径。真正的 Unity builtin 绑定、实例变体与整数 MRT 行为仍须在目标工程验证。
 
@@ -76,8 +76,12 @@ Replace  = 36 * fullWidth * fullHeight + 112 * giWidth * giHeight
 
 ## 尚未完成的合同与验收
 
+在 URP 开启 Mixed Lighting、质量模式为 Shadowmask 且场景有有效烘焙遮罩时，静态受光面按每盏已烘焙 Mixed 灯的通道取遮挡。屏幕捕获使用该 draw 的静态光图坐标；世界端在图卡捕获时按 renderer 的 lightmapIndex、UV2 与 lightmapScaleOffset 采样真实遮罩。每张活动世界图集增加一张 RGBA16F 纹理，8B/texel，计入原有表面预算。实时投影与烘焙遮挡共同限制该灯的反射。材质关闭接收实时阴影时，烘焙遮挡仍可生效。同槽遮罩纹理或其内容代次变化会使旧历史失效。
+
+世界端需要当前命中与可用的图卡像素匹配。已有遮罩但缺少可信图卡 UV 时，受影响且不能由实时遮挡确定的估计记为未知。普通静态非合批 MeshRenderer 的原 UV2 可用于图卡，额外顶点流替换 UV2、变形快照、动态探针遮挡及 Distance Shadowmask 有各自的支持边界。
+
 非三角的世界命中可以采用受光面的材质阴影策略。启用材质读取、只有一个材质槽及子网格的普通不透明 URP Lit MeshRenderer 使用材质的 `_RECEIVE_SHADOWS_OFF` 关键字。关闭接收实时阴影后，该面仍可受到被遮灯的直接照明并将其反射给其他表面。物体自身投射阴影仍由投射策略决定。手动代理材质及来源不唯一的多槽回退保留接收阴影，精确三角命中沿用其实际子网格材质。
 
-当前仍无软阴影／半影、shadowmask 与完整 Mixed Lighting、cookie／IES、完整 `receiveShadows` 材质／Renderer 语义、原生 hit-UV alpha-test 阴影或 SDF 三角 Cull。方向光阴影距离与场景驻留也会限制遮挡范围。以上缺口不能通过 layer mask 接线宣称已关闭；G0–G5 生产关卡保持开放。
+完整 Mixed Lighting、软阴影／半影、cookie／IES、Renderer 级接收阴影、原生 hit-UV alpha-test 阴影及 SDF 三角 Cull 仍有未覆盖条件。方向光阴影距离与场景驻留也会限制遮挡范围。
 
 朋友应测试 shadow strength 0／0.5／1、Off 保留 GI 可见性、前方不投影而后方仍遮挡、TwoSided 只影响阴影、GameObject bit31、已定义 rendering bit31、空 mask 与功能禁用、独立 custom shadow layers 及之后直接覆盖原生 shadow mask、同帧激活旧灯／创建新灯，以及多相机之间的灯和对象层变更。保存独立 Lit 对照、线性 HDR 图像、Console／Player 日志及 profiler capture。CPU adapter、录制测试和 DXC 通过均不能代替这些引擎与实体 GPU 结果。

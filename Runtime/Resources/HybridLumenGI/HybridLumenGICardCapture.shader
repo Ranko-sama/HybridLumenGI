@@ -58,12 +58,16 @@ Shader "Hidden/HybridLumenGI/CardCapture"
             float4x4 _HLGI_CardWorldToCard;
             float4 _HLGI_CardRect, _HLGI_CardDirection, _HLGI_CardGeometryDirection, _HLGI_CardTint, _HLGI_CardExtraEmission;
             float _HLGI_CardCull, _HLGI_CardObjectDeterminantSign;
+            TEXTURE2D(_HLGI_CardShadowmask); SAMPLER(sampler_HLGI_CardShadowmask);
+            float4 _HLGI_CardShadowmaskST;
+            float _HLGI_CardUseShadowmask;
             struct CardAttributes
             {
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
                 float4 tangentOS : TANGENT;
                 float2 uv : TEXCOORD0;
+                float2 lightmapUV : TEXCOORD1;
             };
             struct CardVaryings
             {
@@ -73,6 +77,7 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 float4 tangentWS : TEXCOORD2;
                 float2 uv : TEXCOORD3;
                 float3 cardPosition : TEXCOORD4;
+                float2 shadowmaskUV : TEXCOORD5;
             };
             struct CardOutput
             {
@@ -80,6 +85,7 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 half4 emissionValidity : SV_Target1;
                 float4 positionDepth : SV_Target2;
                 half4 normalRoughness : SV_Target3;
+                half4 bakedVisibility : SV_Target4;
             };
             half PackCardGeometricNormal(float3 normal)
             {
@@ -98,6 +104,7 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 output.tangentWS = float4(TransformObjectToWorldDir(input.tangentOS.xyz), input.tangentOS.w * GetOddNegativeScale());
                 output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                output.shadowmaskUV = input.lightmapUV * _HLGI_CardShadowmaskST.xy + _HLGI_CardShadowmaskST.zw;
                 output.cardPosition = mul(_HLGI_CardWorldToCard, float4(output.positionWS,1)).xyz;
                 float2 atlasUV = _HLGI_CardRect.xy + output.cardPosition.xy * _HLGI_CardRect.zw;
                 float2 clipXY = atlasUV * 2 - 1;
@@ -168,6 +175,9 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 output.emissionValidity = half4(max(0,(surface.emission+_HLGI_CardExtraEmission.rgb)*_HLGI_CardExtraEmission.w),PackCardGeometricNormal(facet));
                 output.positionDepth = float4(input.positionWS,input.cardPosition.z);
                 output.normalRoughness = half4(normal,saturate(1-surface.smoothness));
+                output.bakedVisibility = 1;
+                if (_HLGI_CardUseShadowmask > 0.5)
+                    output.bakedVisibility = SAMPLE_TEXTURE2D(_HLGI_CardShadowmask, sampler_HLGI_CardShadowmask, input.shadowmaskUV);
                 return output;
             }
             ENDHLSL
@@ -189,6 +199,7 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 float4 b : SV_Target1;
                 float4 c : SV_Target2;
                 float4 d : SV_Target3;
+                float4 bakedVisibility : SV_Target4;
                 float depth : SV_Depth;
             };
             ClearVaryings CardClearVert(uint vertexID:SV_VertexID)
@@ -207,6 +218,7 @@ Shader "Hidden/HybridLumenGI/CardCapture"
             ClearOutput CardClearFrag(ClearVaryings input)
             {
                 ClearOutput output = (ClearOutput)0;
+                output.bakedVisibility = 1;
                 #if !UNITY_REVERSED_Z
                     output.depth = 1;
                 #endif

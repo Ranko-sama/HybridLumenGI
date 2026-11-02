@@ -48,6 +48,15 @@ namespace HybridLumenGI
         private Color lastEmission;
         private float lastDiffuseFraction;
         internal bool UniformShadowsOff { get; private set; }
+        internal HybridLumenGIShadowmask.Source BakedShadowSource { get; private set; }
+
+        internal void RefreshShadowmask(LightmapData[] maps)
+        {
+            var source = HybridLumenGIShadowmask.Read(sourceRenderer, maps, out _);
+            if (BakedShadowSource.Matches(source)) return;
+            BakedShadowSource = source;
+            MarkTransportDirty();
+        }
         private Mesh lastMesh;
         private HybridLumenGIMeshSource.Version lastMeshSourceVersion;
         private int lastVertexCount;

@@ -43,6 +43,7 @@ namespace HybridLumenGI
             public Matrix4x4 matrix;
             public int meshId, vertexCount, sdfId, textureId, geometryContentRevision;
             public LightingPolicyData lighting;
+            public HybridLumenGIShadowmask.Source bakedShadow;
         }
         [StructLayout(LayoutKind.Sequential)]
         public struct ProxyGpuData
@@ -60,7 +61,8 @@ namespace HybridLumenGI
         public struct LightingPolicyData
         {
             // The fourth word retains its public field name. Bit 0 disables received
-            // realtime shadows for an unambiguous single-slot Lit fallback.
+            // realtime shadows for a uniform Lit fallback. Bits 1/2 identify an assigned
+            // static shadowmask and whether the card draw can reproduce its UVs.
             public uint objectLayerBit, renderingLayerMask, shadowCastingMode, reserved;
         }
 
@@ -205,7 +207,14 @@ namespace HybridLumenGI
 
         public bool Prepare(Vector3 position, int capacity, float nearDistance, float farDistance,
             float chunkSize, int uploadBudget)
+            => Prepare(position, capacity, nearDistance, farDistance, chunkSize, uploadBudget, HybridLumenGIShadowmask.ActiveMaps());
+
+        internal LightmapData[] ShadowmaskSources { get; private set; }
+
+        internal bool Prepare(Vector3 position, int capacity, float nearDistance, float farDistance,
+            float chunkSize, int uploadBudget, LightmapData[] shadowmaskSources)
         {
+            ShadowmaskSources = shadowmaskSources;
             capacity = Mathf.Clamp(capacity, 32, 256);
             nearDistance = Mathf.Max(0.1f, nearDistance);
             farDistance = Mathf.Max(nearDistance, farDistance);
@@ -230,6 +239,7 @@ namespace HybridLumenGI
                 // Rendering may follow another LateUpdate or an explicit camera render.
                 // Refresh before the revision gate so all representations see one current snapshot.
                 proxy.RefreshSignatureForRender();
+                proxy.RefreshShadowmask(shadowmaskSources);
                 liveIds.Add(proxy.StableId);
                 activeById[proxy.StableId] = proxy;
                 HybridLumenGIProxy parent = proxy.HLODParent;
@@ -598,7 +608,7 @@ namespace HybridLumenGI
                 vertexCount = mesh != null ? mesh.vertexCount : 0, sdfId = sdf != null ? sdf.GetInstanceID() : 0,
                 textureId = sdf != null && sdf.DistanceTexture != null ? sdf.DistanceTexture.GetInstanceID() : 0,
                 geometryContentRevision = proxy.GeometryContentRevision,
-                lighting = MakeLightingPolicy(proxy)
+                lighting = MakeLightingPolicy(proxy), bakedShadow = proxy.BakedShadowSource
             };
         }
         private static ChangeKind ClassifyChange(ProxyGpuData old, Signature before, HybridLumenGIProxy proxy,
@@ -615,7 +625,7 @@ namespace HybridLumenGI
             if (before.meshId != after.meshId || before.vertexCount != after.vertexCount || before.sdfId != after.sdfId ||
                 before.textureId != after.textureId || (int)old.centerShape.w != (int)proxy.ProxyShape) kind |= ChangeKind.Topology;
             Color diffuse = proxy.GetDiffuseReflectanceLinear(), emission = proxy.GetEmissionLinear();
-            if (before.lighting.reserved != after.lighting.reserved ||
+            if (before.lighting.reserved != after.lighting.reserved || !before.bakedShadow.Matches(after.bakedShadow) ||
                 old.albedo.x != diffuse.r || old.albedo.y != diffuse.g || old.albedo.z != diffuse.b ||
                 old.emission.x != emission.r || old.emission.y != emission.g || old.emission.z != emission.b ||
                 old.extentsRoughness.w != proxy.Roughness) kind |= ChangeKind.Material;
@@ -632,7 +642,8 @@ namespace HybridLumenGI
                 objectLayerBit = 1u << layer,
                 renderingLayerMask = renderer != null ? renderer.renderingLayerMask : 1u,
                 shadowCastingMode = (uint)(renderer != null ? renderer.shadowCastingMode : ShadowCastingMode.On),
-                reserved = proxy.UniformShadowsOff ? 1u : 0u
+                reserved = (proxy.UniformShadowsOff ? 1u : 0u) | (proxy.BakedShadowSource.textureId != 0 ? 2u : 0u) |
+                    (proxy.BakedShadowSource.captureUv ? 4u : 0u)
             };
         }
 
@@ -720,6 +731,6 @@ namespace HybridLumenGI
             farStates.Clear();
             ValidCount = WarmingCount = PendingCapacity = PendingUploadCount = ResidentChunkCount = 0;
         }
-        public void Dispose() { ReleaseResources(); dirtyRegions.Clear(); RequiresFullInvalidation = false; }
+        public void Dispose() { ReleaseResources(); ShadowmaskSources = null; dirtyRegions.Clear(); RequiresFullInvalidation = false; }
     }
 }

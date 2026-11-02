@@ -22,6 +22,7 @@ Texture2D<float4> _HLGI_SurfaceDiffuse;
 Texture2D<float4> _HLGI_SurfaceEmission;
 Texture2D<float4> _HLGI_SurfacePosition;
 Texture2D<float4> _HLGI_SurfaceNormal;
+Texture2D<float4> _HLGI_SurfaceShadowmask;
 float4 _HLGI_SurfaceAtlasSize;
 
 // Shared by capture-time anchor selection and all later material/patch loads.

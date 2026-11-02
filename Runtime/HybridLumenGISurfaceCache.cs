@@ -83,6 +83,8 @@ namespace HybridLumenGI
             public int[][] primitiveCharts;
             public long primitiveChartBytes;
             public HybridLumenGIMaterialSource.Snapshot[] materialSources;
+            public HybridLumenGIShadowmask.Source bakedShadow;
+            public Texture2D shadowmaskTexture;
             public readonly List<CapturedSubmesh> submeshes = new List<CapturedSubmesh>();
         }
 
@@ -120,6 +122,10 @@ namespace HybridLumenGI
         private static readonly int EmissionId = Shader.PropertyToID("_HLGI_SurfaceEmission");
         private static readonly int PositionId = Shader.PropertyToID("_HLGI_SurfacePosition");
         private static readonly int NormalId = Shader.PropertyToID("_HLGI_SurfaceNormal");
+        private static readonly int ShadowmaskId = Shader.PropertyToID("_HLGI_SurfaceShadowmask");
+        private static readonly int CardShadowmaskId = Shader.PropertyToID("_HLGI_CardShadowmask");
+        private static readonly int CardShadowmaskSTId = Shader.PropertyToID("_HLGI_CardShadowmaskST");
+        private static readonly int CardUseShadowmaskId = Shader.PropertyToID("_HLGI_CardUseShadowmask");
         private static readonly int WorldToCardId = Shader.PropertyToID("_HLGI_CardWorldToCard");
         private static readonly int CardRectId = Shader.PropertyToID("_HLGI_CardRect");
         private static readonly int DirectionId = Shader.PropertyToID("_HLGI_CardDirection");
@@ -139,7 +145,9 @@ namespace HybridLumenGI
         private readonly HybridLumenGIMaterialSource materialSource = new HybridLumenGIMaterialSource();
         private readonly MaterialPropertyBlock rendererBlock = new MaterialPropertyBlock();
         private readonly MaterialPropertyBlock submeshBlock = new MaterialPropertyBlock();
-        private readonly RenderTargetIdentifier[] targets = new RenderTargetIdentifier[4];
+        private RenderTargetIdentifier[] targets;
+        private LightmapData[] shadowmaskSources;
+        internal void SetShadowmaskSources(LightmapData[] maps) => shadowmaskSources = maps;
         private Owner[] owners = Array.Empty<Owner>();
         private Card[] cards = Array.Empty<Card>();
         private CardMetadata[] metadata = Array.Empty<CardMetadata>();
@@ -164,6 +172,7 @@ namespace HybridLumenGI
         public RTHandle PositionAtlas { get; private set; }
         public RTHandle NormalAtlas { get; private set; }
         public RTHandle DepthAtlas { get; private set; }
+        public RTHandle ShadowmaskAtlas { get; private set; }
         public int AtlasWidth { get; private set; }
         public int AtlasHeight { get; private set; }
         public uint AtlasGeneration { get; private set; }
@@ -182,7 +191,7 @@ namespace HybridLumenGI
         public int WarmupBudgetBlockedCards { get; private set; }
         public bool[] ReadyMask { get; private set; } = Array.Empty<bool>();
         public IList<Bounds> ChangedBounds => changedBounds;
-        public long AllocatedBytes => (long)AtlasWidth * AtlasHeight * BytesPerAtlasPixel + (long)CardCount * (MetadataStride + 4 + patchGrid * patchGrid * 8 + EmittersStride) + (long)owners.Length * 16;
+        public long AllocatedBytes => (long)AtlasWidth * AtlasHeight * (BytesPerAtlasPixel + (ShadowmaskAtlas != null ? 8 : 0)) + (long)CardCount * (MetadataStride + 4 + patchGrid * patchGrid * 8 + EmittersStride) + (long)owners.Length * 16;
         public int GetCardCount(int slot) => slot >= 0 && slot < owners.Length && owners[slot] != null ? owners[slot].cardIndices.Length : 0;
         /// <summary>Frozen explicit capture bounds, including disabled/hidden warming sources.</summary>
         public bool TryGetPreparedCaptureBounds(int slot,out Bounds bounds)
@@ -331,7 +340,8 @@ namespace HybridLumenGI
                  owner.captureMesh != owner.charts.CaptureMesh || owner.sourceMesh != GetMesh(owner.renderer)))) return false;
             owner.renderer.GetSharedMaterials(sourceMaterials);
             owner.renderer.GetPropertyBlock(rendererBlock);
-            return owner.signature == SourceSignature(owner.renderer, sourceMaterials) &&
+            return owner.bakedShadow.Matches(HybridLumenGIShadowmask.Read(owner.renderer, shadowmaskSources, out _)) &&
+                owner.signature == SourceSignature(owner.renderer, sourceMaterials) &&
                 SourceMaterialsCurrent(owner) && owner.geometrySignature == GeometrySignature(owner.renderer);
         }
 
@@ -339,6 +349,7 @@ namespace HybridLumenGI
         {
             if (scene == null) throw new ArgumentNullException(nameof(scene));
             if (config == null) throw new ArgumentNullException(nameof(config));
+            SetShadowmaskSources(scene.ShadowmaskSources);
             changedBounds.Clear();
             changedRegionSet.Clear();
             captureShader ??= Resources.Load<Shader>("HybridLumenGI/HybridLumenGICardCapture");
@@ -448,6 +459,7 @@ namespace HybridLumenGI
                 renderer.GetSharedMaterials(sourceMaterials);
                 renderer.GetPropertyBlock(rendererBlock);
                 int signature = SourceSignature(renderer, sourceMaterials);
+                var bakedShadow = HybridLumenGIShadowmask.Read(renderer, shadowmaskSources, out var shadowmaskTexture);
                 int geometrySignature = GeometrySignature(renderer);
                 if (!TryCaptureMaterialSources(owner, out var observedSources))
                 {
@@ -457,7 +469,8 @@ namespace HybridLumenGI
                 }
                 bool materialsChanged = owner.signature != signature || owner.submeshes.Count == 0 ||
                     !SameMaterialSources(owner.materialSources, observedSources);
-                if (owner.revision != revision || owner.geometrySignature != geometrySignature || materialsChanged || sourceGeometryChanged)
+                if (owner.revision != revision || owner.geometrySignature != geometrySignature || materialsChanged ||
+                    sourceGeometryChanged || !owner.bakedShadow.Matches(bakedShadow))
                 {
                     if (owner.published)
                     {
@@ -468,6 +481,8 @@ namespace HybridLumenGI
                     owner.revision = revision;
                     owner.signature = signature;
                     owner.geometrySignature = geometrySignature;
+                    owner.bakedShadow = bakedShadow;
+                    owner.shadowmaskTexture = shadowmaskTexture;
                     if (materialsChanged)
                     {
                         RebuildMaterials(owner, sourceMaterials);
@@ -610,6 +625,9 @@ namespace HybridLumenGI
                     Color extraEmission = owner.proxy.EmissionOverride.linear;
                     command.SetGlobalVector(TintId, new Vector4(tint.r, tint.g, tint.b, 1));
                     command.SetGlobalVector(ExtraEmissionId, new Vector4(extraEmission.r, extraEmission.g, extraEmission.b, owner.proxy.EmissionIntensity));
+                    command.SetGlobalFloat(CardUseShadowmaskId, owner.bakedShadow.captureUv ? 1f : 0f);
+                    command.SetGlobalVector(CardShadowmaskSTId, owner.bakedShadow.scaleOffset);
+                    command.SetGlobalTexture(CardShadowmaskId, owner.bakedShadow.captureUv ? owner.shadowmaskTexture : Texture2D.whiteTexture);
                     if(owner.charts!=null)
                     {
                         int sourceSubmesh=owner.charts.Charts[card.chartIndex].sourceSubmesh;
@@ -645,6 +663,7 @@ namespace HybridLumenGI
                     CapturedCards++;
                 }
                 command.SetViewport(restoreViewport);
+                command.SetGlobalTexture(CardShadowmaskId, Texture2D.whiteTexture);
             }
             // Publish readiness after raster writes in the same queue. Prepare alone
             // never advertises an uploaded/captured page as GPU-ready.
@@ -669,6 +688,8 @@ namespace HybridLumenGI
             command.SetComputeTextureParam(compute, kernel, EmissionId, EmissionAtlas.nameID);
             command.SetComputeTextureParam(compute, kernel, PositionId, PositionAtlas.nameID);
             command.SetComputeTextureParam(compute, kernel, NormalId, NormalAtlas.nameID);
+            if (ShadowmaskAtlas != null) command.SetComputeTextureParam(compute, kernel, ShadowmaskId, ShadowmaskAtlas.nameID);
+            else command.SetComputeTextureParam(compute, kernel, ShadowmaskId, Texture2D.whiteTexture);
         }
 
         /// <summary>Bind per-card proposal descriptors. Consumers must also validate
@@ -999,16 +1020,17 @@ namespace HybridLumenGI
         private static float DotAbs(Vector3 axis, Vector3 value) => Mathf.Abs(axis.x) * value.x + Mathf.Abs(axis.y) * value.y + Mathf.Abs(axis.z) * value.z;
         private static int[] Ids(params string[] names) { var ids = new int[names.Length]; for (int i = 0; i < names.Length; i++) ids[i] = Shader.PropertyToID(names[i]); return ids; }
 
-        private static long EstimateBytes(int tiles, int size, int slots,int grid)
+        private long EstimateBytes(int tiles, int size, int slots,int grid)
         {
             int columns = Mathf.Max(1, Mathf.CeilToInt(Mathf.Sqrt(Mathf.Max(1, tiles))));
             int rows = Mathf.Max(1, (tiles + columns - 1) / columns);
-            return (long)columns * rows * size * size * BytesPerAtlasPixel + (long)Mathf.Max(1,tiles) * (MetadataStride+4+grid*grid*8+EmittersStride) + (long)slots*16;
+            return (long)columns * rows * size * size * (BytesPerAtlasPixel + (shadowmaskSources != null ? 8 : 0)) + (long)Mathf.Max(1,tiles) * (MetadataStride+4+grid*grid*8+EmittersStride) + (long)slots*16;
         }
 
         private bool EnsureStorage(int slots, int wantedTiles, int resolution,int grid)
         {
-            if (metadataBuffer != null && owners.Length == slots && tileCount == wantedTiles && tileSize == resolution && patchGrid==grid) return false;
+            if (metadataBuffer != null && owners.Length == slots && tileCount == wantedTiles && tileSize == resolution &&
+                patchGrid==grid && (ShadowmaskAtlas != null) == (shadowmaskSources != null)) return false;
             ReleaseStorage();
             // Never reset this in ReleaseStorage: readbacks may outlive the old
             // resources even though per-card generations restart at allocation.
@@ -1044,6 +1066,9 @@ namespace HybridLumenGI
             NormalAtlas = Allocate(GraphicsFormat.R16G16B16A16_SFloat, "HLGI Card Normal");
             DepthAtlas = RTHandles.Alloc(AtlasWidth, AtlasHeight, depthBufferBits: DepthBits.Depth32,
                 colorFormat: GraphicsFormat.None, filterMode: FilterMode.Point, wrapMode: TextureWrapMode.Clamp, name: "HLGI Card Depth");
+            if (shadowmaskSources != null) ShadowmaskAtlas = Allocate(GraphicsFormat.R16G16B16A16_SFloat, "HLGI Card Shadowmask");
+            targets = new RenderTargetIdentifier[ShadowmaskAtlas != null ? 5 : 4];
+            if (ShadowmaskAtlas != null) targets[4] = ShadowmaskAtlas.nameID;
             targets[0] = DiffuseAtlas.nameID; targets[1] = EmissionAtlas.nameID;
             targets[2] = PositionAtlas.nameID; targets[3] = NormalAtlas.nameID;
             clearPending = metadataDirty = true;
@@ -1130,6 +1155,7 @@ namespace HybridLumenGI
             emittersBuffer?.Release();emittersBuffer=null;
             DiffuseAtlas?.Release(); EmissionAtlas?.Release(); PositionAtlas?.Release(); NormalAtlas?.Release(); DepthAtlas?.Release();
             DiffuseAtlas = EmissionAtlas = PositionAtlas = NormalAtlas = DepthAtlas = null;
+            ShadowmaskAtlas?.Release(); ShadowmaskAtlas = null; targets = null;
             owners = Array.Empty<Owner>(); cards = Array.Empty<Card>(); metadata = Array.Empty<CardMetadata>(); desired = Array.Empty<bool>();
             ReadyMask = Array.Empty<bool>();
             ownerRanges=Array.Empty<OwnerRange>();cardIndices=Array.Empty<uint>();CardOwners=Array.Empty<int>();
@@ -1141,6 +1167,7 @@ namespace HybridLumenGI
 
         public void Dispose()
         {
+            shadowmaskSources = null;
             ReleaseStorage();
             CoreUtils.Destroy(clearMaterial); clearMaterial = null;
             preparedScene = null;

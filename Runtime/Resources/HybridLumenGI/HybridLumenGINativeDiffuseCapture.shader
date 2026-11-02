@@ -93,8 +93,8 @@ Shader "Hidden/HybridLumenGI/NativeDiffuseCapture"
                 half4 diffuseOcclusion : SV_Target0;
                 half4 emissionValidity : SV_Target1;
                 half4 nativeDiffuseFog : SV_Target2;
-                // R32G32_UInt, preserving both complete 32-bit layer masks.
-                uint2 receiverPolicy : SV_Target3;
+                // XY preserves both complete 32-bit layer masks. ZW are stored only in Shadowmask mode.
+                uint4 receiverPolicy : SV_Target3;
             };
 
             HLGIDiffuseCaptureOutput HLGICaptureNativeDiffuse(Varyings input)
@@ -151,7 +151,15 @@ Shader "Hidden/HybridLumenGI/NativeDiffuseCapture"
                     // native SSAO. Uncovered/rejected pixels remain zero.
                     output.emissionValidity = half4(surfaceData.emission, HLGIEncodeScreenMaterial(1 + saturate(surfaceData.occlusion), HLGICaptureReceivesShadows()));
                     output.nativeDiffuseFog = half4(nativeDiffuse, fogTransmission);
-                    output.receiverPolicy = HLGICaptureReceiverPolicy();
+                    #if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)
+                        // InitializeBakedGIData already sampled this draw's static shadowmask.
+                        uint2 bakedMask = _HLGI_CaptureStaticShadowmask != 0 ? HLGIPackStaticShadowmask(inputData.shadowMask) : uint2(0x3c003c00u,0x3c003c00u);
+                    #elif defined(LIGHTMAP_ON)
+                        uint2 bakedMask = HLGICaptureStaticShadowmask(input.staticLightmapUV);
+                    #else
+                        uint2 bakedMask = uint2(0x3c003c00u,0x3c003c00u);
+                    #endif
+                    output.receiverPolicy = uint4(HLGICaptureReceiverPolicy(), bakedMask);
                     return output;
                 #endif
             }

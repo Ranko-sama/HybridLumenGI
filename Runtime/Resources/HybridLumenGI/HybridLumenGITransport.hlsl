@@ -359,7 +359,7 @@ float3 CachedIrradiance(HLGIHit hit,float3 shadingNormal,out bool known)
     return HLGICachedSample(hit,shadingNormal,entry,known)?max(entry.irradiance.rgb,0):0;
 }
 float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,bool receivesShadows,
-    float3 footprintDirection,HLGIRayFootprint footprint,out bool known)
+    float4 bakedMask,float3 footprintDirection,HLGIRayFootprint footprint,out bool known)
 {
     known=all(isfinite(p)) && all(isfinite(n)) && all(isfinite(biasNormal));
     if(!known) return 0;
@@ -390,11 +390,30 @@ float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers
         float ndl=saturate(rawNdl);
         if(ndl*attenuation<=0 || !any(light.color.rgb>0)) continue;
         float visibility=1;
-        if(receivesShadows)
+        bool hasBakedChannel=light.spot.w>=1 && light.spot.w<=4;
+        if(receivesShadows || hasBakedChannel)
         {
-            float strength=saturate(light.spot.z);
+            float strength=receivesShadows?saturate(light.spot.z):0;
             if(!isfinite(light.spot.z) || !isfinite(maxT)) { known=false;return 0; }
-            if(strength>0)
+            bool bakedKnown=true;
+            float bakedStrength=0;
+            if(hasBakedChannel)
+            {
+                // URP's receiver keyword gates realtime shadows. BakedShadow
+                // still runs, using full baked strength for additional lights
+                // when their realtime shadow variant is disabled.
+                bool additional=(light.masks.w&2u)!=0u;
+                bakedStrength=additional && (!receivesShadows || (light.masks.w&4u)!=0u)?1:saturate(light.color.a);
+                if(bakedStrength>0)
+                {
+                    float baked=bakedMask[(uint)light.spot.w-1u];
+                    bakedKnown=isfinite(baked) && baked>=0 && baked<=1;
+                    if(bakedKnown) visibility=lerp(1,baked,bakedStrength);
+                }
+            }
+            // In Shadowmask mode an occluded baked path stays occluded. Only
+            // trace realtime casters if they can further reduce this value.
+            if(strength>0 && (!bakedKnown || visibility>1-strength))
             {
                 float3 shadowOrigin=p+HLGIOffsetNormal(biasNormal,toLight)*_HLGI_RayBias;
                 float3 shadowDirection=toLight;
@@ -417,13 +436,21 @@ float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers
                 bool blocked=TraceShadow(shadowOrigin,shadowDirection,max(0,shadowDistance-_HLGI_RayBias),
                     light.masks.x,light.masks.z,useRenderingLayers,shadowFootprint,float4(p,1),shadowKnown);
                 if(!shadowKnown) { known=false;return 0; }
-                if(blocked) visibility=1-strength;
+                if(blocked)
+                {
+                    visibility=min(visibility,1-strength);
+                    bakedKnown=bakedKnown || strength>=bakedStrength;
+                }
             }
+            if(!bakedKnown) { known=false;return 0; }
         }
         sum+=light.color.rgb*(ndl*attenuation*visibility);
     }
     known=all(isfinite(sum));return known?sum:0;
 }
+float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,bool receivesShadows,
+    float3 footprintDirection,HLGIRayFootprint footprint,out bool known)
+{ return DirectIrradiance(p,n,biasNormal,receiverLayers,receivesShadows,1,footprintDirection,footprint,known); }
 float3 DirectIrradiance(float3 p,float3 n,float3 biasNormal,uint2 receiverLayers,bool receivesShadows,out bool known)
 { return DirectIrradiance(p,n,biasNormal,receiverLayers,receivesShadows,biasNormal,HLGIPointQueryFootprint(),known); }
 // Existing callers retain shadow receiving until their material source proves
@@ -443,7 +470,8 @@ float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFo
     float3 diffuse=proxy.albedo.rgb,emission=proxy.emission.rgb;
     float3 shadingNormal=HLGIHitHas(hit.flags,HLGI_HIT_SHADING_NORMAL)?hit.shadingNormal:hit.rawNg;
     float3 biasNormal=hit.rawNg;float ao=1;
-    bool receivesShadows=(_HLGI_LightingPolicies[hit.ownerSlot].w&1u)==0;
+    uint4 receiverPolicy=_HLGI_LightingPolicies[hit.ownerSlot];
+    bool receivesShadows=(receiverPolicy.w&1u)==0;
     bool materialResolved=HLGITrySurfaceMaterialHit(hit,surface);
     if(HLGIHitHas(hit.flags,HLGI_HIT_TRIANGLE))
     {
@@ -481,8 +509,17 @@ float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFo
         if(!cacheKnown) { confidence=0;return 0; }
     }
     bool directKnown;
-    float3 direct=DirectIrradiance(hit.position,shadingNormal,biasNormal,_HLGI_LightingPolicies[hit.ownerSlot].xy,
-        receivesShadows,incomingDirection,hitFootprint,directKnown);
+    float4 bakedMask=1;
+    if ((receiverPolicy.w&2u)!=0u)
+    {
+        // The owner has a real lightmap mask. Missing UVs or an unmatched
+        // surface must not turn into an unshadowed measurement.
+        bakedMask=-1;
+        if (materialResolved && (receiverPolicy.w&4u)!=0u)
+            bakedMask=_HLGI_SurfaceShadowmask.Load(int3(surface.atlasPixel,0));
+    }
+    float3 direct=DirectIrradiance(hit.position,shadingNormal,biasNormal,receiverPolicy.xy,
+        receivesShadows,bakedMask,incomingDirection,hitFootprint,directKnown);
     if(!directKnown || !all(isfinite(diffuse)) || !all(isfinite(emission)) || !isfinite(ao)) { confidence=0;return 0; }
     // Preserve the physical direct reflection. The 0.98 contraction cap belongs
     // only to recursive cache feedback, not to the material or its direct term.

@@ -38,6 +38,10 @@ namespace HybridLumenGI
         /// </summary>
         public static Result Plan(int fullWidth, int fullHeight, float resolutionScale, long budgetBytes,
             bool replaceNative, bool identityRequested, int receiverCapacity, int filterIterations)
+            => Plan(fullWidth, fullHeight, resolutionScale, budgetBytes, replaceNative, identityRequested, receiverCapacity, filterIterations, false);
+
+        internal static Result Plan(int fullWidth, int fullHeight, float resolutionScale, long budgetBytes,
+            bool replaceNative, bool identityRequested, int receiverCapacity, int filterIterations, bool staticShadowmask)
         {
             if (fullWidth < 1 || fullHeight < 1 || fullWidth > 16384 || fullHeight > 16384 ||
                 budgetBytes < 0 || float.IsNaN(resolutionScale) || float.IsInfinity(resolutionScale)) return default;
@@ -46,17 +50,18 @@ namespace HybridLumenGI
             int workingBytes = filterIterations >= 2 ? 16 : 8;
             if (identityRequested)
             {
-                Result identity = Fit(fullWidth, fullHeight, scale, budgetBytes, replaceNative, true, false, receiverCapacity, workingBytes);
+                Result identity = Fit(fullWidth, fullHeight, scale, budgetBytes, replaceNative, true, false, receiverCapacity, workingBytes, staticShadowmask);
                 if (identity.Fits) return identity;
             }
-            return Fit(fullWidth, fullHeight, scale, budgetBytes, replaceNative, false, identityRequested, 0, workingBytes);
+            return Fit(fullWidth, fullHeight, scale, budgetBytes, replaceNative, false, identityRequested, 0, workingBytes, staticShadowmask);
         }
 
         private static Result Fit(int fullWidth, int fullHeight, double scale, long budgetBytes,
-            bool replaceNative, bool identity, bool fallback, int receiverCapacity, int workingBytes)
+            bool replaceNative, bool identity, bool fallback, int receiverCapacity, int workingBytes, bool staticShadowmask)
         {
             long fullPixels = (long)fullWidth * fullHeight;
-            int fullBytes = (replaceNative ? 36 : 24) + (identity ? 4 : 0);
+            // With baked visibility the uint2 receiver policy becomes uint4. Layer masks remain full width.
+            int fullBytes = (replaceNative ? 36 : 24) + (identity ? 4 : 0) + (staticShadowmask ? 8 : 0);
             // History pairs: radiance (16), geometry (32), material (8), moments (32).
             // Spatial filtering reuses raw. A second half-float target is needed from pass two.
             int lowBytes = 88 + workingBytes + (identity ? 32 : 0);

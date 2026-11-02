@@ -70,6 +70,12 @@ namespace HybridLumenGI
         public int Update(int engineFrame,bool useRenderingLayers,Data[] destination,int maxLights,
             int previousCount,List<Data> changes,out int hash,bool spatialSelection,
             HybridLumenGILightRelevance.Domain domain,out SelectionDiagnostics diagnostics)
+            => Update(engineFrame,useRenderingLayers,destination,maxLights,previousCount,changes,out hash,spatialSelection,
+                domain,out diagnostics,RenderSettings.sun,true);
+
+        internal int Update(int engineFrame,bool useRenderingLayers,Data[] destination,int maxLights,
+            int previousCount,List<Data> changes,out int hash,bool spatialSelection,
+            HybridLumenGILightRelevance.Domain domain,out SelectionDiagnostics diagnostics,Light mainLight,bool additionalRealtimeShadows)
         {
             changes.Clear(); hash = 17;
             int count = 0, limit = Math.Min(destination.Length, Math.Max(0, maxLights));
@@ -82,6 +88,8 @@ namespace HybridLumenGI
             foreach (var light in Snapshot(engineFrame))
             {
                 if (!TryPack(light, useRenderingLayers, definedLayers, out Data value)) continue;
+                if (value.spot.w > 0 && light != mainLight)
+                    value.flags |= additionalRealtimeShadows ? 2u : 6u;
                 if (!spatialSelection && count >= limit) break;
                 valid++;
                 if(count<limit) destination[count++]=value;
@@ -145,8 +153,9 @@ namespace HybridLumenGI
         private static bool TryPack(Light light, bool useRenderingLayers, uint definedLayers, out Data value)
         {
             value = default;
-            if (light == null || !light.isActiveAndEnabled || GetBakeType(light) == LightmapBakeType.Baked ||
-                !Finite(light.intensity) || light.intensity <= 0 ||
+            if (light == null || !light.isActiveAndEnabled) return false;
+            var bakeType = GetBakeType(light);
+            if (bakeType == LightmapBakeType.Baked || !Finite(light.intensity) || light.intensity <= 0 ||
                 (light.type != LightType.Directional && light.type != LightType.Point && light.type != LightType.Spot)) return false;
             float bounceIntensity = light.bounceIntensity;
             if (!Finite(bounceIntensity) || bounceIntensity <= 0f) return false;
@@ -186,11 +195,15 @@ namespace HybridLumenGI
                 // so a later explicit Light.renderingLayerMask edit is observed too.
                 shadowLayers = unchecked((uint)light.renderingLayerMask);
             }
+            int channel = bakeType == LightmapBakeType.Mixed ? HybridLumenGIShadowmask.ChannelPlusOne(light) : 0;
+            // RGB is the source light. Alpha carries the baked shadow strength only
+            // for a light with an assigned channel; realtime casting can be disabled separately.
+            if (channel != 0) color.a = Finite(light.shadowStrength) ? Mathf.Clamp01(light.shadowStrength) : 0;
             value = new Data
             {
                 positionType = new Vector4(p.x, p.y, p.z, directional ? 0 : light.type == LightType.Point ? 1 : 2),
                 directionRange = new Vector4(dir.x, dir.y, dir.z, range), color = color,
-                spot = new Vector4(outer, reciprocal, strength, 0),
+                spot = new Vector4(outer, reciprocal, strength, channel),
                 cullingMask = unchecked((uint)light.cullingMask), renderingLayers = layers, shadowRenderingLayers = shadowLayers,
                 flags = useRenderingLayers ? 1u : 0u
             };

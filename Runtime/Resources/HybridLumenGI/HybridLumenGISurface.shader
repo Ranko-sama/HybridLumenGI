@@ -50,6 +50,7 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
             #pragma multi_compile_local_fragment _ _RECEIVE_SHADOWS_OFF
             #pragma multi_compile_local _ _PARALLAXMAP
             #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile _ LIGHTMAP_ON
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #if defined(LOD_FADE_CROSSFADE)
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
@@ -83,12 +84,18 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                     float4 tangentOS : TANGENT;
                 #endif
                 float2 uv : TEXCOORD0;
+                #if defined(LIGHTMAP_ON)
+                float2 staticLightmapUV : TEXCOORD1;
+                #endif
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                #if defined(LIGHTMAP_ON)
+                float2 staticLightmapUV : TEXCOORD2;
+                #endif
                 #if defined(_PARALLAXMAP)
                     half3 viewDirTS : TEXCOORD1;
                 #endif
@@ -101,8 +108,7 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                 half4 diffuseOcclusion : SV_Target0;
                 // Linear emitted radiance; alpha carries validity and shadow policy.
                 half4 emissionValidity : SV_Target1;
-                // R32G32_UInt: GameObject layer bit and Renderer rendering mask.
-                uint2 receiverPolicy : SV_Target2;
+                uint4 receiverPolicy : SV_Target2;
             };
             Varyings Vert(Attributes input)
             {
@@ -112,6 +118,9 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                #if defined(LIGHTMAP_ON)
+                output.staticLightmapUV = input.staticLightmapUV * unity_LightmapST.xy + unity_LightmapST.zw;
+                #endif
                 #if defined(_PARALLAXMAP)
                     // Match Lit's per-vertex tangent-space view before interpolation.
                     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
@@ -186,7 +195,12 @@ Shader "Hidden/HybridLumenGI/SurfaceData"
                 SurfaceOutput output;
                 output.diffuseOcclusion = half4(saturate(albedo * diffuseFraction), saturate(occlusion));
                 output.emissionValidity = half4(emission, HLGIEncodeScreenMaterial(1.0h, HLGICaptureReceivesShadows()));
-                output.receiverPolicy = HLGICaptureReceiverPolicy();
+                #if defined(LIGHTMAP_ON)
+                    uint2 bakedMask = HLGICaptureStaticShadowmask(input.staticLightmapUV);
+                #else
+                    uint2 bakedMask = uint2(0x3c003c00u,0x3c003c00u);
+                #endif
+                output.receiverPolicy = uint4(HLGICaptureReceiverPolicy(), bakedMask);
                 return output;
             }
             ENDHLSL

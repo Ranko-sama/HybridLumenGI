@@ -343,12 +343,36 @@ namespace HybridLumenGI
             internal int patchGrid,cacheEntryCount,previousLightCount;
             internal int fullWidth,fullHeight,fullPixelBytes;
             internal bool valid,lastHardware,lightingChanged;
+            private (Texture2D texture,uint version)[] shadowmaskSlots;
             internal Matrix4x4 previousVP=Matrix4x4.identity,previousInvVP=Matrix4x4.identity;
             internal Vector2 previousJitter;
             internal Vector3 previousPosition;
             internal Quaternion previousRotation;
             private RenderTexture historyTarget;
             private bool hasHistoryTarget;
+            internal bool RefreshShadowmaskHistory(LightmapData[] maps)
+            {
+                bool changed=(maps==null)!=(shadowmaskSlots==null);
+                if(maps==null) { shadowmaskSlots=null;return changed; }
+                // LightmapSettings may return a fresh array for unchanged inputs.
+                // A screen hit can use a lightmapped renderer with no GI proxy.
+                if(shadowmaskSlots==null || shadowmaskSlots.Length!=maps.Length)
+                {
+                    if(shadowmaskSlots!=null)
+                        for(int i=maps.Length;i<shadowmaskSlots.Length;i++)
+                            changed|=!ReferenceEquals(shadowmaskSlots[i].texture,null);
+                    Array.Resize(ref shadowmaskSlots,maps.Length);
+                }
+                for(int i=0;i<maps.Length;i++)
+                {
+                    Texture2D texture=maps[i]?.lightmapColor!=null?maps[i].shadowMask:null;
+                    if(!texture) texture=null; // Normalize Unity's destroyed-object reference.
+                    uint version=texture!=null?texture.updateCount:0;
+                    changed|=!ReferenceEquals(shadowmaskSlots[i].texture,texture) || shadowmaskSlots[i].version!=version;
+                    shadowmaskSlots[i]=(texture,version);
+                }
+                return changed;
+            }
             internal readonly MaterialPropertyBlock properties=new MaterialPropertyBlock();
             internal CameraState(Camera camera)
             {
@@ -585,7 +609,7 @@ namespace HybridLumenGI
                 internal long fingerprintBudget;
                 internal LayerMask materialLayers;
                 internal ReceiverCaptureReceipt receiverReceipt;
-                internal bool identityExpected;
+                internal bool identityExpected,staticShadowmask;
             }
             private sealed class ReceiverCaptureReceipt { internal bool sourcesCurrent,identityRecorded; }
             private sealed class NativeResolveData
@@ -610,7 +634,7 @@ namespace HybridLumenGI
                 internal Vector4 materialView;
                 internal Vector2 jitterDelta;
                 internal int read,cacheRead,cacheStart,frame,epoch,lightCount,filterIterations;
-                internal bool valid,hasMotion,hardware;
+                internal bool valid,hasMotion,hardware,staticShadowmask;
                 internal Rect viewport;
                 internal HybridLumenGIGpuFrameTiming frameTiming;
                 internal HybridLumenGIHistoryLifecycle.FrameToken historyToken;
@@ -666,15 +690,19 @@ namespace HybridLumenGI
                         return;
                     }
                 }
+                var maps=HybridLumenGIShadowmask.ActiveMaps();
+                bool staticShadowmask=maps!=null;
+                var policyFormat=staticShadowmask?GraphicsFormat.R32G32B32A32_UInt:GraphicsFormat.R32G32_UInt;
                 if(!SystemInfo.IsFormatSupported(GraphicsFormat.R16G16B16A16_SFloat,GraphicsFormatUsage.LoadStore) ||
                     !SystemInfo.IsFormatSupported(GraphicsFormat.R32G32B32A32_SFloat,GraphicsFormatUsage.LoadStore) ||
                     !SystemInfo.IsFormatSupported(GraphicsFormat.R8G8B8A8_UNorm,GraphicsFormatUsage.LoadStore) ||
-                    !SystemInfo.IsFormatSupported(GraphicsFormat.R32G32_UInt,GraphicsFormatUsage.Render) ||
-                    // Integer policy pixels use Texture2D<uint2>.Load, never filtered Sample.
-                    !SystemInfo.IsFormatSupported(GraphicsFormat.R32G32_UInt,GraphicsFormatUsage.LoadStore) ||
-                    SystemInfo.supportedRenderTargetCount<(replace?4:3)) return;
+                    !SystemInfo.IsFormatSupported(policyFormat,GraphicsFormatUsage.Render) ||
+                    !SystemInfo.IsFormatSupported(policyFormat,GraphicsFormatUsage.LoadStore) ||
+                    // The optional world mask is the fifth surface-card attachment.
+                    SystemInfo.supportedRenderTargetCount<(staticShadowmask?5:replace?4:3)) return;
                 var camera=cameraData.camera;
                 var state=GetCameraState(camera);
+                state.surfaceCache.SetShadowmaskSources(maps);
                 state.PrepareHistoryTarget(camera.targetTexture);
                 state.lastUsed=Time.frameCount;
                 int fullW=cameraData.cameraTargetDescriptor.width,fullH=cameraData.cameraTargetDescriptor.height;
@@ -691,7 +719,7 @@ namespace HybridLumenGI
                 // The helper first reserves all identity resources, then retries without them.
                 int filterIterations=Mathf.Clamp(s.filterIterations,0,4);
                 var screenBudget=HybridLumenGIScreenBudget.Plan(fullW,fullH,s.resolutionScale,
-                    (long)Math.Max(32,s.textureBudgetMiB)*1024*1024,replace,identityEnabled,s.receiverSourceCapacity,filterIterations);
+                    (long)Math.Max(32,s.textureBudgetMiB)*1024*1024,replace,identityEnabled,s.receiverSourceCapacity,filterIterations,staticShadowmask);
                 identityEnabled=screenBudget.IdentityEnabled && screenBudget.Fits;
                 if(screenBudget.IdentityBudgetFallback)
                     state.receiverIdentityStatus="Identity budget fallback: object history disabled; baseline current GI retained when affordable.";
@@ -707,10 +735,11 @@ namespace HybridLumenGI
                 int slots=Mathf.Clamp(s.residentProxies,32,256);
                 state.Ensure(w,h,identityEnabled);
                 string serializedSettings=JsonUtility.ToJson(s);
-                if(serializedSettings!=state.lastSettingsJson)
+                bool shadowmaskChanged=state.RefreshShadowmaskHistory(maps);
+                if(serializedSettings!=state.lastSettingsJson || shadowmaskChanged)
                 {
                     string transportSettings=s.TransportSettingsJson();
-                    if(transportSettings!=state.lastTransportSettingsJson)
+                    if(transportSettings!=state.lastTransportSettingsJson || shadowmaskChanged)
                     {
                         state.epoch=state.epoch%8000000+1;state.InvalidateScreenHistory();
                         state.scene.InvalidateReadiness();state.readiness.Invalidate();
@@ -739,7 +768,7 @@ namespace HybridLumenGI
                         state.scene.ReportReadiness(id,revision,false,false,false);
                 }
                 state.scenePreparedEngineFrame = state.scenePreparedWorkFrame = -1;
-                state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),s.chunkSize,s.proxyUploadsPerFrame);
+                state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),s.chunkSize,s.proxyUploadsPerFrame,maps);
                 state.scenePreparedEngineFrame = Time.frameCount; state.scenePreparedWorkFrame = state.frame;
                 state.sdf.Prepare(state.scene,2*1024*1024);
                 state.globalSdf.Prepare(state.scene,state.sdf,camera.transform.position,new HybridLumenGIGlobalSdf.Configuration
@@ -772,7 +801,9 @@ namespace HybridLumenGI
                 // must cover its reconstruction, including the current URP jitter.
                 Matrix4x4 view=cameraData.GetViewMatrix(),vp=GL.GetGPUProjectionMatrix(cameraData.GetProjectionMatrix(),true)*view;
                 Matrix4x4 invVP=vp.inverse;
-                int lightCount=UpdateLights(state,lightData.supportsLightLayers,cameraData,view,invVP);
+                Light mainLight=staticShadowmask && lightData.mainLightIndex>=0 ? lightData.visibleLights[lightData.mainLightIndex].light : null;
+                int lightCount=UpdateLights(state,lightData.supportsLightLayers,cameraData,view,invVP,
+                    mainLight,!staticShadowmask || frameData.Get<UniversalShadowData>().supportsAdditionalLightShadows);
                 foreach(Bounds bounds in state.surfaceCache.ChangedBounds)
                     state.changes.Add(bounds,false,Mathf.Max(1,s.traceDistance));
                 state.lightingChanged|=state.surfaceCache.ChangedBounds.Count>0 || state.sdf.RepresentationChangedBounds.Count>0;
@@ -840,10 +871,11 @@ namespace HybridLumenGI
                 int write=1-state.readIndex;
                 var diffuse=CreateTexture(graph,fullW,fullH,replace?GraphicsFormat.R16G16B16A16_SFloat:GraphicsFormat.R8G8B8A8_UNorm,"HLGI surface diffuse",false);
                 var emission=CreateTexture(graph,fullW,fullH,GraphicsFormat.R16G16B16A16_SFloat,"HLGI surface emission",false);
-                var receiverPolicy=CreateTexture(graph,fullW,fullH,GraphicsFormat.R32G32_UInt,"HLGI receiver lighting policy",false);
+                var receiverPolicy=CreateTexture(graph,fullW,fullH,policyFormat,"HLGI receiver lighting policy",false);
                 var nativeDiffuseFog=replace?CreateTexture(graph,fullW,fullH,GraphicsFormat.R16G16B16A16_SFloat,"HLGI native diffuse and fog",false):emission;
                 var captureDepth=graph.CreateTexture(new TextureDesc(fullW,fullH){name="HLGI capture depth",depthBufferBits=DepthBits.Depth32,clearBuffer=true});
                 var drawing=RenderingUtils.CreateDrawingSettings(tags,rendering,cameraData,lightData,cameraData.defaultOpaqueSortFlags);
+                if(staticShadowmask) drawing.perObjectData|=PerObjectData.Lightmaps|PerObjectData.ShadowMask;
                 drawing.overrideShader=replace?nativeDiffuse:surface; drawing.overrideShaderPassIndex=0;
                 // UnityPerDraw exposes rendering layers, but not the GameObject layer.
                 // Disjoint renderer lists provide that identity without modifying renderers/MPBs.
@@ -861,9 +893,11 @@ namespace HybridLumenGI
                     data.owner=this;data.historyToken=historyToken;data.receiverSources=receiverSources;
                     data.fingerprintBudget=fingerprintBudget;data.materialLayers=s.materialLayers;
                     data.receiverReceipt=receiverReceipt;data.identityExpected=identityEnabled;
+                    data.staticShadowmask=staticShadowmask;
                     foreach(var list in data.renderers) builder.UseRendererList(list);
                     builder.SetRenderAttachment(diffuse,0,AccessFlags.Write); builder.SetRenderAttachment(emission,1,AccessFlags.Write);
-                    if(replace) { builder.SetRenderAttachment(nativeDiffuseFog,2,AccessFlags.Write);builder.UseAllGlobalTextures(true); }
+                    if(replace) builder.SetRenderAttachment(nativeDiffuseFog,2,AccessFlags.Write);
+                    if(replace || staticShadowmask) builder.UseAllGlobalTextures(true);
                     builder.SetRenderAttachment(receiverPolicy,replace?3:2,AccessFlags.Write);
                     builder.AllowGlobalStateModification(true);
                     builder.SetRenderAttachmentDepth(captureDepth,AccessFlags.Write);
@@ -876,6 +910,7 @@ namespace HybridLumenGI
                             if(d.receiverSources!=null && d.state.historyLifecycle.IsCurrent(d.historyToken))
                                 sourceInputsCurrent=d.owner.receiverRegistry.IsCurrent(d.receiverSources,
                                     d.owner.receiverDiscovery.Scan(d.state.camera,d.materialLayers),d.fingerprintBudget);
+                            ctx.cmd.SetGlobalInt("_HLGI_CaptureStaticShadowmask",d.staticShadowmask?1:0);
                             for(int i=0;i<d.renderers.Length;i++)
                             {
                                 ctx.cmd.SetGlobalFloat("_HLGI_ReceiverLayerIndex",d.layers[i]);
@@ -887,6 +922,7 @@ namespace HybridLumenGI
                         catch { d.state.InvalidateFailedRender();throw; }
                         finally
                         {
+                            ctx.cmd.SetGlobalInt("_HLGI_CaptureStaticShadowmask",0);
                             d.frameTiming.End(HybridLumenGIGpuFrameTiming.Phase.ReceiverCapture,ctx.cmd);
                         }
                     });
@@ -925,7 +961,7 @@ namespace HybridLumenGI
                     geometry=hardware?state.hardware:softwareExact?state.softwareGeometry:null,
                     depth=resources.cameraDepthTexture,captureDepth=captureDepth,normals=resources.cameraNormalsTexture,
                     motion=resources.motionVectorColor.IsValid()?resources.motionVectorColor:resources.cameraNormalsTexture,
-                    hasMotion=resources.motionVectorColor.IsValid(),diffuse=diffuse,emission=emission,receiverPolicy=receiverPolicy,
+                    hasMotion=resources.motionVectorColor.IsValid(),diffuse=diffuse,emission=emission,receiverPolicy=receiverPolicy,staticShadowmask=staticShadowmask,
                     raw=raw,filterIterations=filterIterations,
                     tempA=filterIterations>1?CreateTexture(graph,w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI filter A"):raw,
                     historyRead=graph.ImportTexture(state.history[state.readIndex]),historyWrite=graph.ImportTexture(state.history[write]),
@@ -963,6 +999,8 @@ namespace HybridLumenGI
                     }
                     foreach(var atlas in new[]{state.surfaceCache.DiffuseAtlas,state.surfaceCache.EmissionAtlas,state.surfaceCache.PositionAtlas,state.surfaceCache.NormalAtlas,state.surfaceCache.DepthAtlas})
                         builder.UseTexture(graph.ImportTexture(atlas),AccessFlags.ReadWrite);
+                    if(state.surfaceCache.ShadowmaskAtlas!=null)
+                        builder.UseTexture(graph.ImportTexture(state.surfaceCache.ShadowmaskAtlas),AccessFlags.ReadWrite);
                     if(work.hitMaterials!=null)
                     {
                         foreach(var buffer in work.hitMaterials.Buffers)builder.UseBuffer(buffer,AccessFlags.ReadWrite);
@@ -1082,7 +1120,7 @@ namespace HybridLumenGI
                 b.raw=a.raw;b.tempA=a.tempA;b.filterIterations=a.filterIterations;b.historyRead=a.historyRead;b.historyWrite=a.historyWrite;b.geometryRead=a.geometryRead;b.geometryWrite=a.geometryWrite;
                 b.materialRead=a.materialRead;b.materialWrite=a.materialWrite;b.momentsRead=a.momentsRead;b.momentsWrite=a.momentsWrite;b.vp=a.vp;b.invVP=a.invVP;b.view=a.view;
                 b.previousVP=a.previousVP;b.previousInvVP=a.previousInvVP;b.materialView=a.materialView;b.jitterDelta=a.jitterDelta;b.read=a.read;b.cacheRead=a.cacheRead;b.cacheStart=a.cacheStart;b.frame=a.frame;
-                b.epoch=a.epoch;b.lightCount=a.lightCount;b.valid=a.valid;b.hasMotion=a.hasMotion;
+                b.epoch=a.epoch;b.lightCount=a.lightCount;b.valid=a.valid;b.hasMotion=a.hasMotion;b.staticShadowmask=a.staticShadowmask;
                 b.viewport=a.viewport;
                 b.frameTiming=a.frameTiming;b.historyToken=a.historyToken;b.cachePatchBudget=a.cachePatchBudget;
                 b.useIdentity=a.useIdentity;b.identity=a.identity;b.identityRead=a.identityRead;b.identityWrite=a.identityWrite;
@@ -1267,6 +1305,7 @@ namespace HybridLumenGI
                 SetTexture(cmd,c,trace,"_HLGI_CaptureDepth",d.captureDepth);
                 SetTexture(cmd,c,trace,"_HLGI_Diffuse",d.diffuse);SetTexture(cmd,c,trace,"_HLGI_Emission",d.emission);
                 SetTexture(cmd,c,trace,"_HLGI_ReceiverPolicy",d.receiverPolicy);
+                cmd.SetComputeIntParam(c,"_HLGI_ScreenStaticShadowmask",d.staticShadowmask?1:0);
                 SetTexture(cmd,c,trace,"_HLGI_Output",d.raw);SetTexture(cmd,c,trace,"_HLGI_GeometryOut",d.geometryWrite);SetTexture(cmd,c,trace,"_HLGI_MaterialOut",d.materialWrite);
                 using(d.frameTiming.Profile(cmd,"HLGI Gather")) Dispatch(cmd,c,trace,state);
                 SetTexture(cmd,c,temporal,"_HLGI_Input",d.raw);SetTexture(cmd,c,temporal,"_HLGI_Geometry",d.geometryWrite);SetTexture(cmd,c,temporal,"_HLGI_Material",d.materialWrite);
@@ -1297,13 +1336,15 @@ namespace HybridLumenGI
             { RTHandle rt=handle;cmd.SetComputeTextureParam(c,kernel,name,rt.nameID); }
             private static void Dispatch(CommandBuffer cmd,ComputeShader c,int k,CameraState state)
             { cmd.DispatchCompute(c,k,(state.width+7)/8,(state.height+7)/8,1); }
-            private int UpdateLights(CameraState state,bool useRenderingLayers,UniversalCameraData cameraData,Matrix4x4 view,Matrix4x4 invVP)
+            private int UpdateLights(CameraState state,bool useRenderingLayers,UniversalCameraData cameraData,Matrix4x4 view,Matrix4x4 invVP,
+                Light mainLight,bool additionalRealtimeShadows)
             {
                 state.lightDomain=default;state.lightDomainReason="Disabled";
                 if(s.spatialLightSelection) TryLightDomain(state,cameraData,view,invVP,out state.lightDomain,out state.lightDomainReason);
                 state.localLightChangeBounds.Clear();
                 int count=worldLights.Update(Time.frameCount,useRenderingLayers,state.lightData,Mathf.Clamp(s.maxLights,1,32),
-                    state.previousLightCount,state.lightChanges,out int hash,s.spatialLightSelection,state.lightDomain,out state.lightSelection);
+                    state.previousLightCount,state.lightChanges,out int hash,s.spatialLightSelection,state.lightDomain,out state.lightSelection,
+                    mainLight,additionalRealtimeShadows);
                 state.lightingChanged=state.lightChanges.Count>0;
                 foreach(var changed in state.lightChanges) AddLightChange(state,changed);
                 state.previousLightCount=count;state.lastLightHash=hash;
