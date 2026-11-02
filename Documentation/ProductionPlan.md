@@ -2,7 +2,7 @@
 
 Release117 已有普通三室 F4 中室的 G5 本机预算行。固定视点 960×540、2 射线、4 级滤波、实际 DXR 的 GI 三段合计 p95／p99 为 16.170／16.729 ms，进程 local 峰值为 566.191 MiB，同一窗口满足既定预算。首次入场、全应用提交间隔及更大负载继续开放。[三室中室预算与原始票据](../LocalComparison/Review/three-room-middle-budget-117/result.md)
 
-G1 相机合成在单盏 Mixed 主灯和真实 Shadowmask 下新增一项实机依据。HLGI 间接强度为零时，受遮和受光区域与保留原烘焙遮罩的独立原生直射相符。世界端烘焙可见性、其他混合光模式和动态接收体仍开放。[原始图与边界](../LocalComparison/Review/mixed-shadowmask-01/result.md)
+G1 相机合成在单盏 Mixed 主灯和真实 Shadowmask 下新增一项实机依据。HLGI 间接强度为零时，受遮和受光区域与保留原烘焙遮罩的独立原生直射相符。118 的静态世界图卡反弹结果见第 6 节，其他混合模式和动态接收体仍开放。[原始图与边界](../LocalComparison/Review/mixed-shadowmask-01/result.md)
 
 G4 的统一示例使用有界的相机位移预测先请求粗根页。Release110 在每秒 20 世界单位的冷入折返中，回程 1.78 单位时首次取得可提交的完整近景细节；Release109 在回程 7.39 单位时首次取得远景根。两次最近点仍无完整表示。[对照条件、页状态和剩余空档](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
@@ -195,10 +195,10 @@ flowchart TD
 
 屏幕纹理估算计入8B/pixel整数接收面策略与两张RGBA32F moments：Additive为 `24 × fullWidth × fullHeight + 112 × giWidth × giHeight` 字节/相机，原生替换为 `36 × fullWidth × fullHeight + 112 × giWidth × giHeight`。1920×1080、960×540 GI分别为107,827,200B（102.83203125 MiB）和132,710,400B（126.5625 MiB）。这是分配估算而非GPU测量。owner策略另计16B/scene slot，默认128槽为2KiB；灯记录80B，固定32项buffer为每相机2,560B。
 
-世界表面资源独立于屏幕预算。当前每卡 metadata 为 128 字节，owner 范围为每 scene slot 16 字节，卡间接索引每池项 4 字节，anchor 每 patch 8 字节，发光描述符每卡 32 字节：
+启用静态 Shadowmask 时，屏幕接收策略额外占 8B/full pixel；世界图集下式的 staticShadowmaskBytes 为 8，未启用时为 0。世界表面资源独立于屏幕预算。当前每卡 metadata 为 128 字节，owner 范围为每 scene slot 16 字节，卡间接索引每池项 4 字节，anchor 每 patch 8 字节，发光描述符每卡 32 字节：
 
 ```text
-surfaceBytes = 40 × atlasWidth × atlasHeight
+surfaceBytes = (40 + staticShadowmaskBytes) × atlasWidth × atlasHeight
              + cardCapacity × (128 + 4 + grid² × 8 + 32)
              + sceneSlotCapacity × 16
 irradianceBytes = cardCapacity × grid² × 80 × 2
@@ -215,7 +215,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release117。统一示例在首个域外相机帧即可隐藏旧组，处于加载带时仍能保持绑定。冷入最近点仍无完整组，原缓存调度保留。本版 Win64 从同版可编辑三室工程 ZIP 构建，整合此前两项几何与材质反弹修复。**G0 本机基线已锁定，G1–G5 继续开放。** [实际相机边界](../LocalComparison/Review/outside-group-visibility-01/result.md) · [Release117](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release117-demo)
+当前交付为 Release118。已烘焙静态受光面的世界反弹可采用 Mixed 灯的实际遮罩通道、光图 UV 与图卡绑定。单主灯遮罩／白遮罩的普通间接光对照覆盖两个固定区域。普通三室从同版可编辑工程 ZIP 构建，保留 117 的出域修复。**G0 本机基线已锁定，G1–G5 继续开放。** [画面与范围](../LocalComparison/Review/mixed-static-world-bounce-01/result.md) · [Release118](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release118-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

@@ -1,0 +1,341 @@
+{
+  "scope": "Two fixed interior surface regions of the new downward-facing neutral receiver. One static ordinary opaque Lit source, non-directional bake, one Mixed directional main light, Shadowmask mode channel 0, raw vs all-white mask. No realtime caster or emitting board. World one-bounce, no screen hits, cache feedback, temporal or spatial filter.",
+  "units": "Displayed ordinary cameraAfterHLGI IndirectOnly is linear outgoing indirect RGB, after the receiving material. filteredD separately reports incoming indirect irradiance/pi before receiving reflectance or AO.",
+  "sourceBinding": {
+    "cameraPosition": {
+      "x": 0.0,
+      "y": 0.03999999910593033,
+      "z": 0.0
+    },
+    "cameraRotation": {
+      "x": -0.7071068286895752,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 0.7071068286895752
+    },
+    "orthographicSize": 2.25,
+    "sourceST": {
+      "x": 0.328125,
+      "y": 0.328125,
+      "z": 0.0,
+      "w": 0.0
+    },
+    "lightmapIndex": 0,
+    "originalMask": "Assets/HLGIMixedShadowmask110/MixedReceiver/Lightmap-0_comp_shadowmask.png",
+    "colorAtlas": "Assets/HLGIMixedShadowmask110/MixedReceiver/Lightmap-0_comp_light.exr",
+    "channel": 0,
+    "sourceMesh": "Assets/HLGIMixedShadowmask110/Receiver0.asset",
+    "sourceVertices": 121,
+    "sourceUv2": 121,
+    "toLight": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "mainColor": {
+      "r": 0.41999998688697815,
+      "g": 0.8999999761581421,
+      "b": 0.5099999904632568,
+      "a": 1.0
+    },
+    "mainIntensity": 0.800000011920929,
+    "qualityMode": "Shadowmask",
+    "bakedMode": "Shadowmask"
+  },
+  "settings": {
+    "resolutionScale": 1.0,
+    "raysPerPixel": 8,
+    "filterIterations": 0,
+    "temporalAccumulation": false,
+    "screenSteps": 0,
+    "traceDistance": 1.0,
+    "bounceFeedback": 0.0,
+    "guidedSamplingWeight": 0.0,
+    "emissiveSamplingWeight": 0.0,
+    "maxAreaEmitterTriangles": 0,
+    "maxEmissiveProposals": 0,
+    "environmentRadiance": {
+      "r": 0.0,
+      "g": 0.0,
+      "b": 0.0,
+      "a": 1.0
+    },
+    "indirectIntensity": 1.0,
+    "preferHardwareTracing": true,
+    "debugView": 1,
+    "composition": 0
+  },
+  "endpoints": {
+    "Baseline": {
+      "BakedMask": {
+        "workFrame": 31,
+        "engineFrame": 35,
+        "actualMask": "Assets/HLGIMixedShadowmask110/MixedReceiver/Lightmap-0_comp_shadowmask.png",
+        "originalMask": "Assets/HLGIMixedShadowmask110/MixedReceiver/Lightmap-0_comp_shadowmask.png",
+        "activeLightCount": 1,
+        "hardwareMeshes": 2,
+        "hardwareFallbacks": 0,
+        "chartedOwners": 2,
+        "readyCards": 2,
+        "sourceSlot": 0,
+        "sourceCards": 1,
+        "receiverSlot": 1,
+        "receiverCards": 1,
+        "sourceUv2Vertices": 121,
+        "captureSource": "I:\\Unity test\\Comparison\\MixedBounce118Baseline\\BakedMask\\signals\\frame-0031-capture.json"
+      },
+      "WhiteMask": {
+        "workFrame": 31,
+        "engineFrame": 34,
+        "actualMask": "Unit shadowMask",
+        "originalMask": "Assets/HLGIMixedShadowmask110/MixedReceiver/Lightmap-0_comp_shadowmask.png",
+        "activeLightCount": 1,
+        "hardwareMeshes": 2,
+        "hardwareFallbacks": 0,
+        "chartedOwners": 2,
+        "readyCards": 2,
+        "sourceSlot": 0,
+        "sourceCards": 1,
+        "receiverSlot": 1,
+        "receiverCards": 1,
+        "sourceUv2Vertices": 121,
+        "captureSource": "I:\\Unity test\\Comparison\\MixedBounce118Baseline\\WhiteMask\\signals\\frame-0031-capture.json"
+      }
+    },
+    "Candidate": {
+      "BakedMask": {
+        "workFrame": 31,
+        "engineFrame": 35,
+        "actualMask": "Assets/HLGIMixedShadowmask110/MixedReceiver/Lightmap-0_comp_shadowmask.png",
+        "originalMask": "Assets/HLGIMixedShadowmask110/MixedReceiver/Lightmap-0_comp_shadowmask.png",
+        "activeLightCount": 1,
+        "hardwareMeshes": 2,
+        "hardwareFallbacks": 0,
+        "chartedOwners": 2,
+        "readyCards": 2,
+        "sourceSlot": 0,
+        "sourceCards": 1,
+        "receiverSlot": 1,
+        "receiverCards": 1,
+        "sourceUv2Vertices": 121,
+        "captureSource": "I:\\Unity test\\Comparison\\MixedBounce118Candidate\\BakedMask\\signals\\frame-0031-capture.json"
+      },
+      "WhiteMask": {
+        "workFrame": 31,
+        "engineFrame": 34,
+        "actualMask": "Unit shadowMask",
+        "originalMask": "Assets/HLGIMixedShadowmask110/MixedReceiver/Lightmap-0_comp_shadowmask.png",
+        "activeLightCount": 1,
+        "hardwareMeshes": 2,
+        "hardwareFallbacks": 0,
+        "chartedOwners": 2,
+        "readyCards": 2,
+        "sourceSlot": 0,
+        "sourceCards": 1,
+        "receiverSlot": 1,
+        "receiverCards": 1,
+        "sourceUv2Vertices": 121,
+        "captureSource": "I:\\Unity test\\Comparison\\MixedBounce118Candidate\\WhiteMask\\signals\\frame-0031-capture.json"
+      }
+    }
+  },
+  "fixedRegions": {
+    "aboveBakedShade": {
+      "rectTextureXYXY": [
+        56,
+        64,
+        72,
+        80
+      ],
+      "pixels": 256,
+      "commonKnownAcrossVersionsAndMasks": 256,
+      "versions": {
+        "Baseline": {
+          "BakedMask": {
+            "known": 256,
+            "unknown": 0,
+            "ordinaryMeanRgbAll": [
+              0.11544203758239746,
+              0.617222785949707,
+              0.17513322830200195
+            ],
+            "ordinaryMeanYAll": 0.47862533278465264,
+            "ordinaryMeanRgbCommon": [
+              0.11544203758239746,
+              0.617222785949707,
+              0.17513322830200195
+            ],
+            "meanDCommon": [
+              0.11544203758239746,
+              0.617222785949707,
+              0.17513322830200195
+            ]
+          },
+          "WhiteMask": {
+            "known": 256,
+            "unknown": 0,
+            "ordinaryMeanRgbAll": [
+              0.11544203758239746,
+              0.617222785949707,
+              0.17513322830200195
+            ],
+            "ordinaryMeanYAll": 0.47862533278465264,
+            "ordinaryMeanRgbCommon": [
+              0.11544203758239746,
+              0.617222785949707,
+              0.17513322830200195
+            ],
+            "meanDCommon": [
+              0.11544203758239746,
+              0.617222785949707,
+              0.17513322830200195
+            ]
+          },
+          "ordinaryWhiteMinusBakedMeanYAll": 0.0
+        },
+        "Candidate": {
+          "BakedMask": {
+            "known": 256,
+            "unknown": 0,
+            "ordinaryMeanRgbAll": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ordinaryMeanYAll": 0.0,
+            "ordinaryMeanRgbCommon": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "meanDCommon": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "WhiteMask": {
+            "known": 256,
+            "unknown": 0,
+            "ordinaryMeanRgbAll": [
+              0.11544203758239746,
+              0.617222785949707,
+              0.17513322830200195
+            ],
+            "ordinaryMeanYAll": 0.47862533278465264,
+            "ordinaryMeanRgbCommon": [
+              0.11544203758239746,
+              0.617222785949707,
+              0.17513322830200195
+            ],
+            "meanDCommon": [
+              0.11544203758239746,
+              0.617222785949707,
+              0.17513322830200195
+            ]
+          },
+          "ordinaryWhiteMinusBakedMeanYAll": 0.47862533278465264
+        }
+      }
+    },
+    "aboveBakedLight": {
+      "rectTextureXYXY": [
+        184,
+        64,
+        200,
+        80
+      ],
+      "pixels": 256,
+      "commonKnownAcrossVersionsAndMasks": 256,
+      "versions": {
+        "Baseline": {
+          "BakedMask": {
+            "known": 256,
+            "unknown": 0,
+            "ordinaryMeanRgbAll": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ],
+            "ordinaryMeanYAll": 0.4810163004398346,
+            "ordinaryMeanRgbCommon": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ],
+            "meanDCommon": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ]
+          },
+          "WhiteMask": {
+            "known": 256,
+            "unknown": 0,
+            "ordinaryMeanRgbAll": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ],
+            "ordinaryMeanYAll": 0.4810163004398346,
+            "ordinaryMeanRgbCommon": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ],
+            "meanDCommon": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ]
+          },
+          "ordinaryWhiteMinusBakedMeanYAll": 0.0
+        },
+        "Candidate": {
+          "BakedMask": {
+            "known": 256,
+            "unknown": 0,
+            "ordinaryMeanRgbAll": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ],
+            "ordinaryMeanYAll": 0.4810163004398346,
+            "ordinaryMeanRgbCommon": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ],
+            "meanDCommon": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ]
+          },
+          "WhiteMask": {
+            "known": 256,
+            "unknown": 0,
+            "ordinaryMeanRgbAll": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ],
+            "ordinaryMeanYAll": 0.4810163004398346,
+            "ordinaryMeanRgbCommon": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ],
+            "meanDCommon": [
+              0.11601662635803223,
+              0.6203069686889648,
+              0.17600584030151367
+            ]
+          },
+          "ordinaryWhiteMinusBakedMeanYAll": 0.0
+        }
+      }
+    }
+  },
+  "display": "Exposure 1, per-channel Reinhard then sRGB for display only. Vertically flipped numeric texture for human view. Solid boxes denote the preselected left/right 16×16 regions."
+}
