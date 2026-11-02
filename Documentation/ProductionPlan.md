@@ -213,7 +213,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release113。普通 Player 显式选择软件后会归还已停用的 DXR 几何和全局预约，重新选择 DXR 可恢复硬件路径。离线画册新增近处解析遮板与远处精确色墙的混合追踪对照，也包含门、灯与切镜的完整路线。发布页提供普通 Windows 运行包和可编辑 Unity 工程。**G0 本机基线已锁定，G1–G5 继续开放。** 各项结果保留原采集版本及适用范围。[Release113](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release113-demo) · [工程重建步骤](UnifiedUnityProject.md) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
+当前交付为 Release114。单槽普通 Lit 的均匀材质回退支持运行时颜色覆盖及其移除，实机地板反弹与三个连续工作帧的有效发光颜色一致。普通 Windows 运行包从可编辑 Unity 工程 ZIP 的独立解压目录构建，离线画册同时收录这次换色、混合回退遮挡和完整门灯路线。**G0 本机基线已锁定，G1–G5 继续开放。** 各项结果保留原采集版本及适用范围。[Release114](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release114-demo) · [工程重建步骤](UnifiedUnityProject.md) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

@@ -1,0 +1,420 @@
+{
+  "quantity": "filteredD = E_indirect/pi. Linear RGB, before receiver diffuse, AO and composite intensity.",
+  "settings": {
+    "resolutionScale": 0.5,
+    "raysPerPixel": 2,
+    "filterIterations": 4,
+    "temporalAccumulation": true,
+    "temporalCurrentWeight": 0.08,
+    "maxHistory": 32,
+    "bounceFeedback": 1,
+    "cachePatchesPerFrame": 256,
+    "cachePatchGrid": 4,
+    "cacheRaysPerFace": 8,
+    "screenSteps": 24,
+    "guidedSamplingWeight": 0.35,
+    "emissiveSamplingWeight": 0.5,
+    "maxEmissiveProposals": 16,
+    "globalSdfEnabled": true,
+    "preferHardwareTracing": true,
+    "adaptiveGpuBudget": false,
+    "receiverObjectHistory": true,
+    "debugView": 0
+  },
+  "cameraPixels": [
+    640,
+    360
+  ],
+  "giPixels": [
+    320,
+    180
+  ],
+  "event": {
+    "afterLogical": 119,
+    "engineFrame": 123,
+    "firstBlue": 120,
+    "sharedEmission": [
+      0,
+      0,
+      0
+    ],
+    "rendererMpbBefore": [
+      0,
+      1,
+      0
+    ],
+    "rendererMpbAfter": [
+      0,
+      0,
+      1
+    ],
+    "manualMarkDirty": false
+  },
+  "source": "Single hidden one-slot opaque Lit MeshRenderer, non-readable box, black reflectance and shared emission, enabled _EMISSION; analytic fallback, no chart or SDF. White floor and colored wall remain exact geometry. No active analytic lights, no other emission, black environment.",
+  "settingsScope": "Release114 Feature settings cloned; fixture excludes the panel layer from card capture. Fixed 640x360 fixture camera, held geometry and no light/sky source apart from the changing panel.",
+  "backend": {
+    "published": 3,
+    "exactDxrMeshes": 2,
+    "analyticFallbacks": 1,
+    "selectedLights": 0
+  },
+  "receiverDomain": {
+    "previousFullSelection": "LocalComparison/Review/finite-wall-occlusion-response-01/native/selection.json",
+    "mapping": "GI=floor(originalFull/2); source full pixel=2*GI+1",
+    "selected": 27,
+    "floorQualification": "All seven frames: same camera inverse VP and depth, geometric support at mapped GI point, actual full-pixel diffuse RGB 245/255, AO=1 and normal +Y in finite floor bounds.",
+    "commonKnown": 27,
+    "excludedAcrossSeven": 0,
+    "giCoordinates": [
+      [
+        142,
+        82
+      ],
+      [
+        143,
+        82
+      ],
+      [
+        144,
+        82
+      ],
+      [
+        142,
+        83
+      ],
+      [
+        143,
+        83
+      ],
+      [
+        144,
+        83
+      ],
+      [
+        142,
+        84
+      ],
+      [
+        143,
+        84
+      ],
+      [
+        144,
+        84
+      ],
+      [
+        159,
+        75
+      ],
+      [
+        160,
+        75
+      ],
+      [
+        161,
+        75
+      ],
+      [
+        159,
+        76
+      ],
+      [
+        160,
+        76
+      ],
+      [
+        161,
+        76
+      ],
+      [
+        159,
+        77
+      ],
+      [
+        160,
+        77
+      ],
+      [
+        161,
+        77
+      ],
+      [
+        196,
+        59
+      ],
+      [
+        197,
+        59
+      ],
+      [
+        198,
+        59
+      ],
+      [
+        196,
+        60
+      ],
+      [
+        197,
+        60
+      ],
+      [
+        198,
+        60
+      ],
+      [
+        196,
+        61
+      ],
+      [
+        197,
+        61
+      ],
+      [
+        198,
+        61
+      ]
+    ]
+  },
+  "rows": [
+    {
+      "label": "切换前",
+      "workFrame": 119,
+      "engineFrame": 123,
+      "framesAfterFirstBlue": null,
+      "epoch": 5,
+      "rendererEmission": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "gpuProxyEmission": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "ownerSlot": 1,
+      "ownerStableId": 1,
+      "ownerRevision": 3,
+      "panelCards": 0,
+      "wallCards": 1,
+      "floorCards": 1,
+      "panelExact": 0,
+      "lightSelected": 0,
+      "known": 27,
+      "unknown": 0,
+      "meanDCommonRGB": [
+        0.0,
+        0.3046739366319444,
+        0.0
+      ],
+      "greenFractionOf119": 1.0
+    },
+    {
+      "label": "+0",
+      "workFrame": 120,
+      "engineFrame": 124,
+      "framesAfterFirstBlue": 0,
+      "epoch": 5,
+      "rendererEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gpuProxyEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "ownerSlot": 1,
+      "ownerStableId": 1,
+      "ownerRevision": 4,
+      "panelCards": 0,
+      "wallCards": 1,
+      "floorCards": 1,
+      "panelExact": 0,
+      "lightSelected": 0,
+      "known": 27,
+      "unknown": 0,
+      "meanDCommonRGB": [
+        0.0,
+        0.022741247106481483,
+        0.16694697627314814
+      ],
+      "greenFractionOf119": 0.07464126192702074
+    },
+    {
+      "label": "+1",
+      "workFrame": 121,
+      "engineFrame": 125,
+      "framesAfterFirstBlue": 1,
+      "epoch": 5,
+      "rendererEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gpuProxyEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "ownerSlot": 1,
+      "ownerStableId": 1,
+      "ownerRevision": 4,
+      "panelCards": 0,
+      "wallCards": 1,
+      "floorCards": 1,
+      "panelExact": 0,
+      "lightSelected": 0,
+      "known": 27,
+      "unknown": 0,
+      "meanDCommonRGB": [
+        0.0,
+        0.015580919053819444,
+        0.21425600405092593
+      ],
+      "greenFractionOf119": 0.051139651871967236
+    },
+    {
+      "label": "+10",
+      "workFrame": 130,
+      "engineFrame": 134,
+      "framesAfterFirstBlue": 10,
+      "epoch": 5,
+      "rendererEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gpuProxyEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "ownerSlot": 1,
+      "ownerStableId": 1,
+      "ownerRevision": 4,
+      "panelCards": 0,
+      "wallCards": 1,
+      "floorCards": 1,
+      "panelExact": 0,
+      "lightSelected": 0,
+      "known": 27,
+      "unknown": 0,
+      "meanDCommonRGB": [
+        0.0,
+        0.004351156729239004,
+        0.27620216652199076
+      ],
+      "greenFractionOf119": 0.014281355265696183
+    },
+    {
+      "label": "+30",
+      "workFrame": 150,
+      "engineFrame": 154,
+      "framesAfterFirstBlue": 30,
+      "epoch": 5,
+      "rendererEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gpuProxyEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "ownerSlot": 1,
+      "ownerStableId": 1,
+      "ownerRevision": 4,
+      "panelCards": 0,
+      "wallCards": 1,
+      "floorCards": 1,
+      "panelExact": 0,
+      "lightSelected": 0,
+      "known": 27,
+      "unknown": 0,
+      "meanDCommonRGB": [
+        0.0,
+        0.0008677906460232205,
+        0.29079635054976855
+      ],
+      "greenFractionOf119": 0.0028482601945421363
+    },
+    {
+      "label": "+59",
+      "workFrame": 179,
+      "engineFrame": 183,
+      "framesAfterFirstBlue": 59,
+      "epoch": 5,
+      "rendererEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gpuProxyEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "ownerSlot": 1,
+      "ownerStableId": 1,
+      "ownerRevision": 4,
+      "panelCards": 0,
+      "wallCards": 1,
+      "floorCards": 1,
+      "panelExact": 0,
+      "lightSelected": 0,
+      "known": 27,
+      "unknown": 0,
+      "meanDCommonRGB": [
+        0.0,
+        7.983931788691768e-05,
+        0.2970015914351852
+      ],
+      "greenFractionOf119": 0.0002620484008888691
+    },
+    {
+      "label": "+119",
+      "workFrame": 239,
+      "engineFrame": 243,
+      "framesAfterFirstBlue": 119,
+      "epoch": 5,
+      "rendererEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gpuProxyEmission": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "ownerSlot": 1,
+      "ownerStableId": 1,
+      "ownerRevision": 4,
+      "panelCards": 0,
+      "wallCards": 1,
+      "floorCards": 1,
+      "panelExact": 0,
+      "lightSelected": 0,
+      "known": 27,
+      "unknown": 0,
+      "meanDCommonRGB": [
+        0.0,
+        2.075124669958044e-07,
+        0.2970015914351852
+      ],
+      "greenFractionOf119": 6.810968778287258e-07
+    }
+  ],
+  "scope": "Ratio of common-floor mean G to its positive work119 mean. Measures the old green component at seven discrete points in time; blue is the observed signal on the same domain, with no converged blue reference.",
+  "display": "Exposure 1; componentwise Reinhard and sRGB. Unknown is gray checkerboard. Display vertical flip only.",
+  "sources": {
+    "scene": "I:\\Unity test\\Comparison\\GreenDecay114\\scene-result.json",
+    "signals": "I:\\Unity test\\Comparison\\GreenDecay114\\signals",
+    "frozenSelection": "I:\\Unity test\\Comparison\\GreenDecay114Setup\\selection.json",
+    "outcome": "I:\\Unity test\\Comparison\\GreenDecay114Setup\\native-exit.json"
+  }
+}

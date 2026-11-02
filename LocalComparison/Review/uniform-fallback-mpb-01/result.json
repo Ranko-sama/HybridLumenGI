@@ -1,0 +1,352 @@
+{
+  "signal": "Linear filteredD = E_indirect / pi, before receiver diffuse, AO and compositing.",
+  "capture": {
+    "resolution": [
+      640,
+      360
+    ],
+    "raysPerPixel": 8,
+    "traceDistanceMetres": 20,
+    "screenSteps": 0,
+    "bounceFeedback": 0,
+    "temporalAccumulation": false,
+    "filterIterations": 0,
+    "shader": "ordinary opaque URP/Lit; real single-slot MeshRenderer",
+    "rendererHiddenFromCamera": true,
+    "meshReadable": false,
+    "hasSdf": false,
+    "hasChartAsset": false,
+    "panelX": 0.25,
+    "panelLayer": 30,
+    "excludedFromCardCapture": true,
+    "readMaterialProperties": true,
+    "sharedDiffuse": [
+      0,
+      0,
+      0
+    ],
+    "sharedEmission": [
+      1,
+      0,
+      0
+    ],
+    "emissionKeyword": true,
+    "noManualMarkDirty": true,
+    "hardwareBackend": true,
+    "published": 3,
+    "hardwareMeshes": 2,
+    "fallbacks": 1,
+    "lights": 1
+  },
+  "ownerEvidence": {
+    "scope": "All six matching camera/work-frame observations. GPU mesh flag and proxy data fetched at the slot resolved from the specific proxy object.",
+    "panelExactFlag": 0,
+    "panelResidentCards": 0,
+    "floorExactFlag": 1,
+    "floorCards": 1,
+    "wallExactFlag": 1,
+    "wallCards": 1,
+    "identityComponents": [
+      "stableId",
+      "ownerRevision",
+      "nearFarField",
+      "publicationPhase"
+    ]
+  },
+  "domain": {
+    "previousSelection": "LocalComparison/Review/finite-wall-occlusion-response-01/native/selection.json",
+    "worldTargets": [
+      [
+        0.5,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        0
+      ]
+    ],
+    "centersTextureXY": [
+      [
+        287,
+        167
+      ],
+      [
+        320,
+        153
+      ],
+      [
+        395,
+        120
+      ]
+    ],
+    "offsets": [
+      -2,
+      0,
+      2
+    ],
+    "selected": 27,
+    "commonKnownAcrossAllSix": 27,
+    "excludedAcrossAllSix": 0,
+    "qualification": "Actual inverse VP, depth, packed geometry, white receiver diffuse 245/255 with AO 1 and shading normal +Y pair across both versions and all three frames."
+  },
+  "observations": {
+    "Baseline2": [
+      {
+        "phase": "renderer-green",
+        "logicalFrame": 31,
+        "workFrame": 31,
+        "engineFrame": 35,
+        "proxySlot": 1,
+        "gpuIdentity": [
+          1.0,
+          3.0,
+          0.0,
+          1.0
+        ],
+        "uploadedEmission": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "uploadedDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rendererEmission": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "slot0Emission": null,
+        "slotBlockEmpty": true,
+        "known": 27,
+        "unknown": 0,
+        "meanDCommonRgb": [
+          0.30092592592592593,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "slot0-blue",
+        "logicalFrame": 32,
+        "workFrame": 32,
+        "engineFrame": 36,
+        "proxySlot": 1,
+        "gpuIdentity": [
+          1.0,
+          3.0,
+          0.0,
+          1.0
+        ],
+        "uploadedEmission": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "uploadedDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rendererEmission": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "slot0Emission": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "slotBlockEmpty": false,
+        "known": 27,
+        "unknown": 0,
+        "meanDCommonRgb": [
+          0.32869692201967593,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "cleared-slot0",
+        "logicalFrame": 33,
+        "workFrame": 33,
+        "engineFrame": 37,
+        "proxySlot": 1,
+        "gpuIdentity": [
+          1.0,
+          3.0,
+          0.0,
+          1.0
+        ],
+        "uploadedEmission": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "uploadedDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rendererEmission": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "slot0Emission": null,
+        "slotBlockEmpty": true,
+        "known": 27,
+        "unknown": 0,
+        "meanDCommonRgb": [
+          0.3472222222222222,
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "Candidate": [
+      {
+        "phase": "renderer-green",
+        "logicalFrame": 31,
+        "workFrame": 31,
+        "engineFrame": 35,
+        "proxySlot": 1,
+        "gpuIdentity": [
+          1.0,
+          3.0,
+          0.0,
+          1.0
+        ],
+        "uploadedEmission": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "uploadedDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rendererEmission": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "slot0Emission": null,
+        "slotBlockEmpty": true,
+        "known": 27,
+        "unknown": 0,
+        "meanDCommonRgb": [
+          0.0,
+          0.30092592592592593,
+          0.0
+        ]
+      },
+      {
+        "phase": "slot0-blue",
+        "logicalFrame": 32,
+        "workFrame": 32,
+        "engineFrame": 36,
+        "proxySlot": 1,
+        "gpuIdentity": [
+          1.0,
+          4.0,
+          0.0,
+          1.0
+        ],
+        "uploadedEmission": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "uploadedDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rendererEmission": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "slot0Emission": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "slotBlockEmpty": false,
+        "known": 27,
+        "unknown": 0,
+        "meanDCommonRgb": [
+          0.0,
+          0.0,
+          0.32869692201967593
+        ]
+      },
+      {
+        "phase": "cleared-slot0",
+        "logicalFrame": 33,
+        "workFrame": 33,
+        "engineFrame": 37,
+        "proxySlot": 1,
+        "gpuIdentity": [
+          1.0,
+          5.0,
+          0.0,
+          1.0
+        ],
+        "uploadedEmission": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "uploadedDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rendererEmission": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "slot0Emission": null,
+        "slotBlockEmpty": true,
+        "known": 27,
+        "unknown": 0,
+        "meanDCommonRgb": [
+          0.0,
+          0.3472222222222222,
+          0.0
+        ]
+      }
+    ]
+  },
+  "scope": "One mixed scene, three ordinary MPB operations, one single-slot uniform-emissive analytic fallback. Values compare matched work frames between builds; different phases have different random directions.",
+  "firstAttempt": "UniformFallback114Baseline stopped before rendering; the imported material had _EMISSION disabled. Only Baseline2 and Candidate use the qualified source and appear here.",
+  "sources": {
+    "runRoot": "I:\\Unity test\\Comparison",
+    "versions": [
+      "UniformFallback114Baseline2",
+      "UniformFallback114Candidate"
+    ],
+    "sceneAndUploadedRows": "scene-result.json",
+    "selectedSignal": "signals/frame-{0031,0032,0033}-capture.json and linked filteredD/validity/support files",
+    "outcome": "editor-result.json and adjacent Setup/native-exit.json"
+  },
+  "display": {
+    "transform": "exposure 1, Reinhard then sRGB",
+    "unknown": "gray checkerboard",
+    "orientation": "vertical flip for display only"
+  }
+}

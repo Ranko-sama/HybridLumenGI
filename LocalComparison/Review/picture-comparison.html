@@ -41,6 +41,9 @@
 </section>
 <section id="residual">
   <h2>2. 墙换色或灯关闭后，还剩多少旧光？</h2>
+  <h3>物体没有可用图卡时，材质换色能传到地板吗？</h3>
+  <p>Release113 中，近处遮板的共享材质为红色，运行时覆盖为绿或蓝，白地板仍然收到红光。Release114 修复后，设置 Renderer 为绿、设置槽 0 为蓝、清除槽覆盖的三个连续工作帧中，地板依次收到绿光、蓝光、绿光。</p>
+  <figure><img src="uniform-fallback-mpb-01/comparison.png" alt="同一块地板在三个连续帧的反弹，旧版一直红，修复后依次为绿、蓝、绿"><figcaption>单槽普通 Lit 的解析回退，三个时点各有 27 个共同有效地板点。每张图使用同一曝光。这组单次反弹关闭了时间历史，能区分材质是否正确传入光路；多跳残留见下方其他观测。<a href="uniform-fallback-mpb-01/result.json">线性读数与实际 GPU 来源</a></figcaption></figure>
   <p><strong>关灯时暂时采不到新光。</strong> Release112 修复了全局灯变化只记一帧的问题。像素连续两帧没有可信采样时可以继续显示原来的白色。首次得到可信黑色时，旧版的线性输出仍是 0.666667，修复后直接降至 0。此后正常累计。这是两像素控制输入的实际时间重建着色器读数；整景关灯画面与多跳残留见本节下方。<a href="deferred-global-light-reset-01/result.json">连续帧与子像素读数</a></p>
   <p><strong>同版蓝墙对照。</strong> Release109 中，红墙改蓝后第 30 帧，与从首帧就是蓝墙的对照相比，地板和白色接收块的平均间接亮度分别低 12.34% 和 11.59%。红色占比在地板低 2.53 个百分点，在白色接收块高 1.62 个百分点。该时点有亮度差，两处的色向变化不同。</p>
   <figure><img src="blue-wall-history-01/comparison.png" alt="相同最终蓝墙、不同起始墙色下的地板和白色接收块"><figcaption>实际 DXR，640×360、半分辨率 GI，2 条射线、4 级滤波。两程仅比较相同机位与工作帧。少量未知点单列，精确收敛时间仍未知。<a href="blue-wall-history-01/result.json">采集与读数</a> · <a href="blue-wall-history-01/signals.npz">两程线性数据与掩码</a></figcaption></figure>
@@ -58,6 +61,10 @@
 </section>
 <section id="recovery">
   <h2>4. 重新开灯后，多久恢复？</h2>
+  <h3>唯一发光源切蓝后，旧绿色多久消退？</h3>
+  <p>Release114 在黑环境中只保留一个发光板，从纯绿切到纯蓝。开启时间累积、递归反弹和 4 级滤波后，白地板平均 G 相对切换前的残留在首个蓝色帧为 7.46%，第 +10 帧为 1.43%，第 +30 帧为 0.285%，第 +119 帧仍有 0.0000681%。</p>
+  <figure><img src="green-emission-decay-114/comparison.png" alt="同一发光板由纯绿切为纯蓝后，白地板的同曝光实拍与旧绿色残留百分比"><figcaption>640×360 相机、半分辨率 GI、每像素 2 条射线。七个时点的同一批 27 个地板点全部有效。比例衡量旧绿色消退，蓝色的物理终值和精确稳定帧仍未知。<a href="green-emission-decay-114/result.json">时点、线性值与源状态</a></figcaption></figure>
+  <h3>五盏解析灯重新开启</h3>
   <p>Release83 软件路径恢复五盏选定灯后，第 30 帧地面和白色接收体只恢复到各自此前亮灯观测值的 <strong>74.65% 和 65.68%</strong>。到第 59 帧，两者分别达到 <strong>98.36% 和 96.78%</strong>。此时与独立亮灯参考相比，平均 D 亮度仍分别低 7.39% 和 6.48%。</p>
   <figure><img src="light-restore-response-01/comparison.png" alt="开灯前的稳定观测、重新开灯后30和59帧的D，与独立亮灯参考比较"><figcaption>Release83，逻辑帧 119 为此前亮灯观测，300 重新开灯，330 和 359 为恢复后的采样点。相机、门位姿、灯状态和比较区域在三张亮灯观测中匹配。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/light-restore-response-01/result.md">恢复数据与参考 ↗</a></figcaption></figure>
   <p>可报告的是上述已采样帧的恢复程度。稀疏观测无法给出首次稳定帧、实测秒数或整景达到正确颜色的时间。</p>
