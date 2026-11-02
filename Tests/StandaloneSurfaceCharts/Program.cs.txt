@@ -16,6 +16,13 @@ internal static class Program
         {
             var planar = MeshOf(new[] { new Vector3(0,0,0), new Vector3(1,0,0), new Vector3(1,1,0), new Vector3(0,1,0) }, new[] {0,1,2,0,2,3});
             Validate("coplanar quad", planar);
+            // This translated face of the unified aggregate used to split on its shared diagonal.
+            var aggregateFace = MeshOf(new[] {
+                new Vector3(-1.6f, 0, .6999999f), new Vector3(-1.6f, 0, 1.9f),
+                new Vector3(-2.8000002f, 0, 1.9f), new Vector3(-2.8000002f, 0, .6999999f)
+            }, new[] { 0, 1, 2, 0, 2, 3 });
+            Check(Charts.Bake(aggregateFace, new Charts.BakeSettings(), out _).Length == 1,
+                "The aggregate's shared diagonal must fit on one chart after reprojection");
             var seam = MeshOf(new[] {new Vector3(0,0,0),new Vector3(1,0,0),new Vector3(1,1,0),new Vector3(0,0,0),new Vector3(1,1,0),new Vector3(0,1,0)},new[]{0,1,2,3,4,5});
             var seamCharts=Validate("UV seam adjacency",seam);
             Check(seamCharts.Length==1,"exact position edge welding should connect a planar UV seam");

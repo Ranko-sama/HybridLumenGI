@@ -486,11 +486,12 @@ namespace HybridLumenGI
         {
             for (int edge = 0; edge < 3; edge++)
             {
-                P2 p = a[edge], q = a[(edge + 1) % 3]; double nx = p.y - q.y, ny = q.x - p.x;
+                P2 p = a[edge], q = a[(edge + 1) % 3];
                 double minA = double.PositiveInfinity, maxA = double.NegativeInfinity, minB = minA, maxB = maxA;
                 for (int i = 0; i < 3; i++)
                 {
-                    double av = nx * a[i].x + ny * a[i].y, bv = nx * b[i].x + ny * b[i].y;
+                    // Project relative to the edge so its two endpoints both evaluate to zero.
+                    double av = Cross(p, q, a[i]), bv = Cross(p, q, b[i]);
                     minA = Math.Min(minA, av); maxA = Math.Max(maxA, av); minB = Math.Min(minB, bv); maxB = Math.Max(maxB, bv);
                 }
                 if (maxA <= minB || maxB <= minA) return true;
