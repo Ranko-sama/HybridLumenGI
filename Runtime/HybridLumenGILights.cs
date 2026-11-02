@@ -88,6 +88,8 @@ namespace HybridLumenGI
             foreach (var light in Snapshot(engineFrame))
             {
                 if (!TryPack(light, useRenderingLayers, definedLayers, out Data value)) continue;
+                // An empty receiver set cannot contribute at any hit. Leave its slot for a usable light.
+                if (value.cullingMask == 0u || (useRenderingLayers && value.renderingLayers == 0u)) continue;
                 if (value.spot.w > 0 && light != mainLight)
                     value.flags |= additionalRealtimeShadows ? 2u : 6u;
                 if (!spatialSelection && count >= limit) break;

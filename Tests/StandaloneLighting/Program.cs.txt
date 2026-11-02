@@ -102,6 +102,7 @@ static class Program
         light.type=LightType.Point;light.lightmapBakeType=LightmapBakeType.Baked;Check(!L.TryPack(light,true,out _),"baked excluded");
         light.lightmapBakeType=LightmapBakeType.Mixed;Check(L.TryPack(light,true,out _),"mixed current realtime approximation");
         light.range=float.NaN;Check(!L.TryPack(light,true,out _),"invalid range");
+        EmptyReceiverMaskAdmission();
         CompactionChanges();
         RelevanceSelection();RelevanceNumerics();
         Console.WriteLine($"PASS {checks} actual light-collector checks; native Unity discovery/API/rendering remain unexecuted.");
@@ -186,6 +187,26 @@ static class Program
         }
         else Console.WriteLine($"TABLE {label}: count={count}");
         Console.WriteLine($"CHANGES {label}: count={changes.Count}; types="+string.Join(",",changes.ConvertAll(d=>d.positionType.w==0?"directional":"local")));
+    }
+    static void EmptyReceiverMaskAdmission()
+    {
+        var noObjects = Point(1); noObjects.cullingMask = 0;
+        var noLayers = Point(2); noLayers.additional = new UniversalAdditionalLightData { renderingLayers = 0 };
+        var lit = Point(3); lit.renderingLayerMask = 0; // No shadow casters; illumination is still enabled.
+        UO.Found = new[] { noObjects, noLayers, lit };
+        var collector = new L();
+        var table = new L.Data[1];
+        var changes = new List<L.Data>();
+        int count = collector.Update(1, true, table, 1, 0, changes, out _);
+        Check(count == 1 && table[0].Equals(Pack(lit)), "empty receiver masks must leave room for an illuminating light");
+        var previous = table[0];
+        lit.cullingMask = 0;
+        count = collector.Update(2, true, table, 1, count, changes, out _);
+        Check(count == 0 && table[0].Equals(default) && changes.Count == 1 && changes[0].Equals(previous),
+            "removing the last eligible receiver set must clear its slot and report the old light");
+        count = collector.Update(3, false, table, 1, count, changes, out _);
+        Check(count == 1 && table[0].Equals(Pack(noLayers, false)),
+            "disabling rendering layers must restore illumination while still respecting GameObject culling");
     }
     static void CompactionChanges()
     {

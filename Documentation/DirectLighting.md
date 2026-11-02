@@ -24,6 +24,8 @@
 
 灯记录的独立 flag 指示是否启用 rendering-layer 过滤，不能用 mask 是否为零推断功能开关。启用时 mask=0 是合法空集合；禁用时跳过这一维过滤，包括接收面 rendering mask=0 的情况。GameObject `cullingMask=0` 始终排除所有接收面与投影者。所有 mask 保留完整 uint32，包括 bit 31。
 
+构建相机的 GI 灯表时，`cullingMask` 为零的灯会让出名额；启用渲染层时，有效照明层掩码为零的灯也会让出名额。最后一盏有效灯因此退出时，收集器报告旧灯移除，灯表变空，以便缓存清理原解析光贡献。单独将投影者的阴影层掩码设为零，灯仍可照亮接收面。公开的 `TryPack` 仍可读取原始掩码。
+
 ## 阴影不等于 GI 可见性
 
 `TraceShadow` 与一般表面／GI 可见性查询分开。`LightShadows.None` 或 shadow strength=0 跳过该灯的阴影射线；有遮挡时直接光乘 `1 - saturate(shadowStrength)`，无遮挡时乘 1。Soft 模式目前也只得到硬阴影，不生成半影。这与 URP 将阴影衰减向白色插值的强度约定一致，但不等于重现其 shadow-map 过滤。[固定版本 Shadows.hlsl](https://github.com/Unity-Technologies/Graphics/blob/feb4de2d9a93a4ae10d287d3a6d7003d08ea3e53/Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl#L328)。
