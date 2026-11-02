@@ -36,12 +36,15 @@ public static class RoomsReviewEditor
         camera.transform.SetPositionAndRotation(view.position, view.rotation);
         var capture = camera.gameObject.AddComponent<ComparisonCapture>();
         capture.camera = camera; capture.feature = feature; capture.door = view;
+        capture.doorOffset = Vector3.zero; // This marker fixes the camera; only the actual partition door moves.
         capture.colorView = capture.thinView = capture.blackView = view;
         capture.lights = Array.Empty<Light>();
-        capture.indirectOnly = true; capture.totalFrames = 120; capture.outputRoot = output;
+        bool closeDuringRun = Array.IndexOf(args, "-closePortalAt120") >= 0;
+        capture.indirectOnly = true; capture.totalFrames = closeDuringRun ? 240 : 120; capture.outputRoot = output;
         capture.label = "Connected rooms, entry floor"; capture.quitWhenComplete = true;
         var driver = camera.gameObject.AddComponent<RoomsCaptureRequest>();
-        driver.open = Array.IndexOf(args, "-openPortal") >= 0; driver.output = output;
+        driver.closeDuringRun = closeDuringRun;
+        driver.open = closeDuringRun || Array.IndexOf(args, "-openPortal") >= 0; driver.output = output;
         if (!EditorSceneManager.SaveScene(scene, "Assets/HLGIRoomsReview/RoomView.unity", true)) throw new IOException("Scene copy failed.");
         EditorSceneManager.OpenScene("Assets/HLGIRoomsReview/RoomView.unity");
         EditorApplication.EnterPlaymode();

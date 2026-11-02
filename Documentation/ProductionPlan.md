@@ -2,6 +2,8 @@
 
 当前起始验收目标已由用户确认：960×540／30FPS，现有GI三个计时区间合计p95≤25ms，进程local有限采样峰值≤1GiB，nonlocal另列。[当前93优化后的静止窗口](../LocalComparison/Review/exact-no-fallback-traversal-01/result.md)为19.298ms／567.254MiB，满足两门槛；不代表运动／最坏情况或整体验收。后文历史“预算未定”以[当前口径](GpuBudget.md#当前已确认的起始验收目标)为准。
 
+Release102 两室的实际关门过程已有 G3 读数。同一前室地板在闭门第 +59 帧降至开闭差的 9.38%，第 +119 帧仍有 6.34%。精确收敛时间仍未知。[同曝光过程与候选结果](../LocalComparison/Review/portal-close-response-01/result.md)
+
 Release102 将连通两室整合进普通 Windows 入口。F3 进入或返回，O 开关分隔门；关闭解析灯后，前室固定地板随共用门洞的开闭呈现明确的暖色间接光差异。复杂多房间的完整验收仍开放。[实测与布局范围](../LocalComparison/Review/connected-rooms-01/result.md)
 
 2026-11-02，G2 在已保存的有限墙／地板场景补齐离屏纹理依据。相机固定俯视，交换完整位于视锥外的墙纹理两色后，可见白地板左右区域的反弹色向均随之反转。[离屏纹理实机对照与原始 EXR](../LocalComparison/Review/offscreen-wall-texture-01/result.md)

@@ -1,0 +1,111 @@
+diff --git a/Runtime/HybridLumenGIChangeRegions.cs b/Runtime/HybridLumenGIChangeRegions.cs
+index d4bc606..b4b1d78 100644
+--- a/Runtime/HybridLumenGIChangeRegions.cs
++++ b/Runtime/HybridLumenGIChangeRegions.cs
+@@ -39,19 +39,26 @@ namespace HybridLumenGI
+                 // borrow that exemption. World-cache queries still reject both kinds.
+                 var poseFlags=HybridLumenGIScene.ChangeKind.Transform|HybridLumenGIScene.ChangeKind.Lighting;
+                 bool poseOnly=(change.Kind & HybridLumenGIScene.ChangeKind.Transform)!=0 && (change.Kind & ~poseFlags)==0;
++                bool displaced = poseOnly && change.HasPrevious && change.HasCurrent && !change.PreviousBounds.Intersects(change.CurrentBounds);
+                 float kind=geometry?(poseOnly?1:2):0;
+                 Renderer receiver=null;
+                 if(poseOnly && receiverForChange!=null)
+                     try { receiver=receiverForChange(change.Slot,change.StableId); } catch { /* Unknown ownership remains hard. */ }
+-                if (change.HasPrevious) AddKind(change.PreviousBounds, kind, influenceRadius,receiver);
+-                if (change.HasCurrent) AddKind(change.CurrentBounds, kind, influenceRadius,receiver);
++                if (change.HasPrevious) AddKind(change.PreviousBounds, kind, influenceRadius,receiver,displaced);
++                if (change.HasCurrent) AddKind(change.CurrentBounds, kind, influenceRadius,receiver,displaced);
+             }
+         }
+         public void Add(Bounds bounds, bool geometry, float influenceRadius = 0)
+         { AddKind(bounds,geometry?2:0,influenceRadius,null); }
+         public void AddTransform(Bounds bounds,float influenceRadius=0,Renderer receiver=null)
+         { AddKind(bounds,1,influenceRadius,receiver); }
+-        private void AddKind(Bounds bounds,float kind,float influenceRadius,Renderer receiver)
++        internal void AddTransformPair(Bounds previous,Bounds current,float influenceRadius,Renderer receiver)
++        {
++            bool displaced = !previous.Intersects(current);
++            AddKind(previous,1,influenceRadius,receiver,displaced);
++            AddKind(current,1,influenceRadius,receiver,displaced);
++        }
++        private void AddKind(Bounds bounds,float kind,float influenceRadius,Renderer receiver,bool displaced=false)
+         {
+             if (byBounds.TryGetValue(bounds,out int existing))
+             {
+@@ -63,7 +70,8 @@ namespace HybridLumenGI
+                         receiverSources[existing]=null;
+                 }
+                 prior.minimum.w=Mathf.Max(prior.minimum.w,kind);
+-                prior.receiver=default; // Re-resolve only from the final frozen frame.
++                prior.receiver.x=0; // Re-resolve only from the final frozen frame.
++                if (displaced) prior.receiver.y=1;
+                 prior.maximum.w=Mathf.Max(prior.maximum.w,Mathf.Max(0,influenceRadius));
+                 regions[existing]=prior;return;
+             }
+@@ -74,7 +82,8 @@ namespace HybridLumenGI
+             regions[count++] = new Region
+             {
+                 minimum = new Vector4(lo.x, lo.y, lo.z, kind),
+-                maximum = new Vector4(hi.x, hi.y, hi.z, Mathf.Max(0, influenceRadius))
++                maximum = new Vector4(hi.x, hi.y, hi.z, Mathf.Max(0, influenceRadius)),
++                receiver = new Vector4(0,displaced ? 1 : 0,0,0)
+             };
+         }
+         public void ResolveReceiverGroups(Func<Renderer,uint> resolve)
+@@ -85,7 +94,7 @@ namespace HybridLumenGI
+                 if(regions[i].minimum.w==1 && !ReferenceEquals(receiverSources[i],null) && resolve!=null)
+                     try { group=resolve(receiverSources[i]); } catch { /* Never infer an owner after failure. */ }
+                 // Float storage is exact for the bounded current-frame row group.
+-                regions[i].receiver=new Vector4(group<=16384?group:0,0,0,0);
++                regions[i].receiver.x=group<=16384?group:0;
+             }
+         }
+         public void MarkGlobalLightingChange() { globalReactive = 1; }
+diff --git a/Runtime/HybridLumenGIRendererFeature.cs b/Runtime/HybridLumenGIRendererFeature.cs
+index f409ab9..c0ae72b 100644
+--- a/Runtime/HybridLumenGIRendererFeature.cs
++++ b/Runtime/HybridLumenGIRendererFeature.cs
+@@ -825,8 +825,7 @@ namespace HybridLumenGI
+                     foreach(var moved in identityFrame.MovedBounds)
+                     {
+                         float influence=Mathf.Max(s.shadowDistance,s.traceDistance)+Mathf.Max(1,s.traceDistance);
+-                        state.changes.AddTransform(moved.Previous,influence,moved.SourceRenderer);
+-                        state.changes.AddTransform(moved.Current,influence,moved.SourceRenderer);
++                        state.changes.AddTransformPair(moved.Previous,moved.Current,influence,moved.SourceRenderer);
+                     }
+                     state.changes.ResolveReceiverGroups(identityFrame.GetReceiverGroup);
+                 }
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
+index b8439a1..13e9200 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
+@@ -539,6 +539,20 @@ bool HLGITrySurfacePatchRayFootprint(HLGISurfaceSample surface,uint2 cell,float3
+     return HLGITryCardPatchFootprint(card.worldToCard,surface.position,surface.geometricNormal,
+         (uint2)count,cell,(uint)_HLGI_CacheGrid,direction,footprint);
+ }
++// The cached direction is a radiance-weighted guide, not a proven light path.
++// If a rigid object jumped across that direction, prefer a new known estimate
++// at this patch. Unscheduled and unknown updates still retain the old value.
++bool HLGIDisplacedPoseInGuide(float3 position,float4 guide)
++{
++    if(guide.w<=0 || dot(guide.xyz,guide.xyz)<0.5) return false;
++    [loop] for(int i=0;i<_HLGI_ChangeCount;i++)
++    {
++        HLGIChangeRegion region=_HLGI_ChangeRegions[i];
++        if(region.minimum.w==1 && region.receiver.y>0 &&
++            HLGIBvhBounds(position,guide.xyz,region.minimum.xyz,region.maximum.xyz,_HLGI_MaxDistance)) return true;
++    }
++    return false;
++}
+ // Jacobi reads only the old buffer. Every output entry is written, including invalid slots.
+ [numthreads(64,1,1)]
+ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
+@@ -567,7 +581,7 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
+     // waits and unknown updates; only a committed known estimate consumes it.
+     if(_HLGI_GlobalReactive>0.5) e.irradiance.a=min(e.irradiance.a,0.5);
+     // Nearby changes retain an estimate but shorten its history, even if this patch awaits budget.
+-    if(change.y>0.5) e.irradiance.a=min(e.irradiance.a,1);
++    if(change.y>0.5) e.irradiance.a=min(e.irradiance.a,HLGIDisplacedPoseInGuide(surface.position,e.guide)?0.5:1);
+     e.tag=float4(tag,surface.generation);
+     float2 geometricOct=PackNormalOctQuadEncode(surface.geometricNormal);
+     e.anchor=float4(surface.position,geometricOct.x);e.normal=float4(surface.normal,geometricOct.y);
