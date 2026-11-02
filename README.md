@@ -6,6 +6,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 **直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release112](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release112-demo)
 
+**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑的完整工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。使用 Unity 6000.0.85f1，在 Hub 中添加解压目录即可。该附件已在没有项目缓存的新目录中完成导入并重建普通 Win64 Player。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release112-demo/HybridLumenGI-Release112-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+
 Release112 修复了全局灯变化恰逢无可信采样时，过期屏幕历史混入后续帧的问题。在连续两帧未知后，首次可信黑值的时间重建结果由 0.666667 降到 0，下一帧恢复正常累计。[逐帧读数与范围](LocalComparison/Review/deferred-global-light-reset-01/result.md)
 
 Release111 支持逐灯控制反弹强度。实机对照中，同一盏点光的间接倍率设为 0 后，白地板上的红蓝反弹消失，整张原生直射画面保持一致。无 cookie 的点光原地转动也不会再触发局部照明历史失效。[同曝光画面与原始 EXR](LocalComparison/Review/analytic-light-bounce-01/result.md)

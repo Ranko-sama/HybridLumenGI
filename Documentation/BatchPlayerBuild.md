@@ -2,6 +2,8 @@
 
 `HybridLumenGI.Editor.HybridLumenGIPlayerBuild.Build` 使用工程现有场景和设置构建普通 Release Player，入口不依赖本机测试 Harness，也不注入观察器，可直接供本地脚本或 CI 调用。工程内已有的自动启动脚本仍会随 Unity 正常编译和执行；调用方需使用自己的普通运行工程与场景。
 
+要复建当前发布示例，可直接取已配置的 Release112 Unity 工程。在本机独立解压目录完成首次导入后，公开入口成功构建 `NeutralThreeRooms.unity`，普通 Release／None，0 个错误、6 个警告。[打开工程与构建命令](UnifiedUnityProject.md)
+
 先在工程中完成 URP 和 GI Feature 配置并保存场景。当前入口限定 Windows x64、Mono、显式 Direct3D12 和 Linear；不自动修改工程设置。Unity 需要已有可用许可。
 
 ```powershell
