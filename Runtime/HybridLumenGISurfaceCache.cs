@@ -611,13 +611,15 @@ namespace HybridLumenGI
                     command.SetGlobalVector(CardRectId, value.atlasRect);
                     command.SetGlobalMatrix(WorldToCardId, value.worldToCard);
                     command.SetGlobalVector(DirectionId, value.directionTolerance);
-                    Vector3 geometryDirection = owner.charts != null
-                        ? owner.renderer.localToWorldMatrix.inverse.transpose.MultiplyVector(owner.charts.Charts[card.chartIndex].direction).normalized
-                        : Vector3.zero;
-                    // Source-winding normal transformed by inverse transpose, without
-                    // determinant or material-cull flips. Ns is not a geometric orientation oracle.
-                    command.SetGlobalVector(GeometryDirectionId, new Vector4(geometryDirection.x, geometryDirection.y,
-                        geometryDirection.z, owner.charts != null ? 1f : 0f));
+                    Vector4 projectionAxis = default;
+                    if (owner.charts != null)
+                    {
+                        // Undo the material's Cull Front flip for the winding oracle.
+                        float sign = ((value.flags >> 1) & 3u) == 1u ? -1f : 1f;
+                        var axis = value.directionTolerance;
+                        projectionAxis = new Vector4(sign * axis.x, sign * axis.y, sign * axis.z, 1f);
+                    }
+                    command.SetGlobalVector(GeometryDirectionId, projectionAxis);
                     // Fallback uses DX12's default Unity raster winding plus the
                     // source object's mirror sign. External un-restored invert-culling is unsupported.
                     command.SetGlobalFloat(ObjectDeterminantSignId, owner.renderer.localToWorldMatrix.determinant < 0f ? -1f : 1f);
@@ -984,8 +986,9 @@ namespace HybridLumenGI
         {
             var chart=owner.charts.Charts[chartIndex];
             Matrix4x4 objectToWorld=owner.renderer.localToWorldMatrix;
-            Matrix4x4 worldToCard=chart.localToCard*objectToWorld.inverse;
-            Vector3 direction=objectToWorld.inverse.transpose.MultiplyVector(chart.direction).normalized;
+            Matrix4x4 worldToObject=objectToWorld.inverse;
+            Matrix4x4 worldToCard=chart.localToCard*worldToObject;
+            Vector3 direction=ChartFacingAxis(objectToWorld,worldToObject,chart.direction);
             foreach(var material in owner.submeshes)
                 if(material.index==chart.sourceSubmesh && material.cull>0.5f && material.cull<1.5f) { direction=-direction;break; }
             Matrix4x4 cardToWorld=worldToCard.inverse;
@@ -997,6 +1000,20 @@ namespace HybridLumenGI
                 atlasRect=new Vector4((rect.x+1)/AtlasWidth,(rect.y+1)/AtlasHeight,(tileSize-2f)/AtlasWidth,(tileSize-2f)/AtlasHeight),
                 directionTolerance=new Vector4(direction.x,direction.y,direction.z,Mathf.Max(0.002f,texel*1.5f))
             };
+        }
+
+        // A chart projects parallel to its baked axis d. M*d keeps the correct sign
+        // against every transformed member normal M^-T*n, including under reflection.
+        // Scaling by |M^-T*d| gives the seed plane a facing score of one at any scale.
+        private static Vector3 ChartFacingAxis(Matrix4x4 objectToWorld, Matrix4x4 worldToObject, Vector3 d)
+        {
+            Vector3 ray = objectToWorld.MultiplyVector(d);
+            Vector3 normal = worldToObject.transpose.MultiplyVector(d);
+            double scale = Math.Sqrt((double)normal.x * normal.x + (double)normal.y * normal.y + (double)normal.z * normal.z);
+            // Keep even the sum of three GPU dot-product terms representable.
+            float largest = Mathf.Max(Mathf.Abs(ray.x), Mathf.Max(Mathf.Abs(ray.y), Mathf.Abs(ray.z)));
+            if (largest > 0f) scale = Math.Min(scale, (float.MaxValue / 4d) / largest);
+            return new Vector3((float)(ray.x * scale), (float)(ray.y * scale), (float)(ray.z * scale));
         }
 
         private int CompareResidency(int a, int b)

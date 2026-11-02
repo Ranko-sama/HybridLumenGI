@@ -345,7 +345,7 @@ static class Program
         using var cache=new HybridLumenGISurfaceCache();cache.Prepare(scene,Config(1));var draw=Capture(cache).Entries.Single(e=>e.Kind=="DrawMesh");
         Check((float)draw.MaterialValues[Id("_Cull")]==1,"capture material retains actual source Cull despite renderer MPB");
         var raw=(Vector4)draw.Parameters[Id("_HLGI_CardGeometryDirection")];var facing=(Vector4)draw.Parameters[Id("_HLGI_CardDirection")];
-        Near(raw.z,-1,"chart raw geometry uses inverse transpose without determinant or CullFront flips");Check(raw.w==1&&facing.z==1,"front-cull view direction and raw geometry remain separate");
+        Near(raw.z,-1,"chart projection axis keeps its source hemisphere without a CullFront flip");Check(raw.w==1&&facing.z==1,"front-cull view direction and raw geometry remain separate");
         Check(U(Metadata(cache)[cache.GetCardIndex(0,0)],"flags")==3,"real chart flags carry Front cull independently from required bit");
         Check((float)draw.Parameters[Id("_HLGI_CardObjectDeterminantSign")]==1,"two negative object axes retain positive determinant sign");
         material.SetFloat("_Cull",0);cache.Prepare(scene,Config(1));Capture(cache);Check(U(Metadata(cache)[cache.GetCardIndex(0,0)],"flags")==1,"cull change refreshes per-card metadata");

@@ -274,6 +274,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 9. 命中身份、背面策略与面积光 NEE 的边界
 
+主干已修复非均匀缩放下真实图卡的折面定向和查找。两片同卡三角经 X 轴压缩后均能取回所属卡，独立倾斜平面仍能命中。这为第 8、9 节的变换条款提供了正比例非均匀缩放下的实际法线与查卡依据；镜像实例和 UV 接缝的图集／锚点结果仍单列。[实测与适用范围](../LocalComparison/Review/folded-chart-facing-01/result.md)
 直接光策略另外见 [DirectLighting.md](DirectLighting.md)：owner三项策略变化只提升传输版本并局部reactive，纯Lighting不触发mesh内容重建；shadow查询独立于普通GI可见性，Off投影者仍能成为GI表面，DXR TwoSided只改变shadow候选Cull。屏幕GameObject层由最多32个互斥RendererList传递，rendering mask保持uint。Light引用每渲染引擎帧扫描一次并包含inactive，既有灯同帧激活可见、新创建灯最晚下次渲染帧发现。扫描、打包及多RendererList成本必须纳入G0/G1测量。精确材质与 CPU 来源跟踪已由本轮统一离线报告绑定；Unity、Player及实体GPU验收仍未执行，G0–G5条件不变。
 
 - **已接入的身份与层选择。** `HLGIHit` 保留距离/位置、rawNg/Ns、owner/stableId/revision/geometryRevision、submesh/primitive、重心/UV、表示类型及各身份有效位。GPU triangle→chart表以当前owner几何版本、chart ID和layout代次验证唯一卡片。原先“前层texel偏移0.02、相隔0.001的后层反而得分更高”的跨卡选择已由直接绑定替代；缺失/过期绑定不能回到全owner搜索。精确的是chart身份，有限纹素覆盖、UV接缝及常量近似误差仍须实测。

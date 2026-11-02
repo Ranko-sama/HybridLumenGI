@@ -173,7 +173,11 @@ bool HLGITrySurfaceMaterial(int slot,float3 position,float3 geometricNormal,out 
         if(card.ownerSlot!=(uint)slot || card.layoutGeneration!=range.z || !HLGISurfaceCardValid(cardIndex)) continue;
         float facing=dot(card.directionTolerance.xyz,geometricNormal);
         facing=HLGISurfaceCullFacing(card.flags,facing);
-        if(facing<=0.05) continue;
+        // The baked chart already certified its local projection. Stretch can make
+        // a valid member grazing in world space. Six-view cards keep their cutoff.
+        float minimumFacing=(card.flags&1u)!=0u ? 0.0 : 0.05;
+        if(!(facing>minimumFacing)) continue;
+        facing=saturate(facing);
         float3 projected=mul(card.worldToCard,float4(position,1)).xyz;
         if(!all(isfinite(projected)) || any(projected<0) || any(projected>1)) continue;
         HLGISurfaceSample candidate;
@@ -243,7 +247,8 @@ bool HLGITrySurfaceMaterialHit(HLGIHit hit,out HLGISurfaceSample sample)
         card.stableId!=hit.stableId || card.revision!=hit.ownerRevision ||
         card.chartId!=hit.surfaceBinding.y || card.layoutGeneration!=hit.surfaceBinding.z) return false;
     float facing=HLGISurfaceCullFacing(card.flags,dot(card.directionTolerance.xyz,rawNg));
-    if(facing<=0.05) return false;
+    if(!(facing>0)) return false;
+    facing=saturate(facing);
     float3 projected=mul(card.worldToCard,float4(hit.position,1)).xyz;
     if(!all(isfinite(projected))||any(projected<0)||any(projected>1)) return false;
     HLGISurfaceSample candidate;

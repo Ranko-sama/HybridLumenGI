@@ -140,8 +140,9 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 facet*=rsqrt(dot(facet,facet));
                 if(_HLGI_CardGeometryDirection.w>0.5)
                 {
-                    // The chart's original inverse-transpose geometry direction
-                    // is independent of both CullFront and custom vertex normals.
+                    // All members face the baked projection ray. Its world-space
+                    // direction fixes the derivative sign even when scaling folds
+                    // the member's normal away from the seed triangle's normal.
                     if(dot(facet,_HLGI_CardGeometryDirection.xyz)<0) facet=-facet;
                 }
                 else
@@ -164,7 +165,16 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 half3 bitangent = (input.tangentWS.w < 0 ? -1 : 1) * cross(shadingBasisNormal,tangent);
                 half3x3 tangentToWorld = half3x3(tangent,bitangent,shadingBasisNormal);
                 float2 uv = input.uv;
-                if(hasTangent) ApplyPerPixelDisplacement(mul(tangentToWorld,_HLGI_CardDirection.xyz),uv);
+                #if defined(_PARALLAXMAP)
+                if(hasTangent)
+                {
+                    // The chart facing score can exceed half range. URP normalizes
+                    // its half3 argument, so remove the scale before narrowing.
+                    float3 viewWS=_HLGI_CardDirection.xyz;
+                    float largest=max(abs(viewWS.x),max(abs(viewWS.y),abs(viewWS.z)));
+                    ApplyPerPixelDisplacement(mul(tangentToWorld,viewWS/max(1.0,largest)),uv);
+                }
+                #endif
                 SurfaceData surface;
                 InitializeStandardLitSurfaceData(uv,surface);
                 BRDFData brdf;
