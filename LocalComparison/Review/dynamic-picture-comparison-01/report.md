@@ -1,5 +1,9 @@
 # 动态画面对照与当前开发结论
 
+## Release109 换色后的前史差异
+
+相同蓝墙最终状态下，换色后第 30 帧的两处接收面仍比首帧蓝墙的同版对照暗。地板平均 Y 相差 −12.34%，白色接收块相差 −11.59%，两个区域的红色占比一个下降、一个上升。此项给出了一个时点的产品路径差异，物理旧色份额和收敛时间仍未知。[画面、条件和有效点](../blue-wall-history-01/result.md)
+
 ## 统一示例与画面对照
 
 Release100 的 Windows x64 运行包内含完整离线画面对照。解压后打开 `PictureComparison/index.html`，即可查看静止颜色、换色与关灯、门运动及重新开灯的原图。每张图标有测量版本、物理量和适用范围。[统一示例与画面包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release100-demo) · [单独下载原版五图](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip) · [仓库内的读图页](../picture-comparison.html)
@@ -105,3 +109,4 @@ Release88沿用Release87的[短历史空间滤波](../short-history-spatial-filt
 所有候选/参考辐射图共用曝光1和Reinhard+sRGB；没有各自自动拉亮。门停D对照统一乘4以看清结构。PNG仅垂直翻转方便观看，所有数值仍用原始矩阵/行对齐。灰棋盘=源域不比较（含边界/天空），洋红=未知，均不当作黑色；误差图红=候选偏亮、蓝=偏暗，固定量程0.05。
 
 详细测量：[metrics.json](metrics.json)。独立参考对照：[关灯](reference-comparison-0299.json)、[灯亮](reference-comparison-0119.json)。脚本：analyze.py / compare_reference.py。未启动Unity或Player；旧数据不被改写。
+

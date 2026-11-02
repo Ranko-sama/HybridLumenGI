@@ -37,6 +37,8 @@
 </section>
 <section id="residual">
   <h2>2. 墙换色或灯关闭后，还剩多少旧光？</h2>
+  <p><strong>同版蓝墙对照。</strong> Release109 中，红墙改蓝后第 30 帧，与从首帧就是蓝墙的对照相比，地板和白色接收块的平均间接亮度分别低 12.34% 和 11.59%。红色占比在地板低 2.53 个百分点，在白色接收块高 1.62 个百分点。该时点有亮度差，两处的色向变化不同。</p>
+  <figure><img src="blue-wall-history-01/comparison.png" alt="相同最终蓝墙、不同起始墙色下的地板和白色接收块"><figcaption>实际 DXR，640×360、半分辨率 GI，2 条射线、4 级滤波。两程仅比较相同机位与工作帧。少量未知点单列，精确收敛时间仍未知。<a href="blue-wall-history-01/result.json">采集与读数</a> · <a href="blue-wall-history-01/signals.npz">两程线性数据与掩码</a></figcaption></figure>
   <p><strong>换色。</strong> Release83 软件路径把红墙改蓝，地面和白色接收体都保持原材质。第 30 帧，两处反弹已明显转蓝。第 59 帧与第 119 帧的区域平均 RGB 归一化色向 L1 距离分别为 0.005536 和 0.001583。蓝墙状态缺少独立参考，绝对旧色份额仍未知。</p>
   <figure><img src="local-recolor-response-01/comparison.png" alt="墙换色前后地面及白色接收体的间接入射量"><figcaption>Release83，换色前和换色后 30、59、119 帧。比较相同已知点的 D。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/local-recolor-response-01/result.md">换色记录 ↗</a></figcaption></figure>
   <p><strong>关灯。</strong> 在 Release78 对应的修复中，相机上传的解析灯表清空后，缓存单独使用发光面和环境的份额。在这个事件中，关灯当帧到第 59 帧的逐像素出射亮度绝对变化均值从 0.006379 降到 0.000499，减少 92.18%。该数值衡量两张画面之间的变化。部分灯仍开启时的多跳残留及物理误差仍待确定。</p>

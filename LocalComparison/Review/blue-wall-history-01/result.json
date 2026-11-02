@@ -1,0 +1,605 @@
+{
+  "status": "observed-paired-histories",
+  "logicalFrame": 150,
+  "framesSinceRedToBlue": 30,
+  "quantity": "indirect-irradiance-over-pi",
+  "interpretation": "History-dependent difference between two product outputs. Neither history is a physical reference or a measured fraction of old red light.",
+  "chromaticity": "Fractions and R/B are computed from the common-domain mean linear RGB. Undefined ratios are null.",
+  "roiBasis": {
+    "geometrySource": "I:\\Unity test\\Comparison\\ValidationPackageV209-reference-frame0119-01",
+    "sampledFullPixel": "(2*x+1,2*y+1)",
+    "scope": "Saved-scene Floor/White owners, fixed door/pose and unchanged receiver materials in the driver; this capture saves no new material or geometry support planes."
+  },
+  "runs": {
+    "RedToBlue": {
+      "capture": "I:\\Unity test\\Comparison\\BlueHistory109\\RedToBlue\\capture\\20261102-021557-fe12dea8a76c452c8b68cc6ef9e07b6f",
+      "sequenceStatus": "failed",
+      "renderedFrames": 151,
+      "prefixFailures": 0,
+      "backendMismatches": 0,
+      "settings": {
+        "raysPerPixel": 2,
+        "filterIterations": 4,
+        "preferHardwareTracing": true
+      },
+      "reportedBackend": "reported-hardware",
+      "giFrame": 151,
+      "workFrame": 150,
+      "engineFrame": 154,
+      "cameraDoorLights": {
+        "camera": "Validation Camera",
+        "cameraPosition": {
+          "x": 0.0,
+          "y": 2.5,
+          "z": -7.5
+        },
+        "cameraRotation": {
+          "x": 0.05151798576116562,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9986720681190491
+        },
+        "cameraProjection": {
+          "e00": 0.9742785692214966,
+          "e01": 0.0,
+          "e02": 0.0,
+          "e03": 0.0,
+          "e10": 0.0,
+          "e11": 1.7320507764816284,
+          "e12": 0.0,
+          "e13": 0.0,
+          "e20": 0.0,
+          "e21": 0.0,
+          "e22": -1.0020020008087158,
+          "e23": -0.20020020008087158,
+          "e30": 0.0,
+          "e31": 0.0,
+          "e32": -1.0,
+          "e33": 0.0
+        },
+        "doorLocalPosition": {
+          "x": -1.100000023841858,
+          "y": 1.399999976158142,
+          "z": -0.800000011920929
+        },
+        "lightsEnabled": true
+      },
+      "scene": "Assets/ValidationPackageV201/Generated/Scenes/Run/Validation.unity",
+      "lights": [
+        {
+          "name": "Behind thin wall",
+          "type": "Point",
+          "shadows": "Soft",
+          "bakeType": "Realtime",
+          "color": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+          },
+          "intensity": 12.0,
+          "range": 5.0,
+          "spotAngle": 30.0,
+          "innerSpotAngle": 21.802080154418945,
+          "position": {
+            "x": 8.0,
+            "y": 2.0,
+            "z": 2.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "enabled": true,
+          "cullingMask": -1,
+          "renderingLayerMask": 1
+        },
+        {
+          "name": "Directional",
+          "type": "Directional",
+          "shadows": "Soft",
+          "bakeType": "Realtime",
+          "color": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+          },
+          "intensity": 1.2000000476837158,
+          "range": 10.0,
+          "spotAngle": 30.0,
+          "innerSpotAngle": 21.802080154418945,
+          "position": {
+            "x": 0.0,
+            "y": 5.0,
+            "z": -2.0
+          },
+          "rotation": {
+            "x": 0.4126005470752716,
+            "y": -0.1961609274148941,
+            "z": 0.0914713442325592,
+            "w": 0.8848246932029724
+          },
+          "enabled": true,
+          "cullingMask": -1,
+          "renderingLayerMask": 1
+        },
+        {
+          "name": "Outside sealed room only",
+          "type": "Point",
+          "shadows": "Soft",
+          "bakeType": "Realtime",
+          "color": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+          },
+          "intensity": 20.0,
+          "range": 10.0,
+          "spotAngle": 30.0,
+          "innerSpotAngle": 21.802080154418945,
+          "position": {
+            "x": 10.699999809265137,
+            "y": 2.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "enabled": true,
+          "cullingMask": -1,
+          "renderingLayerMask": 1
+        },
+        {
+          "name": "Point (toggle for invalidation)",
+          "type": "Point",
+          "shadows": "Soft",
+          "bakeType": "Realtime",
+          "color": {
+            "r": 1.0,
+            "g": 0.75,
+            "b": 0.5,
+            "a": 1.0
+          },
+          "intensity": 7.0,
+          "range": 8.0,
+          "spotAngle": 30.0,
+          "innerSpotAngle": 21.802080154418945,
+          "position": {
+            "x": -2.4000000953674316,
+            "y": 2.799999952316284,
+            "z": 2.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "enabled": true,
+          "cullingMask": -1,
+          "renderingLayerMask": 1
+        },
+        {
+          "name": "Spot (toggle for invalidation)",
+          "type": "Spot",
+          "shadows": "Soft",
+          "bakeType": "Realtime",
+          "color": {
+            "r": 0.5,
+            "g": 0.699999988079071,
+            "b": 1.0,
+            "a": 1.0
+          },
+          "intensity": 12.0,
+          "range": 9.0,
+          "spotAngle": 55.0,
+          "innerSpotAngle": 35.0,
+          "position": {
+            "x": 2.299999952316284,
+            "y": 3.5,
+            "z": 0.5
+          },
+          "rotation": {
+            "x": 0.6427876353263855,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 0.7660444974899292
+          },
+          "enabled": true,
+          "cullingMask": -1,
+          "renderingLayerMask": 1
+        }
+      ],
+      "wallHistory": {
+        "mode": "red",
+        "renderer": "Red wall",
+        "firstBlueLogicalFrame": 120,
+        "engineFrameApplied": 123,
+        "beforeLogical0": {
+          "r": 0.75,
+          "g": 0.03999999910593033,
+          "b": 0.029999999329447746,
+          "a": 1.0
+        },
+        "afterLogical119": {
+          "r": 0.75,
+          "g": 0.03999999910593033,
+          "b": 0.029999999329447746,
+          "a": 1.0
+        },
+        "beforeLogical150": {
+          "r": 0.04999998211860657,
+          "g": 0.1499999761581421,
+          "b": 0.800000011920929,
+          "a": 1.0
+        }
+      },
+      "composite": {
+        "invVP": {
+          "e00": 1.0264004468917847,
+          "e01": 0.0,
+          "e02": 0.0,
+          "e03": 0.0,
+          "e10": 0.0,
+          "e11": -0.574285626411438,
+          "e12": 24.974998474121094,
+          "e13": -0.07789916545152664,
+          "e20": 0.0,
+          "e21": -0.05940885469317436,
+          "e22": -74.92499542236328,
+          "e23": 0.9196918606758118,
+          "e30": 0.0,
+          "e31": 0.0,
+          "e32": 9.989999771118164,
+          "e33": 0.009999994188547134
+        },
+        "giSize": {
+          "x": 320,
+          "y": 180
+        },
+        "intensity": 1.0
+      },
+      "signalSourceFormat": "R16G16B16A16_SFloat"
+    },
+    "BlueFromStart": {
+      "capture": "I:\\Unity test\\Comparison\\BlueHistory109\\BlueFromStart\\capture\\20261102-021609-57dbbf3642174b328a2b9836ad27494a",
+      "sequenceStatus": "failed",
+      "renderedFrames": 151,
+      "prefixFailures": 0,
+      "backendMismatches": 0,
+      "settings": {
+        "raysPerPixel": 2,
+        "filterIterations": 4,
+        "preferHardwareTracing": true
+      },
+      "reportedBackend": "reported-hardware",
+      "giFrame": 151,
+      "workFrame": 150,
+      "engineFrame": 154,
+      "cameraDoorLights": {
+        "camera": "Validation Camera",
+        "cameraPosition": {
+          "x": 0.0,
+          "y": 2.5,
+          "z": -7.5
+        },
+        "cameraRotation": {
+          "x": 0.05151798576116562,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9986720681190491
+        },
+        "cameraProjection": {
+          "e00": 0.9742785692214966,
+          "e01": 0.0,
+          "e02": 0.0,
+          "e03": 0.0,
+          "e10": 0.0,
+          "e11": 1.7320507764816284,
+          "e12": 0.0,
+          "e13": 0.0,
+          "e20": 0.0,
+          "e21": 0.0,
+          "e22": -1.0020020008087158,
+          "e23": -0.20020020008087158,
+          "e30": 0.0,
+          "e31": 0.0,
+          "e32": -1.0,
+          "e33": 0.0
+        },
+        "doorLocalPosition": {
+          "x": -1.100000023841858,
+          "y": 1.399999976158142,
+          "z": -0.800000011920929
+        },
+        "lightsEnabled": true
+      },
+      "scene": "Assets/ValidationPackageV201/Generated/Scenes/Run/Validation.unity",
+      "lights": [
+        {
+          "name": "Behind thin wall",
+          "type": "Point",
+          "shadows": "Soft",
+          "bakeType": "Realtime",
+          "color": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+          },
+          "intensity": 12.0,
+          "range": 5.0,
+          "spotAngle": 30.0,
+          "innerSpotAngle": 21.802080154418945,
+          "position": {
+            "x": 8.0,
+            "y": 2.0,
+            "z": 2.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "enabled": true,
+          "cullingMask": -1,
+          "renderingLayerMask": 1
+        },
+        {
+          "name": "Directional",
+          "type": "Directional",
+          "shadows": "Soft",
+          "bakeType": "Realtime",
+          "color": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+          },
+          "intensity": 1.2000000476837158,
+          "range": 10.0,
+          "spotAngle": 30.0,
+          "innerSpotAngle": 21.802080154418945,
+          "position": {
+            "x": 0.0,
+            "y": 5.0,
+            "z": -2.0
+          },
+          "rotation": {
+            "x": 0.4126005470752716,
+            "y": -0.1961609274148941,
+            "z": 0.0914713442325592,
+            "w": 0.8848246932029724
+          },
+          "enabled": true,
+          "cullingMask": -1,
+          "renderingLayerMask": 1
+        },
+        {
+          "name": "Outside sealed room only",
+          "type": "Point",
+          "shadows": "Soft",
+          "bakeType": "Realtime",
+          "color": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+          },
+          "intensity": 20.0,
+          "range": 10.0,
+          "spotAngle": 30.0,
+          "innerSpotAngle": 21.802080154418945,
+          "position": {
+            "x": 10.699999809265137,
+            "y": 2.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "enabled": true,
+          "cullingMask": -1,
+          "renderingLayerMask": 1
+        },
+        {
+          "name": "Point (toggle for invalidation)",
+          "type": "Point",
+          "shadows": "Soft",
+          "bakeType": "Realtime",
+          "color": {
+            "r": 1.0,
+            "g": 0.75,
+            "b": 0.5,
+            "a": 1.0
+          },
+          "intensity": 7.0,
+          "range": 8.0,
+          "spotAngle": 30.0,
+          "innerSpotAngle": 21.802080154418945,
+          "position": {
+            "x": -2.4000000953674316,
+            "y": 2.799999952316284,
+            "z": 2.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "enabled": true,
+          "cullingMask": -1,
+          "renderingLayerMask": 1
+        },
+        {
+          "name": "Spot (toggle for invalidation)",
+          "type": "Spot",
+          "shadows": "Soft",
+          "bakeType": "Realtime",
+          "color": {
+            "r": 0.5,
+            "g": 0.699999988079071,
+            "b": 1.0,
+            "a": 1.0
+          },
+          "intensity": 12.0,
+          "range": 9.0,
+          "spotAngle": 55.0,
+          "innerSpotAngle": 35.0,
+          "position": {
+            "x": 2.299999952316284,
+            "y": 3.5,
+            "z": 0.5
+          },
+          "rotation": {
+            "x": 0.6427876353263855,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 0.7660444974899292
+          },
+          "enabled": true,
+          "cullingMask": -1,
+          "renderingLayerMask": 1
+        }
+      ],
+      "wallHistory": {
+        "mode": "blue",
+        "renderer": "Red wall",
+        "firstBlueLogicalFrame": 0,
+        "engineFrameApplied": 4,
+        "beforeLogical0": {
+          "r": 0.04999998211860657,
+          "g": 0.1499999761581421,
+          "b": 0.800000011920929,
+          "a": 1.0
+        },
+        "afterLogical119": {
+          "r": 0.04999998211860657,
+          "g": 0.1499999761581421,
+          "b": 0.800000011920929,
+          "a": 1.0
+        },
+        "beforeLogical150": {
+          "r": 0.04999998211860657,
+          "g": 0.1499999761581421,
+          "b": 0.800000011920929,
+          "a": 1.0
+        }
+      },
+      "composite": {
+        "invVP": {
+          "e00": 1.0264004468917847,
+          "e01": 0.0,
+          "e02": 0.0,
+          "e03": 0.0,
+          "e10": 0.0,
+          "e11": -0.574285626411438,
+          "e12": 24.974998474121094,
+          "e13": -0.07789916545152664,
+          "e20": 0.0,
+          "e21": -0.05940885469317436,
+          "e22": -74.92499542236328,
+          "e23": 0.9196918606758118,
+          "e30": 0.0,
+          "e31": 0.0,
+          "e32": 9.989999771118164,
+          "e33": 0.009999994188547134
+        },
+        "giSize": {
+          "x": 320,
+          "y": 180
+        },
+        "intensity": 1.0
+      },
+      "signalSourceFormat": "R16G16B16A16_SFloat"
+    }
+  },
+  "rois": {
+    "Floor": {
+      "sourcePixels": 13330,
+      "commonKnownPixels": 13328,
+      "unknownPixels": {
+        "RedToBlue": 2,
+        "BlueFromStart": 2
+      },
+      "RedToBlue": {
+        "meanRGB": [
+          0.05622869608353595,
+          0.051451404841721844,
+          0.07021848522886938
+        ],
+        "meanY": 0.053822040163683575,
+        "redFraction": 0.3160716299050332,
+        "blueFraction": 0.394710754856892,
+        "redOverBlue": 0.8007677166527409
+      },
+      "BlueFromStart": {
+        "meanRGB": [
+          0.07035362477205237,
+          0.056985738326092154,
+          0.07877924920273285
+        ],
+        "meanY": 0.06140124246979675,
+        "redFraction": 0.34132591902644444,
+        "blueFraction": 0.38220347169685226,
+        "redOverBlue": 0.8930476678065599
+      },
+      "redToBlueMinusBlueFromStart": {
+        "meanY": -0.007579202306113177,
+        "redFraction": -0.025254289121411255,
+        "blueFraction": 0.01250728316003974,
+        "redOverBlue": -0.09227995115381893
+      }
+    },
+    "White receiver": {
+      "sourcePixels": 86,
+      "commonKnownPixels": 86,
+      "unknownPixels": {
+        "RedToBlue": 0,
+        "BlueFromStart": 0
+      },
+      "RedToBlue": {
+        "meanRGB": [
+          0.21613684365915697,
+          0.15475676780523256,
+          0.2144718613735465
+        ],
+        "meanY": 0.17211760168740914,
+        "redFraction": 0.36923401479642187,
+        "blueFraction": 0.3663896682080616,
+        "redOverBlue": 1.0077631735694714
+      },
+      "BlueFromStart": {
+        "meanRGB": [
+          0.23034242142078487,
+          0.17919779932776161,
+          0.24293127725290697
+        ],
+        "meanY": 0.19467270309093385,
+        "redFraction": 0.3530306260523763,
+        "blueFraction": 0.37232473448574427,
+        "redOverBlue": 0.9481793535419636
+      },
+      "redToBlueMinusBlueFromStart": {
+        "meanY": -0.022555101403524708,
+        "redFraction": 0.016203388744045588,
+        "blueFraction": -0.0059350662776826435,
+        "redOverBlue": 0.05958382002750784
+      }
+    }
+  },
+  "image": "comparison.png",
+  "display": "Reinhard then sRGB, PNG vertically flipped only; each panel displays its own validity."
+}

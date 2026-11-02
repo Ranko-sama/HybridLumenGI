@@ -12,6 +12,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 **离线看画面对照**　打开运行包内的 `PictureComparison/index.html` 可查看颜色误差、换色与关灯残留、运动拖影和收敛时间。其他章节包含白炉、零漫反射、离屏纹理、两室关门后的暖光衰减，以及静态烘焙贴图替换与独立直射基准。包内附原始线性 EXR。[真实烘焙三方对照](LocalComparison/Review/baked-lightmap-01/result.md)
 
+Release109 的换色对照另有可单独查看的附件。解压后可直接看同曝光图，也可将其中的 `PictureComparison` 并入运行包以更新画册。红墙改蓝后第 30 帧，地板与白色接收块相对首帧蓝墙分别暗 12.34% 和 11.59%。[下载换色对照与原始数据](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release109-demo/HybridLumenGI-Release109-RecolorComparison.zip) · [条件与读数](LocalComparison/Review/blue-wall-history-01/result.md)
+
 只需最初四问的画面时，也可单独下载[原版离线附件（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)。
 
 Release107 画册包含方向贴图对照。转动接收面法线能改变暖、冷烘焙光斑。替换后与仅保留实时直射的独立画面相差最多 0.000488 个线性通道单位。[方向贴图四图与原始 EXR](LocalComparison/Review/directional-lightmap-01/result.md)
