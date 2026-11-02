@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Rendering;
+using static HybridLumenGI.HybridLumenGIUniformLighting;
 
 namespace HybridLumenGI
 {
@@ -54,6 +55,8 @@ namespace HybridLumenGI
         private uint lastRenderingLayerMask;
         private ShadowCastingMode lastShadowCastingMode;
         private MeshFilter sourceMeshFilter;
+        private List<Material> uniformSlots;
+        private MaterialPropertyBlock uniformBlock;
         private int stableId;
         private int revision = 1;
         private int geometryContentRevision = 1;
@@ -159,10 +162,8 @@ namespace HybridLumenGI
             if (!isActiveAndEnabled) return false;
             if (Volatile.Read(ref validationPending)!=0)
             { MarkDirty(); return true; }
-            Color albedo = GetAlbedo();
-            Color emission = GetEmission();
+            ReadMaterialInputs(true, out Color albedo, out Color emission, out float diffuseFraction);
             Bounds bounds = GetWorldBounds();
-            float diffuseFraction = GetDiffuseFraction();
             Mesh mesh = RefreshSourceMesh();
             int vertices = mesh != null ? mesh.vertexCount : 0;
             Bounds localBounds=mesh!=null?mesh.bounds:default;
@@ -173,7 +174,7 @@ namespace HybridLumenGI
             uint renderingLayers = sourceRenderer != null ? sourceRenderer.renderingLayerMask : 1u;
             ShadowCastingMode casting = sourceRenderer != null ? sourceRenderer.shadowCastingMode : ShadowCastingMode.On;
             if (SdfLocalToWorld != lastMatrix || bounds != lastBounds ||
-                albedo != lastAlbedo || emission != lastEmission || diffuseFraction != lastDiffuseFraction ||
+                !albedo.Equals(lastAlbedo) || !emission.Equals(lastEmission) || diffuseFraction != lastDiffuseFraction ||
                 objectLayer != lastObjectLayer || renderingLayers != lastRenderingLayerMask || casting != lastShadowCastingMode ||
                 contentChanged || sourceNotified)
             {
@@ -201,9 +202,7 @@ namespace HybridLumenGI
         {
             lastMatrix = SdfLocalToWorld;
             lastBounds = GetWorldBounds();
-            lastAlbedo = GetAlbedo();
-            lastEmission = GetEmission();
-            lastDiffuseFraction = GetDiffuseFraction();
+            ReadMaterialInputs(true, out lastAlbedo, out lastEmission, out lastDiffuseFraction);
             lastMesh = SourceMesh;
             lastMeshSourceVersion = HybridLumenGIMeshSource.GetVersion(lastMesh);
             lastVertexCount = lastMesh != null ? lastMesh.vertexCount : 0;
@@ -276,70 +275,81 @@ namespace HybridLumenGI
 
         public Color GetAlbedo()
         {
-            Color value = albedoTint;
-            if (readMaterialProperties && sourceRenderer != null && sourceRenderer.sharedMaterial != null)
-            {
-                Material material = sourceRenderer.sharedMaterial;
-                if (material.HasProperty("_BaseColor")) value *= material.GetColor("_BaseColor");
-                else if (material.HasProperty("_Color")) value *= material.GetColor("_Color");
-            }
-            value.a = 1f;
-            return value;
+            ReadMaterialInputs(false, out Color albedo, out _, out _);
+            return albedo;
         }
 
         public Color GetEmission()
         {
-            Color value = emissionOverride;
-            if (readMaterialProperties && sourceRenderer != null && sourceRenderer.sharedMaterial != null)
-            {
-                Material material = sourceRenderer.sharedMaterial;
-                if (material.IsKeywordEnabled("_EMISSION") && material.HasProperty("_EmissionColor"))
-                    value += material.GetColor("_EmissionColor");
-            }
-            value.r *= emissionIntensity;
-            value.g *= emissionIntensity;
-            value.b *= emissionIntensity;
-            value.a = 1f;
-            return value;
+            ReadMaterialInputs(false, out _, out Color emission, out _);
+            return emission;
         }
 
-        /// <summary>Linear diffuse reflectance for the Lambert transport cache. Texture and property-block capture require a surface capture pass.</summary>
+        /// <summary>Linear uniform fallback. Texture detail requires a resolved surface or triangle hit.</summary>
         public Color GetDiffuseReflectanceLinear()
         {
-            Color tint = albedoTint.linear;
-            Material material = readMaterialProperties && sourceRenderer != null ? sourceRenderer.sharedMaterial : null;
-            if (material != null)
-            {
-                if (material.HasProperty("_BaseColor")) tint *= material.GetColor("_BaseColor").linear;
-                else if (material.HasProperty("_Color")) tint *= material.GetColor("_Color").linear;
-            }
-            float diffuse = GetDiffuseFraction();
-            return new Color(Mathf.Clamp01(tint.r) * diffuse, Mathf.Clamp01(tint.g) * diffuse,
-                Mathf.Clamp01(tint.b) * diffuse, 1f);
+            ReadMaterialInputs(true, out Color tint, out _, out float fraction);
+            return new Color(Mathf.Clamp01(tint.r) * fraction, Mathf.Clamp01(tint.g) * fraction,
+                Mathf.Clamp01(tint.b) * fraction, 1f);
         }
 
         public Color GetEmissionLinear()
         {
-            Color value = emissionOverride.linear;
-            Material material = readMaterialProperties && sourceRenderer != null ? sourceRenderer.sharedMaterial : null;
-            if (material != null && material.IsKeywordEnabled("_EMISSION") && material.HasProperty("_EmissionColor"))
-                // URP Lit's HDR emission property is uploaded without sRGB
-                // conversion. Confirmed by the actual Linear GPU color probe.
-                value += material.GetColor("_EmissionColor");
-            return new Color(Mathf.Max(0f, value.r * emissionIntensity), Mathf.Max(0f, value.g * emissionIntensity),
-                Mathf.Max(0f, value.b * emissionIntensity), 1f);
+            ReadMaterialInputs(true, out _, out Color emission, out _);
+            return emission;
         }
 
-        private float GetDiffuseFraction()
+        private MaterialPropertyBlock GetUniformBlock(Material material)
         {
+            if (!(sourceRenderer is MeshRenderer renderer) || !renderer.HasPropertyBlock() ||
+                material.shader == null || material.shader.name != "Universal Render Pipeline/Lit" || material.renderQueue > 2500)
+                return null;
+            Mesh mesh = SourceMesh;
+            if (mesh == null || mesh.subMeshCount != 1) return null;
+            uniformSlots ??= new List<Material>(1);
+            renderer.GetSharedMaterials(uniformSlots);
+            bool single = uniformSlots.Count == 1;
+            uniformSlots.Clear();
+            if (!single) return null;
+            uniformBlock ??= new MaterialPropertyBlock();
+            renderer.GetPropertyBlock(uniformBlock, 0);
+            if (uniformBlock.isEmpty) renderer.GetPropertyBlock(uniformBlock);
+            if (ReadFloat(material, uniformBlock, "_Surface", 0f) < 0.5f) return uniformBlock;
+            uniformBlock.Clear();
+            return null;
+        }
+
+        private void ReadMaterialInputs(bool linear, out Color albedo, out Color emission, out float diffuseFraction)
+        {
+            albedo = linear ? albedoTint.linear : albedoTint;
+            emission = linear ? emissionOverride.linear : emissionOverride;
+            diffuseFraction = 0.96f;
             Material material = readMaterialProperties && sourceRenderer != null ? sourceRenderer.sharedMaterial : null;
-            if (material == null) return 0.96f;
-            if (material.IsKeywordEnabled("_SPECULAR_SETUP") && material.HasProperty("_SpecColor"))
+            if (material != null)
             {
-                Color specular = material.GetColor("_SpecColor").linear;
-                return 1f - Mathf.Clamp01(Mathf.Max(specular.r, specular.g, specular.b));
+                var block = GetUniformBlock(material);
+                string baseName = material.HasProperty("_BaseColor") ? "_BaseColor" : "_Color";
+                if (material.HasProperty(baseName))
+                {
+                    if (linear) albedo *= (Color)ReadLinearColor(material, block, baseName, Color.white, false);
+                    else if (block != null && block.HasProperty(Shader.PropertyToID(baseName)))
+                        albedo *= ((Color)block.GetVector(Shader.PropertyToID(baseName))).gamma;
+                    else albedo *= material.GetColor(baseName);
+                }
+                if (material.IsKeywordEnabled("_EMISSION") && material.HasProperty("_EmissionColor"))
+                    emission += (Color)ReadLinearColor(material, block, "_EmissionColor", Color.black, true);
+                if (material.IsKeywordEnabled("_SPECULAR_SETUP") && material.HasProperty("_SpecColor"))
+                {
+                    Vector4 spec = ReadLinearColor(material, block, "_SpecColor", Color.black, false);
+                    diffuseFraction = 1f - Mathf.Clamp01(Mathf.Max(spec.x, Mathf.Max(spec.y, spec.z)));
+                }
+                else diffuseFraction *= 1f - Mathf.Clamp01(ReadFloat(material, block, "_Metallic", 0f));
+                block?.Clear();
             }
-            return 0.96f * (1f - (material.HasProperty("_Metallic") ? Mathf.Clamp01(material.GetFloat("_Metallic")) : 0f));
+            albedo.a = 1f;
+            emission.r *= emissionIntensity; emission.g *= emissionIntensity; emission.b *= emissionIntensity;
+            if (linear) emission = new Color(Mathf.Max(0f, emission.r), Mathf.Max(0f, emission.g), Mathf.Max(0f, emission.b), 1f);
+            emission.a = 1f;
         }
 
         public void SetSources(Renderer renderer, Collider collider)

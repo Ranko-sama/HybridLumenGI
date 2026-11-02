@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+using static HybridLumenGI.HybridLumenGIUniformLighting;
 
 namespace HybridLumenGI
 {
@@ -277,23 +278,6 @@ namespace HybridLumenGI
             return true;
         }
 
-        private static float ReadFloat(Material source, MaterialPropertyBlock block, string name, float fallback)
-        {
-            int id = Shader.PropertyToID(name);
-            return block.HasProperty(id) ? block.GetFloat(id) : source.HasProperty(id) ? source.GetFloat(id) : fallback;
-        }
-
-        private static Vector4 ReadLinearColor(Material source, MaterialPropertyBlock block, string name, Color fallback, bool hdr)
-        {
-            int id = Shader.PropertyToID(name);
-            // MPB GetVector returns shader-space values for both SetColor and SetVector.
-            // Stock Lit's ordinary Color properties are sRGB authoring values; its
-            // [HDR] EmissionColor is linear. Never gamma-convert HDR a second time.
-            if (block.HasProperty(id)) return block.GetVector(id);
-            Color color = source.HasProperty(id) ? source.GetColor(id) : fallback;
-            if (!hdr) color = color.linear;
-            return new Vector4(color.r, color.g, color.b, color.a);
-        }
 
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
         private static bool Finite(Vector4 value) => Finite(value.x) && Finite(value.y) && Finite(value.z) && Finite(value.w);

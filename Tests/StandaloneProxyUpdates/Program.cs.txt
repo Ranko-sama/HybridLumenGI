@@ -37,6 +37,33 @@ static class Program
     static void Main()
     {
         Check(UnityApiGuard.MainThread==Environment.CurrentManagedThreadId,"Initialize guard on main thread");
+        Scenario("single-slot Lit uniform lighting follows property-block replacement",()=>
+        {
+            var mesh=new Mesh();var proxy=Create(mesh);var renderer=(MeshRenderer)proxy.SourceRenderer;
+            int geometry=proxy.GeometryContentRevision,baseColor=Shader.PropertyToID("_BaseColor");
+            Color white=new(.96f,.96f,.96f),rendererRho=new(.48f,.24f,.12f),slotRho=new(.12f,.48f,.24f);
+            var block=new MaterialPropertyBlock();var slot=new MaterialPropertyBlock();
+            block.SetVector(baseColor,new Vector4(.5f,.25f,.125f,1));
+            void Changed(Color expected)
+            {
+                int before=proxy.Revision;
+                Check(proxy.RefreshSignatureForRender()&&proxy.Revision==Next(before),"Effective uniform change was missed");
+                Check(proxy.GetDiffuseReflectanceLinear()==expected,"Wrong shader-space diffuse reflectance");
+                Check(proxy.GeometryContentRevision==geometry&&!proxy.RefreshSignatureForRender(),"Color changed geometry or repeated a revision");
+            }
+            renderer.SetPropertyBlock(block);Changed(rendererRho);
+            slot.SetFloat(Shader.PropertyToID("_Smoothness"),.5f);
+            renderer.SetPropertyBlock(slot,0);Changed(white); // The slot block replaces, rather than inherits, renderer values.
+            slot.SetVector(baseColor,new Vector4(.125f,.5f,.25f,1));renderer.SetPropertyBlock(slot,0);Changed(slotRho);
+            renderer.SetPropertyBlock(null,0);Changed(rendererRho);
+            renderer.SetPropertyBlock(null);Changed(white);
+            mesh.subMeshCount=2;renderer.Materials.Add(new Material());renderer.SetPropertyBlock(block);
+            proxy.RefreshSignatureForRender();
+            Check(proxy.GetDiffuseReflectanceLinear()==white,"A multi-slot owner adopted a slot-specific override");
+            mesh.subMeshCount=1;renderer.Materials.RemoveAt(1);Set(proxy,"readMaterialProperties",false);
+            proxy.RefreshSignatureForRender();
+            Check(proxy.GetDiffuseReflectanceLinear()==white,"Explicit authoring was replaced by an MPB");
+        });
         Scenario("lighting policy refresh changes only transport identity",()=>
         {
             var shared=new Mesh();var a=Create(shared);var b=Create(shared);var renderer=a.SourceRenderer;

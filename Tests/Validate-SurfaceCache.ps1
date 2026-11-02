@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $SourceRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
 $sources = @{
     'SurfaceCache.cs' = [IO.File]::ReadAllText((Join-Path $SourceRoot 'Runtime/HybridLumenGISurfaceCache.cs'))
+    'UniformLighting.cs' = [IO.File]::ReadAllText((Join-Path $SourceRoot 'Runtime/HybridLumenGIUniformLighting.cs'))
     'MaterialSource.cs' = [IO.File]::ReadAllText((Join-Path $SourceRoot 'Runtime/HybridLumenGIMaterialSource.cs'))
     'HitMaterialData.cs' = [IO.File]::ReadAllText((Join-Path $SourceRoot 'Runtime/HybridLumenGIHitMaterialData.cs'))
     'UnityStubs.cs' = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'StandaloneSurfaceCache/UnityStubs.cs.txt'))

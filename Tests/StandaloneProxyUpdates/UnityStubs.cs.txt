@@ -47,6 +47,13 @@ namespace UnityEngine
         public static bool operator ==(Vector3 a,Vector3 b)=>a.Equals(b);
         public static bool operator !=(Vector3 a,Vector3 b)=>!a.Equals(b);
     }
+    public struct Vector4
+    {
+        public float x,y,z,w;
+        public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}
+        public static implicit operator Color(Vector4 v)=>new(v.x,v.y,v.z,v.w);
+        public static implicit operator Vector4(Color c)=>new(c.r,c.g,c.b,c.a);
+    }
     public struct Bounds : IEquatable<Bounds>
     {
         public Vector3 center,size;
@@ -72,9 +79,11 @@ namespace UnityEngine
     {
         public float r,g,b,a;
         public Color(float r,float g,float b,float a=1){this.r=r;this.g=g;this.b=b;this.a=a;}
-        public static Color white=>new(1,1,1); public static Color black=>new(0,0,0);
+        public static Color white=>new(1,1,1); public static Color black=>new(0,0,0); public static Color clear=>new(0,0,0,0);
         public Color linear=>new(L(r),L(g),L(b),a);
+        public Color gamma=>new(G(r),G(g),G(b),a);
         static float L(float x)=>x<=.04045f?x/12.92f:MathF.Pow((x+.055f)/1.055f,2.4f);
+        static float G(float x)=>x<=0f?0f:x<=.0031308f?12.92f*x:x<1f?1.055f*MathF.Pow(x,1f/2.4f)-.055f:MathF.Pow(x,1f/2.2f);
         public static Color operator *(Color a,Color b)=>new(a.r*b.r,a.g*b.g,a.b*b.b,a.a*b.a);
         public static Color operator +(Color a,Color b)=>new(a.r+b.r,a.g+b.g,a.b+b.b,a.a+b.a);
         public bool Equals(Color x)=>r==x.r&&g==x.g&&b==x.b&&a==x.a;
@@ -91,26 +100,72 @@ namespace UnityEngine
     }
     public class Mesh:Object
     {
-        public int vertexCount=3;
+        public int vertexCount=3,subMeshCount=1;
         public Bounds bounds=new(new Vector3(0,0,0),Vector3.one);
         public Vector3[] vertices={new(0,0,0),new(1,0,0),new(0,1,0)};
     }
     public class MeshFilter:Component { public Mesh sharedMesh; }
+    public class Shader:Object
+    {
+        public string name="Universal Render Pipeline/Lit";
+        static readonly List<string> Names=new();
+        public static int PropertyToID(string name)
+        {
+            int index=Names.IndexOf(name);
+            if(index>=0)return index;
+            Names.Add(name);return Names.Count-1;
+        }
+        internal static string PropertyName(int id)=>Names[id];
+    }
     public class Material:Object
     {
+        public Shader shader=new();
+        public int renderQueue=2000;
         public readonly Dictionary<string,Color> Colors=new();
         public readonly Dictionary<string,float> Floats=new();
         public readonly HashSet<string> Keywords=new();
         public bool HasProperty(string name){UnityApiGuard.Access();return Colors.ContainsKey(name)||Floats.ContainsKey(name);}
         public Color GetColor(string name){UnityApiGuard.Access();return Colors[name];}
         public float GetFloat(string name){UnityApiGuard.Access();return Floats[name];}
+        public bool HasProperty(int id)=>HasProperty(Shader.PropertyName(id));
+        public Color GetColor(int id)=>GetColor(Shader.PropertyName(id));
+        public float GetFloat(int id)=>GetFloat(Shader.PropertyName(id));
         public bool IsKeywordEnabled(string name){UnityApiGuard.Access();return Keywords.Contains(name);}
+    }
+    public class MaterialPropertyBlock
+    {
+        readonly Dictionary<int,object> values=new();
+        public bool isEmpty=>values.Count==0;
+        public void Clear()=>values.Clear();
+        public bool HasProperty(int id)=>values.ContainsKey(id);
+        public float GetFloat(int id)=>values.TryGetValue(id,out var v)&&v is float f?f:0;
+        public Vector4 GetVector(int id)=>values.TryGetValue(id,out var v)&&v is Vector4 color?color:default;
+        public void SetVector(int id,Vector4 value)=>values[id]=value;
+        public void SetFloat(int id,float value)=>values[id]=value;
+        internal void CopyFrom(MaterialPropertyBlock other)
+        {
+            Clear();
+            if(other!=null)foreach(var pair in other.values)values.Add(pair.Key,pair.Value);
+        }
     }
     public class Renderer:Component
     {
         public Bounds bounds=new(new Vector3(0,0,0),Vector3.one);
         public Matrix4x4 localToWorldMatrix=Matrix4x4.identity;
-        public Material sharedMaterial=new();
+        public readonly List<Material> Materials=new(){new Material()};
+        public Material sharedMaterial=>Materials.Count>0?Materials[0]:null;
+        readonly Dictionary<int,MaterialPropertyBlock> blocks=new();
+        public void GetSharedMaterials(List<Material> output){UnityApiGuard.Access();output.Clear();output.AddRange(Materials);}
+        public bool HasPropertyBlock(){UnityApiGuard.Access();return blocks.Count>0;}
+        public void GetPropertyBlock(MaterialPropertyBlock output,int slot=-1)
+        {UnityApiGuard.Access();blocks.TryGetValue(slot,out var block);output.CopyFrom(block);}
+        public void SetPropertyBlock(MaterialPropertyBlock value,int slot=-1)
+        {
+            UnityApiGuard.Access();
+            if(value==null||value.isEmpty){blocks.Remove(slot);return;}
+            if(!blocks.TryGetValue(slot,out var block))blocks.Add(slot,block=new MaterialPropertyBlock());
+            block.CopyFrom(value);
+        }
         public uint renderingLayerMask=1u;
         public UnityEngine.Rendering.ShadowCastingMode shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.On;
     }
