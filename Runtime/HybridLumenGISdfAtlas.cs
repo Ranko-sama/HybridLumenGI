@@ -179,18 +179,16 @@ namespace HybridLumenGI
                 if (proxy == null) continue;
                 if (proxy.TryGetColliderBox(out _, out Matrix4x4 worldToAxes, out Vector3 halfSize))
                 {
-                    // Collider-only owners have no mesh SDF. Reuse their slot metadata
-                    // without allocating voxels or changing mesh residency/readiness.
+                    // Keep the oriented fallback until an authored mesh volume becomes resident.
                     nextMetadata[slot] = new SdfMetadata
                     {
                         worldToLocal = worldToAxes, boundsSizeMinScale = halfSize,
                         stableId = (uint)data.identity.x, revision = (uint)data.identity.y, valid = 4u
                     };
-                    continue;
                 }
-                if (proxy.MeshSdf == null) continue;
-                FallbackCount++;
                 HybridLumenGIMeshSdf asset = proxy.MeshSdf;
+                if (asset == null) continue;
+                FallbackCount++;
                 if (!asset.MatchesSource(asset.SourceMesh)) { RejectedSourceCount++; continue; }
                 if (!TryMetadata(proxy, asset, out SdfMetadata value)) continue;
                 int count = asset.Resolution * asset.Resolution * asset.Resolution;

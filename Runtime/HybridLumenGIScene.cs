@@ -263,7 +263,9 @@ namespace HybridLumenGI
                 HybridLumenGIProxy proxy = active[i];
                 if (proxy == null || !proxy.isActiveAndEnabled) continue;
                 Bounds bounds = proxy.GetWorldBounds();
-                float distance = bounds.SqrDistance(position);
+                // A partial collider may sit far from the baked MeshFilter volume.
+                Bounds residency = proxy.SourceRenderer == null && proxy.MeshSdf != null ? GetTraversalBounds(proxy) : bounds;
+                float distance = residency.SqrDistance(position);
                 if (!Finite(bounds.center) || !Finite(bounds.extents)) continue;
                 bool aggregate = proxy.FarFieldOnly || aggregates.Contains(proxy.StableId);
                 candidates.Add(new Candidate
@@ -279,7 +281,7 @@ namespace HybridLumenGI
             // Conservative bounds distance keeps large walls that surround the camera resident.
             // Stable ID breaks ties deterministically instead of changing slots with registry sort order.
             candidates.Sort(CompareCandidates);
-            SelectAtomicGroups(position, nearDistance, farSquared, capacity);
+            SelectAtomicGroups(nearDistance, farSquared, capacity);
             int desiredCount = selectedCandidates.Count;
 
             // Never keep an old occluder/material alive while its replacement waits for budget.
@@ -415,9 +417,9 @@ namespace HybridLumenGI
             return changed;
         }
 
-        private bool UseFarProxy(HybridLumenGIProxy proxy, Vector3 position, float nearDistance)
+        private bool UseFarProxy(HybridLumenGIProxy proxy, float nearDistance)
         {
-            float distance = Mathf.Sqrt(proxy.GetWorldBounds().SqrDistance(position));
+            float distance = Mathf.Sqrt(available[proxy.StableId].distanceSquared);
             if (!farStates.TryGetValue(proxy.StableId, out bool far)) far = distance > nearDistance;
             // Group-level hysteresis prevents repeated detail/aggregate replacement at the boundary.
             if (far && distance < nearDistance * 0.9f) far = false;
@@ -426,7 +428,7 @@ namespace HybridLumenGI
             return far;
         }
 
-        private void SelectAtomicGroups(Vector3 position, float nearDistance, float farSquared, int capacity)
+        private void SelectAtomicGroups(float nearDistance, float farSquared, int capacity)
         {
             available.Clear(); grouped.Clear(); orderedGroups.Clear(); selectedCandidates.Clear(); ordinaryCandidates.Clear();
             representationAdds.Clear(); representationRemoves.Clear();
@@ -453,7 +455,7 @@ namespace HybridLumenGI
                     group.distance = Mathf.Min(group.distance, available[group.details[i].StableId].distanceSquared);
                 if (group.distance > farSquared)
                 { group.published.Clear(); group.initialized = false; continue; }
-                bool far = UseFarProxy(group.root, position, nearDistance);
+                bool far = UseFarProxy(group.root, nearDistance);
                 if (far || group.details.Count == 0) group.target.Add(group.root.StableId);
                 else for (int i = 0; i < group.details.Count; i++) group.target.Add(group.details[i].StableId);
                 group.capacityFallback = group.published.Count == 0 && group.target.Count > capacity;
@@ -491,7 +493,7 @@ namespace HybridLumenGI
             {
                 Candidate candidate = candidates[i];
                 if (grouped.Contains(candidate.proxy.StableId) || candidate.distanceSquared > farSquared) continue;
-                if (candidate.proxy.FarFieldOnly && !UseFarProxy(candidate.proxy, position, nearDistance)) continue;
+                if (candidate.proxy.FarFieldOnly && !UseFarProxy(candidate.proxy, nearDistance)) continue;
                 ordinaryCandidates.Add(candidate);
             }
             ordinaryCandidates.Sort(CompareCandidates);

@@ -42,7 +42,7 @@ namespace HybridLumenGI
         private HybridLumenGISurfaceCharts surfaceCharts;
         public HybridLumenGISurfaceCharts SurfaceCharts => HybridLumenGIDeformedMesh.GetCharts(sourceRenderer,surfaceCharts);
 
-        private Matrix4x4 lastMatrix;
+        private Matrix4x4 lastMatrix, lastBoxMatrix;
         private Bounds lastBounds;
         private Color lastAlbedo;
         private Color lastEmission;
@@ -65,7 +65,6 @@ namespace HybridLumenGI
         private int lastObjectLayer;
         private uint lastRenderingLayerMask;
         private ShadowCastingMode lastShadowCastingMode;
-        private MeshFilter sourceMeshFilter;
         private List<Material> uniformSlots;
         private MaterialPropertyBlock uniformBlock;
         private int stableId;
@@ -100,7 +99,17 @@ namespace HybridLumenGI
         public bool FarFieldOnly => farFieldOnly;
         public int StableId => stableId;
         public int Revision => revision;
-        public Mesh SourceMesh => HybridLumenGIDeformedMesh.GetSourceMesh(sourceRenderer);
+        public Mesh SourceMesh
+        {
+            get
+            {
+                if (sourceRenderer != null) return HybridLumenGIDeformedMesh.GetSourceMesh(sourceRenderer);
+                if (meshSdf == null) return null;
+                // The SDF baker takes the MeshFilter on the proxy object, even without a Renderer.
+                var filter = GetComponent<MeshFilter>();
+                return filter != null ? filter.sharedMesh : null;
+            }
+        }
         public HybridLumenGIMeshSdf MeshSdf
         {
             get
@@ -119,7 +128,8 @@ namespace HybridLumenGI
             }
         }
         public Matrix4x4 SdfLocalToWorld => sourceRenderer != null ? sourceRenderer.localToWorldMatrix :
-            ColliderBox != null ? sourceCollider.transform.localToWorldMatrix : transform.localToWorldMatrix;
+            ColliderBox != null && MeshSdf == null ? sourceCollider.transform.localToWorldMatrix : transform.localToWorldMatrix;
+        private Matrix4x4 BoxLocalToWorld => ColliderBox != null ? sourceCollider.transform.localToWorldMatrix : default;
 
         public static int Version => version;
         public static IReadOnlyList<HybridLumenGIProxy> ActiveProxies => Active;
@@ -150,7 +160,6 @@ namespace HybridLumenGI
         {
             sourceRenderer ??= GetComponent<Renderer>();
             sourceCollider ??= GetComponent<Collider>();
-            sourceMeshFilter = sourceRenderer != null ? sourceRenderer.GetComponent<MeshFilter>() : null;
             if (stableId == 0) stableId = NextExactInteger(ref nextStableId);
             if (!Active.Contains(this)) Active.Add(this);
             MarkDirty();
@@ -185,7 +194,7 @@ namespace HybridLumenGI
             { MarkDirty(); return true; }
             ReadMaterialInputs(true, out Color albedo, out Color emission, out float diffuseFraction, out bool shadowsOff);
             Bounds bounds = GetWorldBounds();
-            Mesh mesh = RefreshSourceMesh();
+            Mesh mesh = SourceMesh;
             int vertices = mesh != null ? mesh.vertexCount : 0;
             Bounds localBounds=mesh!=null?mesh.bounds:default;
             bool sameMesh=ReferenceEquals(mesh,lastMesh);
@@ -195,7 +204,7 @@ namespace HybridLumenGI
             int objectLayer = sourceRenderer != null ? sourceRenderer.gameObject.layer : gameObject.layer;
             uint renderingLayers = sourceRenderer != null ? sourceRenderer.renderingLayerMask : 1u;
             ShadowCastingMode casting = sourceRenderer != null ? sourceRenderer.shadowCastingMode : ShadowCastingMode.On;
-            if (SdfLocalToWorld != lastMatrix || bounds != lastBounds ||
+            if (SdfLocalToWorld != lastMatrix || BoxLocalToWorld != lastBoxMatrix || bounds != lastBounds ||
                 !albedo.Equals(lastAlbedo) || !emission.Equals(lastEmission) || diffuseFraction != lastDiffuseFraction || shadowsOff != UniformShadowsOff ||
                 objectLayer != lastObjectLayer || renderingLayers != lastRenderingLayerMask || casting != lastShadowCastingMode ||
                 contentChanged || sourceNotified)
@@ -214,15 +223,10 @@ namespace HybridLumenGI
             return false;
         }
 
-        private Mesh RefreshSourceMesh()
-        {
-            sourceMeshFilter = sourceRenderer != null ? sourceRenderer.GetComponent<MeshFilter>() : null;
-            return SourceMesh;
-        }
-
         private void CacheSignature()
         {
             lastMatrix = SdfLocalToWorld;
+            lastBoxMatrix = BoxLocalToWorld;
             lastBounds = GetWorldBounds();
             ReadMaterialInputs(true, out lastAlbedo, out lastEmission, out lastDiffuseFraction, out bool shadowsOff);
             UniformShadowsOff = shadowsOff;
@@ -250,7 +254,7 @@ namespace HybridLumenGI
                 sourceCollider ??= GetComponent<Collider>();
                 if (hlodParent == this) hlodParent = null;
             }
-            Mesh mesh = RefreshSourceMesh() ?? lastMesh;
+            Mesh mesh = SourceMesh ?? lastMesh;
             // Notify the shared SDF source stamp once, then update instances without
             // recursively calling MarkDirty. Different assets and chart-only owners
             // still share one editable Mesh and must invalidate their own generations.
@@ -262,7 +266,7 @@ namespace HybridLumenGI
             {
                 HybridLumenGIProxy proxy = Active[i];
                 if (proxy == null || ReferenceEquals(proxy,this) || !proxy.isActiveAndEnabled ||
-                    !ReferenceEquals(proxy.RefreshSourceMesh(),mesh)) continue;
+                    !ReferenceEquals(proxy.SourceMesh,mesh)) continue;
                 proxy.BumpGeometryRevision();
                 // Consume the shared source edit so the next camera/LateUpdate does
                 // not broadcast the same count/bounds change a second time.
@@ -318,6 +322,16 @@ namespace HybridLumenGI
             return true;
         }
 
+        private static Bounds TransformBounds(Bounds local, Matrix4x4 matrix)
+        {
+            Vector3 lo = local.min, hi = local.max;
+            var world = new Bounds(matrix.MultiplyPoint3x4(local.center), Vector3.zero);
+            for (int i = 0; i < 8; i++)
+                world.Encapsulate(matrix.MultiplyPoint3x4(new Vector3((i & 1) == 0 ? lo.x : hi.x,
+                    (i & 2) == 0 ? lo.y : hi.y, (i & 4) == 0 ? lo.z : hi.z)));
+            return world;
+        }
+
         public Bounds GetWorldBounds()
         {
             if(HybridLumenGIDeformedMesh.HasSnapshot(sourceRenderer))return HybridLumenGIDeformedMesh.BoundsOf(sourceRenderer);
@@ -326,6 +340,8 @@ namespace HybridLumenGI
             if (TryGetColliderBox(out Bounds box, out _, out _)) return box;
             if (sourceCollider != null) return sourceCollider.bounds;
             if (sourceRenderer != null) return sourceRenderer.bounds;
+            var mesh = SourceMesh;
+            if (mesh != null) return TransformBounds(mesh.bounds, transform.localToWorldMatrix);
             return new Bounds(transform.position, Vector3.one);
         }
 
@@ -425,7 +441,6 @@ namespace HybridLumenGI
         {
             sourceRenderer = renderer;
             sourceCollider = collider;
-            sourceMeshFilter = sourceRenderer != null ? sourceRenderer.GetComponent<MeshFilter>() : null;
             if (collider is SphereCollider) shape = Shape.Sphere;
             MarkDirty();
         }
