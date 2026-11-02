@@ -395,7 +395,7 @@ bool HLGITrySubpixelHistory(float2 uv,int2 nearestPixel,uint4 identity,
 #endif
             if(!HLGITemporalTapMatches(q,expectedP,expectedNs,expectedNg,rho,tolerance)) return false;
             h=_HLGI_History.Load(int3(q,0));m=_HLGI_PreviousMoments.Load(int3(q,0));
-            if(!HLGIHasTemporalHistory(h,m)) return false;
+            if(!HLGIHasTemporalHistory(h,m) || m.z<1) return false;
         }
         minimumLength=weightSum==0?m.z:min(minimumLength,m.z);
         sumHistory+=weight*h;sumMoments+=weight*float3(m.xy,m.w);weightSum+=weight;
@@ -497,6 +497,9 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
     float4 history=_HLGI_History.Load(int3(previousPixel,0));
     float4 moments=_HLGI_PreviousMoments.Load(int3(previousPixel,0));
     valid=valid && HLGIHasTemporalHistory(history,moments);
+    // A positive age below one keeps the previous value displayable through
+    // unknown frames, but excludes that old lighting from further accumulation.
+    if(valid && _HLGI_GlobalReactive>0.5) moments.z=0.5;
     if(!currentKnown)
     {
         float4 retained,retainedMoments;
@@ -504,9 +507,7 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
         if(change.y>0.5) retainedMoments.z=min(retainedMoments.z,2);
         _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
     }
-    // A changed global light set makes old radiance obsolete. Unknown current
-    // measurements have already retained their qualified history above.
-    if(_HLGI_GlobalReactive>0.5) valid=false;
+    valid=valid && moments.z>=1;
     // A mature, exactly unchanged sample may keep its nearest history without
     // clipping it to this frame's sparse Monte Carlo neighborhood. A missed
     // bright path is not evidence that an earlier accepted path disappeared.
