@@ -71,6 +71,9 @@
 </section>
 <section id="world">
   <h2>6. 看不见的表面能否影响眼前的地板？</h2>
+  <h3>近处的解析遮板能否截住更远的 DXR 色墙？</h3>
+  <p>地板与暖色墙使用精确硬件网格；绿色遮板只有 BoxCollider 和 GI Proxy。在同一机位把遮板移入光路，27 个固定白地板采样点的平均间接 RGB 从 (0.11553, 0.05776, 0.02888) 变为 (0, 0.30093, 0)。遮板没有可供普通相机绘制的网格，屏幕射线也已关闭。</p>
+  <figure><img src="mixed-fallback-occluder-01/comparison.png" alt="解析绿板移开与移入后，固定白地板的间接光由暖色变绿"><figcaption>两程各为 2 个硬件网格、1 个解析回退，均取 GI 工作帧 31。数值是乘接收面反射率之前的间接漫反射辐照度除以 π。<a href="mixed-fallback-occluder-01/result.json">线性读数、采样点和几何条件</a></figcaption></figure>
   <p>在有限色墙场景中，墙完全位于视锥外。只交换墙纹理两种颜色的位置，白地板左右两区的平均 R−B 均反转。此图采用 8 条射线、一次反弹，关闭时域与空间滤波。<a href="offscreen-wall-texture-01/linear-frames.zip">离屏纹理原始 EXR 对</a></p>
   <figure><img src="offscreen-wall-texture-01/comparison.png" alt="视锥外墙纹理交换之后，地板两侧的反弹颜色跟随反转"><figcaption>同一相机只看地板。两张纹理各有一半红色和一半蓝色。</figcaption></figure>
   <p>Release102 的相邻两室共用一个门洞。关闭全部解析灯后，同一前室地板区域的平均线性亮度在开门时为 0.11809，全闭时为 0.00000530。两图分别来自固定门姿的第 119 帧，使用 2 条射线和 4 级滤波。<a href="connected-rooms-01/linear-frames.zip">开关门原始 EXR 对</a></p>

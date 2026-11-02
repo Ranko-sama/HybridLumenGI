@@ -1,0 +1,155 @@
+{
+  "signal": "filteredD = E_indirect/pi, linear RGB before receiver reflectance, AO and compositing",
+  "size": [
+    640,
+    360
+  ],
+  "logicalFrame": 31,
+  "fixedSelection": "LocalComparison/Review/finite-wall-occlusion-response-01/native/selection.json",
+  "sourceTargets": [
+    [
+      0.5,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      0
+    ]
+  ],
+  "projectedTextureXY": [
+    [
+      287,
+      167
+    ],
+    [
+      320,
+      153
+    ],
+    [
+      395,
+      120
+    ]
+  ],
+  "eachPixelOffsets": [
+    -2,
+    0,
+    2
+  ],
+  "selectedPixels": 27,
+  "commonKnown": 27,
+  "commonUnknown": 0,
+  "endpoints": {
+    "Far": {
+      "panelX": 20,
+      "engineFrame": 35,
+      "workFrame": 31,
+      "epoch": 5,
+      "known": 27,
+      "unknown": 0,
+      "hardwareBackend": true,
+      "hardwareMeshes": 2,
+      "hardwareFallbacks": 1,
+      "publishedInstances": 3,
+      "warmingInstances": 0,
+      "lightSelected": 1,
+      "maxAbsReceiverYMetres": 1.1850302131527308e-05,
+      "meanDRgbCommon": [
+        0.11552824797453703,
+        0.05776412398726852,
+        0.02888206199363426
+      ],
+      "nonzeroR_G_BCommon": [
+        21,
+        21,
+        21
+      ]
+    },
+    "Near": {
+      "panelX": 0.25,
+      "engineFrame": 34,
+      "workFrame": 31,
+      "epoch": 5,
+      "known": 27,
+      "unknown": 0,
+      "hardwareBackend": true,
+      "hardwareMeshes": 2,
+      "hardwareFallbacks": 1,
+      "publishedInstances": 3,
+      "warmingInstances": 0,
+      "lightSelected": 1,
+      "maxAbsReceiverYMetres": 1.1850302131527308e-05,
+      "meanDRgbCommon": [
+        0.0,
+        0.30092592592592593,
+        0.0
+      ],
+      "nonzeroR_G_BCommon": [
+        0,
+        24,
+        0
+      ]
+    }
+  },
+  "sourceSettings": {
+    "raysPerPixel": 8,
+    "resolutionScale": 1,
+    "screenSteps": 0,
+    "traceDistance": 20,
+    "rayBias": 0.03,
+    "bounceFeedback": 0,
+    "temporalAccumulation": 0,
+    "filterIterations": 0,
+    "guidedSamplingWeight": 0,
+    "emissiveSamplingWeight": 0,
+    "maxEmissiveProposals": 0,
+    "maxAreaEmitterTriangles": 0,
+    "radianceClamp": 0,
+    "preferHardwareTracing": 1,
+    "globalSdfEnabled": 0,
+    "debugView": 1
+  },
+  "scene": {
+    "cameraPosition": [
+      3.0,
+      3.0,
+      -3.0
+    ],
+    "cameraRotation": [
+      0.29413485527038574,
+      -0.275760293006897,
+      0.08905687183141708,
+      0.910774290561676
+    ],
+    "sameCompositeAndInverseVP": true,
+    "light": "one unshadowed realtime white directional, intensity 1, towards +X",
+    "floor": "white, y=0, x[0,5], z[-3,3]",
+    "wall": "x=0, source shader-linear base (.5,.25,.125), partly visible in camera",
+    "panel": "one axis-aligned BoxCollider and analytic proxy; size (.04,2.2,4.2), local centre (0,1,0), black diffuse, green linear emission (0,1,0); no renderer, mesh, SDF or surface charts"
+  },
+  "receiverEvidence": "All 27 points reproject from the prior authored floor targets, are inside the floor extent and have matching depth/geometry/material/normal samples in both endpoints: normal +Y, diffuse RGB 245/255, AO 1.",
+  "interpretation": "Far retains the warm wall spectrum. In Near the red and blue samples vanish while the green signal increases. The analytic box is the only green emitter; zero diffuse prevents its direct-light reflectance from explaining the green return. These are measured outcomes of one mixed scene, not a per-ray hit log.",
+  "records": {
+    "root": "I:\\Unity test\\Comparison\\MixedFallback113",
+    "settingsAndLight": "I:\\Unity test\\Comparison\\MixedFallback113Setup\\used-fixture\\Generated",
+    "cameraAndCounts": "Far,Near/scene-result.json and each signals/frame-0031-capture.json",
+    "geometryFacts": "Authored camera/wall/floor/light from FiniteWallOcclusionEditor; archived temporary scene and generated editor; runtime BoxCollider/proxy source checks."
+  },
+  "display": {
+    "exposure": 1,
+    "transform": "Reinhard then sRGB; display-only vertical flip; unknown pixels gray checked",
+    "cropRawXYXYHalfOpen": [
+      260,
+      104,
+      420,
+      184
+    ],
+    "zoom": 4
+  }
+}

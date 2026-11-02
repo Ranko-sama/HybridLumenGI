@@ -213,7 +213,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release112。全局灯变化后暂时无法获得可信测量的像素，现在会在首次可信测量到来时替换旧屏幕历史。发布页同时提供普通 Windows 运行包和可编辑 Unity 工程，后者已从独立解压目录完成首次导入和普通构建。离线画册提供颜色误差、换色与关灯残留、运动拖影和恢复时间的分项对照。**G0 本机基线锁定完成，G1–G5 继续开放。** 各项结果保留原采集版本及适用范围。[Release112](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release112-demo) · [工程重建步骤](UnifiedUnityProject.md) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
+当前交付为 Release113。普通 Player 显式选择软件后会归还已停用的 DXR 几何和全局预约，重新选择 DXR 可恢复硬件路径。离线画册新增近处解析遮板与远处精确色墙的混合追踪对照，也包含门、灯与切镜的完整路线。发布页提供普通 Windows 运行包和可编辑 Unity 工程。**G0 本机基线已锁定，G1–G5 继续开放。** 各项结果保留原采集版本及适用范围。[Release113](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release113-demo) · [工程重建步骤](UnifiedUnityProject.md) · [离线画册入口](../LocalComparison/Review/picture-comparison.html)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
