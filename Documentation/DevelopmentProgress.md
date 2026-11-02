@@ -2,6 +2,8 @@
 
 ## 当前总进度：Release104，G0本机基线锁定完成，G1–G5未整体放行
 
+G3 已取得统一两骨门真实前帧蒙皮几何的来源依据。前帧几何候选在相同骨姿的运动末帧取得 CPU 资格，但 2722 个可见门像素均未累计上一帧历史，未确认运动画质改善。候选已经撤回，运行版本保持 Release104。[来源、配对画面及判据](../LocalComparison/Review/skinned-previous-vertices-01/result.md)
+
 G4 已关闭首次只进入远场时，已绑定聚合体无法作为完整 HLOD 组发布的缺口。Release104 复用已保存的作者关系，在细节页全程未加载的场景中，先进入预热，再发布唯一的远景表示。[冷远场确认](../LocalComparison/Review/cold-far-root-01/result.md) · [运行包](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release104-demo)
 
 G4 的冷区高速穿行已取得一条独立观测。Release103 从零驻留进入近场并立即返回，途中无半组或双组，离场后资源排空；首次可提交的完整表示延迟到回程。104 的定点远场修复并未重测该路线。[位置与首显边界](../LocalComparison/Review/cold-crossing-01/result.md)

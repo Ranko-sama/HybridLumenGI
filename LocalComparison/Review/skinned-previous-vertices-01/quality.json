@@ -1,0 +1,175 @@
+{
+  "settingsMatch": true,
+  "lightsMatch": true,
+  "differentLogicalFrames": {
+    "degrees": [],
+    "upperRotation": [],
+    "skinWorld": [],
+    "boneWorld": [],
+    "cameraView": [],
+    "cameraProjection": [],
+    "work": [],
+    "dxr": [],
+    "giSourcePositions": [
+      71
+    ],
+    "readyCards": [],
+    "publishedInstances": []
+  },
+  "native": [
+    {
+      "source": "I:\\Unity test\\Comparison\\SkinGeometryQuality01-baseline",
+      "status": "passed",
+      "requests": 80,
+      "begin": 80,
+      "end": 80,
+      "pendingReadbacks": 0,
+      "completedObservations": 3,
+      "error": ""
+    },
+    {
+      "source": "I:\\Unity test\\Comparison\\SkinGeometryQuality01-candidate",
+      "status": "failed",
+      "requests": 80,
+      "begin": 80,
+      "end": 80,
+      "pendingReadbacks": 0,
+      "completedObservations": 3,
+      "error": "System.InvalidOperationException: Raw setting and moving door identity/history did not expose the requested side.\r\n  at SkinMotionHistoryTap.DrainAndAnalyze () [0x00143] in I:\\Unity test\\Project\\Assets\\SkinGeometryQuality01\\SkinMotionHistoryTap.cs:211 "
+    }
+  ],
+  "frames": [
+    {
+      "frame": 63,
+      "rawGatherIdentical": false,
+      "sides": [
+        {
+          "validPixels": 2722,
+          "historyAboveOne": 0,
+          "maximumHistory": 1.0,
+          "minimumHistory": 0.0,
+          "meanHistory": 0.9937545922116091,
+          "rows": [
+            {
+              "rowIndex": 0,
+              "submesh": 0,
+              "keyLow": 48,
+              "keyHigh": 0,
+              "flags": 0,
+              "rendererGroup": 1,
+              "geometryGeneration": "48",
+              "materialGeneration": "2"
+            }
+          ]
+        },
+        {
+          "validPixels": 2722,
+          "historyAboveOne": 0,
+          "maximumHistory": 1.0,
+          "minimumHistory": 0.0,
+          "meanHistory": 0.9937545922116091,
+          "rows": [
+            {
+              "rowIndex": 0,
+              "submesh": 0,
+              "keyLow": 2,
+              "keyHigh": 0,
+              "flags": 2,
+              "rendererGroup": 1,
+              "geometryGeneration": "48",
+              "materialGeneration": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 64,
+      "rawGatherIdentical": false,
+      "sides": [
+        {
+          "validPixels": 2722,
+          "historyAboveOne": 2695,
+          "maximumHistory": 2.0,
+          "minimumHistory": 0.0,
+          "meanHistory": 1.9842027920646583,
+          "rows": [
+            {
+              "rowIndex": 0,
+              "submesh": 0,
+              "keyLow": 48,
+              "keyHigh": 0,
+              "flags": 1,
+              "rendererGroup": 1,
+              "geometryGeneration": "48",
+              "materialGeneration": "2"
+            }
+          ]
+        },
+        {
+          "validPixels": 2722,
+          "historyAboveOne": 2695,
+          "maximumHistory": 2.0,
+          "minimumHistory": 0.0,
+          "meanHistory": 1.9842027920646583,
+          "rows": [
+            {
+              "rowIndex": 0,
+              "submesh": 0,
+              "keyLow": 2,
+              "keyHigh": 0,
+              "flags": 1,
+              "rendererGroup": 1,
+              "geometryGeneration": "48",
+              "materialGeneration": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 79,
+      "rawGatherIdentical": false,
+      "sides": [
+        {
+          "validPixels": 2722,
+          "historyAboveOne": 2695,
+          "maximumHistory": 9.0,
+          "minimumHistory": 0.0,
+          "meanHistory": 8.915135929463629,
+          "rows": [
+            {
+              "rowIndex": 0,
+              "submesh": 0,
+              "keyLow": 48,
+              "keyHigh": 0,
+              "flags": 1,
+              "rendererGroup": 1,
+              "geometryGeneration": "48",
+              "materialGeneration": "2"
+            }
+          ]
+        },
+        {
+          "validPixels": 2722,
+          "historyAboveOne": 2695,
+          "maximumHistory": 10.0,
+          "minimumHistory": 0.0,
+          "meanHistory": 9.90521675238795,
+          "rows": [
+            {
+              "rowIndex": 0,
+              "submesh": 0,
+              "keyLow": 2,
+              "keyHigh": 0,
+              "flags": 1,
+              "rendererGroup": 1,
+              "geometryGeneration": "48",
+              "materialGeneration": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
