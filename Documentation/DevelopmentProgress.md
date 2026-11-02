@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release116，G0 本机基线已锁定，G1–G5 继续开放
+## 当前总进度　Release117，G0 本机基线已锁定，G1–G5 继续开放
+
+G4 关闭统一示例在首个域外相机帧仍可提交旧组的问题。同一远景根在域内可提交，下一帧跨至 41 单位时已隐藏，加载带内仍绑定。冷入首显仍开放。提高首次照明更新优先级的候选到最近点仍无完整组，本版保留原缓存调度。[相机边界、长回调间隔与未覆盖的入程](../LocalComparison/Review/outside-group-visibility-01/result.md)
 
 G1 关闭了可唯一确定材质的普通单槽 Lit 世界回退忽略接收阴影关键字的缺口。实际 GPU 在同一个受光点先后查询，两次都确认灯路有遮板。开启接收阴影时保持黑色，关闭后返回每通道 0.328887，与未遮挡漫反射计算一致。此项实测覆盖非 DXR 无卡解析回退。[关键字、物理遮挡与实际 RGB](../LocalComparison/Review/fallback-lit-shadow-receiving-01/result.md)
 
@@ -84,8 +86,8 @@ G1 的黑色及全金属接收面另有同帧合成依据。历史 V209 第 119 
 | G1 传输正确性 | 已修复零漫反射丢失发光、高反射率直接反弹被压低、逐灯间接倍率无效和单槽均匀材质覆盖长期显示旧色。116 还修复了同类 Lit 受光面在世界回退中忽略接收阴影关键字。Release93 在固定红墙第 119 帧与独立参考的地板／白接收块平均亮度偏差为 −3.075%／−0.831% | 整景物理颜色、默认多跳稳态及更广材质／灯光条件仍开放。现有定量参考限于 640×360 中的固定区域 |
 | G2 世界表面与几何 | 已有真实 charts／atlas、实例 BVH、global SDF 与形变快照。有限实景已覆盖薄壁、封闭房间、离屏墙纹理及隔墙后的接收区；[105 三室路线](../LocalComparison/Review/three-room-passage-01/result.md)补齐连续穿过错位门洞时的遮挡与显露。已修复[旋转盒形代理的空角误挡](../LocalComparison/Review/oriented-collider-box-01/result.md)。既有 HLOD 读回可定位覆盖阻断 | 更广的凹面、接缝、薄层与近远场支持条件仍开放。三室通行并未给出整景能量误差 |
 | G3 动态稳定性 | 2 射线和 4 级滤波减少了既有四时点的运动云斑。112 走通规定 DXR 完整路线并修复全局换灯跨未知采样的历史错误。114 修复无图卡单槽材质换色，并量化唯一发光源改蓝后的旧绿，在第 +30 帧剩 0.285%。普通蒙皮停稳后可恢复历史 | 明暗过渡更柔。通用跨形变历史、可见拖影的纯幅度及持续帧数、其他光路的多跳残留与新颜色的准确稳态仍开放 |
-| G4 规模与后端 | 普通示例已有分页、HLOD 原子交接及软件／DXR 切换。已观察 30 分钟离场排空、三室在 192 卡预算下的远近交接、切到软件后 RTAS 额度归还、解析 Box 参与硬件网格光路。[高速路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) | 冷入最近点仍有首显空档。更大负载、最坏显存、切换耗时及其他混合回退几何下的后端偏差仍开放 |
-| G5 发布 | [Release116 普通 Windows 运行包及可编辑工程](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release116-demo)提供统一示例与离线画册，Windows 包来自所发工程 ZIP 的干净解压构建。本机静止与普通移动门窗口已按各自配置对照 25 ms／1 GiB 起始预算 | CI 已由用户暂缓。承诺平台完整性能、显存、原生退出清理及生产验收仍未完成 |
+| G4 规模与后端 | 已观察 30 分钟离场排空、三室完整远近交接、切到软件后归还 RTAS 额度及解析 Box 与硬件网格的混合遮挡。117 在首个出域相机帧隐藏旧组，保留加载带内的绑定。[相机边界](../LocalComparison/Review/outside-group-visibility-01/result.md) | 冷入最近点仍有首显空档。更大负载、最坏显存、切换耗时及其他混合回退几何下的后端偏差仍开放。[高速路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) |
+| G5 发布 | [Release117 普通 Windows 运行包及可编辑工程](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release117-demo)提供统一示例与离线画册，Windows 包来自所发工程 ZIP 的干净解压构建。本机静止与普通移动门窗口已按各自配置对照 25 ms／1 GiB 起始预算 | CI 已由用户暂缓。承诺平台完整性能、显存、原生退出清理及生产验收仍未完成 |
 
 G0／G5有限关闭[当前filter4／2ray交付配置缺少普通运动Present依据](../LocalComparison/Review/release93-motion-present-01/result.md)的缺口：Release93一次固定30秒M门运动窗口，按960×540参数启动、实际DXR，应用Present平均52.688Hz，间隔p95／p99为21.966／23.567ms，最大25.991ms，全部观测间隔低于33.333ms。普通三维场景与门位移已观察，端点完整details且transform更新推进；支持本机30FPS方向，不是显示FPS、运动GI／显存或最坏负载验收。正常退出，普通93不改、不重建，本线结束。
 

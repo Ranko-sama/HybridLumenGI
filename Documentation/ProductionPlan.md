@@ -213,7 +213,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release116。实际普通不透明 Lit 单槽材质关闭接收阴影后，无卡世界回退受光点可提供与独立计算相符的直接反射，开启时同一处被遮点光仍为黑。运行包同时保留旋转盒形代理的正确空角遮挡，普通三室 Player 从同版可编辑工程构建。**G0 本机基线已锁定，G1–G5 继续开放。** [世界回退受光面](../LocalComparison/Review/fallback-lit-shadow-receiving-01/result.md) · [旋转盒形代理](../LocalComparison/Review/oriented-collider-box-01/result.md) · [Release116](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release116-demo)
+当前交付为 Release117。统一示例在首个域外相机帧即可隐藏旧组，处于加载带时仍能保持绑定。冷入最近点仍无完整组，原缓存调度保留。本版 Win64 从同版可编辑三室工程 ZIP 构建，整合此前两项几何与材质反弹修复。**G0 本机基线已锁定，G1–G5 继续开放。** [实际相机边界](../LocalComparison/Review/outside-group-visibility-01/result.md) · [Release117](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release117-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

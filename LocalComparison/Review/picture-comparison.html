@@ -100,6 +100,7 @@
 </section>
 <section id="passage">
   <h2>三室中穿过错位开口后，中央门如何显露？</h2>
+  <p>Release117 修复了出域时多保留一帧旧组的现象。在相邻相机帧中，域内可提交完整远景根，移至 41 单位后可提交成员为零，根仍绑定。可见域到 40 单位，页加载带到 45 单位。读数来自普通 Renderer 的提交标志。<a href="outside-group-visibility-01/release117.json">117 实际相机边界</a> · <a href="outside-group-visibility-01/prior-boundaries.json">旧版与冷入限制</a></p>
   <p>在 Release105 中按 F3、F4。沿右侧开口进入中室，向左对准中央门，再进入源室。普通 Player 的实际路线通过了两道门洞；同一布局 Far 发布完整聚合体，返回 Near 后恢复全部三个细节成员。</p>
   <figure><img src="three-room-passage-01/comparison.png" alt="三室两道错位门洞、实际键盘路线与远近切换"><figcaption>机位和资源状态来自普通 Windows Player。图像为同一保存场景按实际机位重现的 Editor Final。<a href="three-room-passage-01/view-1.png">入口原图</a> · <a href="three-room-passage-01/view-2.png">中央门原图</a> · <a href="three-room-passage-01/view-3.png">源室末点原图</a></figcaption></figure>
 </section>
