@@ -144,17 +144,20 @@ namespace HybridLumenGI
             foreach(var job in Jobs)if(ReferenceEquals(job.owner,this))job.cancellation.Cancel();
             Withdraw();
         }
-        internal static void PollShutdownWork()
+        internal static bool PollShutdownWork()
         {
+            bool cancelledWorkerRunning=false;
             for(int i=Jobs.Count-1;i>=0;i--)
             {
-                var job=Jobs[i];if(job.cleanupFailed || !job.cancellation.IsCancellationRequested || !job.work.IsCompleted)continue;
+                var job=Jobs[i];if(job.cleanupFailed || !job.cancellation.IsCancellationRequested)continue;
+                if(!job.work.IsCompleted){cancelledWorkerRunning=true;continue;}
                 // Workers only read copied CPU arrays. An unpublished snapshot has no GPU
                 // readers, but it cannot be destroyed while its worker is still running.
                 try{job.work.GetAwaiter().GetResult();}catch(Exception){ }
                 try{job.snapshot.Destroy();job.cancellation.Dispose();Jobs.RemoveAt(i);}
                 catch(Exception error){job.cleanupFailed=true;Debug.LogException(error);}
             }
+            return cancelledWorkerRunning;
         }
         private void Withdraw()
         {

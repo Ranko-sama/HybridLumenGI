@@ -274,11 +274,18 @@ static class Program
         // The failed snapshot is intentionally retained: isolate this case from success-suite accounting.
         if(Environment.GetEnvironmentVariable("HLGI_PUBLICATION_CLEANUP_CASE")=="1")
         {PublicationCleanupFailure();return;}
+        if(Environment.GetEnvironmentVariable("HLGI_FINAL_CANCELLED_WORKER_CASE")=="1")
+        {
+            try{FinalCancelledWorker();}
+            catch(Exception error){Console.Error.WriteLine(error);Environment.ExitCode=1;}
+            return;
+        }
         Require(CaptureTimeBudget!=null&&(double)CaptureTimeBudget.GetValue(null)==0d,"Optional capture-time allowance must default to disabled.");
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
         UnchangedSkinnedCaptureReuse();
         CaptureTimeBudgetDefersAndPublishes();FailedCaptureChargesTimeBudget();UnchangedCaptureChargesTimeBudget();
         CompletedPublicationIsFair();
+        FinalCancelledWorker();OpenNewSession();
         ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
         UnchangedCaptureCleanupFailure();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
@@ -490,6 +497,38 @@ static class Program
         Require(foreignCalls==1&&Application.LastExitCode==9,"Pump changed another system or native exit code");
         HybridLumenGIResourceRetirement.UnregisterShutdownOwner(withdraw);RecordedGpu.AutoCompleteImmediate=false;
         Console.WriteLine("PASS: actual pump preserves foreign loop and installs once; old final-context quit stalls; actual tail permits submission, never completion; parent/child completion and original exit code preserved. Native quit ordering still requires Player evidence.");
+    }
+    static void FinalCancelledWorker()
+    {
+        Defaults();var owner=Add(351);Frame();Started(351);
+        var job=Job(owner);Mesh mesh=PendingMesh(owner);
+        var work=(Task)job.GetType().GetField("work",PrivateInstance).GetValue(job);
+        var cancellation=(System.Threading.CancellationTokenSource)job.GetType().GetField("cancellation",PrivateInstance).GetValue(job);
+        RenderPipelineManager.End();
+        HybridLumenGIResourceRetirement.IdleUpdate(); // Last real idle boundary, before shutdown.
+        long held=HybridLumenGIDeformedMesh.ReservedBytes;
+        Require(held>0&&!mesh.Destroyed&&!work.IsCompleted&&HybridLumenGIResourceRetirement.OwnedCount==0&&
+            HybridLumenGIResourceRetirement.PendingCount==0,"Expected only an unpublished CPU worker at shutdown.");
+
+        var cancelled=new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var registration=cancellation.Token.Register(()=>cancelled.TrySetResult(true));
+        async Task ReleaseWorker()
+        {
+            await cancelled.Task.ConfigureAwait(false);
+            await Task.Delay(40).ConfigureAwait(false); // Independent tail of CPU work after cancellation.
+            ControlledBake.For(351).Release.Set();
+        }
+        Task release=ReleaseWorker();
+        Application.Quit();
+        bool completeOnReturn=work.IsCompleted;
+        // Waiting here only lets the old-source run report a completed worker. It never invokes product polling.
+        Require(release.Wait(5000)&&work.Wait(5000),"Cancelled worker did not finish independently.");
+        bool published=HybridLumenGIDeformedMesh.HasSnapshot(owner.renderer);
+        Console.WriteLine($"Final cancelled worker: completedAtQuitReturn={completeOnReturn}, privateDestroyed={mesh.Destroyed}, jobs={HybridLumenGIDeformedMesh.PendingWorkerCount}, reserved={HybridLumenGIDeformedMesh.ReservedBytes}, published={published}, genericOwned={HybridLumenGIResourceRetirement.OwnedCount}, genericPending={HybridLumenGIResourceRetirement.PendingCount}.");
+        Require(completeOnReturn&&mesh.Destroyed&&HybridLumenGIDeformedMesh.PendingWorkerCount==0&&
+            HybridLumenGIDeformedMesh.ReservedBytes==0&&!published&&!owner.original.Destroyed,
+            "Final shutdown stranded the cancelled worker's private mesh or reservation.");
+        Disable(owner);
     }
     static void ShutdownWithdrawalAndNewSession()
     {

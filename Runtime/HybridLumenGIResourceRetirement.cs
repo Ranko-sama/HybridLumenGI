@@ -121,8 +121,18 @@ namespace HybridLumenGI
             {
                 do
                 {
-                    PollOwned();if(outsideRenderLoop)SubmitImmediate();PollOwned();PollOtherOwners();
-                    if(owned.Count==0 && pending.Count==0){LogShutdown("generic drain complete");ReportOtherOwners();return;}
+                    PollOwned();if(outsideRenderLoop)SubmitImmediate();PollOwned();
+                    bool cancelledWorkerRunning=PollOtherOwners();
+                    if(owned.Count==0 && pending.Count==0)
+                    {
+                        // Only the cancelled CPU bake can finish here without a Unity update.
+                        while(cancelledWorkerRunning && Stopwatch.GetTimestamp()<shutdownDeadline)
+                        {
+                            System.Threading.Thread.Sleep(1);
+                            cancelledWorkerRunning=HybridLumenGIDeformedMesh.PollShutdownWork();
+                        }
+                        LogShutdown("generic drain complete");ReportOtherOwners();return;
+                    }
                     if(!outsideRenderLoop || UnknownSubmissionCount!=0 || FailedCount!=0 || !CanProgressWithoutMainLoop() ||
                         !SystemInfo.supportsGraphicsFence || Stopwatch.GetTimestamp()>=shutdownDeadline)break;
                     System.Threading.Thread.Sleep(1); // Time limits waiting; it never proves completion.
@@ -152,11 +162,11 @@ namespace HybridLumenGI
                 if(!ticket.requiresContext && !ticket.submissionUnknown)return true;
             return false;
         }
-        private static void PollOtherOwners()
+        private static bool PollOtherOwners()
         {
             HybridLumenGIHitMaterialPass.PollRetired();
             // Cancelled jobs from an older session remain owned across a new Play session.
-            HybridLumenGIDeformedMesh.PollShutdownWork();
+            return HybridLumenGIDeformedMesh.PollShutdownWork();
         }
         private static void ReportOtherOwners()
         {

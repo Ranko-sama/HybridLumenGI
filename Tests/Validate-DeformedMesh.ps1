@@ -1,4 +1,4 @@
-param([string]$SourceRoot=(Split-Path -Parent $PSScriptRoot),[string]$DeformationSource='',[switch]$LegacyContinuousControl,[switch]$LegacyUnchangedControl,[string]$SourceArchive='')
+param([string]$SourceRoot=(Split-Path -Parent $PSScriptRoot),[string]$DeformationSource='',[switch]$LegacyContinuousControl,[switch]$LegacyUnchangedControl,[string]$SourceArchive='',[switch]$OnlyFinalCancelledWorker)
 $ErrorActionPreference='Stop'
 $SourceRoot=(Resolve-Path -LiteralPath $SourceRoot).Path
 $sources=@{}
@@ -24,15 +24,18 @@ if($SourceArchive){
 }
 $previousControl=[Environment]::GetEnvironmentVariable('HLGI_COALESCED_LEGACY_CONTROL','Process')
 $previousUnchanged=[Environment]::GetEnvironmentVariable('HLGI_SKINNED_UNCHANGED_LEGACY_CONTROL','Process')
+$previousFinalWorker=[Environment]::GetEnvironmentVariable('HLGI_FINAL_CANCELLED_WORKER_CASE','Process')
 try {
+    [Environment]::SetEnvironmentVariable('HLGI_FINAL_CANCELLED_WORKER_CASE',$(if($OnlyFinalCancelledWorker){'1'}else{$null}),'Process')
     [Environment]::SetEnvironmentVariable('HLGI_COALESCED_LEGACY_CONTROL',$(if($LegacyContinuousControl){'1'}else{$null}),'Process')
     [Environment]::SetEnvironmentVariable('HLGI_SKINNED_UNCHANGED_LEGACY_CONTROL',$(if($LegacyUnchangedControl){'1'}else{$null}),'Process')
     & (Join-Path $PSScriptRoot 'Invoke-CSharpHarness.ps1') -Name 'deformed-mesh' -Sources $sources -TimeoutSeconds 30
 } finally {
     [Environment]::SetEnvironmentVariable('HLGI_COALESCED_LEGACY_CONTROL',$previousControl,'Process')
     [Environment]::SetEnvironmentVariable('HLGI_SKINNED_UNCHANGED_LEGACY_CONTROL',$previousUnchanged,'Process')
+    [Environment]::SetEnvironmentVariable('HLGI_FINAL_CANCELLED_WORKER_CASE',$previousFinalWorker,'Process')
 }
-if($LegacyContinuousControl -or $LegacyUnchangedControl){return}
+if($LegacyContinuousControl -or $LegacyUnchangedControl -or $OnlyFinalCancelledWorker){return}
 
 # These are deliberately source wiring contracts, not an assertion that Unity ran the consumers.
 $contracts=@{
