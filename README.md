@@ -4,11 +4,15 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release102](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release102-demo)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release103](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release103-demo)
 
-**离线看画面对照**　打开运行包内的 `PictureComparison/index.html`，可查看颜色、残留、拖影、收敛，以及白炉、零漫反射、离屏纹理及两室门洞遮挡的对照，并查看附带的原始线性 EXR。只需前四问时也可单独下载原版五图附件。[原版离线附件（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)
+**离线看画面对照**　打开运行包内的 `PictureComparison/index.html` 可查看颜色误差、换色与关灯残留、运动拖影和收敛时间。其他章节包含白炉、零漫反射、离屏纹理、两室关门后的暖光衰减，以及静态烘焙贴图替换与独立直射基准。包内附原始线性 EXR。[真实烘焙三方对照](LocalComparison/Review/baked-lightmap-01/result.md)
 
-本开发机仍可[启动统一交互 Release102](<I:/Unity test/Comparison/Builds/LocalRelease102/Start-LocalRelease.cmd>)。配置为960×540、半分辨率 GI、2 rays/pixel、4级空间滤波，启动时优先 DXR；GPU计时、预算反馈及进程显存观察默认关闭。下载源码后接入自己的Unity工程请按下面步骤；GitHub自动生成的Source code压缩包不包含可执行Player。
+只需最初四问的画面时，也可单独下载[原版离线附件（1.44 MB）](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release97-demo/HybridLumenGI-Release97-PictureComparison.zip)。
+
+本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release103](<I:/Unity test/Comparison/Builds/LocalRelease103/Start-LocalRelease.cmd>)
+
+Release103 修复了颜色全黑的解析灯占据有限灯表名额的问题。最后一盏有效灯改黑时会移除旧表项，微弱非零的灯恢复后仍能入表。[准入、移除与恢复](LocalComparison/Review/black-light-admission-01/result.md)
 
 **进入相邻两室**　启动后按 F3 切换布局，O 全开／全闭共用隔墙上的门，WASD 可穿过门洞，自由探索前室和光源室。离线画册里可查看同机位的开门／关门地板图。[开门与闭门的固定端点](LocalComparison/Review/connected-rooms-01/result.md) · [实际关门后的暖光残留](LocalComparison/Review/portal-close-response-01/result.md)
 

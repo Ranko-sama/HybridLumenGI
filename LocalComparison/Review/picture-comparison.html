@@ -23,8 +23,8 @@
 <header>
   <small>HybridLumenGI　/　Windows 统一示例　/　线性 HDR 画面对照</small>
   <h1>颜色反弹与动态响应</h1>
-  <p>普通示例以 960×540 启动。C 切换墙色，L 开关灯，M 启停门运动，F1 隐藏面板。在 Release102 中，F3 切换两室布局，O 开关分隔门。下列对照均使用固定机位和同曝光画面；各节标明实际采集版本与范围。</p>
-  <nav aria-label="画面对照"><a href="#color">颜色误差</a><a href="#residual">换色与关灯</a><a href="#motion">运动拖影</a><a href="#recovery">收敛时间</a><a href="#energy">白炉与零漫反射</a><a href="#world">离屏纹理与连通房间</a></nav>
+  <p>普通示例以 960×540 启动。C 切换墙色，L 开关灯，M 启停门运动，F1 隐藏面板。F3 切换两室布局，O 开关分隔门。各节标明实际采集版本、机位与适用范围。</p>
+  <nav aria-label="画面对照"><a href="#color">颜色误差</a><a href="#residual">换色与关灯</a><a href="#motion">运动拖影</a><a href="#recovery">收敛时间</a><a href="#energy">白炉与零漫反射</a><a href="#world">离屏纹理与连通房间</a><a href="#baked">烘焙光与实时直射</a></nav>
 </header>
 <section id="color">
   <h2>1. 静止时的反弹颜色有多准？</h2>
@@ -66,6 +66,13 @@
   <figure><img src="offscreen-wall-texture-01/comparison.png" alt="视锥外墙纹理交换之后，地板两侧的反弹颜色跟随反转"><figcaption>同一相机只看地板。两张纹理各有一半红色和一半蓝色。</figcaption></figure>
   <p>Release102 的相邻两室共用一个门洞。关闭全部解析灯后，同一前室地板区域的平均线性亮度在开门时为 0.11809，全闭时为 0.00000530。两图分别来自固定门姿的第 119 帧，使用 2 条射线和 4 级滤波。<a href="connected-rooms-01/linear-frames.zip">开关门原始 EXR 对</a></p>
   <figure><img src="connected-rooms-01/comparison.png" alt="连通房间示意与实拍对照，暖色间接光经门洞到达前室，闭门后地板接近黑色"><figcaption>相机始终看同一接收面。两次独立运行支持这处门洞的遮挡结论；关门后的衰减时间尚未由这对画面测量。</figcaption></figure>
+  <p>同一次关门后，首个闭门帧的前室地板仍保留开闭亮度差的 47.45%。第 +59 帧降至 9.38%，第 +119 帧（该次 Editor 采集约 1.42 秒）仍有 6.34%，精确收敛时间未知。</p>
+  <figure><img src="portal-close-response-01/comparison.png" alt="同一门在关闭前后六个时点的暖光残留"><figcaption>Release102。门已闭合，解析灯为零，亮度变化来自暖色发光面间接照明的响应。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/0e882fe/LocalComparison/Review/portal-close-response-01/result.md">同一过程的逐点读数 ↗</a></figcaption></figure>
+</section>
+<section id="baked">
+  <h2>7. 替换烘焙漫反射时，真实直射灯还能保留吗？</h2>
+  <p>两块普通 Forward Lit 地面读取同一张非方向光照贴图的不同区域。关闭烘焙用灯，运行时加入绿色直射灯。在 HLGI 间接强度为零时启用替换，两侧都只保留了直射。与解绑贴图且关闭 HLGI 的独立画面相比，两处内部区域的最大线性通道差为 5.96 × 10⁻⁸。</p>
+  <figure><img src="baked-lightmap-01/comparison.png" alt="左边是烘焙暖冷光加实时直射，中间是替换后，右边是仅直射的独立基准"><figcaption>Unity 6000.0.85f1，URP 17.0.4，静态非方向贴图。<a href="baked-lightmap-01/native.exr">烘焙加直射 EXR</a> · <a href="baked-lightmap-01/replaced.exr">替换 EXR</a> · <a href="baked-lightmap-01/unbound.exr">仅直射 EXR</a> · <a href="https://github.com/Ranko-sama/HybridLumenGI/blob/20b49eb/LocalComparison/Review/baked-lightmap-01/result.md">条件与读数 ↗</a></figcaption></figure>
 </section>
 <footer><p><small>图像保留原记录中的曝光、图例与显示映射。阅读本页和图片可离线完成。带 ↗ 的链接指向私有仓库中的原记录。</small></p></footer>
 </main>
