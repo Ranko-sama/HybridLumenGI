@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release106，G0 本机基线已锁定，G1–G5 继续开放
 
+G1 补齐普通 Forward Lit 使用真实方向光照贴图时的替换合成对照。两个接收区随法线倾向出现可辨别的烘焙光变化。替换后保留实时直射，与解绑贴图的独立相机画面对比，内部像素的最大绝对通道差为 0.000488。本项在 Release106 源码上观察，运行包继续使用该版本。[方向贴图四图与适用范围](../LocalComparison/Review/directional-lightmap-01/result.md)
+
 G2 修复了表面卡烘焙时将共边误判为重叠的问题。真实聚合网格的 36 个三角形由 20 张卡降为 18 张，三个材质槽的三角形归属完整。G4 关闭了中性两室沿用 192 张卡预算时无法从近景交接到远景的问题。Release106 普通 Player 从中性近场直接切换，完整发布一个远景聚合体，返回时恢复全部三个细节。[实际烘焙与远近交接](../LocalComparison/Review/neutral-room-chart-fit-01/result.md)
 
 Release105 已交付可步行通过两道错位门洞的三室路线。该版本三室 Near 用 168 张卡，Far 的唯一完整聚合体发布时用 170 张，返回 Near 后三个细节恢复。普通 Player 的实走坐标和相同机位的 Editor Final 已各自标明来源。[三室路线与观察](../LocalComparison/Review/three-room-passage-01/result.md)

@@ -80,6 +80,8 @@
   <h2>7. 替换烘焙漫反射时，真实直射灯还能保留吗？</h2>
   <p>两块普通 Forward Lit 地面读取同一张非方向光照贴图的不同区域。关闭烘焙用灯，运行时加入绿色直射灯。在 HLGI 间接强度为零时启用替换，两侧都只保留了直射。与解绑贴图且关闭 HLGI 的独立画面相比，两处内部区域的最大线性通道差为 5.96 × 10⁻⁸。</p>
   <figure><img src="baked-lightmap-01/comparison.png" alt="左边是烘焙暖冷光加实时直射，中间是替换后，右边是仅直射的独立基准"><figcaption>Unity 6000.0.85f1，URP 17.0.4，静态非方向贴图。<a href="baked-lightmap-01/native.exr">烘焙加直射 EXR</a> · <a href="baked-lightmap-01/replaced.exr">替换 EXR</a> · <a href="baked-lightmap-01/unbound.exr">仅直射 EXR</a> · <a href="https://github.com/Ranko-sama/HybridLumenGI/blob/20b49eb/LocalComparison/Review/baked-lightmap-01/result.md">条件与读数 ↗</a></figcaption></figure>
+  <p>在另一张真实方向贴图上，同一接收面法线由向左倾改为向右倾时，暖、冷两处都出现可辨的亮度变化。对向右倾的法线启用替换，两个内部区域与独立实时直射的最大通道差为 0.000488，处于原生漫反射中间纹理的一个 FP16 间隔以内。</p>
+  <figure><img src="directional-lightmap-01/comparison.png" alt="两个方向法线的原生画面，以及替换烘焙光与仅实时直射的对照"><figcaption>Release106 源码，固定俯视相机，方向贴图的 UV 与位置保持一致。<a href="directional-lightmap-01/native-minus.exr">原生左倾 EXR</a> · <a href="directional-lightmap-01/native-plus.exr">原生右倾 EXR</a> · <a href="directional-lightmap-01/replace-plus.exr">替换 EXR</a> · <a href="directional-lightmap-01/unbound-plus.exr">仅直射 EXR</a></figcaption></figure>
 </section>
 <footer><p><small>图像保留原记录中的曝光、图例与显示映射。阅读本页和图片可离线完成。带 ↗ 的链接指向私有仓库中的原记录。</small></p></footer>
 </main>
