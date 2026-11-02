@@ -10,6 +10,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 Release112 修复了全局灯变化恰逢无可信采样时，过期屏幕历史混入后续帧的问题。在连续两帧未知后，首次可信黑值的时间重建结果由 0.666667 降到 0，下一帧恢复正常累计。[逐帧读数与范围](LocalComparison/Review/deferred-global-light-reset-01/result.md)
 
+该版还完成了移动门、关灯、重新开灯及切换薄壁和封闭房间的完整 DXR 路线。可另外查看同一次运行的普通画面和亮度变化。[八个同曝光时点](LocalComparison/Review/full-dxr-sequence-112/result.md)
+
 Release111 支持逐灯控制反弹强度。实机对照中，同一盏点光的间接倍率设为 0 后，白地板上的红蓝反弹消失，整张原生直射画面保持一致。无 cookie 的点光原地转动也不会再触发局部照明历史失效。[同曝光画面与原始 EXR](LocalComparison/Review/analytic-light-bounce-01/result.md)
 
 Release110 会在相机从域外接近时提前请求聚合体的页，进入实际加载范围后才绑定。在一次 20 单位／秒的冷入折返中，首个可提交组由回程 7.39 单位处的远景根，前移到回程 1.78 单位处的三个完整细节。两次在折返点都尚无可提交组。[冷入路线与资源边界](LocalComparison/Review/cold-aggregate-prefetch-01/result.md)

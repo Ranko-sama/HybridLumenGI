@@ -1,5 +1,7 @@
 # 固定场景与线性 HDR 采集序列
 
+Release112 已用原生 Unity 相机完整走通规定的门、灯与切镜路线，后端全程报告 DXR。运行采用 640×360 普通 Final、半分辨率 GI、2 条射线和 4 级滤波。[实拍、关键读数与范围](../LocalComparison/Review/full-dxr-sequence-112/result.md)
+
 这组工具把验证动作、采集帧与文件格式固定下来，供已有 Unity 6 / URP 17 工程或 Player 重复运行。项目已有有限原生验证，具体来源和边界见 [开发进度](DevelopmentProgress.md)；不能把其它场景的成功当作本序列或独立物理参考通过。它不取代 [完整验证矩阵](Validation.md)。
 
 ## 准备一次独立运行
