@@ -1,0 +1,717 @@
+{
+  "status": "satisfied-observed-recovery-window",
+  "quantity": "linear Final HDR radiance at the same27 white-floor pixels; product-history comparison",
+  "physicalReference": false,
+  "controlSufficient": true,
+  "controlRelativeYRange": 0.013959780248226358,
+  "controlMaxChromaL1FromFirst": 0.0,
+  "firstObservedRecoveryWindow": {
+    "firstLogical": 125,
+    "lastLogical": 140,
+    "start": 0.19395800000000207,
+    "end": 0.7082700000000024,
+    "span": 0.5143120000000003,
+    "maxAbsRelativeY": 0.09351982327734243,
+    "maxChromaL1": 0.04525286088459016
+  },
+  "residualDeadlineSamples": {
+    "1": {
+      "before": {
+        "logical": 148,
+        "elapsed": 0.9785449000000028,
+        "oldGreenMean": 0.002655080572136186,
+        "oldGreenWorstPoint": 0.005093926462560274,
+        "relativeY": -0.006123501332614079,
+        "chromaL1": 0.005516028731755067
+      },
+      "after": {
+        "logical": 149,
+        "elapsed": 1.0128623000000019,
+        "oldGreenMean": 0.0024405444727679595,
+        "oldGreenWorstPoint": 0.004674247174360829,
+        "relativeY": -0.007510650765061744,
+        "chromaL1": 0.0050817729804865375
+      }
+    },
+    "2": {
+      "before": {
+        "logical": 177,
+        "elapsed": 1.9706651000000015,
+        "oldGreenMean": 0.0002299478638597156,
+        "oldGreenWorstPoint": 0.0004296619801699451,
+        "relativeY": -0.0003412054871326786,
+        "chromaL1": 0.0004628824227788681
+      },
+      "after": {
+        "logical": 178,
+        "elapsed": 2.0045374000000002,
+        "oldGreenMean": 0.00021112527458504561,
+        "oldGreenWorstPoint": 0.0003941931348648267,
+        "relativeY": -0.00022853452023341436,
+        "chromaL1": 0.0004259671993315146
+      }
+    }
+  },
+  "cadence": {
+    "GreenToBlue": {
+      "sourceFrames": 77,
+      "sourceHz": 29.377342963896364,
+      "intervalMedian": 0.034022900000001854,
+      "intervalP95": 0.035086350000000266,
+      "intervalMax": 0.035500200000001314,
+      "lastElapsed": 2.6129350000000002,
+      "peakPending": 2,
+      "prewarmEngineGap": 7,
+      "prewarmSourceGap": 2.8468301,
+      "floorMaxAbsY": 8.429437810008655e-06,
+      "nativeMaxAbs": 0.0,
+      "readbackLatencyMedian": 0.04028070000000028
+    },
+    "BlueFromStart": {
+      "sourceFrames": 77,
+      "sourceHz": 29.399754496576392,
+      "intervalMedian": 0.03401975000000057,
+      "intervalP95": 0.034874074999998506,
+      "intervalMax": 0.03501290000000168,
+      "lastElapsed": 2.6109227000000033,
+      "peakPending": 2,
+      "prewarmEngineGap": 7,
+      "prewarmSourceGap": 2.8699232000000006,
+      "floorMaxAbsY": 8.429437810008655e-06,
+      "nativeMaxAbs": 0.0,
+      "readbackLatencyMedian": 0.040226199999999324
+    }
+  },
+  "final": {
+    "logical": 196,
+    "elapsed": 2.6129350000000002,
+    "oldGreenMean": 4.4751751623788774e-05,
+    "oldGreenWorstPoint": 8.325630702841718e-05,
+    "relativeY": -1.1386125970513916e-05,
+    "chromaL1": 9.032131519263784e-05
+  },
+  "pairedLogicalFrames": [
+    120,
+    196
+  ],
+  "maximumPointAbsoluteRgbDifference": 0.1789155900478363,
+  "actualTimeAlignmentMaxDifference": 0.008114600000002525,
+  "frames": [
+    {
+      "logical": 120,
+      "elapsed": 0.025907300000000077,
+      "oldGreenMean": 0.06966016466869247,
+      "oldGreenWorstPoint": 0.1420726395872769,
+      "relativeY": 0.2402702685564666,
+      "chromaL1": 0.2284029538174103
+    },
+    {
+      "logical": 121,
+      "elapsed": 0.058543000000000234,
+      "oldGreenMean": 0.04681498232326226,
+      "oldGreenWorstPoint": 0.09471509536086634,
+      "relativeY": 0.18949623519669712,
+      "chromaL1": 0.12175305261385085
+    },
+    {
+      "logical": 122,
+      "elapsed": 0.0918264000000022,
+      "oldGreenMean": 0.0353682418916145,
+      "oldGreenWorstPoint": 0.07100912972778323,
+      "relativeY": 0.1524991234704265,
+      "chromaL1": 0.08478115486960501
+    },
+    {
+      "logical": 123,
+      "elapsed": 0.12521070000000023,
+      "oldGreenMean": 0.0284526563330036,
+      "oldGreenWorstPoint": 0.05676381487455764,
+      "relativeY": 0.1264199078680981,
+      "chromaL1": 0.06542762809454719
+    },
+    {
+      "logical": 124,
+      "elapsed": 0.15991400000000056,
+      "oldGreenMean": 0.023824784460054923,
+      "oldGreenWorstPoint": 0.047330361068600536,
+      "relativeY": 0.10594797478351836,
+      "chromaL1": 0.05363362483133298
+    },
+    {
+      "logical": 125,
+      "elapsed": 0.19395800000000207,
+      "oldGreenMean": 0.020497210663611203,
+      "oldGreenWorstPoint": 0.04053392916788893,
+      "relativeY": 0.09351982327734243,
+      "chromaL1": 0.04525286088459016
+    },
+    {
+      "logical": 126,
+      "elapsed": 0.22830809999999957,
+      "oldGreenMean": 0.017989188956021147,
+      "oldGreenWorstPoint": 0.03545019854827154,
+      "relativeY": 0.08425670430144239,
+      "chromaL1": 0.03902963193428126
+    },
+    {
+      "logical": 127,
+      "elapsed": 0.26287089999999935,
+      "oldGreenMean": 0.016027259542462112,
+      "oldGreenWorstPoint": 0.03149467259844849,
+      "relativeY": 0.07434518901948595,
+      "chromaL1": 0.0344532871476607
+    },
+    {
+      "logical": 128,
+      "elapsed": 0.2969846000000018,
+      "oldGreenMean": 0.014435033775040436,
+      "oldGreenWorstPoint": 0.02830034587476963,
+      "relativeY": 0.06734072812822767,
+      "chromaL1": 0.03085331340032057
+    },
+    {
+      "logical": 129,
+      "elapsed": 0.33125860000000173,
+      "oldGreenMean": 0.013140714505161244,
+      "oldGreenWorstPoint": 0.025717704101234584,
+      "relativeY": 0.059675348933782235,
+      "chromaL1": 0.02800856950265457
+    },
+    {
+      "logical": 130,
+      "elapsed": 0.3659284000000014,
+      "oldGreenMean": 0.012046932660807733,
+      "oldGreenWorstPoint": 0.023542845962087323,
+      "relativeY": 0.04923315572043152,
+      "chromaL1": 0.02575817401646006
+    },
+    {
+      "logical": 131,
+      "elapsed": 0.4001462000000018,
+      "oldGreenMean": 0.011093669001015135,
+      "oldGreenWorstPoint": 0.021639843579198584,
+      "relativeY": 0.042945544795248036,
+      "chromaL1": 0.023686007123317507
+    },
+    {
+      "logical": 132,
+      "elapsed": 0.4343919000000014,
+      "oldGreenMean": 0.010203502319205788,
+      "oldGreenWorstPoint": 0.019872769074439106,
+      "relativeY": 0.0382935310238377,
+      "chromaL1": 0.021694306566654484
+    },
+    {
+      "logical": 133,
+      "elapsed": 0.46839580000000325,
+      "oldGreenMean": 0.009380694773077316,
+      "oldGreenWorstPoint": 0.018255220934759096,
+      "relativeY": 0.03234549676320553,
+      "chromaL1": 0.019933139940428446
+    },
+    {
+      "logical": 134,
+      "elapsed": 0.5030157000000024,
+      "oldGreenMean": 0.0086190899259915,
+      "oldGreenWorstPoint": 0.016753208123816928,
+      "relativeY": 0.02660094971366833,
+      "chromaL1": 0.018288817210344796
+    },
+    {
+      "logical": 135,
+      "elapsed": 0.537140400000002,
+      "oldGreenMean": 0.007919220878554728,
+      "oldGreenWorstPoint": 0.0153667340956352,
+      "relativeY": 0.0228803430828175,
+      "chromaL1": 0.016803548039356138
+    },
+    {
+      "logical": 136,
+      "elapsed": 0.5718731000000012,
+      "oldGreenMean": 0.0072932810662848435,
+      "oldGreenWorstPoint": 0.014109396473658463,
+      "relativeY": 0.018385801466176632,
+      "chromaL1": 0.01545412744776169
+    },
+    {
+      "logical": 137,
+      "elapsed": 0.6059150000000031,
+      "oldGreenMean": 0.006708567194540252,
+      "oldGreenWorstPoint": 0.012974390833377729,
+      "relativeY": 0.015181301196808272,
+      "chromaL1": 0.014213198036510374
+    },
+    {
+      "logical": 138,
+      "elapsed": 0.6405714000000025,
+      "oldGreenMean": 0.006168394356751502,
+      "oldGreenWorstPoint": 0.01193113871277365,
+      "relativeY": 0.011915828816281726,
+      "chromaL1": 0.013038959086375257
+    },
+    {
+      "logical": 139,
+      "elapsed": 0.6745187000000001,
+      "oldGreenMean": 0.00566515640871219,
+      "oldGreenWorstPoint": 0.010955849667728553,
+      "relativeY": 0.007660765511953382,
+      "chromaL1": 0.011979339115261882
+    },
+    {
+      "logical": 140,
+      "elapsed": 0.7082700000000024,
+      "oldGreenMean": 0.0052067848688928525,
+      "oldGreenWorstPoint": 0.010055322941717541,
+      "relativeY": 0.005983896778039455,
+      "chromaL1": 0.010952180341296412
+    },
+    {
+      "logical": 141,
+      "elapsed": 0.7420006000000008,
+      "oldGreenMean": 0.004779577108458152,
+      "oldGreenWorstPoint": 0.00922276015477116,
+      "relativeY": 0.00444852382028027,
+      "chromaL1": 0.010086959723938166
+    },
+    {
+      "logical": 142,
+      "elapsed": 0.7757213000000007,
+      "oldGreenMean": 0.004397531726047411,
+      "oldGreenWorstPoint": 0.00847515164402633,
+      "relativeY": 0.002112267274981816,
+      "chromaL1": 0.009261552683598413
+    },
+    {
+      "logical": 143,
+      "elapsed": 0.8085262000000029,
+      "oldGreenMean": 0.004036587841555495,
+      "oldGreenWorstPoint": 0.007788713009904921,
+      "relativeY": -0.000850521509374591,
+      "chromaL1": 0.008514104867232395
+    },
+    {
+      "logical": 144,
+      "elapsed": 0.8430706000000008,
+      "oldGreenMean": 0.0037070445062751464,
+      "oldGreenWorstPoint": 0.00714984749246802,
+      "relativeY": -0.0018376915746127764,
+      "chromaL1": 0.007776690158812974
+    },
+    {
+      "logical": 145,
+      "elapsed": 0.8767714000000026,
+      "oldGreenMean": 0.003411920482857461,
+      "oldGreenWorstPoint": 0.006561956440464477,
+      "relativeY": -0.003966698183504702,
+      "chromaL1": 0.0071441166693921605
+    },
+    {
+      "logical": 146,
+      "elapsed": 0.9101302000000011,
+      "oldGreenMean": 0.003139643973145277,
+      "oldGreenWorstPoint": 0.006035232674567407,
+      "relativeY": -0.004911577283020274,
+      "chromaL1": 0.006539236699705287
+    },
+    {
+      "logical": 147,
+      "elapsed": 0.9454636000000001,
+      "oldGreenMean": 0.0028879065766105453,
+      "oldGreenWorstPoint": 0.005545889636434555,
+      "relativeY": -0.006047445539938301,
+      "chromaL1": 0.006002096261645025
+    },
+    {
+      "logical": 148,
+      "elapsed": 0.9785449000000028,
+      "oldGreenMean": 0.002655080572136186,
+      "oldGreenWorstPoint": 0.005093926462560274,
+      "relativeY": -0.006123501332614079,
+      "chromaL1": 0.005516028731755067
+    },
+    {
+      "logical": 149,
+      "elapsed": 1.0128623000000019,
+      "oldGreenMean": 0.0024405444727679595,
+      "oldGreenWorstPoint": 0.004674247174360829,
+      "relativeY": -0.007510650765061744,
+      "chromaL1": 0.0050817729804865375
+    },
+    {
+      "logical": 150,
+      "elapsed": 1.0467724000000018,
+      "oldGreenMean": 0.002244520180655632,
+      "oldGreenWorstPoint": 0.0042953460768990325,
+      "relativeY": -0.00849489771886558,
+      "chromaL1": 0.0046721173858325525
+    },
+    {
+      "logical": 151,
+      "elapsed": 1.0803210000000014,
+      "oldGreenMean": 0.0020637966610681587,
+      "oldGreenWorstPoint": 0.003947028190737649,
+      "relativeY": -0.007619853924700881,
+      "chromaL1": 0.004282534927777994
+    },
+    {
+      "logical": 152,
+      "elapsed": 1.1158212000000027,
+      "oldGreenMean": 0.001894940834238607,
+      "oldGreenWorstPoint": 0.0036224990216826404,
+      "relativeY": -0.006799947762975211,
+      "chromaL1": 0.003922127307462128
+    },
+    {
+      "logical": 153,
+      "elapsed": 1.1499694000000034,
+      "oldGreenMean": 0.0017441455351650682,
+      "oldGreenWorstPoint": 0.003333650337770251,
+      "relativeY": -0.005945625148386702,
+      "chromaL1": 0.0035958566075632832
+    },
+    {
+      "logical": 154,
+      "elapsed": 1.1841095000000017,
+      "oldGreenMean": 0.0016028946794450424,
+      "oldGreenWorstPoint": 0.0030583949597741767,
+      "relativeY": -0.005411798980346383,
+      "chromaL1": 0.0032924652680362205
+    },
+    {
+      "logical": 155,
+      "elapsed": 1.218449800000002,
+      "oldGreenMean": 0.0014728309122751888,
+      "oldGreenWorstPoint": 0.0028060775299444418,
+      "relativeY": -0.0049513783928122335,
+      "chromaL1": 0.003018321291176764
+    },
+    {
+      "logical": 156,
+      "elapsed": 1.2521124000000015,
+      "oldGreenMean": 0.001353406581225496,
+      "oldGreenWorstPoint": 0.002569051705764913,
+      "relativeY": -0.004408396369331324,
+      "chromaL1": 0.0027635622058794253
+    },
+    {
+      "logical": 157,
+      "elapsed": 1.2859253000000024,
+      "oldGreenMean": 0.0012437190896945822,
+      "oldGreenWorstPoint": 0.0023583623721072145,
+      "relativeY": -0.00387096441312762,
+      "chromaL1": 0.002545504405380867
+    },
+    {
+      "logical": 158,
+      "elapsed": 1.3202769000000032,
+      "oldGreenMean": 0.0011424070863808253,
+      "oldGreenWorstPoint": 0.0021629648599761344,
+      "relativeY": -0.003491480791599666,
+      "chromaL1": 0.002339472193638729
+    },
+    {
+      "logical": 159,
+      "elapsed": 1.3550912000000004,
+      "oldGreenMean": 0.0010487084618235143,
+      "oldGreenWorstPoint": 0.0019845585484876242,
+      "relativeY": -0.0032230812788137664,
+      "chromaL1": 0.002144727995735971
+    },
+    {
+      "logical": 160,
+      "elapsed": 1.3892416000000019,
+      "oldGreenMean": 0.0009639106011944031,
+      "oldGreenWorstPoint": 0.0018197448952861931,
+      "relativeY": -0.0028476966713771867,
+      "chromaL1": 0.0019720200952741363
+    },
+    {
+      "logical": 161,
+      "elapsed": 1.4239979000000034,
+      "oldGreenMean": 0.0008868704230259691,
+      "oldGreenWorstPoint": 0.0016723473954445255,
+      "relativeY": -0.0024839972950090328,
+      "chromaL1": 0.0018057119615332742
+    },
+    {
+      "logical": 162,
+      "elapsed": 1.4582048000000007,
+      "oldGreenMean": 0.0008155532138792057,
+      "oldGreenWorstPoint": 0.0015359939169688338,
+      "relativeY": -0.0021708691978270522,
+      "chromaL1": 0.0016573161951960193
+    },
+    {
+      "logical": 163,
+      "elapsed": 1.4919884000000003,
+      "oldGreenMean": 0.0007490526339123118,
+      "oldGreenWorstPoint": 0.001410259938894748,
+      "relativeY": -0.0018910316246133485,
+      "chromaL1": 0.0015230194300789282
+    },
+    {
+      "logical": 164,
+      "elapsed": 1.5261784000000027,
+      "oldGreenMean": 0.0006881307681449513,
+      "oldGreenWorstPoint": 0.0012951452453458566,
+      "relativeY": -0.0016551457816094128,
+      "chromaL1": 0.0014010274962241202
+    },
+    {
+      "logical": 165,
+      "elapsed": 1.5604382,
+      "oldGreenMean": 0.0006325804298179969,
+      "oldGreenWorstPoint": 0.0011893758416762256,
+      "relativeY": -0.001354522741770281,
+      "chromaL1": 0.001291182322098057
+    },
+    {
+      "logical": 166,
+      "elapsed": 1.5940072,
+      "oldGreenMean": 0.0005814102129640819,
+      "oldGreenWorstPoint": 0.0010921018224514674,
+      "relativeY": -0.0013253913222925906,
+      "chromaL1": 0.0011813499605788248
+    },
+    {
+      "logical": 167,
+      "elapsed": 1.6272780000000004,
+      "oldGreenMean": 0.0005342205553396987,
+      "oldGreenWorstPoint": 0.0010024738219282245,
+      "relativeY": -0.0012152842963548682,
+      "chromaL1": 0.0010876452936502733
+    },
+    {
+      "logical": 168,
+      "elapsed": 1.6623367000000009,
+      "oldGreenMean": 0.0004910003569491495,
+      "oldGreenWorstPoint": 0.0009200672112039209,
+      "relativeY": -0.0009837970955356434,
+      "chromaL1": 0.0010013325022784768
+    },
+    {
+      "logical": 169,
+      "elapsed": 1.6967322000000031,
+      "oldGreenMean": 0.0004520862715999587,
+      "oldGreenWorstPoint": 0.000846368353344881,
+      "relativeY": -0.0009019588078796881,
+      "chromaL1": 0.0009174299871998793
+    },
+    {
+      "logical": 170,
+      "elapsed": 1.7300756000000028,
+      "oldGreenMean": 0.00041515322432948167,
+      "oldGreenWorstPoint": 0.0007771296640668745,
+      "relativeY": -0.0008607888998228841,
+      "chromaL1": 0.0008408672174703804
+    },
+    {
+      "logical": 171,
+      "elapsed": 1.7652449000000026,
+      "oldGreenMean": 0.0003814368172502744,
+      "oldGreenWorstPoint": 0.0007138378302508438,
+      "relativeY": -0.0006996814974048471,
+      "chromaL1": 0.0007749637783721823
+    },
+    {
+      "logical": 172,
+      "elapsed": 1.7991182000000023,
+      "oldGreenMean": 0.00034997889173980735,
+      "oldGreenWorstPoint": 0.0006554310637639374,
+      "relativeY": -0.0006203820039628605,
+      "chromaL1": 0.0007109942043370242
+    },
+    {
+      "logical": 173,
+      "elapsed": 1.8329412000000005,
+      "oldGreenMean": 0.0003216839658418072,
+      "oldGreenWorstPoint": 0.000602333939539628,
+      "relativeY": -0.0005882308781063328,
+      "chromaL1": 0.0006517302074403788
+    },
+    {
+      "logical": 174,
+      "elapsed": 1.8673026000000021,
+      "oldGreenMean": 0.00029574925737250573,
+      "oldGreenWorstPoint": 0.0005539093523167428,
+      "relativeY": -0.000530925344958022,
+      "chromaL1": 0.0005998607215527215
+    },
+    {
+      "logical": 175,
+      "elapsed": 1.9011017000000017,
+      "oldGreenMean": 0.0002717863360454629,
+      "oldGreenWorstPoint": 0.0005084581388557426,
+      "relativeY": -0.0003217425603126989,
+      "chromaL1": 0.0005491714521323862
+    },
+    {
+      "logical": 176,
+      "elapsed": 1.935766300000001,
+      "oldGreenMean": 0.0002500689547525421,
+      "oldGreenWorstPoint": 0.0004672548334935908,
+      "relativeY": -0.0004077405741211848,
+      "chromaL1": 0.000503992592928043
+    },
+    {
+      "logical": 177,
+      "elapsed": 1.9706651000000015,
+      "oldGreenMean": 0.0002299478638597156,
+      "oldGreenWorstPoint": 0.0004296619801699451,
+      "relativeY": -0.0003412054871326786,
+      "chromaL1": 0.0004628824227788681
+    },
+    {
+      "logical": 178,
+      "elapsed": 2.0045374000000002,
+      "oldGreenMean": 0.00021112527458504561,
+      "oldGreenWorstPoint": 0.0003941931348648267,
+      "relativeY": -0.00022853452023341436,
+      "chromaL1": 0.0004259671993315146
+    },
+    {
+      "logical": 179,
+      "elapsed": 2.0386207000000027,
+      "oldGreenMean": 0.0001941024432002054,
+      "oldGreenWorstPoint": 0.00036233484953642045,
+      "relativeY": -0.00013506042792721384,
+      "chromaL1": 0.00039123984812012473
+    },
+    {
+      "logical": 180,
+      "elapsed": 2.0728756000000033,
+      "oldGreenMean": 0.0001784687417774601,
+      "oldGreenWorstPoint": 0.0003330252281136687,
+      "relativeY": -0.00013422753797398546,
+      "chromaL1": 0.00035868333134652557
+    },
+    {
+      "logical": 181,
+      "elapsed": 2.1066815000000005,
+      "oldGreenMean": 0.0001637598886497079,
+      "oldGreenWorstPoint": 0.0003054147159613534,
+      "relativeY": -0.00016253266560206647,
+      "chromaL1": 0.00032901011690016893
+    },
+    {
+      "logical": 182,
+      "elapsed": 2.140142100000002,
+      "oldGreenMean": 0.00015040687207723937,
+      "oldGreenWorstPoint": 0.00028014047230975024,
+      "relativeY": -0.00017349062088345413,
+      "chromaL1": 0.0003019361342329204
+    },
+    {
+      "logical": 183,
+      "elapsed": 2.173955300000003,
+      "oldGreenMean": 0.00013788252451793641,
+      "oldGreenWorstPoint": 0.00025699012873846825,
+      "relativeY": -0.00013181494358927015,
+      "chromaL1": 0.00027893566254515054
+    },
+    {
+      "logical": 184,
+      "elapsed": 2.2075111000000014,
+      "oldGreenMean": 0.00012673065692718173,
+      "oldGreenWorstPoint": 0.00023617605366789844,
+      "relativeY": -0.00012494615052105473,
+      "chromaL1": 0.00025670297976170366
+    },
+    {
+      "logical": 185,
+      "elapsed": 2.2410414000000003,
+      "oldGreenMean": 0.00011626502720561057,
+      "oldGreenWorstPoint": 0.00021663631055015588,
+      "relativeY": -0.00015270787485710535,
+      "chromaL1": 0.00023476881378473383
+    },
+    {
+      "logical": 186,
+      "elapsed": 2.2743268000000008,
+      "oldGreenMean": 0.0001067261011835471,
+      "oldGreenWorstPoint": 0.00019879567670284972,
+      "relativeY": -0.00015198210695299696,
+      "chromaL1": 0.00021473405770839132
+    },
+    {
+      "logical": 187,
+      "elapsed": 2.308199100000003,
+      "oldGreenMean": 9.798624747626286e-05,
+      "oldGreenWorstPoint": 0.00018222937480837082,
+      "relativeY": -0.00011694354958835529,
+      "chromaL1": 0.00019677241772033912
+    },
+    {
+      "logical": 188,
+      "elapsed": 2.342342600000002,
+      "oldGreenMean": 8.990673799347265e-05,
+      "oldGreenWorstPoint": 0.00016757456409699498,
+      "relativeY": -3.3876866565973884e-05,
+      "chromaL1": 0.00018085915931905736
+    },
+    {
+      "logical": 189,
+      "elapsed": 2.3756983000000034,
+      "oldGreenMean": 8.249127132368193e-05,
+      "oldGreenWorstPoint": 0.00015376930802083732,
+      "relativeY": -8.727970147726083e-06,
+      "chromaL1": 0.00016602102333806821
+    },
+    {
+      "logical": 190,
+      "elapsed": 2.410936500000002,
+      "oldGreenMean": 7.563811912725458e-05,
+      "oldGreenWorstPoint": 0.00014102598849256452,
+      "relativeY": -5.80773035038229e-05,
+      "chromaL1": 0.00015255866006167894
+    },
+    {
+      "logical": 191,
+      "elapsed": 2.4441570000000006,
+      "oldGreenMean": 6.938981329192316e-05,
+      "oldGreenWorstPoint": 0.00012913223709178564,
+      "relativeY": -3.626187052152563e-05,
+      "chromaL1": 0.00013919126199149798
+    },
+    {
+      "logical": 192,
+      "elapsed": 2.4778486000000015,
+      "oldGreenMean": 6.360764041553186e-05,
+      "oldGreenWorstPoint": 0.00011851281764383406,
+      "relativeY": -4.8096733611724396e-05,
+      "chromaL1": 0.00012755652260397946
+    },
+    {
+      "logical": 193,
+      "elapsed": 2.5115269000000033,
+      "oldGreenMean": 5.835077744414838e-05,
+      "oldGreenWorstPoint": 0.00010874292584654916,
+      "relativeY": 9.803572626587709e-06,
+      "chromaL1": 0.00011705478290991887
+    },
+    {
+      "logical": 194,
+      "elapsed": 2.5453639000000017,
+      "oldGreenMean": 5.3402818526055e-05,
+      "oldGreenWorstPoint": 9.939783835142486e-05,
+      "relativeY": -0.00010431286664303041,
+      "chromaL1": 0.00010756143888712214
+    },
+    {
+      "logical": 195,
+      "elapsed": 2.579256100000002,
+      "oldGreenMean": 4.8893238935001295e-05,
+      "oldGreenWorstPoint": 9.090229199924299e-05,
+      "relativeY": -6.174482792598024e-05,
+      "chromaL1": 9.875959752302862e-05
+    },
+    {
+      "logical": 196,
+      "elapsed": 2.6129350000000002,
+      "oldGreenMean": 4.4751751623788774e-05,
+      "oldGreenWorstPoint": 8.325630702841718e-05,
+      "relativeY": -1.1386125970513916e-05,
+      "chromaL1": 9.032131519263784e-05
+    }
+  ]
+}

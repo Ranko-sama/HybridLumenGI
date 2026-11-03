@@ -6,7 +6,7 @@ G1 相机合成在单盏 Mixed 主灯和真实 Shadowmask 下新增一项实机�
 
 G4 的统一示例使用有界的相机位移预测先请求粗根页。Release110 在每秒 20 世界单位的冷入折返中，回程 1.78 单位时首次取得可提交的完整近景细节；Release109 在回程 7.39 单位时首次取得远景根。两次最近点仍无完整表示。[对照条件、页状态和剩余空档](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
-G3 的局部材质换色已取得同版蓝墙对照。换色后第 30 帧，先红后蓝路径在两个未改材质的区域均比首帧蓝墙对照暗，平均红色占比在两个区域的变化方向不同。该时点仍有对颜色前史的依赖，尚不能确定收敛时间或修复所需的具体缓存层。[配对读数和范围](../LocalComparison/Review/blue-wall-history-01/result.md)
+G3 的 109 局部材质换色已有同版蓝墙单点对照：+30 帧存在亮度前史差，仍不能由它确定恢复用时或具体缓存层。当前 Release122 另在固定绿转蓝发光光路取得了约 29.4Hz 的 Final HDR 配对：区域均值从源时刻 0.193958 秒起合格，之后观测至 2.612935 秒未再次越线；最早起点仍有单点 23% 亮度差，约 2 秒最差点约 1%。这补充该固定域的有限恢复依据，不当作 109 反射率事件的直接重测、物理真值或完整 G3 通过。[109 材质前史](../LocalComparison/Review/blue-wall-history-01/result.md) · [当前发光换色恢复及边界](../LocalComparison/Review/final-state-response-01/result.md)
 
 Release106 关闭了中性两室的远景预热容量缺口。真实聚合网格重烘后用 18 张卡承载全部 36 个三角形，两室共用地板与顶棚后近景占用 174 张。在配置上限 192 张的普通 DXR Player 内，从两室近景直接请求远景能发布完整聚合体，切回后恢复三个细节。交接瞬间的实际占用峰值未采集。[中性两室的烘焙与交接](../LocalComparison/Review/neutral-room-chart-fit-01/result.md)
 
