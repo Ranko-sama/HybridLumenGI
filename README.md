@@ -8,6 +8,8 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 **在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release121 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release121-demo/HybridLumenGI-Release121-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
 
+**门运动画面按现有范围交付。** 保留 2 条射线、4 级滤波。沿用同一路线、同一曝光的第 149／179／189／209 帧，4 级滤波较 3 级明显减弱门面和地板云斑，所示时点没有明显加重旧门轮廓。回看现有图后，没有选出值得继续修改的一处新运动问题，因此本节点沿用 Release121。四张图不能判断帧间闪烁、很弱的拖尾时长或正确颜色的收敛时间。[同曝光门运动对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png) · [颜色、残留、拖影与收敛的适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md)
+
 Release121 修复了精确软件追踪在大网格换小、预算降低后持续回退的问题。同一相机改用两个三角形后，在 1 MiB 预算下恢复了精确追踪，软件几何实际计账为 1,056 B。本版也整合了非均匀缩放下折面图卡的方向修复。[预算恢复与后端报告](LocalComparison/Review/software-budget-recovery-121/result.md) · [折面法线与材质查找](LocalComparison/Review/folded-chart-facing-01/result.md)
 
 Release120 让没有 Renderer 的 MeshFilter 也能使用作者烘焙的距离场。实测中，穿门洞的 GI 射线到达后墙，打门柱的射线仍命中实体。本版也修复了没有可照接收面的灯挤占 GI 灯槽的问题。[门洞与实壁对照](LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [灯表规则](Documentation/DirectLighting.md)
