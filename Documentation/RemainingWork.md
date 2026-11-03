@@ -44,3 +44,5 @@ T2 已关闭一个普通 Additive、运行时 `_AlphaToMask=0` 的二值 cutout 
 默认作者 flag 1 的后续源码核对未发现材质准入失败：它只使屏幕身份历史保守拒绝复用，普通材质快照和其他 GI 路径仍可接纳。Astra Max 建议纠正误读后停止，不为尚无可见问题的资格优化增加 API 例外、运行或发版。本核对不新增关闭原计划的验收缺口。
 
 T2／G4 已补齐一次静态普通 Lit 二值 Point／无 mip 的实际软件／DXR 候选遍历：真实就绪材质页下，透明前格正确露出蓝后板，实心前格仍命中红前板，源 UV／三角／身份和材质符合独立预期。首次观察入口保留字编译失败及误置的执行标记不采用，Astra 允许一次同输入更正后实际通过。只关闭该具体缺口，不扩大为完整 alpha／Cull、阴影、Feature／Player 或 T2 整体；不改 Runtime／发版。[原始结果与范围](../LocalComparison/Review/binary-alpha-traversal-01/result.md)
+
+T2／G1 及 T3 补齐已有封闭室“先有可信间接光→唯一点光关闭”的九点衰减子项：1／2秒前旧绿均值0.04606%／0.004056%，后续保持，末端实际filteredD有效。复用已有房间及122质量设置，没有改白重跑127或推广到任意房间；worldcache、fresh raw及中间filtered仍未直接观测。Astra同意按该事件收束，原准备／解析失败保留，不改Runtime／发版。[画面、结果及未证明事项](../LocalComparison/Review/sealed-room-decay-01/result.md)

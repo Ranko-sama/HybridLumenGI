@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release122，G0 本机基线已锁定，G2 本机代表场景已验收
 
+G1／G3 补齐已有封闭反射房间先有间接光、再关闭唯一点光的有限衰减依据。固定九点在1／2秒前旧绿均值剩0.04606%／0.004056%，后续源保持目标，2.618秒末端实际filteredD有效。该事件按局部点光移除验收，未用全局5秒期限；没有直接观察worldcache、fresh raw或所有中间filtered状态，不能外推任意房间／稳态。首次未Play的准备失败与离线字段读取错误保留；Astra同意采用并收束，没有Runtime改动或新版本。[同曝光画面、指标与边界](../LocalComparison/Review/sealed-room-decay-01/result.md)
+
 T2／G4 关闭静态普通 Lit 二值 Point／无 mip alpha 的实际候选遍历子项：精确软件和真实 DXR 都穿透明格命中蓝后板、在实心格命中红前板，返回距离、源 UV、三角／owner 身份和已知材质均符合冻结几何／纹理预期。实际纹理页 Ready，无 unknown／回退。纠正了旧文档“CPU alpha 准入仍关闭”的描述；首个观察入口保留字编译错误及无效零输出保留，仅一次更正运行通过。没有修改 Runtime 或发版，不扩写为 Feature／Player 图像、阴影、MSAA／A2C 或完整材质验收。[实际命中、输入及限制](../LocalComparison/Review/binary-alpha-traversal-01/result.md)
 
 G1／G3 的实际固定棕墙／白地板全源关断子项已有有限依据：发行质量、960×540、实际约 29.13Hz 下，1／2 秒前旧绿均值已降至 0.2774%／0.02529%，后续观察保持对应目标；末帧实际 filteredD 有效，仍有极低绿色，不是逐位零。时域标签不等于 raw 新鲜资格，中间 filteredD 未逐帧直读。本次也纠正 126／127 把固定棕墙误写为白墙的描述，保留原合同及数值；全白墙／高反射率条件仍未验证，不能称完全符合原冻结输入。Astra Max 同意只采用实际配置子结果，不补采、不改产品或发版。[结果、有效性和输入偏差](../LocalComparison/Review/all-source-off-response-01/result.md)

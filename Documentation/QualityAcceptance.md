@@ -38,6 +38,8 @@
 
 ## 当前可复用结果
 
+已有封闭反射房间的局部点光关断，固定九点已观测到1／2秒前旧绿均值剩0.04606%／0.004056%，后续保持目标，末端实际filteredD有效。此项符合该有限域的残留判据，不代表任意房间的稳态或完整多跳算子证明；源节奏约29.30Hz也不等于普通Player性能。[同曝光图、源帧与采用边界](../LocalComparison/Review/sealed-room-decay-01/result.md)
+
 Release93 的静止 Floor／White 平均亮度偏差为 −3.075%／−0.831%，色向 L1 为 0.007976／0.033415。原逐像素亮度 MAE 与参考均值之比分别约 14.69%／8.18%，名义上满足上面的静态目标。此判定仅覆盖原两个区域、单时点及 640×360 参考网格，不改写原 Monte Carlo 与模型边界。[原比较](../LocalComparison/Review/release93-color-frame119-01/result.md)
 
 Release114 的绿转蓝旧绿在 +10／+30 帧为 1.43%／0.285%；这些点支持衰减趋势，没有秒级时间锚点，不能直接判 1／2 秒目标通过。Release109 换蓝后 +30 帧仍比首帧蓝墙路径暗约 12%，也不足以判定 2 秒后的结果。门运动四时点的已有取舍继续保留。[旧绿消退](../LocalComparison/Review/green-emission-decay-114/result.md) · [蓝墙前史](../LocalComparison/Review/blue-wall-history-01/result.md)
