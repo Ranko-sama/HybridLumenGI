@@ -42,3 +42,5 @@ T3 的既有绿转蓝事件已补源帧时间，Astra Max 允许按实际观察�
 T2 已关闭一个普通 Additive、运行时 `_AlphaToMask=0` 的二值 cutout 屏幕覆盖合同：同帧原生深度与 GI 捕获深度一致，孔洞正确露出背板。未关闭默认作者 flag 1、smoothness-alpha、Replace、DXR alpha 或 Player；准备失败和有效观察分别保留。Astra Max 同意收束，不新增材质矩阵或构建。[结果与范围](../LocalComparison/Review/ordinary-cutout-coverage-01/result.md)
 
 默认作者 flag 1 的后续源码核对未发现材质准入失败：它只使屏幕身份历史保守拒绝复用，普通材质快照和其他 GI 路径仍可接纳。Astra Max 建议纠正误读后停止，不为尚无可见问题的资格优化增加 API 例外、运行或发版。本核对不新增关闭原计划的验收缺口。
+
+T2／G4 已补齐一次静态普通 Lit 二值 Point／无 mip 的实际软件／DXR 候选遍历：真实就绪材质页下，透明前格正确露出蓝后板，实心前格仍命中红前板，源 UV／三角／身份和材质符合独立预期。首次观察入口保留字编译失败及误置的执行标记不采用，Astra 允许一次同输入更正后实际通过。只关闭该具体缺口，不扩大为完整 alpha／Cull、阴影、Feature／Player 或 T2 整体；不改 Runtime／发版。[原始结果与范围](../LocalComparison/Review/binary-alpha-traversal-01/result.md)
