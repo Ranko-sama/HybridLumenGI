@@ -80,13 +80,21 @@ Release84新增[F2运行状态日志入口](../LocalComparison/Review/keyboard-l
 
 后续一次[全局光暂态加权候选](../LocalComparison/Review/global-light-response-window-01/result.md)未满足既定响应筛选，已撤回并结束。Release78另采用来源分离功能：同一前缀240→299输出绝对变化降低92.2%，270→299降低80.0%，接收面反弹保留；该有限采用不证明物理误差或精确收敛。触发的是上传灯表为空，非所有场景光源关闭；缓存存储增加20%，实际带宽/时间增量未测。G1/G3整体收敛保持开放。
 
-| 类别 | 当前合同 | 证据与边界 |
+截至2026-11-04，当前交付为 **Release122／产品源码7c08327**。运行包和可编辑工程的同源构建见[交付记录](../LocalComparison/Review/stable-fallback-history-01/delivery.json)；主干此后的有限观察没有修改Runtime。下表区分当前实现、证据的实际来源与未完成事项，不把旧结果改标为122全部通过，也不删改原G0–G5目标。
+
+| 类别 | 当前实现／交付范围 | 已有依据与未关闭边界 |
 | --- | --- | --- |
-| 当前本机已验证 | Unity6000.0.85f1 / URP17.0.4、Windows x64 / Mono / DX12 / Linear、RTX2080Ti；Release None | [Release73](ReviewBrief-CurrentLocalRelease73.md)在95a3213完成当前产品构建、显式后台120帧及HDR；[相机/TAA原序列](ReviewBrief-CameraMotionTaaResponse03.md)57事件／561持续点通过；并行游戏条件下不作性能比较；[Release69](ReviewBrief-ContinuousDeformationUsage01.md)在50b63c3完成可启停单网格、256帧原生发布与最终来源一致；[Release67](ReviewBrief-CurrentLocalRelease67.md)实际Feature静态Cube与Final HDR。历史[Release58](ReviewBrief-LocalReleaseNavigation01.md)普通键盘巡视、正常退出，产品7e387a5；[Release54](ReviewBrief-CurrentRepresentativeFinalImage01.md)静态120相机/GI帧及单次末帧HDR图像，产品a9292cb。[62固定移灯](ReviewBrief-LocalLightMoveResponse01.md)在7190c28完成180帧及五份IndirectOnly HDR，原FAIL与一次精确同数据补判并存；仅支持该事件的检测与空间响应。640×360仅为运行配置；58窗口图不替代54静态Final HDR，不构成完整动态GI/性能验收 |
-| 已实现、有限验证 | 不变Skinned快照复用、Additive雾衰减、局部灯变化优先调度及现有架构能力 | 分别见[复用](ReviewBrief-SkinnedUnchangedSnapshotReuse01.md)、[原生捕获依赖](ReviewBrief-SkinnedNativeCaptureBoundary01.md)、[雾合成](ReviewBrief-AdditiveFogComposition01.md)、[调度](ReviewBrief-LocalLightSchedulingPriority01.md)；源码适配器、原生依赖与完整功能验收分开，54不补齐未触发条件 |
-| 历史证据 | Release44稳态、早期软件/DXR图像、流式及动态专项 | [44的300秒窗口](ReviewBrief-LocalReleaseSteadyUse01.md)属于5120a8c；其他见[推进表](DevelopmentProgress.md)各自来源，不改旧FAIL、不改标为当前通过 |
-| 代码明确限制/拒绝 | Feature跳过非DX12、非Linear、非Base或立体相机，以及无compute/必要资源的路径；仅Game及显式允许的SceneView、Tex2D目标可进入 | [实际准入代码](../Runtime/HybridLumenGIRendererFeature.cs)；替换原生漫反射还要求普通URP Lit、Forward/Forward+、有符号HDR及MSAA关闭等，失败保留原照明，见[完整替换合同](NativeDiffuseComposition.md)。这些限制不是单纯“尚未测试” |
-| 尚未完成的验收 | 整体图像质量/动态收敛、各功能未覆盖的原生条件、目标规模、总VRAM、GPU p95/p99、完整G0–G5 | 目标已定为960×540／30FPS、GI三区间合计p95≤25ms及进程local有限采样峰值≤1GiB，nonlocal另列。未采集的资源/退休字段默认值不能当清零；首帧等待不是受控性能改善；不由120帧静态运行推导生产放行 |
+| 当前交付环境 | Unity6000.0.85f1／URP17.0.4、Windows x64／Mono／DX12／Linear；本机RTX2080Ti。统一示例960×540、半GI、2ray／filter4，默认偏好DXR | 普通Release122／None包从同版工程ZIP的独立解压目录构建；[打开与重建](UnifiedUnityProject.md)、[升级与回退](Implementation.md#升级已有-unity-工程与回退)。这不是其他设备、Unity版本、IL2CPP或完整生产负载放行 |
+| 代码明确跳过／有条件拒绝 | Feature仅进入Base Game及显式允许的SceneView、Tex2D目标；非DX12、非Linear、Overlay、立体/XR、无compute或必要资源时跳过 | [实际准入](../Runtime/HybridLumenGIRendererFeature.cs)。Replace原生漫反射另要求普通Lit、Forward／Forward+、有符号HDR和MSAA关闭，Deferred／APV／Subtractive等按[替换合同](NativeDiffuseComposition.md)拒绝或保持原画面；不能把这些行为写成仅“未测试” |
+| 软件／DXR及真实材质 | 精确软件三角和可选DXR共用材质、alpha／Cull与chart绑定；不足时允许明确的SDF／解析近似或unknown。请求偏好不等于实际后端 | [121软件预算恢复](../LocalComparison/Review/software-budget-recovery-121/result.md)、[122稳定回退历史](../LocalComparison/Review/stable-fallback-history-01/result.md)和[限定二值alpha实际遍历](../LocalComparison/Review/binary-alpha-traversal-01/result.md)。未推广成全部Cull、mip、纹理或混合回退视觉一致；原近似边界保留 |
+| 普通材质与相机合成 | ordinary opaque／cutout URP Lit为主路径；Additive保留原生光照，Replace适用其独立有界合同 | [普通Player workflow／map](../LocalComparison/Review/player-material-workflow-01/result.md)、[单采样alpha／smoothness-alpha](../LocalComparison/Review/player-alpha-smoothness-01/result.md)及[原生GI替换](NativeDiffuseComposition.md)均按各自输入采用。runtimeAlphaToMask0结果不放行A2C／MSAA；Shader Graph、自定义顶点变形、透明、镜面GI等不在当前同一合同内 |
+| 颜色与变化响应：有限依据 | 当前Runtime的原归档119两个ROI名义满足静态颜色目标；棕墙／白地板换色、全源关断及封闭室点光关断另有各自范围的秒级依据 | [119同量颜色](../LocalComparison/Review/archived-runtime-color119-01/result.md)、[换色恢复](../LocalComparison/Review/final-state-response-01/result.md)、[全源关断](../LocalComparison/Review/all-source-off-response-01/result.md)、[封闭室](../LocalComparison/Review/sealed-room-decay-01/result.md)。保留unknown、输入描述偏差、MC／模型及过滤有效性边界；不能拼成普通三室、全像素或完整G1／G3通过 |
+| 表面、历史与形变：已实现／有限验证 | 网格SDF、真实charts、离屏／内层表面及刚体历史已有代表结果；Skinned骨变拒旧、停稳恢复，可读／Skinned几何走完整异步快照 | G2第6节代表场景已通过，专项仍开放；[表面合同](SurfaceCache.md)、[形变边界](DeformedGeometry.md)。门运动保留[同曝光四时点取舍](../LocalComparison/Review/four-pass-local-quality-01/result.md)，不能证明全过程或弱拖尾时长；镜像、接缝及形变质量／延迟／成本未整体放行 |
+| 流式与资源：有限依据 | 页IO、完整组HLOD交接、GPU退休及多相机隔离已有实现；旧版本热态连续近远和30分钟离场／返近结果保留 | [热态路线](../LocalComparison/Review/continuous-near-far-01/result.md)、[Release100长时路线及后续域重载清理](../LocalComparison/Review/streaming-sustained-30m-01/result.md)。CPU完整组／稳定端点账目不证明逐像素无洞、转场每帧成本或当前122全部负载无增长 |
+| 实测未满足／未闭合 | 既有109／110冷高速路线的首次完整表示空档仍未关闭；132单页复用的位置容差未通过 | [冷入](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)不由热态通过代替；[132](../LocalComparison/Review/card-page-reuse-01/result.md)仅身份、覆盖、binding和旧锚点清除子项符合，A／B位置误差超过该次冻结2e−5。保留该次未通过，不把其数值自动升级为原计划的新放行前置，也不自动判实现bug或扩大调参 |
+| 预算：已有窗口与缺失能力 | 起始目标960×540／30FPS、GI三段逐帧合计p95≤25ms、进程local有限采样峰值≤1GiB，nonlocal单列 | 117中室GI／显存、119普通中室Present等[既有窗口](GpuBudget.md#当前已确认的起始验收目标)保留实际来源，不能合并为同帧联合验收。反馈只调patch／capture／brick数量，全阶段独立时间预算及完整冷／热／高速／高更新负载仍未完成；逻辑账目不等于总VRAM |
+| 原计划未完成／用户暂缓 | G0本机基线已锁定；G1基础合同具有限依据，G2第6节代表场景已通过；完整G1、G3、G4、G5及G2专项尚未放行 | 具体剩余见[TODO](RemainingWork.md)。CI接线暂缓，严格误差证明扩展暂停，门运动调参已结束；这些状态不删原目标，也不自动生成重复运行或新矩阵 |
+| 历史证据的用途 | Release44、54、58、62、67、69、73等保留其原构建、场景、相机／TAA、形变和稳态范围 | [历史推进及来源](DevelopmentProgress.md)、[44稳态](ReviewBrief-LocalReleaseSteadyUse01.md)、[73整合](ReviewBrief-CurrentLocalRelease73.md)。不改旧FAIL，不把历史“当前”当成122现状；本表以下的阶段叙述也按其原引用版本理解，不能直接据旧“未执行／朋友验收”重立任务 |
 
 以下架构与G0–G5条件继续保留。早期阶段叙述和朋友包只提供历史背景，不决定当前启动步骤。
 

@@ -56,7 +56,7 @@ Release111 的离线画册也包含单盏 Mixed 主灯的 Shadowmask 对照。�
 
 Release107 画册包含方向贴图对照。转动接收面法线能改变暖、冷烘焙光斑。替换后与仅保留实时直射的独立画面相差最多 0.000488 个线性通道单位。[方向贴图四图与原始 EXR](LocalComparison/Review/directional-lightmap-01/result.md)
 
-本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。Release109 修复了静止斜面的成熟历史被错误压暗的问题，并保留 Release108 的滤波纹理复用。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release118](<I:/Unity test/Comparison/Builds/LocalRelease118/Start-LocalRelease.cmd>) · [静止斜面对照](LocalComparison/Review/stationary-tilted-normal-01/result.md) · [屏幕纹理账目](LocalComparison/Review/filter-work-texture-01/result.md)
+本开发机的统一示例使用 960×540、半分辨率 GI、每像素 2 条射线和 4 级空间滤波，启动时优先 DXR。Release109 修复了静止斜面的成熟历史被错误压暗的问题，并保留 Release108 的滤波纹理复用。GPU 计时、预算反馈和进程显存观察默认关闭。[启动本机 Release122](<I:/Unity test/Comparison/Builds/LocalRelease122/Start-LocalRelease.cmd>) · [静止斜面对照](LocalComparison/Review/stationary-tilted-normal-01/result.md) · [屏幕纹理账目](LocalComparison/Review/filter-work-texture-01/result.md)
 
 Release104 修复了冷启动只进入远场时，已加载的聚合体无法显示的问题。离线画册新增门框后地板的对照，两块发光面到该地板的直线都被实墙遮住。[远景发布条件与实测](LocalComparison/Review/cold-far-root-01/result.md) · [遮挡后的地板与原始 EXR](LocalComparison/Review/shaded-room-floor-01/result.md)
 
@@ -132,12 +132,12 @@ Release95修复[高反射率材质的直接反弹路径差异](LocalComparison/R
 
 | 问题 | 已有结论与局限 |
 | --- | --- |
-| 颜色误差 | [93／filter4／DXR静止119](LocalComparison/Review/release93-color-frame119-01/result.md)：Floor／White平均D亮度偏差−3.075%／−0.831%，Y-MAE为0.010529／0.018576，均值色向L1为0.007976／0.033415。相较旧软件filter3，两个MAE约增10.1%／6.6%，不能称全面更准或单独归因滤波。限640×360参考网格的两个ROI及近似参考，不是整景或960×540颜色验收。 |
-| 换色／关灯残留 | Release114 将唯一发光源从绿切蓝，27 个地板采样点的旧绿当帧剩 7.46%，第 +30 帧剩 0.285%。另一次 Release112 五灯全关时，自发光面仍亮，普通相机全图平均亮度当帧为 0.010839，第 +59 帧为 0.010817，其中旧灯间接光的份额未分离。[单源换色](LocalComparison/Review/green-emission-decay-114/result.md) · [五灯开关](LocalComparison/Review/full-dxr-sequence-112/result.md) |
+| 颜色误差 | [当前122同源Runtime／原归档静止119](LocalComparison/Review/archived-runtime-color119-01/result.md)：Floor／White平均D亮度偏差−3.075%／−0.831%，色向L1 .007976／.033415，像素Y-MAE／参考均值14.69%／8.18%，名义满足既定目标；地板2个unknown单列。限640×360原两个ROI和有限近似参考，不是当前三室、960×540、普通Player或整景验收。 |
+| 换色／关灯残留 | 当前122同源Runtime的既有棕墙／白地板光路，全源关断后.985／1.985秒旧绿均值剩.2774%／.02529%，末端实际filteredD有效。原冻结文字误写白墙，不能称白墙／高反射率通过；中间过滤有效性未逐帧直读。另有封闭室唯一点光关闭的有限结果，均不推广到全部光路。[全源关断及实际输入](LocalComparison/Review/all-source-off-response-01/result.md) · [封闭室](LocalComparison/Review/sealed-room-decay-01/result.md) |
 | 运动拖影 | 在门运动中、到终点、停止后 10 帧和 30 帧，4 级滤波减弱了门、地板和墙面上的云斑，局部明暗过渡更柔。这四帧未见明显加重的旧门轮廓，拖影幅度及连续持续帧数仍未知。[同曝光 3 级／4 级滤波对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png) |
-| 收敛时间 | Release114 单源换色后，旧绿在第 +10 帧仍有 1.43%，第 +30 帧首次采样低于 1%。新蓝光的稳态误差和精确收敛帧仍未知。另一次 Release83 重新开灯后第 +59 帧，地板和白色接收体的平均间接亮度分别恢复到关灯前的 98.36% 和 96.78%。[旧绿衰减](LocalComparison/Review/green-emission-decay-114/result.md) · [重新开灯](LocalComparison/Review/light-restore-response-01/result.md) |
+| 收敛时间 | 当前122同源Runtime的既有绿转蓝光路，相对同工作帧的较长蓝前史产品控制，区域均值首个合格窗口.194–.708秒，后续观测至2.613秒未再越线；起点最差单点仍有23%亮度差。仅为该域的可用响应，不是全像素精确收敛或物理真值，其他事件仍开放。[同帧控制、时序与边界](LocalComparison/Review/final-state-response-01/result.md) |
 
-各组原图、采样版本和适用范围见[统一示例画册](LocalComparison/Review/picture-comparison.html)。
+各行来自不同场景和观察，不能拼成同一次完整验收；126／127秒级响应来自约29Hz连续显式渲染请求的源帧观察，不是普通Player或Present测量。门运动仍沿用原四时点范围。当前结果见各行报告，既有原图与采样版本见[统一示例画册](LocalComparison/Review/picture-comparison.html)。
 
 Release99 另有一项可直接与理论值比较的白炉观测。在均匀单位白环境下，无遮挡白色平面中央区域的普通间接出射 RGB 均值为 (0.99902347, 0.99902347, 0.99902347)，各通道较理论值 1 低 0.09765%。该结果限单帧、单接收面。[原始线性 HDR、预览图与比较口径](LocalComparison/Review/white-furnace-ordinary-01/result.md)
 
@@ -147,7 +147,8 @@ Release99 另有一项可直接与理论值比较的白炉观测。在均匀单�
 
 | 本机实测窗口 | 测量结果 | 适用范围 |
 | --- | --- | --- |
-| [Release117 三室中室](LocalComparison/Review/three-room-middle-budget-117/result.md) | GI 合计 p95／p99 为 16.170／16.729 ms，进程 local／nonlocal 峰值为 566.191／287.438 MiB | F4 中室固定机位，五灯、开门、完整近景细节。满足该窗口的 25 ms／1 GiB 预算，三室 Present 未测。 |
+| [Release117 三室中室](LocalComparison/Review/three-room-middle-budget-117/result.md) | GI 合计 p95／p99 为 16.170／16.729 ms，进程 local／nonlocal 峰值为 566.191／287.438 MiB | F4 中室固定机位，五灯、开门、完整近景细节。满足该窗口的 25 ms／1 GiB 预算；该117窗口未测Present，不能与下行合成同窗验收。 |
+| [Release119 普通三室中室](LocalComparison/Review/three-room-middle-present-119/result.json) | 应用Present平均56.44Hz，间隔p95／p99为20.278／21.652ms，最长23.894ms | 960×540、30秒静止窗口，机位距117约.055世界单位。支持该视点30FPS方向；未测显示帧率、GI专项耗时或显存，不外推移动／冷入。 |
 | [Release93 默认场景静止](LocalComparison/Review/exact-no-fallback-traversal-01/result.md) | GI 合计 p95 为 19.298 ms，local 峰值为 567.254 MiB，nonlocal 峰值为 289.691 MiB | 满足该机位的 25 ms／1 GiB 起始预算。 |
 | [Release93 普通 M 键门运动](LocalComparison/Review/release93-motion-present-01/result.md) | 应用 Present 平均 52.69 Hz，间隔 p95／p99 为 21.97／23.57 ms，最大 25.99 ms | 固定 30 秒窗口，960×540 启动参数。全部观测间隔低于 30 FPS 对应的 33.33 ms，实际显示节奏未测。 |
 
@@ -157,7 +158,9 @@ Feature仅进入Base Game相机及显式允许的Scene View；非DX12、非Linea
 
 精确软件与DXR共用命中材质、alpha/Cull和chart绑定；未知覆盖或材质不能贡献可信辐射。准入失败时保留明确的SDF/解析近似或未知结果。HLOD就绪表示完整组可发布，不表示照明已收敛；资源账目不等于驱动总VRAM。
 
-[原始计划](Documentation/OriginalDevelopmentPlan.md)的四项目标、十条工作流及[生产计划G0–G5](Documentation/ProductionPlan.md)继续约束开发。**[G0本机基线锁定已完成](Documentation/ProductionPlan.md#g0已锁定的本机基线)，G1–G5继续开放。** 主要开放项为整景颜色与多跳残留、完整运动和精确收敛，复杂薄壁／凹腔及近远场支持范围，冷／热／高速流送、目标规模与长时负载，以及承诺平台的完整性能／内存和发布验收。实际CI按用户要求暂缓。有限窗口不替代这些条件。
+[原始计划](Documentation/OriginalDevelopmentPlan.md)的四项目标、十条工作流及[生产计划G0–G5](Documentation/ProductionPlan.md)继续约束开发。**[G0本机基线锁定已完成](Documentation/ProductionPlan.md#g0已锁定的本机基线)，G1–G5继续开放。** 主要开放项为整景颜色与多跳残留、完整运动以及按既定工程判据尚未覆盖的响应／收敛范围，复杂薄壁／凹腔及近远场支持范围，冷／热／高速流送、目标规模与长时负载，以及承诺平台的完整性能／内存和发布验收。实际CI按用户要求暂缓。有限窗口不替代这些条件。
+
+当前122的交付来源、代码跳过、有限观察、实测未满足及未完成事项统一见[支持矩阵](Documentation/ProductionPlan.md#当前支持范围与证据层级)。132单页复用位置容差未通过，不能概括为池复用整体通过；冷高速首次完整表示空档仍未关闭。
 
 **已关闭的具体缺口与各阶段历史统一见[完整推进表](Documentation/DevelopmentProgress.md)。** 本页仅维护当前使用入口和结论；历史构建、失败、候选撤回及原始证据保持原来源。
 
