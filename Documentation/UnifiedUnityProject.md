@@ -2,6 +2,8 @@
 
 将 `HybridLumenGI-Release121-UnityProject.zip` 完整解压到新目录。在 Unity Hub 中选择 **Add → Add project from disk**，选中包含 `Assets`、`Packages`、`ProjectSettings` 的目录。使用 Unity **6000.0.85f1**、Windows x64 Build Support 和可用的 Unity 许可。工程已声明 URP **17.0.4**，首次导入由 Unity 的包管理器解析依赖。
 
+本 ZIP 的产品源码为 [`e1e00d8`](https://github.com/Ranko-sama/HybridLumenGI/tree/e1e00d8ffe59c44206b17124948ed84b55b33a71)，场景、SDF、charts 和 Windows 资源页沿用 Release120。普通 Release121 Windows 包从该 ZIP 的独立解压目录构建。开发主干的 `7c08327` 稳定回退历史修复尚未进入这个包；从 main 下载源码会得到较新的开发版本。向已有工程升级时，按[源码、资产与回退步骤](Implementation.md#升级已有-unity-工程与回退)更新；仅从 120 升到 121 且作者资产与构建目标不变时，可沿用有效烘焙和资源页。
+
 在 Project 窗口打开 `Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity`，按 Play 进入彩墙场景。WASD 移动，C 换墙色，L 开关解析灯，M 启停门运动。F3 进入中性两室，随后按 F4 进入三室，O 开关中央滑门。1、2 分别切到近景与远景。
 
 按 **F5** 或点击 **F5: show indirect light** 可以单独看间接光。再次按 F5 回到原视图。要观察颜色反弹，可对准白色地板，按 C 换墙色，再用 F5 对照最终画面。运行时代码也可在相机准备前调用 Renderer Feature 的 `SetIndirectIntensity(float)` 与 `SetDebugView(DebugView)`。强度只接受有限非负数。
