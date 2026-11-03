@@ -232,6 +232,8 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 **G1 的环境光／烘焙光重复计入检查，已通过本机普通 Forward Lit 的代表配置。** 在有可信 GI 的接收区域，把替换强度设为零后，地板与红墙和关闭环境 SH 的原生对照吻合。静态非方向、方向贴图的两处内部区域均保留独立测得的实时直射；单盏 Mixed 主方向灯的遮罩也保留了原生阴影。此判定适用于相机的 Replace 合成。Replace 会一起扣除烘入贴图的直射。默认 Additive 保留原生光。HLGI 自身的多跳能量和动态收敛仍按各自关卡验收。[合成配置、定量对照与边界](NativeDiffuseComposition.md#support-matrix-and-rejection-conditions)
 
+**G1 第6节基础合同在已有本机代表输入上具有限通过依据。** 130／131补齐普通Player的workflow／map和alpha／smoothness-alpha联合轮廓链路；已有白炉、黑／金属、色墙、合成和关断衰减按原来源复用。完整G1尚未放行：原版本／区域的物理颜色参考不等于当前拟声明支持域的静态颜色与能量准确性，部分原协议也未完整执行。该边界不自动触发版本重测、严格证明扩展或新材质排列。[增量关卡裁决、已通过项及限制](../LocalComparison/Review/player-alpha-smoothness-01/result.md)
+
 **G2 第 6 节的本机代表场景已通过。** 多房间有三室实际通行和相邻房间地板的开关门对照；3 cm 薄壁的遮挡与畅通连接均与独立几何查询相符。烘焙门框能区分洞口和实壁。离屏纹理换位改变地板反弹，单个凹形网格的红前框与蓝内板也在白地板上产生可区分的非零贡献。F2 的覆盖记录能指出首个受阻图卡或采样块及其原因。第 8、9 节单列的材质／UV 接缝和负／非均匀缩放检查仍开放。[三室](../LocalComparison/Review/three-room-passage-01/result.md) · [隔墙受光](../LocalComparison/Review/shaded-room-floor-01/result.md) · [薄壁光路](ReviewBrief-ThinWallTransport01-Completed.md) · [烘焙门框](../LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [离屏纹理](../LocalComparison/Review/offscreen-wall-texture-01/result.md) · [凹面材质](../LocalComparison/Review/recessed-wall-material-120/result.md) · [覆盖诊断](../LocalComparison/Review/hlod-coverage-diagnostic-01/result.md)
 
 ### G0已锁定的本机基线

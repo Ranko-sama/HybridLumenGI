@@ -1,0 +1,40 @@
+{
+  "status": "fixed-player-joint-coverage-observed",
+  "scope": "One stock Lit Player, single sample, runtime AlphaToMask0, fixed regular/smoothness-alpha inputs; no A2C, ray or identity-history qualification",
+  "engine": 3,
+  "work": 0,
+  "domains": [
+    {
+      "domain": "regular",
+      "pixels": 67640,
+      "expectedFront": 33820,
+      "expectedBack": 33820,
+      "nativeFront": 33820,
+      "nativeBack": 33820,
+      "unknownMaterial": 0,
+      "nativeExpectedPattern": true,
+      "nativeWorldZMaxError": 1.4896691368448955e-05,
+      "captureWorldZMaxError": 1.4896691368448955e-05,
+      "nativeCaptureDepthMaxDelta": 0.0,
+      "materialMaxError": 0.000784375667572057,
+      "diffuseViewMaxError": 0.0007843160629272816,
+      "passed": true
+    },
+    {
+      "domain": "smoothness",
+      "pixels": 67640,
+      "expectedFront": 67640,
+      "expectedBack": 0,
+      "nativeFront": 67640,
+      "nativeBack": 0,
+      "unknownMaterial": 0,
+      "nativeExpectedPattern": true,
+      "nativeWorldZMaxError": 1.4896691368448955e-05,
+      "captureWorldZMaxError": 1.4896691368448955e-05,
+      "nativeCaptureDepthMaxDelta": 0.0,
+      "materialMaxError": 0.000784375667572057,
+      "diffuseViewMaxError": 0.0007843160629272816,
+      "passed": true
+    }
+  ]
+}

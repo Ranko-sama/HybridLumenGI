@@ -2,7 +2,7 @@
 
 本表基于 [ProductionPlan](ProductionPlan.md)、[运行验收要求](Validation.md)和[当前推进表](DevelopmentProgress.md)，保留原四项目标、十条工作流及 G0–G5 范围。用途是安排剩余工作，不把未验收项判成代码缺陷，也不把有限交付判成总目标完成。
 
-当前：G0 本机基线已锁定；G2 第 6 节代表场景已通过，专项仍开放；G1、G3、G4、G5 尚未整体放行。T1 已完成，Release122 已将接受的 `7c08327` 稳定回退历史修复整合到同源工程与普通 Player；T2–T7 仍开放。
+当前：G0 本机基线已锁定；G1 第6节基础合同在已有本机代表输入上取得有限通过依据；G2 第6节代表场景已通过，专项仍开放；G1、G3、G4、G5 尚未整体放行。T1 已完成，Release122 已将接受的 `7c08327` 稳定回退历史修复整合到同源工程与普通 Player；T2–T7 仍开放。
 
 ## 当前优先级
 
@@ -48,3 +48,5 @@ T2／G4 已补齐一次静态普通 Lit 二值 Point／无 mip 的实际软件�
 T2／G1 及 T3 补齐已有封闭室“先有可信间接光→唯一点光关闭”的九点衰减子项：1／2秒前旧绿均值0.04606%／0.004056%，后续保持，末端实际filteredD有效。复用已有房间及122质量设置，没有改白重跑127或推广到任意房间；worldcache、fresh raw及中间filtered仍未直接观测。Astra同意按该事件收束，原准备／解析失败保留，不改Runtime／发版。[画面、结果及未证明事项](../LocalComparison/Review/sealed-room-decay-01/result.md)
 
 G1增量复核：继续复用白炉、黑／金属、色墙、合成和衰减成果，不合并为全支持域通过。T2现补齐一次原列metallic／specular标量／map固定网格的实际普通Win64 Player合同，出射与独立单位环境参考符合；不是仅有函数结果，也不是世界hit／DXR全部材质通过。原承诺输入组合仍有范围缺口，例如alpha／smoothness-alpha联合覆盖；协议差异不自动生成下一材质行或补跑任务。Astra同意采用并结束本项，不改Runtime／公开122。[关卡判断、结果及边界](../LocalComparison/Review/player-material-workflow-01/result.md)
+
+后续131已关闭上段当时指出的限定alpha／smoothness-alpha联合Player覆盖：原生checker／全实区别符合独立预期，GI深度同帧逐点一致，runtimeAlphaToMask0／单采样范围保留。Astra将G1推进为“第6节基础合同在已有本机代表输入上具有限通过依据”，本轮材质观察结束。完整G1的实质边界是声明支持域的静态颜色／能量准确性；300帧／双端记录等未完整协议另列，不与产品缺陷或新测试任务画等号。A2C／Replace等未证范围不自动追加为新前置。[131结果与关卡裁决](../LocalComparison/Review/player-alpha-smoothness-01/result.md)
