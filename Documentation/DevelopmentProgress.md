@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release122，G0 本机基线已锁定，G2 本机代表场景已验收
 
+G1 补齐原列 metallic／specular 标量和贴图网格的普通 Win64 Player 捕获／合成依据。独立rho分别为.48／0／.47812／.75／0／.74902，实际出射约.47820／0／.47820／.74866／0／.74866，均满足冻结容差；零域具有覆盖及已知材质，非零域D≈.99951且无unknown。实际为空世界软件、MPB shader-space输入，不推广到世界hit／DXR或全部作者颜色。Astra同意采用收束，无Runtime改动或公开发版；G1增量复核仍未整体放行。[画面、原协议与剩余范围](../LocalComparison/Review/player-material-workflow-01/result.md)
+
 G1／G3 补齐已有封闭反射房间先有间接光、再关闭唯一点光的有限衰减依据。固定九点在1／2秒前旧绿均值剩0.04606%／0.004056%，后续源保持目标，2.618秒末端实际filteredD有效。该事件按局部点光移除验收，未用全局5秒期限；没有直接观察worldcache、fresh raw或所有中间filtered状态，不能外推任意房间／稳态。首次未Play的准备失败与离线字段读取错误保留；Astra同意采用并收束，没有Runtime改动或新版本。[同曝光画面、指标与边界](../LocalComparison/Review/sealed-room-decay-01/result.md)
 
 T2／G4 关闭静态普通 Lit 二值 Point／无 mip alpha 的实际候选遍历子项：精确软件和真实 DXR 都穿透明格命中蓝后板、在实心格命中红前板，返回距离、源 UV、三角／owner 身份和已知材质均符合冻结几何／纹理预期。实际纹理页 Ready，无 unknown／回退。纠正了旧文档“CPU alpha 准入仍关闭”的描述；首个观察入口保留字编译错误及无效零输出保留，仅一次更正运行通过。没有修改 Runtime 或发版，不扩写为 Feature／Player 图像、阴影、MSAA／A2C 或完整材质验收。[实际命中、输入及限制](../LocalComparison/Review/binary-alpha-traversal-01/result.md)

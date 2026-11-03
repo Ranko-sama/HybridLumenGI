@@ -46,3 +46,5 @@ T2 已关闭一个普通 Additive、运行时 `_AlphaToMask=0` 的二值 cutout 
 T2／G4 已补齐一次静态普通 Lit 二值 Point／无 mip 的实际软件／DXR 候选遍历：真实就绪材质页下，透明前格正确露出蓝后板，实心前格仍命中红前板，源 UV／三角／身份和材质符合独立预期。首次观察入口保留字编译失败及误置的执行标记不采用，Astra 允许一次同输入更正后实际通过。只关闭该具体缺口，不扩大为完整 alpha／Cull、阴影、Feature／Player 或 T2 整体；不改 Runtime／发版。[原始结果与范围](../LocalComparison/Review/binary-alpha-traversal-01/result.md)
 
 T2／G1 及 T3 补齐已有封闭室“先有可信间接光→唯一点光关闭”的九点衰减子项：1／2秒前旧绿均值0.04606%／0.004056%，后续保持，末端实际filteredD有效。复用已有房间及122质量设置，没有改白重跑127或推广到任意房间；worldcache、fresh raw及中间filtered仍未直接观测。Astra同意按该事件收束，原准备／解析失败保留，不改Runtime／发版。[画面、结果及未证明事项](../LocalComparison/Review/sealed-room-decay-01/result.md)
+
+G1增量复核：继续复用白炉、黑／金属、色墙、合成和衰减成果，不合并为全支持域通过。T2现补齐一次原列metallic／specular标量／map固定网格的实际普通Win64 Player合同，出射与独立单位环境参考符合；不是仅有函数结果，也不是世界hit／DXR全部材质通过。原承诺输入组合仍有范围缺口，例如alpha／smoothness-alpha联合覆盖；协议差异不自动生成下一材质行或补跑任务。Astra同意采用并结束本项，不改Runtime／公开122。[关卡判断、结果及边界](../LocalComparison/Review/player-material-workflow-01/result.md)
