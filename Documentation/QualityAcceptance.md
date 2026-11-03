@@ -42,6 +42,8 @@
 
 Release93 的静止 Floor／White 平均亮度偏差为 −3.075%／−0.831%，色向 L1 为 0.007976／0.033415。原逐像素亮度 MAE 与参考均值之比分别约 14.69%／8.18%，名义上满足上面的静态目标。此判定仅覆盖原两个区域、单时点及 640×360 参考网格，不改写原 Monte Carlo 与模型边界。[原比较](../LocalComparison/Review/release93-color-frame119-01/result.md)
 
+当前122同源Runtime现已直接复用原归档场景0–119及同一有限参考，两个固定ROI的同量filteredD也取得上述报告指标，名义满足静态目标；Floor的2个unknown继续单列。Astra同意采用并结束本线。它补上当前Runtime在该归档样点的依据，不把Final／旧IndirectOnly普通输出互相比作物理真值，也不证明全部像素相同、普通三室、960×540／Player或完整G1。[当前观察与收束](../LocalComparison/Review/archived-runtime-color119-01/result.md)
+
 Release114 的绿转蓝旧绿在 +10／+30 帧为 1.43%／0.285%；这些点支持衰减趋势，没有秒级时间锚点，不能直接判 1／2 秒目标通过。Release109 换蓝后 +30 帧仍比首帧蓝墙路径暗约 12%，也不足以判定 2 秒后的结果。门运动四时点的已有取舍继续保留。[旧绿消退](../LocalComparison/Review/green-emission-decay-114/result.md) · [蓝墙前史](../LocalComparison/Review/blue-wall-history-01/result.md)
 
 当前 Release122 产品在一个固定绿转蓝光路上已有 Final HDR 恢复比较：960×540、实际约 29.4Hz，相对同工作帧、较长蓝前史产品控制，区域均值首个合格窗口为 0.193958–0.708270 秒，之后观测到 2.612935 秒未再次越线。起点最差单点仍有 23% 亮度差，约 2 秒最差点约 1%；这不是全像素的精确收敛时间或物理真值。1 秒前 0.978545 秒旧绿均值为 0.265508%，2 秒前 1.970665 秒为 0.0229948%。这只补该固定域、该量与节奏下的恢复依据，原门运动和整体 G3 继续按各自范围判断。[同帧画面、完整源帧与采用边界](../LocalComparison/Review/final-state-response-01/result.md)

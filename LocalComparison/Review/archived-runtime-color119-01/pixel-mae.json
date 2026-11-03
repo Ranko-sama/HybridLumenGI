@@ -1,0 +1,18 @@
+{
+  "logicalFrame": 119,
+  "quantity": "indirect-irradiance-over-pi",
+  "helper": "../stationary-history-01/analyze.py:measures",
+  "formula": "mean(abs((currentRGB - referenceRGB) dot [0.2126, 0.7152, 0.0722]))",
+  "domain": "Current-valid pixels in the existing independent source ROI; same as comparison.json",
+  "roi": {
+    "Floor": {
+      "pairedPixels": 13328,
+      "pixelYMAE": 0.010529234789900154
+    },
+    "White receiver": {
+      "pairedPixels": 86,
+      "pixelYMAE": 0.01857571671107827
+    }
+  },
+  "qualityVerdict": null
+}

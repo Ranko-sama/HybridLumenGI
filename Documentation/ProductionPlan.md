@@ -234,6 +234,8 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 **G1 第6节基础合同在已有本机代表输入上具有限通过依据。** 130／131补齐普通Player的workflow／map和alpha／smoothness-alpha联合轮廓链路；已有白炉、黑／金属、色墙、合成和关断衰减按原来源复用。完整G1尚未放行：原版本／区域的物理颜色参考不等于当前拟声明支持域的静态颜色与能量准确性，部分原协议也未完整执行。该边界不自动触发版本重测、严格证明扩展或新材质排列。[增量关卡裁决、已通过项及限制](../LocalComparison/Review/player-alpha-smoothness-01/result.md)
 
+当前122同源Runtime另已直接运行原归档场景0–119，两个原ROI的filteredD亮度偏差−3.075%／−.831%，色向和MAE均名义满足已定工程目标，unknown及有限参考边界保留。它关闭当前Runtime在该归档样点的有限颜色依据，不外推当前三室、960×540普通Player或完整G1；Astra同意结束，不补参考／时点／后端或调参。[输入、图像和关卡边界](../LocalComparison/Review/archived-runtime-color119-01/result.md)
+
 **G2 第 6 节的本机代表场景已通过。** 多房间有三室实际通行和相邻房间地板的开关门对照；3 cm 薄壁的遮挡与畅通连接均与独立几何查询相符。烘焙门框能区分洞口和实壁。离屏纹理换位改变地板反弹，单个凹形网格的红前框与蓝内板也在白地板上产生可区分的非零贡献。F2 的覆盖记录能指出首个受阻图卡或采样块及其原因。第 8、9 节单列的材质／UV 接缝和负／非均匀缩放检查仍开放。[三室](../LocalComparison/Review/three-room-passage-01/result.md) · [隔墙受光](../LocalComparison/Review/shaded-room-floor-01/result.md) · [薄壁光路](ReviewBrief-ThinWallTransport01-Completed.md) · [烘焙门框](../LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [离屏纹理](../LocalComparison/Review/offscreen-wall-texture-01/result.md) · [凹面材质](../LocalComparison/Review/recessed-wall-material-120/result.md) · [覆盖诊断](../LocalComparison/Review/hlod-coverage-diagnostic-01/result.md)
 
 ### G0已锁定的本机基线

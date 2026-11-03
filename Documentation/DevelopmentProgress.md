@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release122，G0已锁定，G1基础合同具有限依据，G2本机代表场景已验收
 
+T2／G1补上当前Runtime在原归档119场景、两个固定ROI的有限静态颜色依据。直接复用原物理资产和有限参考，Floor／White均值亮度偏差−3.075%／−.831%，色向L1 .007976／.033415，MAE比14.69%／8.18%，名义满足事前目标；Floor两个unknown和参考不确定性保留。120前缀收据成功不替代原720协议，指标与93相同不等于所有像素／行为相同；不外推当前三室、960×540、普通Player或完整G1。Astra同意采用并结束本线，无Runtime改动或新版本。[同量画面、原输入和范围](../LocalComparison/Review/archived-runtime-color119-01/result.md)
+
 T4补齐同一GPU页A→B换源的有限身份／覆盖／binding与旧锚点清除依据：实际复用card0，来源和两种代次更新，旧mesh查询拒绝，两个原有锚点格在B确定空后写为无效。**完整冻结合同未通过**：位置最大误差A约2.95e−5、B约4.53e−5，超过固定2e−5；不改阈值，也不直接归因产品错误。A请求pending不证明GPU实际重叠或普遍同步安全。Astra同意采用子结果并结束，无Runtime改动／新版本，整体T4仍开放。[图集、实际数值及未通过项](../LocalComparison/Review/card-page-reuse-01/result.md)
 
 G1第6节基础合同现已在已有本机代表输入上取得有限通过依据：131普通Player的原生regular checker／smoothness-alpha全实区别真实生效，GI captureDepth逐像素一致，域内无未知材质，来源颜色正确；130已补非零workflow／map传递。Astra同意整合本轮进展并结束材质观察。完整G1仍受拟声明支持域的静态颜色／能量准确性与未完整原协议限制，不拼不同版本结果称当前全域通过，不因版本或协议字样自动补跑。[关卡裁决与联合轮廓](../LocalComparison/Review/player-alpha-smoothness-01/result.md)
