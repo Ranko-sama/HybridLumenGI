@@ -21,6 +21,8 @@ Unity 6000.0.85f1／URP 17.0.4、Windows D3D12／Linear。固定 128×128 正交
 
 本结果不覆盖 URP 作者材质自动保留的 `_AlphaToMask=1`、A2C／MSAA、smoothness-alpha 组合、Replace Native Diffuse、DXR alpha 遍历、Player 或任意材质矩阵。近区颜色用于确认捕获来自裁剪前景，远区颜色用于确认洞口读到背板，不是新的辐照度误差参考。
 
+后续源码核对澄清：`HybridLumenGIMaterialSource.IdentityCoverageData` 对 `_AlphaToMask!=0` 的拒绝只限制独立屏幕身份绘制，`TryCapture` 本身仍接受该材质；不能将此次输入断言失败解释为默认作者 cutout 无法进入 GI。世界图卡、精确射线和原生替换使用各自的覆盖路径，不能共享放宽结论。身份历史已有单采样及 CPU／GPU 全局 A2C 拒绝条件，但当前没有该保守限制引起的可见问题，因此按 Astra Max 审查停止此线，不改资格或追加 flag 1 观察。该源码判断不补足上段尚未实测的覆盖范围。
+
 ## 准备失败与纠正
 
 首轮在零渲染请求时因输入检查终止：URP 导入把资产副本的 `_AlphaToMask=0` 恢复成 1。实际材质和失败已保留在[首轮输出](<I:/Unity test/Comparison/AlphaCoverage124>)。锁定 URP 的 `BaseShaderGUI.cs` 会在导入验证中重写该属性；这不是观察到的覆盖产品错误。
