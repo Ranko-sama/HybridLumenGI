@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release122，G0已锁定，G1基础合同具有限依据，G2本机代表场景已验收
 
+T4补齐同一GPU页A→B换源的有限身份／覆盖／binding与旧锚点清除依据：实际复用card0，来源和两种代次更新，旧mesh查询拒绝，两个原有锚点格在B确定空后写为无效。**完整冻结合同未通过**：位置最大误差A约2.95e−5、B约4.53e−5，超过固定2e−5；不改阈值，也不直接归因产品错误。A请求pending不证明GPU实际重叠或普遍同步安全。Astra同意采用子结果并结束，无Runtime改动／新版本，整体T4仍开放。[图集、实际数值及未通过项](../LocalComparison/Review/card-page-reuse-01/result.md)
+
 G1第6节基础合同现已在已有本机代表输入上取得有限通过依据：131普通Player的原生regular checker／smoothness-alpha全实区别真实生效，GI captureDepth逐像素一致，域内无未知材质，来源颜色正确；130已补非零workflow／map传递。Astra同意整合本轮进展并结束材质观察。完整G1仍受拟声明支持域的静态颜色／能量准确性与未完整原协议限制，不拼不同版本结果称当前全域通过，不因版本或协议字样自动补跑。[关卡裁决与联合轮廓](../LocalComparison/Review/player-alpha-smoothness-01/result.md)
 
 G1 补齐原列 metallic／specular 标量和贴图网格的普通 Win64 Player 捕获／合成依据。独立rho分别为.48／0／.47812／.75／0／.74902，实际出射约.47820／0／.47820／.74866／0／.74866，均满足冻结容差；零域具有覆盖及已知材质，非零域D≈.99951且无unknown。实际为空世界软件、MPB shader-space输入，不推广到世界hit／DXR或全部作者颜色。Astra同意采用收束，无Runtime改动或公开发版；G1增量复核仍未整体放行。[画面、原协议与剩余范围](../LocalComparison/Review/player-material-workflow-01/result.md)
