@@ -38,3 +38,5 @@ T4 镜像真实图卡的有界核对已结束：当前 `M d` 投影定向和 `M^
 2026-11-04，用户授权主线程参考 UE5／相关项目的技术资料，自主决定画质口径，原等待用户误差数字的依赖已解除。[起始工程判据](QualityAcceptance.md)已参考 Epic 官方、生产 DDGI 论文和 NRD 官方资料制定，并经 Astra Max 审查：保留明确的颜色、残留与响应目标及测量范围，不将工程阈值冒充外部标准。后续自主按判据推进；CI 与扩大严格证明继续暂缓。
 
 T3 的既有绿转蓝事件已补源帧时间，Astra Max 允许按实际观察范围交付并收束。1.000209 秒旧绿均值为 0.0429214%，2.000477 秒输出 G 全零；仅关闭该观察缺时间锚点的信息缺口，不外推普通目标帧率、最终新颜色或整体 G3，不自动补跑。[结果](../LocalComparison/Review/timed-green-response-01/result.md)
+
+T2 已关闭一个普通 Additive、运行时 `_AlphaToMask=0` 的二值 cutout 屏幕覆盖合同：同帧原生深度与 GI 捕获深度一致，孔洞正确露出背板。未关闭默认作者 flag 1、smoothness-alpha、Replace、DXR alpha 或 Player；准备失败和有效观察分别保留。Astra Max 同意收束，不新增材质矩阵或构建。[结果与范围](../LocalComparison/Review/ordinary-cutout-coverage-01/result.md)

@@ -47,7 +47,7 @@ Record the actual result and evidence path for each row; do not mark rows passed
 | Metallic/specular workflows | Correct diffuse energy split in each workflow | Material-buffer capture |
 | Emission keyword disabled/enabled | Zero/nonzero emitted source contribution | Material-buffer capture |
 | Occlusion disabled/enabled | Capture respects keyword and strength | Material-buffer capture |
-| Alpha clip + smoothness alpha | Silhouette matches ordinary URP Lit | Depth/material overlay |
+| Alpha clip + smoothness alpha | Silhouette matches ordinary URP Lit | [One ordinary Additive cutout input](../LocalComparison/Review/ordinary-cutout-coverage-01/result.md): native camera depth and GI capture depth agreed at every pixel in the predefined interior, including internal alpha edges; holes exposed the blue background. Limited to 128×128 and runtime `_AlphaToMask=0`. Smoothness-alpha combinations, author-default flag 1, MSAA, native replacement and Player remain unqualified. |
 | Dark sealed scene | No synthetic ambient leak or self-sustaining GI | 300-frame HDR luminance series |
 | Light color/intensity/off | Cache invalidates and converges without retaining stale illumination | 300-frame HDR luminance series |
 | Dynamic door, move/remove emitter | History rejects newly visible surfaces; obsolete cache contribution disappears | Video and per-frame error plot |
