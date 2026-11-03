@@ -4,6 +4,8 @@ Release108 的屏幕预算根据该相机实际执行的空间滤波级数计入
 
 ## 当前已确认的起始验收目标
 
+当前122同源的默认活动Skin已补一个同次普通Player窗口：24顶点／12三角／2骨、K+Space、960×540／半GI／2ray／filter4、实际DXR，计时与显存观察开启、反馈关闭。35.011秒内逐源三段合计中位／p95／p99为14.958／17.088／18.115ms；进程local／nonlocal有限采样峰值572.004／303.688MiB，满足25ms／1GiB。嵌套的30秒应用Present平均63.042Hz、间隔p95／p99／最大20.083／21.770／27.078ms，非显示FPS或逐源GI配对。它只补默认已预热Skin负载，不代表观察关闭、大模型、冷启动、画质或完整G5；初始等待和可选截图未交付均保留。[实际输入、源配对及CPU帧龄](../LocalComparison/Review/active-skin-cost-01/result.md)
+
 Release119 的普通 Windows Player 以 960×540 启动，在 RTX 2080 Ti 上由入口步行到 F4 中室，中央门保持打开。相机停在 (0.310, 1.500, −5.975)，距 117 的 GI 预算机位约 0.055 个世界单位。窗口两端均为实际 DXR、完整的三个近景细节、168 张就绪卡，计时、反馈和显存采样均关闭。PresentMon 的 30 秒窗口中，应用呈交平均 **56.44 Hz**，间隔 p95／p99 为 **20.278／21.652 ms**，最长 **23.894 ms**。1,692 个有前序时间锚点的间隔全部在 30 FPS 对应的 33.33 ms 内。该窗口测量应用调用 Present 的节奏，显示器实际出帧、移动或冷入过程另计。[两端机位、采集参数及统计](../LocalComparison/Review/three-room-middle-present-119/result.json) · [原始 Present 间隔](../LocalComparison/Review/three-room-middle-present-119/present.csv)
 
 Release117 普通三室在已有 F4 中室机位取得同窗结果。960×540、半分辨率 GI、2 射线、4 级滤波、实际 DXR，中央门全开，三个近景细节均可提交。逐源帧三段 GI 合计 p95／p99 为 16.170／16.729 ms，进程 local／nonlocal 有限采样峰值为 566.191／287.438 MiB。该机位满足 25 ms／1 GiB 起始预算。三室 Present 与冷入延迟单列。[实际预算窗口及原始计时](../LocalComparison/Review/three-room-middle-budget-117/result.md)

@@ -1,5 +1,7 @@
 # 形变几何快照
 
+默认活动Skin已有[普通Player有限成本窗口](../LocalComparison/Review/active-skin-cost-01/result.md)：当前Release122同源、原24顶点／12三角／2骨K+Space、SDF32／间隔4，在观察开启的35秒已预热窗口内，GI三区间合计p95为17.088ms、进程local采样峰572.004MiB，满足起始预算；同次应用Present间隔最大27.078ms。205个新快照的实际捕获到首次CPU观测帧龄p95为11帧、最大12帧，不能当作全部渲染帧的快照年龄、BakeMesh耗时或GPU消费延迟。该窗没有截图／动态质量结论，不关闭更大模型、冷启动、形变画质或整体生产验收；下文79等历史使用范围继续保留各自来源。
+
 自 Release107 起，通用退休队列已经排空时，退出流程会在原有共享期限内等待已取消的后台 CPU 烘焙结束，再由主线程销毁未发布的私有网格。超时或销毁失败的对象继续保留所有权。[退出时序与适用范围](../LocalComparison/Review/cancelled-worker-shutdown-01/result.md)
 
 本机 Win64 的统一示例两骨门另有原生上一帧顶点观测。连续渲染的同一三角形上，第 4 帧 previous 与第 3 帧实际 current 的三个顶点逐点相同，独立骨姿态换算的最大差为 1.26 × 10⁻⁷ 米。该观测区分了真实前帧与绑定姿态，颗粒和拖影仍需由实际画面判断。[坐标空间、原始读回和适用范围](../LocalComparison/Review/skinned-previous-vertices-01/result.md)
