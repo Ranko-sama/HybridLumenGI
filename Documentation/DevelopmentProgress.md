@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release122，G0 本机基线已锁定，G2 本机代表场景已验收
 
+G2／T4 的普通静态两槽 Point／无 mip 接缝补上图集与锚点子证据：保存重开后，两侧预定域共 3,420 个像素的颜色及位置未超出原容差，24 个有覆盖锚点位置归属正确（20 个核对颜色、4 个分色边界不判颜色），8 个空单元保持无效锚点。观察脚本漏写四条三角 binding 返回数值，完整冻结合同维持 `insufficient-binding-values`，没有新增关闭整体接缝或 T4 关卡。Astra Max 同意按子范围交付并结束，不补采、不改产品或发版。[结果、冻结条件与记录疏漏](../LocalComparison/Review/material-uv-seam-01/result.md)
+
 G1／T2 关闭一个普通 cutout 输入的屏幕覆盖合同：在 Additive、单采样、运行时 `_AlphaToMask=0` 的固定正交场景，普通 URP 相机与 GI 重绘深度逐点一致，裁空处读到蓝色背板。该结果来自现有 Capture 的同帧数据，不扩写为作者默认 flag 1、smoothness-alpha、Replace、DXR 或 Player 通过。输入导入重置与一次启动准备失败分别保留；有效运行正常结束并恢复设置，没有产品修改，按 Astra Max 审查收束。[覆盖、材料归属与限制](../LocalComparison/Review/ordinary-cutout-coverage-01/result.md)
 
 G1／G3 等待用户数值的依赖已解除。用户授权主线程参考相关实现自主判断；[画质起始判据](QualityAcceptance.md)已依据一手资料制定并经 Astra Max 审查。93 原两个区域名义满足静态目标，历史动态帧数仍不冒充秒级响应。

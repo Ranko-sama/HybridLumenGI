@@ -272,7 +272,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 这些接线不证明所有三角在有限纹理分辨率下都有覆盖，更不证明照明已收敛。静态资产原地变化需要重烘焙；持续形变由 `HybridLumenGIDeformedMesh` 捕获Skinned或显式可读快照，在后台生成匹配的SDF/charts，完整后原子切换。私有GPU顶点缓冲必须由生产者提供已完成的可读快照。
 
-图集与锚点的原检查范围包括凹房间、壳内壁、平行薄层、材质／UV 接缝和负／非均匀缩放。已取得壳内两层的命中、图卡与锚点归属读回。普通画面另已确认不同槽的凹面和前表面能参与反弹，未逐纹素观测该凹口的锚点。接缝两侧及变换后图集／锚点的正确性仍待验收。其余专项保留原条件，包括极小／全裁剪 chart 的阻塞与恢复、可变 owner 增删与池复用、旧回读、HLOD 容量压力、大网格烘焙与后台形变成本、capture mesh 内存、每帧查卡与捕获成本、GPU 同队列顺序及耗时。平台导入、Player API 和变体范围归 G5。自适应分辨率与任意 GPU 私有形变不属于当前支持范围。[内层采样读回](ReviewBrief-InteriorSurfaceCacheChain01.md) · [凹面普通画面](../LocalComparison/Review/recessed-wall-material-120/result.md)
+图集与锚点的原检查范围包括凹房间、壳内壁、平行薄层、材质／UV 接缝和负／非均匀缩放。已取得壳内两层的命中、图卡与锚点归属读回。普通画面另已确认不同槽的凹面和前表面能参与反弹，未逐纹素观测该凹口的锚点。保存重开后的单位变换、静态 Lit 双槽 Point／无 mip 接缝已有图集颜色／位置及锚点归属子结果；该次三角 binding 数值丢失，完整冻结合同仍为证据不足，不关闭整体接缝验收。其他接缝及变换后图集／锚点的正确性继续开放。其余专项保留原条件，包括极小／全裁剪 chart 的阻塞与恢复、可变 owner 增删与池复用、旧回读、HLOD 容量压力、大网格烘焙与后台形变成本、capture mesh 内存、每帧查卡与捕获成本、GPU 同队列顺序及耗时。平台导入、Player API 和变体范围归 G5。自适应分辨率与任意 GPU 私有形变不属于当前支持范围。[内层采样读回](ReviewBrief-InteriorSurfaceCacheChain01.md) · [凹面普通画面](../LocalComparison/Review/recessed-wall-material-120/result.md) · [接缝子结果及缺失记录](../LocalComparison/Review/material-uv-seam-01/result.md)
 
 离线检查的具体结果以 `Tests/Validate-Offline.ps1` 生成、与源码哈希一致的统一 JSON 报告为准，不沿用上一候选的测试总数。交付源码归档由 `SOURCE-MANIFEST.json` 绑定实际报告；可选原生计时归档由 `NATIVE-MANIFEST.json` 绑定同一源码包及已测试 DLL。任何统一离线回归或归档完整性结果都不改变 G0–G5 的放行条件。
 
