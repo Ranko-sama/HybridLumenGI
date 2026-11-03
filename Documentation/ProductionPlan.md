@@ -217,7 +217,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release121。G4 关闭了降低软件几何预算后，小网格被旧 BVH 一直挡在精确追踪之外的缺口。普通三室版本从同版可编辑工程 ZIP 构建，也整合了 G2 的非均匀缩放折面图卡修复。按 M 启停门，按 F5 查看间接光，按 4／5 请求软件或 DXR。**G0 本机基线已锁定，G1–G5 仍有生产条款未完成。** [121 预算与后端记录](../LocalComparison/Review/software-budget-recovery-121/result.md) · [折面图卡](../LocalComparison/Review/folded-chart-facing-01/result.md) · [120 洞口与门柱](../LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [121 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release121-demo)
+当前交付为 Release122，将已接受的稳定回退历史修复纳入普通三室运行包及可编辑工程，关闭源码与成品不同步的缺口。沿用 121 的软件降预算恢复和折面图卡修复。普通 Player 从同版工程 ZIP 的干净解压目录构建；按 M 启停门，按 F5 查看间接光，按 4／5 请求软件或 DXR。**G0 本机基线已锁定，G1–G5 仍有生产条款未完成。** 本次整合不新增画质或性能结论。[122 修复与范围](../LocalComparison/Review/stable-fallback-history-01/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [122 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release122-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

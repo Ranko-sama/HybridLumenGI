@@ -120,14 +120,14 @@ Triangle-to-chart binding retains the exact card/chart/layout/geometry identity 
 
 适用于已通过源码目录接入 HybridLumenGI 的工程。本机发布环境为 Unity 6000.0.85f1、URP 17.0.4、Windows x64／Mono／DX12／Linear。仅更新独立演示时，把整个 ZIP 解压到新目录，旧目录即可用于回退。
 
-当前发布的 Release121 运行包及可编辑工程固定使用产品源码 [`e1e00d8`](https://github.com/Ranko-sama/HybridLumenGI/tree/e1e00d8ffe59c44206b17124948ed84b55b33a71)。工程包保留 Release120 的场景、烘焙资产和资源页，更新五份产品源码及工程 README；Windows 包从该工程 ZIP 的独立解压目录构建。[工程入口与重建步骤](UnifiedUnityProject.md) · [121 的软件预算恢复](../LocalComparison/Review/software-budget-recovery-121/result.md) · [已整合的折面图卡修复](../LocalComparison/Review/folded-chart-facing-01/result.md)
+当前发布的 Release122 运行包及可编辑工程固定使用产品源码 [`7c08327`](https://github.com/Ranko-sama/HybridLumenGI/tree/7c08327f6fd6758dc5cdda563ec10e42e26b50bb)。工程包保留 Release121 的场景、烘焙资产和资源页，更新 Renderer Feature、硬件准备路径及工程 README；Windows 包从该工程 ZIP 的独立解压目录构建。[工程入口与重建步骤](UnifiedUnityProject.md) · [稳定回退历史修复](../LocalComparison/Review/stable-fallback-history-01/result.md)
 
-开发主干另含 `7c08327` 的稳定回退历史累积修复，尚未打入 Release121。需要复现发布版时，使用上述工程 ZIP 或固定产品提交；选择开发主干时，把完整同版产品源码一起更新并记录所用提交。[开发修复与测量范围](../LocalComparison/Review/stable-fallback-history-01/result.md)
+历史 Release121 使用 `e1e00d8`，包含软件预算恢复和折面图卡修复；稳定回退历史累积修复从 Release122 起随包交付。需要复现发布版时，使用对应工程 ZIP 或固定产品提交；选择开发主干时，把完整同版产品源码一起更新并记录所用提交。
 
 1. **保存可以回退的工程版本。** 退出 Play，在版本控制分支或工程副本中升级。保留现有产品源码及其 `.meta`、场景、Universal Renderer Data、Proxy 引用的烘焙资产。使用分页的工程还要保存对应的 rig、manifest 和 StreamingAssets 中的同批 bundles。单独记录已安装的可选原生插件版本及导入设置。
 2. **在原位置更新产品。** 按同一发布来源同步 `Runtime`、`Editor`、`Shaders` 及其 `.meta`，包括 `Runtime/Resources`。清理时按新旧产品文件差异区分退役的产品文件与工程自有资产。已有场景或 Renderer Data 通过 GUID 引用脚本、Shader 等资源。同源安装应延续原 GUID。若旧工程自行生成过 `.meta` 或改过产品源码，先在工程副本中合并改动、核对并重新绑定失配引用。导入后打开实际相机使用的 Renderer Data，确认原 Feature 与设置仍在，再查看场景中原有 Proxy 的引用。
 3. **核对设置及外部脚本。** Unity 会把旧序列化字段 `cacheFacesPerFrame` 的数值读入 `cachePatchesPerFrame`，当前单位为每帧更新的 patch 数。引用旧字段名的 C# 或 Inspector 工具改用新名。旧调试视图枚举值 3 仍为 3，现名为 `SpatialVariance`，读数为映射到灰度的空间亮度方差。使用旧 `HistoryAcceptance` 名称的脚本与图例应一同更新。[Feature 字段](../Runtime/HybridLumenGIRendererFeature.cs) · [调试视图说明](ValidationSequence.md)
-4. **按资产状态决定是否重建。** 从 Release120 升到 121，若源网格、材质、烘焙资产和构建目标保持一致，可沿用原有有效的 SDF、charts 及资源页。软件预算恢复和折面图卡定向修复由运行时源码生效；本次更新本身不要求重烘或重新导出。缺少受支持来源指纹的旧 SDF、或源网格已经改变且校验失配的烘焙资产，需要在 `Tools > Hybrid Lumen GI` 中使用 `Bake Mesh Distance Field` 或 `Bake Surface Charts` 创建新资产并绑定回相应 Proxy。运行时修改可读网格后应通知来源版本，具体生效时机见下方链接。若变化的网格、材质或烘焙资产已导出为页，或构建目标变化，从作者源重新导出到新目录，将新 rig、manifest 和对应 bundles 配套交付。历史 Release97→98 仅修改统一示例换色交互脚本的说明仍适用于该次升级，不代表其他版本的差异。[SDF 兼容入口与重烘焙](SdfAtlasResidency.md#source-validity-and-asset-migration) · [分页导出](IndependentAssetPages.md)
+4. **按资产状态决定是否重建。** 从 Release121 升到 122，若源网格、材质、烘焙资产和构建目标保持一致，可沿用原有有效的 SDF、charts 及资源页。稳定回退历史修复由运行时源码生效；本次更新本身不要求重烘或重新导出。缺少受支持来源指纹的旧 SDF、或源网格已经改变且校验失配的烘焙资产，需要在 `Tools > Hybrid Lumen GI` 中使用 `Bake Mesh Distance Field` 或 `Bake Surface Charts` 创建新资产并绑定回相应 Proxy。运行时修改可读网格后应通知来源版本，具体生效时机见下方链接。若变化的网格、材质或烘焙资产已导出为页，或构建目标变化，从作者源重新导出到新目录，将新 rig、manifest 和对应 bundles 配套交付。历史 120→121 的软件预算与折面定向修复同样可沿用匹配资产；97→98 仅修改换色交互脚本的说明只适用于该次升级，不代表其他版本的差异。[SDF 兼容入口与重烘焙](SdfAtlasResidency.md#source-validity-and-asset-migration) · [分页导出](IndependentAssetPages.md)
 5. **按原使用方式恢复运行。** 使用已有的场景和相机打开 GI。若导入后有 Missing Script、引用断开或 HLOD 一直等待，先核对第 2、4 步的引用与来源。使用可选计时或显存观察的工程只保留一份匹配的 Windows x64 DLL。旧计时 ABI 可继续提供计时，缺少显存导出的 DLL 会令该项观察显示不可用。替换 DLL 时按编辑器提示重启。需要回退时，关闭编辑器，将第 1 步的源码、元数据、场景、设置、烘焙资产及分页文件作为同一版本恢复，同时恢复原插件和导入设置，再打开工程。[原生插件安装](NativeGpuTiming.md#安装与选择)
 
 这些步骤覆盖源码已明确的兼容路径。各旧工程的自定义 Shader、修改过的 GUID 和已有资产需要在该工程内确认。

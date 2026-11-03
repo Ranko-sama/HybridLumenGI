@@ -4,11 +4,13 @@ Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与�
 
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release121](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release121-demo/HybridLumenGI-Release121-Windows-x64.zip)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release122](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release122-demo/HybridLumenGI-Release122-Windows-x64.zip)
 
-**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release121 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release121-demo/HybridLumenGI-Release121-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
+**在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release122 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release122-demo/HybridLumenGI-Release122-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
 
-**门运动画面按现有范围交付。** 保留 2 条射线、4 级滤波。沿用同一路线、同一曝光的第 149／179／189／209 帧，4 级滤波较 3 级明显减弱门面和地板云斑，所示时点没有明显加重旧门轮廓。回看现有图后，没有选出值得继续修改的一处新运动问题，因此本节点沿用 Release121。四张图不能判断帧间闪烁、很弱的拖尾时长或正确颜色的收敛时间。[同曝光门运动对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png) · [颜色、残留、拖影与收敛的适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md)
+**门运动画面按现有范围交付。** 保留 2 条射线、4 级滤波。沿用同一路线、同一曝光的第 149／179／189／209 帧，4 级滤波较 3 级明显减弱门面和地板云斑，所示时点没有明显加重旧门轮廓。回看现有图后，没有选出值得继续修改的一处新运动问题；Release122 保留这一已有取舍。四张图不能判断帧间闪烁、很弱的拖尾时长或正确颜色的收敛时间。[同曝光门运动对照](LocalComparison/Review/four-pass-local-quality-01/comparison.png) · [颜色、残留、拖影与收敛的适用范围](LocalComparison/Review/dynamic-picture-comparison-01/report.md)
+
+Release122 将稳定回退历史修复整合进普通运行包：材质页持续超预算、相机始终使用同一 SDF／解析路径时，静止接收面可以积累历史；实际追踪表示改变时重新起算。本版复用已有实际相机观察，没有新增门运动、颜色或性能结论。[修复与适用范围](LocalComparison/Review/stable-fallback-history-01/result.md) · [剩余任务与 Astra Max 审查](Documentation/RemainingWork.md)
 
 Release121 修复了精确软件追踪在大网格换小、预算降低后持续回退的问题。同一相机改用两个三角形后，在 1 MiB 预算下恢复了精确追踪，软件几何实际计账为 1,056 B。本版也整合了非均匀缩放下折面图卡的方向修复。[预算恢复与后端报告](LocalComparison/Review/software-budget-recovery-121/result.md) · [折面法线与材质查找](LocalComparison/Review/folded-chart-facing-01/result.md)
 
