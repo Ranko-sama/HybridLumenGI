@@ -98,6 +98,12 @@ def analyze(event_folder, control_folder, output):
     control, cvalues, ctimes, cinfo = read_lane(control_folder, "BlueFromStart")
     need(event["finalLogical"] == control["finalLogical"] and event["selection"] == control["selection"], "Work-frame/pixel pairing differs")
     need(event["baselineCamera"] == control["baselineCamera"], "Matched camera differs")
+    need(json.loads(event["settings"]) == json.loads(control["settings"]), "Full recorded settings differ")
+    source_fields = ("panelPosition", "panelCenter", "panelSize", "cameraPosition", "cameraRotation",
+                     "baseColor", "sharedEmission", "materialLayerMask", "panelLayer", "submeshes",
+                     "readable", "forceRenderingOff", "hasSdf", "hasCharts", "readMaterialProperties",
+                     "emissionKeyword", "materialGiFlags")
+    need(all(event[k] == control[k] for k in source_fields), "Recorded fixed source inputs differ")
     ev, cv = evalues[1:], cvalues[1:]
     need(ev.shape == cv.shape, "Missing paired source")
     emean, cmean = ev.mean(1), cv.mean(1)
@@ -136,7 +142,9 @@ def analyze(event_folder, control_folder, output):
         deadlines[str(deadline)] = dict(before=signal(before[-1]) if len(before) else None,
                                         after=signal(after[0]) if len(after) else None)
     state = "insufficient-control" if not control_ok else "satisfied-observed-recovery-window" if stable_windows else "not-observed-within-target"
-    result = dict(status=state, quantity="linear Final HDR radiance at the same27 white-floor pixels; product-history comparison",
+    result = dict(status=state, fullFrozenInputVerified=False,
+                  inputDescriptorDeviation="Frozen text called the wall white; retained executed source sets its MPB BaseColor to (.5,.25,.125,1). Adopt actual brown-wall/white-floor fixture metrics only; all-white-wall condition is unverified.",
+                  quantity="linear Final HDR radiance at the same27 white-floor pixels; product-history comparison",
                   physicalReference=False, controlSufficient=bool(control_ok), controlRelativeYRange=control_y_range,
                   controlMaxChromaL1FromFirst=control_chroma_range, firstObservedRecoveryWindow=stable_windows[0] if stable_windows else None,
                   residualDeadlineSamples=deadlines, cadence=dict(GreenToBlue=einfo, BlueFromStart=cinfo),
