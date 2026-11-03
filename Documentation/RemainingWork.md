@@ -20,6 +20,7 @@
 
 ## 用户已暂缓或已收束的工作
 
+- **原红墙反射率换蓝恢复：本项结束。** Floor独立控制合格，当前Runtime均值在1.142–1.654秒形成保持窗口，后续至2.612秒未越线；White控制波动9.03%超过冻结5%，其恢复不足，整体合同不能判通过。不延长前史、扩大ROI、改阈值或补采，G3仍开放。[结果](../LocalComparison/Review/reflected-color-response-01/result.md)
 - **归档119两ROI颜色观察：本项结束。** 当前122同源Runtime直接复用原归档物理输入及有限参考，名义满足既定亮度／色向／MAE目标，unknown与MC边界保留；仅关闭该当前Runtime样点，不扩大为普通三室、960×540／Player或完整G1，不补时点／后端／参考。[结果](../LocalComparison/Review/archived-runtime-color119-01/result.md)
 - **单页两源复用观察：本项结束。** 身份／代次、完整binding、独立覆盖和旧anchor清除子项符合预期；位置误差已测超过冻结2e−5，因此完整合同未通过。不是数据缺失，不自动补采或改阈值，整体T4仍开放。[结果](../LocalComparison/Review/card-page-reuse-01/result.md)
 - **CI 接线：暂缓。** 不自动配置远端执行机器、Unity 许可或工作流；条款保留未完成。

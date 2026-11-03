@@ -1,0 +1,4286 @@
+{
+  "status": "insufficient-control-stability",
+  "quantity": "filteredD=E_indirect/pi",
+  "scope": "Original reflected-color event/current122 Runtime, two original source ROIs, fixed door and five lights; same-work-frame product control, not physical truth/fullG3/Player/performance",
+  "roi": {
+    "Floor": {
+      "sourcePixels": 13330,
+      "fixedKnownBeforeEvent": 13328,
+      "unknownBeforeEvent": 2
+    },
+    "White receiver": {
+      "sourcePixels": 86,
+      "fixedKnownBeforeEvent": 86,
+      "unknownBeforeEvent": 0
+    }
+  },
+  "cadence": [
+    {
+      "sourceMeanHz": 29.312538812597655,
+      "medianGap": 0.0342216999999998,
+      "p95Gap": 0.03491940000000256,
+      "maxGap": 0.03520200000000173,
+      "qualified": true
+    },
+    {
+      "sourceMeanHz": 29.398774179427974,
+      "medianGap": 0.0340120000000006,
+      "p95Gap": 0.03479749999999911,
+      "maxGap": 0.035179899999999265,
+      "qualified": true
+    }
+  ],
+  "controlStability": {
+    "Floor": {
+      "meanYRangeOverMean": 0.018753500211937498,
+      "maxMeanColorDriftL1": 0.009213912822777781,
+      "qualified": true
+    },
+    "White receiver": {
+      "meanYRangeOverMean": 0.09031087184006095,
+      "maxMeanColorDriftL1": 0.025454905658215732,
+      "qualified": false
+    }
+  },
+  "regionDecision": {
+    "Floor": "finite-response-target-observed",
+    "White receiver": "insufficient-control-stability"
+  },
+  "jointWindow": {
+    "firstLogical": 153,
+    "lastLogical": 168,
+    "startSeconds": 1.1417104,
+    "endSeconds": 1.6544601000000005,
+    "durationSeconds": 0.5127497000000005,
+    "enteredByTwoSeconds": true,
+    "laterObservedBreach": false,
+    "controlQualified": false,
+    "sourceCadenceQualified": true,
+    "adoptable": false
+  },
+  "perRegionWindow": {
+    "Floor": {
+      "firstLogical": 153,
+      "lastLogical": 168,
+      "startSeconds": 1.1417104,
+      "endSeconds": 1.6544601000000005,
+      "durationSeconds": 0.5127497000000005,
+      "enteredByTwoSeconds": true,
+      "laterObservedBreach": false,
+      "controlQualified": true,
+      "sourceCadenceQualified": true,
+      "adoptable": true
+    },
+    "White receiver": {
+      "firstLogical": 152,
+      "lastLogical": 167,
+      "startSeconds": 1.1066509999999985,
+      "endSeconds": 1.6202688999999983,
+      "durationSeconds": 0.5136178999999998,
+      "enteredByTwoSeconds": true,
+      "laterObservedBreach": false,
+      "controlQualified": false,
+      "sourceCadenceQualified": true,
+      "adoptable": false
+    }
+  },
+  "windowMeaning": "Frame qualified/paired windows express relative difference criteria only; recovery adoption also requires the separately frozen control and cadence qualification. White is not adopted when its control is unstable.",
+  "selectedTimes": [
+    {
+      "logicalFrame": 178,
+      "sourceSeconds": 1.9964086000000014,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06848059467622498,
+            0.05618240796074289,
+            0.07714893322746579
+          ],
+          "controlMeanRGB": [
+            0.06951601365033318,
+            0.05660354046403718,
+            0.07824571707955644
+          ],
+          "eventMeanY": 0.06031078558071178,
+          "controlMeanY": 0.0609112974150842,
+          "relativeMeanY": -0.009858792372787391,
+          "meanChromaL1": 0.002835024796724317,
+          "pixelYMAE": 0.0008082917624447242,
+          "pixelYMaxAbs": 0.00428076171875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24737974654796513,
+            0.18246814816497092,
+            0.23814782430959303
+          ],
+          "controlMeanRGB": [
+            0.23603998228561046,
+            0.1825973155886628,
+            0.2490589230559593
+          ],
+          "eventMeanY": 0.20028842659883722,
+          "controlMeanY": 0.19875775458757267,
+          "relativeMeanY": 0.007701193920412003,
+          "meanChromaL1": 0.03363460921882755,
+          "pixelYMAE": 0.0019850881177325584,
+          "pixelYMaxAbs": 0.01155927734375
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 196,
+      "sourceSeconds": 2.611762999999999,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06918589006952879,
+            0.056296273010546995,
+            0.07785749950615012
+          ],
+          "controlMeanRGB": [
+            0.06917355412624034,
+            0.05659810921438888,
+            0.07792251937243404
+          ],
+          "eventMeanY": 0.060593326150269064,
+          "controlMeanY": 0.06081127121605936,
+          "relativeMeanY": -0.0035839583917913215,
+          "meanChromaL1": 0.001999903600706232,
+          "pixelYMAE": 0.00028170994269747693,
+          "pixelYMaxAbs": 0.001950286865234375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24846276571584303,
+            0.18461289516715115,
+            0.24306470294331395
+          ],
+          "controlMeanRGB": [
+            0.23755592523619187,
+            0.18299475381540697,
+            0.2491455078125
+          ],
+          "eventMeanY": 0.202407598167242,
+          "controlMeanY": 0.19937054329805595,
+          "relativeMeanY": 0.015233217600484183,
+          "meanChromaL1": 0.025500473093736875,
+          "pixelYMAE": 0.0030698730468749994,
+          "pixelYMaxAbs": 0.005456274414062501
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    }
+  ],
+  "allLaterObservedDifferencesWithinTargets": true,
+  "frames": [
+    {
+      "logicalFrame": 120,
+      "sourceSeconds": 0.01901589999999942,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.09747873606229601,
+            0.05628914277808291,
+            0.055687646762806686
+          ],
+          "controlMeanRGB": [
+            0.07110179200464366,
+            0.05719639616710942,
+            0.07875643600793589
+          ],
+          "eventMeanY": 0.06500262229800367,
+          "controlMeanY": 0.061709318198676866,
+          "relativeMeanY": 0.05336801953837533,
+          "meanChromaL1": 0.24398958506039037,
+          "pixelYMAE": 0.0040535774497711076,
+          "pixelYMaxAbs": 0.04359333496093751
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.30937443223110467,
+            0.16485879587572674,
+            0.17998273982558138
+          ],
+          "controlMeanRGB": [
+            0.2294155386991279,
+            0.17881881359011628,
+            0.24560262990552326
+          ],
+          "eventMeanY": 0.19667476891805963,
+          "controlMeanY": 0.19439746888626452,
+          "relativeMeanY": 0.011714658862803798,
+          "meanChromaL1": 0.24403536612213828,
+          "pixelYMAE": 0.007005214957303777,
+          "pixelYMaxAbs": 0.08459545898437501
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 121,
+      "sourceSeconds": 0.05267529999999887,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.0815846619485807,
+            0.053784286847063045,
+            0.06031577469778805
+          ],
+          "controlMeanRGB": [
+            0.07099159739884724,
+            0.05709392483494863,
+            0.07866469150831719
+          ],
+          "eventMeanY": 0.06016622001646804,
+          "controlMeanY": 0.06160597937585068,
+          "relativeMeanY": -0.023370448355326704,
+          "meanChromaL1": 0.14709998530143298,
+          "pixelYMAE": 0.0028828869306168205,
+          "pixelYMaxAbs": 0.03352094116210937
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.3011786882267442,
+            0.17403819949127908,
+            0.1852970566860465
+          ],
+          "controlMeanRGB": [
+            0.23124801280886628,
+            0.18033191769622092,
+            0.24360550281613372
+          ],
+          "eventMeanY": 0.20188115688590116,
+          "controlMeanY": 0.19572503236282704,
+          "relativeMeanY": 0.03145292377145788,
+          "meanChromaL1": 0.20605159195515088,
+          "pixelYMAE": 0.008173821311773254,
+          "pixelYMaxAbs": 0.03713369140625
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 122,
+      "sourceSeconds": 0.08649859999999876,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.06962947227230736,
+            0.049820873631434996,
+            0.06063509273643539
+          ],
+          "controlMeanRGB": [
+            0.07109553759553137,
+            0.0571565593705744,
+            0.07869761273497436
+          ],
+          "eventMeanY": 0.05481296832186549,
+          "controlMeanY": 0.06167525019410993,
+          "relativeMeanY": -0.11126475937506287,
+          "meanChromaL1": 0.08714456649341296,
+          "pixelYMAE": 0.007014690473929745,
+          "pixelYMaxAbs": 0.024102880859375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2874940384265988,
+            0.17069120185319767,
+            0.18269667514534885
+          ],
+          "controlMeanRGB": [
+            0.23262343295784885,
+            0.18134396575218023,
+            0.24290998591933138
+          ],
+          "eventMeanY": 0.19639028008039605,
+          "controlMeanY": 0.1966910471361737,
+          "relativeMeanY": -0.0015291344479416594,
+          "meanChromaL1": 0.18891207070470928,
+          "pixelYMAE": 0.007608345067223836,
+          "pixelYMaxAbs": 0.028714550781249997
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 123,
+      "sourceSeconds": 0.12029319999999899,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.06627390679477357,
+            0.04978713325234879,
+            0.0622650621031799
+          ],
+          "controlMeanRGB": [
+            0.07136358419100063,
+            0.057287684437178195,
+            0.07873630294708216
+          ],
+          "eventMeanY": 0.054193127770498305,
+          "controlMeanY": 0.061828810981255915,
+          "relativeMeanY": -0.12349717048695068,
+          "meanChromaL1": 0.060987461778555685,
+          "pixelYMAE": 0.007700007693907794,
+          "pixelYMaxAbs": 0.0250521484375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2594945153524709,
+            0.15857927189316862,
+            0.1799770621366279
+          ],
+          "controlMeanRGB": [
+            0.2290862327398256,
+            0.17829220793968023,
+            0.2391201285428779
+          ],
+          "eventMeanY": 0.18157877310819404,
+          "controlMeanY": 0.19348279347974198,
+          "relativeMeanY": -0.0615249560824349,
+          "meanChromaL1": 0.1591024979737738,
+          "pixelYMAE": 0.016635903433866277,
+          "pixelYMaxAbs": 0.055678564453124996
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 124,
+      "sourceSeconds": 0.15455699999999872,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.06344597909201523,
+            0.04957031946079213,
+            0.06366108474181909
+          ],
+          "controlMeanRGB": [
+            0.0713045846085016,
+            0.05726265077258931,
+            0.07881618776813704
+          ],
+          "eventMeanY": 0.0535376379516803,
+          "controlMeanY": 0.0618041312771828,
+          "relativeMeanY": -0.13375308664122215,
+          "meanChromaL1": 0.039453325293744956,
+          "pixelYMAE": 0.00829095887588281,
+          "pixelYMaxAbs": 0.02589443359375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2651707848837209,
+            0.1655074718386628,
+            0.19100881177325582
+          ],
+          "controlMeanRGB": [
+            0.23054823764534885,
+            0.17923754315043605,
+            0.2405807140261628
+          ],
+          "eventMeanY": 0.18853708893531976,
+          "controlMeanY": 0.194575173737282,
+          "relativeMeanY": -0.031032143957455478,
+          "meanChromaL1": 0.1440889198450251,
+          "pixelYMAE": 0.0160596072174782,
+          "pixelYMaxAbs": 0.06594465332031249
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 125,
+      "sourceSeconds": 0.18909909999999996,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.061037184954548226,
+            0.04909878761685338,
+            0.06426383953850094
+          ],
+          "controlMeanRGB": [
+            0.0710147798132925,
+            0.05708800129243592,
+            0.0787291521070098
+          ],
+          "eventMeanY": 0.052731807639590254,
+          "controlMeanY": 0.06161132549478226,
+          "relativeMeanY": -0.14412151960509262,
+          "meanChromaL1": 0.024314806534242173,
+          "pixelYMAE": 0.008891297737432986,
+          "pixelYMaxAbs": 0.0304082763671875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2681785406068314,
+            0.17193319631177326,
+            0.19686960619549418
+          ],
+          "controlMeanRGB": [
+            0.23455100835755813,
+            0.1821686500726744,
+            0.24180993368459303
+          ],
+          "eventMeanY": 0.19419536530250725,
+          "controlMeanY": 0.1976112401208212,
+          "relativeMeanY": -0.017285832608638366,
+          "meanChromaL1": 0.12968183485067963,
+          "pixelYMAE": 0.014872958870821221,
+          "pixelYMaxAbs": 0.153585205078125
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 126,
+      "sourceSeconds": 0.22267549999999936,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.06000579705759257,
+            0.049110203086972094,
+            0.06469006097617269
+          ],
+          "controlMeanRGB": [
+            0.0709807978672426,
+            0.05705920330473498,
+            0.0786962967102124
+          ],
+          "eventMeanY": 0.05255147210472629,
+          "controlMeanY": 0.06158113245259957,
+          "relativeMeanY": -0.14663030685289233,
+          "meanChromaL1": 0.016926942946468404,
+          "pixelYMAE": 0.009045828366594441,
+          "pixelYMaxAbs": 0.028265209960937496
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.258006960846657,
+            0.16351034474927326,
+            0.1956389671148256
+          ],
+          "controlMeanRGB": [
+            0.23175758539244187,
+            0.17966336982194767,
+            0.23983125908430233
+          ],
+          "eventMeanY": 0.18592001186636992,
+          "controlMeanY": 0.19508272165697674,
+          "relativeMeanY": -0.04696833073058131,
+          "meanChromaL1": 0.12438636547616522,
+          "pixelYMAE": 0.012824808945766712,
+          "pixelYMaxAbs": 0.13721262207031248
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 127,
+      "sourceSeconds": 0.25748509999999847,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.058889434832771,
+            0.04898738746597272,
+            0.06490023224866118
+          ],
+          "controlMeanRGB": [
+            0.07087091695503885,
+            0.05695199794700595,
+            0.07866919026369093
+          ],
+          "eventMeanY": 0.05224147012946414,
+          "controlMeanY": 0.061479141413378395,
+          "relativeMeanY": -0.15025699890311187,
+          "meanChromaL1": 0.015444659244637116,
+          "pixelYMAE": 0.009257380843305645,
+          "pixelYMaxAbs": 0.031091748046875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.26005092886991277,
+            0.16578283975290697,
+            0.19399669558502908
+          ],
+          "controlMeanRGB": [
+            0.23408685728561046,
+            0.18153132948764536,
+            0.2404841933139535
+          ],
+          "eventMeanY": 0.1878612758902616,
+          "controlMeanY": 0.19696103146575217,
+          "relativeMeanY": -0.04620079163767395,
+          "meanChromaL1": 0.12553533421561192,
+          "pixelYMAE": 0.010885493788608286,
+          "pixelYMaxAbs": 0.127650048828125
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 128,
+      "sourceSeconds": 0.29080379999999906,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.058848236789222526,
+            0.04923340796279449,
+            0.06536026046771247
+          ],
+          "controlMeanRGB": [
+            0.07116186547250736,
+            0.05712458323173019,
+            0.07882035336717695
+          ],
+          "eventMeanY": 0.05244187932214817,
+          "controlMeanY": 0.06167534403989867,
+          "relativeMeanY": -0.14971079385916736,
+          "meanChromaL1": 0.016078457784629407,
+          "pixelYMAE": 0.00924358429353492,
+          "pixelYMaxAbs": 0.0321158203125
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2596279410428779,
+            0.16645280704941862,
+            0.19884260310683138
+          ],
+          "controlMeanRGB": [
+            0.23580861646075582,
+            0.18236453034156977,
+            0.24376163926235464
+          ],
+          "eventMeanY": 0.18860038381177324,
+          "controlMeanY": 0.1981596143145894,
+          "relativeMeanY": -0.048240054038661696,
+          "meanChromaL1": 0.11842838712191206,
+          "pixelYMAE": 0.010217011775526887,
+          "pixelYMaxAbs": 0.1191440673828125
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 129,
+      "sourceSeconds": 0.3246582999999985,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.058153621861342195,
+            0.049186711122437256,
+            0.06558450730908819
+          ],
+          "controlMeanRGB": [
+            0.0710514018229362,
+            0.057057469975905405,
+            0.0788832174486616
+          ],
+          "eventMeanY": 0.052276997230204646,
+          "controlMeanY": 0.061608398854117154,
+          "relativeMeanY": -0.15146314134876937,
+          "meanChromaL1": 0.01757867604384966,
+          "pixelYMAE": 0.009339654142143917,
+          "pixelYMaxAbs": 0.0299438720703125
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.26165345657703487,
+            0.1695556640625,
+            0.20445357921511628
+          ],
+          "controlMeanRGB": [
+            0.2380626589752907,
+            0.18414164698401161,
+            0.24643157249273256
+          ],
+          "eventMeanY": 0.191655284225109,
+          "controlMeanY": 0.2001025867550872,
+          "relativeMeanY": -0.042214859222770316,
+          "meanChromaL1": 0.11116160851142898,
+          "pixelYMAE": 0.009122326376271802,
+          "pixelYMaxAbs": 0.108936376953125
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 130,
+      "sourceSeconds": 0.3575754999999985,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.057337607513098014,
+            0.04897507098542542,
+            0.06552664457964583
+          ],
+          "controlMeanRGB": [
+            0.07094607061269331,
+            0.056931726929663466,
+            0.07873461026103556
+          ],
+          "eventMeanY": 0.05194796986471132,
+          "controlMeanY": 0.06148534457320067,
+          "relativeMeanY": -0.1551162276912141,
+          "meanChromaL1": 0.01941540559082816,
+          "pixelYMAE": 0.009550870955376779,
+          "pixelYMaxAbs": 0.0342377685546875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.26057185683139533,
+            0.16960250499636628,
+            0.20042525890261628
+          ],
+          "controlMeanRGB": [
+            0.23853958484738372,
+            0.18405080396075582,
+            0.24282624000726744
+          ],
+          "eventMeanY": 0.1911679920285247,
+          "controlMeanY": 0.19987870525981105,
+          "relativeMeanY": -0.043579996278061715,
+          "meanChromaL1": 0.10946256830042544,
+          "pixelYMAE": 0.009206717841569767,
+          "pixelYMaxAbs": 0.113260009765625
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 131,
+      "sourceSeconds": 0.3905389999999995,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05670971086188382,
+            0.04880647327290291,
+            0.06562654396780684
+          ],
+          "controlMeanRGB": [
+            0.07073788339493513,
+            0.056788320873393305,
+            0.07874190649923299
+          ],
+          "eventMeanY": 0.05170111068849231,
+          "controlMeanY": 0.06133904674765872,
+          "relativeMeanY": -0.15712562503319769,
+          "meanChromaL1": 0.02316456170401976,
+          "pixelYMAE": 0.00965368537204463,
+          "pixelYMaxAbs": 0.034182641601562494
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.23607262899709303,
+            0.1529328102289244,
+            0.19464962981468023
+          ],
+          "controlMeanRGB": [
+            0.2319747569949128,
+            0.17851079896438954,
+            0.2367766624273256
+          ],
+          "eventMeanY": 0.17362029007312862,
+          "controlMeanY": 0.1940840317837028,
+          "relativeMeanY": -0.10543753405421837,
+          "meanChromaL1": 0.09215812729383005,
+          "pixelYMAE": 0.020463741710574124,
+          "pixelYMaxAbs": 0.103385888671875
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 132,
+      "sourceSeconds": 0.42397119999999955,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.0567211080141285,
+            0.04904555244033649,
+            0.06577737048035767
+          ],
+          "controlMeanRGB": [
+            0.07091180016012753,
+            0.056924764992666986,
+            0.0788279873411767
+          ],
+          "eventMeanY": 0.0518854128178142,
+          "controlMeanY": 0.061479821322831495,
+          "relativeMeanY": -0.15605784627507147,
+          "meanChromaL1": 0.024949382690128807,
+          "pixelYMAE": 0.009616323755568817,
+          "pixelYMaxAbs": 0.03426748046875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2382415061773256,
+            0.15527201807776161,
+            0.19412160474200582
+          ],
+          "controlMeanRGB": [
+            0.23319262127543605,
+            0.17875777843386628,
+            0.23465746502543605
+          ],
+          "eventMeanY": 0.17571627140488733,
+          "controlMeanY": 0.19436658339389534,
+          "relativeMeanY": -0.09595431304779413,
+          "meanChromaL1": 0.0895685348171803,
+          "pixelYMAE": 0.018650311989007993,
+          "pixelYMaxAbs": 0.09048525390625001
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 133,
+      "sourceSeconds": 0.4581818000000011,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.056744770127899795,
+            0.04923126591640074,
+            0.06603559697804903
+          ],
+          "controlMeanRGB": [
+            0.07103532903334674,
+            0.05702576860517156,
+            0.07901179919294378
+          ],
+          "eventMeanY": 0.05204190961441644,
+          "controlMeanY": 0.06159159256063876,
+          "relativeMeanY": -0.15504848225543724,
+          "meanChromaL1": 0.026311783841460823,
+          "pixelYMAE": 0.009579167834278488,
+          "pixelYMaxAbs": 0.0342625
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.23737565861191862,
+            0.15542247683502908,
+            0.1952713367550872
+          ],
+          "controlMeanRGB": [
+            0.2318881722383721,
+            0.1777145030886628,
+            0.23425009084302326
+          ],
+          "eventMeanY": 0.175722810967024,
+          "controlMeanY": 0.1933136945857558,
+          "relativeMeanY": -0.09099657246956362,
+          "meanChromaL1": 0.0869905319648761,
+          "pixelYMAE": 0.01759088361873183,
+          "pixelYMaxAbs": 0.08341376953125
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 134,
+      "sourceSeconds": 0.49245800000000184,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05658255161500635,
+            0.0493140638518591,
+            0.06639846604840667
+          ],
+          "controlMeanRGB": [
+            0.0708696118065146,
+            0.05697079666522371,
+            0.07898512722349682
+          ],
+          "eventMeanY": 0.05209283818889494,
+          "controlMeanY": 0.06151511943056947,
+          "relativeMeanY": -0.15317016903964917,
+          "meanChromaL1": 0.028498311958436606,
+          "pixelYMAE": 0.009460538399090715,
+          "pixelYMaxAbs": 0.03482646484375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.23545092205668605,
+            0.15619180368822674,
+            0.19530540288880813
+          ],
+          "controlMeanRGB": [
+            0.23150208938953487,
+            0.17772018077761628,
+            0.23467023982558138
+          ],
+          "eventMeanY": 0.17586629411564317,
+          "controlMeanY": 0.19326600881177325,
+          "relativeMeanY": -0.09002987541940762,
+          "meanChromaL1": 0.08321807991053509,
+          "pixelYMAE": 0.017399714696130084,
+          "pixelYMaxAbs": 0.0764216064453125
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 135,
+      "sourceSeconds": 0.5260588000000004,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05652145692566577,
+            0.049479368926525685,
+            0.06644619555891204
+          ],
+          "controlMeanRGB": [
+            0.07092953071731622,
+            0.05702459397149973,
+            0.078825881930531
+          ],
+          "eventMeanY": 0.05220152171800116,
+          "controlMeanY": 0.06155483651430238,
+          "relativeMeanY": -0.15195093230615536,
+          "meanChromaL1": 0.030516011430852863,
+          "pixelYMAE": 0.009394147940471964,
+          "pixelYMaxAbs": 0.03363291015625
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2249202284702035,
+            0.15249420875726744,
+            0.19822799327761628
+          ],
+          "controlMeanRGB": [
+            0.23036087390988372,
+            0.17742777979651161,
+            0.23560280023619187
+          ],
+          "eventMeanY": 0.1711939597906068,
+          "controlMeanY": 0.19288159208075945,
+          "relativeMeanY": -0.11244013519481959,
+          "meanChromaL1": 0.0653750278876204,
+          "pixelYMAE": 0.021687632290152612,
+          "pixelYMaxAbs": 0.0707098876953125
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 136,
+      "sourceSeconds": 0.5603022000000015,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05651595812885701,
+            0.049676043360459415,
+            0.06667418153632303
+          ],
+          "controlMeanRGB": [
+            0.07081724672901388,
+            0.05697848444797841,
+            0.07875395679817337
+          ],
+          "eventMeanY": 0.0523574748165181,
+          "controlMeanY": 0.06149279441261062,
+          "relativeMeanY": -0.1485591878423255,
+          "meanChromaL1": 0.031846875987963374,
+          "pixelYMAE": 0.009186669046166135,
+          "pixelYMaxAbs": 0.0324418701171875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.22271302688953487,
+            0.1522309059320494,
+            0.19763041651526161
+          ],
+          "controlMeanRGB": [
+            0.23160570721293605,
+            0.17853918740915697,
+            0.2357532589934593
+          ],
+          "eventMeanY": 0.17049324951171874,
+          "controlMeanY": 0.19395198548782702,
+          "relativeMeanY": -0.1209512545958475,
+          "meanChromaL1": 0.060777148128612624,
+          "pixelYMAE": 0.023458735976108282,
+          "pixelYMaxAbs": 0.06703493652343749
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 137,
+      "sourceSeconds": 0.5937992999999997,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.056469221218150345,
+            0.04989123487529778,
+            0.06695369111389673
+          ],
+          "controlMeanRGB": [
+            0.07075878637893146,
+            0.05695436095275513,
+            0.07876909079671908
+          ],
+          "eventMeanY": 0.05252162411221509,
+          "controlMeanY": 0.06146420529309441,
+          "relativeMeanY": -0.1454925047551869,
+          "meanChromaL1": 0.03373400737269461,
+          "pixelYMAE": 0.009010919772877412,
+          "pixelYMaxAbs": 0.031381787109374996
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.22312749818313954,
+            0.15341825263444767,
+            0.19863678688226744
+          ],
+          "controlMeanRGB": [
+            0.23231683775436046,
+            0.1787875863008721,
+            0.23702648074127908
+          ],
+          "eventMeanY": 0.17150321641079214,
+          "controlMeanY": 0.1943727533384811,
+          "relativeMeanY": -0.11765814155991255,
+          "meanChromaL1": 0.0589668901178651,
+          "pixelYMAE": 0.02286953692768895,
+          "pixelYMaxAbs": 0.0644595458984375
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 138,
+      "sourceSeconds": 0.6271593000000015,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.0567456505307201,
+            0.050208537089152065,
+            0.06738737994740132
+          ],
+          "controlMeanRGB": [
+            0.07083374998864292,
+            0.05702425509083028,
+            0.07874636403939017
+          ],
+          "eventMeanY": 0.052838639861195025,
+          "controlMeanY": 0.061528489972191264,
+          "relativeMeanY": -0.14123294940154957,
+          "meanChromaL1": 0.03472361890933895,
+          "pixelYMAE": 0.008767554031843755,
+          "pixelYMaxAbs": 0.030894555664062497
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2144377952398256,
+            0.14925437749818313,
+            0.19747144122456395
+          ],
+          "controlMeanRGB": [
+            0.23074411791424418,
+            0.1776889534883721,
+            0.2360016578851744
+          ],
+          "eventMeanY": 0.166593644111101,
+          "controlMeanY": 0.19317865870276163,
+          "relativeMeanY": -0.1376187968701357,
+          "meanChromaL1": 0.04814799352758331,
+          "pixelYMAE": 0.026585014591660606,
+          "pixelYMaxAbs": 0.066221142578125
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 139,
+      "sourceSeconds": 0.6618872999999992,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05679122769102758,
+            0.05055596762630834,
+            0.0678306066689371
+          ],
+          "controlMeanRGB": [
+            0.07080349344022277,
+            0.05706076032402707,
+            0.07875417489536098
+          ],
+          "eventMeanY": 0.053128812854945445,
+          "controlMeanY": 0.061548729916580586,
+          "relativeMeanY": -0.13680082550926698,
+          "meanChromaL1": 0.03697122949126247,
+          "pixelYMAE": 0.008515480812113969,
+          "pixelYMaxAbs": 0.029160327148437498
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.20860680868459303,
+            0.14538432276526161,
+            0.1980647597202035
+          ],
+          "controlMeanRGB": [
+            0.2276398414789244,
+            0.1758366074672965,
+            0.23603998228561046
+          ],
+          "eventMeanY": 0.1626289508198583,
+          "controlMeanY": 0.19119665868005087,
+          "relativeMeanY": -0.1494153091241928,
+          "meanChromaL1": 0.04383284109355928,
+          "pixelYMAE": 0.028567707860192585,
+          "pixelYMaxAbs": 0.06038837890625
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 140,
+      "sourceSeconds": 0.6957727000000018,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05670505468728019,
+            0.0507206075331744,
+            0.06807269683691347
+          ],
+          "controlMeanRGB": [
+            0.0706882144795174,
+            0.05701704242793309,
+            0.07872791450564601
+          ],
+          "eventMeanY": 0.053245721845867254,
+          "controlMeanY": 0.061491058570110786,
+          "relativeMeanY": -0.13409001106790797,
+          "meanChromaL1": 0.038635761323790485,
+          "pixelYMAE": 0.008343735544678686,
+          "pixelYMaxAbs": 0.028448046874999997
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2099211936773256,
+            0.14737577216569767,
+            0.2010852902434593
+          ],
+          "controlMeanRGB": [
+            0.22795211437136628,
+            0.1767180686773256,
+            0.23786393986191862
+          ],
+          "eventMeanY": 0.16455075598428415,
+          "controlMeanY": 0.19202515869140624,
+          "relativeMeanY": -0.14307709934652257,
+          "meanChromaL1": 0.04234974915916939,
+          "pixelYMAE": 0.027474402707122092,
+          "pixelYMaxAbs": 0.055302734375
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 141,
+      "sourceSeconds": 0.7302226000000003,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05690137077780331,
+            0.05093174163891631,
+            0.06844794134847543
+          ],
+          "controlMeanRGB": [
+            0.07081430327563154,
+            0.05709740179641192,
+            0.07865283526435476
+          ],
+          "eventMeanY": 0.05346555441287386,
+          "controlMeanY": 0.061569917347279485,
+          "relativeMeanY": -0.1316286148102767,
+          "meanChromaL1": 0.04006295520664921,
+          "pixelYMAE": 0.008223716634519103,
+          "pixelYMaxAbs": 0.0274969482421875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.21088072311046513,
+            0.14926502316497092,
+            0.20369702716206395
+          ],
+          "controlMeanRGB": [
+            0.22844039562136628,
+            0.17726312681686046,
+            0.23921381041061046
+          ],
+          "eventMeanY": 0.16629451166197312,
+          "controlMeanY": 0.19261625352016715,
+          "relativeMeanY": -0.1366537941484679,
+          "meanChromaL1": 0.039579397351079126,
+          "pixelYMAE": 0.02632174185819404,
+          "pixelYMaxAbs": 0.052203222656250006
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 142,
+      "sourceSeconds": 0.764787300000001,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05683985134275878,
+            0.05094301858011271,
+            0.06873491088024565
+          ],
+          "controlMeanRGB": [
+            0.07069145674321975,
+            0.057035565233173345,
+            0.07859486835200388
+          ],
+          "eventMeanY": 0.05348125984952086,
+          "controlMeanY": 0.061495389453388775,
+          "relativeMeanY": -0.13032082039162185,
+          "meanChromaL1": 0.04124130522563063,
+          "pixelYMAE": 0.008129927476514287,
+          "pixelYMaxAbs": 0.026957861328125
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2107756858648256,
+            0.14935586618822674,
+            0.2049716683321221
+          ],
+          "controlMeanRGB": [
+            0.22627009901889536,
+            0.17570744004360464,
+            0.23982983966206395
+          ],
+          "eventMeanY": 0.1664291807662609,
+          "controlMeanY": 0.19108669859420424,
+          "relativeMeanY": -0.12903837896276898,
+          "meanChromaL1": 0.040869511719631435,
+          "pixelYMAE": 0.02465751782794331,
+          "pixelYMaxAbs": 0.0488145263671875
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 143,
+      "sourceSeconds": 0.7991863999999991,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05639046924311717,
+            0.05079420417153678,
+            0.06893475258908495
+          ],
+          "controlMeanRGB": [
+            0.07049995596383085,
+            0.05689116543223735,
+            0.07851527833423408
+          ],
+          "eventMeanY": 0.053293717721501745,
+          "controlMeanY": 0.06134565525077829,
+          "relativeMeanY": -0.13125522086870844,
+          "meanChromaL1": 0.0444104721048843,
+          "pixelYMAE": 0.008151503868492282,
+          "pixelYMaxAbs": 0.026930444335937498
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.21058122501816862,
+            0.149017333984375,
+            0.20752095067223839
+          ],
+          "controlMeanRGB": [
+            0.22598905341569767,
+            0.1753951671511628,
+            0.24121803461119187
+          ],
+          "eventMeanY": 0.16632977834302323,
+          "controlMeanY": 0.190903838401617,
+          "relativeMeanY": -0.1287248085965443,
+          "meanChromaL1": 0.03927845804940583,
+          "pixelYMAE": 0.02457406005859375,
+          "pixelYMaxAbs": 0.060759375
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 144,
+      "sourceSeconds": 0.8338674000000017,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05658891478649565,
+            0.05101316687868995,
+            0.06918040501112555
+          ],
+          "controlMeanRGB": [
+            0.07066736301454175,
+            0.05698452247720377,
+            0.07845314067094122
+          ],
+          "eventMeanY": 0.05351024547705129,
+          "controlMeanY": 0.06144352860902967,
+          "relativeMeanY": -0.12911503150247972,
+          "meanChromaL1": 0.045531775365742155,
+          "pixelYMAE": 0.008024501214823086,
+          "pixelYMaxAbs": 0.026024609374999997
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.21025617732558138,
+            0.14890378020530523,
+            0.20948968931686046
+          ],
+          "controlMeanRGB": [
+            0.2244418831758721,
+            0.1744228629178779,
+            0.24137133221293605
+          ],
+          "eventMeanY": 0.16632160247093022,
+          "controlMeanY": 0.18989058610783063,
+          "relativeMeanY": -0.12411875764876835,
+          "meanChromaL1": 0.03837060139242904,
+          "pixelYMAE": 0.02356898363690043,
+          "pixelYMaxAbs": 0.0568146728515625
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 145,
+      "sourceSeconds": 0.8671901000000011,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.056424268010426826,
+            0.051022416260205254,
+            0.06946856291497312
+          ],
+          "controlMeanRGB": [
+            0.07051974041264455,
+            0.05694272795788237,
+            0.07853862904414696
+          ],
+          "eventMeanY": 0.0535026617307766,
+          "controlMeanY": 0.06138842486419312,
+          "relativeMeanY": -0.1284568410227472,
+          "meanChromaL1": 0.04678624629710837,
+          "pixelYMAE": 0.00798207983049024,
+          "pixelYMaxAbs": 0.026213720703125002
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2117508289425872,
+            0.15043746593386628,
+            0.21069193995276161
+          ],
+          "controlMeanRGB": [
+            0.22402883130450582,
+            0.17446686500726744,
+            0.24074678642805233
+          ],
+          "eventMeanY": 0.1678230599336846,
+          "controlMeanY": 0.18978914936864097,
+          "relativeMeanY": -0.11573943772881384,
+          "meanChromaL1": 0.0383301818198431,
+          "pixelYMAE": 0.021966089434956395,
+          "pixelYMaxAbs": 0.052059057617187494
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 146,
+      "sourceSeconds": 0.9005906000000001,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05660516617535686,
+            0.05125778147868034,
+            0.0696471850840556
+          ],
+          "controlMeanRGB": [
+            0.07062938090275173,
+            0.05706571072948222,
+            0.0785713573606933
+          ],
+          "eventMeanY": 0.05372235040550186,
+          "controlMeanY": 0.061502054695092755,
+          "relativeMeanY": -0.12649503058328934,
+          "meanChromaL1": 0.04706806703030442,
+          "pixelYMAE": 0.007861506499534323,
+          "pixelYMaxAbs": 0.0282668212890625
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2134456190952035,
+            0.15227419831031977,
+            0.2091476085574128
+          ],
+          "controlMeanRGB": [
+            0.22636945857558138,
+            0.17639444040697674,
+            0.24128332803415697
+          ],
+          "eventMeanY": 0.16938550258902618,
+          "controlMeanY": 0.1917041069563045,
+          "relativeMeanY": -0.11642215037346819,
+          "meanChromaL1": 0.03963156883991853,
+          "pixelYMAE": 0.022318604367278342,
+          "pixelYMaxAbs": 0.049019140625
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 147,
+      "sourceSeconds": 0.9349926000000002,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.056496248096406534,
+            0.051354044196413914,
+            0.06979622102442051
+          ],
+          "controlMeanRGB": [
+            0.0704961962201873,
+            0.05701301936485043,
+            0.07861774852152775
+          ],
+          "eventMeanY": 0.05377880191253442,
+          "controlMeanY": 0.06143940420940715,
+          "relativeMeanY": -0.12468549126490057,
+          "meanChromaL1": 0.04795508634125217,
+          "pixelYMAE": 0.007732837139143378,
+          "pixelYMaxAbs": 0.030638818359375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.21063232421875,
+            0.1500698355741279,
+            0.20662813408430233
+          ],
+          "controlMeanRGB": [
+            0.22504371820494187,
+            0.17511837981468023,
+            0.2390079941860465
+          ],
+          "eventMeanY": 0.16702892981240916,
+          "controlMeanY": 0.1903453369140625,
+          "relativeMeanY": -0.12249528924462319,
+          "meanChromaL1": 0.03836386651617241,
+          "pixelYMAE": 0.02331640710165334,
+          "pixelYMaxAbs": 0.048870849609374996
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 148,
+      "sourceSeconds": 0.9686416000000007,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.056350073751424395,
+            0.051430358749334694,
+            0.07004138344333094
+          ],
+          "controlMeanRGB": [
+            0.0703870125320636,
+            0.056980334553254894,
+            0.07871889352512246
+          ],
+          "eventMeanY": 0.05382000614168549,
+          "controlMeanY": 0.06140011824931846,
+          "relativeMeanY": -0.12345435682800342,
+          "meanChromaL1": 0.04930175249181162,
+          "pixelYMAE": 0.007644245458879963,
+          "pixelYMaxAbs": 0.02927177734375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.21149107467296513,
+            0.15142112554505813,
+            0.20745423782703487
+          ],
+          "controlMeanRGB": [
+            0.22509765625,
+            0.17533129315043605,
+            0.23849416333575582
+          ],
+          "eventMeanY": 0.16823758743640985,
+          "controlMeanY": 0.1904719811727834,
+          "relativeMeanY": -0.11673314678343169,
+          "meanChromaL1": 0.03698140492417007,
+          "pixelYMAE": 0.022234393736373544,
+          "pixelYMaxAbs": 0.0896529052734375
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 149,
+      "sourceSeconds": 1.0030485000000011,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05644108610851567,
+            0.05154089452553482,
+            0.07035556474939829
+          ],
+          "controlMeanRGB": [
+            0.07051817995875108,
+            0.057070554662294604,
+            0.07893031442007956
+          ],
+          "eventMeanY": 0.05394109444623949,
+          "controlMeanY": 0.06150779445483333,
+          "relativeMeanY": -0.12302018103006845,
+          "meanChromaL1": 0.049952602993570905,
+          "pixelYMAE": 0.007611121274185638,
+          "pixelYMaxAbs": 0.0311578125
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.21155920694040697,
+            0.15110033611918605,
+            0.20805465343386628
+          ],
+          "controlMeanRGB": [
+            0.22583717523619187,
+            0.17545762172965115,
+            0.23775464434956395
+          ],
+          "eventMeanY": 0.16806599376589754,
+          "controlMeanY": 0.19066615983829943,
+          "relativeMeanY": -0.11853265462297397,
+          "meanChromaL1": 0.0345931377434166,
+          "pixelYMAE": 0.022600166072401888,
+          "pixelYMaxAbs": 0.08327646484375
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 150,
+      "sourceSeconds": 1.0372854999999985,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05622442687402109,
+            0.05145088736178065,
+            0.07022389701577653
+          ],
+          "controlMeanRGB": [
+            0.07035362477205237,
+            0.056985738326092154,
+            0.07877924920273285
+          ],
+          "eventMeanY": 0.053821153159101465,
+          "controlMeanY": 0.06140124246979675,
+          "relativeMeanY": -0.12345172517354075,
+          "meanChromaL1": 0.050558795273619284,
+          "pixelYMAE": 0.0076065168622304275,
+          "pixelYMaxAbs": 0.029338378906249997
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.21613684365915697,
+            0.15475676780523256,
+            0.2144718613735465
+          ],
+          "controlMeanRGB": [
+            0.23034242142078487,
+            0.17919779932776161,
+            0.24293127725290697
+          ],
+          "eventMeanY": 0.17211760168740914,
+          "controlMeanY": 0.19467270309093385,
+          "relativeMeanY": -0.11586165417854687,
+          "meanChromaL1": 0.03240677748809129,
+          "pixelYMAE": 0.022555101403524708,
+          "pixelYMaxAbs": 0.118252490234375
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 151,
+      "sourceSeconds": 1.0718433000000003,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.05722543228717268,
+            0.051825403165416555,
+            0.07078808753573451
+          ],
+          "controlMeanRGB": [
+            0.0702668358297909,
+            0.056927421084400555,
+            0.07875534094252935
+          ],
+          "eventMeanY": 0.05434255516823887,
+          "controlMeanY": 0.06133935647302745,
+          "relativeMeanY": -0.11406708037221193,
+          "meanChromaL1": 0.04596160521668208,
+          "pixelYMAE": 0.007028913685797501,
+          "pixelYMaxAbs": 0.027154345703125003
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.2185924441315407,
+            0.1568802234738372,
+            0.2150680187136628
+          ],
+          "controlMeanRGB": [
+            0.23045597519985464,
+            0.1792247683502907,
+            0.24199303915334303
+          ],
+          "eventMeanY": 0.17420140040198037,
+          "controlMeanY": 0.19464839207848836,
+          "relativeMeanY": -0.10504577745632297,
+          "meanChromaL1": 0.03303885828543257,
+          "pixelYMAE": 0.02044699167650799,
+          "pixelYMaxAbs": 0.10739267578125
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": false
+    },
+    {
+      "logicalFrame": 152,
+      "sourceSeconds": 1.1066509999999985,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": false,
+          "eventMeanRGB": [
+            0.058229994802486425,
+            0.052229998063068,
+            0.07127652105306234
+          ],
+          "controlMeanRGB": [
+            0.07018034111838095,
+            0.056884048938178784,
+            0.07868778462312659
+          ],
+          "eventMeanY": 0.05488075632974595,
+          "controlMeanY": 0.061285070372142994,
+          "relativeMeanY": -0.10450039468842828,
+          "meanChromaL1": 0.04136544463286207,
+          "pixelYMAE": 0.006447203133229305,
+          "pixelYMaxAbs": 0.025109521484374998
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.22210693359375,
+            0.15947634674781977,
+            0.21845759901889536
+          ],
+          "controlMeanRGB": [
+            0.23155318859011628,
+            0.17972440497819767,
+            0.24420166015625
+          ],
+          "eventMeanY": 0.1770500559252362,
+          "controlMeanY": 0.19539846219794693,
+          "relativeMeanY": -0.09390251113707851,
+          "meanChromaL1": 0.03379031665533372,
+          "pixelYMAE": 0.018348406272710754,
+          "pixelYMaxAbs": 0.10213828124999999
+        }
+      },
+      "bothQualified": false,
+      "Floor": false,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 153,
+      "sourceSeconds": 1.1417104,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.05929356949383757,
+            0.05267174160924135,
+            0.07179141473941872
+          ],
+          "controlMeanRGB": [
+            0.0702246921259959,
+            0.0569052530222294,
+            0.0786669480414236
+          ],
+          "eventMeanY": 0.055459982617505316,
+          "controlMeanY": 0.061308160156075986,
+          "relativeMeanY": -0.09538987181612696,
+          "meanChromaL1": 0.0371174453478218,
+          "pixelYMAE": 0.005912669702852761,
+          "pixelYMaxAbs": 0.0229420654296875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.22537302416424418,
+            0.16136559774709303,
+            0.21818790879360464
+          ],
+          "controlMeanRGB": [
+            0.23239916424418605,
+            0.17967046693313954,
+            0.24256080804869187
+          ],
+          "eventMeanY": 0.1790761474609375,
+          "controlMeanY": 0.1954212706100109,
+          "relativeMeanY": -0.0836404506942966,
+          "meanChromaL1": 0.03510890577727882,
+          "pixelYMAE": 0.0163451231490734,
+          "pixelYMaxAbs": 0.0942025390625
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 154,
+      "sourceSeconds": 1.1763713999999998,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.060204267788047834,
+            0.05303538003030802,
+            0.07234457789921389
+          ],
+          "controlMeanRGB": [
+            0.07022453527919957,
+            0.0568859608662801,
+            0.07869916803696576
+          ],
+          "eventMeanY": 0.05595360965373851,
+          "controlMeanY": 0.061296655344190286,
+          "relativeMeanY": -0.08716700218714613,
+          "meanChromaL1": 0.03361410727418451,
+          "pixelYMAE": 0.005413200858918702,
+          "pixelYMaxAbs": 0.0212888427734375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2283779410428779,
+            0.16380700399709303,
+            0.22063073446584303
+          ],
+          "controlMeanRGB": [
+            0.23342966478924418,
+            0.18037733920784885,
+            0.24409662291061046
+          ],
+          "eventMeanY": 0.1816374585528706,
+          "controlMeanY": 0.1962567959097929,
+          "relativeMeanY": -0.07449085922936337,
+          "meanChromaL1": 0.03572315267731019,
+          "pixelYMAE": 0.014619337356922236,
+          "pixelYMaxAbs": 0.08786875
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 155,
+      "sourceSeconds": 1.210536499999999,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06091839812096714,
+            0.0533354600079778,
+            0.07294279501503971
+          ],
+          "controlMeanRGB": [
+            0.07009208789106462,
+            0.056815690066920325,
+            0.07884096212032177
+          ],
+          "eventMeanY": 0.0563632422383092,
+          "controlMeanY": 0.06122847688658899,
+          "relativeMeanY": -0.07946032460176108,
+          "meanChromaL1": 0.030487516823062888,
+          "pixelYMAE": 0.00494990566901657,
+          "pixelYMaxAbs": 0.019739501953125
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.22761003361191862,
+            0.16369203079578487,
+            0.22152638989825582
+          ],
+          "controlMeanRGB": [
+            0.23065327489098839,
+            0.17848524936409885,
+            0.24356433957122092
+          ],
+          "eventMeanY": 0.1814566389216933,
+          "controlMeanY": 0.19427488190406977,
+          "relativeMeanY": -0.06597992934931204,
+          "meanChromaL1": 0.03605461506396579,
+          "pixelYMAE": 0.012818242982376453,
+          "pixelYMaxAbs": 0.0816720703125
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 156,
+      "sourceSeconds": 1.2457385000000007,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06172727078807597,
+            0.053672477978618204,
+            0.07333984867292864
+          ],
+          "controlMeanRGB": [
+            0.07009214856902234,
+            0.05681011685374834,
+            0.07883878114844571
+          ],
+          "eventMeanY": 0.05680491109403814,
+          "controlMeanY": 0.061224346358492734,
+          "relativeMeanY": -0.07218427843356721,
+          "meanChromaL1": 0.027262961866440394,
+          "pixelYMAE": 0.004532767853731153,
+          "pixelYMaxAbs": 0.018312158203124998
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2283736827761628,
+            0.1640681776889535,
+            0.22289187409156977
+          ],
+          "controlMeanRGB": [
+            0.22939424736555233,
+            0.17716234783793605,
+            0.2443904433139535
+          ],
+          "eventMeanY": 0.18198659895076308,
+          "controlMeanY": 0.19312071817087573,
+          "relativeMeanY": -0.05765367551223082,
+          "meanChromaL1": 0.03747427139210302,
+          "pixelYMAE": 0.011134119220112643,
+          "pixelYMaxAbs": 0.07603544921875
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 157,
+      "sourceSeconds": 1.2804750000000018,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06250592812198122,
+            0.053974465304920796,
+            0.07370138626281812
+          ],
+          "controlMeanRGB": [
+            0.0701633375518176,
+            0.056831159511534106,
+            0.0788336258117749
+          ],
+          "eventMeanY": 0.05721253799298803,
+          "controlMeanY": 0.061254158629775755,
+          "relativeMeanY": -0.0659811631927809,
+          "meanChromaL1": 0.024438038006511342,
+          "pixelYMAE": 0.004156390430890068,
+          "pixelYMaxAbs": 0.01683291015625
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2350066428960756,
+            0.1693370730377907,
+            0.22692587209302326
+          ],
+          "controlMeanRGB": [
+            0.23406272710755813,
+            0.180908203125,
+            0.24747484783793605
+          ],
+          "eventMeanY": 0.18745633488144986,
+          "controlMeanY": 0.19701496667196583,
+          "relativeMeanY": -0.04851728755425621,
+          "meanChromaL1": 0.037890102824080174,
+          "pixelYMAE": 0.009558631790515987,
+          "pixelYMaxAbs": 0.06997910156249999
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 158,
+      "sourceSeconds": 1.3134967000000008,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06301668769314367,
+            0.05417209570290519,
+            0.07403512705130881
+          ],
+          "controlMeanRGB": [
+            0.07005371080011595,
+            0.056777191620056226,
+            0.07884290724956974
+          ],
+          "eventMeanY": 0.05748656682338463,
+          "controlMeanY": 0.061192924266187804,
+          "relativeMeanY": -0.06056839883448955,
+          "meanChromaL1": 0.022123826779527844,
+          "pixelYMAE": 0.003835019123997866,
+          "pixelYMaxAbs": 0.015710498046875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.23583132721656977,
+            0.17041725336119187,
+            0.22578323719113372
+          ],
+          "controlMeanRGB": [
+            0.2335361214571221,
+            0.18069528978924418,
+            0.2453670058139535
+          ],
+          "eventMeanY": 0.188321709495367,
+          "controlMeanY": 0.19659854849881905,
+          "relativeMeanY": -0.04210020402821932,
+          "meanChromaL1": 0.03814802192500899,
+          "pixelYMAE": 0.008276839003452035,
+          "pixelYMaxAbs": 0.06394038085937499
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 159,
+      "sourceSeconds": 1.3477340999999994,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06365020907655054,
+            0.05440724912096186,
+            0.07442820916513578
+          ],
+          "controlMeanRGB": [
+            0.0700853480582907,
+            0.05676938477112036,
+            0.07892668633615556
+          ],
+          "eventMeanY": 0.05781781572270937,
+          "controlMeanY": 0.061200115738968316,
+          "relativeMeanY": -0.055266235617677295,
+          "meanChromaL1": 0.019812920926329636,
+          "pixelYMAE": 0.0035273414021064963,
+          "pixelYMaxAbs": 0.0146400634765625
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.23347366687863372,
+            0.16881614507630813,
+            0.22650856195494187
+          ],
+          "controlMeanRGB": [
+            0.23020047919694767,
+            0.17810342478197674,
+            0.24567360101744187
+          ],
+          "eventMeanY": 0.1867277267101199,
+          "controlMeanY": 0.19405782527480014,
+          "relativeMeanY": -0.03777275435453477,
+          "meanChromaL1": 0.038601426561083785,
+          "pixelYMAE": 0.007330098564680232,
+          "pixelYMaxAbs": 0.05884072265625
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 160,
+      "sourceSeconds": 1.3820524999999995,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.0641977589528243,
+            0.054653167724609375,
+            0.07475649637906921
+          ],
+          "controlMeanRGB": [
+            0.07009741495780442,
+            0.05680925018933355,
+            0.07898453647205952
+          ],
+          "eventMeanY": 0.05813380814857986,
+          "controlMeanY": 0.061235369688723264,
+          "relativeMeanY": -0.050649837763853164,
+          "meanChromaL1": 0.01774248981148535,
+          "pixelYMAE": 0.003264219681097537,
+          "pixelYMaxAbs": 0.013963671875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.23503219249636628,
+            0.17031079669331395,
+            0.2285511105559593
+          ],
+          "controlMeanRGB": [
+            0.23079663653706395,
+            0.17864706349927326,
+            0.24729600063590115
+          ],
+          "eventMeanY": 0.18827551610192586,
+          "controlMeanY": 0.1946905159883721,
+          "relativeMeanY": -0.03294972974867129,
+          "meanChromaL1": 0.038694592423898444,
+          "pixelYMAE": 0.0064149998864462205,
+          "pixelYMaxAbs": 0.054054736328125
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 161,
+      "sourceSeconds": 1.4161965000000007,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06457709693679718,
+            0.0547747171225668,
+            0.07493087223597936
+          ],
+          "controlMeanRGB": [
+            0.06994369937305978,
+            0.05670883045906351,
+            0.0788920209044311
+          ],
+          "eventMeanY": 0.05831397747026056,
+          "controlMeanY": 0.06112418994033465,
+          "relativeMeanY": -0.045975455426357906,
+          "meanChromaL1": 0.015795132982213134,
+          "pixelYMAE": 0.0029921029146979835,
+          "pixelYMaxAbs": 0.013163256835937498
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2371371956758721,
+            0.17215746502543605,
+            0.2289485487827035
+          ],
+          "controlMeanRGB": [
+            0.23210534384084303,
+            0.17959949582122092,
+            0.2471568972565407
+          ],
+          "eventMeanY": 0.19007247200899346,
+          "controlMeanY": 0.1956398834938227,
+          "relativeMeanY": -0.02845744633151459,
+          "meanChromaL1": 0.0385288692878501,
+          "pixelYMAE": 0.005567411484829215,
+          "pixelYMaxAbs": 0.048519677734375
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 162,
+      "sourceSeconds": 1.4504617999999985,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06479062953916918,
+            0.05485356297670435,
+            0.07512354993877433
+          ],
+          "controlMeanRGB": [
+            0.06969347606901648,
+            0.056594261315976585,
+            0.07883930206298828
+          ],
+          "eventMeanY": 0.05842967638654582,
+          "controlMeanY": 0.06098524631440711,
+          "relativeMeanY": -0.04190472421290463,
+          "meanChromaL1": 0.014203546778165876,
+          "pixelYMAE": 0.002762836071623473,
+          "pixelYMaxAbs": 0.012206005859374999
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.23968221974927326,
+            0.1740169081577035,
+            0.22962561319040697
+          ],
+          "controlMeanRGB": [
+            0.23375755132630813,
+            0.18066548192223839,
+            0.24715973610101744
+          ],
+          "eventMeanY": 0.1919923019054324,
+          "controlMeanY": 0.19675374102925144,
+          "relativeMeanY": -0.024199992838312333,
+          "meanChromaL1": 0.038474477566154186,
+          "pixelYMAE": 0.004765876237736192,
+          "pixelYMaxAbs": 0.044935498046874994
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 163,
+      "sourceSeconds": 1.4843943000000008,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.0651787394950656,
+            0.05501411914253006,
+            0.07541130656669406
+          ],
+          "controlMeanRGB": [
+            0.0696334644239776,
+            0.05656592928919615,
+            0.07883341172162224
+          ],
+          "eventMeanY": 0.058647794361503754,
+          "controlMeanY": 0.060951799490471845,
+          "relativeMeanY": -0.03780044474861254,
+          "meanChromaL1": 0.012807087985047039,
+          "pixelYMAE": 0.002519123617769862,
+          "pixelYMaxAbs": 0.01119580078125
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24594471066497092,
+            0.17805090615915697,
+            0.23186830032703487
+          ],
+          "controlMeanRGB": [
+            0.23916838889898256,
+            0.18400254360465115,
+            0.24914124954578487
+          ],
+          "eventMeanY": 0.19637074485601377,
+          "controlMeanY": 0.20043381688317585,
+          "relativeMeanY": -0.020271389780150056,
+          "meanChromaL1": 0.038506856357279684,
+          "pixelYMAE": 0.00408572259947311,
+          "pixelYMaxAbs": 0.041435839843749996
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 164,
+      "sourceSeconds": 1.5181245999999993,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06531410400463897,
+            0.05499608519555283,
+            0.07556108037392203
+          ],
+          "controlMeanRGB": [
+            0.06938898033883964,
+            0.056393208910150976,
+            0.07871805147535088
+          ],
+          "eventMeanY": 0.0586744886462428,
+          "controlMeanY": 0.060767963549097616,
+          "relativeMeanY": -0.03445030540086124,
+          "meanChromaL1": 0.01171156935197315,
+          "pixelYMAE": 0.0023235840290248178,
+          "pixelYMaxAbs": 0.0103777587890625
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2519843522892442,
+            0.1826725449672965,
+            0.23358296239098839
+          ],
+          "controlMeanRGB": [
+            0.24423146802325582,
+            0.18788892169331395,
+            0.25038324400436046
+          ],
+          "eventMeanY": 0.20108396734193315,
+          "controlMeanY": 0.20437943711391715,
+          "relativeMeanY": -0.0161242726691099,
+          "meanChromaL1": 0.038480567349797434,
+          "pixelYMAE": 0.003344789017078488,
+          "pixelYMaxAbs": 0.03962626953125
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 165,
+      "sourceSeconds": 1.5523312000000002,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.0655885607111497,
+            0.05504132004058948,
+            0.07569430627170302
+          ],
+          "controlMeanRGB": [
+            0.0693075470849961,
+            0.05630484921019189,
+            0.07862625602914505
+          ],
+          "eventMeanY": 0.058774809013036985,
+          "controlMeanY": 0.06068082835070368,
+          "relativeMeanY": -0.031410568864533174,
+          "meanChromaL1": 0.01052590742203341,
+          "pixelYMAE": 0.00214477231368011,
+          "pixelYMaxAbs": 0.0100037841796875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.25653927825218026,
+            0.18568030069040697,
+            0.23509748591933138
+          ],
+          "controlMeanRGB": [
+            0.24775021575218023,
+            0.19000953851744187,
+            0.251514523528343
+          ],
+          "eventMeanY": 0.2043128400935683,
+          "controlMeanY": 0.2067258664153343,
+          "relativeMeanY": -0.011672590196903507,
+          "meanChromaL1": 0.03864340615627021,
+          "pixelYMAE": 0.0028144542605377906,
+          "pixelYMaxAbs": 0.036406982421875
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 166,
+      "sourceSeconds": 1.5865943000000007,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06601156507219587,
+            0.055239817102988656,
+            0.07594226273883577
+          ],
+          "controlMeanRGB": [
+            0.06940408915030856,
+            0.05636678995633898,
+            0.07864233568793728
+          ],
+          "eventMeanY": 0.05902460729615027,
+          "controlMeanY": 0.060746814166798314,
+          "relativeMeanY": -0.028350571042610007,
+          "meanChromaL1": 0.009546708874809628,
+          "pixelYMAE": 0.00197172891472568,
+          "pixelYMaxAbs": 0.0094185546875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.25667554278706395,
+            0.18605928642805233,
+            0.2382003429324128
+          ],
+          "controlMeanRGB": [
+            0.2482754019803779,
+            0.1907192496366279,
+            0.25467131858648256
+          ],
+          "eventMeanY": 0.204836886809593,
+          "controlMeanY": 0.20757302700308866,
+          "relativeMeanY": -0.013181578709910843,
+          "meanChromaL1": 0.0380556641581305,
+          "pixelYMAE": 0.002992663858103198,
+          "pixelYMaxAbs": 0.033256249999999994
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 167,
+      "sourceSeconds": 1.6202688999999983,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06643148516120315,
+            0.055421402188194614,
+            0.07603234202921891
+          ],
+          "controlMeanRGB": [
+            0.06952849613661383,
+            0.056423899363212085,
+            0.0785164873139197
+          ],
+          "eventMeanY": 0.05925025568477818,
+          "controlMeanY": 0.060805021487278385,
+          "relativeMeanY": -0.025569694154708795,
+          "meanChromaL1": 0.008674488484712028,
+          "pixelYMAE": 0.0018197938990049145,
+          "pixelYMaxAbs": 0.009087744140625
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2555967818859012,
+            0.18455186001090115,
+            0.23668156113735464
+          ],
+          "controlMeanRGB": [
+            0.24667713253997092,
+            0.18860714934593023,
+            0.25243430913880816
+          ],
+          "eventMeanY": 0.20341977482285611,
+          "controlMeanY": 0.20556114871002906,
+          "relativeMeanY": -0.010417211134549733,
+          "meanChromaL1": 0.03789782105875422,
+          "pixelYMAE": 0.002518776685138081,
+          "pixelYMaxAbs": 0.0306447265625
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 168,
+      "sourceSeconds": 1.6544601000000005,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06669661578010111,
+            0.05549868987817295,
+            0.07627600409976003
+          ],
+          "controlMeanRGB": [
+            0.06952667236328125,
+            0.05638890192002094,
+            0.0785715302356294
+          ],
+          "eventMeanY": 0.05937949101172146,
+          "controlMeanY": 0.06078357768064501,
+          "relativeMeanY": -0.023099770077710483,
+          "meanChromaL1": 0.007906989425337185,
+          "pixelYMAE": 0.0016697282136273698,
+          "pixelYMaxAbs": 0.007676904296874999
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2529240098110465,
+            0.18247666469840115,
+            0.2335659293241279
+          ],
+          "controlMeanRGB": [
+            0.24344510810319767,
+            0.1858932140261628,
+            0.24881194358648256
+          ],
+          "eventMeanY": 0.20114241517532705,
+          "controlMeanY": 0.20267147898119547,
+          "relativeMeanY": -0.0075445435813407975,
+          "meanChromaL1": 0.038195298507856634,
+          "pixelYMAE": 0.0021531474268713657,
+          "pixelYMaxAbs": 0.028015283203124998
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 169,
+      "sourceSeconds": 1.6888128,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06705407420841872,
+            0.05567157511808434,
+            0.0765753250305249
+          ],
+          "controlMeanRGB": [
+            0.06959476791510061,
+            0.05646524280488563,
+            0.07874443035881344
+          ],
+          "eventMeanY": 0.059600745168367636,
+          "controlMeanY": 0.06086513718471092,
+          "relativeMeanY": -0.02077366576051839,
+          "meanChromaL1": 0.007261939216436142,
+          "pixelYMAE": 0.0015322671702500581,
+          "pixelYMaxAbs": 0.007255029296875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2517913108648256,
+            0.18200257767078487,
+            0.23334591887718023
+          ],
+          "controlMeanRGB": [
+            0.24186812999636628,
+            0.18489961845930233,
+            0.24800287291061046
+          ],
+          "eventMeanY": 0.20054665158293966,
+          "controlMeanY": 0.20156717898346657,
+          "relativeMeanY": -0.005062964147603706,
+          "meanChromaL1": 0.03794829074313416,
+          "pixelYMAE": 0.0018914564975472383,
+          "pixelYMaxAbs": 0.025960595703125
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 170,
+      "sourceSeconds": 1.7230361000000007,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06748209308747913,
+            0.05586761873023135,
+            0.07665230589611333
+          ],
+          "controlMeanRGB": [
+            0.06980120921049084,
+            0.056610078800196834,
+            0.0787315849496537
+          ],
+          "eventMeanY": 0.059837510391958906,
+          "controlMeanY": 0.061011685869416125,
+          "relativeMeanY": -0.019245091505425988,
+          "meanChromaL1": 0.006761747429148646,
+          "pixelYMAE": 0.0014270358066169582,
+          "pixelYMaxAbs": 0.0066379638671875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.25041447129360467,
+            0.18102317632630813,
+            0.23180158748183138
+          ],
+          "controlMeanRGB": [
+            0.24002430050872092,
+            0.18333825399709303,
+            0.24592767759811046
+          ],
+          "eventMeanY": 0.19944196692178415,
+          "controlMeanY": 0.19990866386945857,
+          "relativeMeanY": -0.0023345508825929786,
+          "meanChromaL1": 0.03787535399883907,
+          "pixelYMAE": 0.0016650839162427324,
+          "pixelYMaxAbs": 0.022513525390625
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 171,
+      "sourceSeconds": 1.7572728000000017,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.0676341921198411,
+            0.055951461929376244,
+            0.07679317378196396
+          ],
+          "controlMeanRGB": [
+            0.06973192070712562,
+            0.05662712587171099,
+            0.07876191820417132
+          ],
+          "eventMeanY": 0.05993998196362591,
+          "controlMeanY": 0.061011337260123776,
+          "relativeMeanY": -0.017559937949402856,
+          "meanChromaL1": 0.006322858609212445,
+          "pixelYMAE": 0.0013212973227163178,
+          "pixelYMaxAbs": 0.00628265380859375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2522242346475291,
+            0.18278609874636628,
+            0.23328630314316862
+          ],
+          "controlMeanRGB": [
+            0.24139262354651161,
+            0.1846114757449128,
+            0.2468048805414244
+          ],
+          "eventMeanY": 0.20119476119640262,
+          "controlMeanY": 0.20117351159384086,
+          "relativeMeanY": 0.00010562823302827923,
+          "meanChromaL1": 0.037260593041766876,
+          "pixelYMAE": 0.001594086403070494,
+          "pixelYMaxAbs": 0.020684374999999998
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 172,
+      "sourceSeconds": 1.791868700000001,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.068080627331499,
+            0.056188084211956264,
+            0.07696120707499308
+          ],
+          "controlMeanRGB": [
+            0.06998132428630632,
+            0.056801584159054244,
+            0.07883624183315904
+          ],
+          "eventMeanY": 0.060216258349882305,
+          "controlMeanY": 0.0611944991941784,
+          "relativeMeanY": -0.015985764360812994,
+          "meanChromaL1": 0.005953490716398391,
+          "pixelYMAE": 0.0012445485748162788,
+          "pixelYMaxAbs": 0.006099865722656249
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2526301894077035,
+            0.18346174373183138,
+            0.2330066769622093
+          ],
+          "controlMeanRGB": [
+            0.2417247683502907,
+            0.18516646984011628,
+            0.24653802916061046
+          ],
+          "eventMeanY": 0.20174409946175506,
+          "controlMeanY": 0.20162179068631902,
+          "relativeMeanY": 0.0006066247850477779,
+          "meanChromaL1": 0.03724381768858637,
+          "pixelYMAE": 0.0013328266942223836,
+          "pixelYMaxAbs": 0.019168896484375
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 173,
+      "sourceSeconds": 1.8257105999999999,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06811788703213219,
+            0.05617954235832517,
+            0.07702073787583881
+          ],
+          "controlMeanRGB": [
+            0.06983879748798934,
+            0.056735664999642436,
+            0.07878643438881901
+          ],
+          "eventMeanY": 0.06022236875234102,
+          "controlMeanY": 0.06111345651656353,
+          "relativeMeanY": -0.014580876537084751,
+          "meanChromaL1": 0.005571025054773804,
+          "pixelYMAE": 0.0011473100598118884,
+          "pixelYMaxAbs": 0.005806030273437499
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.25201132131177323,
+            0.18398267169331395,
+            0.2349399300508721
+          ],
+          "controlMeanRGB": [
+            0.24092421420784885,
+            0.18539073855377908,
+            0.2483364371366279
+          ],
+          "eventMeanY": 0.20212467665561407,
+          "controlMeanY": 0.20174183491551598,
+          "relativeMeanY": 0.0018976814613509022,
+          "meanChromaL1": 0.03700706810551646,
+          "pixelYMAE": 0.0013426720907521801,
+          "pixelYMaxAbs": 0.017200390625
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 174,
+      "sourceSeconds": 1.8595251000000017,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06799052170917196,
+            0.05604807497645054,
+            0.0770086835698635
+          ],
+          "controlMeanRGB": [
+            0.06956062339791874,
+            0.056562332116684565,
+            0.07867902066527295
+          ],
+          "eventMeanY": 0.060100395092271525,
+          "controlMeanY": 0.060922593756283026,
+          "relativeMeanY": -0.01349579217360074,
+          "meanChromaL1": 0.005199941250734419,
+          "pixelYMAE": 0.0010728608560733864,
+          "pixelYMaxAbs": 0.0054491943359375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2534279047056686,
+            0.18565617051235464,
+            0.23538846747819767
+          ],
+          "controlMeanRGB": [
+            0.24204271893168605,
+            0.18667247683502908,
+            0.2483108875363372
+          ],
+          "eventMeanY": 0.20365511304278702,
+          "controlMeanY": 0.2028944835574128,
+          "relativeMeanY": 0.0037488918970977904,
+          "meanChromaL1": 0.03646730739473286,
+          "pixelYMAE": 0.0014911868073219474,
+          "pixelYMaxAbs": 0.015912109374999997
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 175,
+      "sourceSeconds": 1.8928253999999987,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06817838524569984,
+            0.05614274403914398,
+            0.07716308149541555
+          ],
+          "controlMeanRGB": [
+            0.06957673396812339,
+            0.056595564174766584,
+            0.07873570647130923
+          ],
+          "eventMeanY": 0.06021918972400057,
+          "controlMeanY": 0.060953879146644616,
+          "relativeMeanY": -0.012053202075564562,
+          "meanChromaL1": 0.004892008890225286,
+          "pixelYMAE": 0.0009952150017416633,
+          "pixelYMaxAbs": 0.0049875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24988218795421513,
+            0.1836760764898256,
+            0.2357986805050872
+          ],
+          "controlMeanRGB": [
+            0.23877946720566862,
+            0.1846980605014535,
+            0.2485138649164244
+          ],
+          "eventMeanY": 0.20151474779705672,
+          "controlMeanY": 0.20080326864553052,
+          "relativeMeanY": 0.003543165190115203,
+          "meanChromaL1": 0.03597130688856437,
+          "pixelYMAE": 0.0014914794921875004,
+          "pixelYMaxAbs": 0.014588574218749999
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 176,
+      "sourceSeconds": 1.9278901999999993,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06826136635989845,
+            0.05607940884483676,
+            0.0770633429610858
+          ],
+          "controlMeanRGB": [
+            0.06951761875404458,
+            0.05652572728004776,
+            0.07850769416195433
+          ],
+          "eventMeanY": 0.06018433305573205,
+          "controlMeanY": 0.060874901416293134,
+          "relativeMeanY": -0.011344057148259352,
+          "meanChromaL1": 0.00420352305263294,
+          "pixelYMAE": 0.0009099849688334197,
+          "pixelYMaxAbs": 0.0046416748046875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2459929710210756,
+            0.18067115961119187,
+            0.23581713299418605
+          ],
+          "controlMeanRGB": [
+            0.23486612009447674,
+            0.1814362281976744,
+            0.2480270030886628
+          ],
+          "eventMeanY": 0.1985401159951853,
+          "controlMeanY": 0.19760327716206394,
+          "relativeMeanY": 0.004741008583339568,
+          "meanChromaL1": 0.03556393840360067,
+          "pixelYMAE": 0.001564405148528343,
+          "pixelYMaxAbs": 0.0136142578125
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 177,
+      "sourceSeconds": 1.9622014000000005,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06835152006664483,
+            0.05611759703270957,
+            0.07710779586187502
+          ],
+          "controlMeanRGB": [
+            0.06951060300829316,
+            0.05656575183479153,
+            0.07837824575325736
+          ],
+          "eventMeanY": 0.06023402142518995,
+          "controlMeanY": 0.0608926892551912,
+          "relativeMeanY": -0.010816862222012924,
+          "meanChromaL1": 0.0034528274393181846,
+          "pixelYMAE": 0.0008687936100496107,
+          "pixelYMaxAbs": 0.004507690429687499
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24801280886627908,
+            0.18286274754723839,
+            0.23811517759811046
+          ],
+          "controlMeanRGB": [
+            0.23684621411700582,
+            0.1834461300872093,
+            0.24985379950944767
+          ],
+          "eventMeanY": 0.2007028760333394,
+          "controlMeanY": 0.19959362168422964,
+          "relativeMeanY": 0.005557564113269406,
+          "meanChromaL1": 0.03460420156156663,
+          "pixelYMAE": 0.0016199425985646803,
+          "pixelYMaxAbs": 0.012569140625
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 178,
+      "sourceSeconds": 1.9964086000000014,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06848059467622498,
+            0.05618240796074289,
+            0.07714893322746579
+          ],
+          "controlMeanRGB": [
+            0.06951601365033318,
+            0.05660354046403718,
+            0.07824571707955644
+          ],
+          "eventMeanY": 0.06031078558071178,
+          "controlMeanY": 0.0609112974150842,
+          "relativeMeanY": -0.009858792372787391,
+          "meanChromaL1": 0.002835024796724317,
+          "pixelYMAE": 0.0008082917624447242,
+          "pixelYMaxAbs": 0.00428076171875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24737974654796513,
+            0.18246814816497092,
+            0.23814782430959303
+          ],
+          "controlMeanRGB": [
+            0.23603998228561046,
+            0.1825973155886628,
+            0.2490589230559593
+          ],
+          "eventMeanY": 0.20028842659883722,
+          "controlMeanY": 0.19875775458757267,
+          "relativeMeanY": 0.007701193920412003,
+          "meanChromaL1": 0.03363460921882755,
+          "pixelYMAE": 0.0019850881177325584,
+          "pixelYMaxAbs": 0.01155927734375
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 179,
+      "sourceSeconds": 2.0305869999999997,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06860805044368821,
+            0.056261385474599995,
+            0.07738678166273834
+          ],
+          "controlMeanRGB": [
+            0.06955310391063163,
+            0.056672013822008295,
+            0.07831979341724482
+          ],
+          "eventMeanY": 0.060411540051811735,
+          "controlMeanY": 0.0609735032616257,
+          "relativeMeanY": -0.009216515039371877,
+          "meanChromaL1": 0.002209930108234781,
+          "pixelYMAE": 0.0007365585345466311,
+          "pixelYMaxAbs": 0.0039384765625
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24443302598110464,
+            0.1803943722747093,
+            0.23691008811773256
+          ],
+          "controlMeanRGB": [
+            0.23318126589752908,
+            0.18041850245276161,
+            0.2472378043241279
+          ],
+          "eventMeanY": 0.19808942473655522,
+          "controlMeanY": 0.19646021955623183,
+          "relativeMeanY": 0.008292799346368798,
+          "meanChromaL1": 0.03304699921341814,
+          "pixelYMAE": 0.002005665481922239,
+          "pixelYMaxAbs": 0.009975244140624999
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 180,
+      "sourceSeconds": 2.0653673999999986,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.0685071441448894,
+            0.056209259674328715,
+            0.07736792112169574
+          ],
+          "controlMeanRGB": [
+            0.06932971972663578,
+            0.05657693146228218,
+            0.07814359951133774
+          ],
+          "eventMeanY": 0.06035144526926981,
+          "controlMeanY": 0.06084528768042557,
+          "relativeMeanY": -0.008116362498761425,
+          "meanChromaL1": 0.0017558973136801992,
+          "pixelYMAE": 0.0006612648465911024,
+          "pixelYMaxAbs": 0.0038859375000000005
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2425082894258721,
+            0.17903314634811046,
+            0.23571067632630813
+          ],
+          "controlMeanRGB": [
+            0.23093857876090115,
+            0.17865274118822674,
+            0.24566508448401161
+          ],
+          "eventMeanY": 0.19662007943086846,
+          "controlMeanY": 0.19460700144213297,
+          "relativeMeanY": 0.01034432458142612,
+          "meanChromaL1": 0.03306598250330284,
+          "pixelYMAE": 0.0023611339480377907,
+          "pixelYMaxAbs": 0.009381201171875
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 181,
+      "sourceSeconds": 2.0996026,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06870663151735304,
+            0.05630573075787933,
+            0.07750795668914538
+          ],
+          "controlMeanRGB": [
+            0.06944198768679835,
+            0.05665347613349539,
+            0.07813745615433673
+          ],
+          "eventMeanY": 0.06047296297158084,
+          "controlMeanY": 0.060923457047232336,
+          "relativeMeanY": -0.007394427327100605,
+          "meanChromaL1": 0.0015114373714820162,
+          "pixelYMAE": 0.0006125689374871042,
+          "pixelYMaxAbs": 0.0041829589843749996
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24670552098473839,
+            0.18184644122456395,
+            0.23865029978197674
+          ],
+          "controlMeanRGB": [
+            0.23511593840843023,
+            0.18133261037427326,
+            0.24811642668968023
+          ],
+          "eventMeanY": 0.19973672016942223,
+          "controlMeanY": 0.19758873745230743,
+          "relativeMeanY": 0.010870977489965841,
+          "meanChromaL1": 0.03194395339165951,
+          "pixelYMAE": 0.002483232081213663,
+          "pixelYMaxAbs": 0.00832265625
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 182,
+      "sourceSeconds": 2.1338242999999997,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06860466965106356,
+            0.05627798032359917,
+            0.0776294889140959
+          ],
+          "controlMeanRGB": [
+            0.06923198356491034,
+            0.056593274440513514,
+            0.07812428445804591
+          ],
+          "eventMeanY": 0.06044021339485196,
+          "controlMeanY": 0.06083480292362612,
+          "relativeMeanY": -0.006486246520261386,
+          "meanChromaL1": 0.0013764906025976464,
+          "pixelYMAE": 0.0005660588501452827,
+          "pixelYMaxAbs": 0.0042436767578125
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2518040856649709,
+            0.18526866824127908,
+            0.23977022392805233
+          ],
+          "controlMeanRGB": [
+            0.23977448219476744,
+            0.18436307685319767,
+            0.24844431322674418
+          ],
+          "eventMeanY": 0.20334911030614097,
+          "controlMeanY": 0.20077020689498545,
+          "relativeMeanY": 0.012845050324147133,
+          "meanChromaL1": 0.031057499994776416,
+          "pixelYMAE": 0.0028784991597020347,
+          "pixelYMaxAbs": 0.0072246582031250004
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 183,
+      "sourceSeconds": 2.1682210999999993,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06859830533470712,
+            0.056242805426003406,
+            0.07763820593239737
+          ],
+          "controlMeanRGB": [
+            0.06913820978830985,
+            0.05653429890022415,
+            0.0780358114162413
+          ],
+          "eventMeanY": 0.06041433262315545,
+          "controlMeanY": 0.060766299558687606,
+          "relativeMeanY": -0.005792140348981216,
+          "meanChromaL1": 0.0012127962014454319,
+          "pixelYMAE": 0.0005241409180401896,
+          "pixelYMaxAbs": 0.0047495849609375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2529240098110465,
+            0.18657453670058138,
+            0.24291566360828487
+          ],
+          "controlMeanRGB": [
+            0.24089724518531977,
+            0.18559371593386628,
+            0.25159543059593026
+          ],
+          "eventMeanY": 0.20474826404660246,
+          "controlMeanY": 0.20211657005132633,
+          "relativeMeanY": 0.013020674131803377,
+          "meanChromaL1": 0.030741628638590868,
+          "pixelYMAE": 0.002846192541787791,
+          "pixelYMaxAbs": 0.005825
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 184,
+      "sourceSeconds": 2.2024272000000016,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.0688491663297399,
+            0.056385301312907976,
+            0.0777933880919311
+          ],
+          "controlMeanRGB": [
+            0.06931976968643903,
+            0.056670775075777384,
+            0.07808971405029297
+          ],
+          "eventMeanY": 0.06058078288093192,
+          "controlMeanY": 0.06090639872396407,
+          "relativeMeanY": -0.0053461680521924605,
+          "meanChromaL1": 0.0011144725818528767,
+          "pixelYMAE": 0.00048269361905834107,
+          "pixelYMaxAbs": 0.0051162841796875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2510475336119186,
+            0.18513382312863372,
+            0.24082059638444767
+          ],
+          "controlMeanRGB": [
+            0.23891573174055233,
+            0.18401247956031977,
+            0.24933571039244187
+          ],
+          "eventMeanY": 0.20316766300644984,
+          "controlMeanY": 0.20040124823991642,
+          "relativeMeanY": 0.013804378918945244,
+          "meanChromaL1": 0.030865358196463577,
+          "pixelYMAE": 0.0029615433094113378,
+          "pixelYMaxAbs": 0.0062343017578125
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 185,
+      "sourceSeconds": 2.2364454,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06894939257746556,
+            0.0564434559834676,
+            0.0778299059186663
+          ],
+          "controlMeanRGB": [
+            0.06936041132456401,
+            0.056726517511301394,
+            0.07805467310215101
+          ],
+          "eventMeanY": 0.06064631978867291,
+          "controlMeanY": 0.060952376169660365,
+          "relativeMeanY": -0.005021237894574459,
+          "meanChromaL1": 0.0012455222933645538,
+          "pixelYMAE": 0.000447446057432983,
+          "pixelYMaxAbs": 0.0032439239501953127
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2523534020712209,
+            0.18630768531976744,
+            0.24208814044331395
+          ],
+          "controlMeanRGB": [
+            0.2403010878452035,
+            0.18512956486191862,
+            0.25054647756177323
+          ],
+          "eventMeanY": 0.2043763535610465,
+          "controlMeanY": 0.20158213174509448,
+          "relativeMeanY": 0.013861455833225216,
+          "meanChromaL1": 0.030424993859270222,
+          "pixelYMAE": 0.002982470135356105,
+          "pixelYMaxAbs": 0.0060691406249999994
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 186,
+      "sourceSeconds": 2.2706605999999985,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06906295423748113,
+            0.05647670750429078,
+            0.07779867165372008
+          ],
+          "controlMeanRGB": [
+            0.06941318168502753,
+            0.05674758650103107,
+            0.07795450180804744
+          ],
+          "eventMeanY": 0.06069198937135584,
+          "controlMeanY": 0.0609714313223153,
+          "relativeMeanY": -0.004583162062937953,
+          "meanChromaL1": 0.001385797684126111,
+          "pixelYMAE": 0.0004074664673456052,
+          "pixelYMaxAbs": 0.0032198577880859372
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.25310569585755816,
+            0.18671931776889536,
+            0.244140625
+          ],
+          "controlMeanRGB": [
+            0.24111725563226744,
+            0.18554261673328487,
+            0.2525634765625
+          ],
+          "eventMeanY": 0.20497888013263083,
+          "controlMeanY": 0.2021966910428779,
+          "relativeMeanY": 0.01375981513546592,
+          "meanChromaL1": 0.03013302395898343,
+          "pixelYMAE": 0.0029826058321220927,
+          "pixelYMaxAbs": 0.005773095703125
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 187,
+      "sourceSeconds": 2.3055450000000013,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06916195433251425,
+            0.0564912381578608,
+            0.0779511610857722
+          ],
+          "controlMeanRGB": [
+            0.06944638970089989,
+            0.05674431447078343,
+            0.07803370257099422
+          ],
+          "eventMeanY": 0.06073443885198732,
+          "controlMeanY": 0.06098186948554141,
+          "relativeMeanY": -0.004057445854669133,
+          "meanChromaL1": 0.0015164654511967135,
+          "pixelYMAE": 0.0003775219927601167,
+          "pixelYMaxAbs": 0.003038955688476562
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24861038562863372,
+            0.18333257630813954,
+            0.24235641124636628
+          ],
+          "controlMeanRGB": [
+            0.23601443268531977,
+            0.18143055050872092,
+            0.24989496275436046
+          ],
+          "eventMeanY": 0.20147215945221655,
+          "controlMeanY": 0.19797821442360097,
+          "relativeMeanY": 0.017648128804413882,
+          "meanChromaL1": 0.030089330406598835,
+          "pixelYMAE": 0.003665547499545785,
+          "pixelYMaxAbs": 0.0063928955078124995
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 188,
+      "sourceSeconds": 2.3392149999999985,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06935928820991287,
+            0.05663758881238042,
+            0.07793774667765055
+          ],
+          "controlMeanRGB": [
+            0.06959342727569544,
+            0.05688190689178504,
+            0.07795215025096953
+          ],
+          "eventMeanY": 0.060880093502168324,
+          "controlMeanY": 0.0611056476959375,
+          "relativeMeanY": -0.003691216806857817,
+          "meanChromaL1": 0.0017018566023336845,
+          "pixelYMAE": 0.00034887658928622715,
+          "pixelYMaxAbs": 0.0030715179443359373
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.25067564498546513,
+            0.18446669467659885,
+            0.24441599291424418
+          ],
+          "controlMeanRGB": [
+            0.23857365098110464,
+            0.18277616279069767,
+            0.2515471702398256
+          ],
+          "eventMeanY": 0.20287105684502182,
+          "controlMeanY": 0.19960397551780523,
+          "relativeMeanY": 0.016367816917179385,
+          "meanChromaL1": 0.028666361524508188,
+          "pixelYMAE": 0.0034167997138444786,
+          "pixelYMaxAbs": 0.0056183593750000005
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 189,
+      "sourceSeconds": 2.3735291000000016,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06931568022106303,
+            0.05658650140659291,
+            0.07797632869981488
+          ],
+          "controlMeanRGB": [
+            0.0695057212948656,
+            0.056822902729817514,
+            0.07793081908666787
+          ],
+          "eventMeanY": 0.06083707035311989,
+          "controlMeanY": 0.061043261517711334,
+          "relativeMeanY": -0.0033777874816145093,
+          "meanChromaL1": 0.001872157728104562,
+          "pixelYMAE": 0.0003258484628592648,
+          "pixelYMaxAbs": 0.002592892456054687
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.25171040379723836,
+            0.1859542491824128,
+            0.24436631313590115
+          ],
+          "controlMeanRGB": [
+            0.23965525072674418,
+            0.18411893622819767,
+            0.25147194086119184
+          ],
+          "eventMeanY": 0.20415135867096657,
+          "controlMeanY": 0.20078884362509083,
+          "relativeMeanY": 0.01674652328868508,
+          "meanChromaL1": 0.028289359102459444,
+          "pixelYMAE": 0.0034928089230559602,
+          "pixelYMaxAbs": 0.0071949951171875
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 190,
+      "sourceSeconds": 2.408056000000001,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06928569729588613,
+            0.05655136657934658,
+            0.07791085203154748
+          ],
+          "controlMeanRGB": [
+            0.06942947657883955,
+            0.05676903902124815,
+            0.07784923871739859
+          ],
+          "eventMeanY": 0.06080084013933179,
+          "controlMeanY": 0.06098263846405414,
+          "relativeMeanY": -0.0029811488859982672,
+          "meanChromaL1": 0.0017277138208165455,
+          "pixelYMAE": 0.00030276375435122775,
+          "pixelYMaxAbs": 0.0025370849609375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.25402406204578487,
+            0.18748154751090115,
+            0.24487446629723839
+          ],
+          "controlMeanRGB": [
+            0.2421207871547965,
+            0.18579243504723839,
+            0.25215894122456395
+          ],
+          "eventMeanY": 0.20577225483739095,
+          "controlMeanY": 0.20255950445130813,
+          "relativeMeanY": 0.015860773330708407,
+          "meanChromaL1": 0.028140438153034242,
+          "pixelYMAE": 0.0033370247774345933,
+          "pixelYMaxAbs": 0.00575673828125
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 191,
+      "sourceSeconds": 2.4418214999999988,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06934719497845525,
+            0.05656117007655113,
+            0.07792722076928917
+          ],
+          "controlMeanRGB": [
+            0.0694600788771319,
+            0.05679709627991822,
+            0.07789090157700043
+          ],
+          "eventMeanY": 0.06082210783071163,
+          "controlMeanY": 0.06101221912253518,
+          "relativeMeanY": -0.0031159543868046684,
+          "meanChromaL1": 0.0015262040476561323,
+          "pixelYMAE": 0.0002906598191873795,
+          "pixelYMaxAbs": 0.0024531219482421874
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24910860283430233,
+            0.18392163653706395,
+            0.24303205623183138
+          ],
+          "controlMeanRGB": [
+            0.23749630950218023,
+            0.18224955714026161,
+            0.24994748137718023
+          ],
+          "eventMeanY": 0.20204815787381905,
+          "controlMeanY": 0.19888280682231102,
+          "relativeMeanY": 0.01591565958909695,
+          "meanChromaL1": 0.027670956907075606,
+          "pixelYMAE": 0.003267734545330668,
+          "pixelYMaxAbs": 0.0053404296874999995
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 192,
+      "sourceSeconds": 2.4755038999999988,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06947918670947383,
+            0.056570448079744595,
+            0.07795149481453958
+          ],
+          "controlMeanRGB": [
+            0.06953608889539703,
+            0.05680682650562666,
+            0.07793495434672892
+          ],
+          "eventMeanY": 0.06085855748667723,
+          "controlMeanY": 0.061038518519819424,
+          "relativeMeanY": -0.0029483191516806334,
+          "meanChromaL1": 0.0015629408704955217,
+          "pixelYMAE": 0.0002686039114055656,
+          "pixelYMaxAbs": 0.0023555786132812497
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2430774777434593,
+            0.17915521666061046,
+            0.23966092841569767
+          ],
+          "controlMeanRGB": [
+            0.23210250499636628,
+            0.1777698605559593,
+            0.2465153184047965
+          ],
+          "eventMeanY": 0.1971136017555414,
+          "controlMeanY": 0.19428440282067588,
+          "relativeMeanY": 0.014562151638476448,
+          "meanChromaL1": 0.027279431048579605,
+          "pixelYMAE": 0.002929988133630087,
+          "pixelYMaxAbs": 0.0046615234375
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 193,
+      "sourceSeconds": 2.5105809,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06928399144386758,
+            0.056387324293120565,
+            0.07781526192325075
+          ],
+          "controlMeanRGB": [
+            0.0693201520720593,
+            0.056641218041171545,
+            0.07781612229089634
+          ],
+          "eventMeanY": 0.06067625282626478,
+          "controlMeanY": 0.06086558750296841,
+          "relativeMeanY": -0.0031107015387700993,
+          "meanChromaL1": 0.001700674240422806,
+          "pixelYMAE": 0.00026324043102195715,
+          "pixelYMaxAbs": 0.0022132293701171875
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24187948537427326,
+            0.17821130087209303,
+            0.23845016124636628
+          ],
+          "controlMeanRGB": [
+            0.23163835392441862,
+            0.17724609375,
+            0.24548481785973839
+          ],
+          "eventMeanY": 0.19609640261627906,
+          "controlMeanY": 0.19373672414380452,
+          "relativeMeanY": 0.012179820232342849,
+          "meanChromaL1": 0.02661765955362244,
+          "pixelYMAE": 0.002453172976471657,
+          "pixelYMaxAbs": 0.004121826171875001
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 194,
+      "sourceSeconds": 2.5437351999999995,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06934774222494174,
+            0.0564005612468376,
+            0.07774806509212571
+          ],
+          "controlMeanRGB": [
+            0.06935335092899464,
+            0.05666198478597982,
+            0.07776611048777421
+          ],
+          "eventMeanY": 0.060694421700412345,
+          "controlMeanY": 0.060883887103654326,
+          "relativeMeanY": -0.003111913714040924,
+          "meanChromaL1": 0.0017902720171189546,
+          "pixelYMAE": 0.00026365039088145024,
+          "pixelYMaxAbs": 0.0021235992431640626
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2448176894077035,
+            0.18056044467659885,
+            0.23924645712209303
+          ],
+          "controlMeanRGB": [
+            0.23463333484738372,
+            0.1797031136446221,
+            0.24625272529069767
+          ],
+          "eventMeanY": 0.19845866500499637,
+          "controlMeanY": 0.19618616063317587,
+          "relativeMeanY": 0.011583408149107792,
+          "meanChromaL1": 0.026333731580957975,
+          "pixelYMAE": 0.0023299807526344475,
+          "pixelYMaxAbs": 0.004191992187499999
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 195,
+      "sourceSeconds": 2.5783894999999992,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06933902177203889,
+            0.05637773030660018,
+            0.07778652518594108
+          ],
+          "controlMeanRGB": [
+            0.06932765324147237,
+            0.0566569061554065,
+            0.07782004174350404
+          ],
+          "eventMeanY": 0.06067901586244086,
+          "controlMeanY": 0.06087868537536475,
+          "relativeMeanY": -0.0032797934399005427,
+          "meanChromaL1": 0.0019204501940102703,
+          "pixelYMAE": 0.0002689118254800089,
+          "pixelYMaxAbs": 0.0020595336914062496
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.2481902366460756,
+            0.18372717569040697,
+            0.24238196084665697
+          ],
+          "controlMeanRGB": [
+            0.23796329941860464,
+            0.1827591297238372,
+            0.24888433412063954
+          ],
+          "eventMeanY": 0.20166689793786335,
+          "controlMeanY": 0.19926977595839387,
+          "relativeMeanY": 0.012029531161664888,
+          "meanChromaL1": 0.02538720554009749,
+          "pixelYMAE": 0.002450583098655523,
+          "pixelYMaxAbs": 0.00441884765625
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    },
+    {
+      "logicalFrame": 196,
+      "sourceSeconds": 2.611762999999999,
+      "regions": {
+        "Floor": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.06918589006952879,
+            0.056296273010546995,
+            0.07785749950615012
+          ],
+          "controlMeanRGB": [
+            0.06917355412624034,
+            0.05659810921438888,
+            0.07792251937243404
+          ],
+          "eventMeanY": 0.060593326150269064,
+          "controlMeanY": 0.06081127121605936,
+          "relativeMeanY": -0.0035839583917913215,
+          "meanChromaL1": 0.001999903600706232,
+          "pixelYMAE": 0.00028170994269747693,
+          "pixelYMaxAbs": 0.001950286865234375
+        },
+        "White receiver": {
+          "eventUnknownInFixedDomain": 0,
+          "controlUnknownInFixedDomain": 0,
+          "known": true,
+          "qualified": true,
+          "eventMeanRGB": [
+            0.24846276571584303,
+            0.18461289516715115,
+            0.24306470294331395
+          ],
+          "controlMeanRGB": [
+            0.23755592523619187,
+            0.18299475381540697,
+            0.2491455078125
+          ],
+          "eventMeanY": 0.202407598167242,
+          "controlMeanY": 0.19937054329805595,
+          "relativeMeanY": 0.015233217600484183,
+          "meanChromaL1": 0.025500473093736875,
+          "pixelYMAE": 0.0030698730468749994,
+          "pixelYMaxAbs": 0.005456274414062501
+        }
+      },
+      "bothQualified": true,
+      "Floor": true,
+      "White receiver": true
+    }
+  ],
+  "limits": [
+    "Filtered validity is not fresh raw qualification",
+    "Unknown fixed-domain pixels make the frame unqualified; they are not dropped",
+    "No old-red photon fraction or MC reference was inferred",
+    "Original720 protocol remains incomplete; observer source was restored"
+  ]
+}
