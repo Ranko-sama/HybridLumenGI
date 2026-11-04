@@ -1,0 +1,158 @@
+{
+  "status": "insufficient-unchanged-GI-contract",
+  "intendedUnchangedGiCaseQualified": false,
+  "product": "Release122 same-source7c08327; no Runtime change",
+  "scope": "Same-Camera/same-RT-reference full1918x1078 ->1919x1079 was observed; actual GI changed820x460 ->819x460, so the intended unchanged-GI case is NOT qualified. No raw-fresh/fullG3/edge coverage/Player/performance claim",
+  "preparationMismatch": "The initial parser expected959x539 and stopped. Actual budget-constrained GI sizes are retained without changing input, thresholds or promoting this to the unchanged-GI contract.",
+  "captures": {
+    "95": {
+      "engineFrame": 99,
+      "camera": 31888,
+      "feature": 31370,
+      "full": [
+        1918,
+        1078
+      ],
+      "gi": [
+        820,
+        460
+      ],
+      "totalPixels": 377200,
+      "nonfiniteMoments": 0,
+      "allPixelAgeDistribution": {
+        "0.0": 68094,
+        "1.0": 3,
+        "32.0": 309103
+      },
+      "filteredKnownPixels": 309106,
+      "knownNgPixels": 309103,
+      "filteredKnownNgPixels": 309103,
+      "filteredKnownNgAgeDistribution": {
+        "32.0": 309103
+      },
+      "zeroAgePixels": 68094
+    },
+    "96": {
+      "engineFrame": 100,
+      "camera": 31888,
+      "feature": 31370,
+      "full": [
+        1919,
+        1079
+      ],
+      "gi": [
+        819,
+        460
+      ],
+      "totalPixels": 376740,
+      "nonfiniteMoments": 0,
+      "allPixelAgeDistribution": {
+        "0.0": 68417,
+        "1.0": 308323
+      },
+      "filteredKnownPixels": 308323,
+      "knownNgPixels": 308619,
+      "filteredKnownNgPixels": 308275,
+      "filteredKnownNgAgeDistribution": {
+        "1.0": 308275
+      },
+      "zeroAgePixels": 68417
+    },
+    "97": {
+      "engineFrame": 101,
+      "camera": 31888,
+      "feature": 31370,
+      "full": [
+        1919,
+        1079
+      ],
+      "gi": [
+        819,
+        460
+      ],
+      "totalPixels": 376740,
+      "nonfiniteMoments": 0,
+      "allPixelAgeDistribution": {
+        "0.0": 68067,
+        "1.0": 735,
+        "2.0": 307938
+      },
+      "filteredKnownPixels": 308673,
+      "knownNgPixels": 308619,
+      "filteredKnownNgPixels": 308617,
+      "filteredKnownNgAgeDistribution": {
+        "1.0": 679,
+        "2.0": 307938
+      },
+      "zeroAgePixels": 68067
+    }
+  },
+  "maturePreEventKnownNgPixels": 309103,
+  "firstPostAgeOnePixels": 308323,
+  "nextPostAgeTwoPixels": 307938,
+  "firstPostAgeBoundViolations": 0,
+  "nextPostAgeBoundViolations": 0,
+  "actualJointResizeAgeBoundsSatisfied": true,
+  "validityMeaning": "FilteredD/Ng validity is not a current raw measurement certificate. Zero ages remain unknown; newly accumulating domain is reported, not all pixels required to accumulate.",
+  "nativeExit": {
+    "exitCode": 0,
+    "sourceProduct": "7c08327f6fd6758dc5cdda563ec10e42e26b50bb",
+    "output": "I:\\Unity test\\Comparison/ResizeHistory136/run",
+    "sourceArchive": "I:\\Unity test\\Comparison/ValidationPackageV209/project-archive/Assets/ValidationPackageV201"
+  },
+  "host": {
+    "status": "collected",
+    "error": "",
+    "captureDirectory": "I:\\Unity test\\Comparison\\ResizeHistory136\\run\\capture\\20261104-000703-d0f832f4ef4d454783270e9abcba0c21",
+    "framesFile": "I:\\Unity test\\Comparison\\ResizeHistory136\\run\\capture\\20261104-000703-d0f832f4ef4d454783270e9abcba0c21\\frames.jsonl",
+    "runFile": "I:\\Unity test\\Comparison\\ResizeHistory136\\run\\capture\\20261104-000703-d0f832f4ef4d454783270e9abcba0c21\\run.json",
+    "seriesFile": "I:\\Unity test\\Comparison/ResizeHistory136/run\\series.json",
+    "actualFeatureJson": "{\n    \"m_Active\": true,\n    \"settings\": {\n        \"resolutionScale\": 0.5,\n        \"raysPerPixel\": 2,\n        \"screenSteps\": 24,\n        \"traceDistance\": 50.0,\n        \"shadowDistance\": 200.0,\n        \"rayBias\": 0.029999999329447748,\n        \"screenThickness\": 0.15000000596046449,\n        \"residentProxies\": 64,\n        \"nearDistance\": 30.0,\n        \"globalSdfEnabled\": true,\n        \"globalSdfLevels\": 4,\n        \"globalSdfBricksPerAxis\": 8,\n        \"globalSdfBaseVoxelSize\": 1.0,\n        \"globalSdfBricksPerFrame\": 16,\n        \"farDistance\": 150.0,\n        \"chunkSize\": 16.0,\n        \"proxyUploadsPerFrame\": 16,\n        \"cachePatchesPerFrame\": 256,\n        \"cachePatchGrid\": 4,\n        \"cacheRaysPerFace\": 8,\n        \"guidedSamplingWeight\": 0.3499999940395355,\n        \"emissiveSamplingWeight\": 0.5,\n        \"maxEmissiveProposals\": 16,\n        \"maxAreaEmitterTriangles\": 16384,\n        \"surfaceTileResolution\": 32,\n        \"residentSurfaceCards\": 128,\n        \"surfaceCapturesPerFrame\": 24,\n        \"surfaceDrawsPerFrame\": 256,\n        \"surfaceAtlasBudgetMiB\": 64,\n        \"bounceFeedback\": 1.0,\n        \"maxLights\": 8,\n        \"spatialLightSelection\": false,\n        \"environmentRadiance\": {\n            \"r\": 0.0,\n            \"g\": 0.0,\n            \"b\": 0.0,\n            \"a\": 1.0\n        },\n        \"environmentCubemap\": {\n            \"instanceID\": 0\n        },\n        \"indirectIntensity\": 1.0,\n        \"radianceClamp\": 0.0,\n        \"temporalAccumulation\": true,\n        \"receiverSourceTracking\": true,\n        \"receiverObjectHistory\": true,\n        \"receiverSourceCapacity\": 1024,\n        \"receiverFingerprintBudgetMiB\": 16,\n        \"temporalCurrentWeight\": 0.07999999821186066,\n        \"maxHistory\": 32,\n        \"relativeDepthThreshold\": 0.014999999664723874,\n        \"normalThreshold\": 0.8999999761581421,\n        \"filterIterations\": 4,\n        \"normalsOctEncoded\": false,\n        \"includeSceneView\": false,\n        \"preferHardwareTracing\": true,\n        \"exactSoftwareTracing\": true,\n        \"meshTriangleBudget\": 250000,\n        \"softwareGeometryBudgetMiB\": 128,\n        \"hardwareGeometryBudgetMiB\": 128,\n        \"rtasMemoryBudgetMiB\": 256,\n        \"rtasBuildsPerFrame\": 4,\n        \"rtasTriangleWorkPerFrame\": 250000,\n        \"rtasInstanceWorkPerFrame\": 4096,\n        \"rtasTriangleBurstCapacity\": 1000000,\n        \"rtasInstanceBurstCapacity\": 16384,\n        \"hardwareMaterialBudgetMiB\": 256,\n        \"materialTextureUploadMiBPerFrame\": 16,\n        \"composition\": 0,\n        \"materialLayers\": {\n            \"serializedVersion\": \"2\",\n            \"m_Bits\": 4294967295\n        },\n        \"textureBudgetMiB\": 128,\n        \"maxCameras\": 2,\n        \"adaptiveGpuBudget\": false,\n        \"measureGpuCost\": false,\n        \"preferNativeGpuTiming\": true,\n        \"targetGpuMilliseconds\": 0.0,\n        \"minimumGpuWorkFraction\": 0.125,\n        \"debugView\": 1\n    },\n    \"traceCompute\": {\n        \"instanceID\": 0\n    },\n    \"compositeShader\": {\n        \"instanceID\": 0\n    },\n    \"surfaceShader\": {\n        \"instanceID\": 0\n    },\n    \"nativeDiffuseShader\": {\n        \"instanceID\": 0\n    }\n}",
+    "actualSettingsJson": "{\n    \"resolutionScale\": 0.5,\n    \"raysPerPixel\": 2,\n    \"screenSteps\": 24,\n    \"traceDistance\": 50.0,\n    \"shadowDistance\": 200.0,\n    \"rayBias\": 0.029999999329447748,\n    \"screenThickness\": 0.15000000596046449,\n    \"residentProxies\": 64,\n    \"nearDistance\": 30.0,\n    \"globalSdfEnabled\": true,\n    \"globalSdfLevels\": 4,\n    \"globalSdfBricksPerAxis\": 8,\n    \"globalSdfBaseVoxelSize\": 1.0,\n    \"globalSdfBricksPerFrame\": 16,\n    \"farDistance\": 150.0,\n    \"chunkSize\": 16.0,\n    \"proxyUploadsPerFrame\": 16,\n    \"cachePatchesPerFrame\": 256,\n    \"cachePatchGrid\": 4,\n    \"cacheRaysPerFace\": 8,\n    \"guidedSamplingWeight\": 0.3499999940395355,\n    \"emissiveSamplingWeight\": 0.5,\n    \"maxEmissiveProposals\": 16,\n    \"maxAreaEmitterTriangles\": 16384,\n    \"surfaceTileResolution\": 32,\n    \"residentSurfaceCards\": 128,\n    \"surfaceCapturesPerFrame\": 24,\n    \"surfaceDrawsPerFrame\": 256,\n    \"surfaceAtlasBudgetMiB\": 64,\n    \"bounceFeedback\": 1.0,\n    \"maxLights\": 8,\n    \"spatialLightSelection\": false,\n    \"environmentRadiance\": {\n        \"r\": 0.0,\n        \"g\": 0.0,\n        \"b\": 0.0,\n        \"a\": 1.0\n    },\n    \"environmentCubemap\": {\n        \"instanceID\": 0\n    },\n    \"indirectIntensity\": 1.0,\n    \"radianceClamp\": 0.0,\n    \"temporalAccumulation\": true,\n    \"receiverSourceTracking\": true,\n    \"receiverObjectHistory\": true,\n    \"receiverSourceCapacity\": 1024,\n    \"receiverFingerprintBudgetMiB\": 16,\n    \"temporalCurrentWeight\": 0.07999999821186066,\n    \"maxHistory\": 32,\n    \"relativeDepthThreshold\": 0.014999999664723874,\n    \"normalThreshold\": 0.8999999761581421,\n    \"filterIterations\": 4,\n    \"normalsOctEncoded\": false,\n    \"includeSceneView\": false,\n    \"preferHardwareTracing\": true,\n    \"exactSoftwareTracing\": true,\n    \"meshTriangleBudget\": 250000,\n    \"softwareGeometryBudgetMiB\": 128,\n    \"hardwareGeometryBudgetMiB\": 128,\n    \"rtasMemoryBudgetMiB\": 256,\n    \"rtasBuildsPerFrame\": 4,\n    \"rtasTriangleWorkPerFrame\": 250000,\n    \"rtasInstanceWorkPerFrame\": 4096,\n    \"rtasTriangleBurstCapacity\": 1000000,\n    \"rtasInstanceBurstCapacity\": 16384,\n    \"hardwareMaterialBudgetMiB\": 256,\n    \"materialTextureUploadMiBPerFrame\": 16,\n    \"composition\": 0,\n    \"materialLayers\": {\n        \"serializedVersion\": \"2\",\n        \"m_Bits\": 4294967295\n    },\n    \"textureBudgetMiB\": 128,\n    \"maxCameras\": 2,\n    \"adaptiveGpuBudget\": false,\n    \"measureGpuCost\": false,\n    \"preferNativeGpuTiming\": true,\n    \"targetGpuMilliseconds\": 0.0,\n    \"minimumGpuWorkFraction\": 0.125,\n    \"debugView\": 1\n}",
+    "legacyMeaning": "105-source prefix of the original720-frame sequence remains failed; no quality verdict",
+    "sourceArchive": "ValidationPackageV209/project-archive/Assets/ValidationPackageV201/Generated; original static0..104, no door/light/pose modification",
+    "observerPatch": "Ordinary Sequence HDR export suppressed; existing134 observation-only plane selector retains filteredD/geometry/moments/material, with original Reserve/ownership/readback completion logic",
+    "captureCapacityMeaning": "3 pending/512MiB observation ownership limit, not a product memory budget",
+    "dimensionMeaning": "Legacy run.width/height describe initial target; per-frame dimensions record the single resize",
+    "renderedFrames": 105,
+    "receiptCount": 105,
+    "ticketCount": 3,
+    "finalLogical": 104,
+    "eventAfterLogical": 95,
+    "eventEngineFrame": 99,
+    "eventWorkFrame": 95,
+    "originalCameraId": 31888,
+    "originalTargetId": -1646,
+    "eventTargetIdBefore": -1646,
+    "eventTargetIdAfter": -1646,
+    "widthBefore": 1918,
+    "heightBefore": 1078,
+    "widthAfter": 1919,
+    "heightAfter": 1079,
+    "ordinaryPendingAtEvent": 0,
+    "eventSeconds": 7.281903105555555,
+    "elapsedSeconds": 8.744058399999998,
+    "eventAttempted": true,
+    "eventSeen": true,
+    "sameTargetAfterEvent": true,
+    "sameRequestAfterEvent": true,
+    "createSucceeded": true,
+    "referenceDrained": true,
+    "legacyReadbacksDrained": true,
+    "allCapturesSucceeded": true,
+    "legacy": {
+      "status": "failed",
+      "lastError": "",
+      "expectedBackend": "Hardware",
+      "renderPath": "RenderPipeline.StandardRequest; one request per logical frame",
+      "renderedFrames": 105,
+      "failures": 0,
+      "backendMismatches": 0,
+      "firstEngineFrame": 4,
+      "firstRenderedGiFrame": 1,
+      "capturesWritten": 0,
+      "width": 1918,
+      "height": 1078
+    }
+  }
+}

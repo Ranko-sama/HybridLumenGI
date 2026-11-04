@@ -52,7 +52,7 @@ Record the actual result and evidence path for each row; do not mark rows passed
 | Light color/intensity/off | Cache invalidates and converges without retaining stale illumination | 300-frame HDR luminance series |
 | Dynamic door, move/remove emitter | History rejects newly visible surfaces; obsolete cache contribution disappears | Video and per-frame error plot |
 | Camera translation/rotation | Static surfaces reuse reprojected history; disocclusions reject it | Confidence and history-age views |
-| Camera cut/resize | History reset; no stale content or uninitialized pixels | Cut/resize script + capture |
+| Camera cut/resize | History reset; no stale content or uninitialized pixels | [Existing two-Base cut](../LocalComparison/Review/multi-camera-history-01/result.md) and [136 actual joint full/GI resize](../LocalComparison/Review/resize-history-136/result.md) have limited age observations. The intended full-size change with unchanged GI was **not qualified**: actual GI changed820×460 to819×460 under the original budget. No inference of full-context-only reset, fresh raw, all-pixel validity or complete row acceptance. |
 | Two cameras and camera stack | No cross-camera history contamination | Frame Debugger capture |
 | 1919×1079 and low render scale | No edge pixels omitted; safe dispatch bounds | Player screenshots |
 | Scene load/unload and far-field boundary | No stale entries, missing coverage, or simultaneous near/HLOD double lighting | Streaming capture + cache stats |

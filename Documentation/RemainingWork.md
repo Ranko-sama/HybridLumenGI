@@ -20,6 +20,7 @@
 
 ## 用户已暂缓或已收束的工作
 
+- **同GI尺寸的full resize观察：本项不足后结束。** 唯一136运行的实际GI由820×460变819×460，冻结959×539不变条件未实现，原定G3子项仍开放。原预算约束的执行前估计疏漏不改写为产品bug；现有年龄只支持这一次full与GI共同变化后的重置／新累计，不能归因full尺寸识别。不调预算、回切或补跑。[实际记录](../LocalComparison/Review/resize-history-136/result.md)
 - **默认活动Skin成本：本项结束。** 当前122同源普通测量Player的已预热K+Space／24顶点／2骨窗口，GI合计p95为17.088ms、local有限采样峰572.004MiB，达到起始预算；同次Present支持该负载30FPS方向。新CPU快照捕获到首次观测帧龄p95为11帧，只关闭该条件的成本和CPU观测等待未知，不是BakeMesh耗时、逐渲染帧年龄或GPU延迟。可选截图未交付，形变质量、其他规模与完整T3／T6仍开放；不补图、重跑或扩大压力范围。[结果](../LocalComparison/Review/active-skin-cost-01/result.md)
 - **原红墙反射率换蓝恢复：本项结束。** Floor独立控制合格，当前Runtime均值在1.142–1.654秒形成保持窗口，后续至2.612秒未越线；White控制波动9.03%超过冻结5%，其恢复不足，整体合同不能判通过。不延长前史、扩大ROI、改阈值或补采，G3仍开放。[结果](../LocalComparison/Review/reflected-color-response-01/result.md)
 - **归档119两ROI颜色观察：本项结束。** 当前122同源Runtime直接复用原归档物理输入及有限参考，名义满足既定亮度／色向／MAE目标，unknown与MC边界保留；仅关闭该当前Runtime样点，不扩大为普通三室、960×540／Player或完整G1，不补时点／后端／参考。[结果](../LocalComparison/Review/archived-runtime-color119-01/result.md)
