@@ -88,12 +88,12 @@ Release84新增[F2运行状态日志入口](../LocalComparison/Review/keyboard-l
 | 代码明确跳过／有条件拒绝 | Feature仅进入Base Game及显式允许的SceneView、Tex2D目标；非DX12、非Linear、Overlay、立体/XR、无compute或必要资源时跳过 | [实际准入](../Runtime/HybridLumenGIRendererFeature.cs)。Replace原生漫反射另要求普通Lit、Forward／Forward+、有符号HDR和MSAA关闭，Deferred／APV／Subtractive等按[替换合同](NativeDiffuseComposition.md)拒绝或保持原画面；不能把这些行为写成仅“未测试” |
 | 软件／DXR及真实材质 | 精确软件三角和可选DXR共用材质、alpha／Cull与chart绑定；不足时允许明确的SDF／解析近似或unknown。请求偏好不等于实际后端 | [121软件预算恢复](../LocalComparison/Review/software-budget-recovery-121/result.md)、[122稳定回退历史](../LocalComparison/Review/stable-fallback-history-01/result.md)和[限定二值alpha实际遍历](../LocalComparison/Review/binary-alpha-traversal-01/result.md)。未推广成全部Cull、mip、纹理或混合回退视觉一致；原近似边界保留 |
 | 普通材质与相机合成 | ordinary opaque／cutout URP Lit为主路径；Additive保留原生光照，Replace适用其独立有界合同 | [普通Player workflow／map](../LocalComparison/Review/player-material-workflow-01/result.md)、[单采样alpha／smoothness-alpha](../LocalComparison/Review/player-alpha-smoothness-01/result.md)及[原生GI替换](NativeDiffuseComposition.md)均按各自输入采用。runtimeAlphaToMask0结果不放行A2C／MSAA；Shader Graph、自定义顶点变形、透明、镜面GI等不在当前同一合同内 |
-| 颜色与变化响应：有限依据 | 当前Runtime的原归档119两个ROI名义满足静态颜色目标；棕墙／白地板发光换色、全源关断及封闭室点光关断另有各自范围的秒级依据；原红墙反射率事件的Floor也补上有限恢复，White控制不足 | [119颜色](../LocalComparison/Review/archived-runtime-color119-01/result.md)、[发光换色](../LocalComparison/Review/final-state-response-01/result.md)、[反射率事件及White不足](../LocalComparison/Review/reflected-color-response-01/result.md)、[全源关断](../LocalComparison/Review/all-source-off-response-01/result.md)、[封闭室](../LocalComparison/Review/sealed-room-decay-01/result.md)。保留unknown、输入描述偏差、控制／MC／模型及过滤有效性边界；不能拼成普通三室、全像素或完整G1／G3通过 |
+| 颜色与变化响应：有限依据 | 当前Runtime的原归档119两个ROI名义满足静态颜色目标；棕墙／白地板发光换色、全源关断及封闭室点光关断另有各自范围的秒级依据；原红墙反射率事件的Floor也补上有限恢复，White控制不足 | [119颜色](../LocalComparison/Review/archived-runtime-color119-01/result.md)、[发光换色](../LocalComparison/Review/final-state-response-01/result.md)、[反射率事件及White不足](../LocalComparison/Review/reflected-color-response-01/result.md)、[全源关断](../LocalComparison/Review/all-source-off-response-01/result.md)、[封闭室](../LocalComparison/Review/sealed-room-decay-01/result.md)。保留unknown、输入描述偏差、控制／MC／模型及过滤有效性边界；列明范围的结果用于第6节G1代表性裁决，不等于普通三室、所有像素／Lit输入或完整G3通过 |
 | 表面、历史与形变：已实现／有限验证 | 网格SDF、真实charts、离屏／内层表面及刚体历史已有代表结果；Skinned骨变拒旧、停稳恢复，可读／Skinned几何走完整异步快照 | G2第6节代表场景已通过，专项仍开放；[表面合同](SurfaceCache.md)、[形变边界](DeformedGeometry.md)。默认活动Skin已补有限成本及新快照首次CPU观测帧龄，非GPU更新延迟。门运动保留[同曝光四时点取舍](../LocalComparison/Review/four-pass-local-quality-01/result.md)，不能证明全过程或弱拖尾时长；镜像、接缝及形变质量／延迟／成本未整体放行 |
 | 流式与资源：有限依据 | 页IO、完整组HLOD交接、GPU退休及多相机隔离已有实现；旧版本热态连续近远和30分钟离场／返近结果保留 | [热态路线](../LocalComparison/Review/continuous-near-far-01/result.md)、[Release100长时路线及后续域重载清理](../LocalComparison/Review/streaming-sustained-30m-01/result.md)。CPU完整组／稳定端点账目不证明逐像素无洞、转场每帧成本或当前122全部负载无增长 |
 | 实测未满足／未闭合 | 既有109／110冷高速路线的首次完整表示空档仍未关闭；132单页复用的位置容差未通过 | [冷入](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)不由热态通过代替；[132](../LocalComparison/Review/card-page-reuse-01/result.md)仅身份、覆盖、binding和旧锚点清除子项符合，A／B位置误差超过该次冻结2e−5。保留该次未通过，不把其数值自动升级为原计划的新放行前置，也不自动判实现bug或扩大调参 |
 | 预算：已有窗口与缺失能力 | 起始目标960×540／30FPS、GI三段逐帧合计p95≤25ms、进程local有限采样峰值≤1GiB，nonlocal单列 | 117中室GI／显存、119普通中室Present等[既有窗口](GpuBudget.md#当前已确认的起始验收目标)保留实际来源，不能合并为同帧联合验收。[默认活动Skin](../LocalComparison/Review/active-skin-cost-01/result.md)另有当前122同源、观察开启的同次有限预算／Present结果，非大模型或画质放行。反馈只调patch／capture／brick数量，全阶段独立时间预算及完整冷／热／高速／高更新负载仍未完成；逻辑账目不等于总VRAM |
-| 原计划未完成／用户暂缓 | G0本机基线已锁定；G1基础合同具有限依据，G2第6节代表场景已通过；完整G1、G3、G4、G5及G2专项尚未放行 | 具体剩余见[TODO](RemainingWork.md)。CI接线暂缓，严格误差证明扩展暂停，门运动调参已结束；这些状态不删原目标，也不自动生成重复运行或新矩阵 |
+| 原计划未完成／用户暂缓 | G0本机基线已锁定；原第6节G1传输与G2几何的本机代表性验收已通过；G3、G4、G5及第8／9节等专项未整体放行 | [G1裁决与原条件对应](#g1本机代表性传输验收裁决)、[剩余TODO](RemainingWork.md)。各证据原版本／范围及未完整协议继续保留。CI接线暂缓，严格误差证明扩展暂停，门运动调参已结束；这些状态不删原目标，也不自动生成重复运行或新矩阵 |
 | 历史证据的用途 | Release44、54、58、62、67、69、73等保留其原构建、场景、相机／TAA、形变和稳态范围 | [历史推进及来源](DevelopmentProgress.md)、[44稳态](ReviewBrief-LocalReleaseSteadyUse01.md)、[73整合](ReviewBrief-CurrentLocalRelease73.md)。不改旧FAIL，不把历史“当前”当成122现状；本表以下的阶段叙述也按其原引用版本理解，不能直接据旧“未执行／朋友验收”重立任务 |
 
 以下架构与G0–G5条件继续保留。早期阶段叙述和朋友包只提供历史背景，不决定当前启动步骤。
@@ -227,12 +227,12 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release122，将已接受的稳定回退历史修复纳入普通三室运行包及可编辑工程，关闭源码与成品不同步的缺口。沿用 121 的软件降预算恢复和折面图卡修复。普通 Player 从同版工程 ZIP 的干净解压目录构建；按 M 启停门，按 F5 查看间接光，按 4／5 请求软件或 DXR。**G0 本机基线已锁定，G1–G5 仍有生产条款未完成。** 本次整合不新增画质或性能结论。[122 修复与范围](../LocalComparison/Review/stable-fallback-history-01/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [122 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release122-demo)
+当前交付为 Release122，将已接受的稳定回退历史修复纳入普通三室运行包及可编辑工程，关闭源码与成品不同步的缺口。沿用 121 的软件降预算恢复和折面图卡修复。普通 Player 从同版工程 ZIP 的干净解压目录构建；按 M 启停门，按 F5 查看间接光，按 4／5 请求软件或 DXR。**G0 本机基线已锁定，第6节G1／G2本机代表性验收已通过；G3–G5及相关专项仍未完成。** Release122整合本身没有新增画质或性能测量。[122 修复与范围](../LocalComparison/Review/stable-fallback-history-01/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [122 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release122-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
 | G0：基线锁定 | Unity/URP 精确版本、设备矩阵、目标分辨率/FPS、GI GPU/显存预算、参考场景与图 | 本机导入/Player build及来源一致基线。**已完成本机基线锁定**：版本、设备、目标、预算、保存场景及参考图已明确，93基线与普通构建使用同一Runtime；依据见下表。后续完整负载／平台验收仍归G4/G5 |
-| G1：传输正确性 | 灯光单位/阴影/材质合约、真实 hit 材质、白炉/黑室/金属/色墙对照 | 线性 HDR 与匹配参考比对；无重复环境/烘焙贡献；能量/关灯衰减通过 |
+| G1：传输正确性 | 灯光单位/阴影/材质合约、真实 hit 材质、白炉/黑室/金属/色墙对照 | 线性 HDR 与匹配参考比对；无重复环境/烘焙贡献；能量/关灯衰减通过。**本机代表性验收已通过**，原条件逐项依据及采用边界见下方裁决 |
 | G2：世界表面与几何 | cards/atlas、mesh SDF 资产管线、实例空间加速、global SDF clipmaps、dirty bricks | 复杂多房间、薄壁、凹物体、离屏纹理与材质正确；覆盖 debug 可解释 |
 | G3：动态稳定性 | 局部失效、运动/形变一致性、可见性缓存、引导/MIS、时域重建 | 规定 camera/light/door 序列通过；误差、拖影、收敛时间量化 |
 | G4：规模与后端 | 异步 streaming、原子 HLOD 切换、反馈预算；DXR refit/alpha/纹理支持 | 冷/热/高速移动与长时压力通过，软件/DXR 视觉偏差可解释；无残留引用/增长 |
@@ -240,9 +240,18 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 **G1 的环境光／烘焙光重复计入检查，已通过本机普通 Forward Lit 的代表配置。** 在有可信 GI 的接收区域，把替换强度设为零后，地板与红墙和关闭环境 SH 的原生对照吻合。静态非方向、方向贴图的两处内部区域均保留独立测得的实时直射；单盏 Mixed 主方向灯的遮罩也保留了原生阴影。此判定适用于相机的 Replace 合成。Replace 会一起扣除烘入贴图的直射。默认 Additive 保留原生光。HLGI 自身的多跳能量和动态收敛仍按各自关卡验收。[合成配置、定量对照与边界](NativeDiffuseComposition.md#support-matrix-and-rejection-conditions)
 
-**G1 第6节基础合同在已有本机代表输入上具有限通过依据。** 130／131补齐普通Player的workflow／map和alpha／smoothness-alpha联合轮廓链路；已有白炉、黑／金属、色墙、合成和关断衰减按原来源复用。完整G1尚未放行：原版本／区域的物理颜色参考不等于当前拟声明支持域的静态颜色与能量准确性，部分原协议也未完整执行。该边界不自动触发版本重测、严格证明扩展或新材质排列。[增量关卡裁决、已通过项及限制](../LocalComparison/Review/player-alpha-smoothness-01/result.md)
+### G1本机代表性传输验收裁决
 
-当前122同源Runtime另已直接运行原归档场景0–119，两个原ROI的filteredD亮度偏差−3.075%／−.831%，色向和MAE均名义满足已定工程目标，unknown及有限参考边界保留。它关闭当前Runtime在该归档样点的有限颜色依据，不外推当前三室、960×540普通Player或完整G1；Astra同意结束，不补参考／时点／后端或调参。[输入、图像和关卡边界](../LocalComparison/Review/archived-runtime-color119-01/result.md)
+2026-11-04，Astra Max与独立进度审阅均建议：**关闭原第6节G1在列明本机代表输入与接收域上的传输验收。** 133已经补上131裁决时尚缺的当前Runtime静态颜色依据；复核未找到另一项应阻断这一代表性关卡的具体行为。“仍需拟声明全域颜色／能量准确性”的旧表述过宽，撤去作为笼统阻断理由。原条件保留如下，没有新增运行、参考或阈值。
+
+| 原G1条件 | 已有采用依据与范围 |
+| --- | --- |
+| 单位／阴影／材质和真实hit基础合同 | 沿用[131基础合同裁决](../LocalComparison/Review/player-alpha-smoothness-01/result.md)及[130普通Player workflow／map](../LocalComparison/Review/player-material-workflow-01/result.md)；[限定软件／DXR二值alpha实际遍历](../LocalComparison/Review/binary-alpha-traversal-01/result.md)保留真实来源；[点光间接倍率／直射分离](../LocalComparison/Review/analytic-light-bounce-01/result.md)和既有有限光路结果各按原输入使用。第9节特殊Cull、纹理及其他未覆盖条件继续单列 |
+| 线性HDR与匹配参考 | [133当前Runtime、原119场景](../LocalComparison/Review/archived-runtime-color119-01/result.md)的Floor／White同量filteredD，平均Y偏差−3.075%／−.831%，色向L1 .007976／.033415、MAE比14.69%／8.18%，名义满足工程目标；Floor2个unknown、有限MC／截断／模型边界保留。仅该两域，非当前三室全图或普通Player真值 |
+| 无重复环境／烘焙贡献 | [Forward Lit代表合成配置](NativeDiffuseComposition.md#support-matrix-and-rejection-conditions)已有环境SH、非方向／方向光图和单Mixed主灯Shadowmask的独立对照；Additive仍保留原生光，Replace按其合同扣除。其他Mixed模式、动态接收体等不据此放行 |
+| 能量与关灯衰减 | [99普通白炉](../LocalComparison/Review/white-furnace-ordinary-01/result.md)出射均值.99902347对单位参考；[黑／金属合成](../LocalComparison/Review/zero-diffuse-composite-v209/result.md)不增加零漫反射贡献；[有限缓存反馈链](ReviewBrief-CacheFeedbackFinite02.md)有独立递推；[129封闭反射房间点光关断](../LocalComparison/Review/sealed-room-decay-01/result.md)与[全源关断](../LocalComparison/Review/all-source-off-response-01/result.md)在各自固定域内衰减达标。不是任意房间或完整多跳算子的数学收缩证明 |
+
+这是原代表性验收的采用决定，各证据仍保留自己的版本、配置、物理量和不确定性；不把它们拼成122全部Lit输入、所有像素、全部G1相关专项或完整生产交付通过。原300帧、Editor／Player双端及指定输出等未完整协议继续保留在对应记录，第8／9节专项、G3–G5和CI暂缓状态不变。131、133等报告保留当时裁决，以本节为当前汇总；不因历史“完整G1开放”文字自动重开观察。
 
 **G2 第 6 节的本机代表场景已通过。** 多房间有三室实际通行和相邻房间地板的开关门对照；3 cm 薄壁的遮挡与畅通连接均与独立几何查询相符。烘焙门框能区分洞口和实壁。离屏纹理换位改变地板反弹，单个凹形网格的红前框与蓝内板也在白地板上产生可区分的非零贡献。F2 的覆盖记录能指出首个受阻图卡或采样块及其原因。第 8、9 节单列的材质／UV 接缝和负／非均匀缩放检查仍开放。[三室](../LocalComparison/Review/three-room-passage-01/result.md) · [隔墙受光](../LocalComparison/Review/shaded-room-floor-01/result.md) · [薄壁光路](ReviewBrief-ThinWallTransport01-Completed.md) · [烘焙门框](../LocalComparison/Review/rendererless-baked-doorway-01/result.md) · [离屏纹理](../LocalComparison/Review/offscreen-wall-texture-01/result.md) · [凹面材质](../LocalComparison/Review/recessed-wall-material-120/result.md) · [覆盖诊断](../LocalComparison/Review/hlod-coverage-diagnostic-01/result.md)
 

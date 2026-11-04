@@ -158,7 +158,7 @@ Feature仅进入Base Game相机及显式允许的Scene View；非DX12、非Linea
 
 精确软件与DXR共用命中材质、alpha/Cull和chart绑定；未知覆盖或材质不能贡献可信辐射。准入失败时保留明确的SDF/解析近似或未知结果。HLOD就绪表示完整组可发布，不表示照明已收敛；资源账目不等于驱动总VRAM。
 
-[原始计划](Documentation/OriginalDevelopmentPlan.md)的四项目标、十条工作流及[生产计划G0–G5](Documentation/ProductionPlan.md)继续约束开发。**[G0本机基线锁定已完成](Documentation/ProductionPlan.md#g0已锁定的本机基线)，G1–G5继续开放。** 主要开放项为整景颜色与多跳残留、完整运动以及按既定工程判据尚未覆盖的响应／收敛范围，复杂薄壁／凹腔及近远场支持范围，冷／热／高速流送、目标规模与长时负载，以及承诺平台的完整性能／内存和发布验收。实际CI按用户要求暂缓。有限窗口不替代这些条件。
+[原始计划](Documentation/OriginalDevelopmentPlan.md)的四项目标、十条工作流及[生产计划G0–G5](Documentation/ProductionPlan.md)继续约束开发。**[G0本机基线已锁定](Documentation/ProductionPlan.md#g0已锁定的本机基线)，原第6节[G1传输](Documentation/ProductionPlan.md#g1本机代表性传输验收裁决)与G2几何的本机代表性验收已通过。** 各结果仍保留原版本、配置、接收域和不确定性，未推广成全部Lit输入或三室所有像素通过。G3–G5及第8／9节等专项继续开放：动态拖影与响应范围、表面／后端材质专项、冷高速入场空档、资源规模／预算与完整性能／内存，以及最终发布验收。CI按用户要求暂缓；原未完整协议状态保留。
 
 当前122的交付来源、代码跳过、有限观察、实测未满足及未完成事项统一见[支持矩阵](Documentation/ProductionPlan.md#当前支持范围与证据层级)。132单页复用位置容差未通过，不能概括为池复用整体通过；冷高速首次完整表示空档仍未关闭。
 
