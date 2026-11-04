@@ -18,22 +18,24 @@
   table { border-collapse: collapse; font-variant-numeric: tabular-nums }
   th, td { padding: .35em .7em; border-bottom: 1px solid #cdd6d1; text-align: right }
   th:first-child, td:first-child { text-align: left }
+  .notice { border-left: 4px solid #538579; padding: .65em 1em; background: #edf3ef }
 </style>
 <main>
 <header>
   <small>HybridLumenGI　/　Windows 统一示例　/　线性 HDR 画面对照</small>
   <h1>颜色反弹与动态响应</h1>
+  <p class="notice"><strong>画册修订：2026-11-04。产品仍为 Release122。</strong> 本页整合已有图像与读数，没有新增渲染或新版 Runtime。颜色、残留、门运动和恢复分别来自下列标明的场景与版本；一项通过不代表完整 G3 或生产验收通过。</p>
   <p>普通示例以 960×540 启动。C 切换墙色，L 开关灯，M 启停门运动，F1 隐藏面板。F3 切换两室布局，F4 在室内切换三室路线，O 开关分隔门。F5 只看间接光，再按一次返回。各节标明实际采集版本、机位与适用范围。</p>
   <nav aria-label="画面对照"><a href="#color">颜色误差</a><a href="#residual">换色与关灯</a><a href="#motion">运动拖影</a><a href="#recovery">收敛时间</a><a href="#energy">白炉与零漫反射</a><a href="#world">离屏纹理与连通房间</a><a href="#baked">烘焙光与实时直射</a><a href="#passage">三室步行路线</a></nav>
 </header>
 <section id="color">
   <h2>1. 静止时的反弹颜色有多准？</h2>
-  <p>Release93 在第 119 帧的地面与白色接收体上，平均间接亮度分别比独立参考低 <strong>3.075%</strong> 和 <strong>0.831%</strong>。比较量 D 为间接漫反射辐照度除以 π，取自滤波后、乘接收面反射率之前。</p>
+  <p>当前 Release122 同源 Runtime 在原归档场景第 119 帧的地面与白色接收体上，平均间接亮度分别比既有有限独立参考低 <strong>3.075%</strong> 和 <strong>0.831%</strong>。比较量 D 为间接漫反射辐照度除以 π，取自滤波后、乘接收面反射率之前。这是两个固定接收域，不是当前三室全图或普通 Player 的物理真值。</p>
   <table><thead><tr><th>接收区域</th><th>已知点 / 源点</th><th>平均 D 亮度</th><th>参考</th><th>逐点亮度 MAE</th></tr></thead>
   <tbody><tr><td>地面</td><td>13,328 / 13,330</td><td>0.069485</td><td>0.071689</td><td>0.010529</td></tr>
   <tr><td>白色接收体</td><td>86 / 86</td><td>0.225072</td><td>0.226957</td><td>0.018576</td></tr></tbody></table>
-  <figure><img src="release93-color-frame119-01/comparison.png" alt="第119帧的候选间接光、独立参考、亮度差和参考采样误差"><figcaption>Release93，DXR，2 条射线，4 级空间滤波。差值图红色表示偏亮，蓝色表示偏暗，量程 0.05。棋盘为区域外，洋红为未知。</figcaption></figure>
-  <p>CPU 参考使用独立源几何，每点 256 个样本，最多 8 次反弹，黑环境，只计算漫反射和发光。图中标准误描述参考的逐像素采样噪声。弹射截断、射线偏移与产品的缓存和滤波也会影响差值。相比旧软件路径的 3 级滤波，这两个区域的 MAE 分别高约 10.1% 和 6.6%，同时发生了后端与版本变化。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/release93-color-frame119-01/result.md">颜色数据与估计范围 ↗</a></p>
+  <figure><img src="archived-runtime-color119-01/comparison.png" alt="当前Runtime第119帧的间接光、有限独立参考、亮度差和参考像素采样误差"><figcaption>产品源码7c08327，原归档物理资产；640×360／GI320×180、实际DXR、2条射线／4级滤波。差值图红色偏亮、蓝色偏暗，量程0.05；棋盘为区域外，洋红为未知。地板2个unknown单列。</figcaption></figure>
+  <p>两域的归一化平均RGB色向L1为 <strong>0.007976／0.033415</strong>，逐点亮度MAE与参考均值之比为 <strong>14.69%／8.18%</strong>，名义满足当前工程目标。参考用独立源几何、每点256样本、最多8次反弹、黑环境；图中标准误仅描述逐像素采样噪声，不是误差上界。有限采样、反弹截断、几何／偏移及缓存／滤波模型差异继续保留。<a href="archived-runtime-color119-01/comparison.json">线性读数</a> · <a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/archived-runtime-color119-01/result.md">原输入与不确定性 ↗</a></p>
   <h3>逐灯间接倍率会改变相机看见的直射吗？</h3>
   <p>同一盏白点光、同一块白地板。两次独立启动的 Unity 中，倍率 0 和 1 的原生直射全图一致。间接光在倍率 0 时全图为零，倍率 1 时左侧地板偏红、右侧偏蓝，颜色来自视锥外的墙。</p>
   <figure><img src="analytic-light-bounce-01/comparison.png" alt="上排两张相同的原生直射图，下排为倍率零时的黑图与倍率一时的红蓝地板反弹"><figcaption>Release111 产品源码，固定机位实际 DXR。为单独观察一次反弹，采用全分辨率、8 条射线并关闭时间累积和空间滤波。图的颗粒不代表统一示例的默认画质。<a href="analytic-light-bounce-01/result.json">线性读数与灯表</a></figcaption></figure>
@@ -41,6 +43,15 @@
 </section>
 <section id="residual">
   <h2>2. 墙换色或灯关闭后，还剩多少旧光？</h2>
+  <h3>当前同源产品：换色与全源关断的秒级观察</h3>
+  <p>固定棕墙／白地板光路中，唯一发光板从纯绿切蓝，27个预定地板点的旧绿均值在 <strong>0.978545秒剩0.265508%</strong>、<strong>1.970665秒剩0.0229948%</strong>。这衡量旧绿消退，最终蓝色恢复见第4节；光源换色不等于墙面反射率换色。</p>
+  <p>同一实际配置把唯一发光源写为零，旧绿均值在 <strong>0.985461秒剩0.277411%</strong>、<strong>1.984781秒剩0.0252869%</strong>。末帧过滤数据在固定点有效，仍有极低非零绿色；图近黑不代表严格零。这与示例L键只关解析灯、保留发光面的行为不同。</p>
+  <figure><img src="all-source-off-response-01/comparison.png" alt="全源关断约2秒与末帧的普通Final，以及末端过滤有效性和材质捕获"><figcaption>当前122同源、960×540／半GI、2ray／filter4。上排为普通Final，统一曝光1、Reinhard+sRGB；下排是末帧有效性和材质图，不是照明。白圈为事前固定点。<a href="all-source-off-response-01/result.json">源时刻与线性读数</a></figcaption></figure>
+  <p class="notice">原冻结文字将墙误写为白色，实际墙颜色为(0.5,0.25,0.125)，地板为白色。这里只采用实际棕墙配置，全白／高反射率条件未验证。观测是约29.1～29.4Hz的显式渲染请求，不能当普通Player帧率；时域存储有效不等于当帧raw新鲜，中间每帧过滤有效性未直接读出。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/all-source-off-response-01/result.md">关断范围 ↗</a></p>
+  <h3>封闭反射房间中的唯一点光关闭</h3>
+  <p>已有封闭灰墙房间先被内部绿点光照亮，再关闭唯一点光。九个预定接收点在 <strong>0.981452秒剩0.04606%</strong>、<strong>1.968233秒剩0.004056%</strong>，末端实际过滤数据有效。它补充封闭房间这一光路，不是任意房间能量或全图结果。</p>
+  <figure><img src="sealed-room-decay-01/comparison.png" alt="封闭反射房间关灯前、约2秒及末帧的同曝光间接出射"><figcaption>122产品与发行质量、960×540、实际DXR；量为IndirectOnly间接出射，未把原生点光直射放入衰减分母。约29.30Hz显式请求，不是Present性能。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/sealed-room-decay-01/result.md">固定域与源时间 ↗</a></figcaption></figure>
+  <h3>历史观察与修复记录</h3>
   <h3>物体没有可用图卡时，材质换色能传到地板吗？</h3>
   <p>Release113 中，近处遮板的共享材质为红色，运行时覆盖为绿或蓝，白地板仍然收到红光。Release114 修复后，设置 Renderer 为绿、设置槽 0 为蓝、清除槽覆盖的三个连续工作帧中，地板依次收到绿光、蓝光、绿光。</p>
   <figure><img src="uniform-fallback-mpb-01/comparison.png" alt="同一块地板在三个连续帧的反弹，旧版一直红，修复后依次为绿、蓝、绿"><figcaption>单槽普通 Lit 的解析回退，三个时点各有 27 个共同有效地板点。每张图使用同一曝光。这组单次反弹关闭了时间历史，能区分材质是否正确传入光路；多跳残留见下方其他观测。<a href="uniform-fallback-mpb-01/result.json">线性读数与实际 GPU 来源</a></figcaption></figure>
@@ -64,14 +75,23 @@
   <p>普通可读网格门还有一项独立修复。最后一帧的 24 个顶点已被捕获后按停，旧版在引擎帧 16 与 27 两次发布相同终姿，新版只在第 16 帧发布。此项记录几何提交；运动拖影仍见上方画面。<a href="display-and-door-stability-119/result-door.json">停姿与发布记录</a></p>
 </section>
 <section id="recovery">
-  <h2>4. 重新开灯后，多久恢复？</h2>
+  <h2>4. 变化后，多久恢复到匹配的最终状态？</h2>
+  <h3>发光换色：固定域均值的可用响应时间</h3>
+  <p>当前122同源产品、实际棕墙／白地板中，绿转蓝路径相对同工作帧的较长蓝前史产品控制，固定地板均值在 <strong>0.193958～0.708270秒</strong>形成首个合格保持窗口；之后观测到2.612935秒未再次越线。采用亮度±10%、色向L1≤0.05并保持至少0.5秒的工程目标，控制本身满足预定稳定性条件。</p>
+  <figure><img src="final-state-response-01/comparison.png" alt="绿转蓝与首帧蓝色两程在约2秒及末帧的同工作帧Final对照"><figcaption>960×540／GI480×270、2ray／filter4，图为work178／196，同曝光的线性Final HDR经Reinhard+sRGB显示。控制是产品输出，不是独立物理真值，也不是无限稳态。<a href="final-state-response-01/result.json">恢复窗口与逐源读数</a></figcaption></figure>
+  <p>窗口起点最差单点亮度差仍为 <strong>23.05%</strong>，约2秒时最差点约1%。因此0.194秒是区域均值的已观察窗口起点，不能说全像素已恢复。实际源节奏约29.4Hz，未测普通Player性能；输入描述偏差与有效性限制同第2节。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/final-state-response-01/result.md">采用范围 ↗</a></p>
+  <h3>红墙反射率换蓝：地板可采用，白块控制不足</h3>
+  <p>原640×360归档场景中，当前Runtime的地板均值相对独立蓝前史产品控制，在 <strong>1.141710～1.654460秒</strong>形成合格保持窗口，后续观测至2.611763秒未再越线。地板控制稳定性合格；<strong>白块控制自身亮度波动9.03%，超过冻结5%，其恢复不能采用</strong>，两个接收域的整体合同仍不足。</p>
+  <figure><img src="reflected-color-response-01/comparison.png" alt="红墙改蓝与首帧蓝墙在地板和白块两域的同量D及亮度差"><figcaption>当前122同源，原场景／2ray／filter4／DXR，约2秒和末帧的filteredD，不是上图Final。地板有2个unknown；均值窗口不等于每个像素恢复。<a href="reflected-color-response-01/result.json">两域资格与数值</a> · <a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/reflected-color-response-01/result.md">控制不足及范围 ↗</a></figcaption></figure>
+  <p class="notice">这些是各自固定光路的恢复观察，没有给出统一三室、几何遮挡改变或门运动的共同收敛时间。第3节四张门图仍不足以量化很弱拖尾的时长。</p>
+  <h3>历史帧数观察</h3>
   <h3>唯一发光源切蓝后，旧绿色多久消退？</h3>
   <p>Release114 在黑环境中只保留一个发光板，从纯绿切到纯蓝。开启时间累积、递归反弹和 4 级滤波后，白地板平均 G 相对切换前的残留在首个蓝色帧为 7.46%，第 +10 帧为 1.43%，第 +30 帧为 0.285%，第 +119 帧仍有 0.0000681%。</p>
   <figure><img src="green-emission-decay-114/comparison.png" alt="同一发光板由纯绿切为纯蓝后，白地板的同曝光实拍与旧绿色残留百分比"><figcaption>640×360 相机、半分辨率 GI、每像素 2 条射线。七个时点的同一批 27 个地板点全部有效。比例衡量旧绿色消退，蓝色的物理终值和精确稳定帧仍未知。<a href="green-emission-decay-114/result.json">时点、线性值与源状态</a></figcaption></figure>
   <h3>五盏解析灯重新开启</h3>
   <p>Release83 软件路径恢复五盏选定灯后，第 30 帧地面和白色接收体只恢复到各自此前亮灯观测值的 <strong>74.65% 和 65.68%</strong>。到第 59 帧，两者分别达到 <strong>98.36% 和 96.78%</strong>。此时与独立亮灯参考相比，平均 D 亮度仍分别低 7.39% 和 6.48%。</p>
   <figure><img src="light-restore-response-01/comparison.png" alt="开灯前的稳定观测、重新开灯后30和59帧的D，与独立亮灯参考比较"><figcaption>Release83，逻辑帧 119 为此前亮灯观测，300 重新开灯，330 和 359 为恢复后的采样点。相机、门位姿、灯状态和比较区域在三张亮灯观测中匹配。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/720146d/LocalComparison/Review/light-restore-response-01/result.md">恢复数据与参考 ↗</a></figcaption></figure>
-  <p>可报告的是上述已采样帧的恢复程度。稀疏观测无法给出首次稳定帧、实测秒数或整景达到正确颜色的时间。</p>
+  <p>这些历史记录只报告所采样帧的恢复程度，不能按30FPS目标换算为实测秒数，也不能替代上方新观察或给出整景统一收敛时间。</p>
 </section>
 <section id="energy">
   <h2>5. 白色平面能反射多少光，黑色与金属表面又会增加多少漫反射？</h2>
@@ -102,7 +122,7 @@
   <figure><img src="offscreen-wall-texture-01/comparison.png" alt="视锥外墙纹理交换之后，地板两侧的反弹颜色跟随反转"><figcaption>同一相机只看地板。两张纹理各有一半红色和一半蓝色。</figcaption></figure>
   <p>Release102 的相邻两室共用一个门洞。关闭全部解析灯后，同一前室地板区域的平均线性亮度在开门时为 0.11809，全闭时为 0.00000530。两图分别来自固定门姿的第 119 帧，使用 2 条射线和 4 级滤波。<a href="connected-rooms-01/linear-frames.zip">开关门原始 EXR 对</a></p>
   <figure><img src="connected-rooms-01/comparison.png" alt="连通房间示意与实拍对照，暖色间接光经门洞到达前室，闭门后地板接近黑色"><figcaption>相机始终看同一接收面。两次独立运行支持这处门洞的遮挡结论；关门后的衰减时间尚未由这对画面测量。</figcaption></figure>
-  <p>同一次关门后，首个闭门帧的前室地板仍保留开闭亮度差的 47.45%。第 +59 帧降至 9.38%，第 +119 帧（该次 Editor 采集约 1.42 秒）仍有 6.34%，精确收敛时间未知。</p>
+  <p>同一次关门后，首个闭门帧的前室地板仍保留开闭亮度差的 47.45%。第 +59 帧降至 9.38%，第 +119 帧（该次 Editor 采集约 1.42 秒）仍有 6.34%。其后几何遮挡改变所引起的照明恢复尚未被该数据覆盖，不能由这个较早样点判断当前产品的2秒目标是否满足。</p>
   <figure><img src="portal-close-response-01/comparison.png" alt="同一门在关闭前后六个时点的暖光残留"><figcaption>Release102。门已闭合，解析灯为零，亮度变化来自暖色发光面间接照明的响应。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/0e882fe/LocalComparison/Review/portal-close-response-01/result.md">同一过程的逐点读数 ↗</a></figcaption></figure>
   <p>把相机移到左门框后方，地板接收区到两块暖色发光面的直线都穿过左隔墙。开门时这块地板平均间接亮度为 0.01979983，闭门时为 0.00007467。两次独立运行均取固定门姿的第 119 帧。<a href="shaded-room-floor-01/linear-frames.zip">受遮地板原始 EXR 对</a></p>
   <figure><img src="shaded-room-floor-01/comparison.png" alt="地板与光源之间的隔墙及同一受遮地板开门、闭门的实拍"><figcaption>青框为地板接收区，金线为一条可行反弹光路。图像没有分解各墙面的贡献。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/a3a33fb/LocalComparison/Review/shaded-room-floor-01/result.md">机位与遮挡范围 ↗</a></figcaption></figure>
