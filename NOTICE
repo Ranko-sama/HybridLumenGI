@@ -1,0 +1,59 @@
+HybridLumenGI
+Copyright 2026 HybridLumenGI contributors
+
+Original project code, documentation and example content are licensed under
+the Apache License, Version 2.0. See LICENSE for the complete terms.
+Third-party material retains its own copyright notices and license terms.
+The Apache-2.0 grant does not relicense Unity or other third-party material.
+
+Third-party notices
+-------------------
+
+Unity Render Pipelines Core / Universal and Unity Native Plugin API
+Copyright Unity Technologies ApS; see the original per-file notices.
+Unity-dependent material is licensed under the Unity Companion License,
+except where a file explicitly provides another license. The complete
+Unity Companion License is in:
+  Documentation/Licenses/Unity-Companion-License.txt
+Existing package notices and source evidence are retained in:
+  Documentation/NativeGpuTimingThirdPartyNotices.md
+  LocalComparison/Review/early-exit-retirement-01/urp-source-dependency/
+  LocalComparison/Review/scene-radiometry-matched-baseline-02/third-party-notices/
+
+The optional native GPU timing plugin uses Unity Native Plugin API headers.
+Those headers are build dependencies, not included project source. Preserve
+the native plugin's existing notices when redistributing it.
+
+Historical dependency snapshots under LocalComparison are development
+evidence, not part of the Runtime / Editor / Shaders source import. Their
+original headers, copyright notices and third-party licenses remain in force.
+
+The scene-radiometry-matched-baseline-03/run/source-assets/ archive under
+LocalComparison/Review contains Unity dependency snapshots with .bin names;
+run/source-freeze.json records their original paths. The following notices
+supplement, rather than replace, the original archived source headers:
+
+Clipper 6.4.2 (original: Runtime/2D/Clipper.cs in URP)
+Copyright Angus Johnson 2010-2017
+Boost Software License 1.0; complete text:
+  Documentation/Licenses/Boost-1.0.txt
+Archived file:
+  0785e4fe85a98cd280304709a46e3bc94138ef89cf4632e619b2ffe279a20902.bin
+License source: https://www.boost.org/LICENSE_1_0.txt
+
+Unity terrain shaders (originals: Shaders/Terrain/WavingGrass.shader and
+Shaders/Terrain/WavingGrassBillboard.shader in URP)
+Copyright (c) 2016 Unity Technologies
+MIT License, as stated by both archived file headers; complete text:
+  Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt
+Archived files, respectively:
+  eb2860a6a49ba5113d21daecf990d1fe662daecf201528283eafe3dddd6b5ac3.bin
+  cfa7148b52d1a81569d4d9e7aa0362b4198cc80c2dabfeeadb34c5f8c622b833.bin
+Standard MIT license text: https://opensource.org/license/mit
+
+Other archived dependency material includes ACES, AMD FidelityFX/FSR, SMAA
+and NVIDIA code. Preserve the complete copyright and license notices already
+embedded in those files; their licenses are not replaced by Apache-2.0.
+
+Unity Engine and its distributed components remain subject to their own
+licenses. This project does not grant rights in the Unity Engine or trademarks.

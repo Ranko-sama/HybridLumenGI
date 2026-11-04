@@ -2,9 +2,15 @@
 
 Unity 6 / URP 17 的实验性漫反射 GI：真实网格 SDF、表面材质与世界光照缓存、渐进多次反弹、时域重建、精确软件三角查询、可选 DXR，以及形变快照和分页/HLOD。当前仍在开发，完整 G0–G5 尚未验收，不宣称 UE5 Lumen 等价。
 
+## 许可证
+
+除另有标注的第三方内容外，本项目原创代码、文档与示例内容采用 [Apache License 2.0](LICENSE)。第三方依赖和历史源码存档保留各自的许可，详见 [NOTICE](NOTICE)；Unity 引擎及相关依赖仍须遵守其许可条件。公开源码不代表完整 G0–G5 已通过生产验收。
+
+Release122 下载者请同时保存[许可证补充包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release122-demo/HybridLumenGI-Release122-Licenses.zip)，与原运行包或工程包一同保留。
+
 ## 开始使用
 
-**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。下载需要私有仓库访问权限。[下载 Release122](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release122-demo/HybridLumenGI-Release122-Windows-x64.zip)
+**直接运行**　完整解压 Windows x64 实验性演示包，双击 `Start-LocalRelease.cmd`。请把整个包解压到新目录，保留可执行文件旁的所有数据。[下载 Release122](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release122-demo/HybridLumenGI-Release122-Windows-x64.zip)
 
 **在 Unity 中打开同一示例**　另一个 ZIP 是可编辑工程，包含实际三室场景、渲染配置、分页源资产和 Windows 资源页。用 Unity 6000.0.85f1 在 Hub 中添加解压目录。Release122 的 Windows 运行包直接从该工程 ZIP 的独立解压目录构建。[下载 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release122-demo/HybridLumenGI-Release122-UnityProject.zip) · [打开场景与构建步骤](Documentation/UnifiedUnityProject.md)
 
