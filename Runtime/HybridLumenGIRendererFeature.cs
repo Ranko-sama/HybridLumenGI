@@ -268,9 +268,9 @@ namespace HybridLumenGI
                 !GraphicsFormatUtility.IsSRGBFormat(cube.graphicsFormat);
         }
         private TransportPass pass;
-        // Keep attribute charges with the camera across state eviction and pass replacement.
-        private readonly ConditionalWeakTable<Camera, HybridLumenGIHardwareBackend.AttributeAllocations> hardwareAttributes =
-            new ConditionalWeakTable<Camera, HybridLumenGIHardwareBackend.AttributeAllocations>();
+        // Keep both geometry budgets with the camera across state eviction and pass replacement.
+        private readonly ConditionalWeakTable<Camera, CameraGeometryAllocations> cameraGeometry =
+            new ConditionalWeakTable<Camera, CameraGeometryAllocations>();
         private bool warnedPlatform;
         private readonly List<HybridLumenGIStreamedRepresentation> visibleHlodBindings = new List<HybridLumenGIStreamedRepresentation>();
         private Camera hlodRasterCamera;
@@ -343,6 +343,11 @@ namespace HybridLumenGI
         private const int CacheEntryStride = 96;
         [StructLayout(LayoutKind.Sequential)] private struct CacheData
         { public Vector4 irradiance,tag,anchor,normal,guide,nonAnalyticIrradiance; }
+        private sealed class CameraGeometryAllocations
+        {
+            internal readonly HybridLumenGIHardwareBackend.GeometryAllocations Hardware = new HybridLumenGIHardwareBackend.GeometryAllocations();
+            internal readonly HybridLumenGIHardwareBackend.GeometryAllocations Software = new HybridLumenGIHardwareBackend.GeometryAllocations();
+        }
         private sealed class CameraState : IDisposable
         {
             internal int scenePreparedEngineFrame = -1, scenePreparedWorkFrame = -1;
@@ -350,14 +355,14 @@ namespace HybridLumenGI
             internal readonly Camera camera;
             internal readonly HybridLumenGIScene scene=new HybridLumenGIScene();
             internal readonly HybridLumenGIHardwareBackend hardware;
-            internal readonly HybridLumenGIHardwareBackend softwareGeometry=new HybridLumenGIHardwareBackend(true);
+            internal readonly HybridLumenGIHardwareBackend softwareGeometry;
+            private readonly HybridLumenGIHardwareBackend.GeometryAllocations softwareAllocations;
             internal readonly HybridLumenGIAreaEmission.Cache areaEmissionCache=new HybridLumenGIAreaEmission.Cache();
-            internal long softwareGeometryBytes,areaEmitterBytes;
+            internal long areaEmitterBytes;
             internal bool exactSoftwareGeometry;
             private HybridLumenGISoftwareTriangleBvh.Layout retainedSoftwareLayout;
             private ulong retainedSoftwareVersion,uploadedSoftwareVersion;
             private GraphicsBuffer retainedSoftwareNodes,retainedSoftwareLeaves;
-            private long retiredSoftwareBytes;
             internal readonly HybridLumenGISdfAtlas sdf=new HybridLumenGISdfAtlas();
             internal readonly HybridLumenGIGlobalSdf globalSdf=new HybridLumenGIGlobalSdf();
             internal readonly HybridLumenGISurfaceCache surfaceCache=new HybridLumenGISurfaceCache();
@@ -439,9 +444,11 @@ namespace HybridLumenGI
                 return changed;
             }
             internal readonly MaterialPropertyBlock properties=new MaterialPropertyBlock();
-            internal CameraState(Camera camera, HybridLumenGIHardwareBackend.AttributeAllocations hardwareAttributes)
+            internal CameraState(Camera camera, CameraGeometryAllocations allocations)
             {
-                hardware = new HybridLumenGIHardwareBackend(hardwareAttributes);
+                hardware = new HybridLumenGIHardwareBackend(allocations.Hardware);
+                softwareAllocations = allocations.Software;
+                softwareGeometry = new HybridLumenGIHardwareBackend(softwareAllocations, softwareOnly: true);
                 this.camera=camera;lights=new ComputeBuffer(32,HybridLumenGILights.Stride);gpuTiming=new HybridLumenGIGpuTiming(camera.GetInstanceID());
                 nativeGpuTiming=new HybridLumenGINativeGpuTiming(camera.GetInstanceID());
             }
@@ -556,9 +563,8 @@ namespace HybridLumenGI
                 var table=retainedSoftwareLayout;
                 int nodeCount=Math.Max(1,table.NodeCount),leafCount=Math.Max(1,table.LeafCount);
                 bool grow=retainedSoftwareNodes==null || retainedSoftwareNodes.count<nodeCount || retainedSoftwareLeaves.count<leafCount;
-                long current=SoftwareBufferBytes;
-                long wanted=grow?table.ByteCount:current;
-                if(softwareGeometry.AttributeBytes+retiredSoftwareBytes+current+(grow?wanted:0)>byteLimit)
+                long extra = grow ? table.ByteCount : 0;
+                if(softwareAllocations.TotalBytes + extra > byteLimit)
                 {
                     // Release obsolete capacity through a real end-context ticket. A later frame
                     // can admit the replacement; never silently exceed the quota to resize.
@@ -570,23 +576,24 @@ namespace HybridLumenGI
                     GraphicsBuffer newNodes=null,newLeaves=null;
                     try
                     {
-                        newNodes=new GraphicsBuffer(GraphicsBuffer.Target.Structured,nodeCount,HybridLumenGISoftwareTriangleBvh.NodeStride);
-                        newLeaves=new GraphicsBuffer(GraphicsBuffer.Target.Structured,leafCount,HybridLumenGISoftwareTriangleBvh.LeafStride);
+                        newNodes=AllocateSoftwareBuffer(nodeCount,HybridLumenGISoftwareTriangleBvh.NodeStride);
+                        newLeaves=AllocateSoftwareBuffer(leafCount,HybridLumenGISoftwareTriangleBvh.LeafStride);
                     }
-                    catch(Exception ex) { newNodes?.Release();newLeaves?.Release();reason="Software geometry allocation failed: "+ex.GetType().Name;return false; }
+                    catch(Exception ex)
+                    {
+                        ReleaseSoftwareBuffer(newNodes);
+                        ReleaseSoftwareBuffer(newLeaves);
+                        reason="Software geometry allocation failed: "+ex.GetType().Name;return false;
+                    }
                     RetireSoftwareBuffers();retainedSoftwareNodes=newNodes;retainedSoftwareLeaves=newLeaves;uploadedSoftwareVersion=0;
                 }
                 layout=table;nodes=graph.ImportBuffer(retainedSoftwareNodes);leaves=graph.ImportBuffer(retainedSoftwareLeaves);
-                softwareGeometryBytes=softwareGeometry.AttributeBytes+SoftwareBufferBytes+retiredSoftwareBytes;
                 return true;
             }
-            private long SoftwareBufferBytes => retainedSoftwareNodes==null?0:
-                (long)retainedSoftwareNodes.count*HybridLumenGISoftwareTriangleBvh.NodeStride+(long)retainedSoftwareLeaves.count*HybridLumenGISoftwareTriangleBvh.LeafStride;
-            internal long SoftwareResidentBytes => softwareGeometry.AttributeBytes+SoftwareBufferBytes+retiredSoftwareBytes;
+            internal long SoftwareResidentBytes => softwareAllocations.TotalBytes;
             internal bool PrepareSoftwareAttributes(int triangleLimit,long byteLimit)
             {
-                long available=Math.Max(0,byteLimit-SoftwareBufferBytes-retiredSoftwareBytes);
-                if(softwareGeometry.Prepare(scene,scene.Revision,triangleLimit,surfaceCache,available))return true;
+                if(softwareGeometry.Prepare(scene,scene.Revision,triangleLimit,surfaceCache,byteLimit))return true;
                 // The old BVH cannot trace this scene without its attributes. If we keep it,
                 // its capacity can prevent even a smaller replacement from ever being admitted.
                 RetireSoftwareBuffers();
@@ -603,9 +610,25 @@ namespace HybridLumenGI
             private void RetireSoftwareBuffers()
             {
                 var nodes=retainedSoftwareNodes;var leaves=retainedSoftwareLeaves;if(nodes==null)return;
-                long bytes=SoftwareBufferBytes;retiredSoftwareBytes+=bytes;
                 retainedSoftwareNodes=retainedSoftwareLeaves=null;uploadedSoftwareVersion=0;
-                HybridLumenGIResourceRetirement.Retire(()=>{nodes.Release();leaves.Release();retiredSoftwareBytes-=bytes;});
+                HybridLumenGIResourceRetirement.Retire(() =>
+                {
+                    ReleaseSoftwareBuffer(nodes);
+                    ReleaseSoftwareBuffer(leaves);
+                });
+            }
+            private GraphicsBuffer AllocateSoftwareBuffer(int count, int stride)
+            {
+                var buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, count, stride);
+                softwareAllocations.BvhBytes += (long)count * stride;
+                return buffer;
+            }
+            private void ReleaseSoftwareBuffer(GraphicsBuffer buffer)
+            {
+                if (buffer == null) return;
+                long bytes = (long)buffer.count * buffer.stride;
+                buffer.Release();
+                softwareAllocations.BvhBytes -= bytes;
             }
             private void ReleaseTextures()
             {
@@ -1278,7 +1301,7 @@ namespace HybridLumenGI
             {
                 var state=d.state;
                 state.hardwareMaterialFrameBytes=0;state.hardwareMaterialUnknownRecords=0;
-                state.softwareGeometryBytes=state.areaEmitterBytes=0;
+                state.areaEmitterBytes=0;
                 state.hardwareMaterialStatus=d.geometry!=null?"Preparing immutable hit materials":"SDF/analytic software tracing";
                 if(d.geometry==null){state.areaEmissionCache.Clear();return;}
                 if(!d.geometry.TryCaptureHitMaterialSources(state.scene,out var sources,out string reason))
@@ -1608,8 +1631,8 @@ namespace HybridLumenGI
                 }
                 if(state==null)
                 {
-                    var attributes = validationOwner.hardwareAttributes.GetValue(camera, static _ => new HybridLumenGIHardwareBackend.AttributeAllocations());
-                    state = new CameraState(camera, attributes);
+                    var allocations = validationOwner.cameraGeometry.GetValue(camera, static _ => new CameraGeometryAllocations());
+                    state = new CameraState(camera, allocations);
                     cameras.Add(id, state);
                 }
                 return state;

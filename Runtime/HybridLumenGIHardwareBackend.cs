@@ -59,17 +59,18 @@ namespace HybridLumenGI
         private readonly List<TriangleSurface> surfaces = new List<TriangleSurface>();
         private readonly List<InstanceData> instances = new List<InstanceData>();
         private readonly List<Matrix4x4> objectToWorld=new List<Matrix4x4>();
-        internal sealed class AttributeAllocations
+        internal sealed class GeometryAllocations
         {
-            internal long Bytes;
+            internal long AttributeBytes, BvhBytes;
+            internal long TotalBytes => AttributeBytes + BvhBytes;
         }
-        private readonly AttributeAllocations attributeAllocations;
+        private readonly GeometryAllocations geometryAllocations;
         private readonly bool softwareOnly;
         public HybridLumenGIHardwareBackend(bool softwareOnly=false)
-            : this(new AttributeAllocations(), softwareOnly) { }
-        internal HybridLumenGIHardwareBackend(AttributeAllocations attributeAllocations, bool softwareOnly=false)
+            : this(new GeometryAllocations(), softwareOnly) { }
+        internal HybridLumenGIHardwareBackend(GeometryAllocations geometryAllocations, bool softwareOnly=false)
         {
-            this.attributeAllocations = attributeAllocations;
+            this.geometryAllocations = geometryAllocations;
             this.softwareOnly = softwareOnly;
         }
         private readonly List<HybridLumenGISurfaceCache.TriangleChartBinding> bindings = new List<HybridLumenGISurfaceCache.TriangleChartBinding>();
@@ -108,7 +109,7 @@ namespace HybridLumenGI
             BufferBytes(surfaceBuffer)+BufferBytes(bindingsBuffer)+BufferBytes(objectToWorldBuffer);
         public long RetiredAttributeBytes=>retiredAttributeBytes;
         // Camera states can share one allowance across their current and detached backends.
-        public long AttributeBytes=>attributeAllocations.Bytes;
+        public long AttributeBytes=>geometryAllocations.AttributeBytes;
         public int SceneRebuildCount { get; private set; }
         public int TransformUpdateCount { get; private set; }
         public int TriangleUploadCount { get; private set; }
@@ -597,7 +598,8 @@ namespace HybridLumenGI
             long extra=NewBufferBytes(flagsBuffer,slots,4)+NewBufferBytes(instancesBuffer,instanceCount,128)+
                 NewBufferBytes(objectToWorldBuffer,instanceCount,64)+NewBufferBytes(normalsBuffer,triangles,80)+
                 NewBufferBytes(surfaceBuffer,triangles,96)+NewBufferBytes(bindingsBuffer,triangles,16);
-            return budget>=0 && AttributeBytes<=budget && extra<=budget-AttributeBytes;
+            long held = geometryAllocations.TotalBytes;
+            return budget>=0 && held<=budget && extra<=budget-held;
         }
         private void DeferAttributes(string reason)
         {
@@ -614,7 +616,7 @@ namespace HybridLumenGI
             {
                 buffer.Release();
                 retiredAttributeBytes -= bytes;
-                attributeAllocations.Bytes -= bytes;
+                geometryAllocations.AttributeBytes -= bytes;
             });
         }
 
@@ -636,7 +638,7 @@ namespace HybridLumenGI
             if (buffer != null && buffer.count == count && buffer.stride==stride) return;
             if(buffer!=null){var old=buffer;buffer=null;RetireAttributeBuffer(old);}
             buffer = new ComputeBuffer(count, stride, ComputeBufferType.Structured);
-            attributeAllocations.Bytes += BufferBytes(buffer);
+            geometryAllocations.AttributeBytes += BufferBytes(buffer);
         }
 
         /// <summary>Record before the first hardware dispatch, on the graphics queue.</summary>
