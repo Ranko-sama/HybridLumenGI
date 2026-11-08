@@ -187,13 +187,13 @@ namespace HybridLumenGI
         /// LateUpdate alone misses later scripts or manual camera renders. Repeated
         /// calls without source changes do not advance any generation.
         /// </summary>
-        public bool RefreshSignatureForRender()
+        public bool RefreshSignatureForRender() => RefreshSignatureForRender(true);
+
+        internal bool RefreshSignatureForRender(bool refreshInstance, Bounds? observedBounds = null)
         {
             if (!isActiveAndEnabled) return false;
             if (Volatile.Read(ref validationPending)!=0)
             { MarkDirty(); return true; }
-            ReadMaterialInputs(true, out Color albedo, out Color emission, out float diffuseFraction, out bool shadowsOff);
-            Bounds bounds = GetWorldBounds();
             Mesh mesh = SourceMesh;
             int vertices = mesh != null ? mesh.vertexCount : 0;
             Bounds localBounds=mesh!=null?mesh.bounds:default;
@@ -201,6 +201,11 @@ namespace HybridLumenGI
             bool contentChanged=!sameMesh || vertices!=lastVertexCount || localBounds!=lastLocalMeshBounds ||
                 !ColliderShape.Equals(lastColliderShape);
             bool sourceNotified=sameMesh && !ReferenceEquals(HybridLumenGIMeshSource.GetVersion(mesh),lastMeshSourceVersion);
+            // A remote instance can still discover a shared geometry edit. Local
+            // material and transform state is only needed for a candidate camera.
+            if (!refreshInstance && !contentChanged && !sourceNotified) return false;
+            ReadMaterialInputs(true, out Color albedo, out Color emission, out float diffuseFraction, out bool shadowsOff);
+            Bounds bounds = observedBounds ?? GetWorldBounds();
             int objectLayer = sourceRenderer != null ? sourceRenderer.gameObject.layer : gameObject.layer;
             uint renderingLayers = sourceRenderer != null ? sourceRenderer.renderingLayerMask : 1u;
             ShadowCastingMode casting = sourceRenderer != null ? sourceRenderer.shadowCastingMode : ShadowCastingMode.On;

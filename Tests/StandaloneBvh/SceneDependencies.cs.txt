@@ -126,6 +126,6 @@ namespace HybridLumenGI
         internal HybridLumenGIShadowmask.Source BakedShadowSource => default;
         internal bool UniformShadowsOff => false;
         internal void RefreshShadowmask(LightmapData[] maps) { }
-        public void RefreshSignatureForRender() { } // Real Proxy lifecycle has its own actual-source harness.
+        public bool RefreshSignatureForRender(bool refreshInstance = true, Bounds? observedBounds = null) => false;
     }
 }

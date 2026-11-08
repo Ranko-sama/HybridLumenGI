@@ -249,16 +249,19 @@ namespace HybridLumenGI
             RefreshStreamedBindings();
             foreach (var proxy in streamedBindings.Keys) AddHlodParent(proxy);
             var active = HybridLumenGIProxy.ActiveProxies;
+            foreach (var proxy in active)
+                if (proxy != null && proxy.isActiveAndEnabled) AddHlodParent(proxy);
             for (int i = 0; i < active.Count; i++)
             {
                 HybridLumenGIProxy proxy = active[i];
                 if (proxy == null || !proxy.isActiveAndEnabled) continue;
                 // Rendering may follow another LateUpdate or an explicit camera render.
-                // Refresh before the revision gate so all representations see one current snapshot.
-                proxy.RefreshSignatureForRender();
-                proxy.RefreshShadowmask(shadowmaskSources);
-                activeById[proxy.StableId] = proxy;
-                AddHlodParent(proxy);
+                // Keep geometry notifications even from outside the residency domain.
+                Bounds? observedBounds = IsUnstreamedOrdinary(proxy) ? proxy.GetWorldBounds() : (Bounds?)null;
+                bool outside = observedBounds.HasValue &&
+                    ResidencyDistanceSquared(proxy, observedBounds.Value, position) > farSquared;
+                proxy.RefreshSignatureForRender(!outside, observedBounds);
+                if (!outside) activeById[proxy.StableId] = proxy;
             }
             retiredProxies.Clear();
             foreach (var proxy in farStates.Keys) if (!IsGroupParent(proxy)) retiredProxies.Add(proxy);
@@ -267,11 +270,16 @@ namespace HybridLumenGI
             {
                 HybridLumenGIProxy proxy = active[i];
                 if (proxy == null || !proxy.isActiveAndEnabled) continue;
-                Bounds bounds = proxy.GetWorldBounds();
-                // A partial collider may sit far from the baked MeshFilter volume.
-                Bounds residency = proxy.SourceRenderer == null && proxy.MeshSdf != null ? GetTraversalBounds(proxy) : bounds;
-                float distance = residency.SqrDistance(position);
-                if (!Finite(bounds.center) || !Finite(bounds.extents)) continue;
+                if (!TryGetCandidateBounds(proxy, position, farSquared, out Bounds bounds, out float distance)) continue;
+                if (!activeById.ContainsKey(proxy.StableId))
+                {
+                    // Validation or shared-source refresh can change the preliminary bounds.
+                    // Admit against the current instance, including its material, in this frame.
+                    if (proxy.RefreshSignatureForRender() &&
+                        !TryGetCandidateBounds(proxy, position, farSquared, out bounds, out distance)) continue;
+                    activeById[proxy.StableId] = proxy;
+                }
+                proxy.RefreshShadowmask(shadowmaskSources);
                 bool aggregate = proxy.FarFieldOnly || aggregates.Contains(proxy);
                 var candidate = new Candidate
                 {
@@ -590,7 +598,26 @@ namespace HybridLumenGI
         private void AddHlodParent(HybridLumenGIProxy proxy)
         {
             var parent = proxy.HLODParent;
-            if (IsGroupParent(parent)) aggregates.Add(parent);
+            if (parent != proxy && IsGroupParent(parent)) aggregates.Add(parent);
+        }
+
+        private bool IsUnstreamedOrdinary(HybridLumenGIProxy proxy) => proxy.HLODParent == null &&
+            !aggregates.Contains(proxy) && !groups.ContainsKey(proxy) && !streamedBindings.ContainsKey(proxy);
+
+        private bool TryGetCandidateBounds(HybridLumenGIProxy proxy, Vector3 position, float farSquared,
+            out Bounds bounds, out float distance)
+        {
+            bounds = proxy.GetWorldBounds();
+            distance = ResidencyDistanceSquared(proxy, bounds, position);
+            return Finite(bounds.center) && Finite(bounds.extents) &&
+                !(distance > farSquared && IsUnstreamedOrdinary(proxy));
+        }
+
+        private static float ResidencyDistanceSquared(HybridLumenGIProxy proxy, Bounds bounds, Vector3 position)
+        {
+            // A partial collider may sit far from the baked MeshFilter volume.
+            Bounds residency = proxy.SourceRenderer == null && proxy.MeshSdf != null ? GetTraversalBounds(proxy) : bounds;
+            return residency.SqrDistance(position);
         }
 
         internal void CollectHlodRaster(List<HybridLumenGIStreamedRepresentation> visible)
