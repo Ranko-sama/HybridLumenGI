@@ -58,6 +58,8 @@ T5 现有记录确认了统一示例在加载带入口的一帧绑定延后。Re
 
 源码还允许另一条时序。粗根的完整就绪票据在相机准备前到达，细节恰好成为新目标且尚未就绪时，发布只检查细节，已就绪的粗根也会撤回。保留粗根会占用一份代理槽及图卡额度，细节恰满时可能无法开始整组准备。此时序在源码中可达，Release110 的第 320 帧仍是粗根票据不足的实录。两种情形分别保留，采用仍以首显与完整切换能同时推进为条件。[目标与容量门](../Runtime/HybridLumenGIScene.cs) · [实际路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
+Release110 预测带的 8 页在第 15 帧、路线约 0.04 秒已 Ready，第 307 帧才完成绑定。第 307→308 帧实际从 SDF／解析切到 DXR，早于这次切换的照明及回执会作废。现有预热排在普通对象槽位之前，直接加入界外粗根也会争用图卡和工作额度。Astra Max 据此收束界外准备候选。恢复时沿用原路线，比较首次完整表示、最终细节接替和预算，保留原可见界及照明门槛。[实际路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) · [实际后端切换逻辑](../Runtime/HybridLumenGIRendererFeature.cs)
+
 ## 用户已暂缓或已收束的工作
 
 - **2026-11-04离线画册整合：已完成本项交付。** 在原静态入口复用现有原图与读数，已单独附加日期补充包到Release122，产品版本不变。D／Final、输入描述偏差、控制不足和未观测范围可见；浏览器可视检查因本地URL策略未完成，文件准入不当作显示验证。Astra同意交付后收束，不追加新图／运行／框架或G3整体通过结论。[交付记录](../LocalComparison/Review/picture-delivery-20261104/result.md)

@@ -23,7 +23,13 @@ namespace HybridLumenGI
 #endif
         private readonly Dictionary<object,RequestSet> requests=new Dictionary<object,RequestSet>();
         private bool failed, destroyed;
-        private sealed class RequestSet { internal string[] ids;internal int priority;internal long requestedAt,sequence; }
+        private sealed class RequestSet
+        {
+            internal string[] ids;
+            internal int priority;
+            internal long requestedAt,sequence;
+            internal long Score(long now) => (long)priority+(now-requestedAt)/60;
+        }
         private long tick,nextRequest;
         public HybridLumenGIAssetPageStreaming State { get; private set; }
         public HybridLumenGIAssetPageManifest Manifest => manifest;
@@ -76,22 +82,22 @@ namespace HybridLumenGI
             if(!stepBudgets.Valid)return; // Inspector edits can temporarily contain an invalid value.
             if(tick<long.MaxValue)tick++;
             BudgetBlockedGroups=0;
-            var priorities=new Dictionary<string,int>(StringComparer.Ordinal);
+            var priorities=new Dictionary<string,long>(StringComparer.Ordinal);
             var ordered=new List<RequestSet>(requests.Values);
             ordered.Sort((a,b)=>
             {
-                long scoreA=(long)a.priority+(tick-a.requestedAt)/60,scoreB=(long)b.priority+(tick-b.requestedAt)/60;
-                int rank=scoreB.CompareTo(scoreA);return rank!=0?rank:a.sequence.CompareTo(b.sequence);
+                int rank=b.Score(tick).CompareTo(a.Score(tick));return rank!=0?rank:a.sequence.CompareTo(b.sequence);
             });
             var admitted=new HashSet<string>(StringComparer.Ordinal);
             foreach(var request in ordered)
             {
                 if(!State.TryAdmitGroup(request.ids,stepBudgets,admitted)){BudgetBlockedGroups++;continue;}
+                long score=request.Score(tick);
                 foreach(var id in request.ids)
-                    priorities[id]=priorities.TryGetValue(id,out int previous)?Math.Max(previous,request.priority):request.priority;
+                    priorities[id]=priorities.TryGetValue(id,out long previous)?Math.Max(previous,score):score;
             }
             foreach(var state in State.States)
-                State.Request(state.Id,priorities.TryGetValue(state.Id,out int priority),priority);
+                State.Request(state.Id,priorities.TryGetValue(state.Id,out long priority),priority);
             HybridLumenGIRayTexturePool.PollRetired();
             State.Step(stepBudgets);
         }

@@ -55,8 +55,8 @@ namespace HybridLumenGI
             internal IOperation operation;
             internal object bundle, asset;
             internal bool requested, bundleReserved, residentReserved;
-            internal int priority, requestedPriority, referenceCount, releasePins;
-            internal long requestedAt, retryAt;
+            internal int referenceCount, releasePins;
+            internal long priority, requestedPriority, requestedAt, retryAt;
             public string Id => definition.id;
             public Kind PageKind => definition.kind;
             public uint Generation { get; internal set; }
@@ -176,6 +176,8 @@ namespace HybridLumenGI
         private static void AddClosure(State state,HashSet<State> closure)
         {if(!closure.Add(state))return;foreach(var dependency in state.dependencies)AddClosure(dependency,closure);}
         public bool Request(string id,bool wanted,int priority=0)
+            => Request(id,wanted,(long)priority);
+        internal bool Request(string id,bool wanted,long priority)
         {
             if(id==null || !byId.TryGetValue(id,out var state))return false;
             if(wanted && !state.requested)state.requestedAt=tick;
@@ -195,10 +197,11 @@ namespace HybridLumenGI
             lease.completion=completion;lease.state.releasePins++;retiring.Add(lease);return true;
         }
         private static bool Fits(long value,long used,long limit) => value>=0 && used>=0 && used<=limit && value<=limit-used;
-        private void MarkWanted(State state,int priority)
+        private void MarkWanted(State state,long priority)
         {
             if(state.Wanted && state.priority>=priority)return;
-            state.Wanted=true;state.priority=Math.Max(state.priority,priority);
+            // Dependencies inherit the demand that actually requires them, including negative scores.
+            state.Wanted=true;state.priority=priority;
             foreach(var dependency in state.dependencies)MarkWanted(dependency,priority);
         }
         public void Step(Budgets budgets)
@@ -216,7 +219,11 @@ namespace HybridLumenGI
             foreach(var state in states)Poll(state);
             foreach(var state in states){state.Wanted=false;state.priority=state.requestedPriority;}
             foreach(var state in states)
-                if(state.requested || state.referenceCount>0 || state.operation!=null)MarkWanted(state,state.priority);
+                if(state.requested)MarkWanted(state,state.requestedPriority);
+            // Retained operations keep unrequested pages alive without overriding
+            // the priority already inherited from an admitted group.
+            foreach(var state in states)
+                if(!state.Wanted && (state.referenceCount>0 || state.operation!=null))MarkWanted(state,state.requestedPriority);
             // An already loaded parent keeps its dependencies until its own release completes.
             foreach(var state in states)
                 if(state.bundleReserved)foreach(var dependency in state.dependencies)MarkWanted(dependency,state.priority);

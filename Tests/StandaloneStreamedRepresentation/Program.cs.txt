@@ -29,6 +29,50 @@ Check(duplicate.RequestCount==1&&duplicate.CompleteDirectGroup&&duplicate.Reques
 Check(duplicate.state.IoBytesInFlight<=duplicate.budget.maxIoBytesInFlight&&duplicate.state.ActiveOperations<=duplicate.budget.concurrentOperations,"Multiview exceeded original global IO limits");
 Console.WriteLine("PASS actual driver: duplicate/reordered views retain one requester/group and existing IO limits.");
 
+var waiting = new Fixture();
+waiting.budget.startsPerStep = waiting.budget.concurrentOperations = 1;
+waiting.ApplyBudget();
+var oldRequest = new object();
+var passingRequest = new object();
+Check(waiting.driver.SetRequests(oldRequest, new[] { "pending" }), "Old page request failed.");
+int firstOldStart = 0;
+for (int step = 1; step <= 65; step++)
+{
+    // Each visit starts the high-priority file, then withdraws before asset
+    // loading. The release takes the only start on the intervening step.
+    if (step % 2 == 1)
+        Check(waiting.driver.SetRequests(passingRequest, new[] { "geometry" }, 1), "Passing page request failed.");
+    else waiting.driver.RemoveRequests(passingRequest);
+    waiting.provider.CompleteAll();
+    waiting.Drive();
+    Check(waiting.driver.BudgetBlockedGroups == 0 && waiting.state.OperationsStarted <= 1,
+        "The age control requires both groups to fit and one start per step.");
+    if (firstOldStart == 0 && waiting.state.GetState("pending").Status == Stream.Phase.LoadingBundle)
+        firstOldStart = step;
+}
+bool oldPageReady = waiting.state.GetState("pending").Status == Stream.Phase.Ready;
+
+var speculative = new Fixture(new[]
+{
+    Fixture.Page("material", Stream.Kind.Material, "geometry"),
+    Fixture.Page("geometry", Stream.Kind.Geometry, "texture"),
+    Fixture.Page("texture", Stream.Kind.Texture),
+    Fixture.Page("pending", Stream.Kind.Geometry)
+});
+speculative.budget.startsPerStep = 1;
+speculative.budget.maxResidentBytes = 80;
+speculative.ApplyBudget();
+Check(speculative.driver.SetRequests(new object(), new[] { "material" }, int.MinValue), "Speculative request failed.");
+speculative.Drive();
+Check(speculative.state.GetState("geometry").Status == Stream.Phase.LoadingBundle,
+    "Expected the first speculative dependency to be in flight.");
+Check(speculative.driver.SetRequests(new object(), new[] { "pending" }, -1), "Regular request failed.");
+speculative.Drive();
+bool regularStartedFirst = speculative.state.GetState("pending").Status == Stream.Phase.LoadingBundle &&
+    speculative.state.GetState("texture").Status == Stream.Phase.Unloaded;
+Console.WriteLine($"Page priority: old start={firstOldStart}, old ready={oldPageReady}, regular before speculative dependency={regularStartedFirst}.");
+Check(firstOldStart == 61 && oldPageReady && regularStartedFirst, "Page starts lost group age or dependency priority.");
+
 var legacy=new Fixture();Fixture.Set(legacy.representation,"observer",legacy.near);legacy.Update();Check(legacy.RequestCount==1,"Explicit legacy observer lost precedence over far main camera");
 Fixture.Set(legacy.representation,"observer",null);Camera.main=null;Additional(legacy,new Transform{destroyed=true},null);legacy.Update();Check(legacy.RequestCount==1,"No live observer changed legacy retained demand");
 Camera.main=new Camera{transform=legacy.far};legacy.Update();Check(legacy.RequestCount==0,"Restored far legacy observer failed to withdraw");
@@ -146,16 +190,16 @@ sealed class Fixture
     public readonly Transform near=new(){position=new Vector3(100,0,0)},far=new(){position=new Vector3(200,0,0)};
     public readonly Provider provider=new();public readonly Stream state;
     public Stream.Budgets budget=new(){ioBytesPerStep=20,maxIoBytesInFlight=20,maxBundleBytes=100,maxResidentBytes=60,uploadBytesPerStep=8,concurrentOperations=2,startsPerStep=2};
-    public Fixture()
+    public Fixture(Stream.Definition[] definitions=null)
     {
-        var defs=new[]{Page("geometry",Stream.Kind.Geometry),Page("material",Stream.Kind.Material,"texture"),Page("texture",Stream.Kind.Texture),
+        var defs=definitions??new[]{Page("geometry",Stream.Kind.Geometry),Page("material",Stream.Kind.Material,"texture"),Page("texture",Stream.Kind.Texture),
             Page("pending",Stream.Kind.Geometry)};state=new Stream(defs,provider);
         Set(driver,"<State>k__BackingField",state);typeof(HybridLumenGIAssetPageStreamer).GetField("owner",Hidden).SetValue(null,driver);ApplyBudget();
         filter.gameObject=renderer.gameObject;proxy.gameObject=renderer.gameObject;representation.gameObject=renderer.gameObject;representation.transform.position=new Vector3(100,0,0);
         representation.Configure(driver,proxy,filter,renderer,"geometry",null,null,new[]{"material"},new Bounds(Vector3.zero,new Vector3(2,2,2)));representation.ConfigureDistances(10,20);
         Camera.main=new Camera{transform=far};
     }
-    static Stream.Definition Page(string id,Stream.Kind kind,params string[] dependencies)=>new(){id=id,bundlePath=id+".bundle",assetName=id,kind=kind,fileBytes=10,residentBytes=20,uploadBytes=8,dependencies=dependencies};
+    internal static Stream.Definition Page(string id,Stream.Kind kind,params string[] dependencies)=>new(){id=id,bundlePath=id+".bundle",assetName=id,kind=kind,fileBytes=10,residentBytes=20,uploadBytes=8,dependencies=dependencies};
     public void ApplyBudget()=>driver.SetBudgets(budget);
     public void Update()=>Call(representation,"Update");public void Drive()=>Call(driver,"Drive");
     public void Disable()=>Call(representation,"OnDisable");
