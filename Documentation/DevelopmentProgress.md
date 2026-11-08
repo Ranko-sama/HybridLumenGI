@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release133，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release134，G0 已锁定，G1／G2 本机代表性验收通过
 
-G4 主干关闭默认独立导出 HLOD 在普通渲染同时画出粗根和细节的缺口。真实 DX12 双 Base 显式请求中，近相机只提交其完整细节，远相机只提交其粗根，旧根等待及停叶整组撤回均符合约定。相机错过解绑时也会拒绝重绑的新代沿用旧发布。Astra Max 同意按此范围采用，普通包待整合。T5 高速首显、普通 Player 和生产预算分别验收。[原生对照与边界](../LocalComparison/Review/independent-hlod-raster-151/result.md)
+G4 关闭默认独立导出 HLOD 在普通渲染同时画出粗根和细节的缺口。真实 DX12 双 Base 显式请求中，近相机只提交其完整细节，远相机只提交其粗根，旧根等待及停叶整组撤回均符合约定。相机错过解绑时也会拒绝重绑的新代沿用旧发布。Astra Max 同意按此范围采用，修复已进入 Release134。T5 高速首显、普通 Player 和生产预算分别验收。[原生对照与边界](../LocalComparison/Review/independent-hlod-raster-151/result.md) · [同源交付](../LocalComparison/Review/independent-hlod-raster-151/delivery.json)
 
 G4 已修复已发布的细节重挂后仍占用旧组、阻塞新组的缺口。实际 Scene CPU 回归在 Release132 源码复现问题，Release133 整组撤回旧表示，新组在旧粗根未就绪时按原回执发布。成员撤回后退回预热的同版本成员也需要新回执。Astra Max 同意按此范围纳入普通运行包和可编辑工程，实际 GPU 回执、普通 Renderer 显隐和高速冷入分别验收。[事务合同与回归入口](HlodStreaming.md#atomic-hlod-transactions) · [同源交付](../LocalComparison/Review/retained-hlod-membership-150/delivery.json)
 

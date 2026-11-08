@@ -1,0 +1,124 @@
+{
+  "productCommit": "b9e51d5c329e7eb05cead10dd806eb7d5614ba96",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release134-demo",
+  "tag": "release134-demo",
+  "publishedAt": "2026-11-08T09:12:59Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release134 Unity project ZIP using Release133 shader cache. Native visibility used actual independent AssetBundle export, two explicit Base camera requests and a 128x64 target in DX12 Editor with software GI. Ordinary Player multi-camera lifetime, high-speed cold arrival and performance have separate acceptance.",
+  "validation": {
+    "baselineCommit": "9fdcb4f8e202b617e3591559cf9e39d4ab2ceac7",
+    "baselineMasks": {
+      "warmNear": 7,
+      "stableNear": 7,
+      "stableFar": 7
+    },
+    "maskMeaning": "1 coarse, 2 left detail, 4 right detail",
+    "finalNativeMasks": {
+      "initialFirst": {
+        "engineFrame": 12,
+        "giPublicationMask": 1,
+        "rasterMask": 1
+      },
+      "initialSecond": {
+        "engineFrame": 12,
+        "giPublicationMask": 1,
+        "rasterMask": 1
+      },
+      "oldWhileWarming": {
+        "engineFrame": 20,
+        "giPublicationMask": 1,
+        "rasterMask": 1
+      },
+      "stableFirst": {
+        "engineFrame": 26,
+        "giPublicationMask": 6,
+        "rasterMask": 6
+      },
+      "stableSecond": {
+        "engineFrame": 26,
+        "giPublicationMask": 1,
+        "rasterMask": 1
+      },
+      "withdrawnFirst": {
+        "engineFrame": 27,
+        "giPublicationMask": 0,
+        "rasterMask": 0
+      },
+      "withdrawnSecond": {
+        "engineFrame": 27,
+        "giPublicationMask": 1,
+        "rasterMask": 1
+      }
+    },
+    "cpu": [
+      "./Tests/Validate-HlodTransactions.ps1",
+      "./Tests/Validate-ChunkStreaming.ps1 -RepresentationOnly"
+    ],
+    "notes": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease134\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101773809
+  },
+  "nativeExit": {
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease134",
+    "productCommit": "b9e51d5c329e7eb05cead10dd806eb7d5614ba96",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "project": "I:/Unity test/Comparison/PortableUnified134/HybridLumenGI-Release134-UnityProject",
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified133/HybridLumenGI-Release133-UnityProject/Library/ShaderCache",
+    "exitCode": 0
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release134-UnityProject.zip",
+    "bytes": 835630,
+    "productCommit": "b9e51d5c329e7eb05cead10dd806eb7d5614ba96",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified134\\HybridLumenGI-Release134-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release133-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Editor/HybridLumenGIAssetPageBuilder.cs",
+      "Assets/HybridLumenGI/Editor/HybridLumenGIUnifiedSampleBuilder.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIScene.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIStreamedRepresentation.cs",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Editor/HybridLumenGIAssetPageBuilder.cs",
+      "Editor/HybridLumenGIUnifiedSampleBuilder.cs",
+      "Runtime/HybridLumenGIRendererFeature.cs",
+      "Runtime/HybridLumenGIScene.cs",
+      "Runtime/HybridLumenGIStreamedRepresentation.cs"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release134-UnityProject.zip",
+      "bytes": 835630,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release134-demo/HybridLumenGI-Release134-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release134-Windows-x64.zip",
+      "bytes": 58447721,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release134-demo/HybridLumenGI-Release134-Windows-x64.zip"
+    }
+  ]
+}
