@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release153，G0 已锁定，G1／G2 本机代表性验收通过
 
+T6／G5 已取得 Release151 原 F4 固定中室的本机 GI／显存依据。512 个源帧的三段 GI 合计 p95／p99 为 15.936／16.169 ms，local 有限采样峰值 566.191 MiB，达到两项起始预算。PresentMon 无 CSV 且报告 ETW 事件丢失，三项同窗按原停止线以证据不足收束。应用节奏和完整 G5 继续开放。[实测与边界](../LocalComparison/Review/three-room-middle-joint-170/result.md)
+
 T6／G4 的跨相机子项补上了后置材质批次的上传机会。旧实现中，第一个相机在相同 1 MiB 额度下再次用满额度。修复后，第二个相机在原读者完成后录制 128 B 的稳定贴图上传，回执后复用同一来源句柄，第一个相机恢复完整复制。撤回后续请求时，保留额度经过一个等待帧后释放。修复已进入 Release153，结论限实际 Batch／Pool 源码与受控完成回执。实机多相机画面和成本仍待验收。[预算规则](GpuBudget.md#启用与测量范围) · [定向对照](../Tests/StandaloneHitMaterialBatch/Program.cs.txt) · [同源交付](../LocalComparison/Review/cross-camera-texture-turn-172/delivery.json)
 
 T6／G4 已关闭同一精确材质批次中，持续更新的动态贴图用满逐帧额度、后续稳定贴图始终拿不到上传机会的缺口。相同 1 MiB 额度下，旧实现第二帧仍跳过稳定页。修复后第二帧上传该页，受控完成回执到达后，第三帧复用其原句柄，动态页恢复复制。修复已进入 Release152，采用范围为普通材质批次的托管准入逻辑。实体 GPU 继续验收。[调度与适用范围](GpuBudget.md#启用与测量范围) · [前后对照](../Tests/StandaloneHitMaterialBatch/Program.cs.txt) · [同源交付](../LocalComparison/Review/texture-upload-fairness-171/delivery.json)
