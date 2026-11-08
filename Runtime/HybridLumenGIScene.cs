@@ -107,7 +107,7 @@ namespace HybridLumenGI
             public readonly HashSet<int> published = new HashSet<int>();
             public readonly HashSet<int> target = new HashSet<int>();
             public float distance;
-            public bool seen, initialized;
+            public bool seen, initialized, detailsPending;
             public bool capacityFallback; // Derived again from this Prepare's requested target.
         }
 
@@ -117,17 +117,18 @@ namespace HybridLumenGI
         private readonly List<Candidate> ordinaryCandidates = new List<Candidate>();
         private readonly Dictionary<int, Candidate> available = new Dictionary<int, Candidate>();
         private readonly Dictionary<int, HybridLumenGIProxy> activeById = new Dictionary<int, HybridLumenGIProxy>();
-        private readonly Dictionary<int, HlodGroup> groups = new Dictionary<int, HlodGroup>();
+        private readonly Dictionary<HybridLumenGIProxy, HlodGroup> groups = new Dictionary<HybridLumenGIProxy, HlodGroup>();
+        private readonly Dictionary<HybridLumenGIProxy, HybridLumenGIStreamedRepresentation> streamedBindings =
+            new Dictionary<HybridLumenGIProxy, HybridLumenGIStreamedRepresentation>();
         private readonly List<HlodGroup> orderedGroups = new List<HlodGroup>();
         private readonly HashSet<int> grouped = new HashSet<int>();
         private readonly HybridLumenGIHlodReadiness readiness = new HybridLumenGIHlodReadiness();
         private readonly HashSet<int> representationAdds = new HashSet<int>(), representationRemoves = new HashSet<int>();
         private readonly Dictionary<int, int> slots = new Dictionary<int, int>();
         private readonly HashSet<int> desired = new HashSet<int>();
-        private readonly HashSet<int> aggregates = new HashSet<int>();
-        private readonly HashSet<int> liveIds = new HashSet<int>();
-        private readonly List<int> retiredIds = new List<int>();
-        private readonly Dictionary<int, bool> farStates = new Dictionary<int, bool>();
+        private readonly HashSet<HybridLumenGIProxy> aggregates = new HashSet<HybridLumenGIProxy>();
+        private readonly List<HybridLumenGIProxy> retiredProxies = new List<HybridLumenGIProxy>();
+        private readonly Dictionary<HybridLumenGIProxy, bool> farStates = new Dictionary<HybridLumenGIProxy, bool>();
         private readonly HashSet<Vector3Int> residentChunks = new HashSet<Vector3Int>();
         private HybridLumenGIProxy[] owners = Array.Empty<HybridLumenGIProxy>();
         private bool[] dirty = Array.Empty<bool>();
@@ -162,15 +163,15 @@ namespace HybridLumenGI
             value.phase = IsPublished(slot) ? PublicationPhase.Published : PublicationPhase.Warming;
             foreach (var pair in groups)
                 if (pair.Value.seen && (pair.Value.published.Contains(proxy.StableId) || pair.Value.target.Contains(proxy.StableId)))
-                { value.hlodRootId = pair.Key; break; }
+                { value.hlodRootId = pair.Key.StableId; break; }
             return true;
         }
         internal bool TryGetHlodPublication(HybridLumenGIProxy root, List<HybridLumenGIProxy> published,
             List<HybridLumenGIProxy> target, out HlodPublicationSnapshot value)
         {
             value = new HlodPublicationSnapshot { preparedEngineFrame = -1, preparedWorkFrame = -1, sceneRevision = Revision };
-            if (root == null || !root.isActiveAndEnabled || !groups.TryGetValue(root.StableId, out HlodGroup group) ||
-                !ReferenceEquals(group.root, root) || !group.seen || group.target.Count == 0) return false;
+            if (!IsGroupParent(root) || !groups.TryGetValue(root, out HlodGroup group) || !group.seen ||
+                (group.target.Count == 0 && group.published.Count == 0)) return false;
             value.rootStableId = root.StableId;
             value.publishedCount = group.published.Count; value.targetCount = group.target.Count;
             value.transitioning = !group.published.SetEquals(group.target); value.capacityFallback = group.capacityFallback;
@@ -228,10 +229,23 @@ namespace HybridLumenGI
             candidates.Clear();
             desired.Clear();
             aggregates.Clear();
-            liveIds.Clear();
             activeById.Clear();
             float nearSquared = nearDistance * nearDistance;
             float farSquared = farDistance * farDistance;
+            // An enabled binding declares membership even while its Proxy has no bound pages.
+            streamedBindings.Clear();
+            var bindings = HybridLumenGIStreamedRepresentation.Active;
+            for (int i = 0; i < bindings.Count; i++)
+            {
+                var binding = bindings[i];
+                if (binding == null || !binding.isActiveAndEnabled || binding.IsUnavailable || binding.Proxy == null) continue;
+                streamedBindings[binding.Proxy] = binding;
+            }
+            foreach (var proxy in streamedBindings.Keys)
+            {
+                var parent = proxy.HLODParent;
+                if (IsGroupParent(parent)) aggregates.Add(parent);
+            }
             var active = HybridLumenGIProxy.ActiveProxies;
             for (int i = 0; i < active.Count; i++)
             {
@@ -241,24 +255,13 @@ namespace HybridLumenGI
                 // Refresh before the revision gate so all representations see one current snapshot.
                 proxy.RefreshSignatureForRender();
                 proxy.RefreshShadowmask(shadowmaskSources);
-                liveIds.Add(proxy.StableId);
                 activeById[proxy.StableId] = proxy;
                 HybridLumenGIProxy parent = proxy.HLODParent;
-                if (parent != null && parent.isActiveAndEnabled) aggregates.Add(parent.StableId);
+                if (IsGroupParent(parent)) aggregates.Add(parent);
             }
-            // A cold Far view only loads the root. The enabled detail bindings still
-            // carry its authored identity even while their geometry proxies are disabled.
-            var bindings = HybridLumenGIStreamedRepresentation.Active;
-            for (int i = 0; i < bindings.Count; i++)
-            {
-                var binding = bindings[i];
-                if (binding == null || !binding.isActiveAndEnabled || binding.IsUnavailable || binding.Proxy == null) continue;
-                var root = binding.Proxy.HLODParent;
-                if (root != null && root.isActiveAndEnabled && root.HLODParent == null) aggregates.Add(root.StableId);
-            }
-            retiredIds.Clear();
-            foreach (int id in farStates.Keys) if (!liveIds.Contains(id)) retiredIds.Add(id);
-            for (int i = 0; i < retiredIds.Count; i++) farStates.Remove(retiredIds[i]);
+            retiredProxies.Clear();
+            foreach (var proxy in farStates.Keys) if (!IsGroupParent(proxy)) retiredProxies.Add(proxy);
+            foreach (var proxy in retiredProxies) farStates.Remove(proxy);
             for (int i = 0; i < active.Count; i++)
             {
                 HybridLumenGIProxy proxy = active[i];
@@ -268,7 +271,7 @@ namespace HybridLumenGI
                 Bounds residency = proxy.SourceRenderer == null && proxy.MeshSdf != null ? GetTraversalBounds(proxy) : bounds;
                 float distance = residency.SqrDistance(position);
                 if (!Finite(bounds.center) || !Finite(bounds.extents)) continue;
-                bool aggregate = proxy.FarFieldOnly || aggregates.Contains(proxy.StableId);
+                bool aggregate = proxy.FarFieldOnly || aggregates.Contains(proxy);
                 candidates.Add(new Candidate
                 {
                     proxy = proxy,
@@ -282,7 +285,7 @@ namespace HybridLumenGI
             // Conservative bounds distance keeps large walls that surround the camera resident.
             // Stable ID breaks ties deterministically instead of changing slots with registry sort order.
             candidates.Sort(CompareCandidates);
-            SelectAtomicGroups(nearDistance, farSquared, capacity);
+            SelectAtomicGroups(position, nearDistance, farSquared, capacity);
             int desiredCount = selectedCandidates.Count;
 
             // Never keep an old occluder/material alive while its replacement waits for budget.
@@ -435,52 +438,72 @@ namespace HybridLumenGI
             return changed;
         }
 
-        private bool UseFarProxy(HybridLumenGIProxy proxy, float nearDistance)
+        private bool UseFarProxy(HybridLumenGIProxy proxy, float distanceSquared, float nearDistance)
         {
-            float distance = Mathf.Sqrt(available[proxy.StableId].distanceSquared);
-            if (!farStates.TryGetValue(proxy.StableId, out bool far)) far = distance > nearDistance;
+            float distance = Mathf.Sqrt(distanceSquared);
+            if (!farStates.TryGetValue(proxy, out bool far)) far = distance > nearDistance;
             // Group-level hysteresis prevents repeated detail/aggregate replacement at the boundary.
             if (far && distance < nearDistance * 0.9f) far = false;
             else if (!far && distance > nearDistance * 1.1f) far = true;
-            farStates[proxy.StableId] = far;
+            farStates[proxy] = far;
             return far;
         }
 
-        private void SelectAtomicGroups(float nearDistance, float farSquared, int capacity)
+        private void SelectAtomicGroups(Vector3 position, float nearDistance, float farSquared, int capacity)
         {
             available.Clear(); grouped.Clear(); orderedGroups.Clear(); selectedCandidates.Clear(); ordinaryCandidates.Clear();
             representationAdds.Clear(); representationRemoves.Clear();
             PendingCapacity = 0;
-            foreach (HlodGroup group in groups.Values) { group.seen = false; group.details.Clear(); group.target.Clear(); }
+            foreach (HlodGroup group in groups.Values)
+            { group.seen = group.detailsPending = false; group.details.Clear(); group.target.Clear(); }
             for (int i = 0; i < candidates.Count; i++) available[candidates[i].proxy.StableId] = candidates[i];
             for (int i = 0; i < candidates.Count; i++)
             {
                 HybridLumenGIProxy proxy = candidates[i].proxy, root = TopLevelRoot(proxy);
-                if (root == null || !available.ContainsKey(root.StableId)) continue;
-                if (!groups.TryGetValue(root.StableId, out HlodGroup group))
-                { group = new HlodGroup { root = root }; groups.Add(root.StableId, group); }
-                group.root = root; group.seen = true;
-                grouped.Add(proxy.StableId); grouped.Add(root.StableId);
-                if (proxy != root && !aggregates.Contains(proxy.StableId)) group.details.Add(proxy);
+                if (root == null || (!available.ContainsKey(root.StableId) && !streamedBindings.ContainsKey(root))) continue;
+                if (!groups.TryGetValue(root, out HlodGroup group))
+                { group = new HlodGroup { root = root }; groups.Add(root, group); }
+                group.seen = true;
+                grouped.Add(proxy.StableId);
+                if (proxy != root && !aggregates.Contains(proxy)) group.details.Add(proxy);
             }
-            retiredIds.Clear();
+            foreach (var proxy in streamedBindings.Keys)
+            {
+                if (aggregates.Contains(proxy) || available.ContainsKey(proxy.StableId)) continue;
+                var root = TopLevelRoot(proxy);
+                if (root != null && groups.TryGetValue(root, out HlodGroup group)) group.detailsPending = true;
+            }
+            retiredProxies.Clear();
             foreach (var pair in groups)
             {
                 HlodGroup group = pair.Value;
-                if (!group.seen) { retiredIds.Add(pair.Key); continue; }
-                group.distance = available[group.root.StableId].distanceSquared;
+                if (!group.seen) { retiredProxies.Add(pair.Key); continue; }
+                bool rootAvailable = available.TryGetValue(group.root.StableId, out Candidate rootCandidate);
+                // Use the same authored bounds as page demand when the root has no mesh yet.
+                float rootDistance = rootCandidate.distanceSquared;
+                if (!rootAvailable)
+                {
+                    Bounds bounds = streamedBindings[group.root].GetWorldBounds();
+                    rootDistance = Finite(bounds.center) && Finite(bounds.extents) ? bounds.SqrDistance(position) : float.PositiveInfinity;
+                }
+                group.distance = rootDistance;
                 for (int i = 0; i < group.details.Count; i++)
                     group.distance = Mathf.Min(group.distance, available[group.details[i].StableId].distanceSquared);
                 if (group.distance > farSquared)
                 { group.published.Clear(); group.initialized = false; continue; }
-                bool far = UseFarProxy(group.root, nearDistance);
-                if (far || group.details.Count == 0) group.target.Add(group.root.StableId);
-                else for (int i = 0; i < group.details.Count; i++) group.target.Add(group.details[i].StableId);
+                bool far = UseFarProxy(group.root, rootDistance, nearDistance);
+                if (far || group.details.Count == 0)
+                {
+                    if (rootAvailable) group.target.Add(group.root.StableId);
+                }
+                // An incomplete near target cannot replace a published group or reserve extra slots.
+                else if (!group.detailsPending)
+                    foreach (var detail in group.details) group.target.Add(detail.StableId);
                 group.capacityFallback = group.published.Count == 0 && group.target.Count > capacity;
                 if (group.capacityFallback)
                 {
                     group.target.Clear();
-                    group.target.Add(group.root.StableId);
+                    if (rootAvailable) group.target.Add(group.root.StableId);
                 }
                 if ((!group.initialized || !group.published.SetEquals(group.target)) && ReadyToPublish(group))
                 {
@@ -492,7 +515,7 @@ namespace HybridLumenGI
                 }
                 orderedGroups.Add(group);
             }
-            for (int i = 0; i < retiredIds.Count; i++) groups.Remove(retiredIds[i]);
+            foreach (var proxy in retiredProxies) groups.Remove(proxy);
             orderedGroups.Sort(CompareGroups);
             // Protect the complete currently published representation before reserving any warm-up slots.
             for (int i = 0; i < orderedGroups.Count; i++)
@@ -511,7 +534,7 @@ namespace HybridLumenGI
             {
                 Candidate candidate = candidates[i];
                 if (grouped.Contains(candidate.proxy.StableId) || candidate.distanceSquared > farSquared) continue;
-                if (candidate.proxy.FarFieldOnly && !UseFarProxy(candidate.proxy, nearDistance)) continue;
+                if (candidate.proxy.FarFieldOnly && !UseFarProxy(candidate.proxy, candidate.distanceSquared, nearDistance)) continue;
                 ordinaryCandidates.Add(candidate);
             }
             ordinaryCandidates.Sort(CompareCandidates);
@@ -522,25 +545,27 @@ namespace HybridLumenGI
         private HybridLumenGIProxy TopLevelRoot(HybridLumenGIProxy proxy)
         {
             HybridLumenGIProxy parent = proxy.HLODParent;
-            if (parent == null || !parent.isActiveAndEnabled)
+            if (!IsGroupParent(parent))
             {
                 // Unloading the last detail disables its proxy. Keep an existing
                 // group's live root and publication receipt through that interval;
                 // otherwise returning near recreates an empty group and drops the
                 // old aggregate while the reloaded detail warms up.
-                bool retainedRoot=groups.TryGetValue(proxy.StableId,out var group) && ReferenceEquals(group.root,proxy);
-                return aggregates.Contains(proxy.StableId) || retainedRoot ? proxy : null;
+                return aggregates.Contains(proxy) || groups.ContainsKey(proxy) ? proxy : null;
             }
             HybridLumenGIProxy root = parent;
             for (int depth = 0; depth < 64; depth++)
             {
                 parent = root.HLODParent;
-                if (parent == null || !parent.isActiveAndEnabled) return root;
+                if (!IsGroupParent(parent)) return root;
                 if (parent == proxy) return null;
                 root = parent;
             }
             return null;
         }
+
+        private bool IsGroupParent(HybridLumenGIProxy proxy) => proxy != null && (proxy.isActiveAndEnabled ||
+            (streamedBindings.TryGetValue(proxy, out var binding) && binding != null && binding.isActiveAndEnabled && !binding.IsUnavailable));
 
         private bool ReadyToPublish(HlodGroup group)
         {
@@ -558,7 +583,13 @@ namespace HybridLumenGI
             candidate.phase = phase; selectedCandidates.Add(candidate); desired.Add(id);
         }
         private static int CompareGroups(HlodGroup a, HlodGroup b)
-        { int distance = a.distance.CompareTo(b.distance); return distance != 0 ? distance : a.root.StableId.CompareTo(b.root.StableId); }
+        {
+            int distance = a.distance.CompareTo(b.distance);
+            if (distance != 0) return distance;
+            int stableId = a.root.StableId.CompareTo(b.root.StableId);
+            // Roots that have never bound pages still need a deterministic tie break.
+            return stableId != 0 ? stableId : a.root.GetInstanceID().CompareTo(b.root.GetInstanceID());
+        }
 
         private static ProxyGpuData MakeData(Candidate candidate)
         {
@@ -748,7 +779,7 @@ namespace HybridLumenGI
             pendingAge = Array.Empty<int>();
             traversalBounds = Array.Empty<Bounds>(); traversalActive = Array.Empty<bool>(); signatures = Array.Empty<Signature>();
             Bvh.Dispose();
-            readiness.Clear(); groups.Clear();
+            readiness.Clear(); groups.Clear(); streamedBindings.Clear();
             slots.Clear();
             farStates.Clear();
             ValidCount = WarmingCount = PendingCapacity = PendingUploadCount = ResidentChunkCount = 0;

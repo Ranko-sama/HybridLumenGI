@@ -14,6 +14,7 @@ namespace UnityEngine
     {
         public float x,y,z,w;
         public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}
+        public static explicit operator Vector3(Vector4 value) => new Vector3(value.x, value.y, value.z);
     }
     public struct Color
     {
@@ -23,6 +24,8 @@ namespace UnityEngine
     public partial struct Bounds
     {
         public void Expand(float amount) { size+=Vector3.one*amount; }
+        public bool Intersects(Bounds other) => min.x <= other.max.x && max.x >= other.min.x &&
+            min.y <= other.max.y && max.y >= other.min.y && min.z <= other.max.z && max.z >= other.min.z;
         public float SqrDistance(Vector3 p)
         {
             Vector3 a=min,b=max;
@@ -63,11 +66,24 @@ namespace UnityEngine
         public MeshFilter filter=new MeshFilter();
         public T GetComponent<T>() where T:class=>filter as T;
     }
+    public class MeshRenderer : Renderer { }
     public class Texture3D { public int GetInstanceID()=>100; }
+    public class LightmapData { }
 }
 namespace HybridLumenGI
 {
     using UnityEngine;
+    // These scene fixtures use no baked shadowmask or per-material shadow override.
+    internal static class HybridLumenGIShadowmask
+    {
+        internal struct Source
+        {
+            internal int textureId => 0;
+            internal bool captureUv => false;
+            internal bool Matches(Source other) => true;
+        }
+        internal static LightmapData[] ActiveMaps() => null;
+    }
     public class HybridLumenGIMeshSdf
     {
         public Bounds LocalBounds;
@@ -80,11 +96,14 @@ namespace HybridLumenGI
         public static readonly List<HybridLumenGIStreamedRepresentation> Active = new();
         public bool isActiveAndEnabled = true, IsUnavailable;
         public HybridLumenGIProxy Proxy;
+        public Bounds GetWorldBounds() => Proxy.GetWorldBounds();
     }
     // Dependency adapter: the actual scene residency/BVH source is compiled unchanged.
     public class HybridLumenGIProxy
     {
         public enum Shape { Box, Sphere }
+        private static int nextInstanceId;
+        private readonly int instanceId = ++nextInstanceId;
         public static readonly List<HybridLumenGIProxy> ActiveProxies=new();
         public bool isActiveAndEnabled=true,FarFieldOnly;
         public HybridLumenGIProxy HLODParent;
@@ -98,9 +117,13 @@ namespace HybridLumenGI
         public Bounds bounds;
         public Color diffuse=new(.7f,.7f,.7f),emission=new(0,0,0);
         public Matrix4x4 SdfLocalToWorld=>new Matrix4x4{translation=bounds.center};
+        public int GetInstanceID() => instanceId;
         public Bounds GetWorldBounds()=>bounds;
         public Color GetDiffuseReflectanceLinear()=>diffuse;
         public Color GetEmissionLinear()=>emission;
+        internal HybridLumenGIShadowmask.Source BakedShadowSource => default;
+        internal bool UniformShadowsOff => false;
+        internal void RefreshShadowmask(LightmapData[] maps) { }
         public void RefreshSignatureForRender() { } // Real Proxy lifecycle has its own actual-source harness.
     }
 }

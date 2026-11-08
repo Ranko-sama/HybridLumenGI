@@ -102,12 +102,7 @@ namespace HybridLumenGI
                 int count=additionalObservers?.Length??0;
                 if(target!=null || count>0)
                 {
-                    Matrix4x4 matrix=transform.localToWorldMatrix;
-                    Vector3 x=matrix.MultiplyVector(new Vector3(localBounds.extents.x,0,0));
-                    Vector3 y=matrix.MultiplyVector(new Vector3(0,localBounds.extents.y,0));
-                    Vector3 z=matrix.MultiplyVector(new Vector3(0,0,localBounds.extents.z));
-                    var extents=new Vector3(Mathf.Abs(x.x)+Mathf.Abs(y.x)+Mathf.Abs(z.x),Mathf.Abs(x.y)+Mathf.Abs(y.y)+Mathf.Abs(z.y),Mathf.Abs(x.z)+Mathf.Abs(y.z)+Mathf.Abs(z.z));
-                    var bounds=new Bounds(matrix.MultiplyPoint3x4(localBounds.center),extents*2f);
+                    Bounds bounds=GetWorldBounds();
                     bool hasObserver=false;float nearestSquared=float.PositiveInfinity;
                     for(int i=-1;i<count;i++)
                     {
@@ -147,6 +142,16 @@ namespace HybridLumenGI
             Generation++;meshFilter.sharedMesh=loadedMesh;targetRenderer.sharedMaterials=loadedMaterials;
             proxy.SetSources(targetRenderer,null);proxy.SetMeshSdf(loadedSdf);proxy.SetSurfaceCharts(loadedCharts);
             targetRenderer.enabled=true;proxy.enabled=true;proxy.MarkDirty();bound=true;
+        }
+        internal Bounds GetWorldBounds()
+        {
+            Matrix4x4 matrix = transform.localToWorldMatrix;
+            Vector3 x = matrix.MultiplyVector(new Vector3(localBounds.extents.x, 0, 0));
+            Vector3 y = matrix.MultiplyVector(new Vector3(0, localBounds.extents.y, 0));
+            Vector3 z = matrix.MultiplyVector(new Vector3(0, 0, localBounds.extents.z));
+            var extents = new Vector3(Mathf.Abs(x.x) + Mathf.Abs(y.x) + Mathf.Abs(z.x),
+                Mathf.Abs(x.y) + Mathf.Abs(y.y) + Mathf.Abs(z.y), Mathf.Abs(x.z) + Mathf.Abs(y.z) + Mathf.Abs(z.z));
+            return new Bounds(matrix.MultiplyPoint3x4(localBounds.center), extents * 2f);
         }
         private object Find(string id)
         {foreach(var lease in leases)if(lease.Id==id)return lease.Asset;return null;}
