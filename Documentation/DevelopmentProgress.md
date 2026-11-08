@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release168，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release169，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6 已关闭 Global SDF 禁用后仍准备裁剪图的预算缺口。关闭时只绑定占位缓冲，旧裁剪图在完成前保持计账，重新开启从未知页开始。采用范围为实际 C# 调度器及受控完成信号。[启停回归](../LocalComparison/Review/global-sdf-off-195/result.md) · [同源交付](../LocalComparison/Review/global-sdf-off-195/delivery.json)
 
 T6／G4 已关闭仍有需求的分页绑定在目标失效后无法退休的问题。实际 C# 回归确认旧代理撤出，租约等最后读者完成再排空。从未绑定的成员继续声明原组关系。修复进入 Release168。[回归与范围](../LocalComparison/Review/failed-streamed-destination-194/result.md) · [同源交付](../LocalComparison/Review/failed-streamed-destination-194/delivery.json)
 

@@ -12,7 +12,7 @@ The implementation is local to `Runtime/HybridLumenGIGlobalSdf.cs`, `HybridLumen
 - One brick stores 64 float lower bounds plus one float-sized raw generation word. The last word is bitcast to/from uint and published by a separate GPU dispatch. Queries compare it with page metadata, so a new metadata generation cannot expose old voxel data even at the same world key.
 - No texture interpolation crosses page boundaries. A query selects the cell containing it, subtracts the distance to that cell's sample center, subtracts floating-point margins, then clamps to zero. If the fine page is unknown, a coarser valid page may answer. If all levels are unknown, the function returns false.
 
-Default GPU allocation at 256 scene slots is about 494 KiB. The largest configuration allocates about 5.1 MiB. `AllocatedBytes` reports actual buffer sizes; the CPU scheduling arrays and retained source SDF assets are additional memory.
+Default GPU allocation at 256 scene slots is about 494 KiB. The largest configuration allocates about 5.1 MiB. `AllocatedBytes` includes the active buffers, disabled query bindings and any detached clipmap still waiting for completion. The CPU scheduling arrays and retained source SDF assets are additional memory.
 
 ## Safe distance composition
 
@@ -35,6 +35,8 @@ Use one instance per camera. The caller owns execution order and resource lifeti
 5. In HLSL call `HLGIGlobalSdfEmptyDistance(worldPosition, out lowerBound)`. `false` means unknown. `true` with zero also means no skip is available. Advance by at most a positive lower bound; retain the original ray endpoint and perform exact scene refinement afterward. Never classify a zero coarse distance as a hit or an unknown page as empty.
 
 `RecordUpdate` is idempotent for a prepared frame. `IsReady` and the CPU `TryGetPage` diagnostics mean that pages have been **scheduled** ready on this queue; they are not GPU fences. If a recorded command stream is discarded, call `InvalidateAll()` before preparing its retry. GPU generation tags reject stale payloads, while explicit invalidation makes the CPU scheduler retry them. Do not share a mutable instance across independent cameras or call Prepare again before the previous recorded stream is submitted in order.
+
+When the feature disables Global SDF, the camera binds three one-element query buffers totaling 68 logical bytes and skips object, page and job preparation. An existing clipmap stays charged through the normal resource retirement completion. Turning Global SDF back on starts with unknown pages and the configured update allowance. [Controlled toggle sequence](../LocalComparison/Review/global-sdf-off-195/result.md)
 
 Unity 6 exposes the required [CommandBuffer.SetBufferData](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Rendering.CommandBuffer.SetBufferData.html) uploads. Unity-side shader import, actual command ordering/resource hazards, and RenderGraph integration still require an Editor/GPU run; offline recording shims cannot establish those native behaviors.
 

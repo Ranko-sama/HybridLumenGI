@@ -1,0 +1,40 @@
+{
+  "productCommit": "e55c31087ff6d43806632cb56c1d38d92567f601",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release169-demo",
+  "tag": "release169-demo",
+  "publishedAt": "2026-11-08T22:59:04Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Actual C# global SDF scheduler with adapted buffers, command recording and completion.",
+    "trigger": "Cold disabled, enable, disable with a clipmap in flight, re-enable before completion.",
+    "command": "Tests/Validate-GlobalSdf.ps1 -CpuOnly",
+    "exitCode": 0,
+    "evidence": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release169-UnityProject.zip",
+      "size": 845961,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release169-demo/HybridLumenGI-Release169-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release169-Windows-x64.zip",
+      "size": 58444655,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release169-demo/HybridLumenGI-Release169-Windows-x64.zip"
+    }
+  ]
+}
