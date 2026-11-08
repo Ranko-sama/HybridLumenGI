@@ -114,21 +114,23 @@ bool HLGITraceMeshSdf(float3 origin, float3 direction, float maxT, int slot, out
     if (!isfinite(speed) || speed < 1e-12) return false;
     float begin, end;
     if (!HLGISdfBounds(localOrigin, localDirection, m.boundsMinResolution.xyz,
-        m.boundsMinResolution.xyz + m.boundsSizeMinScale.xyz, maxT, begin, end)) return false;
+        m.boundsMinResolution.xyz + m.boundsSizeMinScale.xyz, maxT, begin, end) || begin >= maxT) return false;
 
     bool signedField = (m.valid & 2u) != 0u;
     float minimumVoxel = min(m.voxelSizeError.x, min(m.voxelSizeError.y,m.voxelSizeError.z));
     float epsilon = max(1e-6, minimumVoxel * (signedField ? 0.025 : 0.25));
     float refinementStep = max(1e-6, minimumVoxel * 0.2 / speed);
     float previousT = begin;
-    float previousDistance = HLGISdfSample(m, localOrigin + localDirection * begin);
+    float previousDistance = 0;
     float currentT = begin;
     bool hit = false;
-    [loop] for (int step = 0; step < min(_HLGI_SdfTraceSteps,128) && currentT <= end; step++)
+    [loop] for (int step = 0; step < min(_HLGI_SdfTraceSteps,128); step++)
     {
         float distance = HLGISdfSample(m, localOrigin + localDirection * currentT);
         if (!isfinite(distance)) { t=begin;unresolved=true;return false; }
-        if (abs(distance) <= epsilon)
+        // The exclusive hit limit can close a sign bracket, but a tolerance
+        // sample at the limit alone must not replace an equally distant hit.
+        if (currentT < maxT && abs(distance) <= epsilon)
         {
             hit = true;
             break;
@@ -150,17 +152,21 @@ bool HLGITraceMeshSdf(float3 origin, float3 direction, float maxT, int slot, out
             hit = true;
             break;
         }
+        if (currentT >= end) return false;
         previousT = currentT;
         previousDistance = distance;
         // Error-subtracted empty-space steps are conservative. In the remaining
         // uncertainty region use bounded voxel-scale refinement. Exhaustion is
         // not proof of an empty interval; the query wrapper preserves uncertainty.
         float emptyStep = max(0, abs(distance) - m.voxelSizeError.w) * m.boundsSizeMinScale.w;
-        currentT += max(emptyStep, refinementStep);
+        if (emptyStep > end - currentT) return false;
+        // A refinement step may cross a closer surface before the current best hit.
+        // Sample the clipped endpoint instead of leaving that interval unchecked.
+        currentT = min(end, currentT + max(emptyStep, refinementStep));
     }
     if (!hit)
     {
-        if(currentT<=end && currentT<maxT) { t=begin;unresolved=true; }
+        t=begin;unresolved=true;
         return false;
     }
     if(currentT >= maxT) return false;
