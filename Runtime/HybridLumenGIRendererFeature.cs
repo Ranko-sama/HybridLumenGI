@@ -928,12 +928,12 @@ namespace HybridLumenGI
                     BaseEstimateBytes=65536,BytesPerTriangle=192,BytesPerInstance=1024
                 });
                 int hardwareTriangleLimit = Mathf.Clamp(s.meshTriangleBudget, 1024, 1000000);
-                bool buildTurnsExhausted = HybridLumenGIRtasBudget.SharedBuildTurnsExhausted;
+                bool canDeferHlodBuild = state.lastHardware && s.preferHardwareTracing && state.hardware.CanDispatch;
+                bool buildTurnBlocked = canDeferHlodBuild && state.hardware.IsBuildTurnBlocked;
                 bool readyExactReplacement = false;
                 Predicate<int> deferHlodRetirement = null;
                 Predicate<int> exactHlodTarget = null;
-                if (state.lastHardware && s.preferHardwareTracing && state.hardware.CanDispatch &&
-                    (buildTurnsExhausted || state.hardware.HasDeferredHlodBuild))
+                if (canDeferHlodBuild && (buildTurnBlocked || state.hardware.HasDeferredHlodBuild))
                 {
                     // Require both a live exact departure and eligible target geometry.
                     // A switch that merely empties the RTAS does not need a build turn.
@@ -943,7 +943,7 @@ namespace HybridLumenGI
                     {
                         if (!state.hardware.HasPreparedTriangles(slot)) return false;
                         readyExactReplacement = true;
-                        return buildTurnsExhausted;
+                        return buildTurnBlocked;
                     };
                 }
                 state.scenePreparedEngineFrame = state.scenePreparedWorkFrame = -1;
@@ -981,7 +981,7 @@ namespace HybridLumenGI
                     patchGrid=Mathf.Clamp(s.cachePatchGrid,1,4)
                 });
                 state.EnsureCache(slots,Mathf.Clamp(s.cachePatchGrid,1,4),state.surfaceCache.CardCount);
-                bool waitForHlodBuildTurn = buildTurnsExhausted && readyExactReplacement;
+                bool waitForHlodBuildTurn = buildTurnBlocked && readyExactReplacement;
                 if (waitForHlodBuildTurn)
                 {
                     // Admission can evict a staged page after Scene selection. Only retain

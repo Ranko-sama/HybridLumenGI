@@ -42,8 +42,14 @@ namespace HybridLumenGI
         public static long TriangleCredits=>triangleCredits;
         public static long InstanceCredits=>instanceCredits;
         public static int PendingDemands=>demands.Count;
-        internal static bool SharedBuildTurnsExhausted => settings.MaxBuildsPerFrame > 0 &&
-            BuildsThisFrame >= settings.MaxBuildsPerFrame;
+        // Check the current queue without adding a demand for a speculative handoff.
+        internal static bool IsBuildTurnBlocked(object owner)
+        {
+            if (settings.MaxBuildsPerFrame <= 0) return false;
+            if (BuildsThisFrame >= settings.MaxBuildsPerFrame) return true;
+            Demand oldest = OldestActiveDemand();
+            return oldest != null && !ReferenceEquals(oldest.owner, owner);
+        }
         public static long AccountedBytes {get{long n=0;foreach(var r in reservations)n=Add(n,r.AccountedBytes);return n;}}
         public static long EstimatedBytes {get{long n=0;foreach(var r in reservations)n=Add(n,r.EstimatedBytes);return n;}}
         public static long MeasuredHighWaterBytes {get{long n=0;foreach(var r in reservations)n=Add(n,r.MeasuredHighWaterBytes);return n;}}
@@ -148,13 +154,22 @@ namespace HybridLumenGI
         internal static bool TryConsumeBuild(object owner,int frame,long triangles,long instances,out string reason)
         {
             if(!RequestBuild(owner,frame,triangles,instances,out reason))return false;
-            Demand oldest=null;foreach(var d in demands)if(d.lastFrame>=(long)Frame-1 && (oldest==null || d.sequence<oldest.sequence))oldest=d;
+            Demand oldest=OldestActiveDemand();
             if(oldest==null || !ReferenceEquals(oldest.owner,owner)) {reason="RTAS build deferred behind an older active camera demand.";return false;}
             if(BuildsThisFrame>=settings.MaxBuildsPerFrame || triangleCredits<triangles || instanceCredits<instances)
             {reason="RTAS build deferred while shared work credits accumulate.";return false;}
             triangleCredits-=triangles;instanceCredits-=instances;BuildsThisFrame++;
             TriangleWorkThisFrame=Add(TriangleWorkThisFrame,triangles);InstanceWorkThisFrame=Add(InstanceWorkThisFrame,instances);
             CancelBuildDemand(owner);return true;
+        }
+
+        private static Demand OldestActiveDemand()
+        {
+            Demand oldest = null;
+            foreach (var demand in demands)
+                if (demand.lastFrame >= (long)Frame - 1 && (oldest == null || demand.sequence < oldest.sequence))
+                    oldest = demand;
+            return oldest;
         }
     }
 }

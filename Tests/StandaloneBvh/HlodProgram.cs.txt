@@ -125,6 +125,67 @@ using(var s=new HybridLumenGIScene())
 }
 Console.WriteLine("PASS: cold root fallback/readiness, fitting-detail release and exact-capacity direct-detail control.");
 
+static void ReadyHlodBehindOlderBuild(bool useQueue)
+{
+    var group = Group(2);
+    using var scene = new HybridLumenGIScene();
+    Prepare(scene, true); ReportAll(scene); Prepare(scene, true);
+    Prepare(scene, false); ReportAll(scene);
+    RootPublished(scene, group.root.StableId);
+    int rootSlot = Slot(scene, group.root.StableId);
+    Predicate<int> oldExact = slot => slot == rootSlot;
+    Predicate<int> readyExactTarget = scene.IsWarming;
+
+    var main = new object();
+    var older = new object();
+    var priorBuild = new object();
+    var quota = HybridLumenGIRtasBudget.Settings.Default;
+    quota.MaxBuildsPerFrame = 1;
+    HybridLumenGIRtasBudget.ResetFrameAdmission();
+    HybridLumenGIRtasBudget.BeginFrame(30, quota);
+    Require(HybridLumenGIRtasBudget.TryConsumeBuild(priorBuild, 30, 6, 1, out _), "Expected the previous frame's one build.");
+    Require(!HybridLumenGIRtasBudget.TryConsumeBuild(older, 30, 5, 1, out _) &&
+        HybridLumenGIRtasBudget.PendingDemands == 1, "Expected a genuine older demand after the previous build.");
+    HybridLumenGIRtasBudget.BeginFrame(31, quota);
+    Require(HybridLumenGIRtasBudget.BuildsThisFrame == 0, "The current frame's build turn must be unused.");
+
+    void PrepareHandoff(bool blocked)
+    {
+        Predicate<int> defer = blocked ? oldExact : null;
+        scene.Prepare(Vector3.zero, 32, 20, 1000, 16, 2, null, defer, blocked ? readyExactTarget : null);
+    }
+    bool blocked = useQueue ? HybridLumenGIRtasBudget.IsBuildTurnBlocked(main) :
+        HybridLumenGIRtasBudget.BuildsThisFrame >= quota.MaxBuildsPerFrame;
+    PrepareHandoff(blocked);
+    if (!useQueue)
+    {
+        Require(scene.PublishedCount == 2 && Slot(scene, group.root.StableId) < 0 &&
+            !HybridLumenGIRtasBudget.TryConsumeBuild(main, 31, 12, 2, out string reason) &&
+            reason.Contains("older active camera"), "The count-only gate must expose the late rejection.");
+        return;
+    }
+
+    RootPublished(scene, group.root.StableId);
+    Require(scene.HasReadyExactHlodReplacement(oldExact, readyExactTarget) && HybridLumenGIRtasBudget.PendingDemands == 1,
+        "Holding the old group lost ready staging or changed the queue before recording.");
+    // The real Feature joins the queue only after it records DXR with the retained root.
+    Require(HybridLumenGIRtasBudget.RequestBuild(main, 31, 0, 0, out _), "The retained representation could not register its waiting turn.");
+    Require(HybridLumenGIRtasBudget.TryConsumeBuild(older, 31, 5, 1, out _) &&
+        HybridLumenGIRtasBudget.BuildsThisFrame == 1 && HybridLumenGIRtasBudget.PendingDemands == 1,
+        "The held HLOD displaced the older camera or consumed its build.");
+    HybridLumenGIRtasBudget.BeginFrame(32, quota);
+    Require(!HybridLumenGIRtasBudget.IsBuildTurnBlocked(main), "The main camera did not reach the front.");
+    PrepareHandoff(false);
+    Require(scene.PublishedCount == 2 && Slot(scene, group.root.StableId) < 0 &&
+        group.children.All(child => scene.IsPublished(Slot(scene, child.StableId))) &&
+        HybridLumenGIRtasBudget.TryConsumeBuild(main, 32, 12, 2, out _) &&
+        HybridLumenGIRtasBudget.TriangleWorkThisFrame == 12 && HybridLumenGIRtasBudget.InstanceWorkThisFrame == 2 &&
+        HybridLumenGIRtasBudget.PendingDemands == 0, "The complete group did not take and pay for its own turn.");
+}
+ReadyHlodBehindOlderBuild(false);
+ReadyHlodBehindOlderBuild(true);
+Console.WriteLine("PASS: a ready exact HLOD holds its old group until the older RTAS demand receives the real build turn.");
+
 var changingGroup = Group(3);
 using (var s = new HybridLumenGIScene())
 {

@@ -103,6 +103,7 @@ namespace HybridLumenGI
         public int InstanceCount => instances.Count;
         internal bool HasPreparedTriangles(int slot) => slot >= 0 && slot < meshFlags.Length && meshFlags[slot] != 0;
         internal bool HasDeferredHlodBuild { get; private set; }
+        internal bool IsBuildTurnBlocked => HybridLumenGIRtasBudget.IsBuildTurnBlocked(budgetOwner);
         public ulong GeometryVersion { get; private set; }
         public int FallbackCount { get; private set; }
         // Count allocations, including dummy elements and old buffers still referenced by
