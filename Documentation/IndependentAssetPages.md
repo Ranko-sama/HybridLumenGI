@@ -49,6 +49,8 @@ All views share one complete page-group request and the same budgets. When every
 - The provider uses `AssetBundle.UnloadAsync(false)`, then explicitly unloads its owned page object after the above gates. It never forces `Unload(true)` across live consumers. A hidden main-thread pump retains an owner destroyed during asynchronous work; a replacement driver cannot silently adopt its native resources.
 - `Retire(Action destroyOwned, ICompletion prerequisite = null)` provides the same final-context fence for replaced owned snapshots. Call it only after removing the old object from all future readers. External consumers of loaded objects must retain their own page lease until their completion ticket passes; copying a raw Mesh/Material reference elsewhere is not an ownership transfer.
 
+Release126 has a bounded DX12 Editor observation of the idle branch. A bound coarse representation was disabled after the last camera context returned. Its actual idle fence passed and all six page references drained, with zero new rendering contexts. The observation covers this single group and the native retirement path. In-flight use of the specific assets, other workloads and Player coverage remain separate. [Native retirement record](../LocalComparison/Review/streamed-idle-native-143/result.md)
+
 ## Budget interpretation
 
 | Control | What is reserved/admitted |

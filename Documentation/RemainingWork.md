@@ -6,7 +6,7 @@ G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性
 
 G4 已修复统一示例旧组在成员撤回、销毁或重绑后仍能部分提交的问题。Unity 无图形观察验证真实绑定下的 Renderer 显隐和代次拒旧。完整旧组在等待新目标时继续可见，匹配新代次的完整回执可以恢复显示。照明完成回执为受控输入，实际相机与高速冷入仍各自验收。Astra Max 同意按此范围采用，修复已进入 Release126。[修复说明](../LocalComparison/Review/streamed-group-visibility-142/release-notes.md) · [原始状态](../LocalComparison/Review/streamed-group-visibility-142/result.json)
 
-T6／G4 已修复一个源码生命周期缺口。最后一台相机停止渲染后，明确停用或销毁的已绑定流式表示可在确认空闲时排入退休栅栏，完成后归还页引用。CPU 回归覆盖真实组件的撤回请求、最后读者和模拟栅栏，普通距离卸载继续由原相机回调负责。修复已进入 Release125，实体 GPU 退休及整体 G4 保持开放。[资源生命周期](IndependentAssetPages.md#publication-and-lifetime)
+T6／G4 已关闭固定粗根在最后一次相机提交后的实际空闲退休子项。Release125 加入明确停用后的空闲路径。Release126 同源 DX12 Editor 实测中，停用后零新渲染上下文，真实空闲栅栏完成后 6 个页引用及包、驻留和在途账目归零。普通 Player、多组和在飞读者的实机范围仍待验收，整体 G4 保持开放。[实机结果](../LocalComparison/Review/streamed-idle-native-143/result.md) · [资源生命周期](IndependentAssetPages.md#publication-and-lifetime)
 
 T3／G3 修复了同一个 SkinnedMeshRenderer 换网格或清空来源后，旧快照仍可留存或由后台作业重新发布的问题。实际组件 CPU 回归覆盖撤回、取消、新来源恢复与完成票据后的退休。Astra Max 同意按该功能范围采用，修复已进入 Release124。原形变画质和真实 GPU 退休仍各自验收。[修复与范围](../LocalComparison/Review/skinned-source-replacement-140/release-notes.md)
 
