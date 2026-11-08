@@ -2,9 +2,9 @@
 
 本表基于 [ProductionPlan](ProductionPlan.md)、[运行验收要求](Validation.md)和[当前推进表](DevelopmentProgress.md)，保留原四项目标、十条工作流及 G0–G5 范围。用途是安排剩余工作，不把未验收项判成代码缺陷，也不把有限交付判成总目标完成。
 
-G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release124 同源交付](../LocalComparison/Review/skinned-source-replacement-140/delivery.json)
+G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release125 同源交付](../LocalComparison/Review/streamed-idle-retirement-141/delivery.json)
 
-T6／G4 已修复一个源码生命周期缺口。最后一台相机停止渲染后，明确停用或销毁的已绑定流式表示可在确认空闲时排入退休栅栏，完成后归还页引用。CPU 回归覆盖真实组件的撤回请求、最后读者和模拟栅栏，普通距离卸载继续由原相机回调负责。修复随下一次统一构建交付，实体 GPU 退休及整体 G4 保持开放。[资源生命周期](IndependentAssetPages.md#publication-and-lifetime)
+T6／G4 已修复一个源码生命周期缺口。最后一台相机停止渲染后，明确停用或销毁的已绑定流式表示可在确认空闲时排入退休栅栏，完成后归还页引用。CPU 回归覆盖真实组件的撤回请求、最后读者和模拟栅栏，普通距离卸载继续由原相机回调负责。修复已进入 Release125，实体 GPU 退休及整体 G4 保持开放。[资源生命周期](IndependentAssetPages.md#publication-and-lifetime)
 
 T3／G3 修复了同一个 SkinnedMeshRenderer 换网格或清空来源后，旧快照仍可留存或由后台作业重新发布的问题。实际组件 CPU 回归覆盖撤回、取消、新来源恢复与完成票据后的退休。Astra Max 同意按该功能范围采用，修复已进入 Release124。原形变画质和真实 GPU 退休仍各自验收。[修复与范围](../LocalComparison/Review/skinned-source-replacement-140/release-notes.md)
 
@@ -22,11 +22,13 @@ T2／G4 已关闭第 9 节的静态镜像双子网格精确剔除与远层命中
 | T4 / 中 | 世界表面专项验收 · G2 | 关闭尚未覆盖的材质／UV 接缝、镜像变换、图集／锚点及池复用身份问题。已有三室、薄壁、凹口、离屏纹理、内层和正比例非均匀缩放结果直接复用。一个保存重开后的静态两槽 Point／无 mip 接缝已有图集及锚点子结果，但该次四条 binding 返回数值未写入，完整冻结合同仍证据不足，不自动补采或宣称整体 T4 通过。专项要能判断正确来源与覆盖，不能用总 ready 数代替。出现具体反例时才改实现。[原条款](ProductionPlan.md#8-真实可变表面-charts已接入与剩余验收) · [接缝范围及缺失记录](../LocalComparison/Review/material-uv-seam-01/result.md) |
 | T5 / 中 | 已知使用限制，原因未闭合 · G4 | 处理冷高速入场的首次完整表示空档，或据原验收条件明确其仍未通过。现有证据显示预取已生效，完整绑定及照明发布仍需等待；没有请求丢失或满足条件却不发布的证据。当前不重开已停止的预热／优先级候选，不以削弱完整组门槛换首显。[已有冷入结果](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) · [等待与回调间隔](../LocalComparison/Review/outside-group-visibility-01/result.md) |
 | T6 / 中 | 资源、规模与预算能力及验收 · G4／G5 | 在已承诺平台与原规定负载内闭合资源生命周期和预算判断，复用已有双 Base 相机隔离、30 分钟流式运行、域重载清理及后端退休结果。默认活动Skin已补原小网格、已预热且观察开启的同窗预算／Present，不再将这一条件列为成本未知；其他负载边界保留。只处理会改变放行决定的冷／热、高速、流式或高更新负载缺口。全阶段时间预算尚未完成：当前反馈只缩放 patch／capture／brick 数量，不能等同于 CPU 准备、上传、RTAS 等所有阶段分别受时间预算控制；缺失能力须对照原目标处理，不新造预算／验证框架。验收仍用 960×540／30FPS、GI 三段逐帧合计 p95≤25ms、进程 local 有限采样峰值≤1GiB，记录 p99、nonlocal 单列；不混淆 Present、GI 时间和显示帧率。[原调度目标](ProductionPlan.md#5-streaming-与预算) · [目标与现有窗口](GpuBudget.md#当前已确认的起始验收目标) |
-| T7 / 最后 | 支持范围与最终放行 · G5 | Release124 提供包含蒙皮来源修复的同源运行包和工程包，沿用已交付的离线画册。继续汇总 T2–T6 在承诺平台上的有界结果，完成剩余生产放行。CI 暂缓，整体 G5 保持开放。[支持主表](ProductionPlan.md#当前支持范围与证据层级) · [离线画册](../LocalComparison/Review/picture-comparison.html) |
+| T7 / 最后 | 支持范围与最终放行 · G5 | Release125 提供包含流式资源回收修复的同源运行包和工程包，沿用已交付的离线画册。继续汇总 T2–T6 在承诺平台上的有界结果，完成剩余生产放行。CI 暂缓，整体 G5 保持开放。[支持主表](ProductionPlan.md#当前支持范围与证据层级) · [离线画册](../LocalComparison/Review/picture-comparison.html) |
 
 这些是当前优先级，不是严格串行依赖。T2–T6 也不是一次性展开的测试矩阵。开始任何新观测前，先明确它能改变哪个采用、修复或放行决定；不能改变决定的观测不做。仅在必要时更新对应产品与证据，不新造验证系统。
 
 T5 现有记录确认了统一示例在加载带入口的一帧绑定延后。Release110 第 306 帧写入粗根请求时 8 页已就绪，第 307 帧才绑定。示例的 `Update` 在流式表示消费需求之后执行。粗根仍在可见边界外绑定，首次完整表示空档保持未通过。[冷入折返与实际记录](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
+
+同一记录的第 307–309 帧已绑定粗根，40 单位可见门仍挡住预热，第 310 帧才进入 Warming。第 320 帧目标切到细节时，粗根尚无完整就绪票据，已开始的预热随之撤回。第 308／309 帧分别已有 2／8 个其他发布对象，安排了 192／256 个缓存 patch 更新。仅在空域预热的候选因此只适用第 307 帧。Astra Max 建议后续优先判断延续粗根准备能否提前首个完整表示，原发布界、照明就绪和共享预算继续作为采用条件。[实际路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
 ## 用户已暂缓或已收束的工作
 

@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release124，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release125，G0 已锁定，G1／G2 本机代表性验收通过
 
-T6／G4 关闭已绑定流式表示明确停用后仍依赖下一次相机回调才能开始回收的源码缺口。新的空闲检查沿用最后读者完成票据，CPU 回归验证最后一台相机停用后仍能取得并完成该票据。源码等待下次统一构建，实体 GPU 回收仍按原条件验收。[资源页退休规则](IndependentAssetPages.md#publication-and-lifetime)
+T6／G4 关闭已绑定流式表示明确停用后仍依赖下一次相机回调才能开始回收的源码缺口。新的空闲检查沿用最后读者完成票据，CPU 回归验证最后一台相机停用后仍能取得并完成该票据。Release125 的同源运行包与可编辑工程已交付，实体 GPU 回收仍按原条件验收。[资源页退休规则](IndependentAssetPages.md#publication-and-lifetime) · [同源交付](../LocalComparison/Review/streamed-idle-retirement-141/delivery.json)
 
 T3／G3 关闭同一 SkinnedMeshRenderer 更换或清空来源网格后继续使用旧 GI 形变快照的功能缺口。Release124 在帧级渲染准备撤回旧 Mesh／SDF／图卡、取消旧作业，并由原预算接纳替换网格。实际组件 CPU 回归和同源普通 Win64 构建均已通过。已交付运行包与可编辑工程，形变画质、真实 GPU 退休和整体 G3–G5 保持开放。[功能修复](../LocalComparison/Review/skinned-source-replacement-140/release-notes.md) · [同源交付](../LocalComparison/Review/skinned-source-replacement-140/delivery.json)
 
