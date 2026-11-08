@@ -115,7 +115,7 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 | 对象 SDF 图集的 Feature 入口 | 每引擎帧跨相机共享 262,144 个 RFloat 体素（1 MiB）的 `SetData` 尝试额度。最早等待的整卷优先，独立 `Prepare` 按自身额度计账。[驻留与准入](SdfAtlasResidency.md) |
 | `materialTextureUploadMiBPerFrame` | 16 MiB，全相机共享实际复制字节；稳定大页跨帧续传，完整复制/回读后ready；不能拼接不同帧的动态RT。 |
 | `hardwareMaterialBudgetMiB` | 256 MiB，材质arena包含当前、待上传、读者持有及退休/隔离分配；复用稳定页，局部替换变化页。 |
-| `softwareGeometryBudgetMiB` | 128 MiB，每相机精确软件属性、BVH与等待fence的旧缓冲共同计账；新分配前准入，不足则回退/等待退休。 |
+| `softwareGeometryBudgetMiB` | 128 MiB，同一 Feature 内按相机合计精确软件属性和 BVH。状态重建后仍计入待释放的旧分配，额度不足时使用现有回退。[定向对照](../LocalComparison/Review/camera-software-geometry-budget-168/result.md) |
 | `hardwareGeometryBudgetMiB` | 128 MiB，同一 Feature 内按相机计入硬件精确属性。相机状态重建后仍计入待释放的旧分配，直到安全释放。RTAS 使用独立的共享预留。[定向对照](../LocalComparison/Review/camera-dxr-attribute-budget-167/result.md) |
 | `rtasMemoryBudgetMiB` | 256 MiB，跨相机RTAS预留；按64 KiB + 192 B/triangle + 1024 B/instance估算，后续 `GetSize` 观测只提高高水位；退休仍计账。估算不是驱动上界。 |
 | `rtasBuildsPerFrame` | 每引擎帧最多4次实际构建；仅准备不扣构建额度，未变场景不重复扣费。 |
