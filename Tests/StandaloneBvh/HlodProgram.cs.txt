@@ -267,4 +267,59 @@ Require(rootHeld && completeReplacement && noOrdinaryBypass && completeBeforeRoo
     $"Streamed HLOD partial binding: retained root={rootHeld}, complete replacement={completeReplacement}, " +
     $"no ordinary bypass={noOrdinaryBypass}, complete before root={completeBeforeRoot}.");
 Console.WriteLine("PASS streamed HLOD: staged page arrivals retain complete GI groups and complete near details can publish while the root is unbound.");
+
+g = Group(2);
+var nextRoot = new HybridLumenGIProxy { StableId = 3000, FarFieldOnly = true,
+    bounds = new Bounds(new Vector3(100, 0, 0), new Vector3(12, 12, 12)) };
+var nextDetail = new HybridLumenGIProxy { StableId = 3001, HLODParent = nextRoot, bounds = nextRoot.bounds };
+HybridLumenGIProxy.ActiveProxies.Add(nextRoot);
+HybridLumenGIProxy.ActiveProxies.Add(nextDetail);
+using (var s = new HybridLumenGIScene())
+{
+    Prepare(s, false, 32);
+    foreach (var child in g.children)
+        Require(s.ReportReadiness(child.StableId, child.Revision, true, true, true), "Initial detail readiness rejected.");
+    Prepare(s, false, 32);
+    Require(g.children.All(p => s.IsPublished(Slot(s, p.StableId))), "Initial old detail group did not publish.");
+
+    // Model SetHLODParent on an active proxy, including its geometry and scene revisions.
+    var moved = g.children[1];
+    moved.HLODParent = nextRoot;
+    moved.Revision++;
+    moved.GeometryContentRevision++;
+    Prepare(s, true, 32);
+    bool oldWithdrawn = Slot(s, g.children[0].StableId) < 0 && s.Bvh.NodeCount == 0;
+    var nextDetails = new[] { moved, nextDetail };
+    bool newWarming = nextDetails.All(p => s.IsWarming(Slot(s, p.StableId)));
+    // HlodReadback only requests readiness for warming slots. The old root has no receipt.
+    foreach (var child in nextDetails)
+        if (s.IsWarming(Slot(s, child.StableId)))
+            Require(s.ReportReadiness(child.StableId, child.Revision, true, true, true), "New detail readiness rejected.");
+    Prepare(s, true, 32);
+    var published = new List<HybridLumenGIProxy>();
+    bool nextPublished = s.TryGetHlodPublication(nextRoot, published, new List<HybridLumenGIProxy>(), out _) &&
+        published.Count == 2 && nextDetails.All(published.Contains) && s.IsWarming(Slot(s, g.root.StableId));
+    Require(oldWithdrawn && newWarming && nextPublished,
+        $"HLOD reparenting: old set withdrawn={oldWithdrawn}, new set warming={newWarming}, new set published={nextPublished}.");
+
+    var arriving = new HybridLumenGIProxy { StableId = 3002, HLODParent = nextRoot, bounds = nextRoot.bounds };
+    HybridLumenGIProxy.ActiveProxies.Add(arriving);
+    Prepare(s, true, 32);
+    Require(nextDetails.All(p => s.IsPublished(Slot(s, p.StableId))) && s.IsWarming(Slot(s, arriving.StableId)),
+        "Complete old set was not held while the added member warmed.");
+    SetResident(moved, false);
+    Prepare(s, true, 32);
+    int survivorSlot = Slot(s, nextDetail.StableId);
+    Require(s.IsWarming(survivorSlot) && s.Bvh.NodeCount == 0 && s.DirtyRegions.Any(region =>
+        region.StableId == nextDetail.StableId && region.Kind == HybridLumenGIScene.ChangeKind.Removed &&
+        region.HasPrevious && !region.HasCurrent), "Retired set left an unchanged member in traversal or lost its removal.");
+    Require(s.ReportReadiness(arriving.StableId, arriving.Revision, true, true, true), "Arriving detail readiness rejected.");
+    Prepare(s, true, 32);
+    Require(s.IsWarming(survivorSlot) && s.PublishedCount == 0, "Unchanged detail reused a receipt after leaving traversal.");
+    Require(s.ReportReadiness(nextDetail.StableId, nextDetail.Revision, true, true, true), "Renewed detail readiness rejected.");
+    Prepare(s, true, 32);
+    Require(s.PublishedCount == 2 && s.IsPublished(survivorSlot) && s.IsPublished(Slot(s, arriving.StableId)),
+        "Current detail set did not publish after the surviving member's renewed receipt.");
+}
+Console.WriteLine("PASS HLOD membership: reparented members warm in the new group; withdrawal invalidates receipts of unchanged members returned to warming.");
 Console.WriteLine("PASS: actual scene HLOD source initial readiness, geometry/material/lighting gate, stale receipt rejection, budgeted warm-up with old BVH held, atomic publish without duplicate occlusion, cancellation, staging-capacity failure, material-only retention, immediate stale-geometry removal and nested root/leaf grouping. CPU receipts model ordered-queue preparation; they are not GPU fences or convergence tests.");

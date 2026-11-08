@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release132 同源交付](../LocalComparison/Review/notified-skin-source-149/delivery.json)
 
+G4 主干已关闭已发布 HLOD 成员重挂后被旧组扣留的资格缺口。实际 Scene CPU 回归确认无效组整组退出，目的组不依赖旧粗根，可按原回执发布。撤回后退回预热的成员需要重新取得照明回执。待后续普通包整合，T5 高速首显仍开放。[组成员与验证范围](HlodStreaming.md#atomic-hlod-transactions)
+
 T3／G3 已关闭同一 `sharedMesh` 收到明确内容变更通知后仍消费旧自动快照的资格缺口。实际组件 CPU 回归覆盖撤回、旧作业取消、模拟完成和当前版本恢复，修复已进入 Release132。原生 GPU 生命周期及形变画质按原条件验收。[内容版本与回归范围](DeformedGeometry.md)
 
 T6／G4 已修复资源驱动在零启动配额下销毁后阻塞接管的问题。实际组件 CPU 回归覆盖 `startsPerStep=0`、已有逻辑 I/O、旧租约等待安全完成和后继驱动接管。回归使用适配器，修复已进入 Release131，原生条件按原计划验收。[生命周期与回归范围](IndependentAssetPages.md#publication-and-lifetime)

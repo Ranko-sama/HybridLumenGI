@@ -103,7 +103,7 @@ namespace HybridLumenGI
         private sealed class HlodGroup
         {
             public HybridLumenGIProxy root;
-            public readonly List<HybridLumenGIProxy> details = new List<HybridLumenGIProxy>();
+            public readonly HashSet<int> details = new HashSet<int>();
             public readonly HashSet<int> published = new HashSet<int>();
             public readonly HashSet<int> target = new HashSet<int>();
             public float distance;
@@ -370,8 +370,16 @@ namespace HybridLumenGI
                     {
                         ProxyGpuData value = Data[slot]; value.identity.w = candidate.phase; Data[slot] = value;
                         traversalActive[slot] = candidate.phase == 1; dirty[slot] = true; changed = true;
-                        RecordDirty(slot, id, false, default, true, traversalBounds[slot],
-                            ChangeKind.Added | (representationAdds.Contains(id) ? ChangeKind.Representation : 0), 0, candidate.proxy.Revision);
+                        if (candidate.phase == 1)
+                            RecordDirty(slot, id, false, default, true, traversalBounds[slot],
+                                ChangeKind.Added | (representationAdds.Contains(id) ? ChangeKind.Representation : 0), 0, candidate.proxy.Revision);
+                        else
+                        {
+                            // Removal invalidates lighting even when the proxy revision is unchanged.
+                            readiness.Invalidate(id);
+                            RecordDirty(slot, id, true, traversalBounds[slot], false, default,
+                                ChangeKind.Removed, candidate.proxy.Revision, 0);
+                        }
                     }
                     // Field/chunk movement can occur without a geometry change when the camera moves.
                     if ((int)Data[slot].identity.z != candidate.field)
@@ -465,7 +473,7 @@ namespace HybridLumenGI
                 { group = new HlodGroup { root = root }; groups.Add(root, group); }
                 group.seen = true;
                 grouped.Add(proxy.StableId);
-                if (proxy != root && !aggregates.Contains(proxy)) group.details.Add(proxy);
+                if (proxy != root && !aggregates.Contains(proxy)) group.details.Add(proxy.StableId);
             }
             foreach (var proxy in streamedBindings.Keys)
             {
@@ -487,18 +495,24 @@ namespace HybridLumenGI
                     rootDistance = Finite(bounds.center) && Finite(bounds.extents) ? bounds.SqrDistance(position) : float.PositiveInfinity;
                 }
                 group.distance = rootDistance;
-                for (int i = 0; i < group.details.Count; i++)
-                    group.distance = Mathf.Min(group.distance, available[group.details[i].StableId].distanceSquared);
+                foreach (int id in group.details)
+                    group.distance = Mathf.Min(group.distance, available[id].distanceSquared);
                 if (group.distance > farSquared)
                 { group.published.Clear(); group.initialized = false; continue; }
+                // Protect the old set only while all of its members still belong to this group.
+                bool publishedRoot = group.published.Contains(group.root.StableId);
+                if (publishedRoot ? !rootAvailable : !group.published.IsSubsetOf(group.details))
+                {
+                    group.published.Clear();
+                    group.initialized = false;
+                }
                 bool far = UseFarProxy(group.root, rootDistance, nearDistance);
                 if (far || group.details.Count == 0)
                 {
                     if (rootAvailable) group.target.Add(group.root.StableId);
                 }
                 // An incomplete near target cannot replace a published group or reserve extra slots.
-                else if (!group.detailsPending)
-                    foreach (var detail in group.details) group.target.Add(detail.StableId);
+                else if (!group.detailsPending) group.target.UnionWith(group.details);
                 group.capacityFallback = group.published.Count == 0 && group.target.Count > capacity;
                 if (group.capacityFallback)
                 {
