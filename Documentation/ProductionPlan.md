@@ -82,11 +82,12 @@ Release84新增[F2运行状态日志入口](../LocalComparison/Review/keyboard-l
 
 后续一次[全局光暂态加权候选](../LocalComparison/Review/global-light-response-window-01/result.md)未满足既定响应筛选，已撤回并结束。Release78另采用来源分离功能：同一前缀240→299输出绝对变化降低92.2%，270→299降低80.0%，接收面反弹保留；该有限采用不证明物理误差或精确收敛。触发的是上传灯表为空，非所有场景光源关闭；缓存存储增加20%，实际带宽/时间增量未测。G1/G3整体收敛保持开放。
 
-截至2026-11-04，当前交付为 **Release122／产品源码7c08327**。运行包和可编辑工程的同源构建见[交付记录](../LocalComparison/Review/stable-fallback-history-01/delivery.json)；主干此后的有限观察没有修改Runtime。下表区分当前实现、证据的实际来源与未完成事项，不把旧结果改标为122全部通过，也不删改原G0–G5目标。
+截至 2026-11-08，当前交付为 **Release123，产品源码 `66880c5f`**。本版整合通过固定两室关门恢复目标的修复。各项历史证据沿用原版本与适用范围。[同源交付记录](../LocalComparison/Review/portal-recovery-138/delivery.json)
 
 | 类别 | 当前实现／交付范围 | 已有依据与未关闭边界 |
 | --- | --- | --- |
-| 当前交付环境 | Unity6000.0.85f1／URP17.0.4、Windows x64／Mono／DX12／Linear；本机RTX2080Ti。统一示例960×540、半GI、2ray／filter4，默认偏好DXR | 普通Release122／None包从同版工程ZIP的独立解压目录构建；[打开与重建](UnifiedUnityProject.md)、[升级与回退](Implementation.md#升级已有-unity-工程与回退)。这不是其他设备、Unity版本、IL2CPP或完整生产负载放行 |
+| 当前交付环境 | Unity 6000.0.85f1、URP 17.0.4、Windows x64、Mono、DX12 和 Linear。本机 RTX2080Ti。统一示例 960×540、半分辨率 GI、2 射线和 4 级滤波，优先 DXR | 普通 Release123 从同版工程 ZIP 的独立解压目录构建。完整生产负载和其他设备的验收仍按原计划推进。[打开与重建](UnifiedUnityProject.md) · [升级与回退](Implementation.md#升级已有-unity-工程与回退) |
+| 固定两室关门后的照明恢复 | 对普通 MeshRenderer 同源网格的不相交姿态变更，受影响的缓存保留可显示值，直到新估计提交。旧值在等待期间不进入世界递归 | 同一固定地板在 1 秒和 2 秒前最后的残留分别为 2.637% 和 0.214%。两个保持条件成立，覆盖本机这条实际 DXR 关门光路。[原版、修复与匹配控制](../LocalComparison/Review/portal-recovery-138/result.md) |
 | 代码明确跳过／有条件拒绝 | Feature仅进入Base Game及显式允许的SceneView、Tex2D目标；非DX12、非Linear、Overlay、立体/XR、无compute或必要资源时跳过 | [实际准入](../Runtime/HybridLumenGIRendererFeature.cs)。Replace原生漫反射另要求普通Lit、Forward／Forward+、有符号HDR和MSAA关闭，Deferred／APV／Subtractive等按[替换合同](NativeDiffuseComposition.md)拒绝或保持原画面；不能把这些行为写成仅“未测试” |
 | 软件／DXR及真实材质 | 精确软件三角和可选DXR共用材质、alpha／Cull与chart绑定；不足时允许明确的SDF／解析近似或unknown。请求偏好不等于实际后端 | [88同输入2ray／filter3四时点画面对照](../LocalComparison/Review/release88-dxr-motion-01/result.md)、[121软件预算恢复](../LocalComparison/Review/software-budget-recovery-121/result.md)、[122稳定回退历史](../LocalComparison/Review/stable-fallback-history-01/result.md)和[限定二值alpha实际遍历](../LocalComparison/Review/binary-alpha-traversal-01/result.md)各按原来源复用。88不升级成当前filter4或全部Cull、mip、纹理与混合回退视觉一致；原近似边界保留 |
 | 普通材质与相机合成 | ordinary opaque／cutout URP Lit为主路径；Additive保留原生光照，Replace适用其独立有界合同 | [普通Player workflow／map](../LocalComparison/Review/player-material-workflow-01/result.md)、[单采样alpha／smoothness-alpha](../LocalComparison/Review/player-alpha-smoothness-01/result.md)及[原生GI替换](NativeDiffuseComposition.md)均按各自输入采用。runtimeAlphaToMask0结果不放行A2C／MSAA；Shader Graph、自定义顶点变形、透明、镜面GI等不在当前同一合同内 |
@@ -229,7 +230,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-当前交付为 Release122，将已接受的稳定回退历史修复纳入普通三室运行包及可编辑工程，关闭源码与成品不同步的缺口。沿用 121 的软件降预算恢复和折面图卡修复。普通 Player 从同版工程 ZIP 的干净解压目录构建；按 M 启停门，按 F5 查看间接光，按 4／5 请求软件或 DXR。**G0 本机基线已锁定，第6节G1／G2本机代表性验收已通过；G3–G5及相关专项仍未完成。** Release122整合本身没有新增画质或性能测量。[122 修复与范围](../LocalComparison/Review/stable-fallback-history-01/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [122 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release122-demo)
+Release123 将两室关门恢复修复纳入普通三室运行包及可编辑工程。普通 Player 从同版工程 ZIP 的干净解压目录构建。**G0 本机基线已锁定，第 6 节 G1／G2 本机代表性验收已通过，G3 固定两室关门子项已关闭。** 完整 G3–G5 及相关专项仍开放。[关门实测](../LocalComparison/Review/portal-recovery-138/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [Release123 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release123-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

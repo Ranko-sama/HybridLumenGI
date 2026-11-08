@@ -120,9 +120,9 @@ Triangle-to-chart binding retains the exact card/chart/layout/geometry identity 
 
 适用于已通过源码目录接入 HybridLumenGI 的工程。本机发布环境为 Unity 6000.0.85f1、URP 17.0.4、Windows x64／Mono／DX12／Linear。仅更新独立演示时，把整个 ZIP 解压到新目录，旧目录即可用于回退。
 
-当前发布的 Release122 运行包及可编辑工程固定使用产品源码 [`7c08327`](https://github.com/Ranko-sama/HybridLumenGI/tree/7c08327f6fd6758dc5cdda563ec10e42e26b50bb)。工程包保留 Release121 的场景、烘焙资产和资源页，更新 Renderer Feature、硬件准备路径及工程 README；Windows 包从该工程 ZIP 的独立解压目录构建。[工程入口与重建步骤](UnifiedUnityProject.md) · [稳定回退历史修复](../LocalComparison/Review/stable-fallback-history-01/result.md)
+Release123 运行包和可编辑工程固定使用产品源码 `66880c5f`。工程包沿用 Release122 的场景、烘焙资产和资源页，更新了姿态变更后的世界缓存递归路径。Windows 包从该工程 ZIP 的独立解压目录构建。[工程入口与重建步骤](UnifiedUnityProject.md) · [两室关门修复](../LocalComparison/Review/portal-recovery-138/result.md)
 
-历史 Release121 使用 `e1e00d8`，包含软件预算恢复和折面图卡修复；稳定回退历史累积修复从 Release122 起随包交付。需要复现发布版时，使用对应工程 ZIP 或固定产品提交；选择开发主干时，把完整同版产品源码一起更新并记录所用提交。
+Release121 使用 `e1e00d8`，包含软件预算恢复和折面图卡修复。稳定回退历史累积修复从 Release122 的 `7c08327` 起随包交付。复现发布版时使用对应工程 ZIP 或固定产品提交。采用开发主干时，同步完整的同版产品源码并记录提交。[Release122 稳定回退历史修复](../LocalComparison/Review/stable-fallback-history-01/result.md)
 
 1. **保存可以回退的工程版本。** 退出 Play，在版本控制分支或工程副本中升级。保留现有产品源码及其 `.meta`、场景、Universal Renderer Data、Proxy 引用的烘焙资产。使用分页的工程还要保存对应的 rig、manifest 和 StreamingAssets 中的同批 bundles。单独记录已安装的可选原生插件版本及导入设置。
 2. **在原位置更新产品。** 按同一发布来源同步 `Runtime`、`Editor`、`Shaders` 及其 `.meta`，包括 `Runtime/Resources`。清理时按新旧产品文件差异区分退役的产品文件与工程自有资产。已有场景或 Renderer Data 通过 GUID 引用脚本、Shader 等资源。同源安装应延续原 GUID。若旧工程自行生成过 `.meta` 或改过产品源码，先在工程副本中合并改动、核对并重新绑定失配引用。导入后打开实际相机使用的 Renderer Data，确认原 Feature 与设置仍在，再查看场景中原有 Proxy 的引用。

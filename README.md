@@ -16,17 +16,17 @@
 
 HybridLumenGI 以网格距离场和表面材质描述场景，在世界空间累积间接光，再通过时域重建与空间滤波输出到 URP 相机。它关注视锥外的颜色反弹、光照变化后的响应，以及动态几何与分页资源之间的一致性。
 
-**当前交付为 Release122，仍属实验性项目。** 已提供可运行示例、可编辑 Unity 工程和独立画面对照；完整生产验收尚未完成，不宣称与 UE5 Lumen 等价。
+**当前交付为 Release123，包含两室关门后的暖光恢复修复。** 可运行示例和可编辑 Unity 工程使用同版源码。项目仍处于实验阶段，完整生产验收持续推进。
 
 ## 开始体验
 
 | 你想做什么 | 下载 | 打开方式 |
 | --- | --- | --- |
-| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release122-demo/HybridLumenGI-Release122-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
-| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release122-demo/HybridLumenGI-Release122-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
-| **先看独立对照** | [离线画册 · 2026-11-04 修订](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release122-demo/HybridLumenGI-Release122-PictureComparison-20261104.zip) | 完整解压后打开 `PictureComparison/index.html`。 |
+| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release123-demo/HybridLumenGI-Release123-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
+| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release123-demo/HybridLumenGI-Release123-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
+| **先看独立对照** | [两室关门的同曝光对照](LocalComparison/Review/portal-recovery-138/result.md) | 可直接看报告。Windows 包中的 `PictureComparison/index.html` 提供完整离线画册。 |
 
-请同时保存 [Release122 许可证补充包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release122-demo/HybridLumenGI-Release122-Licenses.zip)，并保留运行包旁的数据目录与资源页。
+Release123 两个包均附带 `LICENSE` 和 `NOTICE`。请保留运行包旁的数据目录与资源页。
 
 **示例配置：** Windows x64 · DirectX 12 · Linear · URP 17.0.4 · 960×540 · 半分辨率 GI · 每像素 2 条射线 · 4 级空间滤波。启动时优先请求 DXR，实际后端以面板与日志为准。[打开场景与重新构建 →](Documentation/UnifiedUnityProject.md)
 
@@ -101,6 +101,7 @@ GPU 计时、预算反馈和显存观察默认关闭。可先选 **Measure only*
 | **[关灯残留](LocalComparison/Review/all-source-off-response-01/result.md)** | 实际棕墙 / 白地板光路，全源关断后 **0.985 / 1.985 秒**，27 个固定点的旧绿均值剩 **0.2774% / 0.02529%**。 | 限该输入与光路，末端实际过滤数据有效；不能称白墙、高反射率或最坏情况通过，也不等同示例 `L` 键事件。 |
 | **[运动拖影](LocalComparison/Review/four-pass-local-quality-01/result.md)** | 四个同曝光时点中，颗粒减弱，未见明显加重的旧门轮廓。 | 不覆盖帧间闪烁、弱拖尾的连续持续时间或任意动画。 |
 | **[换色恢复](LocalComparison/Review/final-state-response-01/result.md)** | 既有绿转蓝光路的 Final 区域均值，首个合格保持窗口为 **0.194–0.708 秒**，后续观测至 2.613 秒未再越线。 | 相对同工作帧的产品蓝色控制；窗口起点最差单点仍差约 23%。不是全像素或物理精确收敛。 |
+| **[两室关门恢复](LocalComparison/Review/portal-recovery-138/result.md)** | 约两秒的地板暖光残留由 **10.33%** 降到 **0.214%**。修复后的首个 ≤1% 保持窗为 **1.373–1.894 秒**。 | 960×540 实际 DXR，固定两室地板与匹配闭门控制。读数取 2 秒截止点前后的实际源帧。 |
 
 各行来自不同场景与观察，不能拼成一次完整验收。D 为 `E_indirect / π`，未乘接收面反射率、AO 或合成强度；秒级响应使用约 29 Hz 的连续显式渲染请求，不是普通 Player 帧率测量。反射率换色的 White 区域控制仍不足，几何遮挡变化后的恢复也未闭合。[四问完整说明](LocalComparison/Review/dynamic-picture-comparison-01/report.md) · [画册交付范围](LocalComparison/Review/picture-delivery-20261104/result.md)
 
