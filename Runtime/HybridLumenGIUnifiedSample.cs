@@ -161,8 +161,9 @@ namespace HybridLumenGI
             if (!subscribed || !KeepRunning()) return;
             videoMemory.Sample(Time.frameCount, measureVideoMemory);
             if (aggregate.Proxy != null) aggregate.Proxy.enabled = BindingAvailable(aggregate);
-            // Binding is per representation. Do not expose a partial authored detail set to Scene.Prepare.
-            bool complete = BindingAvailable(aggregate);
+            // An enabled root binding declares the group even while its pages are pending.
+            // Scene.Prepare can warm the complete near set before the coarse root binds.
+            bool complete = aggregate.isActiveAndEnabled && !aggregate.IsUnavailable;
             foreach (var item in details) complete &= BindingAvailable(item);
             foreach (var item in details)
                 if (item.HasBoundAssets) item.Proxy.enabled = complete;
