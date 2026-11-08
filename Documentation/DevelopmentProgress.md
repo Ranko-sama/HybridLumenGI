@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release140，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release141，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭普通 BaseMap 等待匹配页回读时整次回退的问题。固定离屏墙的实机等待帧仍录制 DXR，世界缓存 epoch、精确网格及独立已确认地板贴图保持一致。蓝贴图在等待时保留指定标记和零句柄，真实回读完成后复用原页。换色仍触发原局部更新。Astra Max 同意按此功能范围采用，并复用旧裁切等待控制。画面残留、收敛及正式性能分别验收。[实际等待与恢复](../LocalComparison/Review/pending-exact-texture-158/result.md) · [同源交付](../LocalComparison/Review/pending-exact-texture-158/delivery.json)
 
 T3／G3 已关闭已发布精确网格因无图卡而漏报 BaseMap 换色的问题。固定离屏墙的实际 DXR 请求中，旧版读到新蓝贴图后仍无局部事件。修复版同帧写入一个墙体局部照明域，把附近地板缓存优先级提高到 751。等现有纹理回读完成后，下一次仍走 DXR 的请求恢复为零。Astra Max 同意按材质通知与调度的范围采用，画面残留、收敛用时及生产预算分别验收。[实际对照](../LocalComparison/Review/cardless-material-157/result.md) · [同源交付](../LocalComparison/Review/cardless-material-157/delivery.json)
 
