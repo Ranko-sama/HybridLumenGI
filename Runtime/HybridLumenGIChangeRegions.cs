@@ -18,7 +18,7 @@ namespace HybridLumenGI
         private ComputeBuffer buffer;
         private int count;
         private float globalReactive, globalGeometryChange;
-        private bool hasDisjointPoseChange;
+        private bool hasLocalGeometryChange, hasDisjointPoseChange;
         public int Count => count;
         public long AllocatedBytes => buffer==null?0:Capacity*48L;
 
@@ -26,7 +26,7 @@ namespace HybridLumenGI
         {
             Array.Clear(receiverSources,0,receiverSources.Length);
             count = 0; globalReactive = globalGeometryChange = 0;byBounds.Clear();
-            hasDisjointPoseChange = false;
+            hasLocalGeometryChange = hasDisjointPoseChange = false;
             foreach (var change in scene.DirtyRegions)
             {
                 // Receiver/shadow policy alone changes light transport, not geometry.
@@ -57,6 +57,7 @@ namespace HybridLumenGI
         { AddKind(bounds,1,influenceRadius,receiver); }
         private void AddKind(Bounds bounds,float kind,float influenceRadius,Renderer receiver,bool disjointPose=false)
         {
+            hasLocalGeometryChange |= kind > 0.5f;
             if (byBounds.TryGetValue(bounds,out int existing))
             {
                 Region prior=regions[existing];
@@ -106,6 +107,7 @@ namespace HybridLumenGI
             cmd.SetComputeIntParam(shader, "_HLGI_ChangeCount", count);
             cmd.SetComputeFloatParam(shader, "_HLGI_GlobalReactive", globalReactive);
             cmd.SetComputeFloatParam(shader, "_HLGI_GlobalGeometryChange", globalGeometryChange);
+            cmd.SetComputeIntParam(shader, "_HLGI_HasLocalGeometryChange", hasLocalGeometryChange ? 1 : 0);
             cmd.SetComputeIntParam(shader, "_HLGI_HasDisjointPoseChange", hasDisjointPoseChange ? 1 : 0);
         }
         public void Dispose() { buffer?.Release(); buffer = null; }

@@ -3,8 +3,15 @@
 struct HLGIChangeRegion { float4 minimum, maximum, receiver; };
 StructuredBuffer<HLGIChangeRegion> _HLGI_ChangeRegions;
 int _HLGI_ChangeCount;
-int _HLGI_HasDisjointPoseChange;
+int _HLGI_HasLocalGeometryChange, _HLGI_HasDisjointPoseChange;
 float _HLGI_GlobalReactive, _HLGI_GlobalGeometryChange;
+
+float HLGIChangeDistanceSquared(float3 position, HLGIChangeRegion region)
+{
+    float3 outside=max(max(region.minimum.xyz-position,position-region.maximum.xyz),0);
+    return dot(outside,outside);
+}
+
 // x: a changed surface crossed this point; y: transport may be affected by a nearby change.
 float2 HLGIChangeAtReceiver(float3 position,uint provenReceiverGroup)
 {
@@ -13,8 +20,7 @@ float2 HLGIChangeAtReceiver(float3 position,uint provenReceiverGroup)
     [loop] for(int i=0;i<_HLGI_ChangeCount;i++)
     {
         HLGIChangeRegion region=_HLGI_ChangeRegions[i];
-        float3 outside=max(max(region.minimum.xyz-position,position-region.maximum.xyz),0);
-        float distanceSquared=dot(outside,outside);
+        float distanceSquared=HLGIChangeDistanceSquared(position,region);
         // 0: lighting; 1: pose only; 2: topology/material/manual/unknown.
         // Identity/primitive/pose checks authorize only THIS receiver's pose
         // exemption. An unknown owner or another moving occluder remains hard.
@@ -28,6 +34,22 @@ float2 HLGIChangeAtReceiver(float3 position,uint provenReceiverGroup)
 float2 HLGIChangeAt(float3 position) { return HLGIChangeAtReceiver(position,0u); }
 
 #if defined(HLGI_CACHE_UPDATE_ITERATION)
+bool HLGIRejectOldCacheInputAt(float3 position)
+{
+    if(_HLGI_GlobalGeometryChange>0.5) return true;
+    if(_HLGI_HasLocalGeometryChange==0) return false;
+    [loop] for(int i=0;i<_HLGI_ChangeCount;i++)
+    {
+        HLGIChangeRegion region=_HLGI_ChangeRegions[i];
+        if(region.minimum.w<=0.5) continue;
+        float distanceSquared=HLGIChangeDistanceSquared(position,region);
+        if(distanceSquared<=1e-8) return true;
+        if(_HLGI_HasDisjointPoseChange!=0 && region.receiver.y>=0.5 &&
+            distanceSquared<=region.maximum.w*region.maximum.w) return true;
+    }
+    return false;
+}
+
 bool HLGIDisjointPoseInfluenceAt(float3 position)
 {
     if(_HLGI_HasDisjointPoseChange==0) return false;
@@ -35,8 +57,7 @@ bool HLGIDisjointPoseInfluenceAt(float3 position)
     {
         HLGIChangeRegion region=_HLGI_ChangeRegions[i];
         if(region.receiver.y<0.5) continue;
-        float3 outside=max(max(region.minimum.xyz-position,position-region.maximum.xyz),0);
-        if(dot(outside,outside)<=region.maximum.w*region.maximum.w) return true;
+        if(HLGIChangeDistanceSquared(position,region)<=region.maximum.w*region.maximum.w) return true;
     }
     return false;
 }

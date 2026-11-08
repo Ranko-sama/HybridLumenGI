@@ -26,6 +26,7 @@ void Globals(float reactive,float geometry)
 }
 changes.Begin(scene,7.5f);Bind();
 Require(changes.Count==3&&command.ints["_HLGI_ChangeCount"]==3,"Old/new import or shared-bound deduplication failed.");
+Require(command.ints["_HLGI_HasLocalGeometryChange"]==1,"Hard local changes must gate old cache inputs.");
 Require(Buffer().count==1088&&Buffer().stride==48&&Buffer().lastUploadCount==3,"GPU capacity/stride/upload range mismatch.");
 Globals(0,0);
 foreach(var pair in new[]{(0,a),(1,b),(2,c)})
@@ -64,8 +65,12 @@ changes.Add(pose,true,2);Bind();Require(Read(4).minimum.w==2,"Strong invalidatio
 changes.MarkGlobalLightingChange();Bind();Globals(1,0);
 scene.DirtyRegions.Clear();changes.Begin(scene,0);Bind();
 Require(changes.Count==0&&command.ints["_HLGI_ChangeCount"]==0,"Begin did not reset imported domains.");Globals(0,0);
+Require(command.ints["_HLGI_HasLocalGeometryChange"]==0,"Begin retained the old hard-domain scan flag.");
 changes.Add(a,false,-1);Bind();
 Require(changes.Count==1&&Read(0).minimum.w==0&&Read(0).maximum.w==0,"Begin retained dedup state, or negative radius was not clamped.");
+Require(command.ints["_HLGI_HasLocalGeometryChange"]==0,"A soft-only region must not start hard-domain scans.");
+changes.Add(a,true,0);Bind();
+Require(command.ints["_HLGI_HasLocalGeometryChange"]==1,"Upgrading an existing region must gate old cache inputs.");
 // Ownership must distinguish another moving occluder even when both receivers
 // have perfectly valid history. Ambiguous merged bounds can never regain an owner.
 float Owner(int index)=>( (Vector4)Buffer().data[index].GetType().GetField("receiver").GetValue(Buffer().data[index]) ).x;

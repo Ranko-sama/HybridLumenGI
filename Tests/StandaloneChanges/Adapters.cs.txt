@@ -59,7 +59,7 @@ namespace HybridLumenGI
         public struct DirtyRegion
         {
             public UnityEngine.Bounds PreviousBounds,CurrentBounds;
-            public bool HasPrevious,HasCurrent;
+            public bool HasPrevious,HasCurrent,DisjointSourcePose;
             public int Slot,StableId;
             public ChangeKind Kind;
         }

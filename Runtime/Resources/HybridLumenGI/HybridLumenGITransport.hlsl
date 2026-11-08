@@ -299,9 +299,9 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
         if(any(e.tag.xyz != float3(p.identity.xy,_HLGI_Epoch)) || !HLGIHasSourceCacheMeasurement(e.irradiance,e.guide,e.nonAnalyticIrradiance)) continue;
         if(e.tag.w!=(float)surface.generation) continue;
 #if defined(HLGI_CACHE_UPDATE_ITERATION)
-        // Reject affected old input on the change frame and across skipped or
-        // unknown updates. Gather can still display the retained measurement.
-        if(e.nonAnalyticIrradiance.w>0.5 || HLGIDisjointPoseInfluenceAt(e.anchor.xyz)) continue;
+        // Target invalidation writes the other pool; reject stale source taps
+        // from this iteration's old pool before they can feed another patch.
+        if(e.nonAnalyticIrradiance.w>0.5 || HLGIRejectOldCacheInputAt(e.anchor.xyz)) continue;
 #endif
         // This camera's uploaded analytic-light table is empty. Its contribution
         // at every bounce is known zero; retained emission/environment is not.
