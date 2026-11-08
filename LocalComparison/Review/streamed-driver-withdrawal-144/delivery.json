@@ -1,0 +1,70 @@
+{
+  "productCommit": "8dc3c3dc9eb39a7ecc2c90d4c744440232d93a0e",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release127-demo",
+  "tag": "release127-demo",
+  "publishedAt": "2026-11-08T07:13:19Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release127 Unity project ZIP, using the Release126 shader cache. The targeted CPU regression used the actual representation, driver and page scheduler with adapted Unity objects, IO and reader completion. No performance window.",
+  "validation": {
+    "command": "./Tests/Validate-ChunkStreaming.ps1 -RepresentationOnly",
+    "status": "passed",
+    "notes": "release-notes.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease127\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101797121
+  },
+  "nativeExit": {
+    "exitCode": 0,
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified126/HybridLumenGI-Release126-UnityProject/Library/ShaderCache",
+    "project": "I:/Unity test/Comparison/PortableUnified127/HybridLumenGI-Release127-UnityProject",
+    "productCommit": "8dc3c3dc9eb39a7ecc2c90d4c744440232d93a0e",
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease127"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release127-UnityProject.zip",
+    "bytes": 833293,
+    "productCommit": "8dc3c3dc9eb39a7ecc2c90d4c744440232d93a0e",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified127\\HybridLumenGI-Release127-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release126-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIStreamedRepresentation.cs",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/HybridLumenGIStreamedRepresentation.cs"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release127-UnityProject.zip",
+      "bytes": 833293,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release127-demo/HybridLumenGI-Release127-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release127-Windows-x64.zip",
+      "bytes": 58465265,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release127-demo/HybridLumenGI-Release127-Windows-x64.zip"
+    }
+  ]
+}

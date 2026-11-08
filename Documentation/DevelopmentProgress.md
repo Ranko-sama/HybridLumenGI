@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release126，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release127，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 关闭驱动销毁后，仍活动的流式绑定无法处理需求撤回、旧页持续占用全局预算的功能缺口。回归覆盖实际绑定、驱动和页调度代码，I/O 与读者完成由适配器提供。原安全完成后页排空，新驱动可以接管。Release127 已将修复纳入普通 Win64 与同版可编辑工程。Astra Max 同意在该范围采用，原生退休及其他负载继续按各自已有证据和原验收条件处理。[修复范围](../LocalComparison/Review/streamed-driver-withdrawal-144/release-notes.md) · [同源交付](../LocalComparison/Review/streamed-driver-withdrawal-144/delivery.json)
 
 G4 关闭统一示例在流式成员撤回后仍可部分提交旧组、重绑后可借用旧可见记录的缺口。无图形 Unity Play 实际完成资产页绑定，覆盖旧完整根等待、任一细节停用整组隐藏、同 Proxy 换代拒旧、新完整输入恢复和销毁组件后仍存活的 Renderer 隐藏。Release126 已交付普通 Win64 和同版工程，照明回执为受控输入，实际相机和冷入首显继续按原条件验收。[原始状态](../LocalComparison/Review/streamed-group-visibility-142/result.json) · [同源交付](../LocalComparison/Review/streamed-group-visibility-142/delivery.json)
 
