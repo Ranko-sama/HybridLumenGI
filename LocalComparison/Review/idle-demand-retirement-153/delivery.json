@@ -1,0 +1,175 @@
+{
+  "productCommit": "2d48446e485ee8cc85373bc5955a590e889c9272",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release136-demo",
+  "tag": "release136-demo",
+  "publishedAt": "2026-11-08T09:55:49Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release136 Unity project ZIP using the Release135 shader cache. Native retirement used one actual AssetBundle group and a controlled consumer registered in DX12 Editor. One manual demand withdrawal after the last context drains after the consumer exits. Ordinary Player, broader loads, and performance have separate acceptance.",
+  "validation": {
+    "baselineCommit": "4525a92bd835e7f1fc73daf26d9d5a3d95342a20",
+    "graphicsApi": "Direct3D12",
+    "newContexts": 0,
+    "baselineRetained": {
+      "engine": 25,
+      "starts": 6,
+      "ends": 6,
+      "references": 2,
+      "retiring": 0,
+      "operations": 0,
+      "resident": 7292,
+      "bundle": 36562,
+      "io": 0,
+      "generation": 1,
+      "bound": true,
+      "enabled": true,
+      "unavailable": false,
+      "wantsUnload": true,
+      "meshAttached": true,
+      "rendererEnabled": true
+    },
+    "candidateLastContext": {
+      "engine": 11,
+      "starts": 7,
+      "ends": 7,
+      "references": 2,
+      "retiring": 0,
+      "operations": 0,
+      "resident": 7292,
+      "bundle": 36562,
+      "io": 0,
+      "generation": 1,
+      "bound": true,
+      "enabled": true,
+      "unavailable": false,
+      "wantsUnload": false,
+      "meshAttached": true,
+      "rendererEnabled": true
+    },
+    "candidateRetainedByConsumer": {
+      "engine": 14,
+      "starts": 7,
+      "ends": 7,
+      "references": 2,
+      "retiring": 0,
+      "operations": 0,
+      "resident": 7292,
+      "bundle": 36562,
+      "io": 0,
+      "generation": 1,
+      "bound": true,
+      "enabled": true,
+      "unavailable": false,
+      "wantsUnload": true,
+      "meshAttached": true,
+      "rendererEnabled": true
+    },
+    "candidateIdleTicket": {
+      "engine": 15,
+      "starts": 7,
+      "ends": 7,
+      "references": 2,
+      "retiring": 2,
+      "operations": 0,
+      "resident": 7292,
+      "bundle": 36562,
+      "io": 0,
+      "generation": 1,
+      "bound": false,
+      "enabled": true,
+      "unavailable": false,
+      "wantsUnload": false,
+      "meshAttached": false,
+      "rendererEnabled": false
+    },
+    "candidateDrained": {
+      "engine": 18,
+      "starts": 7,
+      "ends": 7,
+      "references": 0,
+      "retiring": 0,
+      "operations": 0,
+      "resident": 0,
+      "bundle": 0,
+      "io": 0,
+      "generation": 1,
+      "bound": false,
+      "enabled": true,
+      "unavailable": false,
+      "wantsUnload": false,
+      "meshAttached": false,
+      "rendererEnabled": false
+    },
+    "ticket": {
+      "submitted": true,
+      "requiresContext": false,
+      "submissionUnknown": false,
+      "fencePassed": true
+    },
+    "cpu": [
+      "Tests/Validate-DeformedMesh.ps1",
+      "Tests/Validate-ChunkStreaming.ps1 -RepresentationOnly"
+    ],
+    "notes": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease136\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101774321
+  },
+  "nativeExit": {
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease136",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "project": "I:/Unity test/Comparison/PortableUnified136/HybridLumenGI-Release136-UnityProject",
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified135/HybridLumenGI-Release135-UnityProject/Library/ShaderCache",
+    "exitCode": 0,
+    "productCommit": "2d48446e485ee8cc85373bc5955a590e889c9272"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release136-UnityProject.zip",
+    "bytes": 836247,
+    "productCommit": "2d48446e485ee8cc85373bc5955a590e889c9272",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified136\\HybridLumenGI-Release136-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release135-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIResourceRetirement.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIResourceRetirementPump.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIStreamedRepresentation.cs",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/HybridLumenGIResourceRetirement.cs",
+      "Runtime/HybridLumenGIResourceRetirementPump.cs",
+      "Runtime/HybridLumenGIStreamedRepresentation.cs"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release136-UnityProject.zip",
+      "bytes": 836247,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release136-demo/HybridLumenGI-Release136-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release136-Windows-x64.zip",
+      "bytes": 58447920,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release136-demo/HybridLumenGI-Release136-Windows-x64.zip"
+    }
+  ]
+}

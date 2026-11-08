@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release135，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release136，G0 已锁定，G1／G2 本机代表性验收通过
 
-T6／G4 主干已修复最后一次渲染后，启用中的分页绑定撤回需求仍滞留的问题。单个真实页组在 DX12 Editor 的零新上下文内保持有效消费者，再于其退出后通过实际空闲栅栏排空。CPU 回归补齐重新请求的及时保护和停用再启用后的待查。普通包待整合，普通 Player、多组负载和高速冷入分别验收。[原生对照与范围](../LocalComparison/Review/idle-demand-retirement-153/result.md)
+T6／G4 已修复最后一次渲染后，启用中的分页绑定撤回需求仍滞留的问题。单个真实页组在 DX12 Editor 的零新上下文内保持有效消费者，再于其退出后通过实际空闲栅栏排空。CPU 回归补齐重新请求的及时保护和停用再启用后的待查。Astra Max 同意按该范围采用，修复已进入 Release136。普通 Player、多组负载和高速冷入分别验收。[原生对照与范围](../LocalComparison/Review/idle-demand-retirement-153/result.md) · [同源交付](../LocalComparison/Review/idle-demand-retirement-153/delivery.json)
 
 T6／G4 已修复活动 Base 相机切换 URP Renderer 后，旧 GI 状态阻止资源页归还的问题。真实 DX12 双 Base 自动渲染中，第二台仍使用旧 Renderer 时租约保留。最后一台切走后，实际页先解绑再经原生栅栏归还。旧版同输入在后续 24 个实际上下文仍锁住页面。Astra Max 同意按单组范围采用，修复已进入 Release135。生产预算及多组负载分别验收。[原生对照与边界](../LocalComparison/Review/renderer-switch-retirement-152/result.md) · [同源交付](../LocalComparison/Review/renderer-switch-retirement-152/delivery.json)
 
