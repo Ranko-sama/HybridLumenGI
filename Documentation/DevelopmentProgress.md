@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release157，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release158，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭硬失效域旧值在同一世界迭代中写回其他图块的缺口。实际着色器对照中，匹配标签和图卡代次的旧红值仍被旧版读取，修复版只留下域外蓝值。Gather 的本轮重建输入仍可读取，软域与位姿跳变沿用原规则。修复已进入 Release158，采用范围为读取资格和绑定。实机画面、收敛与性能继续验收。[着色器对照](../LocalComparison/Review/hard-cache-input-180/result.md) · [同源交付](../LocalComparison/Review/hard-cache-input-180/delivery.json)
 
 T3／G3 已关闭同一精确后端内单对象切换表示时漏发局部失效的问题。实际 DXR 固定机位的离屏墙退出和恢复精确三角时，旧版都没有局部域。修复版两次各录制一条墙体几何域，地板调度优先级为 751，保持帧回到零，世界 epoch 保持。修复已进入 Release157，采用范围为录制与局部调度，像素残留、收敛和软件精确路径继续验收。[实际对照](../LocalComparison/Review/exact-membership-179/result.md) · [同源交付](../LocalComparison/Review/exact-membership-179/delivery.json)
 
