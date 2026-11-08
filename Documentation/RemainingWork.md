@@ -6,6 +6,8 @@ G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性
 
 2026-11-08 已恢复 Unity Personal 授权并关闭 G3 的固定两室关门恢复子项。修复隔离门跳变后的旧递归照明，两期限前的残留降为 2.637% 和 0.214%，符合原保持要求。Release122 的未通过基线和首个因 SDF 留边未触发的候选一并保留。[两室关门结果](../LocalComparison/Review/portal-recovery-138/result.md)
 
+T2／G4 已关闭第 9 节的静态镜像双子网格精确剔除与远层命中子项。Release123 同源软件 BVH 与 DXR 分别符合预定来源面向、身份、距离和颜色。T2 剩余纹理、混合回退及其他原专项仍开放。[镜像子网格结果](../LocalComparison/Review/mirrored-submesh-cull-139/result.md)
+
 ## 当前优先级
 
 | ID / 优先级 | 类别与关卡 | 剩余任务、完成条件与当前边界 |

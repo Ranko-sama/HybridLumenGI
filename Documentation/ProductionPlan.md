@@ -305,10 +305,10 @@ Release123 将两室关门恢复修复纳入普通三室运行包及可编辑工
 ## 9. 命中身份、背面策略与面积光 NEE 的边界
 
 主干已修复非均匀缩放下真实图卡的折面定向和查找。两片同卡三角经 X 轴压缩后均能取回所属卡，独立倾斜平面仍能命中。这为第 8、9 节的变换条款提供了正比例非均匀缩放下的实际法线与查卡依据；镜像实例和 UV 接缝的图集／锚点结果仍单列。[实测与适用范围](../LocalComparison/Review/folded-chart-facing-01/result.md)
-直接光策略另外见 [DirectLighting.md](DirectLighting.md)：owner三项策略变化只提升传输版本并局部reactive，纯Lighting不触发mesh内容重建；shadow查询独立于普通GI可见性，Off投影者仍能成为GI表面，DXR TwoSided只改变shadow候选Cull。屏幕GameObject层由最多32个互斥RendererList传递，rendering mask保持uint。Light引用每渲染引擎帧扫描一次并包含inactive，既有灯同帧激活可见、新创建灯最晚下次渲染帧发现。扫描、打包及多RendererList成本必须纳入G0/G1测量。精确材质与 CPU 来源跟踪已由本轮统一离线报告绑定；Unity、Player及实体GPU验收仍未执行，G0–G5条件不变。
+owner 的三项直接光策略变化提升传输版本并触发局部 reactive，纯 Lighting 变化沿用现有 mesh 内容。shadow 查询独立于普通 GI 可见性，Off 投影者仍能成为 GI 表面，DXR TwoSided 只改变 shadow 候选 Cull。屏幕 GameObject 层由最多 32 个互斥 RendererList 传递，rendering mask 保持 uint。Light 引用每渲染引擎帧扫描一次并包含 inactive，既有灯同帧激活可见，新灯最晚下次渲染帧发现。扫描、打包及多 RendererList 成本纳入 G0／G1 测量。精确材质与 CPU 来源跟踪的早期检查由统一离线报告记录。实际精确表面查询的验收范围见下文。[直接光策略](DirectLighting.md)
 
 - **已接入的身份与层选择。** `HLGIHit` 保留距离/位置、rawNg/Ns、owner/stableId/revision/geometryRevision、submesh/primitive、重心/UV、表示类型及各身份有效位。GPU triangle→chart表以当前owner几何版本、chart ID和layout代次验证唯一卡片。原先“前层texel偏移0.02、相隔0.001的后层反而得分更高”的跨卡选择已由直接绑定替代；缺失/过期绑定不能回到全owner搜索。精确的是chart身份，有限纹素覆盖、UV接缝及常量近似误差仍须实测。
-- **已接入的面向规则。** 硬件使用non-opaque candidate查询，在提交前按来源 Material 的子网格 Cull 策略筛选；真实材质 Cull 和有效 uniform/MPB 变化更新对应策略或常量，不重传几何属性。MPB `_Cull` 不改变原 raster state，也不再改变卡捕获副本的 Cull。rawNg不朝射线翻转，Ns遵循stock Lit约定；偏移按实际采样或阴影方向另算。真实chart用原始chart几何方向定向facet，反向vertex Ns不再裁空它。六面fallback依赖当前DX12默认raster绕序，任意外部未恢复的invert-culling状态不在已支持合同内。真实Unity光栅化、RayQuery调用与镜像实例行为尚未验收。
+- **已接入的面向规则。** 硬件使用 non-opaque candidate 查询，在提交前按来源 Material 的子网格 Cull 策略筛选。真实材质 Cull 和有效 uniform／MPB 变化更新对应策略或常量，沿用已上传的几何属性。原 raster state 和卡捕获副本都从来源 Material 取得 Cull。rawNg 保留来源方向，Ns 遵循 stock Lit 约定。偏移按实际采样或阴影方向另算。真实 chart 用原始 chart 几何方向定向 facet，顶点 Ns 反向时仍可捕获。六面 fallback 依赖 DX12 默认栅格绕序，外部切换 invert-culling 时须恢复默认状态。Release123 同源实测已关闭一个静态镜像双层的精确表面查询缺口，两个子网格分别应用 Cull Front／Back，软件和 DXR 从相反方向都跳过不合法近面并返回合法远层。镜像光栅、图卡及混合回退仍按各自条件验收。[输入、结果与边界](../LocalComparison/Review/mirrored-submesh-cull-139/result.md)
 - **仍近似的软件身份。** signed SDF只给体表面梯度，unsigned shell没有稳定源朝向；解析体也不等于源网格三角。它们携带当前owner/几何版本但不制造primitive、源front-face或UV。有效unsigned梯度允许双向近似材质搜索，confidence降低；无有效梯度仍保留几何遮挡并使用明确常量近似。它们与精确DXR材质/侧面行为的差异仍须逐场景解释。
 - **面积光NEE已进入精确命中链。** 同一prepared世界三角构建面积CDF并绑定本图材质代次，软件精确BVH和DXR共用来源UV材质、alpha/Cull及唯一primitive。只对方向命中Le施加配对权重，反射/cache项保持原估计。屏幕最近命中区域抑制面积项；SDF/解析及未入表端点的面积PDF为零，保留原方向估计。见 [配对公式与验证范围](EmissiveSampling.md)。
 
