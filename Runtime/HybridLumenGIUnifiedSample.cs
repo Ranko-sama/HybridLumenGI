@@ -183,18 +183,23 @@ namespace HybridLumenGI
         {
             if (camera != targetCamera || !KeepRunning()) return;
             if (!singleCameraSupported) return;
-            if (!feature.TryGetHlodPublication(camera, aggregate.Proxy, published, target, out publication) ||
-                publication.preparedEngineFrame != Time.frameCount)
+            bool known = feature.TryGetHlodPublication(camera, aggregate.Proxy, published, target, out publication);
+            if (publication.preparedEngineFrame != Time.frameCount)
             {
                 status = "waiting: no current complete publication";
                 ApplyVisibility(camera); return;
             }
             lastReceiptEngine = publication.preparedEngineFrame; lastReceiptWork = publication.preparedWorkFrame;
-            if (publication.phase == HybridLumenGIScene.PublicationPhase.Published && RememberPublishedBindings(published))
+            if (known && publication.phase == HybridLumenGIScene.PublicationPhase.Published && RememberPublishedBindings(published))
             {
                 if (publication.transitioning) status += "; replacement warming";
             }
-            else status = "waiting: publication does not equal the complete authored root/detail set";
+            else
+            {
+                // Current preparation can withdraw a group without replacing its bindings.
+                visible.Clear();
+                status = "waiting: publication does not equal the complete authored root/detail set";
+            }
             // This applies at the completed camera boundary, before retirement examines ordinary URP consumers.
             ApplyVisibility(camera);
         }
