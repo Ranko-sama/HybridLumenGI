@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release154，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release155，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭共享源的蒙皮实例误撤回。实际 Unity 对照中，关闭 A 的形变组件时 A 回退并交接旧快照，B 保留其 Mesh、SDF、图卡和修订。随后真正编辑共享网格，两个实例均撤回并发布新几何。修复已进入 Release155。采用范围为捕获、失效、发布与退休入账，实体 GPU 画质和延迟继续验收。[实际对照](../LocalComparison/Review/shared-skin-withdrawal-177/result.md) · [同源交付](../LocalComparison/Review/shared-skin-withdrawal-177/delivery.json)
 
 G3 补上了 Release154 初始自动 `BakeMesh` 快照的实际 DXR 命中证据。两条固定射线分别读回预期命中及已知未命中，命中身份与发布来源一致。骨姿改变后，本次从观察器启动起算的 90 秒窗口内未取得新发布，因此无第二次查询，原因未知。形变后的 GPU 消费和画质仍待验收。[查询结果和适用范围](../LocalComparison/Review/native-skinned-hit-175/result.md)
 
