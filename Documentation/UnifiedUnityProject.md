@@ -1,8 +1,8 @@
 # 在 Unity 中打开并重建统一示例
 
-将 `HybridLumenGI-Release138-UnityProject.zip` 完整解压到新目录。在 Unity Hub 中选择 **Add → Add project from disk**，选中包含 `Assets`、`Packages`、`ProjectSettings` 的目录。使用 Unity **6000.0.85f1**、Windows x64 Build Support 和可用的 Unity 许可。工程已声明 URP **17.0.4**，首次导入由 Unity 的包管理器解析依赖。
+将 `HybridLumenGI-Release139-UnityProject.zip` 完整解压到新目录。在 Unity Hub 中选择 **Add → Add project from disk**，选中包含 `Assets`、`Packages`、`ProjectSettings` 的目录。使用 Unity **6000.0.85f1**、Windows x64 Build Support 和可用的 Unity 许可。工程已声明 URP **17.0.4**，首次导入由 Unity 的包管理器解析依赖。
 
-本 ZIP 使用产品源码 `2941440b`。普通 Release138 Windows 包从该 ZIP 的独立解压目录构建，包含精确裁剪和分页准入修复。从 137 升到 138 时，作者资产和构建目标相同即可沿用场景、配置、有效 SDF、charts 和 Windows 资源页。[固定产品源码](https://github.com/Ranko-sama/HybridLumenGI/tree/2941440ba387683417854030a7d3243c497581c0) · [修复与范围](../LocalComparison/Review/exact-footprint-and-page-admission-155/result.md)
+本 ZIP 使用产品源码 `53070c4b`。普通 Release139 Windows 包从该 ZIP 的独立解压目录构建，包含分页启动顺序修复。从 138 升到 139 时，作者资产和构建目标相同即可沿用场景、配置、有效 SDF、charts 和 Windows 资源页。[固定产品源码](https://github.com/Ranko-sama/HybridLumenGI/tree/53070c4b37c3267044c84d482d2988bd4bcf3de1) · [修复与范围](../LocalComparison/Review/streamed-page-priority-156/result.md)
 
 在 Project 窗口打开 `Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity`，按 Play 进入彩墙场景。WASD 移动，C 换墙色，L 开关解析灯，M 启停门运动。F3 进入中性两室，随后按 F4 进入三室，O 开关中央滑门。1、2 分别切到近景与远景。
 

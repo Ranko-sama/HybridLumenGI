@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release138，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release139，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭组等待优先级丢在实际页启动之前的问题。实际 CPU 驱动与调度器的受控对照中，持续请求页由 65 步内未启动变为第 61 步启动并达到 Ready。两层纯预取依赖在中间页仍在飞时保持低优先级。Astra Max 同意按此范围采用，修复已进入 Release139。原高速首显和正式预算仍开放。[前后对照](../LocalComparison/Review/streamed-page-priority-156/result.md) · [同源交付](../LocalComparison/Review/streamed-page-priority-156/delivery.json)
 
 Release138 关闭两个独立缺口。T2／G4 中，无足迹的已知透明前板在实际精确软件及 DXR 查询中正确露出蓝后面，依赖纹理的未知覆盖仍保守遮挡。T6／G4 中，收紧每步启动额度后可复用 Ready 共享页，已读完的包可继续上传，实际 CPU 调度验证了总容量与退休门。Astra Max 同意按各自范围采用。高速冷入、普通 Player 画质及正式预算分别验收。[两项对照与范围](../LocalComparison/Review/exact-footprint-and-page-admission-155/result.md) · [同源交付](../LocalComparison/Review/exact-footprint-and-page-admission-155/delivery.json)
 

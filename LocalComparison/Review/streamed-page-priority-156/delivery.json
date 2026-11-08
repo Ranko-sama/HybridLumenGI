@@ -1,0 +1,74 @@
+{
+  "productCommit": "53070c4b37c3267044c84d482d2988bd4bcf3de1",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release139-demo",
+  "tag": "release139-demo",
+  "publishedAt": "2026-11-08T10:54:27Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release139 Unity project ZIP using the Release138 shader cache. The actual managed page driver and scheduler used adapted Unity objects and IO. Evidence covers wait-adjusted starts and inherited speculative priority with an outstanding operation. Native AssetBundle competition, cold first visibility and performance have separate acceptance.",
+  "validation": {
+    "baselineCommit": "417f9325c9b0bb92033e8f44a09b002fbfbeff7c",
+    "baseline": "Page priority: old start=0, old ready=False, regular before speculative dependency=False.",
+    "candidate": "Page priority: old start=61, old ready=True, regular before speculative dependency=True.",
+    "cpu": "Tests/Validate-ChunkStreaming.ps1 -RepresentationOnly",
+    "notes": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease139\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101778865
+  },
+  "nativeExit": {
+    "project": "I:/Unity test/Comparison/PortableUnified139/HybridLumenGI-Release139-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "productCommit": "53070c4b37c3267044c84d482d2988bd4bcf3de1",
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease139",
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified138/HybridLumenGI-Release138-UnityProject/Library/ShaderCache",
+    "exitCode": 0
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release139-UnityProject.zip",
+    "bytes": 836558,
+    "productCommit": "53070c4b37c3267044c84d482d2988bd4bcf3de1",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified139\\HybridLumenGI-Release139-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release138-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageStreamer.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageStreaming.cs",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/HybridLumenGIAssetPageStreamer.cs",
+      "Runtime/HybridLumenGIAssetPageStreaming.cs"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release139-UnityProject.zip",
+      "bytes": 836558,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release139-demo/HybridLumenGI-Release139-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release139-Windows-x64.zip",
+      "bytes": 58436815,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release139-demo/HybridLumenGI-Release139-Windows-x64.zip"
+    }
+  ]
+}
