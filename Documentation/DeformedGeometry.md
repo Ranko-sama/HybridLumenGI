@@ -38,6 +38,8 @@ Release132 的自动 `BakeMesh` 还绑定捕获时原 `sharedMesh` 的内容版�
 
 两种接口都在实际主线程捕获时复制数据，调用返回不等于复制完成。输入Mesh是借用引用，生产者应保证捕获边界的数据完整；组件不取得该输入的销毁所有权。后续请求不会修改已复制给worker的快照。合并模式允许较早捕获但内部一致的快照发布，不承诺与当前可见动画逐帧同步；`PublishedFrame`仍表示捕获帧。预算不足或失败仍可能阻止推进。iteration43的实际组件/任务屏障检查覆盖持续请求下发布、停止后最终追上及原取消/预算/退休守卫；它没有新增Unity或GPU运行，也不是动画画质或BakeMesh耗时验收。
 
+在 `SkinnedMeshRenderer` 上提交显式可读网格时，组件按请求捕获，完成后沿用已发布的快照等待新请求。主线程复制完成后，生产者可以释放借用输入。Unity 对已释放对象的判空与托管引用判空有区别，显式传入 `null` 才清除该覆盖并恢复自动 `BakeMesh`。实际组件 CPU 回归覆盖显式强请求、合并请求、模拟输入释放和主动清除后的恢复，证据范围为捕获与发布状态。[Unity 对象判空](https://docs.unity.com/en-us/engine/6000.0/script-reference/unityengine/object/op-equality) · [定向回归](../Tests/StandaloneDeformedMesh/Program.cs.txt)
+
 字节额度包含实际来源 vertex strides、生成网格/体素及估算的 chart/BVH 工作存储；它不是 Unity/驱动分配器峰值上界。大于单帧发布额度的对象会给出明确状态，需要调高配置或拆分资产，不能宣称已更新。CPU BakeMesh 的成本、生成延迟、长时内存和动态画质需在本机 Player 中测量。
 
 69把合并请求接入了[普通可启停示例](ContinuousDeformationExample.md)。一次真实DX12运行完成256帧，运动期间11次内容不同的发布、停稳最终完整来源一致及两张可判读HDR图像；首个构建准备失败和唯一修正均保留，见[结果](ReviewBrief-ContinuousDeformationUsage01.md)。这补上单个可读生产者的原生使用证据，不补齐Skinned、逐射线GPU消费或完整动态画质。

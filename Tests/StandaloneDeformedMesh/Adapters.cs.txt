@@ -61,6 +61,17 @@ namespace UnityEngine
     public enum MeshTopology {Triangles,Lines}
     public partial class Mesh:Object
     {
+        // Unity compares a destroyed native Mesh to null while its managed reference survives.
+        public static bool operator ==(Mesh left, Mesh right)
+        {
+            if (ReferenceEquals(left, right)) return true;
+            if (ReferenceEquals(left, null)) return right.Destroyed;
+            return ReferenceEquals(right, null) && left.Destroyed;
+        }
+        public static bool operator !=(Mesh left, Mesh right) => !(left == right);
+        public override bool Equals(object value) => ReferenceEquals(this, value);
+        public override int GetHashCode() => base.GetHashCode();
+
         private Vector3[] positions=Array.Empty<Vector3>();
         private readonly List<int[]> indices=new List<int[]>();
         private readonly List<MeshTopology> topology=new List<MeshTopology>();

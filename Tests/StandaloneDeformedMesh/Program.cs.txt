@@ -267,6 +267,12 @@ static class Program
     public static void Main()
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
+        if(Environment.GetEnvironmentVariable("HLGI_EXPLICIT_SKIN_DEMAND_ONLY")=="1")
+        {
+            try { ExplicitSkinnedCaptureWaitsForDemand(); }
+            catch (Exception error) { Console.Error.WriteLine(error); Environment.ExitCode = 1; }
+            return;
+        }
         if(Environment.GetEnvironmentVariable("HLGI_SKINNED_UNCHANGED_LEGACY_CONTROL")=="1")
         {LegacyUnchangedSkinnedControl();return;}
         if(Environment.GetEnvironmentVariable("HLGI_COALESCED_LEGACY_CONTROL")=="1")
@@ -282,7 +288,7 @@ static class Program
         }
         Require(CaptureTimeBudget!=null&&(double)CaptureTimeBudget.GetValue(null)==0d,"Optional capture-time allowance must default to disabled.");
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
-        UnchangedSkinnedCaptureReuse();SkinnedSourceMeshReplacement();NotifiedSkinnedSourceEdit();
+        UnchangedSkinnedCaptureReuse();ExplicitSkinnedCaptureWaitsForDemand();SkinnedSourceMeshReplacement();NotifiedSkinnedSourceEdit();
         CaptureTimeBudgetDefersAndPublishes();FailedCaptureChargesTimeBudget();UnchangedCaptureChargesTimeBudget();
         CompletedPublicationIsFair();
         FinalCancelledWorker();OpenNewSession();
@@ -356,6 +362,63 @@ static class Program
         Disable(owner);DrainCompletedRetirements();Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Success-path snapshots/reservations leaked");
         Console.WriteLine("PASS: actual full fingerprint and component skip unchanged automatic captures; same-count UV edit, failed-publication retry, SDF and captured chart settings, explicit strong/coalesced requests still rebuild; old Published/version retained and temporary mesh/quota handled.");
     }
+
+    static void ExplicitSkinnedCaptureWaitsForDemand()
+    {
+        const int skinMarker = 1800, firstMarker = 1801, nextMarker = 1802;
+        Defaults();
+        var owner = Add(skinMarker, true);
+        var skin = (SkinnedMeshRenderer)owner.renderer;
+        int dirty = 0;
+        owner.proxy.OnDirty = () => dirty++;
+
+        var input = Mesh(firstMarker);
+        owner.component.RequestCapture(input);
+        Frame();
+        Started(firstMarker);
+        Mesh first = PendingMesh(owner);
+        PublishCompleted(owner, firstMarker);
+        PublishedTogether(owner, first, firstMarker);
+        int publishedFrame = owner.component.PublishedFrame;
+        long reserved = HybridLumenGIDeformedMesh.ReservedBytes;
+
+        Frame();
+        Require(Job(owner) == null && dirty == 1 && skin.BakeCount == 0 &&
+            owner.component.PublishedFrame == publishedFrame && HybridLumenGIDeformedMesh.ReservedBytes == reserved,
+            "A consumed explicit request started another capture without new producer demand.");
+        CoreUtils.Destroy(input);
+        Require(input == null && !ReferenceEquals(input, null), "Destroyed input must exercise Unity's null comparison.");
+        Frame();
+        Require(Job(owner) == null && dirty == 1 && skin.BakeCount == 0,
+            "Releasing the borrowed input switched the source or invalidated its published copy.");
+        PublishedTogether(owner, first, firstMarker);
+
+        var nextInput = Mesh(nextMarker);
+        Coalesced(owner, nextInput);
+        Frame();
+        Started(nextMarker);
+        Mesh next = PendingMesh(owner);
+        PublishCompleted(owner, nextMarker);
+        PublishedTogether(owner, next, nextMarker);
+        Frame();
+        Require(Job(owner) == null && dirty == 2 && skin.BakeCount == 0,
+            "The coalesced producer demand was lost or repeated.");
+
+        owner.component.RequestCapture();
+        Frame();
+        Started(skinMarker);
+        Mesh baked = PendingMesh(owner);
+        PublishCompleted(owner, skinMarker);
+        PublishedTogether(owner, baked, skinMarker);
+        Require(dirty == 3 && skin.BakeCount == 1, "Explicitly clearing the source did not restore BakeMesh.");
+
+        Disable(owner);
+        DrainCompletedRetirements();
+        CoreUtils.Destroy(nextInput);
+        Require(HybridLumenGIDeformedMesh.ReservedBytes == 0, "Explicit and baked snapshots must retire through the existing fence.");
+        Console.WriteLine("PASS: explicit skin inputs publish once per demand, survive release of the borrowed input, and resume BakeMesh on an explicit clear.");
+    }
+
     static void SkinnedSourceMeshReplacement()
     {
         const int firstMarker = 1600, replacementMarker = 1601;

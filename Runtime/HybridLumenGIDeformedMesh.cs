@@ -295,9 +295,12 @@ namespace HybridLumenGI
                 if(owner==null || !owner.isActiveAndEnabled || owner.source==null || owner.proxy==null)continue;
                 bool pending=false;foreach(var job in Jobs)pending|=ReferenceEquals(job.owner,owner);
                 if(pending || Time.frameCount-owner.lastCapture<Math.Max(1,owner.updateIntervalFrames))continue;
-                if(!(owner.source is SkinnedMeshRenderer) && !owner.requested)continue;
-                Mesh original=owner.explicitSource!=null?owner.explicitSource:
-                    owner.source is SkinnedMeshRenderer skin?skin.sharedMesh:owner.source.GetComponent<MeshFilter>()?.sharedMesh;
+                Mesh original=owner.explicitSource;
+                var skin=owner.source as SkinnedMeshRenderer;
+                // Only a cleared managed reference selects automatic skin capture.
+                bool skinCapture=ReferenceEquals(original,null) && skin!=null;
+                if(!owner.requested && !skinCapture)continue;
+                original??=skinCapture?skin.sharedMesh:owner.source.GetComponent<MeshFilter>()?.sharedMesh;
                 if(original==null || original.vertexCount<3 || original.vertexCount>Math.Max(3,owner.maximumVertices))
                 { owner.Status="No source mesh within the vertex limit";continue; }
                 int vertices=original.vertexCount;long indices=0;
@@ -319,14 +322,13 @@ namespace HybridLumenGI
                 long captureStarted=captureTimeLimited?Stopwatch.GetTimestamp():0;
                 try
                 {
-                    bool skinCapture=owner.explicitSource==null && owner.source is SkinnedMeshRenderer;
                     bool automaticSkinCapture=skinCapture && !owner.requested;
                     if(skinCapture)
                     {
                         next.bakedSourceMesh=original;
                         next.bakedSourceVersion=HybridLumenGIMeshSource.GetVersion(original);
                         next.mesh=new Mesh{name="HLGI baked deformation",hideFlags=HideFlags.HideAndDontSave};
-                        ((SkinnedMeshRenderer)owner.source).BakeMesh(next.mesh,false); // Local positions; renderer transform is applied once.
+                        skin.BakeMesh(next.mesh,false); // Local positions; renderer transform is applied once.
                     }
                     else
                     {
