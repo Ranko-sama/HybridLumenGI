@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release172，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release173，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭 Global SDF 对每块保留砖重复展开所有脏区的 CPU 准备缺口。相同输入的旧源码和候选源码失效相同的 55 块砖，页代次、就绪、年龄和重建提交序列一致。受控脏范围读取从 348 次降到 6 次。完整分阶段时间预算和实机耗时继续验收。[对照与范围](../LocalComparison/Review/global-sdf-dirty-rows-199/result.md) · [同源交付](../LocalComparison/Review/global-sdf-dirty-rows-199/delivery.json)
 
 T5／T6／G4 已关闭近似旧组向精确细节接替时绕过 RTAS 等待的问题。实际 C# 回归覆盖有三角余量的等待和计费、就绪撤销、空场首发及余量不足时的发布。原生画面和高速冷入首显继续验收。[对照与范围](../LocalComparison/Review/hlod-mixed-exact-198/result.md) · [同源交付](../LocalComparison/Review/hlod-mixed-exact-198/delivery.json)
 
