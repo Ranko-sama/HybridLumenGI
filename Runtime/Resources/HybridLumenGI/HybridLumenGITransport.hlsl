@@ -18,6 +18,7 @@ struct HLGILight
 // global-light replacement, and values >=1 hold the history/readiness weight.
 // Total D and the emission/environment-origin subset share one measurement age.
 // The second RGB is carried directly through the same rays, never subtracted.
+// Its alpha marks a visibility refresh pending on a retained measurement.
 struct HLGICacheEntry { float4 irradiance; float4 tag; float4 anchor; float4 normal; float4 guide; float4 nonAnalyticIrradiance; };
 StructuredBuffer<HLGIProxy> _HLGI_Proxies;
 StructuredBuffer<HLGILight> _HLGI_Lights;
@@ -297,6 +298,11 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
         HLGICacheEntry e=_HLGI_CacheRead[entry];
         if(any(e.tag.xyz != float3(p.identity.xy,_HLGI_Epoch)) || !HLGIHasSourceCacheMeasurement(e.irradiance,e.guide,e.nonAnalyticIrradiance)) continue;
         if(e.tag.w!=(float)surface.generation) continue;
+#if defined(HLGI_CACHE_UPDATE_ITERATION)
+        // Reject affected old input on the change frame and across skipped or
+        // unknown updates. Gather can still display the retained measurement.
+        if(e.nonAnalyticIrradiance.w>0.5 || HLGIDisjointPoseInfluenceAt(e.anchor.xyz)) continue;
+#endif
         // This camera's uploaded analytic-light table is empty. Its contribution
         // at every bounce is known zero; retained emission/environment is not.
         if(_HLGI_LightCount==0) e.irradiance.rgb=e.nonAnalyticIrradiance.rgb;
@@ -616,6 +622,10 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
     if(_HLGI_GlobalReactive>0.5) e.irradiance.a=min(e.irradiance.a,0.5);
     // Nearby changes retain an estimate but shorten its history, even if this patch awaits budget.
     if(change.y>0.5) e.irradiance.a=min(e.irradiance.a,1);
+#if defined(HLGI_CACHE_UPDATE_ITERATION)
+    if(e.irradiance.a>0 && HLGIDisjointPoseInfluenceAt(surface.position))
+        e.nonAnalyticIrradiance.w=1;
+#endif
     e.tag=float4(tag,surface.generation);
     float2 geometricOct=PackNormalOctQuadEncode(surface.geometricNormal);
     e.anchor=float4(surface.position,geometricOct.x);e.normal=float4(surface.normal,geometricOct.y);

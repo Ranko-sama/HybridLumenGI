@@ -3,6 +3,7 @@
 struct HLGIChangeRegion { float4 minimum, maximum, receiver; };
 StructuredBuffer<HLGIChangeRegion> _HLGI_ChangeRegions;
 int _HLGI_ChangeCount;
+int _HLGI_HasDisjointPoseChange;
 float _HLGI_GlobalReactive, _HLGI_GlobalGeometryChange;
 // x: a changed surface crossed this point; y: transport may be affected by a nearby change.
 float2 HLGIChangeAtReceiver(float3 position,uint provenReceiverGroup)
@@ -25,4 +26,19 @@ float2 HLGIChangeAtReceiver(float3 position,uint provenReceiverGroup)
     return result;
 }
 float2 HLGIChangeAt(float3 position) { return HLGIChangeAtReceiver(position,0u); }
+
+#if defined(HLGI_CACHE_UPDATE_ITERATION)
+bool HLGIDisjointPoseInfluenceAt(float3 position)
+{
+    if(_HLGI_HasDisjointPoseChange==0) return false;
+    [loop] for(int i=0;i<_HLGI_ChangeCount;i++)
+    {
+        HLGIChangeRegion region=_HLGI_ChangeRegions[i];
+        if(region.receiver.y<0.5) continue;
+        float3 outside=max(max(region.minimum.xyz-position,position-region.maximum.xyz),0);
+        if(dot(outside,outside)<=region.maximum.w*region.maximum.w) return true;
+    }
+    return false;
+}
+#endif
 #endif

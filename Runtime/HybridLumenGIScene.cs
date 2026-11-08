@@ -35,6 +35,7 @@ namespace HybridLumenGI
         {
             public Bounds PreviousBounds, CurrentBounds;
             public bool HasPrevious, HasCurrent;
+            public bool DisjointSourcePose;
             public int Slot, StableId, PreviousRevision, Revision;
             public ChangeKind Kind;
         }
@@ -308,8 +309,25 @@ namespace HybridLumenGI
                     Signature next = GetSignature(owner);
                     ChangeKind kind = ClassifyChange(Data[slot], signatures[slot], owner, next, traversalBounds[slot], newBounds);
                     if (Data[slot].identity.w == 1f)
+                    {
+                        bool disjointSourcePose = false;
+                        const ChangeKind pose = ChangeKind.Transform | ChangeKind.Lighting;
+                        if ((kind & ChangeKind.Transform) != 0 && (kind & ~pose) == 0 && next.meshId != 0 &&
+                            owner.SourceRenderer is MeshRenderer && owner.ProxyShape != HybridLumenGIProxy.Shape.Sphere)
+                        {
+                            // The resident proxy data and candidate describe the source geometry.
+                            // Traversal bounds also include the SDF's empty padding.
+                            ProxyGpuData previous = Data[slot];
+                            var previousSource = new Bounds((Vector3)previous.centerShape, (Vector3)previous.extentsRoughness * 2f);
+                            Bounds currentSource = available[owner.StableId].bounds;
+                            Vector3 extent = currentSource.extents;
+                            currentSource.extents = new Vector3(Mathf.Max(extent.x, 0.001f),
+                                Mathf.Max(extent.y, 0.001f), Mathf.Max(extent.z, 0.001f));
+                            disjointSourcePose = !previousSource.Intersects(currentSource);
+                        }
                         RecordDirty(slot, owner.StableId, true, traversalBounds[slot], true, newBounds,
-                            kind, (int)Data[slot].identity.y, owner.Revision);
+                            kind, (int)Data[slot].identity.y, owner.Revision, disjointSourcePose);
+                    }
                     readiness.Invalidate(owner.StableId);
                     if ((kind & ~(ChangeKind.Material | ChangeKind.Lighting)) == 0)
                     {
@@ -672,7 +690,7 @@ namespace HybridLumenGI
         }
 
         private void RecordDirty(int slot, int id, bool hasPrevious, Bounds previous, bool hasCurrent,
-            Bounds current, ChangeKind kind, int previousRevision, int revision)
+            Bounds current, ChangeKind kind, int previousRevision, int revision, bool disjointSourcePose = false)
         {
             // Merge same-frame invalidation/reupload for the same object. Slot reuse with a different
             // stable ID remains two events, preserving the old object's region as well as the new one.
@@ -691,12 +709,14 @@ namespace HybridLumenGI
                 if (hasPrevious && !existing.HasPrevious)
                 { existing.PreviousBounds = previous; existing.PreviousRevision = previousRevision; existing.HasPrevious = true; }
                 if (hasCurrent) { existing.CurrentBounds = current; existing.Revision = revision; existing.HasCurrent = true; }
+                if (hasPrevious && hasCurrent) existing.DisjointSourcePose = disjointSourcePose;
                 if (!sameFramePoseUpload) existing.Kind |= kind;
                 dirtyRegions[i] = existing;
                 return;
             }
             dirtyRegions.Add(new DirtyRegion { Slot = slot, StableId = id, HasPrevious = hasPrevious, HasCurrent = hasCurrent,
-                PreviousBounds = previous, CurrentBounds = current, PreviousRevision = previousRevision, Revision = revision, Kind = kind });
+                PreviousBounds = previous, CurrentBounds = current, PreviousRevision = previousRevision, Revision = revision,
+                Kind = kind, DisjointSourcePose = disjointSourcePose });
         }
 
         private static Vector3Int Chunk(Vector3 center, float size) => new Vector3Int(

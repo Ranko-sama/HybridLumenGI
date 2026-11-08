@@ -26,7 +26,7 @@ G1 的普通 Forward Lit 静态表面已有两组烘焙合成依据。非方向�
 
 Release102 两室的实际关门过程已有 G3 读数。同一前室地板在闭门第 +59 帧降至开闭差的 9.38%，第 +119 帧仍有 6.34%。精确收敛时间仍未知。[同曝光过程与候选结果](../LocalComparison/Review/portal-close-response-01/result.md)
 
-当前122同源两室观察补到 2.616 秒。固定地板在 1.008 秒剩开闭亮度差 15.33%，2.000 秒剩 10.33%，分别超过原定 5% 和 1% 目标。证据适用于这次 960×540 实际 DXR 关门事件。原 G3 几何遮挡恢复子项保持未通过。[当前匹配控制与同曝光对照](../LocalComparison/Review/portal-recovery-138/result.md)
+Release122 的两室基线在约 2 秒仍有 10.33% 开闭亮度差。修复以同源几何范围识别不相交的门姿态，并隔离受影响的旧世界缓存递归输入。同一固定地板在 1 秒和 2 秒前的残留降到 2.637% 和 0.214%，保持条件成立。原 G3 的这条 960×540 实际 DXR 关门光路已通过。[匹配控制与同曝光对照](../LocalComparison/Review/portal-recovery-138/result.md)
 
 Release102 将连通两室整合进普通 Windows 入口。F3 进入或返回，O 开关分隔门；关闭解析灯后，前室固定地板随共用门洞的开闭呈现明确的暖色间接光差异。复杂多房间的完整验收仍开放。[实测与布局范围](../LocalComparison/Review/connected-rooms-01/result.md)
 

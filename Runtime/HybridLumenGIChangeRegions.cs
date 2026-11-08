@@ -18,6 +18,7 @@ namespace HybridLumenGI
         private ComputeBuffer buffer;
         private int count;
         private float globalReactive, globalGeometryChange;
+        private bool hasDisjointPoseChange;
         public int Count => count;
         public long AllocatedBytes => buffer==null?0:Capacity*48L;
 
@@ -25,6 +26,7 @@ namespace HybridLumenGI
         {
             Array.Clear(receiverSources,0,receiverSources.Length);
             count = 0; globalReactive = globalGeometryChange = 0;byBounds.Clear();
+            hasDisjointPoseChange = false;
             foreach (var change in scene.DirtyRegions)
             {
                 // Receiver/shadow policy alone changes light transport, not geometry.
@@ -39,19 +41,21 @@ namespace HybridLumenGI
                 // borrow that exemption. World-cache queries still reject both kinds.
                 var poseFlags=HybridLumenGIScene.ChangeKind.Transform|HybridLumenGIScene.ChangeKind.Lighting;
                 bool poseOnly=(change.Kind & HybridLumenGIScene.ChangeKind.Transform)!=0 && (change.Kind & ~poseFlags)==0;
+                bool disjointPose = poseOnly && change.HasPrevious && change.HasCurrent && change.DisjointSourcePose;
+                hasDisjointPoseChange |= disjointPose;
                 float kind=geometry?(poseOnly?1:2):0;
                 Renderer receiver=null;
                 if(poseOnly && receiverForChange!=null)
                     try { receiver=receiverForChange(change.Slot,change.StableId); } catch { /* Unknown ownership remains hard. */ }
-                if (change.HasPrevious) AddKind(change.PreviousBounds, kind, influenceRadius,receiver);
-                if (change.HasCurrent) AddKind(change.CurrentBounds, kind, influenceRadius,receiver);
+                if (change.HasPrevious) AddKind(change.PreviousBounds, kind, influenceRadius, receiver, disjointPose);
+                if (change.HasCurrent) AddKind(change.CurrentBounds, kind, influenceRadius, receiver, disjointPose);
             }
         }
         public void Add(Bounds bounds, bool geometry, float influenceRadius = 0)
         { AddKind(bounds,geometry?2:0,influenceRadius,null); }
         public void AddTransform(Bounds bounds,float influenceRadius=0,Renderer receiver=null)
         { AddKind(bounds,1,influenceRadius,receiver); }
-        private void AddKind(Bounds bounds,float kind,float influenceRadius,Renderer receiver)
+        private void AddKind(Bounds bounds,float kind,float influenceRadius,Renderer receiver,bool disjointPose=false)
         {
             if (byBounds.TryGetValue(bounds,out int existing))
             {
@@ -63,7 +67,8 @@ namespace HybridLumenGI
                         receiverSources[existing]=null;
                 }
                 prior.minimum.w=Mathf.Max(prior.minimum.w,kind);
-                prior.receiver=default; // Re-resolve only from the final frozen frame.
+                prior.receiver.x = 0; // Re-resolve only from the final frozen frame.
+                if (disjointPose) prior.receiver.y = 1;
                 prior.maximum.w=Mathf.Max(prior.maximum.w,Mathf.Max(0,influenceRadius));
                 regions[existing]=prior;return;
             }
@@ -74,7 +79,8 @@ namespace HybridLumenGI
             regions[count++] = new Region
             {
                 minimum = new Vector4(lo.x, lo.y, lo.z, kind),
-                maximum = new Vector4(hi.x, hi.y, hi.z, Mathf.Max(0, influenceRadius))
+                maximum = new Vector4(hi.x, hi.y, hi.z, Mathf.Max(0, influenceRadius)),
+                receiver = new Vector4(0, disjointPose ? 1 : 0, 0, 0)
             };
         }
         public void ResolveReceiverGroups(Func<Renderer,uint> resolve)
@@ -85,7 +91,7 @@ namespace HybridLumenGI
                 if(regions[i].minimum.w==1 && !ReferenceEquals(receiverSources[i],null) && resolve!=null)
                     try { group=resolve(receiverSources[i]); } catch { /* Never infer an owner after failure. */ }
                 // Float storage is exact for the bounded current-frame row group.
-                regions[i].receiver=new Vector4(group<=16384?group:0,0,0,0);
+                regions[i].receiver.x = group <= 16384 ? group : 0;
             }
         }
         public void MarkGlobalLightingChange() { globalReactive = 1; }
@@ -100,6 +106,7 @@ namespace HybridLumenGI
             cmd.SetComputeIntParam(shader, "_HLGI_ChangeCount", count);
             cmd.SetComputeFloatParam(shader, "_HLGI_GlobalReactive", globalReactive);
             cmd.SetComputeFloatParam(shader, "_HLGI_GlobalGeometryChange", globalGeometryChange);
+            cmd.SetComputeIntParam(shader, "_HLGI_HasDisjointPoseChange", hasDisjointPoseChange ? 1 : 0);
         }
         public void Dispose() { buffer?.Release(); buffer = null; }
     }

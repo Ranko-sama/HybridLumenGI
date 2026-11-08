@@ -62,8 +62,11 @@ bool HLGICommitSourceCacheEstimate(bool known,float3 sum,float3 nonAnalyticSum,
     if(!HLGIHasSourceCacheMeasurement(irradiance,guide,nonAnalyticIrradiance))
     { irradiance=0;guide=0;nonAnalyticIrradiance=0; }
     if(!known || !all(isfinite(nonAnalyticSum))) return false;
-    bool blend=irradiance.a>=1;
     float4 next=irradiance,nextGuide=guide;
+    // The pending visibility refresh keeps the stored age for display and
+    // readiness. Apply replacement weighting only to a successful commit.
+    if(nonAnalyticIrradiance.w>0.5) next.a=min(next.a,0.5);
+    bool blend=next.a>=1;
     if(!HLGICommitCacheEstimate(known,sum,guideSum,guidePower,rayCount,normal,next,nextGuide)) return false;
     float3 estimate=nonAnalyticSum/rayCount;
     float alpha=max(1/next.a,0.1);
