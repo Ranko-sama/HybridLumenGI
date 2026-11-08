@@ -54,7 +54,52 @@ capped.Disable();
 Check(capped.representation.IsUnavailable && capped.representation.WantsUnload && capped.representation.HasBoundAssets &&
     HybridLumenGIResourceRetirement.UnavailableRetirementRequests == retirementRequests + 1 && capped.state.RetiringLeases == 0,
     "Explicit disable failed to request idle retirement, or released leases before acknowledgement.");
+
+var orphaned = new Fixture();
+orphaned.representation.SetWanted(true);
+orphaned.Update();
+for (int step = 0; step < 16 && !orphaned.representation.HasBoundAssets; step++)
+{
+    orphaned.provider.CompleteAll();
+    HybridLumenGIAssetPageStreamer.Pump();
+    orphaned.Update();
+}
+Check(orphaned.representation.HasBoundAssets, "Expected a complete group before destroying its driver");
+orphaned.DestroyDriver();
+orphaned.Update();
+HybridLumenGIAssetPageStreamer.Pump();
+Check(!orphaned.driver.Available && orphaned.RequestCount == 0 && !orphaned.representation.WantsUnload &&
+    orphaned.filter.sharedMesh != null && orphaned.state.ResidentBytes == 60,
+    "Destroying the driver removed a still-demanded group");
+
+orphaned.representation.SetWanted(false);
+orphaned.Update();
+Check(orphaned.representation.WantsUnload && orphaned.filter.sharedMesh != null && orphaned.state.RetiringLeases == 0,
+    "Destroyed driver blocked demand withdrawal or detached before safe retirement");
+var lastReaders = new Completion();
+Check(orphaned.representation.ReportUnloadSafe(orphaned.representation.Generation, lastReaders), "Withdrawal did not reach the original retirement gate");
+HybridLumenGIAssetPageStreamer.Pump();
+Check(orphaned.filter.sharedMesh == null && orphaned.state.RetiringLeases == 2 && orphaned.state.ResidentBytes == 60,
+    "Detached pages were released before the last readers completed");
+
+lastReaders.IsComplete = true;
+for (int step = 0; step < 16 && orphaned.state.BundleBytes != 0; step++)
+{
+    orphaned.provider.CompleteAll();
+    HybridLumenGIAssetPageStreamer.Pump();
+}
+Check(orphaned.state.BundleBytes == 0 && orphaned.state.ResidentBytes == 0 && orphaned.state.RetiringLeases == 0,
+    "Destroyed driver retained pages after safe retirement");
+var replacement = new HybridLumenGIAssetPageStreamer();
+replacement.Configure(new HybridLumenGIAssetPageManifest { RelativeRoot = "ReplacementPages", Pages = Array.Empty<Stream.Definition>() });
+Check(replacement.Available, "Destroyed driver still owned the global page budget after draining");
+Console.WriteLine("PASS demand withdrawal after driver destruction, original retirement gate, page drain and new driver admission.");
 Console.WriteLine("PASS multiview cold-demand capability; actual C# representation/driver/scheduler, adapted Unity objects and IO. No Unity/AssetBundle/GPU/HLOD native-chain acceptance.");
+
+sealed class Completion : Stream.ICompletion
+{
+    public bool IsComplete { get; set; }
+}
 
 sealed class Fixture
 {
@@ -79,6 +124,11 @@ sealed class Fixture
     public void ApplyBudget()=>driver.SetBudgets(budget);
     public void Update()=>Call(representation,"Update");public void Drive()=>Call(driver,"Drive");
     public void Disable()=>Call(representation,"OnDisable");
+    public void DestroyDriver()
+    {
+        Call(driver, "OnDestroy");
+        driver.destroyed = true;
+    }
     IDictionary Requests=>(IDictionary)Get(driver,"requests");public int RequestCount=>Requests.Count;
     public long RequestSequence=>(long)Get(driver,"nextRequest");
     public bool CompleteDirectGroup=>Requests.Contains(representation)&&((string[])Get(Requests[representation],"ids")).OrderBy(x=>x).SequenceEqual(new[]{"geometry","material"});

@@ -77,7 +77,10 @@ namespace HybridLumenGI
         }
         private void Update()
         {
-            if(unavailable || failed || streamer==null || !streamer.Available || retirement!=null)return;
+            if(unavailable || failed || retirement!=null)return;
+            bool pagesAvailable = streamer != null && streamer.Available;
+            // A bound representation can still withdraw its demand after the driver is destroyed.
+            if (!pagesAvailable && !bound) return;
             if(proxy==null || meshFilter==null || targetRenderer==null || meshFilter.gameObject!=targetRenderer.gameObject)
             {Fail("A representation requires a proxy and a MeshFilter/MeshRenderer pair.");return;}
             if(pageIds==null)
@@ -120,6 +123,7 @@ namespace HybridLumenGI
                     }
                 }
             }
+            if (!pagesAvailable) return;
             bool prefetchOnly=manualMode && manualPrefetch && !wanted && !bound;
             if(!wanted && !prefetchOnly){if(!bound)RemoveRequests();return;}
             if(!streamer.SetRequests(this,pageIds,prefetchOnly?int.MinValue:priority)){Fail("A requested asset page is absent from the manifest.");return;}
