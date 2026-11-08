@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release166，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release167，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭代理停用期间替换同对象 Collider，重新启用后漏接的缺口。两次正常启停的 Unity 对照中，旧版退回代理中心 55 且未发布，修复版启用即绑定，首次准备采用中心 6 和 X 半尺寸 1。该序列无需待校验。[对照与范围](../LocalComparison/Review/collider-reenable-191/result.md) · [Release167 同源交付](../LocalComparison/Review/collider-reenable-191/delivery.json)
 
 T3／G3 已关闭已绑定 Renderer 销毁后中断相机准备的缺口。实际 DX12 相机从当前 Collider 边界继续准备，另一精确对象仍参与 DXR，活动 Shadowmask 正常进入当帧路径。[实机对照与范围](../LocalComparison/Review/destroyed-renderer-fallback-190/result.md) · [Release166 同源交付](../LocalComparison/Review/destroyed-renderer-fallback-190/delivery.json)
 
