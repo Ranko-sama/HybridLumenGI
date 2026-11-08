@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release161，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release162，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／G4 已关闭 HLOD 接替时新增普通对象抢走整组已就绪图卡的问题。实机固定七卡，旧版刚发布的两件细节各从一张有效卡降到零。修复版在接替及下一帧保持两张原卡与原有普通页，退出后新对象正常取得六张。证据限单相机 DX12 Editor 的精确软件追踪。[实机对照与范围](../LocalComparison/Review/published-hlod-card-retention-185/result.md) · [Release162 同源交付](../LocalComparison/Review/published-hlod-card-retention-185/delivery.json)
 
 T5／G4 已关闭统一示例收到当前整组撤回回执后仍持续提交旧细节的问题。同一保存场景把实例容量从 64 改为 63，旧版在 GI 发布为零时下一次相机仍可提交三件，修复版为零。实际完整发布后整组三件一起恢复。证据限单相机 DX12 Editor 的提交资格。[实机结果与范围](../LocalComparison/Review/withdrawn-sample-raster-184/result.md) · [Release161 同源交付](../LocalComparison/Review/withdrawn-sample-raster-184/delivery.json)
 
