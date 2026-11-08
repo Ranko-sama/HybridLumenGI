@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release141，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release142，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 补上接收面发现与重验原先缺少的 CPU 时间准入。一个相机图内共享累计额度，默认关闭。实际运行时 C# 对照证明重验能耗尽余量并停止下一件来源检查，原生资格拒绝不完整输入，下一次足额扫描恢复。Astra Max 同意按此范围采用。已开始的 Unity 调用仍会完成，整帧 CPU 时间、其他阶段和完整生产预算分别验收。[实际源码对照](../LocalComparison/Review/receiver-discovery-budget-159/result.md) · [同源交付](../LocalComparison/Review/receiver-discovery-budget-159/delivery.json)
 
 T3／G3 已关闭普通 BaseMap 等待匹配页回读时整次回退的问题。固定离屏墙的实机等待帧仍录制 DXR，世界缓存 epoch、精确网格及独立已确认地板贴图保持一致。蓝贴图在等待时保留指定标记和零句柄，真实回读完成后复用原页。换色仍触发原局部更新。Astra Max 同意按此功能范围采用，并复用旧裁切等待控制。画面残留、收敛及正式性能分别验收。[实际等待与恢复](../LocalComparison/Review/pending-exact-texture-158/result.md) · [同源交付](../LocalComparison/Review/pending-exact-texture-158/delivery.json)
 

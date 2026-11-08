@@ -2,7 +2,9 @@
 
 本表基于 [ProductionPlan](ProductionPlan.md)、[运行验收要求](Validation.md)和[当前推进表](DevelopmentProgress.md)，保留原四项目标、十条工作流及 G0–G5 范围。用途是安排剩余工作，不把未验收项判成代码缺陷，也不把有限交付判成总目标完成。
 
-G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release141 同源交付](../LocalComparison/Review/pending-exact-texture-158/delivery.json)
+G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release142 同源交付](../LocalComparison/Review/receiver-discovery-budget-159/delivery.json)
+
+T6／G4 已补上接收面发现及重验的累计 CPU 时间准入。现有准入保护处理不完整扫描，原生替换与对象历史依据按各自入口拒绝。单次 Unity 调用会完成，其他 CPU 阶段和完整生产预算继续验收。[范围与实际源码对照](../LocalComparison/Review/receiver-discovery-budget-159/result.md)
 
 T6／G4 已关闭重复新请求使久等页拿不到启动机会，以及在飞的纯预取依赖抬高后续依赖优先级的问题。实际 CPU 驱动与受控 I/O 通过各自反例，修复进入 Release139。原生资源竞争和整体预算按原条件验收。[启动顺序对照](../LocalComparison/Review/streamed-page-priority-156/result.md)
 
@@ -50,13 +52,13 @@ T2／G4 已关闭第 9 节的静态镜像双子网格精确剔除与远层命中
 | T4 / 中 | 世界表面专项验收 · G2 | 关闭尚未覆盖的材质／UV 接缝、镜像变换、图集／锚点及池复用身份问题。已有三室、薄壁、凹口、离屏纹理、内层和正比例非均匀缩放结果直接复用。一个保存重开后的静态两槽 Point／无 mip 接缝已有图集及锚点子结果，但该次四条 binding 返回数值未写入，完整冻结合同仍证据不足，不自动补采或宣称整体 T4 通过。专项要能判断正确来源与覆盖，不能用总 ready 数代替。出现具体反例时才改实现。[原条款](ProductionPlan.md#8-真实可变表面-charts已接入与剩余验收) · [接缝范围及缺失记录](../LocalComparison/Review/material-uv-seam-01/result.md) |
 | T5 / 中 | 已知使用限制，原因未闭合 · G4 | 处理冷高速入场的首次完整表示空档，或据原验收条件明确其仍未通过。实录显示预取已生效，完整绑定及照明发布仍需等待。区分路线中尚未就绪的粗根与下文源码中的已就绪粗根。原完整组门槛和容量约束继续作为采用条件。[已有冷入结果](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) · [等待与回调间隔](../LocalComparison/Review/outside-group-visibility-01/result.md) |
 | T6 / 中 | 资源、规模与预算能力及验收 · G4／G5 | 在已承诺平台与原规定负载内闭合资源生命周期和预算判断，复用已有双 Base 相机隔离、30 分钟流式运行、域重载清理及后端退休结果。默认活动Skin已补原小网格、已预热且观察开启的同窗预算／Present，不再将这一条件列为成本未知；其他负载边界保留。只处理会改变放行决定的冷／热、高速、流式或高更新负载缺口。全阶段时间预算尚未完成：当前反馈只缩放 patch／capture／brick 数量，不能等同于 CPU 准备、上传、RTAS 等所有阶段分别受时间预算控制；缺失能力须对照原目标处理，不新造预算／验证框架。验收仍用 960×540／30FPS、GI 三段逐帧合计 p95≤25ms、进程 local 有限采样峰值≤1GiB，记录 p99、nonlocal 单列；不混淆 Present、GI 时间和显示帧率。[原调度目标](ProductionPlan.md#5-streaming-与预算) · [目标与现有窗口](GpuBudget.md#当前已确认的起始验收目标) |
-| T7 / 最后 | 支持范围与最终放行 · G5 | Release141 提供同源运行包和工程包，沿用已交付的离线画册。继续汇总 T2–T6 在承诺平台上的有界结果，完成剩余生产放行。CI 暂缓，整体 G5 保持开放。[支持主表](ProductionPlan.md#当前支持范围与证据层级) · [离线画册](../LocalComparison/Review/picture-comparison.html) |
+| T7 / 最后 | 支持范围与最终放行 · G5 | Release142 提供同源运行包和工程包，沿用已交付的离线画册。继续汇总 T2–T6 在承诺平台上的有界结果，完成剩余生产放行。CI 暂缓，整体 G5 保持开放。[支持主表](ProductionPlan.md#当前支持范围与证据层级) · [离线画册](../LocalComparison/Review/picture-comparison.html) |
 
 这些是当前优先级，不是严格串行依赖。T2–T6 也不是一次性展开的测试矩阵。开始任何新观测前，先明确它能改变哪个采用、修复或放行决定；不能改变决定的观测不做。仅在必要时更新对应产品与证据，不新造验证系统。
 
 T5 现有记录确认了统一示例在加载带入口的一帧绑定延后。Release110 第 306 帧写入粗根请求时 8 页已就绪，第 307 帧才绑定。示例的 `Update` 在流式表示消费需求之后执行。粗根仍在可见边界外绑定，首次完整表示空档保持未通过。[冷入折返与实际记录](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
-同一记录的第 307–309 帧已绑定粗根，40 单位可见门仍挡住预热，第 310 帧才进入 Warming。第 320 帧目标切到细节时，粗根尚无完整就绪票据，已开始的预热随之撤回。第 308／309 帧分别已有 2／8 个其他发布对象，安排了 192／256 个缓存 patch 更新。仅在空域预热的候选因此只适用第 307 帧。Astra Max 建议后续优先判断延续粗根准备能否提前首个完整表示，原发布界、照明就绪和共享预算继续作为采用条件。[实际路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
+同一记录的第 307–309 帧已绑定粗根，40 单位可见门仍挡住预热，第 310 帧才进入 Warming。第 316、320 帧实际回读均因同一覆盖 patch 的可信样本数不足而拒绝。记录无法区分缺少第二次调度与更新返回未知。第 320 帧目标切到细节，已开始的粗根预热随之撤回。第 308／309 帧分别已有 2／8 个其他发布对象和 192／256 个缓存 patch 更新，空域预热候选仅覆盖第 307 帧。Astra Max 保留原发布界、照明就绪和共享预算作为采用条件。[实际路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
 源码还允许另一条时序。粗根的完整就绪票据在相机准备前到达，细节恰好成为新目标且尚未就绪时，发布只检查细节，已就绪的粗根也会撤回。保留粗根会占用一份代理槽及图卡额度，细节恰满时可能无法开始整组准备。此时序在源码中可达，Release110 的第 320 帧仍是粗根票据不足的实录。两种情形分别保留，采用仍以首显与完整切换能同时推进为条件。[目标与容量门](../Runtime/HybridLumenGIScene.cs) · [实际路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
