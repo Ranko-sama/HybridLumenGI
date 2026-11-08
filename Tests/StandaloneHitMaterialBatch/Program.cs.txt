@@ -280,6 +280,61 @@ class Program
         Check((scalarCommand.Copies.OfType<HybridLumenGIRayTextureMetadata[]>().Single()[0].sampler&HybridLumenGIRayTextureLayout.HalfPairsBit)!=0,"coverage follows captured shader keyword, not an ineffective scalar");
         Finish(scalar,scalarCommand);Clean();
     }
+    static void ReadyPageSurvivesPendingDuplicate()
+    {
+        scenarios++;
+        SystemInfo.supportsAsyncGPUReadback = true;
+        var shared = new Fixture(Texture());
+        var large = new Fixture(Texture(16, 16, 5));
+        var original = Prepare(shared.Freeze());
+        Check(original.GetResources(out _, out _, out var originalMetadata, out var originalTexels), "ready arena resources");
+        var originalCommands = new CommandBuffer();
+        RecordBatch(original, originalCommands);
+        var originalHandle = Table(originalCommands)[0].textures0;
+        var readback = (HybridLumenGIRayTextureMetadata[])originalCommands.Copies.OfType<HybridLumenGIRayTextureMetadata[]>().Single().Clone();
+        readback[originalHandle.x].flags = 1;
+        Finish(original, originalCommands);
+        Check(AsyncGPUReadback.Pending.Count == 1, "original upload needs its actual readback callback");
+        AsyncGPUReadback.CompleteNext(readback);
+        Batch.PollRetired();
+        long originalArenaBytes = Pool.TotalAllocatedBytes;
+
+        var expanded = Prepare(shared.Freeze(), large.Freeze(19));
+        Check(expanded.TextureUploadCount == 2 && expanded.TextureGeneration != originalHandle.y,
+            "larger batch must create a distinct matching page because it cannot fit in the original arena");
+        var expandedCommands = new CommandBuffer();
+        RecordBatch(expanded, expandedCommands);
+        Finish(expanded, expandedCommands);
+        Check(AsyncGPUReadback.Pending.Count == 1, "expanded arena readback deliberately remains in flight");
+        long heldArenas = Pool.TotalAllocatedBytes;
+
+        var repeat = Prepare(shared.Freeze());
+        var repeatCommands = new CommandBuffer();
+        RecordBatch(repeat, repeatCommands);
+        var usedHandle = Table(repeatCommands)[0].textures0;
+        Console.WriteLine($"Matching duplicate pending, original generation={originalHandle.y}, repeated Batch generation={usedHandle.y}.");
+        Check(repeat.TextureUploadCount == 0 && usedHandle.x == originalHandle.x && usedHandle.y == originalHandle.y &&
+            repeat.GetResources(out _, out _, out var actualMetadata, out var actualTexels) &&
+            ReferenceEquals(actualMetadata, originalMetadata) && ReferenceEquals(actualTexels, originalTexels) &&
+            Pool.TotalAllocatedBytes == heldArenas && AsyncGPUReadback.Pending.Count == 1,
+            "a pending duplicate replaced the current ready map or forced another allocation");
+        Finish(repeat, repeatCommands);
+
+        long reducedBudget = heldArenas - originalArenaBytes + 272 + 80;
+        Check(Batch.TryCreate(new[]{shared.Freeze()}, reducedBudget, out var deferred, out _),
+            "an arena that no longer fits prevented the original pending-page fallback");
+        var deferredCommands = new CommandBuffer();
+        RecordBatch(deferred, deferredCommands);
+        Check(Table(deferredCommands)[0].textures0.y == 0 && deferred.TextureUploadCount == 0 &&
+            Batch.TotalAllocatedBytes == reducedBudget && AsyncGPUReadback.Pending.Count == 1,
+            "an unfittable ready arena bypassed the budget or duplicated the pending page");
+        Finish(deferred, deferredCommands);
+        AsyncGPUReadback.CompleteNext(null, true);
+        Pool.ClearReusable();
+        SystemInfo.supportsAsyncGPUReadback = false;
+        Clean();
+    }
+
     static void QuotaDefersUnknownMaterials()
     {
         scenarios++;SystemInfo.supportsAsyncGPUReadback=true;Pool.BeginFrame(2000,80);
@@ -306,7 +361,7 @@ class Program
         try
         {
             Resources.Loaded=new ComputeShader();AbiAndConstantOrder();MapDedupAndFrozenViews();SourceRevalidation();GlobalBudgetsAndCaps();
-            AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();QuotaDefersUnknownMaterials();ClosingAdmission();
+            AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();ReadyPageSurvivesPendingDuplicate();QuotaDefersUnknownMaterials();ClosingAdmission();
             Console.WriteLine("PASS hit-material-batch "+checks+" assertions / "+scenarios+" scenarios; actual seven C# classes, recording adapters only; no Unity/GPU execution.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}

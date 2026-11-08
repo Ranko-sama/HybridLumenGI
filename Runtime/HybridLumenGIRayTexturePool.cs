@@ -159,7 +159,7 @@ namespace HybridLumenGI
         }
         // Best-fit holes are derived from live pages. Old-reader and readback pages stay occupied.
         private static bool Plan(Allocation arena,List<HybridLumenGIFrozenTextureView> views,List<HybridLumenGIRayTextureLayout> layouts,
-            out Page[] pages,out int[] slots,out int[] offsets)
+            out Page[] pages,out int[] slots,out int[] offsets,bool[] pendingViews=null)
         {
             pages=new Page[views.Count];slots=new int[views.Count];offsets=new int[views.Count];
             var occupied=new List<(int Start,int End)>();var used=new bool[arena.Pages.Length];
@@ -168,13 +168,22 @@ namespace HybridLumenGI
             for(int i=0;i<views.Count;i++)
             {
                 slots[i]=-1;
-                if(Reusable(views[i]))foreach(var page in arena.Pages)
+                bool needsReadyPage = pendingViews != null && pendingViews[i];
+                if (Reusable(views[i]))
                 {
-                    if(page==null||!page.Reusable||(!page.Ready&&(page.UploadComplete||page.Readers!=0||page.ReadbackPending))||page.Epoch!=Epoch(views[i].Texture)||!page.Upload.View.Equals(views[i])||
-                        (!layouts[i].PackedHalf&&page.Upload.Layout.PackedHalf))continue;
-                    pages[i]=page;break;
+                    foreach (var page in arena.Pages)
+                    {
+                        if (page == null || !page.Reusable ||
+                            (!page.Ready && (needsReadyPage || page.UploadComplete || page.Readers != 0 || page.ReadbackPending)) ||
+                            page.Epoch != Epoch(views[i].Texture) || !page.Upload.View.Equals(views[i]) ||
+                            (!layouts[i].PackedHalf && page.Upload.Layout.PackedHalf)) continue;
+                        pages[i] = page;
+                        break;
+                    }
                 }
                 if(pages[i]!=null)continue;
+                // A matching upload in another arena prevents a new copy, but not reuse of a ready page.
+                if (needsReadyPage) return false;
                 int slot=Array.FindIndex(used,value=>!value);if(slot<0)return false;
                 occupied.Sort((a,b)=>a.Start.CompareTo(b.Start));int start=0,best=-1,bestSize=int.MaxValue;
                 foreach(var region in occupied)
@@ -185,6 +194,31 @@ namespace HybridLumenGI
             }
             return true;
         }
+
+        private static Allocation FindArena(List<HybridLumenGIFrozenTextureView> views, List<HybridLumenGIRayTextureLayout> layouts,
+            bool[] pendingViews, out Page[] chosenPages, out int[] chosenSlots, out int[] chosenOffsets)
+        {
+            Allocation chosen = null;
+            chosenPages = null;
+            chosenSlots = chosenOffsets = null;
+            int bestReused = -1;
+            foreach (var arena in Allocations)
+            {
+                if (!arena.Shareable || !arena.Established || arena.Retiring) continue;
+                if (!Plan(arena, views, layouts, out var pages, out var slots, out var offsets, pendingViews)) continue;
+                int reused = 0;
+                foreach (var page in pages)
+                    if (page != null) reused++;
+                if (reused <= bestReused) continue;
+                chosen = arena;
+                chosenPages = pages;
+                chosenSlots = slots;
+                chosenOffsets = offsets;
+                bestReused = reused;
+            }
+            return chosen;
+        }
+
         private Lease Borrow(Allocation arena,Page[] pages,Page[] uploads,int[] indices,bool reused)
         {
             var handles=new Handle[indices.Length];
@@ -242,11 +276,11 @@ namespace HybridLumenGI
             }
             catch(Exception ex){reason="Frozen request enumeration failed: "+ex.GetType().Name;return false;}
             shareable &= views.Count>0;
-            Allocation chosen=null;Page[] chosenPages=null;int[] chosenSlots=null,chosenOffsets=null;int bestReused=-1;
+            Allocation chosen=null;Page[] chosenPages=null;int[] chosenSlots=null,chosenOffsets=null;
             if(shareable)
             {
-                // Do not borrow a pending page or start a duplicate upload, even in another arena.
-                int[] remap = null;
+                const string arenaBudgetExceeded = "Global budget includes all resident and pending texture arenas.";
+                bool[] pendingViews = null;
                 foreach (var arena in Allocations)
                 foreach (var page in arena.Pages)
                 {
@@ -254,24 +288,42 @@ namespace HybridLumenGI
                     if (arena.Established && !page.UploadComplete && page.Readers == 0 && !page.ReadbackPending) continue;
                     int index = views.IndexOf(page.Upload.View);
                     if (index < 0 || (!layouts[index].PackedHalf && page.Upload.Layout.PackedHalf)) continue;
+                    pendingViews ??= new bool[views.Count];
+                    pendingViews[index] = true;
+                }
+
+                // Try the complete batch first. It may borrow a current ready copy while
+                // a different arena's copy is still waiting for completion.
+                chosen = FindArena(views, layouts, pendingViews, out chosenPages, out chosenSlots, out chosenOffsets);
+                if (chosen != null && !Trim(budgetBytes, chosen))
+                {
+                    if (pendingViews == null || !omitPendingPages)
+                    {
+                        reason = arenaBudgetExceeded;
+                        return false;
+                    }
+                    chosen = null;
+                }
+                if (chosen == null && pendingViews != null)
+                {
                     if (!omitPendingPages)
                     {
                         reason = "Matching source upload/readback is pending; no duplicate large allocation.";
                         return false;
                     }
-                    remap ??= new int[views.Count];
-                    remap[index] = -1;
-                }
-                if (remap != null)
-                {
                     // Material records keep their original request slots. A specified map with a
                     // zero-generation handle evaluates as unknown, including alpha coverage.
+                    var remap = new int[views.Count];
                     int kept = 0;
                     capacity = 0;
                     largest = 0;
                     for (int i = 0; i < remap.Length; i++)
                     {
-                        if (remap[i] < 0) continue;
+                        if (pendingViews[i])
+                        {
+                            remap[i] = -1;
+                            continue;
+                        }
                         var layout = layouts[i];
                         remap[i] = kept;
                         views[kept] = views[i];
@@ -285,16 +337,14 @@ namespace HybridLumenGI
                     for (int i = 0; i < indices.Length; i++)
                         if (indices[i] >= 0) indices[i] = remap[indices[i]];
                     shareable = kept > 0;
+                    if (shareable)
+                        chosen = FindArena(views, layouts, null, out chosenPages, out chosenSlots, out chosenOffsets);
+                    if (chosen != null && !Trim(budgetBytes, chosen))
+                    {
+                        reason = arenaBudgetExceeded;
+                        return false;
+                    }
                 }
-                foreach(var arena in Allocations)
-                {
-                    if(!shareable||!arena.Shareable||!arena.Established||arena.Retiring)continue;
-                    if(!Plan(arena,views,layouts,out var pages,out var slots,out var offsets))continue;
-                    int reused=0;foreach(var page in pages)if(page!=null)reused++;
-                    if(reused>bestReused){chosen=arena;chosenPages=pages;chosenSlots=slots;chosenOffsets=offsets;bestReused=reused;}
-                }
-                if(chosen!=null&&!Trim(budgetBytes,chosen))
-                {reason="Global budget includes all resident and pending texture arenas.";return false;}
             }
             bool fresh=chosen==null;
             if(fresh)
