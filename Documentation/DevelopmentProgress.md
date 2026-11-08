@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release167，G0 已锁定，G1／G2 本机代表性验收通过
 
+T2／G4 已补齐同一固定几何中精确软件 BVH 与有符号 SDF 的真实最近命中。软件三角在后时选择较近盒面，在前时保留三角及来源身份。与既有 DXR 记录各自采用，普通相机画面及其他混合输入继续验收。[实机读回和范围](../LocalComparison/Review/software-signed-sdf-193/result.md)
+
 T6／G4／G5 已补齐统一三室原热态 HLOD 接替及退休的 GI／显存预算。路线两方向均完成接替，合并窗口达到原定两项门槛。冷入首次完整表示和应用 Present 各自验收。[实机结果和范围](../LocalComparison/Review/hot-hlod-budget-192/result.md)
 
 T3／G3 已关闭代理停用期间替换同对象 Collider，重新启用后漏接的缺口。两次正常启停的 Unity 对照中，旧版退回代理中心 55 且未发布，修复版启用即绑定，首次准备采用中心 6 和 X 半尺寸 1。该序列无需待校验。[对照与范围](../LocalComparison/Review/collider-reenable-191/result.md) · [Release167 同源交付](../LocalComparison/Review/collider-reenable-191/delivery.json)

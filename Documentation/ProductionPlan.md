@@ -322,7 +322,7 @@ owner 的三项直接光策略变化提升传输版本并触发局部 reactive�
 - **仍近似的软件身份。** signed SDF只给体表面梯度，unsigned shell没有稳定源朝向；解析体也不等于源网格三角。它们携带当前owner/几何版本但不制造primitive、源front-face或UV。有效unsigned梯度允许双向近似材质搜索，confidence降低；无有效梯度仍保留几何遮挡并使用明确常量近似。它们与精确DXR材质/侧面行为的差异仍须逐场景解释。
 - **面积光NEE已进入精确命中链。** 同一prepared世界三角构建面积CDF并绑定本图材质代次，软件精确BVH和DXR共用来源UV材质、alpha/Cull及唯一primitive。只对方向命中Le施加配对权重，反射/cache项保持原估计。屏幕最近命中区域抑制面积项；SDF/解析及未入表端点的面积PDF为零，保留原方向估计。见 [配对公式与验证范围](EmissiveSampling.md)。
 
-Release151 的定向原生查询确认，真实 16³ signed SDF 盒面与真实 DXR 三角同时参与最近命中。较近盒面胜过远三角，另一条射线仍保留更近的三角。结论限这组固定几何，精确软件、普通相机画面和其他混合输入继续验收。[实际读回与范围](../LocalComparison/Review/native-dxr-signed-sdf-169/result.md)
+Release151 的真实 DXR 与 Release167 的精确软件 BVH 分别在同组固定几何中验证了 16³ 有符号 SDF 的最近命中合并。较近盒面胜过远三角，另一条射线保留更近的三角。普通相机画面和其他混合输入继续验收。[DXR 读回](../LocalComparison/Review/native-dxr-signed-sdf-169/result.md) · [精确软件读回](../LocalComparison/Review/software-signed-sdf-193/result.md)
 
 这些项仍归入G1/G2/G4验收：背面单/双面发光、薄层不同材质、submesh接缝、负/非均匀缩放、卡池复用及软件/DXR切换都需要参考图与实机回归。物理双面翻转Ns模式还需按侧区分照明缓存；当前未将一份正面半球缓存冒充该模式。设计依据为PBRT第四版的[几何/着色法线与身份分离](https://pbr-book.org/4ed/Geometry_and_Transformations/Interactions)和[Area Lights的面积采样合同](https://pbr-book.org/4ed/Light_Sources/Area_Lights)。
 

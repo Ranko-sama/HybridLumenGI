@@ -22,7 +22,7 @@ T6／G4 已补齐 Release153 上传公平修复的原生链路。Release159 的�
 
 T6／G4 已关闭最后一台已使用 GI 的相机销毁后，无后续相机准备时的状态回收缺口。DX12 Editor 的单相机实际提交后，空闲更新归还历史纹理句柄及 RTAS／属性账目。普通 Player、在飞等待和进程显存继续按原条件验收。Astra Max 复核采用范围，并将下一个放行阻断优先级放回 T5 冷入首显和完整细节接替。[实机结果与范围](../LocalComparison/Review/destroyed-camera-idle-181/result.md)
 
-T2／G4 已关闭原空间关系下 signed SDF 与真实 DXR 最近命中的原生证据缺口。普通烘焙盒面和两个真实三角在同一命令内按距离正确选择。精确软件、画面及其余材质组合继续按各自条件验收。[实际读回](../LocalComparison/Review/native-dxr-signed-sdf-169/result.md)
+T2／G4 已关闭原空间关系下有符号 SDF 与精确三角混合的最近命中缺口。Release151 的真实 DXR 与 Release167 的真实精确软件 BVH 分别按距离正确选择。普通相机画面及其余材质组合继续按各自条件验收。[DXR 实机](../LocalComparison/Review/native-dxr-signed-sdf-169/result.md) · [精确软件实机](../LocalComparison/Review/software-signed-sdf-193/result.md)
 
 T6／G4 已关闭同一相机状态重建时漏记精确软件属性与 BVH 的问题。在实际准入方法及 BVH 对照中，仍能放下的新属性照常准入，超额的新 BVH 等旧代安全释放。实际双相机 GPU 成本和进程总显存继续验收。[证据与范围](../LocalComparison/Review/camera-software-geometry-budget-168/result.md)
 
