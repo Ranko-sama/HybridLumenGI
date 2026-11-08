@@ -143,6 +143,8 @@ namespace HybridLumenGI
         public Renderer GetRenderer(int slot) => GetProxy(slot) != null ? GetProxy(slot).SourceRenderer : null;
         public bool IsPublished(int slot) => slot >= 0 && slot < Capacity && Data[slot].identity.w == 1f;
         public bool IsWarming(int slot) => slot >= 0 && slot < Capacity && Data[slot].identity.w == 2f;
+        internal bool TryGetPublishedSlot(int stableId, out int slot)
+            => slots.TryGetValue(stableId, out slot) && IsPublished(slot) && (int)Data[slot].identity.x == stableId;
         /// <summary>Frozen bounds from the latest Prepare, including warming representations.</summary>
         public bool TryGetPreparedTraversalBounds(int slot,out Bounds bounds)
         {

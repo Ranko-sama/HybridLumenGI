@@ -887,7 +887,7 @@ namespace HybridLumenGI
             }
         }
 
-        private void AddChangedBounds(Bounds bounds)
+        internal void AddChangedBounds(Bounds bounds)
         {
             if (changedRegionSet.Add(bounds)) changedBounds.Add(bounds);
         }

@@ -396,6 +396,7 @@ namespace HybridLumenGI
             internal int patchGrid,cacheEntryCount,previousLightCount;
             internal int fullWidth,fullHeight,fullPixelBytes;
             internal bool valid,lastHardware,lightingChanged;
+            internal Dictionary<ulong, HybridLumenGIMaterialSource.Snapshot> materialsWithoutCards;
             internal string recordedTransportBackend;
             internal int transportRecordedEngineFrame = -1, transportRecordedWorkFrame = -1;
             internal ulong recordedBackendRequest;
@@ -713,6 +714,7 @@ namespace HybridLumenGI
                 internal BufferHandle softwareNodes,softwareLeaves;
                 internal BufferHandle areaEmitters;
                 internal HybridLumenGIAreaEmission.Layout areaLayout;
+                internal Dictionary<ulong, HybridLumenGIMaterialSource.Snapshot> materialsWithoutCards;
                 internal TextureHandle depth,captureDepth,normals,motion,diffuse,emission,receiverPolicy,raw,tempA;
                 // Temporal consumes raw before the first filter dispatch. It can then serve as destination B.
                 internal TextureHandle tempB => raw;
@@ -956,9 +958,7 @@ namespace HybridLumenGI
                         state.changes.AddTransform(moved.Previous,influence,moved.SourceRenderer);
                         state.changes.AddTransform(moved.Current,influence,moved.SourceRenderer);
                     }
-                    state.changes.ResolveReceiverGroups(identityFrame.GetReceiverGroup);
                 }
-                state.changes.Upload();
                 var receiverReceipt=new ReceiverCaptureReceipt();
                 var frameTiming=new HybridLumenGIGpuFrameTiming(state.gpuTiming,state.nativeGpuTiming,
                     state.useNativeGpuTiming,identityEnabled,state.InvalidateGpuFeedback);
@@ -1074,6 +1074,8 @@ namespace HybridLumenGI
                     cachePatchBudget=state.effectiveBudget.CachePatches
                 };
                 PrepareHardwareMaterials(graph,work);
+                if(identityFrame!=null) state.changes.ResolveReceiverGroups(identityFrame.GetReceiverGroup);
+                state.changes.Upload();
                 // Bind a real transient buffer even when the table is empty; an unbound SRV
                 // is not portable merely because a runtime count happens to be zero.
                 work.areaEmitters=graph.CreateBuffer(new BufferDesc(Math.Max(1,work.areaLayout?.Count??0),HybridLumenGIAreaEmission.Stride)
@@ -1214,6 +1216,7 @@ namespace HybridLumenGI
                 b.geometry=a.geometry;b.softwareLayout=a.softwareLayout;b.softwareNodes=a.softwareNodes;b.softwareLeaves=a.softwareLeaves;
                 b.geometryVersion=a.geometryVersion;
                 b.areaEmitters=a.areaEmitters;b.areaLayout=a.areaLayout;
+                b.materialsWithoutCards=a.materialsWithoutCards;
                 b.owner=a.owner;b.state=a.state;b.compute=a.compute;b.hardware=a.hardware;b.depth=a.depth;b.captureDepth=a.captureDepth;b.normals=a.normals;b.motion=a.motion;b.diffuse=a.diffuse;b.emission=a.emission;b.receiverPolicy=a.receiverPolicy;
                 b.raw=a.raw;b.tempA=a.tempA;b.filterIterations=a.filterIterations;b.historyRead=a.historyRead;b.historyWrite=a.historyWrite;b.geometryRead=a.geometryRead;b.geometryWrite=a.geometryWrite;
                 b.materialRead=a.materialRead;b.materialWrite=a.materialWrite;b.momentsRead=a.momentsRead;b.momentsWrite=a.momentsWrite;b.vp=a.vp;b.invVP=a.invVP;b.view=a.view;
@@ -1251,6 +1254,7 @@ namespace HybridLumenGI
                     throw;
                 }
                 if(!current)return;
+                state.materialsWithoutCards=d.geometry!=null ? d.materialsWithoutCards : null;
                 state.lastHardware=d.hardware;state.exactSoftwareGeometry=d.ExactSoftware;
                 state.recordedTransportBackend = d.hardware ? "DXR" : d.ExactSoftware ? "exact software" : "SDF/analytic software";
                 state.transportRecordedEngineFrame = d.historyToken.EngineFrame;
@@ -1281,8 +1285,28 @@ namespace HybridLumenGI
                 if(!state.areaEmissionCache.TryBuild(sources,d.geometry,d.geometryVersion,d.hitMaterials.Generation,
                     Mathf.Clamp(s.maxAreaEmitterTriangles,0,HybridLumenGIAreaEmission.MaxTriangles),out d.areaLayout,out reason))
                     d.areaLayout=null; // A missing proposal never removes the original direction estimator.
+                PrepareMaterialChangesWithoutCards(d,sources);
                 state.hardwareMaterialFrameBytes=d.hitMaterials.ByteCount;
                 state.hardwareMaterialStatus="Prepared; GPU upload not yet recorded";
+            }
+            private void PrepareMaterialChangesWithoutCards(Work work,IReadOnlyList<HybridLumenGIHitMaterialBatch.Source> sources)
+            {
+                var state=work.state;
+                foreach(var source in sources)
+                {
+                    // Resident card owners already observe their source in SurfaceCache.Prepare.
+                    // Exact hits still use their original material when no cards fit.
+                    if(!state.scene.TryGetPublishedSlot((int)source.StableId,out int slot) ||
+                        state.surfaceCache.GetCardCount(slot)>0) continue;
+                    ulong key=((ulong)source.StableId<<32)|source.Submesh;
+                    var snapshot=source.Snapshot;
+                    (work.materialsWithoutCards ??= new Dictionary<ulong, HybridLumenGIMaterialSource.Snapshot>())[key]=snapshot;
+                    if(state.materialsWithoutCards==null || !state.materialsWithoutCards.TryGetValue(key,out var previous) ||
+                        (snapshot.CanReuseHistory && snapshot.Equals(previous))) continue;
+                    if(!state.scene.TryGetPreparedTraversalBounds(slot,out Bounds bounds)) continue;
+                    state.surfaceCache.AddChangedBounds(bounds);
+                    state.changes.Add(bounds,false,Mathf.Max(1,s.traceDistance));
+                }
             }
             private void FallBackToSoftware(Work d,string reason,bool sourceUncertain=false)
             {
