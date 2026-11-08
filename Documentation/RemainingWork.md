@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release151 同源交付](../LocalComparison/Review/camera-software-geometry-budget-168/delivery.json)
 
+T2／G4 已关闭原空间关系下 signed SDF 与真实 DXR 最近命中的原生证据缺口。普通烘焙盒面和两个真实三角在同一命令内按距离正确选择。精确软件、画面及其余材质组合继续按各自条件验收。[实际读回](../LocalComparison/Review/native-dxr-signed-sdf-169/result.md)
+
 T6／G4 已关闭同一相机状态重建时漏记精确软件属性与 BVH 的问题。在实际准入方法及 BVH 对照中，仍能放下的新属性照常准入，超额的新 BVH 等旧代安全释放。实际双相机 GPU 成本和进程总显存继续验收。[证据与范围](../LocalComparison/Review/camera-software-geometry-budget-168/result.md)
 
 T6／G4 已关闭同一相机状态重建时漏记旧 DXR 属性的问题。实际 Backend 对照确认额度不足时零新分配，退休完成后恢复准入。[证据与范围](../LocalComparison/Review/camera-dxr-attribute-budget-167/result.md)

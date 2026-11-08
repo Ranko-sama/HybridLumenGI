@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release151，G0 已锁定，G1／G2 本机代表性验收通过
 
+T2／G4 已取得真实 DXR 与 signed SDF 同射线竞争的有限实机依据。较近的盒面胜过真实远三角，另一条射线仍选择更近的真实三角，两个结果均有当前来源身份。Astra Max 按该静态查询范围采用。普通相机画面和整体 T2／G4 分别验收。[输入与实际读回](../LocalComparison/Review/native-dxr-signed-sdf-169/result.md)
+
 T5／G4 已完成原 Release143 观察构建的一次实机折返。最近点无完整组，回程 7.752 单位首次提交粗根，全程没有完整细节接替，离场页账排空。78.670 秒回调间隔跳过全部域内去程采样。高速首显保持开放，按一次观察的范围保留结果。[实机与判定边界](../LocalComparison/Review/cold-crossing-143/result.md)
 
 T6／G4 已关闭相机状态重建时漏记旧软件属性与 BVH 的缺口。实际 Feature 准入与 BVH 代码在 1 MiB 下复现两代 1,280,832 B。修复后保留仍适配的属性，BVH 等旧代释放再准入，另一相机仍独立。Astra Max 同意按托管逻辑准入范围采用。真实双相机 GPU 成本与总显存分别验收。[前后对照](../LocalComparison/Review/camera-software-geometry-budget-168/result.md) · [同源交付](../LocalComparison/Review/camera-software-geometry-budget-168/delivery.json)

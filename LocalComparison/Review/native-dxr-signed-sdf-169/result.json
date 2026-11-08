@@ -1,0 +1,118 @@
+{
+    "status": "observed-pass",
+    "error": "",
+    "unity": "6000.0.85f1",
+    "api": "Direct3D12",
+    "device": "NVIDIA GeForce RTX 2080 Ti",
+    "resolution": 16,
+    "scenePublished": 2,
+    "bvhNodes": 3,
+    "residentSdfAssets": 1,
+    "uploadedVoxels": 4096,
+    "rejectedSources": 0,
+    "exactMeshes": 1,
+    "exactTriangles": 2,
+    "fallbackOwners": 1,
+    "sdfSlot": 0,
+    "exactSlot": 1,
+    "sdfId": 1,
+    "exactId": 2,
+    "sdfRevision": 4,
+    "exactRevision": 3,
+    "signed": true,
+    "sdfReady": true,
+    "dispatched": true,
+    "readbackComplete": true,
+    "observed": true,
+    "passed": true,
+    "bakedBounds": {
+        "m_Center": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "m_Extent": {
+            "x": 0.6666666865348816,
+            "y": 0.6666666865348816,
+            "z": 0.6666666865348816
+        }
+    },
+    "voxelSize": {
+        "x": 0.0833333358168602,
+        "y": 0.0833333358168602,
+        "z": 0.0833333358168602
+    },
+    "originX": 0.4915666878223419,
+    "farPlaneX": 0.5012500286102295,
+    "nearPlaneX": 0.4958333373069763,
+    "hits": [
+        {
+            "query": "far exact control",
+            "flags": 1471,
+            "representation": 1,
+            "slot": 1,
+            "stableId": 2,
+            "revision": 3,
+            "geometryRevision": 3,
+            "instance": 0,
+            "primitive": 0,
+            "distancePosition": {
+                "x": 0.009683340787887574,
+                "y": 0.5012500286102295,
+                "z": 0.0,
+                "w": 0.0
+            }
+        },
+        {
+            "query": "signed exit vs far exact",
+            "flags": 259,
+            "representation": 2,
+            "slot": 0,
+            "stableId": 1,
+            "revision": 4,
+            "geometryRevision": 0,
+            "instance": 4294967295,
+            "primitive": 4294967295,
+            "distancePosition": {
+                "x": 0.008410553447902203,
+                "y": 0.4999772310256958,
+                "z": 0.0,
+                "w": 0.0
+            }
+        },
+        {
+            "query": "near exact control",
+            "flags": 1471,
+            "representation": 1,
+            "slot": 1,
+            "stableId": 2,
+            "revision": 3,
+            "geometryRevision": 3,
+            "instance": 0,
+            "primitive": 1,
+            "distancePosition": {
+                "x": 0.004266649484634399,
+                "y": 0.4958333373069763,
+                "z": 0.0,
+                "w": 0.125
+            }
+        },
+        {
+            "query": "near exact vs signed exit",
+            "flags": 1471,
+            "representation": 1,
+            "slot": 1,
+            "stableId": 2,
+            "revision": 3,
+            "geometryRevision": 3,
+            "instance": 0,
+            "primitive": 1,
+            "distancePosition": {
+                "x": 0.004266649484634399,
+                "y": 0.4958333373069763,
+                "z": 0.0,
+                "w": 0.125
+            }
+        }
+    ]
+}
