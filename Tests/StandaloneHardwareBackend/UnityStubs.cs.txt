@@ -97,6 +97,7 @@ namespace UnityEngine
     {
         public readonly Dictionary<int,ComputeBuffer> Buffers=new();public UnityEngine.Rendering.RayTracingAccelerationStructure Acceleration;
         public void SetBuffer(int kernel,int id,ComputeBuffer buffer)=>Buffers[id]=buffer;
+        public void SetInt(int id,int value){}
         public void SetRayTracingAccelerationStructure(int kernel,int id,UnityEngine.Rendering.RayTracingAccelerationStructure acceleration)=>Acceleration=acceleration;
     }
     public static class Resources
@@ -153,6 +154,7 @@ namespace UnityEngine.Rendering
         public void BuildRayTracingAccelerationStructure(RayTracingAccelerationStructure acceleration){BuildCalls++;if(ThrowOnBuild)throw new InvalidOperationException("simulated build failure");acceleration.BuildCount++;}
         public void SetGlobalRayTracingAccelerationStructure(int id,RayTracingAccelerationStructure acceleration)=>Acceleration=acceleration;
         public void SetComputeBufferParam(UnityEngine.ComputeShader shader,int kernel,int id,UnityEngine.ComputeBuffer buffer)=>Buffers[id]=buffer;
+        public void SetComputeIntParam(UnityEngine.ComputeShader shader,int id,int value){}
     }
 }
 namespace HybridLumenGI

@@ -696,8 +696,8 @@ namespace HybridLumenGI
         private void DisableAfterFailure(Exception exception)
         {
             failed = true;
-            IsReady = buildPending = false;
-            CancelBuildDemand();
+            Deactivate();
+            BudgetStatus = "Triangle backend disabled after an exception";
             if (loggedFailure) return;
             loggedFailure = true;
             Debug.LogWarning($"HybridLumenGI disabled its optional triangle DXR backend; software tracing remains available. {exception.Message}");

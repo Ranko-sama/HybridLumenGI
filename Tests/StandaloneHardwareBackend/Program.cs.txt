@@ -677,13 +677,39 @@ HybridLumenGIRtasBudget.BeginFrame(1600,Quota());var retired=BudgetCamera(1);Pre
 var retiredNative=RayTracingAccelerationStructure.Last;long readyMemory=HybridLumenGIRtasBudget.AccountedBytes;retired.backend.Dispose();
 Require(!retiredNative.Disposed&&HybridLumenGIRtasBudget.AccountedBytes==readyMemory&&HybridLumenGIRtasBudget.RetiredBytes>=123456,"Dispose bypassed actual destruction completion accounting.");
 HybridLumenGIResourceRetirement.Complete();Require(retiredNative.Disposed&&HybridLumenGIRtasBudget.AccountedBytes==memoryBaseline,"Completed normal retirement retained its reservation.");
-HybridLumenGIRtasBudget.BeginFrame(1700,Quota());var failedCommand=BudgetCamera(1);Prepare(failedCommand.backend,failedCommand.scene,1);
-var failedNative=RayTracingAccelerationStructure.Last;var unknownCommand=new CommandBuffer{ThrowOnBuild=true};
+var failureQuota=Quota(memoryBaseline+123456);
+HybridLumenGIRtasBudget.BeginFrame(1700,failureQuota);
+var failedCommand=BudgetCamera(1);
+var priorWork=new CommandBuffer();
+Require(Prepare(failedCommand.backend,failedCommand.scene,1)&&failedCommand.backend.RecordBuild(priorWork),
+    "Build failure setup could not record the previous hardware geometry.");
+failedCommand.backend.Bind(priorWork,failedCommand.backend.Shader,0);
+var failedNative=RayTracingAccelerationStructure.Last;
+var failedNormals=Buffer(failedCommand.backend,"normalsBuffer");
+Require(priorWork.Acceleration==failedNative&&priorWork.Buffers.ContainsValue(failedNormals),
+    "The previous command did not bind the resources at risk during retirement.");
+long failedReservation=failedCommand.backend.ReservedAccelerationBytes;
+long failedAttributes=failedCommand.backend.AttributeBytes;
+HybridLumenGIRtasBudget.BeginFrame(1701,failureQuota);
+MoveBudgetCamera(failedCommand,2);
+Require(Prepare(failedCommand.backend,failedCommand.scene,2),"Transform refit was not prepared.");
+var unknownCommand=new CommandBuffer{ThrowOnBuild=true};
 Require(!failedCommand.backend.RecordBuild(unknownCommand)&&unknownCommand.BuildCalls==1&&!failedCommand.backend.CanDispatch&&HybridLumenGIRtasBudget.BuildsThisFrame==1,
     "A throwing build API refunded potentially appended work or kept a usable stale backend.");
-long unknownMemory=HybridLumenGIRtasBudget.AccountedBytes;failedCommand.backend.Dispose();
-Require(!failedNative.Disposed&&HybridLumenGIRtasBudget.AccountedBytes==unknownMemory,"Unknown native recording result bypassed deferred destruction.");
-HybridLumenGIResourceRetirement.Complete();Require(failedNative.Disposed&&HybridLumenGIRtasBudget.AccountedBytes==memoryBaseline,"Fenced destruction after a command failure did not release its reservation.");
+Require(!failedNative.Disposed&&!failedNormals.Released&&HybridLumenGIRtasBudget.AccountedBytes==memoryBaseline+failedReservation&&
+    HybridLumenGIRtasBudget.RetiredBytes>=failedReservation&&failedCommand.backend.RetiredAttributeBytes==failedAttributes,
+    "A live camera's failed hardware geometry did not enter retirement with its charges intact.");
+var healthyCamera=BudgetCamera(1);
+Require(!Prepare(healthyCamera.backend,healthyCamera.scene,1),"Another camera reused the pending retirement's reservation.");
+HybridLumenGIResourceRetirement.Complete();
+Require(failedNative.Disposed&&failedNormals.Released&&HybridLumenGIRtasBudget.AccountedBytes==memoryBaseline&&failedCommand.backend.AttributeBytes==0,
+    "Retirement completion did not release a live camera's failed hardware geometry.");
+HybridLumenGIRtasBudget.BeginFrame(1702,failureQuota);
+Require(!Prepare(failedCommand.backend,failedCommand.scene,3)&&!failedCommand.backend.CanDispatch,
+    "The failed camera stopped falling back while it was still active.");
+Require(Prepare(healthyCamera.backend,healthyCamera.scene,2)&&healthyCamera.backend.RecordBuild(new CommandBuffer()),
+    "A healthy camera could not build after the failed camera's retirement completed.");
+failedCommand.backend.Dispose();healthyCamera.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
 
 // Allocation admission counts physical attributes, including detached replacements.
 // A topology change cannot allocate first and hide the old buffers behind list sizes.
