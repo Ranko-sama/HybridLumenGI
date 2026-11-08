@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release163，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release164，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6 已去掉确定在域外的普通代理对本相机的无效实例刷新及候选入队。Unity 实际场景准备中，候选和查找表均从 7 项降到 3 项。共享网格通知、第二视点的当前材质、重新入域及已有 HLOD 根预热继续成立。证据限准备行为，耗时和完整预算仍待验收。[对照与范围](../LocalComparison/Review/far-ordinary-prepare-188/result.md) · [Release164 同源交付](../LocalComparison/Review/far-ordinary-prepare-188/delivery.json)
 
 T5／T6／G4 已关闭共享 RTAS 构建次数耗尽时，有精确目标的 HLOD 提前接替。双 Base 实机中，修复在耗尽帧保留完整旧根及同一照明代次。取消时撤销等待，竞争相机同帧取得构建名额。继续竞争时，等待相机按原队列取得唯一名额，两件细节达到当前照明门后一起接替。[实机对照与范围](../LocalComparison/Review/hlod-rtas-turn-187/result.md) · [Release163 同源交付](../LocalComparison/Review/hlod-rtas-turn-187/delivery.json)
 

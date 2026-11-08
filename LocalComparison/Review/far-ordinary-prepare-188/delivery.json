@@ -1,0 +1,43 @@
+{
+  "productCommit": "d7dfe115abf733b39b68b61bcdfd71bf6fcae165",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release164-demo",
+  "tag": "release164-demo",
+  "publishedAt": "2026-11-08T21:31:51Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Actual Unity Scene.Prepare calls, two scene states, no camera rendering",
+    "trigger": "Ordinary unstreamed proxies outside residency, then material/source changes and admission from the other position",
+    "evidence": "result.md",
+    "baseline": "baseline.json",
+    "fixed": "fixed.json",
+    "baselineObserverExit": 1,
+    "baselineExitReason": "The separately added pending Collider control did not bind. Common observations completed before it.",
+    "fixedObserverExit": 0
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release164-UnityProject.zip",
+      "size": 845337,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release164-demo/HybridLumenGI-Release164-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release164-Windows-x64.zip",
+      "size": 58444180,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release164-demo/HybridLumenGI-Release164-Windows-x64.zip"
+    }
+  ]
+}
