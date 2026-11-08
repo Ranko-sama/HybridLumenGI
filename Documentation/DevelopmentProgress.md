@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release155，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release156，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭超出 RTAS 突发上限的构建在准备阶段占用共享预留的问题。同额度对照中，旧版占用 67,904 B 并挡住后置小相机。修复版在读取顶点和分配属性前回退，小相机完成一次录制。已建未变结构继续使用，位姿变化后按原条件退休，恢复上限后可重新构建。修复已进入 Release156，采用范围为实际 C# 准入与受控录制和退休。[实际对照](../LocalComparison/Review/rtas-burst-preflight-178/result.md) · [同源交付](../LocalComparison/Review/rtas-burst-preflight-178/delivery.json)
 
 T3／G3 已关闭共享源的蒙皮实例误撤回。实际 Unity 对照中，关闭 A 的形变组件时 A 回退并交接旧快照，B 保留其 Mesh、SDF、图卡和修订。随后真正编辑共享网格，两个实例均撤回并发布新几何。修复已进入 Release155。采用范围为捕获、失效、发布与退休入账，实体 GPU 画质和延迟继续验收。[实际对照](../LocalComparison/Review/shared-skin-withdrawal-177/result.md) · [同源交付](../LocalComparison/Review/shared-skin-withdrawal-177/delivery.json)
 
