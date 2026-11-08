@@ -30,6 +30,14 @@ A先Prepare／Record／ExecuteCommandBuffer，随后立即请求三张图集、m
 
 切换B前，A五个请求均仍pending。这只证明实际请求状态，**不证明GPU读写实际重叠，也不证明任意并发同步安全**。位置偏差已有数据，不能用“点还在形状内”替代精度合格；本次也不足以归因产品错误。保留原阈值及`reuse-contract-not-observed`状态，不为此展开严格精度证明、调阈值或采更多形状。
 
+## 既有位置读回的参考复核
+
+对旧归档做一次后验参考复核。用 `result.json` 中的源顶点、`localToWorld`、实际 GPU `worldToCard` 和 `atlasRect`，按原图集行序把顶点投影为 `s = (W × (rect.x + rect.z × card.x), H × (rect.y + rect.w × card.y))`。模型将每个投影分量取整为 `round(256 × s) / 256`，在原纹素中心 `(x + 0.5, y + 0.5)` 按重心权重插值世界位置。捕获顶点的 `clip.w` 为 1，片元写入插值后的世界位置。亚像素步长取自 Direct3D 的 8 位小数坐标约定。[捕获 shader](../../../Runtime/Resources/HybridLumenGI/HybridLumenGICardCapture.shader) · [Microsoft DirectX 光栅规范](https://microsoft.github.io/DirectX-Specs/d3d/ConservativeRasterization.html) · [D3D12 常量](https://github.com/microsoft/DirectX-Headers/blob/main/include/directx/d3d12.h#L1453)
+
+直接读原 `A/B-position.rgba32f` 的 XYZ，按同源 `A/B-emissionValidity.rgba32f` 的有效标记选择覆盖点。采用量化模型后，A 的 1,740 个点和 B 的 1,800 个点最大分量残差分别为 **8.57×10⁻⁸** 和 **3.91×10⁻⁷** 世界单位。以 B 的原生纹素 `(61, 2)` 为例，读回 X 为 `3.9844708443`。同一 GPU 矩阵的连续坐标预测为 `3.9845161715`，量化后为 `3.9844712357`。[原始图集、几何和矩阵](data-and-source.zip)
+
+Astra Max 采用这项后验解释。结果支持原连续参考遗漏光栅采样量化，适用范围为原两源覆盖点。驱动实际取整细节仍未经独立测量。原连续参考的 **2×10⁻⁵ FAIL** 和各身份子项裁决保留，整体 T4 继续开放。
+
 ## 原计划进度与交付
 
 关闭T4中这个单页两源条件的owner／generation、完整binding、独立覆盖和旧anchor清除子缺口。没有关闭位置精度合同、整体池复用、HLOD／transport消费、任意并发、负缩放或完整T4／G2专项。T4继续开放，Release122不变。

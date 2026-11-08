@@ -2,6 +2,10 @@
 
 ## 当前总进度　Release153，G0 已锁定，G1／G2 本机代表性验收通过
 
+G4 已关闭 Release153 单三角在顺序提交中的刚体变换原生命中缺口。实际 DXR 的两条固定射线正确交换命中，距离从 1.25 变为 1.75，命中关联当前 owner revision。变换计数增加一次，三角上传和应用场景重建各保持一次。驱动内部算法、在飞更新和形变继续验收。[原生查询和边界](../LocalComparison/Review/native-dxr-rigid-transform-173/result.md)
+
+T4 的旧单页复用位置超差已有后验解释。1/256 像素投影顶点量化后的插值与原覆盖位置读回高度一致，支持连续参考遗漏光栅量化。原冻结位置 FAIL 和 T4 开放状态保留。[原报告及参考复核](../LocalComparison/Review/card-page-reuse-01/result.md#既有位置读回的参考复核)
+
 T6／G5 已取得 Release151 原 F4 固定中室的本机 GI／显存依据。512 个源帧的三段 GI 合计 p95／p99 为 15.936／16.169 ms，local 有限采样峰值 566.191 MiB，达到两项起始预算。PresentMon 无 CSV 且报告 ETW 事件丢失，三项同窗按原停止线以证据不足收束。应用节奏和完整 G5 继续开放。[实测与边界](../LocalComparison/Review/three-room-middle-joint-170/result.md)
 
 T6／G4 的跨相机子项补上了后置材质批次的上传机会。旧实现中，第一个相机在相同 1 MiB 额度下再次用满额度。修复后，第二个相机在原读者完成后录制 128 B 的稳定贴图上传，回执后复用同一来源句柄，第一个相机恢复完整复制。撤回后续请求时，保留额度经过一个等待帧后释放。修复已进入 Release153，结论限实际 Batch／Pool 源码与受控完成回执。实机多相机画面和成本仍待验收。[预算规则](GpuBudget.md#启用与测量范围) · [定向对照](../Tests/StandaloneHitMaterialBatch/Program.cs.txt) · [同源交付](../LocalComparison/Review/cross-camera-texture-turn-172/delivery.json)

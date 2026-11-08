@@ -94,7 +94,7 @@ Release110 预测带的 8 页在第 15 帧、路线约 0.04 秒已 Ready，第 3
 - **默认活动Skin成本：本项结束。** 当前122同源普通测量Player的已预热K+Space／24顶点／2骨窗口，GI合计p95为17.088ms、local有限采样峰572.004MiB，达到起始预算；同次Present支持该负载30FPS方向。新CPU快照捕获到首次观测帧龄p95为11帧，只关闭该条件的成本和CPU观测等待未知，不是BakeMesh耗时、逐渲染帧年龄或GPU延迟。可选截图未交付，形变质量、其他规模与完整T3／T6仍开放；不补图、重跑或扩大压力范围。[结果](../LocalComparison/Review/active-skin-cost-01/result.md)
 - **原红墙反射率换蓝恢复：本项结束。** Floor独立控制合格，当前Runtime均值在1.142–1.654秒形成保持窗口，后续至2.612秒未越线；White控制波动9.03%超过冻结5%，其恢复不足，整体合同不能判通过。不延长前史、扩大ROI、改阈值或补采，G3仍开放。[结果](../LocalComparison/Review/reflected-color-response-01/result.md)
 - **归档119两ROI颜色观察：本项结束。** 当前122同源Runtime直接复用原归档物理输入及有限参考，名义满足既定亮度／色向／MAE目标，unknown与MC边界保留；仅关闭该当前Runtime样点，不扩大为普通三室、960×540／Player或完整G1，不补时点／后端／参考。[结果](../LocalComparison/Review/archived-runtime-color119-01/result.md)
-- **单页两源复用观察：本项结束。** 身份／代次、完整binding、独立覆盖和旧anchor清除子项符合预期；位置误差已测超过冻结2e−5，因此完整合同未通过。不是数据缺失，不自动补采或改阈值，整体T4仍开放。[结果](../LocalComparison/Review/card-page-reuse-01/result.md)
+- **单页两源复用观察已收束。** 身份／代次、完整 binding、独立覆盖和旧锚点清除符合预期。后验计算支持原连续位置参考遗漏光栅量化，原冻结 2e−5 的位置 FAIL 和整体 T4 开放状态保留。[结果及参考复核](../LocalComparison/Review/card-page-reuse-01/result.md)
 - **CI 接线：暂缓。** 不自动配置远端执行机器、Unity 许可或工作流；条款保留未完成。
 - **扩大严格误差证明范围：暂停。** 保留已有参考及不确定性说明，不把更复杂的证明系统作为判断产品的前置依赖。
 - **门运动调参：本节点结束。** 保留 2 射线／4 级滤波及同曝光四时点的有限判断。此前候选的门运动取舍记录仍有效。Release141 依据另一次实际换色回退采用纹理等待修复。[采用范围](../LocalComparison/Review/pending-exact-texture-158/result.md)
