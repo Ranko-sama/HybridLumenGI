@@ -113,6 +113,55 @@ bool reenabledWithdrawalPending = !capped.representation.IsUnavailable && capped
 Check(renewedRequestProtected && reenabledWithdrawalPending,
     $"Demand transitions: renewed request protected={renewedRequestProtected}, re-enabled withdrawal pending={reenabledWithdrawalPending}.");
 
+var coldFailure = new Fixture();
+coldFailure.Enable();
+coldFailure.representation.SetWanted(true);
+int unavailableRequests = HybridLumenGIResourceRetirement.UnavailableRetirementRequests;
+coldFailure.DestroyRendererAndUpdate();
+Check(coldFailure.representation.LastError != null && !coldFailure.representation.IsUnavailable &&
+    !coldFailure.representation.HasBoundAssets && !coldFailure.representation.WantsUnload &&
+    HybridLumenGIResourceRetirement.UnavailableRetirementRequests == unavailableRequests,
+    "A cold failure stopped declaring an unbound member or requested retirement without leases.");
+
+var brokenDestination = new Fixture();
+brokenDestination.Enable();
+brokenDestination.representation.SetWanted(true);
+brokenDestination.Update();
+for (int step = 0; step < 16 && !brokenDestination.representation.HasBoundAssets; step++)
+{
+    brokenDestination.provider.CompleteAll();
+    brokenDestination.Drive();
+    brokenDestination.Update();
+}
+Check(brokenDestination.representation.HasBoundAssets && brokenDestination.proxy.enabled &&
+    brokenDestination.RequestCount == 1 && brokenDestination.state.ResidentBytes == 60,
+    "The invalid-destination case requires a live, still-demanded complete binding.");
+retirementRequests = HybridLumenGIResourceRetirement.UnavailableRetirementRequests;
+brokenDestination.DestroyRendererAndUpdate();
+Check(brokenDestination.representation.LastError != null && brokenDestination.representation.IsUnavailable &&
+    brokenDestination.representation.WantsUnload && brokenDestination.representation.HasBoundAssets &&
+    !brokenDestination.proxy.enabled && brokenDestination.RequestCount == 0 &&
+    HybridLumenGIResourceRetirement.UnavailableRetirementRequests == retirementRequests + 1 &&
+    brokenDestination.state.RetiringLeases == 0,
+    "A failed, enabled binding did not withdraw its GI proxy and request safe retirement.");
+var failedReaders = new Completion();
+Check(brokenDestination.representation.ReportUnloadSafe(brokenDestination.representation.Generation, failedReaders),
+    "The normal safe-retirement entry rejected the failed destination.");
+brokenDestination.Drive();
+Check(brokenDestination.filter.sharedMesh == null && !brokenDestination.representation.HasBoundAssets &&
+    brokenDestination.state.RetiringLeases == 2 && brokenDestination.state.ResidentBytes == 60,
+    "Retirement detached the failed binding without preserving the last readers' pages.");
+failedReaders.IsComplete = true;
+for (int step = 0; step < 16 && brokenDestination.state.BundleBytes != 0; step++)
+{
+    brokenDestination.provider.CompleteAll();
+    brokenDestination.Drive();
+}
+Check(brokenDestination.state.RetiringLeases == 0 && brokenDestination.state.ResidentBytes == 0 &&
+    brokenDestination.state.BundleBytes == 0 && brokenDestination.state.ActiveOperations == 0,
+    "The failed destination retained pages after the readers completed.");
+Console.WriteLine("PASS failed bound destination withdraws its proxy and drains its pages through the existing completion gate.");
+
 var orphaned = new Fixture();
 orphaned.representation.SetWanted(true);
 orphaned.Update();
@@ -204,6 +253,13 @@ sealed class Fixture
     public void Update()=>Call(representation,"Update");public void Drive()=>Call(driver,"Drive");
     public void Disable()=>Call(representation,"OnDisable");
     public void Enable()=>Call(representation,"OnEnable");
+    public void DestroyRendererAndUpdate()
+    {
+        renderer.destroyed = true;
+        try { Update(); }
+        catch (Exception error) when (representation.LastError != null &&
+            error.Message == "HybridLumenGI asset representation: " + representation.LastError) { } // Expected adapter log.
+    }
     public void DestroyDriver()
     {
         Call(driver, "OnDestroy");

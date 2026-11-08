@@ -35,18 +35,20 @@ namespace HybridLumenGI
         private HybridLumenGISurfaceCharts loadedCharts;
         private RetireCompletion retirement;
         private string[] pageIds;
-        private bool wanted,manualWanted,manualPrefetch,manualMode,unavailable,bound,failed;
+        private bool wanted,manualWanted,manualPrefetch,manualMode,unavailable,bound;
+        private enum FailureState { None, BeforeBinding, BoundDestination }
+        private FailureState failure;
         public static IReadOnlyList<HybridLumenGIStreamedRepresentation> Active=>active;
         public uint Generation { get; private set; }
         // A renewed manual request protects an existing binding before Update applies it.
-        public bool WantsUnload=>bound && (unavailable || (!wanted && (!manualMode || !manualWanted)));
+        public bool WantsUnload=>bound && (IsUnavailable || (!wanted && (!manualMode || !manualWanted)));
         public bool HasBoundAssets=>bound;
-        public bool IsUnavailable=>unavailable;
+        public bool IsUnavailable=>unavailable || failure == FailureState.BoundDestination;
         public HybridLumenGIProxy Proxy=>proxy;
         public Renderer SourceRenderer=>targetRenderer;
         public string LastError { get; private set; }
         internal bool UsesHlodRasterVisibility => useHlodRasterVisibility;
-        internal bool CanSubmitHlodRaster => useHlodRasterVisibility && bound && !unavailable &&
+        internal bool CanSubmitHlodRaster => useHlodRasterVisibility && bound && !IsUnavailable &&
             targetRenderer != null && targetRenderer.enabled && targetRenderer.gameObject.activeInHierarchy;
         public void Configure(HybridLumenGIAssetPageStreamer owner,HybridLumenGIProxy source,MeshFilter filter,MeshRenderer renderer,
             string mesh,string sdf,string charts,string[] materials,Bounds bounds)
@@ -102,7 +104,7 @@ namespace HybridLumenGI
         }
         private void Update()
         {
-            if(unavailable || failed || retirement!=null)return;
+            if(unavailable || failure!=FailureState.None || retirement!=null)return;
             bool pagesAvailable = streamer != null && streamer.Available;
             // A bound representation can still withdraw its demand after the driver is destroyed.
             if (!pagesAvailable && !bound) return;
@@ -182,7 +184,22 @@ namespace HybridLumenGI
         private object Find(string id)
         {foreach(var lease in leases)if(lease.Id==id)return lease.Asset;return null;}
         private void RemoveRequests(){if(!ReferenceEquals(streamer,null))streamer.RemoveRequests(this);}
-        private void Fail(string error){failed=true;LastError=error;RemoveRequests();Debug.LogError("HybridLumenGI asset representation: "+error,this);}
+        private void Fail(string error)
+        {
+            // A failed cold member still declares its place in the authored HLOD set.
+            failure = bound ? FailureState.BoundDestination : FailureState.BeforeBinding;
+            LastError = error;
+            if (bound)
+            {
+                // The destination cannot admit new readers. The normal retirement fence
+                // still covers any work submitted before this failure.
+                if (targetRenderer != null) targetRenderer.enabled = false;
+                if (proxy != null) proxy.enabled = false;
+                HybridLumenGIResourceRetirement.RequestUnavailableRepresentationRetirement();
+            }
+            RemoveRequests();
+            Debug.LogError("HybridLumenGI asset representation: " + error, this);
+        }
         private sealed class Complete : HybridLumenGIAssetPageStreaming.ICompletion
         {internal static readonly Complete Instance=new Complete();public bool IsComplete=>true;}
         private void ReleaseUnpublished()
