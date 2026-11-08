@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release165，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release166，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭已绑定 Renderer 销毁后中断相机准备的缺口。实际 DX12 相机从当前 Collider 边界继续准备，另一精确对象仍参与 DXR，活动 Shadowmask 正常进入当帧路径。[实机对照与范围](../LocalComparison/Review/destroyed-renderer-fallback-190/result.md) · [Release166 同源交付](../LocalComparison/Review/destroyed-renderer-fallback-190/delivery.json)
 
 T3／G3 已关闭活动代理在普通校验后漏接同对象 Collider 的缺口。真实 Unity 对照中，新组件中心为 2。旧版消费待校验后仍保留中心 55 的边界，修复版在当次准备绑定并按实际边界发布。[正常校验对照](../LocalComparison/Review/pending-collider-validation-189/result.md) · [Release165 同源交付](../LocalComparison/Review/pending-collider-validation-189/delivery.json)
 
