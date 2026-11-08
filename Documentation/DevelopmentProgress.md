@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release170，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release171，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／T6／G4 已关闭前序 RTAS 请求导致的提前接替。即使本帧构建名额尚空，后排相机也保留完整旧组。实际 C# 对照确认前序相机先构建，当前相机随后整组接替并计费。[对照与范围](../LocalComparison/Review/hlod-rtas-older-197/result.md) · [同源交付](../LocalComparison/Review/hlod-rtas-older-197/delivery.json)
 
 T3／G3 已关闭相机切换可见层时可能继承旧屏幕累计的缺口。定向回归验证同坐标掩码变化拒旧、未录制帧无法推进，以及新掩码成功录制后的恢复。画面残影幅度按原范围验收。[回归](../LocalComparison/Review/camera-culling-history-196/result.md) · [同源交付](../LocalComparison/Review/camera-culling-history-196/delivery.json)
 
