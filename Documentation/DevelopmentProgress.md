@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release156，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release157，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭同一精确后端内单对象切换表示时漏发局部失效的问题。实际 DXR 固定机位的离屏墙退出和恢复精确三角时，旧版都没有局部域。修复版两次各录制一条墙体几何域，地板调度优先级为 751，保持帧回到零，世界 epoch 保持。修复已进入 Release157，采用范围为录制与局部调度，像素残留、收敛和软件精确路径继续验收。[实际对照](../LocalComparison/Review/exact-membership-179/result.md) · [同源交付](../LocalComparison/Review/exact-membership-179/delivery.json)
 
 T6／G4 已关闭超出 RTAS 突发上限的构建在准备阶段占用共享预留的问题。同额度对照中，旧版占用 67,904 B 并挡住后置小相机。修复版在读取顶点和分配属性前回退，小相机完成一次录制。已建未变结构继续使用，位姿变化后按原条件退休，恢复上限后可重新构建。修复已进入 Release156，采用范围为实际 C# 准入与受控录制和退休。[实际对照](../LocalComparison/Review/rtas-burst-preflight-178/result.md) · [同源交付](../LocalComparison/Review/rtas-burst-preflight-178/delivery.json)
 
