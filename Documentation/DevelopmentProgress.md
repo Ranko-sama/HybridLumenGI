@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release153，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release154，G0 已锁定，G1／G2 本机代表性验收通过
 
-T3／G3 已修复蒙皮对象在显式可读网格请求消费后仍反复捕获和使几何历史失效的问题。旧版在无新请求的首个合格周期启动额外作业。修复后，实际组件 CPU 对照中强请求与后续合并请求各发布一次，释放已复制的借用输入时沿用原快照，主动清除才恢复自动 BakeMesh。实体 GPU 画质和时延继续验收。[请求合同](DeformedGeometry.md) · [定向对照](../Tests/StandaloneDeformedMesh/Program.cs.txt)
+T3／G3 已修复蒙皮对象在显式可读网格请求消费后仍反复捕获和使几何历史失效的问题。旧版在无新请求的首个合格周期启动额外作业。修复后，实际组件 CPU 对照中强请求与后续合并请求各发布一次，模拟释放已复制的借用输入时沿用原快照，主动清除才恢复自动 BakeMesh。修复已进入 Release154。实体 GPU 画质和时延继续验收。[请求合同](DeformedGeometry.md) · [定向对照](../Tests/StandaloneDeformedMesh/Program.cs.txt) · [同源交付](../LocalComparison/Review/explicit-skinned-demand-174/delivery.json)
 
 G4 已关闭 Release153 单三角在顺序提交中的刚体变换原生命中缺口。实际 DXR 的两条固定射线正确交换命中，距离从 1.25 变为 1.75，命中关联当前 owner revision。变换计数增加一次，三角上传和应用场景重建各保持一次。驱动内部算法、在飞更新和形变继续验收。[原生查询和边界](../LocalComparison/Review/native-dxr-rigid-transform-173/result.md)
 
