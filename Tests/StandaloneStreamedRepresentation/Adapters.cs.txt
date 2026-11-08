@@ -69,8 +69,10 @@ namespace HybridLumenGI
     public static class HybridLumenGIResourceRetirement
     {
         public static int UnavailableRetirementRequests { get; private set; }
+        public static int DemandRetirementRequests { get; private set; }
         public static void EnsureRegistered() { }
         public static void RequestUnavailableRepresentationRetirement() => UnavailableRetirementRequests++;
+        public static void RequestDemandRepresentationRetirement() => DemandRetirementRequests++;
     }
     public static class HybridLumenGIRayTexturePool
     {public static void PollRetired(){}public static void InvalidateSource(Texture value)=>throw new NotSupportedException();public static bool IsSourceReferenced(Texture value)=>throw new NotSupportedException();}

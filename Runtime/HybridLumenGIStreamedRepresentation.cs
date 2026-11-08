@@ -38,7 +38,8 @@ namespace HybridLumenGI
         private bool wanted,manualWanted,manualPrefetch,manualMode,unavailable,bound,failed;
         public static IReadOnlyList<HybridLumenGIStreamedRepresentation> Active=>active;
         public uint Generation { get; private set; }
-        public bool WantsUnload=>bound && (!wanted || unavailable);
+        // A renewed manual request protects an existing binding before Update applies it.
+        public bool WantsUnload=>bound && (unavailable || (!wanted && (!manualMode || !manualWanted)));
         public bool HasBoundAssets=>bound;
         public bool IsUnavailable=>unavailable;
         public HybridLumenGIProxy Proxy=>proxy;
@@ -142,6 +143,7 @@ namespace HybridLumenGI
                     }
                 }
             }
+            if (WantsUnload) HybridLumenGIResourceRetirement.RequestDemandRepresentationRetirement();
             if (!pagesAvailable) return;
             bool prefetchOnly=manualMode && manualPrefetch && !wanted && !bound;
             if(!wanted && !prefetchOnly){if(!bound)RemoveRequests();return;}

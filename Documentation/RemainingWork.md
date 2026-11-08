@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release135 同源交付](../LocalComparison/Review/renderer-switch-retirement-152/delivery.json)
 
+T6／G4 主干已关闭无后续渲染上下文时启用绑定的普通需求撤回缺口。固定页组在受控消费者放行后无需新需求边沿，经真实空闲栅栏排空。待普通包整合，T5 高速首显及更广负载继续按原条件验收。[空闲退休对照](../LocalComparison/Review/idle-demand-retirement-153/result.md)
+
 T6／G4 已关闭 Base 相机切换 Renderer 后旧消费者滞留的问题。真实 DX12 双 Base 自动渲染中，仍使用旧 Feature 的相机保留页，最后一台切走后经现有栅栏释放，页账目归零。修复已进入 Release135，普通 Player、多组压力和 T5 高速首显仍开放。[退休对照](../LocalComparison/Review/renderer-switch-retirement-152/result.md)
 
 G4 已修复默认独立分页 rig 的普通组显隐。实际 DX12 双 Base 显式请求复现并消除了粗根与细节同画，完整旧根等待、两相机选择分歧及停叶撤回按原门槛成立。CPU 回归覆盖相机错过解绑重绑后的代次拒旧。修复已进入 Release134，冷高速首显与双相机资源退休负载仍开放。[对照及验收边界](../LocalComparison/Review/independent-hlod-raster-151/result.md)

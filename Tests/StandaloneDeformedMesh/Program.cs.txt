@@ -765,10 +765,34 @@ static class Program
         HybridLumenGIResourceRetirement.IdleUpdate();
         Require(readerCompleted && disabled.Retirement.IsComplete && distanceOnly.Retirement == null &&
             RecordedGpu.Fences.Count == fencesBefore + 1,
-            "Idle retirement failed to cover the last reader or affected ordinary distance demand.");
+            "Explicit idle retirement failed to cover the last reader or detached an unrelated demand.");
+
+        distanceOnly.Proxy = new HybridLumenGIProxy();
+        bool activeConsumer = true;
+        int queries = 0;
+        Func<HybridLumenGIProxy, bool> needsPage = proxy => { queries++; return activeConsumer; };
+        HybridLumenGIResourceRetirement.Register(needsPage);
+        HybridLumenGIResourceRetirement.RequestDemandRepresentationRetirement();
+        HybridLumenGIResourceRetirement.IdleUpdate(atFrameEnd: true);
+        Require(queries == 0 && distanceOnly.Retirement == null, "The frame tail repeated ordinary retirement after a context.");
+        Time.frameCount++;
+        HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(queries == 0, "The early idle callback repeated ordinary demand queries.");
+        HybridLumenGIResourceRetirement.IdleUpdate(atFrameEnd: true);
+        Require(queries == 1 && distanceOnly.Retirement == null, "An active consumer failed to hold ordinary idle withdrawal.");
+        activeConsumer = false;
+        Time.frameCount++;
+        HybridLumenGIResourceRetirement.IdleUpdate(atFrameEnd: true);
+        Require(queries == 2 && distanceOnly.Retirement != null && !distanceOnly.Retirement.IsComplete &&
+            RecordedGpu.Fences.Count == fencesBefore + 2 && RecordedGpu.Fences[^1].Immediate,
+            "Ordinary withdrawal did not retry and submit an idle fence when its consumer left.");
+        RecordedGpu.CompleteSubmitted();
+        HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(distanceOnly.Retirement.IsComplete, "Ordinary withdrawal failed to complete its submitted fence.");
+        HybridLumenGIResourceRetirement.Unregister(needsPage);
         HybridLumenGIStreamedRepresentation.Active.Remove(disabled);
         HybridLumenGIStreamedRepresentation.Active.Remove(distanceOnly);
-        Console.WriteLine("PASS: explicitly disabled streamed pages receive an idle completion ticket without another camera context; last readers and ordinary distance unload remain gated.");
+        Console.WriteLine("PASS: explicit and ordinary withdrawals can retire at idle; existing consumers and fence completion protect last readers.");
     }
     static void IdleAndShutdownRetirement()
     {

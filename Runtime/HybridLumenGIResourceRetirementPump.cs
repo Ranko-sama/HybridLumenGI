@@ -36,6 +36,6 @@ namespace HybridLumenGI
             systems.Add(new PlayerLoopSystem{type=typeof(FrameBoundary),updateDelegate=EndFrame});
             loop.subSystemList=systems.ToArray();PlayerLoop.SetPlayerLoop(loop);
         }
-        private static void EndFrame()=>HybridLumenGIResourceRetirement.IdleUpdate();
+        private static void EndFrame()=>HybridLumenGIResourceRetirement.IdleUpdate(atFrameEnd: true);
     }
 }

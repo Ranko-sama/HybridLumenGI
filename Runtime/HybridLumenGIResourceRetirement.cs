@@ -20,7 +20,8 @@ namespace HybridLumenGI
         private static readonly List<Owned> owned=new List<Owned>();
         private static readonly HashSet<Action> shutdownOwners=new HashSet<Action>();
         private static bool registered, outsideRenderLoop, contextEnded=true, shuttingDown, withdrawing, draining, polling, submissionUncertain;
-        private static bool unavailableRepresentationScanPending;
+        private static bool unavailableRepresentationScanPending, demandRepresentationScanPending;
+        private static int lastRepresentationContextFrame = -1;
         private static long shutdownDeadline;
         private static int failedWithdrawals;
         private const int ShutdownMilliseconds=5000;
@@ -63,6 +64,10 @@ namespace HybridLumenGI
         {
             unavailableRepresentationScanPending = true;
         }
+        internal static void RequestDemandRepresentationRetirement()
+        {
+            demandRepresentationScanPending = true;
+        }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitializeRuntime()
         {
@@ -97,19 +102,18 @@ namespace HybridLumenGI
         private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
         {outsideRenderLoop=false;contextEnded=false;}
         /// <summary>Only real early-update or root PlayerLoop tail boundaries may call this.</summary>
-        internal static void IdleUpdate()
+        internal static void IdleUpdate() => IdleUpdate(atFrameEnd: false);
+        internal static void IdleUpdate(bool atFrameEnd)
         {
             EnsureRegistered();
             // EndContext alone is not an outside certificate: other listeners may still run.
             if(contextEnded && !submissionUncertain)outsideRenderLoop=true;
             if(outsideRenderLoop)
             {
-                // An explicitly withdrawn representation may have no future camera context.
-                if (unavailableRepresentationScanPending && SystemInfo.supportsGraphicsFence)
-                {
-                    unavailableRepresentationScanPending = false;
-                    QueueRepresentationRetirements(requiresContext: false);
-                }
+                // Ordinary demand already gets checked at EndContext in rendering frames.
+                bool scanDemand = atFrameEnd && demandRepresentationScanPending && lastRepresentationContextFrame != Time.frameCount;
+                if ((unavailableRepresentationScanPending || scanDemand) && SystemInfo.supportsGraphicsFence)
+                    QueueRepresentationRetirements(requiresContext: false, includeDemand: scanDemand);
                 foreach(var ticket in pending)
                     if(ticket.awaitDetachedPassIdle && !ticket.submissionUnknown)
                     {ticket.awaitDetachedPassIdle=false;ticket.requiresContext=false;}
@@ -234,14 +238,16 @@ namespace HybridLumenGI
             pending.Add(ticket);owned.Add(new Owned{destroy=destroyOwned,ticket=ticket,prerequisite=prerequisite});
             if(shuttingDown)DrainShutdown();
         }
-        private static void QueueRepresentationRetirements(bool requiresContext)
+        private static void QueueRepresentationRetirements(bool requiresContext, bool includeDemand)
         {
+            unavailableRepresentationScanPending = false;
+            if (includeDemand) demandRepresentationScanPending = false;
             var representations=HybridLumenGIStreamedRepresentation.Active;
             for(int i=0;i<representations.Count;i++)
             {
                 var representation=representations[i];
                 if(ReferenceEquals(representation,null) || !representation.WantsUnload)continue;
-                if (!requiresContext && !representation.IsUnavailable) continue;
+                if (!includeDemand && !representation.IsUnavailable) continue;
                 var proxy=representation.Proxy;
                 bool required=false;
                 if(!representation.IsUnavailable && proxy!=null && proxy.isActiveAndEnabled)
@@ -255,16 +261,29 @@ namespace HybridLumenGI
                     // A new consumer gets a chance to answer before any detachment.
                     required |= !ReferenceEquals(queries, consumers);
                 }
-                if(required)continue;
-                var ticket=new Ticket{requiresContext=requiresContext};
-                if(representation.ReportUnloadSafe(representation.Generation,ticket))pending.Add(ticket);
+                if (!required)
+                {
+                    var ticket = new Ticket { requiresContext = requiresContext };
+                    if (representation.ReportUnloadSafe(representation.Generation, ticket))
+                    {
+                        pending.Add(ticket);
+                        continue;
+                    }
+                }
+                // The last consumer can leave later, with no further demand edge or context.
+                if (representation.WantsUnload)
+                {
+                    if (representation.IsUnavailable) unavailableRepresentationScanPending = true;
+                    else demandRepresentationScanPending = true;
+                }
             }
         }
         private static void EndContext(ScriptableRenderContext context,List<Camera> cameras)
         {
             contextEnded=true; // Only a subsequent IdleUpdate may certify outside this event.
             PollOwned();
-            QueueRepresentationRetirements(requiresContext: true);
+            lastRepresentationContextFrame = Time.frameCount;
+            QueueRepresentationRetirements(requiresContext: true, includeDemand: true);
             if(pending.Count==0 || !SystemInfo.supportsGraphicsFence || submissionUncertain)return;
             var batch=new List<Ticket>();foreach(var ticket in pending)if(!ticket.submissionUnknown && !ticket.awaitDetachedPassIdle)batch.Add(ticket);
             if(batch.Count==0)return;
