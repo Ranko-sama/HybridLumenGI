@@ -27,7 +27,7 @@ namespace HybridLumenGI
         private readonly HybridLumenGIVideoMemory videoMemory = new HybridLumenGIVideoMemory();
         private readonly List<HybridLumenGIProxy> published = new List<HybridLumenGIProxy>();
         private readonly List<HybridLumenGIProxy> target = new List<HybridLumenGIProxy>();
-        private readonly HashSet<HybridLumenGIProxy> visible = new HashSet<HybridLumenGIProxy>();
+        private readonly Dictionary<HybridLumenGIProxy, uint> visible = new Dictionary<HybridLumenGIProxy, uint>();
         private HybridLumenGIScene.HlodPublicationSnapshot publication;
         private string status = "cold: waiting for complete page bindings and GI publication";
         private int lastReceiptEngine = -1, lastReceiptWork = -1;
@@ -73,7 +73,12 @@ namespace HybridLumenGI
         }
 
         private IEnumerable<HybridLumenGIStreamedRepresentation> Bindings()
-        { if (aggregate != null) yield return aggregate; foreach (var item in details) if (item != null) yield return item; }
+        {
+            // Cleanup still needs the managed renderer reference after a binding component is destroyed.
+            if (!ReferenceEquals(aggregate, null)) yield return aggregate;
+            foreach (var item in details)
+                if (!ReferenceEquals(item, null)) yield return item;
+        }
         private bool HasInputs()
         {
             if (targetCamera == null || feature == null || streamer == null || aggregate == null || aggregate.Proxy == null ||
@@ -124,7 +129,7 @@ namespace HybridLumenGI
             }
             HybridLumenGIResourceRetirement.Unregister(RequiresVisible); subscribed = false;
         }
-        private bool RequiresVisible(HybridLumenGIProxy proxy) => visible.Contains(proxy);
+        private bool RequiresVisible(HybridLumenGIProxy proxy) => proxy != null && visible.ContainsKey(proxy);
         private void Update()
         {
             if (!subscribed || !KeepRunning()) return;
@@ -155,10 +160,10 @@ namespace HybridLumenGI
         {
             if (!subscribed || !KeepRunning()) return;
             videoMemory.Sample(Time.frameCount, measureVideoMemory);
-            if (aggregate.Proxy != null) aggregate.Proxy.enabled = aggregate.HasBoundAssets;
+            if (aggregate.Proxy != null) aggregate.Proxy.enabled = BindingAvailable(aggregate);
             // Binding is per representation. Do not expose a partial authored detail set to Scene.Prepare.
-            bool complete = aggregate.HasBoundAssets;
-            foreach (var item in details) complete &= item.HasBoundAssets;
+            bool complete = BindingAvailable(aggregate);
+            foreach (var item in details) complete &= BindingAvailable(item);
             foreach (var item in details)
                 if (item.HasBoundAssets) item.Proxy.enabled = complete;
             ApplyVisibility();
@@ -180,22 +185,42 @@ namespace HybridLumenGI
             if (!feature.TryGetHlodPublication(camera, aggregate.Proxy, published, target, out publication) ||
                 publication.preparedEngineFrame != Time.frameCount)
             {
-                status = "waiting: no current complete publication; previous visible set retained while bound";
+                status = "waiting: no current complete publication";
                 ApplyVisibility(camera); return;
             }
             lastReceiptEngine = publication.preparedEngineFrame; lastReceiptWork = publication.preparedWorkFrame;
-            bool rootPublished = published.Count == 1 && published[0] == aggregate.Proxy && aggregate.HasBoundAssets;
-            bool detailPublished = published.Count == details.Length;
-            foreach (var item in details) detailPublished &= item.HasBoundAssets && published.Contains(item.Proxy);
-            if (publication.phase == HybridLumenGIScene.PublicationPhase.Published && (rootPublished || detailPublished))
+            if (publication.phase == HybridLumenGIScene.PublicationPhase.Published && RememberPublishedBindings(published))
             {
-                visible.Clear(); foreach (var proxy in published) visible.Add(proxy);
-                status = rootPublished ? "aggregate published" : "complete details published";
                 if (publication.transitioning) status += "; replacement warming";
             }
             else status = "waiting: publication does not equal the complete authored root/detail set";
             // This applies at the completed camera boundary, before retirement examines ordinary URP consumers.
             ApplyVisibility(camera);
+        }
+        private static bool BindingAvailable(HybridLumenGIStreamedRepresentation item) => item != null && item.HasBoundAssets && !item.IsUnavailable;
+        private bool RememberPublishedBindings(List<HybridLumenGIProxy> members)
+        {
+            bool rootPublished = members.Count == 1 && members[0] == aggregate.Proxy && BindingAvailable(aggregate);
+            bool detailPublished = members.Count == details.Length;
+            foreach (var item in details) detailPublished &= BindingAvailable(item) && members.Contains(item.Proxy);
+            if (!rootPublished && !detailPublished) return false;
+
+            visible.Clear();
+            if (rootPublished) visible[aggregate.Proxy] = aggregate.Generation;
+            else
+                foreach (var item in details) visible[item.Proxy] = item.Generation;
+            status = rootPublished ? "aggregate published" : "complete details published";
+            return true;
+        }
+        private bool IsVisibleBinding(HybridLumenGIStreamedRepresentation item) => BindingAvailable(item) &&
+            item.Proxy != null && visible.TryGetValue(item.Proxy, out uint generation) && generation == item.Generation;
+        private bool VisibleGroupIsComplete()
+        {
+            if (visible.Count == 1 && IsVisibleBinding(aggregate)) return true;
+            if (visible.Count != details.Length) return false;
+            foreach (var item in details)
+                if (!IsVisibleBinding(item)) return false;
+            return true;
         }
         private void ApplyVisibility(Camera renderingCamera = null)
         {
@@ -206,9 +231,14 @@ namespace HybridLumenGI
                 visible.Clear();
                 status = "outside GI distance";
             }
+            else if (visible.Count > 0 && !VisibleGroupIsComplete())
+            {
+                visible.Clear();
+                status = "waiting: previous representation binding was withdrawn or replaced";
+            }
             foreach (var item in Bindings())
                 if (item.SourceRenderer != null)
-                    item.SourceRenderer.forceRenderingOff = !item.HasBoundAssets || !visible.Contains(item.Proxy);
+                    item.SourceRenderer.forceRenderingOff = !IsVisibleBinding(item);
         }
         public void SetHardwarePreference(bool value)
         {
@@ -341,7 +371,7 @@ namespace HybridLumenGI
                     if (!renderer.enabled || !renderer.gameObject.activeInHierarchy || renderer.forceRenderingOff) continue;
                     submitted++;
                     invalid |= !sources.Add(renderer) || !proxies.Add(item.Proxy) ||
-                        !item.HasBoundAssets || !visible.Contains(item.Proxy) || item.Proxy.SourceRenderer != renderer;
+                        !IsVisibleBinding(item) || item.Proxy.SourceRenderer != renderer;
                     if (item == aggregate) rootSubmitted = true;
                     else submittedDetails++;
                 }
