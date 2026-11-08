@@ -58,9 +58,37 @@ camera=Vector3.zero;settings.UpdateBrickBudget=1024;Drain();settings.UpdateBrick
 scene.DirtyRegions.Add(new(){HasCurrent=true,CurrentBounds=new Bounds(new Vector3(1000,0,0),Vector3.one)});
 global.Prepare(scene,sdf,camera,settings);Require(global.PendingBrickCount==0,"Far-away change invalidated all pages.");global.RecordUpdate(new CommandBuffer());scene.DirtyRegions.Clear();
 scene.DirtyRegions.Add(new(){HasPrevious=true,PreviousBounds=new Bounds(new Vector3(4.1f,0,0),new Vector3(.1f,.1f,.1f)),HasCurrent=true,CurrentBounds=new Bounds(new Vector3(-4.1f,0,0),new Vector3(.1f,.1f,.1f))});
+float seamPadding = settings.BaseVoxelSize * HybridLumenGIGlobalSdf.VoxelsPerBrickAxis * settings.MaxDistanceInBricks +
+    settings.BaseVoxelSize * 1.733f;
+scene.DirtyRegions.Add(new() { HasCurrent = true, CurrentBounds = new Bounds(
+    new Vector3(seamPadding, MathF.BitIncrement(seamPadding), -seamPadding), Vector3.zero) });
+Bounds.MinReads = 0;
 global.Prepare(scene,sdf,camera,settings);Require(global.PendingBrickCount>0&&global.PendingBrickCount<128,"Local old/new geometry change did not invalidate only affected distance neighborhoods.");
+Console.WriteLine($"DIRTY_WORK expansions={Bounds.MinReads}");
+var invalidation = new CommandBuffer();
+global.RecordUpdate(invalidation);
 Require(global.TryGetPage(0,1,0,0,out _,out _,out bool positiveReady)&&!positiveReady&&global.TryGetPage(0,-2,0,0,out _,out _,out bool negativeReady)&&!negativeReady,"Neighbor distance pages outside the object bounds were not invalidated.");
-scene.DirtyRegions.Clear();settings.UpdateBrickBudget=1024;Drain();settings.UpdateBrickBudget=0;
+Require(global.TryGetPage(0,-1,0,-2,out _,out _,out bool touches)&&!touches &&
+    global.TryGetPage(0,-1,-1,-2,out _,out _,out bool beyond)&&beyond,
+    "The brick touching the expanded seam must invalidate, while the brick just past it stays ready.");
+void WriteDirtyState(string stage, CommandBuffer commands)
+{
+    var pages = global.PagesBuffer.data.Select(page => $"{Field(page, "generation")}/{Field(page, "ready")}");
+    var ages = (int[])typeof(HybridLumenGIGlobalSdf).GetField("ages", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(global);
+    var jobs = global.UpdateJobsBuffer.data.Take(global.UpdatedBrickCount).Select(job =>
+        $"{Field(job, "level")}/{Field(job, "page")}/{Field(job, "generation")}");
+    Console.WriteLine($"DIRTY_STATE {stage} pages={string.Join(",", pages)} ages={string.Join(",", ages)} " +
+        $"jobs={string.Join(",", jobs)} commands={string.Join(",", commands.events)}");
+}
+WriteDirtyState("invalidation", invalidation);
+scene.DirtyRegions.Clear();
+settings.UpdateBrickBudget = 3;
+global.Prepare(scene, sdf, camera, settings);
+var rebuild = new CommandBuffer();
+global.RecordUpdate(rebuild);
+Require(global.UpdatedBrickCount == 3, "Local invalidation did not respect the subsequent partial rebuild allowance.");
+WriteDirtyState("rebuild", rebuild);
+settings.UpdateBrickBudget=1024;Drain();settings.UpdateBrickBudget=0;
 sdf.RepresentationChangedBounds.Add(new Bounds(Vector3.zero,Vector3.one*.1f));global.Prepare(scene,sdf,camera,settings);
 Require(global.PendingBrickCount>0,"SDF upload-ready representation changes were ignored.");
 sdf.RepresentationChangedBounds.Clear();settings.UpdateBrickBudget=1024;Drain();settings.UpdateBrickBudget=0;

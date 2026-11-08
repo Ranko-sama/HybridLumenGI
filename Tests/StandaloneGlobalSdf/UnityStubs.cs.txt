@@ -16,9 +16,11 @@ namespace UnityEngine
     }
     public struct Bounds
     {
+        public static int MinReads;
         public Vector3 center,size;
         public Bounds(Vector3 c,Vector3 s){center=c;size=s;}
-        public Vector3 min=>center-size*.5f;public Vector3 max=>center+size*.5f;
+        public Vector3 min { get { MinReads++; return center - size * .5f; } }
+        public Vector3 max=>center+size*.5f;
         public void Encapsulate(Vector3 p)
         {
             var a=min;var b=max;

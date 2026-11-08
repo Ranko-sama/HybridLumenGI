@@ -69,6 +69,7 @@ namespace HybridLumenGI
         private Job[] jobs = Array.Empty<Job>();
         private ObjectBounds[] objectBounds = Array.Empty<ObjectBounds>();
         private int[] ages = Array.Empty<int>();
+        private int[] dirtyRows = Array.Empty<int>();
         private Configuration configuration;
         private HybridLumenGIScene scene;
         private HybridLumenGISdfAtlas sdf;
@@ -131,6 +132,8 @@ namespace HybridLumenGI
             UpdateObjectBounds();
 
             int axis = settings.BricksPerAxis, perLevel = axis * axis * axis;
+            bool invalidateAll = reset || scene.RequiresFullInvalidation;
+            bool hasLocalChanges = !invalidateAll && dirtyBounds.Count > 0;
             for (int level = 0; level < settings.LevelCount; level++)
             {
                 float voxelSize = settings.BaseVoxelSize * (1 << level);
@@ -142,23 +145,14 @@ namespace HybridLumenGI
                     metric = new Vector4(voxelSize, brickSize, brickSize * settings.MaxDistanceInBricks, 0)
                 };
                 levels[level] = data;
+                if (hasLocalChanges) MarkDirtyRows(data, axis);
                 for (int z = 0; z < axis; z++) for (int y = 0; y < axis; y++) for (int x = 0; x < axis; x++)
                 {
                     int wx = data.x + x, wy = data.y + y, wz = data.z + z;
                     int index = level * perLevel + PhysicalPage(wx, wy, wz, axis);
                     Page page = pages[index];
                     bool differentKey = page.generation == 0 || page.x != wx || page.y != wy || page.z != wz;
-                    bool invalid = reset || scene.RequiresFullInvalidation || differentKey;
-                    if (!invalid)
-                    {
-                        // A changed object can reduce capped distances in neighboring bricks too.
-                        // Expand by the cap plus a full voxel diagonal; never only dirty its own brick.
-                        float expansion = data.metric.z + voxelSize * 1.733f;
-                        Vector3 minimum = new Vector3(wx * brickSize, wy * brickSize, wz * brickSize);
-                        Vector3 maximum = minimum + Vector3.one * brickSize;
-                        for (int change = 0; change < dirtyBounds.Count && !invalid; change++)
-                            invalid = IntersectsExpanded(minimum, maximum, dirtyBounds[change], expansion);
-                    }
+                    bool invalid = invalidateAll || differentKey || (hasLocalChanges && (dirtyRows[z * axis + y] & (1 << x)) != 0);
                     if (invalid)
                     {
                         if (page.ready != 0 || differentKey) InvalidatedBrickCount++;
@@ -337,6 +331,7 @@ namespace HybridLumenGI
                 DistancesBuffer?.Release(); PagesBuffer?.Release(); LevelsBuffer?.Release(); UpdateJobsBuffer?.Release();
                 int count = settings.LevelCount * settings.BricksPerAxis * settings.BricksPerAxis * settings.BricksPerAxis;
                 pages = new Page[count]; ages = new int[count]; levels = new Level[settings.LevelCount]; jobs = new Job[count];
+                dirtyRows = new int[settings.BricksPerAxis * settings.BricksPerAxis];
                 DistancesBuffer = Buffer(count * ValuesPerBrick, 4, "HLGI global SDF distances");
                 // Initialize generation words to zero. Unwritten voxel payload must never become
                 // readable if a recorded update is cancelled before its GPU publish dispatch.
@@ -383,10 +378,47 @@ namespace HybridLumenGI
             int level = a.level.CompareTo(b.level); if (level != 0) return level;
             int distance = a.distanceSquared.CompareTo(b.distanceSquared); return distance != 0 ? distance : a.page.CompareTo(b.page);
         }
-        private static bool IntersectsExpanded(Vector3 minimum, Vector3 maximum, Bounds region, float expansion)
+        private void MarkDirtyRows(Level level, int axis)
         {
-            Vector3 lo = region.min - Vector3.one * expansion, hi = region.max + Vector3.one * expansion;
-            return maximum.x >= lo.x && maximum.y >= lo.y && maximum.z >= lo.z && minimum.x <= hi.x && minimum.y <= hi.y && minimum.z <= hi.z;
+            Array.Clear(dirtyRows, 0, dirtyRows.Length);
+            // Expand once per region and level. A changed object can lower cached
+            // distances outside its own brick, up to the cap plus a voxel diagonal.
+            Vector3 padding = Vector3.one * (level.metric.z + level.metric.x * 1.733f);
+            float brickSize = level.metric.y;
+            int fullRow = (1 << axis) - 1;
+            int incompleteRows = dirtyRows.Length;
+            foreach (Bounds region in dirtyBounds)
+            {
+                Vector3 lo = region.min - padding, hi = region.max + padding;
+                if (!TryOverlapRange(level.x, axis, brickSize, lo.x, hi.x, out int firstX, out int endX) ||
+                    !TryOverlapRange(level.y, axis, brickSize, lo.y, hi.y, out int firstY, out int endY) ||
+                    !TryOverlapRange(level.z, axis, brickSize, lo.z, hi.z, out int firstZ, out int endZ)) continue;
+
+                // One bit per logical x coordinate. Physical addressing is handled separately.
+                int xMask = ((1 << (endX - firstX)) - 1) << firstX;
+                for (int z = firstZ; z < endZ; z++)
+                for (int y = firstY; y < endY; y++)
+                {
+                    int row = z * axis + y;
+                    int previous = dirtyRows[row];
+                    if (previous == fullRow) continue;
+                    int combined = previous | xMask;
+                    dirtyRows[row] = combined;
+                    if (combined == fullRow) incompleteRows--;
+                }
+                if (incompleteRows == 0) break;
+            }
+        }
+
+        private static bool TryOverlapRange(int origin, int axis, float size, float lo, float hi, out int first, out int end)
+        {
+            // The brick bounds are monotone. Use the same rounded float endpoints
+            // and inclusive comparisons as the page intersection, even at a seam.
+            first = 0;
+            end = axis;
+            while (first < end && !((origin + first) * size + size >= lo)) first++;
+            while (end > first && !((origin + end - 1) * size <= hi)) end--;
+            return first < end;
         }
         private static Bounds ToBounds(ObjectBounds value)
         {
@@ -418,6 +450,7 @@ namespace HybridLumenGI
         {
             DistancesBuffer = PagesBuffer = LevelsBuffer = UpdateJobsBuffer = ObjectBoundsBuffer = null;
             pages = Array.Empty<Page>(); levels = Array.Empty<Level>(); jobs = Array.Empty<Job>(); objectBounds = Array.Empty<ObjectBounds>(); ages = Array.Empty<int>();
+            dirtyRows = Array.Empty<int>();
             configuration = default;
             pending.Clear(); dirtyBounds.Clear(); scene = null; sdf = null; prepared = recorded = false;
             jobCount = ReadyBrickCount = PendingBrickCount = UpdatedBrickCount = InvalidatedBrickCount = 0;
