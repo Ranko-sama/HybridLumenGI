@@ -72,6 +72,8 @@ namespace HybridLumenGI
         private Configuration configuration;
         private HybridLumenGIScene scene;
         private HybridLumenGISdfAtlas sdf;
+        private ComputeBuffer disabledDistances, disabledPages, disabledLevels;
+        private long retiringBytes;
         private bool prepared, recorded;
         private int jobCount;
 
@@ -88,11 +90,10 @@ namespace HybridLumenGI
         public int InvalidatedBrickCount { get; private set; }
         public int LevelCount => levels.Length;
         public int BricksPerAxis => configuration.BricksPerAxis;
-        public long AllocatedBytes => (DistancesBuffer != null ? DistancesBuffer.count * 4L : 0) +
-            (PagesBuffer != null ? PagesBuffer.count * (long)PageStride : 0) +
-            (LevelsBuffer != null ? LevelsBuffer.count * (long)LevelStride : 0) +
-            (UpdateJobsBuffer != null ? UpdateJobsBuffer.count * (long)JobStride : 0) +
-            (ObjectBoundsBuffer != null ? ObjectBoundsBuffer.count * (long)ObjectBoundsStride : 0);
+        private static long Bytes(ComputeBuffer buffer) => buffer == null ? 0 : (long)buffer.count * buffer.stride;
+        private long ClipmapBytes => Bytes(DistancesBuffer) + Bytes(PagesBuffer) + Bytes(LevelsBuffer) +
+            Bytes(UpdateJobsBuffer) + Bytes(ObjectBoundsBuffer);
+        public long AllocatedBytes => ClipmapBytes + retiringBytes + Bytes(disabledDistances) + Bytes(disabledPages) + Bytes(disabledLevels);
 
         public HybridLumenGIGlobalSdf(ComputeShader shader = null)
         {
@@ -187,12 +188,44 @@ namespace HybridLumenGI
             return PendingBrickCount > 0;
         }
 
+        internal void PrepareDisabled()
+        {
+            if (disabledDistances == null)
+            {
+                // The same compute kernels require typed SRVs even with queries disabled.
+                try
+                {
+                    disabledDistances = Buffer(1, 4, "HLGI disabled global SDF distance");
+                    disabledPages = Buffer(1, PageStride, "HLGI disabled global SDF page");
+                    disabledLevels = Buffer(1, LevelStride, "HLGI disabled global SDF level");
+                }
+                catch
+                {
+                    ReleaseDisabledBuffers();
+                    throw;
+                }
+            }
+            if (DistancesBuffer != null)
+            {
+                var buffers = new[] { DistancesBuffer, PagesBuffer, LevelsBuffer, UpdateJobsBuffer, ObjectBoundsBuffer };
+                long bytes = ClipmapBytes;
+                ClearClipmap();
+                retiringBytes += bytes;
+                HybridLumenGIResourceRetirement.Retire(() =>
+                {
+                    foreach (var buffer in buffers) buffer?.Release();
+                    retiringBytes -= bytes;
+                });
+            }
+            prepared = true;
+        }
+
         /// <summary>Record invalidation, merge and then ready publication on one graphics queue.</summary>
         public int RecordUpdate(CommandBuffer command)
         {
             if (!prepared) throw new InvalidOperationException("Prepare the global SDF first.");
             if (command == null) throw new ArgumentNullException(nameof(command));
-            if (recorded) return 0;
+            if (recorded || levels.Length == 0) return 0;
             // SetBufferData records snapshots in the command stream; do not publish CPU-ready bits
             // before this copy. The caller must execute this stream before another Prepare;
             // on cancellation call InvalidateAll so these scheduled pages will be retried.
@@ -234,9 +267,9 @@ namespace HybridLumenGI
         public void Bind(CommandBuffer command, ComputeShader compute, int kernel)
         {
             if (!prepared) throw new InvalidOperationException("Prepare the global SDF first.");
-            command.SetComputeBufferParam(compute, kernel, "_HLGI_GlobalSdfDistances", DistancesBuffer);
-            command.SetComputeBufferParam(compute, kernel, "_HLGI_GlobalSdfPages", PagesBuffer);
-            command.SetComputeBufferParam(compute, kernel, "_HLGI_GlobalSdfLevels", LevelsBuffer);
+            command.SetComputeBufferParam(compute, kernel, "_HLGI_GlobalSdfDistances", DistancesBuffer ?? disabledDistances);
+            command.SetComputeBufferParam(compute, kernel, "_HLGI_GlobalSdfPages", PagesBuffer ?? disabledPages);
+            command.SetComputeBufferParam(compute, kernel, "_HLGI_GlobalSdfLevels", LevelsBuffer ?? disabledLevels);
             command.SetComputeIntParam(compute, "_HLGI_GlobalSdfLevelCount", recorded ? levels.Length : 0);
             command.SetComputeIntParam(compute, "_HLGI_GlobalSdfBrickAxis", configuration.BricksPerAxis);
         }
@@ -377,10 +410,23 @@ namespace HybridLumenGI
         public void Dispose()
         {
             DistancesBuffer?.Release(); PagesBuffer?.Release(); LevelsBuffer?.Release(); UpdateJobsBuffer?.Release(); ObjectBoundsBuffer?.Release();
+            ClearClipmap();
+            ReleaseDisabledBuffers();
+        }
+
+        private void ClearClipmap()
+        {
             DistancesBuffer = PagesBuffer = LevelsBuffer = UpdateJobsBuffer = ObjectBoundsBuffer = null;
             pages = Array.Empty<Page>(); levels = Array.Empty<Level>(); jobs = Array.Empty<Job>(); objectBounds = Array.Empty<ObjectBounds>(); ages = Array.Empty<int>();
+            configuration = default;
             pending.Clear(); dirtyBounds.Clear(); scene = null; sdf = null; prepared = recorded = false;
             jobCount = ReadyBrickCount = PendingBrickCount = UpdatedBrickCount = InvalidatedBrickCount = 0;
+        }
+
+        private void ReleaseDisabledBuffers()
+        {
+            disabledDistances?.Release(); disabledPages?.Release(); disabledLevels?.Release();
+            disabledDistances = disabledPages = disabledLevels = null;
         }
     }
 }

@@ -79,4 +79,41 @@ global.RecordUpdate(new CommandBuffer());settings.BaseVoxelSize*=2;global.Prepar
 global.RecordUpdate(new CommandBuffer());scene.RequiresFullInvalidation=true;global.Prepare(scene,sdf,camera,settings);Require(global.PendingBrickCount==128,"Scene hard invalidation was ignored.");
 Require(global.AllocatedBytes>0,"Memory diagnostic is missing.");
 var buffer=global.PagesBuffer;global.Dispose();Require(buffer.released&&global.AllocatedBytes==0&&!global.IsReady,"Dispose did not release clipmap resources.");
+
+using var switched = new HybridLumenGIGlobalSdf(shader);
+const long bindingBytes = 4 + HybridLumenGIGlobalSdf.PageStride + HybridLumenGIGlobalSdf.LevelStride;
+switched.PrepareDisabled();
+var disabledCommands = new CommandBuffer();
+Require(switched.RecordUpdate(disabledCommands) == 0, "Disabled clipmap recorded jobs.");
+switched.Bind(disabledCommands, shader, 0);
+Require(switched.AllocatedBytes == bindingBytes && switched.LevelCount == 0 &&
+    switched.PendingBrickCount == 0 && switched.ObjectBoundsBuffer == null && switched.UpdateJobsBuffer == null &&
+    disabledCommands.events.Count == 0 && disabledCommands.ints["_HLGI_GlobalSdfLevelCount"] == 0 &&
+    disabledCommands.buffers.Count == 3 && disabledCommands.buffers.Values.All(value => value.count == 1),
+    "Cold disabled mode allocated a clipmap or failed to bind inert query buffers.");
+settings.UpdateBrickBudget = 7;
+var switchScene = new HybridLumenGIScene();
+switched.Prepare(switchScene, sdf, Vector3.zero, settings);
+switched.RecordUpdate(new CommandBuffer());
+Require(switched.ReadyBrickCount == 7 && switched.IsReady, "Enabling after cold disabled did not prepare ordinary pages.");
+long activeBytes = switched.AllocatedBytes;
+var previousBuffers = new[] { switched.DistancesBuffer, switched.PagesBuffer, switched.LevelsBuffer,
+    switched.UpdateJobsBuffer, switched.ObjectBoundsBuffer };
+switched.PrepareDisabled();
+switched.PrepareDisabled();
+var disabledAgain = new CommandBuffer();
+switched.Bind(disabledAgain, shader, 0);
+Require(switched.AllocatedBytes == activeBytes && !switched.IsReady && switched.PendingBrickCount == 0 &&
+    HybridLumenGIResourceRetirement.Pending.Count == 1 && previousBuffers.All(value => !value.released) &&
+    disabledAgain.buffers.All(pair => ReferenceEquals(pair.Value, disabledCommands.buffers[pair.Key])),
+    "Disabling did not keep the old clipmap charged through completion or reuse the inert bindings.");
+switched.Prepare(switchScene, sdf, Vector3.zero, settings);
+Require(switched.ReadyBrickCount == 0 && switched.PendingBrickCount == 128 &&
+    switched.AllocatedBytes == 2 * activeBytes - bindingBytes && switched.PagesBuffer != previousBuffers[1],
+    "Re-enabling reused a retiring clipmap or lost its charge.");
+HybridLumenGIResourceRetirement.Pending.Dequeue()();
+Require(previousBuffers.All(value => value.released) && !switched.PagesBuffer.released && switched.AllocatedBytes == activeBytes &&
+    switched.RecordUpdate(new CommandBuffer()) == settings.UpdateBrickBudget,
+    "Completion failed to release only the old clipmap or disturbed the new jobs.");
+Console.WriteLine("PASS: Global SDF off binds only the typed placeholders, retains prior allocations through completion, and re-enables cold.");
 Console.WriteLine($"Actual-source global SDF scheduler: {checks} assertions passed. Unity/GPU APIs are recording shims; shader math is checked separately.");

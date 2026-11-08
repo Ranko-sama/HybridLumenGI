@@ -67,6 +67,11 @@ namespace UnityEngine.Rendering
 }
 namespace HybridLumenGI
 {
+    public static class HybridLumenGIResourceRetirement
+    {
+        public static readonly Queue<Action> Pending = new();
+        public static void Retire(Action release) => Pending.Enqueue(release);
+    }
     public sealed class HybridLumenGIMeshSdf { public UnityEngine.Bounds LocalBounds; }
     public sealed class HybridLumenGIProxy { public HybridLumenGIMeshSdf MeshSdf;public UnityEngine.Matrix4x4 SdfLocalToWorld;public UnityEngine.Renderer Renderer; }
     public sealed class HybridLumenGIScene

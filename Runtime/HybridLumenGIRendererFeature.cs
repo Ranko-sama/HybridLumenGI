@@ -953,11 +953,13 @@ namespace HybridLumenGI
                 state.scenePreparedRenderer = cameraData.renderer;
                 state.scenePreparedEngineFrame = Time.frameCount; state.scenePreparedWorkFrame = state.frame;
                 state.sdf.PrepareForFrame(state.scene, Time.frameCount);
-                state.globalSdf.Prepare(state.scene,state.sdf,camera.transform.position,new HybridLumenGIGlobalSdf.Configuration
-                {
-                    LevelCount=s.globalSdfEnabled?s.globalSdfLevels:2,BricksPerAxis=s.globalSdfEnabled?s.globalSdfBricksPerAxis:4,
-                    BaseVoxelSize=s.globalSdfBaseVoxelSize,MaxDistanceInBricks=2,UpdateBrickBudget=state.effectiveBudget.GlobalBricks
-                });
+                if (s.globalSdfEnabled)
+                    state.globalSdf.Prepare(state.scene,state.sdf,camera.transform.position,new HybridLumenGIGlobalSdf.Configuration
+                    {
+                        LevelCount=s.globalSdfLevels,BricksPerAxis=s.globalSdfBricksPerAxis,
+                        BaseVoxelSize=s.globalSdfBaseVoxelSize,MaxDistanceInBricks=2,UpdateBrickBudget=state.effectiveBudget.GlobalBricks
+                    });
+                else state.globalSdf.PrepareDisabled();
                 state.changes.Begin(state.scene,Mathf.Max(s.shadowDistance,s.traceDistance)+Mathf.Max(1,s.traceDistance),
                     (slot,id)=>
                     {
@@ -1453,7 +1455,8 @@ namespace HybridLumenGI
                 // An unsuccessful resolve can leave the imported identity texture
                 // unwritten. CPU recording failure must therefore gate reuse too.
                 if(d.useIdentity && !d.receiverReceipt.identityRecorded) d.valid=false;
-                if(s.globalSdfEnabled)
+                bool globalSdfPrepared = state.globalSdf.LevelCount > 0;
+                if(globalSdfPrepared)
                 {
                     using(d.frameTiming.Profile(cmd,"HLGI Global SDF dirty bricks")) state.globalSdf.RecordUpdate(cmd);
                 }
@@ -1530,7 +1533,7 @@ namespace HybridLumenGI
                 cmd.SetComputeFloatParam(c,"_HLGI_GuideWeight",Mathf.Clamp(s.guidedSamplingWeight,0,0.8f));
                 cmd.SetComputeFloatParam(c,"_HLGI_EmissiveWeight",emissiveBuilt?Mathf.Clamp(s.emissiveSamplingWeight,0,0.8f):0);
                 cmd.SetComputeFloatParam(c,"_HLGI_DetailTraceDistance",Mathf.Max(1,s.nearDistance));
-                cmd.SetComputeIntParam(c,"_HLGI_GlobalSdfEnabled",s.globalSdfEnabled?1:0);
+                cmd.SetComputeIntParam(c,"_HLGI_GlobalSdfEnabled",globalSdfPrepared?1:0);
                 cmd.SetComputeIntParam(c,"_HLGI_NativeComposition",s.composition==CompositionMode.ReplaceNativeDiffuseGI?1:0);
                 cmd.SetComputeIntParam(c,"_HLGI_CacheRays",Mathf.Clamp(s.cacheRaysPerFace,1,32));
                 cmd.SetComputeIntParam(c,"_HLGI_Rays",Mathf.Clamp(s.raysPerPixel,1,8));cmd.SetComputeIntParam(c,"_HLGI_ScreenSteps",Mathf.Clamp(s.screenSteps,0,64));
