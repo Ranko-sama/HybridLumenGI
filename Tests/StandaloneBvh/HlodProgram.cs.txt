@@ -322,4 +322,55 @@ using (var s = new HybridLumenGIScene())
         "Current detail set did not publish after the surviving member's renewed receipt.");
 }
 Console.WriteLine("PASS HLOD membership: reparented members warm in the new group; withdrawal invalidates receipts of unchanged members returned to warming.");
+
+g = StreamedGroup();
+var rasterBindings = HybridLumenGIStreamedRepresentation.Active;
+foreach (var binding in rasterBindings)
+{
+    binding.UsesHlodRasterVisibility = binding.CanSubmitHlodRaster = true;
+    binding.Generation = 1;
+}
+using (var s = new HybridLumenGIScene())
+{
+    var raster = new List<HybridLumenGIStreamedRepresentation>();
+    int VisibleCount()
+    {
+        raster.Clear();
+        s.CollectHlodRaster(raster);
+        return raster.Count;
+    }
+
+    Prepare(s, false, 32); ReportAll(s); Prepare(s, false, 32);
+    Require(VisibleCount() == 2, "The initial complete streamed group did not reach raster selection.");
+    var rebound = g.children[0];
+    rebound.Revision++;
+    Require(VisibleCount() == 2, "A transport revision hid a still-bound raster member.");
+    // The camera was idle during a complete detach and rebind of this same Proxy.
+    rasterBindings.Single(binding => binding.Proxy == rebound).Generation++;
+    rebound.Revision++;
+    rebound.GeometryContentRevision++;
+    bool oldReceiptRejected = VisibleCount() == 0;
+    Prepare(s, false, 32);
+    bool freshReceiptsRequired = VisibleCount() == 0 && s.WarmingCount == 2 && s.Bvh.NodeCount == 0;
+    ReportAll(s); Prepare(s, false, 32);
+    bool newSetPublished = VisibleCount() == 2;
+
+    // The remaining detail still has an authored parent, even after it is retired.
+    rasterBindings.Single(binding => binding.Proxy == g.root).IsUnavailable = true;
+    SetResident(g.root, false);
+    SetResident(g.children[1], false);
+    Prepare(s, false, 32);
+    bool unavailableParentHeldHidden = VisibleCount() == 0;
+    rebound.HLODParent = null;
+    rebound.Revision++;
+    rebound.GeometryContentRevision++;
+    Prepare(s, false, 32);
+    bool explicitlyUnparentedVisible = VisibleCount() == 1;
+    Require(oldReceiptRejected && freshReceiptsRequired && newSetPublished && unavailableParentHeldHidden && explicitlyUnparentedVisible,
+        $"Raster qualification: old generation rejected={oldReceiptRejected}, fresh receipts required={freshReceiptsRequired}, " +
+        $"fresh group published={newSetPublished}, unavailable parent held hidden={unavailableParentHeldHidden}, " +
+        $"explicitly unparented visible={explicitlyUnparentedVisible}.");
+}
+HybridLumenGIStreamedRepresentation.Active.Clear();
+Console.WriteLine("PASS raster qualification: bound transport revisions retain visibility, page generations need fresh readiness, and an unavailable parent cannot bypass the group.");
 Console.WriteLine("PASS: actual scene HLOD source initial readiness, geometry/material/lighting gate, stale receipt rejection, budgeted warm-up with old BVH held, atomic publish without duplicate occlusion, cancellation, staging-capacity failure, material-only retention, immediate stale-geometry removal and nested root/leaf grouping. CPU receipts model ordered-queue preparation; they are not GPU fences or convergence tests.");

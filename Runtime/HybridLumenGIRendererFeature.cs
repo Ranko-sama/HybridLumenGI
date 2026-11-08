@@ -265,6 +265,8 @@ namespace HybridLumenGI
         }
         private TransportPass pass;
         private bool warnedPlatform;
+        private readonly List<HybridLumenGIStreamedRepresentation> visibleHlodBindings = new List<HybridLumenGIStreamedRepresentation>();
+        private Camera hlodRasterCamera;
         public override void Create()
         {
             HybridLumenGIResourceRetirement.RegisterShutdownOwner(WithdrawForShutdown);
@@ -276,6 +278,7 @@ namespace HybridLumenGI
             nativeDiffuseShader=nativeDiffuseShader!=null?nativeDiffuseShader:Resources.Load<Shader>("HybridLumenGI/HybridLumenGINativeDiffuseCapture");
             composite=compositeShader!=null?CoreUtils.CreateEngineMaterial(compositeShader):null;
             pass=new TransportPass(traceCompute,composite,surfaceShader,nativeDiffuseShader,settings,()=>isActive,this);
+            RenderPipelineManager.endCameraRendering += EndHlodRaster;
         }
         public override void AddRenderPasses(ScriptableRenderer renderer,ref RenderingData renderingData)
         {
@@ -286,14 +289,37 @@ namespace HybridLumenGI
                 if(!warnedPlatform) { Debug.LogWarning("[HybridLumenGI] This research build requires DX12 and Linear color space. Other API paths are not validated and are disabled.");warnedPlatform=true; }
                 return;
             }
-            if(pass==null || traceCompute==null || composite==null || surfaceShader==null || !SystemInfo.supportsComputeShaders) return;
-            if(camera.renderType!=CameraRenderType.Base || camera.camera.stereoEnabled) return;
-            if(camera.cameraType!=CameraType.Game && !(settings.includeSceneView && camera.cameraType==CameraType.SceneView)) return;
-            if(camera.cameraTargetDescriptor.dimension!=TextureDimension.Tex2D) return;
-            renderer.EnqueuePass(pass);
+            if (AcceptsCamera(in camera)) renderer.EnqueuePass(pass);
+        }
+        private bool AcceptsCamera(in CameraData camera) => pass != null && traceCompute != null && composite != null &&
+            surfaceShader != null && SystemInfo.supportsComputeShaders && camera.renderType == CameraRenderType.Base &&
+            !camera.camera.stereoEnabled && camera.cameraTargetDescriptor.dimension == TextureDimension.Tex2D &&
+            (camera.cameraType == CameraType.Game || (settings.includeSceneView && camera.cameraType == CameraType.SceneView));
+
+        public override void OnCameraPreCull(ScriptableRenderer renderer, in CameraData cameraData)
+        {
+            HideHlodRaster();
+            if (HybridLumenGIResourceRetirement.AdmissionClosed || !AcceptsCamera(in cameraData)) return;
+            pass.CollectHlodRaster(cameraData.camera, visibleHlodBindings);
+            if (visibleHlodBindings.Count == 0) return;
+            hlodRasterCamera = cameraData.camera;
+            foreach (var binding in visibleHlodBindings) binding.SetHlodRasterVisible(true);
+        }
+        private void EndHlodRaster(ScriptableRenderContext context, Camera camera)
+        {
+            if (ReferenceEquals(hlodRasterCamera, camera)) HideHlodRaster();
+        }
+        private void HideHlodRaster()
+        {
+            foreach (var binding in visibleHlodBindings)
+                if (binding != null) binding.SetHlodRasterVisible(false);
+            visibleHlodBindings.Clear();
+            hlodRasterCamera = null;
         }
         private void WithdrawForShutdown()
         {
+            RenderPipelineManager.endCameraRendering -= EndHlodRaster;
+            HideHlodRaster();
             var oldPass=pass;var oldComposite=composite;pass=null;composite=null;
             oldPass?.StopAdmission();
             if(oldPass==null && oldComposite==null)return;
@@ -1518,6 +1544,10 @@ namespace HybridLumenGI
                 bool known = state.scene.TryGetHlodPublication(root, published, target, out value);
                 value.preparedEngineFrame = state.scenePreparedEngineFrame; value.preparedWorkFrame = state.scenePreparedWorkFrame;
                 return known;
+            }
+            internal void CollectHlodRaster(Camera camera, List<HybridLumenGIStreamedRepresentation> visible)
+            {
+                if (TryGetPreparedCamera(camera, out var state)) state.scene.CollectHlodRaster(visible);
             }
             private CameraState GetCameraState(Camera camera)
             {

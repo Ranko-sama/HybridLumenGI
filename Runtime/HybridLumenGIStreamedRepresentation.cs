@@ -19,6 +19,8 @@ namespace HybridLumenGI
         [SerializeField] private string geometryPage,sdfPage,chartPage;
         [SerializeField] private string[] materialPages=Array.Empty<string>();
         [SerializeField] private Bounds localBounds=new Bounds(Vector3.zero,Vector3.one);
+        [SerializeField,Tooltip("Use the camera's Hybrid Lumen GI publication to show this HLOD member in ordinary rendering.")]
+        private bool useHlodRasterVisibility;
         [SerializeField] private Transform observer;
         [SerializeField,Tooltip("Explicit additional distance-demand viewpoints. The legacy observer or main camera remains included; camera eligibility is controlled by the application.")]
         private Transform[] additionalObservers=Array.Empty<Transform>();
@@ -42,12 +44,26 @@ namespace HybridLumenGI
         public HybridLumenGIProxy Proxy=>proxy;
         public Renderer SourceRenderer=>targetRenderer;
         public string LastError { get; private set; }
+        internal bool UsesHlodRasterVisibility => useHlodRasterVisibility;
+        internal bool CanSubmitHlodRaster => useHlodRasterVisibility && bound && !unavailable &&
+            targetRenderer != null && targetRenderer.enabled && targetRenderer.gameObject.activeInHierarchy;
         public void Configure(HybridLumenGIAssetPageStreamer owner,HybridLumenGIProxy source,MeshFilter filter,MeshRenderer renderer,
             string mesh,string sdf,string charts,string[] materials,Bounds bounds)
         {
             if(bound || leases.Count!=0)throw new InvalidOperationException("Cannot reconfigure a resident representation.");
             streamer=owner;proxy=source;meshFilter=filter;targetRenderer=renderer;
             geometryPage=mesh;sdfPage=sdf;chartPage=charts;materialPages=materials??Array.Empty<string>();localBounds=bounds;pageIds=null;
+        }
+        /// <summary>Configure all members of an authored group before enabling its streamed rig.</summary>
+        public void UseHlodPublicationForRendering(bool value)
+        {
+            if (useHlodRasterVisibility == value) return;
+            useHlodRasterVisibility = value;
+            if (targetRenderer != null) targetRenderer.forceRenderingOff = value;
+        }
+        internal void SetHlodRasterVisible(bool visible)
+        {
+            if (useHlodRasterVisibility && targetRenderer != null) targetRenderer.forceRenderingOff = !visible;
         }
         public void SetWanted(bool value)=>SetWanted(value,false);
         internal void SetWanted(bool value,bool prefetchPages)
@@ -59,9 +75,17 @@ namespace HybridLumenGI
         {additionalObservers=value==null || value.Length==0?Array.Empty<Transform>():(Transform[])value.Clone();}
         public void ConfigureDistances(float load,float unload)
         {loadDistance=Mathf.Max(0f,load);unloadDistance=Mathf.Max(loadDistance,unload);}
-        private void OnEnable(){if(!Application.isPlaying)return;unavailable=false;if(!active.Contains(this))active.Add(this);HybridLumenGIResourceRetirement.EnsureRegistered();}
+        private void OnEnable()
+        {
+            if (!Application.isPlaying) return;
+            SetHlodRasterVisible(false);
+            unavailable = false;
+            if (!active.Contains(this)) active.Add(this);
+            HybridLumenGIResourceRetirement.EnsureRegistered();
+        }
         private void OnDisable()
         {
+            SetHlodRasterVisible(false);
             unavailable = true;
             wanted = false;
             if (bound) HybridLumenGIResourceRetirement.RequestUnavailableRepresentationRetirement();

@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release133 同源交付](../LocalComparison/Review/retained-hlod-membership-150/delivery.json)
 
+G4 主干已修复默认独立分页 rig 的普通组显隐。实际 DX12 双 Base 显式请求复现并消除了粗根与细节同画，完整旧根等待、两相机选择分歧及停叶撤回按原门槛成立。CPU 回归覆盖相机错过解绑重绑后的代次拒旧。待普通包整合，冷高速首显与双相机资源退休负载仍开放。[对照及验收边界](../LocalComparison/Review/independent-hlod-raster-151/result.md)
+
 G4 已关闭已发布 HLOD 成员重挂后被旧组扣留的资格缺口。实际 Scene CPU 回归确认无效组整组退出，目的组可在旧粗根等待时按原回执发布。撤回后退回预热的成员需要重新取得照明回执。修复已进入 Release133，T5 高速首显仍开放。[组成员与验证范围](HlodStreaming.md#atomic-hlod-transactions)
 
 T3／G3 已关闭同一 `sharedMesh` 收到明确内容变更通知后仍消费旧自动快照的资格缺口。实际组件 CPU 回归覆盖撤回、旧作业取消、模拟完成和当前版本恢复，修复已进入 Release132。原生 GPU 生命周期及形变画质按原条件验收。[内容版本与回归范围](DeformedGeometry.md)

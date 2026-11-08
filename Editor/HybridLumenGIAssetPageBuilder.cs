@@ -160,6 +160,8 @@ public static class HybridLumenGIAssetPageBuilder
         var driver=rig.AddComponent<HybridLumenGIAssetPageStreamer>();driver.Configure(manifest);
         var replacements=new Dictionary<HybridLumenGIProxy,HybridLumenGIProxy>();
         var transforms=new Dictionary<Transform,Transform>();
+        var authoredParents=new HashSet<HybridLumenGIProxy>();
+        foreach(var original in proxies)if(original.HLODParent!=null)authoredParents.Add(original.HLODParent);
         foreach(var original in proxies)
         {
             var sourceRenderer=(MeshRenderer)original.SourceRenderer;
@@ -184,9 +186,9 @@ public static class HybridLumenGIAssetPageBuilder
             binding.Configure(driver,proxy,filter,renderer,sources[geometry.mesh].id,
                 geometry.sdf!=null?sources[geometry.sdf].id:null,
                 geometry.charts!=null?sources[geometry.charts].id:null,materialIds,geometry.mesh.bounds);
-            bool aggregate=original.FarFieldOnly;
-            foreach(var candidate in proxies)aggregate|=candidate.HLODParent==original;
-            if(aggregate)binding.ConfigureDistances(200f,240f);
+            bool aggregate=authoredParents.Contains(original);
+            if(aggregate || original.FarFieldOnly)binding.ConfigureDistances(200f,240f);
+            binding.UseHlodPublicationForRendering(aggregate || original.HLODParent!=null);
             replacements.Add(original,proxy);
         }
         foreach(var pair in replacements)

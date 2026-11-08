@@ -95,6 +95,8 @@ namespace HybridLumenGI
     {
         public static readonly List<HybridLumenGIStreamedRepresentation> Active = new();
         public bool isActiveAndEnabled = true, IsUnavailable;
+        public bool UsesHlodRasterVisibility, CanSubmitHlodRaster;
+        public uint Generation;
         public HybridLumenGIProxy Proxy;
         public Bounds GetWorldBounds() => Proxy.GetWorldBounds();
     }

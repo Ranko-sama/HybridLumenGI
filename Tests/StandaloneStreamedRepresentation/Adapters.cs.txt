@@ -16,7 +16,7 @@ namespace UnityEngine
         public override bool Equals(object other)=>ReferenceEquals(this,other);
         public override int GetHashCode()=>System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this);
     }
-    public class GameObject:Object{public Transform transform=new();}
+    public class GameObject:Object{public Transform transform=new();public bool activeInHierarchy=true;}
     public class MonoBehaviour:Object{public GameObject gameObject=new();public Transform transform=>gameObject.transform;public bool enabled=true;public bool isActiveAndEnabled=>enabled&&!destroyed;}
     public class Transform:Object{public Matrix4x4 localToWorldMatrix=new(){scale=Vector3.one};public Vector3 position{get=>localToWorldMatrix.translation;set=>localToWorldMatrix.translation=value;}}
     public struct Matrix4x4
@@ -36,7 +36,7 @@ namespace UnityEngine
     public class Texture:Object{}
     public class Collider:Object{}
     public class MeshFilter:Object{public GameObject gameObject=new();public Mesh sharedMesh;}
-    public class Renderer:Object{public GameObject gameObject=new();public bool enabled;public Material[] sharedMaterials=Array.Empty<Material>();}
+    public class Renderer:Object{public GameObject gameObject=new();public bool enabled,forceRenderingOff;public Material[] sharedMaterials=Array.Empty<Material>();}
     public class MeshRenderer:Renderer{}
     public static class Application{public static bool isPlaying=true;public static string streamingAssetsPath=System.IO.Path.GetTempPath();}
     public static class Debug{public static void LogError(string text,Object context)=>throw new Exception(text);public static void LogException(Exception error,Object context)=>throw error;}

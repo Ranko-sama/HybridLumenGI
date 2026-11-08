@@ -120,6 +120,7 @@ public static class HybridLumenGIUnifiedSampleBuilder
             var allSources = details.Concat(new[] { aggregate }).ToArray();
             var export = HybridLumenGIAssetPageBuilder.Export(allSources, assetDirectory + "/Pages", bundleOutputDirectory);
             var bindings = export.Rig.GetComponentsInChildren<HybridLumenGIStreamedRepresentation>(true);
+            foreach (var binding in bindings) binding.UseHlodPublicationForRendering(false);
             var aggregateBinding = bindings.Single(b => b.Proxy.HLODParent == null);
             var detailBindings = bindings.Where(b => b.Proxy.HLODParent == aggregateBinding.Proxy).ToArray();
             if (detailBindings.Length != details.Length) throw new InvalidOperationException("Export did not preserve the complete authored group.");
