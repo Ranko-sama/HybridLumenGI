@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release125，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release126，G0 已锁定，G1／G2 本机代表性验收通过
+
+G4 关闭统一示例在流式成员撤回后仍可部分提交旧组、重绑后可借用旧可见记录的缺口。无图形 Unity Play 实际完成资产页绑定，覆盖旧完整根等待、任一细节停用整组隐藏、同 Proxy 换代拒旧、新完整输入恢复和销毁组件后仍存活的 Renderer 隐藏。Release126 已交付普通 Win64 和同版工程，照明回执为受控输入，实际相机和冷入首显继续按原条件验收。[原始状态](../LocalComparison/Review/streamed-group-visibility-142/result.json) · [同源交付](../LocalComparison/Review/streamed-group-visibility-142/delivery.json)
 
 T6／G4 关闭已绑定流式表示明确停用后仍依赖下一次相机回调才能开始回收的源码缺口。新的空闲检查沿用最后读者完成票据，CPU 回归验证最后一台相机停用后仍能取得并完成该票据。Release125 的同源运行包与可编辑工程已交付，实体 GPU 回收仍按原条件验收。[资源页退休规则](IndependentAssetPages.md#publication-and-lifetime) · [同源交付](../LocalComparison/Review/streamed-idle-retirement-141/delivery.json)
 

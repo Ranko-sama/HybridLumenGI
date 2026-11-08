@@ -120,7 +120,7 @@ Triangle-to-chart binding retains the exact card/chart/layout/geometry identity 
 
 适用于已通过源码目录接入 HybridLumenGI 的工程。本机发布环境为 Unity 6000.0.85f1、URP 17.0.4、Windows x64／Mono／DX12／Linear。仅更新独立演示时，把整个 ZIP 解压到新目录，旧目录即可用于回退。
 
-Release125 运行包和可编辑工程固定使用产品源码 `b1f3a9db`。从 Release124 升级时可沿用同一作者输入和构建目标下的场景、有效烘焙资产及资源页。已停用的流式表示可在最后一台相机停止后通过空闲栅栏退休。Windows 包从该工程 ZIP 的独立解压目录构建。[工程入口与重建步骤](UnifiedUnityProject.md) · [流式资源修复](../LocalComparison/Review/streamed-idle-retirement-141/release-notes.md)
+Release126 运行包和可编辑工程固定使用产品源码 `9900f000`。从 Release125 升级时可沿用同一作者输入和构建目标下的场景、有效烘焙资产及资源页。统一示例按完整绑定和代次保留旧 HLOD，成员撤回、销毁或重绑后隐藏失效的整组。Windows 包从该工程 ZIP 的独立解压目录构建。[工程入口与重建步骤](UnifiedUnityProject.md) · [整组可见性修复](../LocalComparison/Review/streamed-group-visibility-142/release-notes.md)
 
 Release121 使用 `e1e00d8`，包含软件预算恢复和折面图卡修复。稳定回退历史累积修复从 Release122 的 `7c08327` 起随包交付。复现发布版时使用对应工程 ZIP 或固定产品提交。采用开发主干时，同步完整的同版产品源码并记录提交。[Release122 稳定回退历史修复](../LocalComparison/Review/stable-fallback-history-01/result.md)
 
