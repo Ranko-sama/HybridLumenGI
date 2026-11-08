@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release160，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release161，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／G4 已关闭统一示例收到当前整组撤回回执后仍持续提交旧细节的问题。同一保存场景把实例容量从 64 改为 63，旧版在 GI 发布为零时下一次相机仍可提交三件，修复版为零。实际完整发布后整组三件一起恢复。证据限单相机 DX12 Editor 的提交资格。[实机结果与范围](../LocalComparison/Review/withdrawn-sample-raster-184/result.md) · [Release161 同源交付](../LocalComparison/Review/withdrawn-sample-raster-184/delivery.json)
 
 T3／G3 已关闭渲染图在传输录制前中止后，世界缓存仍接受旧照明的问题。实际 DXR 复用同一相机和管线，恢复两帧的旧红峰值从 0.030／0.024 降为 0／0，两帧仍有当前代次的有效条目。Astra Max 同意采用拒旧和恢复推进。蓝信号正控制不足，完整新色恢复继续验收。[实机读回](../LocalComparison/Review/aborted-world-preparation-183/result.md) · [Release160 同源交付](../LocalComparison/Review/aborted-world-preparation-183/delivery.json)
 
