@@ -409,6 +409,7 @@ namespace HybridLumenGI
             internal int fullWidth,fullHeight,fullPixelBytes;
             internal bool valid,lastHardware,lightingChanged;
             internal Dictionary<ulong, HybridLumenGIMaterialSource.Snapshot> materialsWithoutCards;
+            internal int[] recordedTraceOwners;
             internal string recordedTransportBackend;
             internal int transportRecordedEngineFrame = -1, transportRecordedWorkFrame = -1;
             internal ulong recordedBackendRequest;
@@ -747,6 +748,7 @@ namespace HybridLumenGI
                 internal BufferHandle areaEmitters;
                 internal HybridLumenGIAreaEmission.Layout areaLayout;
                 internal Dictionary<ulong, HybridLumenGIMaterialSource.Snapshot> materialsWithoutCards;
+                internal int[] traceOwners;
                 internal TextureHandle depth,captureDepth,normals,motion,diffuse,emission,receiverPolicy,raw,tempA;
                 // Temporal consumes raw before the first filter dispatch. It can then serve as destination B.
                 internal TextureHandle tempB => raw;
@@ -1252,6 +1254,7 @@ namespace HybridLumenGI
                 b.geometryVersion=a.geometryVersion;
                 b.areaEmitters=a.areaEmitters;b.areaLayout=a.areaLayout;
                 b.materialsWithoutCards=a.materialsWithoutCards;
+                b.traceOwners=a.traceOwners;
                 b.owner=a.owner;b.state=a.state;b.compute=a.compute;b.hardware=a.hardware;b.depth=a.depth;b.captureDepth=a.captureDepth;b.normals=a.normals;b.motion=a.motion;b.diffuse=a.diffuse;b.emission=a.emission;b.receiverPolicy=a.receiverPolicy;
                 b.raw=a.raw;b.tempA=a.tempA;b.filterIterations=a.filterIterations;b.historyRead=a.historyRead;b.historyWrite=a.historyWrite;b.geometryRead=a.geometryRead;b.geometryWrite=a.geometryWrite;
                 b.materialRead=a.materialRead;b.materialWrite=a.materialWrite;b.momentsRead=a.momentsRead;b.momentsWrite=a.momentsWrite;b.vp=a.vp;b.invVP=a.invVP;b.view=a.view;
@@ -1290,6 +1293,7 @@ namespace HybridLumenGI
                 }
                 if(!current)return;
                 state.materialsWithoutCards=d.geometry!=null ? d.materialsWithoutCards : null;
+                state.recordedTraceOwners=d.geometry!=null ? d.traceOwners : null;
                 state.lastHardware=d.hardware;state.exactSoftwareGeometry=d.ExactSoftware;
                 state.recordedTransportBackend = d.hardware ? "DXR" : d.ExactSoftware ? "exact software" : "SDF/analytic software";
                 state.transportRecordedEngineFrame = d.historyToken.EngineFrame;
@@ -1320,10 +1324,35 @@ namespace HybridLumenGI
                 if(!state.areaEmissionCache.TryBuild(sources,d.geometry,d.geometryVersion,d.hitMaterials.Generation,
                     Mathf.Clamp(s.maxAreaEmitterTriangles,0,HybridLumenGIAreaEmission.MaxTriangles),out d.areaLayout,out reason))
                     d.areaLayout=null; // A missing proposal never removes the original direction estimator.
+                PrepareTraceRepresentationChanges(d);
                 PrepareMaterialChangesWithoutCards(d,sources);
                 state.hardwareMaterialFrameBytes=d.hitMaterials.ByteCount;
                 state.hardwareMaterialStatus="Prepared; GPU upload not yet recorded";
             }
+
+            private void PrepareTraceRepresentationChanges(Work work)
+            {
+                var state = work.state;
+                var scene = state.scene;
+                int[] previous = state.recordedTraceOwners;
+                int[] current = work.traceOwners = new int[scene.Capacity];
+                bool comparable = previous != null && previous.Length == current.Length && work.hardware == state.lastHardware;
+                float influence = Mathf.Max(s.shadowDistance, s.traceDistance) + Mathf.Max(1, s.traceDistance);
+                for (int slot = 0; slot < current.Length; slot++)
+                {
+                    if (!scene.IsPublished(slot)) continue;
+                    int owner = (int)scene.Data[slot].identity.x;
+                    // Positive is exact, negative is fallback, and zero is unpublished.
+                    // Compare only the same published owner, leaving entry/exit to Scene.
+                    int representation = work.geometry.HasPreparedTriangles(slot) ? owner : -owner;
+                    current[slot] = representation;
+                    if (!comparable || previous[slot] != -representation ||
+                        !scene.TryGetPreparedTraversalBounds(slot, out Bounds bounds)) continue;
+                    state.changes.Add(bounds, true, influence);
+                    state.surfaceCache.AddChangedBounds(bounds);
+                }
+            }
+
             private void PrepareMaterialChangesWithoutCards(Work work,IReadOnlyList<HybridLumenGIHitMaterialBatch.Source> sources)
             {
                 var state=work.state;

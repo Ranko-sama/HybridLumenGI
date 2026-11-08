@@ -101,6 +101,7 @@ namespace HybridLumenGI
         public int MeshCount { get; private set; }
         public int TriangleCount => normals.Count;
         public int InstanceCount => instances.Count;
+        internal bool HasPreparedTriangles(int slot) => slot >= 0 && slot < meshFlags.Length && meshFlags[slot] != 0;
         public ulong GeometryVersion { get; private set; }
         public int FallbackCount { get; private set; }
         // Count allocations, including dummy elements and old buffers still referenced by
