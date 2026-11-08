@@ -124,6 +124,60 @@ using(var s=new HybridLumenGIScene())
         "Exactly fitting details failed whole-group publication.");
 }
 Console.WriteLine("PASS: cold root fallback/readiness, fitting-detail release and exact-capacity direct-detail control.");
+
+var changingGroup = Group(3);
+using (var s = new HybridLumenGIScene())
+{
+    Prepare(s, false, 3);
+    ReportAll(s);
+    Prepare(s, false, 3);
+    Require(s.PublishedCount == 3 && s.Bvh.NodeCount == 5, "The complete detail group did not start published.");
+
+    void MoveTwoMembers()
+    {
+        foreach (var member in changingGroup.children.Take(2))
+        {
+            member.bounds.center += new Vector3(.125f, 0, 0);
+            member.Revision++;
+        }
+    }
+
+    MoveTwoMembers();
+    Prepare(s, false, 1);
+    Console.WriteLine($"Revising two detail members with one upload: published={s.PublishedCount} warming={s.WarmingCount} BVH nodes={s.Bvh.NodeCount} pending={s.PendingUploadCount}");
+    Require(s.PublishedCount == 0 && s.WarmingCount == 2 && s.Bvh.NodeCount == 0 && s.PendingUploadCount == 1,
+        "An incomplete detail group remained in the live BVH after a geometry upload was deferred.");
+    Require(s.DirtyRegions.Count == 3 && s.DirtyRegions.All(change => change.HasPrevious && !change.HasCurrent &&
+        (change.Kind & HybridLumenGIScene.ChangeKind.Removed) != 0),
+        "Withdrawal did not report the whole old group without a live replacement.");
+    var publishedMembers = new List<HybridLumenGIProxy>();
+    var targetMembers = new List<HybridLumenGIProxy>();
+    Require(s.TryGetHlodPublication(changingGroup.root, publishedMembers, targetMembers, out _) &&
+        publishedMembers.Count == 0 && targetMembers.Count == 3,
+        "The withdrawn publication lost the complete detail target.");
+
+    int deferredId = changingGroup.children.Single(member => Slot(s, member.StableId) < 0).StableId;
+    Prepare(s, false, 1);
+    Require(s.PublishedCount == 0 && s.WarmingCount == 3 && s.Bvh.NodeCount == 0,
+        "The completed geometry upload bypassed the ordinary readiness gate.");
+    var deferred = changingGroup.children.Single(member => member.StableId == deferredId);
+    Require(s.ReportReadiness(deferred.StableId, deferred.Revision, true, true, true), "The deferred member could not report its current readiness.");
+    Prepare(s, false, 1);
+    Require(s.PublishedCount == 0, "The other members reused receipts from the withdrawn publication.");
+    ReportAll(s);
+    Prepare(s, false, 1);
+    Require(s.PublishedCount == 3 && s.WarmingCount == 0 && s.Bvh.NodeCount == 5,
+        "Fresh receipts did not restore the complete detail group.");
+
+    MoveTwoMembers();
+    Prepare(s, false, 2);
+    Require(s.PublishedCount == 3 && s.WarmingCount == 0 && s.Bvh.NodeCount == 5 && s.PendingUploadCount == 0,
+        "The group was withdrawn even though every changed member uploaded this frame.");
+    Require(s.DirtyRegions.Count == 2 && s.DirtyRegions.All(change => change.HasPrevious && change.HasCurrent &&
+        change.Kind == HybridLumenGIScene.ChangeKind.Transform),
+        "A complete same-frame revision no longer reported the ordinary pose changes.");
+}
+
 var g=Group(8);
 using(var s=new HybridLumenGIScene())
 {

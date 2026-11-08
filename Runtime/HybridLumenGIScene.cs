@@ -374,8 +374,8 @@ namespace HybridLumenGI
                 {
                     if ((int)Data[slot].identity.w != candidate.phase)
                     {
-                        ProxyGpuData value = Data[slot]; value.identity.w = candidate.phase; Data[slot] = value;
-                        traversalActive[slot] = candidate.phase == 1; dirty[slot] = true; changed = true;
+                        SetSlotPhase(slot, candidate.phase);
+                        changed = true;
                         if (candidate.phase == 1)
                             RecordDirty(slot, id, false, default, true, traversalBounds[slot],
                                 ChangeKind.Added | (representationAdds.Contains(id) ? ChangeKind.Representation : 0), 0, candidate.proxy.Revision);
@@ -425,6 +425,8 @@ namespace HybridLumenGI
                 pendingAge[slot] = 0;
                 changed = true;
             }
+
+            changed |= WithdrawIncompletePublications();
 
             // Upload contiguous dirty spans; immediate invalidations are never charged to replacement budget.
             for (int begin = 0; begin < capacity;)
@@ -658,6 +660,48 @@ namespace HybridLumenGI
             return true;
         }
 
+        private bool WithdrawIncompletePublications()
+        {
+            bool withdrew = false;
+            foreach (HlodGroup group in orderedGroups)
+            {
+                bool complete = true;
+                foreach (int id in group.published)
+                {
+                    if (slots.TryGetValue(id, out int slot) && IsPublished(slot)) continue;
+                    complete = false;
+                    break;
+                }
+                if (complete) continue;
+
+                // A geometry revision can clear an old member during Prepare. Retain the
+                // old set only if all members made it through the actual upload budget.
+                foreach (int id in group.published)
+                {
+                    if (!slots.TryGetValue(id, out int slot)) continue;
+                    ProxyGpuData value = Data[slot];
+                    readiness.Invalidate(id);
+                    RecordDirty(slot, id, true, traversalBounds[slot], false, default,
+                        ChangeKind.Removed, (int)value.identity.y, 0);
+                    if (group.target.Contains(id))
+                    {
+                        if (IsPublished(slot)) SetSlotPhase(slot, 2);
+                    }
+                    else
+                    {
+                        if (value.identity.w == 0f) PendingUploadCount--;
+                        Clear(slot);
+                        slots.Remove(id);
+                        owners[slot] = null;
+                    }
+                }
+                group.published.Clear();
+                group.initialized = false;
+                withdrew = true;
+            }
+            return withdrew;
+        }
+
         private bool ReadyToPublish(HlodGroup group)
         {
             if (group.target.Count == 0) return false;
@@ -732,12 +776,17 @@ namespace HybridLumenGI
 
         private void Clear(int slot)
         {
-            ProxyGpuData value = Data[slot];
-            value.identity.w = 0f;
-            Data[slot] = value;
+            SetSlotPhase(slot, 0);
             LightingPolicies[slot] = default;
+        }
+
+        private void SetSlotPhase(int slot, int phase)
+        {
+            ProxyGpuData value = Data[slot];
+            value.identity.w = phase;
+            Data[slot] = value;
             dirty[slot] = true;
-            traversalActive[slot] = false;
+            traversalActive[slot] = phase == 1;
         }
 
         private static Signature GetSignature(HybridLumenGIProxy proxy)
@@ -831,6 +880,13 @@ namespace HybridLumenGI
                 if (hasPrevious && !existing.HasPrevious)
                 { existing.PreviousBounds = previous; existing.PreviousRevision = previousRevision; existing.HasPrevious = true; }
                 if (hasCurrent) { existing.CurrentBounds = current; existing.Revision = revision; existing.HasCurrent = true; }
+                else if ((kind & ChangeKind.Removed) != 0)
+                {
+                    existing.CurrentBounds = default;
+                    existing.Revision = 0;
+                    existing.HasCurrent = false;
+                    existing.DisjointSourcePose = false;
+                }
                 if (hasPrevious && hasCurrent) existing.DisjointSourcePose = disjointSourcePose;
                 if (!sameFramePoseUpload) existing.Kind |= kind;
                 dirtyRegions[i] = existing;
