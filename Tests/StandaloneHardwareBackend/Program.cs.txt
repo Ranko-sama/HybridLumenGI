@@ -630,10 +630,55 @@ HybridLumenGIRtasBudget.BeginFrame(1104,Quota());
 Require(Prepare(small.backend,small.scene,1)&&small.backend.RecordBuild(smallCmd),"Small build did not execute after older large work completed.");
 Require(largeCmd.BuildCalls==1&&smallCmd.BuildCalls==1,"Deferred work emitted partial or duplicate native builds.");
 large.backend.Dispose();small.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
-HybridLumenGIRtasBudget.BeginFrame(1110,Quota());var tooLarge=BudgetCamera(7);var oversizedCmd=new CommandBuffer();
-Require(Prepare(tooLarge.backend,tooLarge.scene,1)&&!tooLarge.backend.RecordBuild(oversizedCmd)&&tooLarge.backend.BudgetStatus.Contains("burst cap"),"Oversized single build has no explicit actionable cap failure.");
-Require(oversizedCmd.BuildCalls==0&&HybridLumenGIRtasBudget.PendingDemands==0,"Over-burst demand emitted work or permanently blocked other owners.");
-tooLarge.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
+long beforeBurst = HybridLumenGIRtasBudget.AccountedBytes;
+// One camera fits the memory quota alone, but two RTAS estimates cannot coexist.
+HybridLumenGIRtasBudget.BeginFrame(1110, Quota(memory: beforeBurst + 123456));
+var tooLarge = BudgetCamera(7);
+var smallUnderBurst = BudgetCamera(1);
+var oversizedCmd = new CommandBuffer();
+var smallUnderBurstCmd = new CommandBuffer();
+int beforeBurstBuffers = ComputeBuffer.AllocationCount;
+var beforeBurstNative = RayTracingAccelerationStructure.Last;
+bool oversizedPrepared = Prepare(tooLarge.backend, tooLarge.scene, 1);
+bool oversizedRecorded = tooLarge.backend.RecordBuild(oversizedCmd);
+long oversizedReserved = HybridLumenGIRtasBudget.AccountedBytes - beforeBurst;
+int oversizedVertexReads = tooLarge.renderer.Filter.sharedMesh.VertexReads;
+Require(!oversizedPrepared && !oversizedRecorded && !tooLarge.backend.CanDispatch &&
+    tooLarge.backend.BudgetStatus.Contains("burst cap") && oversizedCmd.BuildCalls == 0 &&
+    oversizedReserved == 0 && oversizedVertexReads == 0 && ComputeBuffer.AllocationCount == beforeBurstBuffers &&
+    ReferenceEquals(beforeBurstNative, RayTracingAccelerationStructure.Last) && HybridLumenGIRtasBudget.PendingDemands == 0,
+    "Over-burst preparation read or allocated geometry before the deterministic rejection.");
+bool smallRecorded = Prepare(smallUnderBurst.backend, smallUnderBurst.scene, 1) && smallUnderBurst.backend.RecordBuild(smallUnderBurstCmd);
+Require(smallRecorded && smallUnderBurstCmd.BuildCalls == 1,
+    "An otherwise admissible camera was blocked while the over-burst camera stayed active.");
+Console.WriteLine($"RTAS hard burst: oversizePrepared={oversizedPrepared}, vertexReads={oversizedVertexReads}, reservedBytes={oversizedReserved}, smallRecorded={smallRecorded}.");
+tooLarge.backend.Dispose();
+smallUnderBurst.backend.Dispose();
+HybridLumenGIResourceRetirement.Complete();
+
+HybridLumenGIRtasBudget.BeginFrame(1111, Quota());
+var retainedUnderBurst = BudgetCamera(2);
+var retainedUnderBurstCmd = new CommandBuffer();
+Require(Prepare(retainedUnderBurst.backend, retainedUnderBurst.scene, 1) &&
+    retainedUnderBurst.backend.RecordBuild(retainedUnderBurstCmd), "Retained burst control could not build the initial RTAS.");
+var retainedUnderBurstNative = RayTracingAccelerationStructure.Last;
+long retainedUnderBurstBytes = retainedUnderBurst.backend.ReservedAccelerationBytes;
+HybridLumenGIRtasBudget.BeginFrame(1112, Quota(burst: 1));
+Require(Prepare(retainedUnderBurst.backend, retainedUnderBurst.scene, 1) &&
+    retainedUnderBurst.backend.RecordBuild(retainedUnderBurstCmd) && retainedUnderBurstCmd.BuildCalls == 1,
+    "Reducing the burst cap made an unchanged, already built RTAS unusable.");
+MoveBudgetCamera(retainedUnderBurst, 2);
+Require(!Prepare(retainedUnderBurst.backend, retainedUnderBurst.scene, 2) && !retainedUnderBurst.backend.CanDispatch &&
+    retainedUnderBurstNative.Updates.Count == 0 && !retainedUnderBurstNative.Disposed &&
+    HybridLumenGIRtasBudget.RetiredBytes >= retainedUnderBurstBytes,
+    "A dirty over-burst RTAS changed its pose or bypassed safe retirement.");
+HybridLumenGIResourceRetirement.Complete();
+HybridLumenGIRtasBudget.BeginFrame(1113, Quota());
+Require(retainedUnderBurstNative.Disposed && Prepare(retainedUnderBurst.backend, retainedUnderBurst.scene, 2) &&
+    retainedUnderBurst.backend.RecordBuild(retainedUnderBurstCmd) && retainedUnderBurstCmd.BuildCalls == 2,
+    "Admissible geometry did not recover after retirement and restoring the burst allowance.");
+retainedUnderBurst.backend.Dispose();
+HybridLumenGIResourceRetirement.Complete();
 
 HybridLumenGIRtasBudget.BeginFrame(1200,Quota(rate:0,burst:0,builds:0));
 var abandoned=BudgetCamera(6);var nextCamera=BudgetCamera(1);var nextCmd=new CommandBuffer();

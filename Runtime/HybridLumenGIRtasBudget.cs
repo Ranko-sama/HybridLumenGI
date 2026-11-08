@@ -124,12 +124,21 @@ namespace HybridLumenGI
         {if(reservation==null||reservation.released)return;reservation.released=true;reservations.Remove(reservation);}
         public static void CancelBuildDemand(object owner)
         {for(int i=demands.Count-1;i>=0;i--)if(ReferenceEquals(demands[i].owner,owner))demands.RemoveAt(i);}
+
+        internal static bool FitsBuildBurst(long triangles, long instances, out string reason)
+        {
+            EnsureFrame();
+            bool fits = triangles <= settings.TriangleBurstCapacity && instances <= settings.InstanceBurstCapacity;
+            reason = fits ? null : "RTAS build exceeds the configured burst cap; increase the explicit cap or use software.";
+            return fits;
+        }
+
         internal static bool RequestBuild(object owner,int frame,long triangles,long instances,out string reason)
         {
             EnsureFrame();reason=null;
             if(owner==null || frame!=Frame || triangles<0 || instances<0){reason="RTAS build demand belongs to a stale frame.";return false;}
-            if(triangles>settings.TriangleBurstCapacity || instances>settings.InstanceBurstCapacity)
-            {CancelBuildDemand(owner);reason="RTAS build exceeds the configured burst cap; increase the explicit cap or use software.";return false;}
+            if(!FitsBuildBurst(triangles,instances,out reason))
+            {CancelBuildDemand(owner);return false;}
             Demand demand=null;foreach(var d in demands)if(ReferenceEquals(d.owner,owner)){demand=d;break;}
             if(demand==null){if(sequence==long.MaxValue){reason="RTAS demand sequence exhausted.";return false;}demand=new Demand{owner=owner,sequence=++sequence};demands.Add(demand);}
             demand.lastFrame=frame;demand.triangles=triangles;demand.instances=instances;return true;

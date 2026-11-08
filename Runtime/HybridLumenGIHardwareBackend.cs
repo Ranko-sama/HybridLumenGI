@@ -282,8 +282,23 @@ namespace HybridLumenGI
                 // any attributes. Old buffers remain counted until their Release succeeds.
                 if(!AttributesFit(scene.Capacity,(int)planTriangles,(int)planInstances,attributeBudgetBytes))
                 {DeferAttributes("Geometry attribute budget deferred current plus retiring/replacement buffers");return false;}
+                // Revalidate retained membership even on a material-only change. An
+                // already-built RTAS at the current pose does not need a new build ticket.
+                bool poseChanged = false;
+                bool reuseGeometry = (softwareOnly || acceleration != null) && triangleBudget == preparedBudget &&
+                    preparedSurfaceCache == surfaceCache && MatchesPreparedGeometry(scene, surfaceCache, out poseChanged);
                 if(!softwareOnly)
                 {
+                    long buildTriangles = reuseGeometry ? TriangleCount : planTriangles;
+                    long buildInstances = reuseGeometry ? InstanceCount : planInstances;
+                    if ((!reuseGeometry || poseChanged || buildPending) &&
+                        !HybridLumenGIRtasBudget.FitsBuildBurst(buildTriangles, buildInstances, out var burstReason))
+                    {
+                        Deactivate();
+                        FallbackCount = publishedCount;
+                        BudgetStatus = burstReason;
+                        return false;
+                    }
                     // Measured values never lower the retained high-water reservation. Old GPU
                     // readers and Unity's opaque scratch allocation cannot be disproved by age.
                     if(acceleration!=null && reservation!=null && !buildPending)
@@ -298,10 +313,9 @@ namespace HybridLumenGI
                     BudgetStatus="RTAS estimate reserved; pending build work is admitted at command recording";
                 }
                 else BudgetStatus="Software geometry; no RTAS work or memory reservation";
-                // Eligibility is checked even if the proxy revision did not change: a material can
-                // become alpha-tested without changing its average albedo/emission signature.
-                if ((softwareOnly || acceleration != null) && triangleBudget == preparedBudget && preparedSurfaceCache==surfaceCache && TryUpdateTransforms(scene,surfaceCache))
+                if (reuseGeometry)
                 {
+                    UpdatePreparedGeometry(scene, surfaceCache);
                     preparedRevision=revision;
                     IsReady=MeshCount>0;
                     return IsReady;
@@ -404,8 +418,9 @@ namespace HybridLumenGI
             return total>0 && Mathf.Abs(renderer.localToWorldMatrix.determinant)>1e-12f;
         }
 
-        private bool TryUpdateTransforms(HybridLumenGIScene scene,HybridLumenGISurfaceCache surfaceCache)
+        private bool MatchesPreparedGeometry(HybridLumenGIScene scene, HybridLumenGISurfaceCache surfaceCache, out bool poseChanged)
         {
+            poseChanged = false;
             if(meshStates.Length!=scene.Capacity) return false;
             // Validate the entire membership before mutating any retained native handles.
             for(int slot=0;slot<scene.Capacity;slot++)
@@ -424,7 +439,13 @@ namespace HybridLumenGI
                     previous.stableId!=(int)scene.Data[slot].identity.x || previous.vertexCount!=mesh.vertexCount ||
                     previous.subMeshCount!=mesh.subMeshCount || previous.indexCount!=triangles*3 ||
                     previous.geometryRevision!=surfaceCache.GetGeometryRevision(slot) || GeometryChanged(scene,slot)) return false;
+                if (!softwareOnly && !poseChanged) poseChanged = !previous.matrix.Equals(renderer.localToWorldMatrix);
             }
+            return true;
+        }
+
+        private void UpdatePreparedGeometry(HybridLumenGIScene scene, HybridLumenGISurfaceCache surfaceCache)
+        {
             bool changed=false,instanceChanged=false,bindingChanged=false;
             FallbackCount=0;
             for(int slot=0;slot<scene.Capacity;slot++) if(Published(scene.Data[slot].identity.w) && meshStates[slot]==null) FallbackCount++;
@@ -458,7 +479,6 @@ namespace HybridLumenGI
             if(instanceChanged && instances.Count>0) instancesBuffer.SetData(instances);
             if(bindingChanged && bindings.Count>0) { bindingsBuffer.SetData(bindings);BindingUploadCount++; }
             if(changed) { objectToWorldBuffer.SetData(objectToWorld);buildPending=MeshCount>0 && !softwareOnly;GeometryVersion++; }
-            return true;
         }
 
         private bool TryAddMesh(Mesh mesh, Renderer renderer, int slot, HybridLumenGIScene scene, HybridLumenGISurfaceCache surfaceCache, int triangleBudget, bool geometryChanged)

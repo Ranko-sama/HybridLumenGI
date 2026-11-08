@@ -122,7 +122,9 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 | `rtasMemoryBudgetMiB` | 256 MiB，跨相机RTAS预留；按64 KiB + 192 B/triangle + 1024 B/instance估算，后续 `GetSize` 观测只提高高水位；退休仍计账。估算不是驱动上界。 |
 | `rtasBuildsPerFrame` | 每引擎帧最多4次实际构建；仅准备不扣构建额度，未变场景不重复扣费。 |
 | `rtasTriangleWorkPerFrame` / `rtasInstanceWorkPerFrame` | 250,000三角 / 4,096实例；包含完整dirty构建/refit工作。等待任务积累tokens，最老活跃任务优先。 |
-| `rtasTriangleBurstCapacity` / `rtasInstanceBurstCapacity` | 1,000,000三角 / 16,384实例；过大任务明确回退；暂不被相机使用的任务只退出优先队列，不据年龄销毁GPU资源。 |
+| `rtasTriangleBurstCapacity` / `rtasInstanceBurstCapacity` | 1,000,000 三角 / 16,384 实例。需要新构建或更新位姿的 RTAS 在超过突发上限时于几何准备阶段回退，录制仍复核同一上限。当前几何和位姿的已建 RTAS 可继续使用。[定向对照](../LocalComparison/Review/rtas-burst-preflight-178/result.md) |
+
+不再活跃的需求退出构建等待队列。已有 GPU 资源在安全退休并完成销毁后归还预留。
 
 命中材质批次先从等待最久、能在当前剩余额度内推进的贴图来源开始，再按请求顺序循环。复制尝试计入额度后，该来源排到等待序列末尾。动态 RenderTexture 仍需在一帧内完整复制当前内容，延期时命中材质保持 unknown。[同批次定向回归](../Tests/StandaloneHitMaterialBatch/Program.cs.txt)
 
