@@ -1,0 +1,73 @@
+{
+  "productCommit": "a62c82711c408a38dcfb3feb986799215828d5fe",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release145-demo",
+  "tag": "release145-demo",
+  "publishedAt": "2026-11-08T13:00:29Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release145 project ZIP. A targeted actual-source C# contrast with controlled frame numbers and SetData calls covers shared object SDF voxel upload admission and fairness. Actual GPU transfer, rendering latency and the cold first complete representation have separate acceptance.",
+  "validation": {
+    "baselineCommit": "2f600925c118a2bba484392e662f35e40e717d0d",
+    "baseline": "Two cold 64-cubed atlases attempted 2097152 voxel bytes in the same frame.",
+    "candidate": "The same frame attempted 1048576 voxel bytes. The later atlas obtained a turn ahead of the fresh request in the next frame. An attempted copy throwing still held that frame allowance.",
+    "notes": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease145\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101783473
+  },
+  "nativeExit": {
+    "productCommit": "a62c82711c408a38dcfb3feb986799215828d5fe",
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified144/HybridLumenGI-Release144-UnityProject/Library/ShaderCache",
+    "exitCode": 0,
+    "project": "I:/Unity test/Comparison/PortableUnified145/HybridLumenGI-Release145-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease145"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release145-UnityProject.zip",
+    "bytes": 839690,
+    "productCommit": "a62c82711c408a38dcfb3feb986799215828d5fe",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified145\\HybridLumenGI-Release145-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release144-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGISdfAtlas.cs",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/HybridLumenGIRendererFeature.cs",
+      "Runtime/HybridLumenGISdfAtlas.cs"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release145-UnityProject.zip",
+      "bytes": 839690,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release145-demo/HybridLumenGI-Release145-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release145-Windows-x64.zip",
+      "bytes": 58439336,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release145-demo/HybridLumenGI-Release145-Windows-x64.zip"
+    }
+  ]
+}

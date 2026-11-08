@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release144，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release145，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已补上对象 SDF 图集的跨相机逐帧上传额度。受控 C# 对照中，两份冷图集的同帧体素提交从 2 MiB 降到 1 MiB，晚准备的图集随后取得额度。失败的复制尝试仍占当帧额度。Astra Max 同意按逻辑准入范围采用。真实上传带宽、全阶段预算及高速首显仍待各自验收。[同输入对照](../LocalComparison/Review/sdf-frame-upload-162/result.md) · [同源交付](../LocalComparison/Review/sdf-frame-upload-162/delivery.json)
 
 T6／G4 已关闭活跃相机在 DXR 异常后继续占用共享额度的缺口。实际 C# 对照在已绑定几何的下一帧注入构建异常，失败相机继续回退，完成回调前旧资源仍计账，完成后健康相机可以准入。Astra Max 同意按功能范围采用。Unity 原生异常和真实 GPU 排空仍待各自验收。[异常前后对照](../LocalComparison/Review/rtas-failure-retirement-161/result.md) · [同源交付](../LocalComparison/Review/rtas-failure-retirement-161/delivery.json)
 

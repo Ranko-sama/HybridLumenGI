@@ -112,6 +112,7 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 
 | 设置 | 默认值与行为 |
 | --- | --- |
+| 对象 SDF 图集的 Feature 入口 | 每引擎帧跨相机共享 262,144 个 RFloat 体素（1 MiB）的 `SetData` 尝试额度。最早等待的整卷优先，独立 `Prepare` 按自身额度计账。[驻留与准入](SdfAtlasResidency.md) |
 | `materialTextureUploadMiBPerFrame` | 16 MiB，全相机共享实际复制字节；稳定大页跨帧续传，完整复制/回读后ready；不能拼接不同帧的动态RT。 |
 | `hardwareMaterialBudgetMiB` | 256 MiB，材质arena包含当前、待上传、读者持有及退休/隔离分配；复用稳定页，局部替换变化页。 |
 | `softwareGeometryBudgetMiB` | 128 MiB，每相机精确软件属性、BVH与等待fence的旧缓冲共同计账；新分配前准入，不足则回退/等待退休。 |
