@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release167，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release168，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭仍有需求的分页绑定在目标失效后无法退休的问题。实际 C# 回归确认旧代理撤出，租约等最后读者完成再排空。从未绑定的成员继续声明原组关系。修复进入 Release168。[回归与范围](../LocalComparison/Review/failed-streamed-destination-194/result.md) · [同源交付](../LocalComparison/Review/failed-streamed-destination-194/delivery.json)
 
 T2／G4 已补齐同一固定几何中精确软件 BVH 与有符号 SDF 的真实最近命中。软件三角在后时选择较近盒面，在前时保留三角及来源身份。与既有 DXR 记录各自采用，普通相机画面及其他混合输入继续验收。[实机读回和范围](../LocalComparison/Review/software-signed-sdf-193/result.md)
 
