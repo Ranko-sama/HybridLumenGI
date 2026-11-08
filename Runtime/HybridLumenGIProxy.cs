@@ -256,7 +256,7 @@ namespace HybridLumenGI
             if (Interlocked.Exchange(ref validationPending,0)!=0)
             {
                 sourceRenderer ??= GetComponent<Renderer>();
-                sourceCollider ??= GetComponent<Collider>();
+                if (sourceCollider == null) sourceCollider = GetComponent<Collider>();
                 if (hlodParent == this) hlodParent = null;
             }
             Mesh mesh = SourceMesh ?? lastMesh;
