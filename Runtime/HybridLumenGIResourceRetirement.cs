@@ -13,7 +13,9 @@ namespace HybridLumenGI
     /// </summary>
     public static class HybridLumenGIResourceRetirement
     {
-        private static readonly HashSet<Func<HybridLumenGIProxy,bool>> consumers=new HashSet<Func<HybridLumenGIProxy,bool>>();
+        // Resolving a camera's Renderer can recreate a Feature and change registrations.
+        // Replace the set on registration changes so an in-progress query can finish safely.
+        private static HashSet<Func<HybridLumenGIProxy,bool>> consumers=new HashSet<Func<HybridLumenGIProxy,bool>>();
         private static readonly List<Ticket> pending=new List<Ticket>();
         private static readonly List<Owned> owned=new List<Owned>();
         private static readonly HashSet<Action> shutdownOwners=new HashSet<Action>();
@@ -34,9 +36,19 @@ namespace HybridLumenGI
         private sealed class Owned
         {internal Action destroy;internal Ticket ticket;internal HybridLumenGIAssetPageStreaming.ICompletion prerequisite;internal bool failed;}
         public static void Register(Func<HybridLumenGIProxy,bool> requiresRepresentation)
-        {if(requiresRepresentation==null)throw new ArgumentNullException(nameof(requiresRepresentation));consumers.Add(requiresRepresentation);EnsureRegistered();}
+        {
+            if (requiresRepresentation == null) throw new ArgumentNullException(nameof(requiresRepresentation));
+            if (!consumers.Contains(requiresRepresentation))
+                consumers = new HashSet<Func<HybridLumenGIProxy,bool>>(consumers) { requiresRepresentation };
+            EnsureRegistered();
+        }
         public static void Unregister(Func<HybridLumenGIProxy,bool> requiresRepresentation)
-        {if(requiresRepresentation!=null)consumers.Remove(requiresRepresentation);}
+        {
+            if (requiresRepresentation == null || !consumers.Contains(requiresRepresentation)) return;
+            var next = new HashSet<Func<HybridLumenGIProxy,bool>>(consumers);
+            next.Remove(requiresRepresentation);
+            consumers = next;
+        }
         public static int PendingCount=>pending.Count;
         public static int OwnedCount=>owned.Count;
         public static bool AdmissionClosed=>shuttingDown;
@@ -234,11 +246,14 @@ namespace HybridLumenGI
                 bool required=false;
                 if(!representation.IsUnavailable && proxy!=null && proxy.isActiveAndEnabled)
                 {
-                    foreach(var query in consumers)
+                    var queries = consumers;
+                    foreach(var query in queries)
                     {
                         try{if(query(proxy)){required=true;break;}}
                         catch(Exception){required=true;break;}
                     }
+                    // A new consumer gets a chance to answer before any detachment.
+                    required |= !ReferenceEquals(queries, consumers);
                 }
                 if(required)continue;
                 var ticket=new Ticket{requiresContext=requiresContext};

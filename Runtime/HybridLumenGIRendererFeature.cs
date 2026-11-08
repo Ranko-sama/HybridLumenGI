@@ -339,6 +339,7 @@ namespace HybridLumenGI
         private sealed class CameraState : IDisposable
         {
             internal int scenePreparedEngineFrame = -1, scenePreparedWorkFrame = -1;
+            internal ScriptableRenderer scenePreparedRenderer;
             internal readonly Camera camera;
             internal readonly HybridLumenGIScene scene=new HybridLumenGIScene();
             internal readonly HybridLumenGIHardwareBackend hardware=new HybridLumenGIHardwareBackend();
@@ -655,21 +656,33 @@ namespace HybridLumenGI
             }
             private bool RequiresRepresentation(HybridLumenGIProxy proxy)
             {
-                if(featureActive==null || !featureActive())return false;
+                if(admissionStopped || featureActive==null || !featureActive())return false;
                 foreach(var state in cameras.Values)
                 {
                     if(state.camera==null || !state.camera.isActiveAndEnabled)continue;
-                    // Overlay cameras stop enqueueing this pass, so their old scene
-                    // cannot keep streamed pages resident indefinitely. URP forces
-                    // Scene View to Base independently of additional-camera data.
-                    if(state.camera.cameraType!=CameraType.SceneView &&
-                        state.camera.TryGetComponent<UniversalAdditionalCameraData>(out var cameraData) &&
-                        cameraData.renderType!=CameraRenderType.Base)continue;
                     for(int slot=0;slot<state.scene.Capacity;slot++)
                         if(ReferenceEquals(state.scene.GetProxy(slot),proxy) &&
-                            (state.scene.IsPublished(slot) || state.scene.IsWarming(slot)))return true;
+                            (state.scene.IsPublished(slot) || state.scene.IsWarming(slot)))
+                        {
+                            if (UsesPreparedRenderer(state)) return true;
+                            break;
+                        }
                 }
                 return false;
+            }
+            private static bool UsesPreparedRenderer(CameraState state)
+            {
+                var pipeline = UniversalRenderPipeline.asset;
+                if (pipeline == null || state.scenePreparedRenderer == null) return false;
+                ScriptableRenderer renderer = null;
+                // Match URP's default Renderer and forced Base rules for Scene View.
+                if (state.camera.cameraType != CameraType.SceneView &&
+                    state.camera.TryGetComponent<UniversalAdditionalCameraData>(out var cameraData))
+                {
+                    if (cameraData.renderType != CameraRenderType.Base) return false;
+                    renderer = cameraData.scriptableRenderer;
+                }
+                return ReferenceEquals(renderer ?? pipeline.scriptableRenderer, state.scenePreparedRenderer);
             }
             private sealed class SurfacePassData
             {
@@ -856,6 +869,7 @@ namespace HybridLumenGI
                 }
                 state.scenePreparedEngineFrame = state.scenePreparedWorkFrame = -1;
                 state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),s.chunkSize,s.proxyUploadsPerFrame,maps);
+                state.scenePreparedRenderer = cameraData.renderer;
                 state.scenePreparedEngineFrame = Time.frameCount; state.scenePreparedWorkFrame = state.frame;
                 state.sdf.Prepare(state.scene,2*1024*1024);
                 state.globalSdf.Prepare(state.scene,state.sdf,camera.transform.position,new HybridLumenGIGlobalSdf.Configuration
