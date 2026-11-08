@@ -1,0 +1,93 @@
+{
+    "unity": "6000.0.85f1",
+    "api": "Direct3D12",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "status": "insufficient",
+    "error": "System.InvalidOperationException: The same pipeline did not resume valid DXR with the unchanged blue source.\r\n  at AbortedWorld183.Update () [0x00246] in I:\\Unity test\\Comparison\\AbortedWorld183\\HybridLumenGI-Release159-UnityProject\\Assets\\FiniteWallReference01\\AbortedWorld183.cs:233 ",
+    "baseline": true,
+    "compileFaults": 1,
+    "genericGraphErrors": 1,
+    "injectedPasses": 1,
+    "legacyCallbacks": 0,
+    "unexpectedErrors": [],
+    "before": {
+        "engineFrame": 7,
+        "preparedEngineFrame": 7,
+        "recordedEngineFrame": 7,
+        "recordedWorkFrame": 3,
+        "cacheRead": 0,
+        "epoch": 5,
+        "validEntries": 2,
+        "globalReactive": 0.0,
+        "redMax": 0.029999999329447748,
+        "blueMax": 0.0,
+        "otherPoolRedMax": 0.03999999910593033,
+        "packedLight": {
+            "x": 1.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+        },
+        "backend": "DXR"
+    },
+    "aborted": {
+        "engineFrame": 8,
+        "preparedEngineFrame": 8,
+        "recordedEngineFrame": 7,
+        "recordedWorkFrame": 3,
+        "cacheRead": 1,
+        "epoch": 5,
+        "validEntries": 0,
+        "globalReactive": 1.0,
+        "redMax": 0.0,
+        "blueMax": 0.0,
+        "otherPoolRedMax": 0.0,
+        "packedLight": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.0,
+            "w": 1.0
+        },
+        "backend": "DXR"
+    },
+    "resumed": {
+        "engineFrame": 0,
+        "preparedEngineFrame": 0,
+        "recordedEngineFrame": 0,
+        "recordedWorkFrame": 0,
+        "cacheRead": 0,
+        "epoch": 0,
+        "validEntries": 0,
+        "globalReactive": 0.0,
+        "redMax": 0.0,
+        "blueMax": 0.0,
+        "otherPoolRedMax": 0.0,
+        "packedLight": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 0.0
+        },
+        "backend": ""
+    },
+    "held": {
+        "engineFrame": 0,
+        "preparedEngineFrame": 0,
+        "recordedEngineFrame": 0,
+        "recordedWorkFrame": 0,
+        "cacheRead": 0,
+        "epoch": 0,
+        "validEntries": 0,
+        "globalReactive": 0.0,
+        "redMax": 0.0,
+        "blueMax": 0.0,
+        "otherPoolRedMax": 0.0,
+        "packedLight": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 0.0
+        },
+        "backend": ""
+    }
+}

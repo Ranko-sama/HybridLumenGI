@@ -408,6 +408,7 @@ namespace HybridLumenGI
             internal int patchGrid,cacheEntryCount,previousLightCount;
             internal int fullWidth,fullHeight,fullPixelBytes;
             internal bool valid,lastHardware,lightingChanged;
+            private bool worldPreparationPending;
             internal Dictionary<ulong, HybridLumenGIMaterialSource.Snapshot> materialsWithoutCards;
             internal int[] recordedTraceOwners;
             internal string recordedTransportBackend;
@@ -467,6 +468,23 @@ namespace HybridLumenGI
             }
             internal void InvalidateFailedRender()
             { uploadedSoftwareVersion=0;globalSdf.InvalidateAll();surfaceCache.InvalidateRecordedCapture();InvalidateScreenHistory();InvalidateGpuFeedback(); }
+            internal void BeginWorldPreparation()
+            {
+                // A discarded graph may already have consumed CPU-side source changes.
+                if (worldPreparationPending) DiscardWorldPreparation();
+                worldPreparationPending = true;
+            }
+            internal void DiscardWorldPreparation()
+            {
+                worldPreparationPending = false;
+                InvalidateFailedRender();
+                InvalidateWorldHistory();
+            }
+            internal void CompleteWorldRecording(int write)
+            {
+                cacheRead = write;
+                worldPreparationPending = false;
+            }
             internal void PrepareHistoryTarget(RenderTexture target)
             {
                 // Numeric native IDs can be reused after destruction; reference identity
@@ -873,6 +891,7 @@ namespace HybridLumenGI
                 }
                 int w=screenBudget.Width,h=screenBudget.Height;
                 int slots=Mathf.Clamp(s.residentProxies,32,256);
+                state.BeginWorldPreparation();
                 state.Ensure(w,h,identityEnabled);
                 string serializedSettings=JsonUtility.ToJson(s);
                 bool shadowmaskChanged=state.RefreshShadowmaskHistory(maps);
@@ -1229,7 +1248,7 @@ namespace HybridLumenGI
                         });
                     }
                 }
-                state.readIndex=write; state.cacheRead=1-state.cacheRead; state.frame++;
+                state.readIndex=write; state.frame++;
             }
             private static TextureHandle CreateTexture(RenderGraph graph,int w,int h,GraphicsFormat format,string name,bool randomWrite=true)
             { return graph.CreateTexture(new TextureDesc(w,h){name=name,colorFormat=format,enableRandomWrite=randomWrite,clearBuffer=true,filterMode=FilterMode.Point}); }
@@ -1293,10 +1312,11 @@ namespace HybridLumenGI
                 }
                 catch
                 {
-                    if(current){state.InvalidateFailedRender();state.InvalidateWorldHistory();}
+                    if(current) state.DiscardWorldPreparation();
                     throw;
                 }
                 if(!current)return;
+                state.CompleteWorldRecording(1-d.cacheRead);
                 state.materialsWithoutCards=d.geometry!=null ? d.materialsWithoutCards : null;
                 state.recordedTraceOwners=d.geometry!=null ? d.traceOwners : null;
                 state.lastHardware=d.hardware;state.exactSoftwareGeometry=d.ExactSoftware;
