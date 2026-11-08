@@ -102,6 +102,7 @@ namespace HybridLumenGI
         public int TriangleCount => normals.Count;
         public int InstanceCount => instances.Count;
         internal bool HasPreparedTriangles(int slot) => slot >= 0 && slot < meshFlags.Length && meshFlags[slot] != 0;
+        internal bool HasDeferredHlodBuild { get; private set; }
         public ulong GeometryVersion { get; private set; }
         public int FallbackCount { get; private set; }
         // Count allocations, including dummy elements and old buffers still referenced by
@@ -395,6 +396,14 @@ namespace HybridLumenGI
             return false;
         }
 
+        internal bool IsHlodTargetEligible(HybridLumenGIScene scene, HybridLumenGISurfaceCache surfaceCache,
+            int slot, int triangleLimit)
+        {
+            Renderer renderer = scene.GetRenderer(slot);
+            Mesh mesh = HybridLumenGIDeformedMesh.GetSourceMesh(renderer);
+            return Eligible(mesh, renderer, slot, surfaceCache, out long triangles) && triangles <= triangleLimit;
+        }
+
         private bool Eligible(Mesh mesh,Renderer renderer,int slot,HybridLumenGISurfaceCache surfaceCache,out long total)
         {
             total=0;
@@ -677,12 +686,18 @@ namespace HybridLumenGI
                     // prepared triangles/instances conservatively for Unity's opaque build work.
                     if(!HybridLumenGIRtasBudget.TryReserve(TriangleCount,InstanceCount,reservation,out var admitted,out string memoryReason))
                     {
+                        CancelDeferredHlodBuild();
                         BudgetStatus=memoryReason;
                         deferredByQuota=reservation!=null && !reservation.IsRetired;
                         return false;
                     }
                     reservation=admitted;
-                    if(!HybridLumenGIRtasBudget.TryConsumeBuild(budgetOwner,preparedRtasFrame,TriangleCount,InstanceCount,out string reason))
+                    bool admittedBuild = HybridLumenGIRtasBudget.TryConsumeBuild(budgetOwner, preparedRtasFrame,
+                        TriangleCount, InstanceCount, out string reason);
+                    // The demand now carries the exact work for this build.
+                    if (preparedRtasFrame == HybridLumenGIRtasBudget.Frame) HasDeferredHlodBuild = false;
+                    else CancelDeferredHlodBuild();
+                    if(!admittedBuild)
                     {
                         BudgetStatus=reason;
                         deferredByQuota=preparedRtasFrame==HybridLumenGIRtasBudget.Frame;
@@ -762,9 +777,28 @@ namespace HybridLumenGI
 
         public void Dispose() => Deactivate();
 
+        internal void QueueDeferredHlodBuild(int engineFrame)
+        {
+            // Keep a place in the existing queue. RecordBuild supplies the exact cost
+            // and pays for the build only after the replacement is selected.
+            if (HybridLumenGIRtasBudget.RequestBuild(budgetOwner, engineFrame, 0, 0, out _)) HasDeferredHlodBuild = true;
+            else CancelDeferredHlodBuild();
+        }
+
+        internal void CancelDeferredHlodBuild()
+        {
+            if (!HasDeferredHlodBuild) return;
+            HybridLumenGIRtasBudget.CancelBuildDemand(budgetOwner);
+            HasDeferredHlodBuild = false;
+        }
+
         /// <summary>Withdraw scheduling priority when this camera no longer requests hardware.</summary>
         public void CancelBuildDemand()
-        {HybridLumenGIRtasBudget.CancelBuildDemand(budgetOwner);preparedRtasFrame=int.MinValue;}
+        {
+            HybridLumenGIRtasBudget.CancelBuildDemand(budgetOwner);
+            HasDeferredHlodBuild = false;
+            preparedRtasFrame = int.MinValue;
+        }
 
         private void RetireResources()
         {

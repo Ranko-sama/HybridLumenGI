@@ -42,6 +42,8 @@ namespace HybridLumenGI
         public static long TriangleCredits=>triangleCredits;
         public static long InstanceCredits=>instanceCredits;
         public static int PendingDemands=>demands.Count;
+        internal static bool SharedBuildTurnsExhausted => settings.MaxBuildsPerFrame > 0 &&
+            BuildsThisFrame >= settings.MaxBuildsPerFrame;
         public static long AccountedBytes {get{long n=0;foreach(var r in reservations)n=Add(n,r.AccountedBytes);return n;}}
         public static long EstimatedBytes {get{long n=0;foreach(var r in reservations)n=Add(n,r.EstimatedBytes);return n;}}
         public static long MeasuredHighWaterBytes {get{long n=0;foreach(var r in reservations)n=Add(n,r.MeasuredHighWaterBytes);return n;}}

@@ -465,6 +465,7 @@ namespace HybridLumenGI
             {
                 epoch=epoch%8000000+1;
                 scene.InvalidateReadiness();readiness.Invalidate();
+                hardware.CancelDeferredHlodBuild();
             }
             internal void InvalidateFailedRender()
             { uploadedSoftwareVersion=0;globalSdf.InvalidateAll();surfaceCache.InvalidateRecordedCapture();InvalidateScreenHistory();InvalidateGpuFeedback(); }
@@ -782,7 +783,7 @@ namespace HybridLumenGI
                 internal int read,cacheRead,cacheStart,frame,epoch,lightCount,filterIterations;
                 internal bool valid,hasMotion,hardware,staticShadowmask;
                 internal ulong backendRequest;
-                internal bool hardwarePreference;
+                internal bool hardwarePreference,waitForHlodBuildTurn;
                 internal Rect viewport;
                 internal HybridLumenGIGpuFrameTiming frameTiming;
                 internal HybridLumenGIHistoryLifecycle.FrameToken historyToken;
@@ -918,19 +919,37 @@ namespace HybridLumenGI
                 // Consume mesh changes from camera callbacks and receiver source checks
                 // before the readiness gate or world preparation can read an old snapshot.
                 HybridLumenGIDeformedMesh.RefreshRenderSources();
-                // A material texture/MPB or SDF asset can change without the proxy's revision changing.
-                // Revoke stale receipts BEFORE Scene.Prepare is allowed to atomically publish them.
-                for(int slot=0;slot<state.scene.Capacity;slot++)
+                RevokeStaleHlodReadiness(state);
+                HybridLumenGIRtasBudget.BeginFrame(Time.frameCount,new HybridLumenGIRtasBudget.Settings
                 {
-                    if(!state.scene.IsWarming(slot)) continue;
-                    var slotIdentity=state.scene.Data[slot].identity;var proxy=state.scene.GetProxy(slot);
-                    int id=(int)slotIdentity.x,revision=(int)slotIdentity.y;
-                    bool geometry=proxy!=null && proxy.Revision==revision && (proxy.MeshSdf==null || state.sdf.IsSourceCurrent(slot,proxy,id,revision));
-                    if(!geometry || !state.surfaceCache.IsSlotSourceCurrent(slot,id,revision))
-                        state.scene.ReportReadiness(id,revision,false,false,false);
+                    MemoryBudgetBytes=Math.Max(1L,s.rtasMemoryBudgetMiB)*1024*1024,MaxBuildsPerFrame=Math.Max(0,s.rtasBuildsPerFrame),
+                    TriangleWorkPerFrame=Math.Max(0,s.rtasTriangleWorkPerFrame),InstanceWorkPerFrame=Math.Max(0,s.rtasInstanceWorkPerFrame),
+                    TriangleBurstCapacity=Math.Max(1,s.rtasTriangleBurstCapacity),InstanceBurstCapacity=Math.Max(1,s.rtasInstanceBurstCapacity),
+                    BaseEstimateBytes=65536,BytesPerTriangle=192,BytesPerInstance=1024
+                });
+                int hardwareTriangleLimit = Mathf.Clamp(s.meshTriangleBudget, 1024, 1000000);
+                bool buildTurnsExhausted = HybridLumenGIRtasBudget.SharedBuildTurnsExhausted;
+                bool readyExactReplacement = false;
+                Predicate<int> deferHlodRetirement = null;
+                Predicate<int> exactHlodTarget = null;
+                if (state.lastHardware && s.preferHardwareTracing && state.hardware.CanDispatch &&
+                    (buildTurnsExhausted || state.hardware.HasDeferredHlodBuild))
+                {
+                    // Require both a live exact departure and eligible target geometry.
+                    // A switch that merely empties the RTAS does not need a build turn.
+                    exactHlodTarget = slot => state.hardware.IsHlodTargetEligible(state.scene, state.surfaceCache,
+                        slot, hardwareTriangleLimit);
+                    deferHlodRetirement = slot =>
+                    {
+                        if (!state.hardware.HasPreparedTriangles(slot)) return false;
+                        readyExactReplacement = true;
+                        return buildTurnsExhausted;
+                    };
                 }
                 state.scenePreparedEngineFrame = state.scenePreparedWorkFrame = -1;
-                state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),s.chunkSize,s.proxyUploadsPerFrame,maps);
+                state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),
+                    s.chunkSize,s.proxyUploadsPerFrame,maps,deferHlodRetirement,exactHlodTarget);
+                if (!readyExactReplacement) state.hardware.CancelDeferredHlodBuild();
                 state.scenePreparedRenderer = cameraData.renderer;
                 state.scenePreparedEngineFrame = Time.frameCount; state.scenePreparedWorkFrame = state.frame;
                 state.sdf.PrepareForFrame(state.scene, Time.frameCount);
@@ -960,6 +979,15 @@ namespace HybridLumenGI
                     patchGrid=Mathf.Clamp(s.cachePatchGrid,1,4)
                 });
                 state.EnsureCache(slots,Mathf.Clamp(s.cachePatchGrid,1,4),state.surfaceCache.CardCount);
+                bool waitForHlodBuildTurn = buildTurnsExhausted && readyExactReplacement;
+                if (waitForHlodBuildTurn)
+                {
+                    // Admission can evict a staged page after Scene selection. Only retain
+                    // queue priority for a handoff that still has its ready staging set.
+                    RevokeStaleHlodReadiness(state);
+                    waitForHlodBuildTurn = state.scene.HasReadyExactHlodReplacement(state.hardware.HasPreparedTriangles, exactHlodTarget);
+                    if (!waitForHlodBuildTurn) state.hardware.CancelDeferredHlodBuild();
+                }
                 // Freeze exactly the matrices later uploaded to transport. Relevance
                 // must cover its reconstruction, including the current URP jitter.
                 Matrix4x4 view=cameraData.GetViewMatrix(),vp=GL.GetGPUProjectionMatrix(cameraData.GetProjectionMatrix(),true)*view;
@@ -972,18 +1000,11 @@ namespace HybridLumenGI
                 state.lightingChanged|=state.surfaceCache.ChangedBounds.Count>0 || state.sdf.RepresentationChangedBounds.Count>0;
                 bool changed=state.scene.RequiresFullInvalidation;
                 if(changed) { state.epoch=state.epoch%8000000+1; state.InvalidateScreenHistory(); }
-                HybridLumenGIRtasBudget.BeginFrame(Time.frameCount,new HybridLumenGIRtasBudget.Settings
-                {
-                    MemoryBudgetBytes=Math.Max(1L,s.rtasMemoryBudgetMiB)*1024*1024,MaxBuildsPerFrame=Math.Max(0,s.rtasBuildsPerFrame),
-                    TriangleWorkPerFrame=Math.Max(0,s.rtasTriangleWorkPerFrame),InstanceWorkPerFrame=Math.Max(0,s.rtasInstanceWorkPerFrame),
-                    TriangleBurstCapacity=Math.Max(1,s.rtasTriangleBurstCapacity),InstanceBurstCapacity=Math.Max(1,s.rtasInstanceBurstCapacity),
-                    BaseEstimateBytes=65536,BytesPerTriangle=192,BytesPerInstance=1024
-                });
                 bool hardwarePreference=s.preferHardwareTracing;
                 ulong preparedBackendRequest=backendRequest;
                 if(!hardwarePreference)state.hardware.Deactivate();
                 bool hardware=hardwarePreference && state.hardware.Prepare(state.scene,state.scene.Revision,
-                    Mathf.Clamp(s.meshTriangleBudget,1024,1000000),state.surfaceCache,
+                    hardwareTriangleLimit,state.surfaceCache,
                     Math.Max(1L,s.hardwareGeometryBudgetMiB)*1024*1024);
                 int softwareTriangles=(int)Math.Min(Mathf.Clamp(s.meshTriangleBudget,1024,HybridLumenGISoftwareTriangleBvh.MaxTriangles),
                     Math.Max(1024,(Math.Max(1L,s.softwareGeometryBudgetMiB)*1024*1024-4096)/512));
@@ -1113,7 +1134,7 @@ namespace HybridLumenGI
                 var work=new Work
                 {
                     owner=this,state=state,compute=hardware?state.hardware.Shader:softwareExact?exactSoftware:software,hardware=hardware,
-                    backendRequest=preparedBackendRequest,hardwarePreference=hardwarePreference,
+                    backendRequest=preparedBackendRequest,hardwarePreference=hardwarePreference,waitForHlodBuildTurn=waitForHlodBuildTurn,
                     geometry=hardware?state.hardware:softwareExact?state.softwareGeometry:null,
                     depth=resources.cameraDepthTexture,captureDepth=captureDepth,normals=resources.cameraNormalsTexture,
                     motion=resources.motionVectorColor.IsValid()?resources.motionVectorColor:resources.cameraNormalsTexture,
@@ -1273,7 +1294,7 @@ namespace HybridLumenGI
             {
                 b.hitMaterials=a.hitMaterials;
                 b.sourceUncertain=a.sourceUncertain;b.validationTicket=a.validationTicket;
-                b.backendRequest=a.backendRequest;b.hardwarePreference=a.hardwarePreference;
+                b.backendRequest=a.backendRequest;b.hardwarePreference=a.hardwarePreference;b.waitForHlodBuildTurn=a.waitForHlodBuildTurn;
                 b.geometry=a.geometry;b.softwareLayout=a.softwareLayout;b.softwareNodes=a.softwareNodes;b.softwareLeaves=a.softwareLeaves;
                 b.geometryVersion=a.geometryVersion;
                 b.areaEmitters=a.areaEmitters;b.areaLayout=a.areaLayout;
@@ -1325,7 +1346,25 @@ namespace HybridLumenGI
                 state.transportRecordedWorkFrame = d.frame;
                 state.recordedBackendRequest = d.backendRequest;
                 state.recordedHardwarePreference = d.hardwarePreference;
+                if (d.hardware && d.waitForHlodBuildTurn) state.hardware.QueueDeferredHlodBuild(d.historyToken.EngineFrame);
             }
+
+            private static void RevokeStaleHlodReadiness(CameraState state)
+            {
+                // Texture/MPB or SDF content can change without the proxy's revision.
+                for (int slot = 0; slot < state.scene.Capacity; slot++)
+                {
+                    if (!state.scene.IsWarming(slot)) continue;
+                    var identity = state.scene.Data[slot].identity;
+                    var proxy = state.scene.GetProxy(slot);
+                    int id = (int)identity.x, revision = (int)identity.y;
+                    bool geometryCurrent = proxy != null && proxy.Revision == revision &&
+                        (proxy.MeshSdf == null || state.sdf.IsSourceCurrent(slot, proxy, id, revision));
+                    if (!geometryCurrent || !state.surfaceCache.IsSlotSourceCurrent(slot, id, revision))
+                        state.scene.ReportReadiness(id, revision, false, false, false);
+                }
+            }
+
             private void PrepareHardwareMaterials(RenderGraph graph,Work d)
             {
                 var state=d.state;

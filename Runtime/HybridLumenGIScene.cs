@@ -227,7 +227,8 @@ namespace HybridLumenGI
         internal LightmapData[] ShadowmaskSources { get; private set; }
 
         internal bool Prepare(Vector3 position, int capacity, float nearDistance, float farDistance,
-            float chunkSize, int uploadBudget, LightmapData[] shadowmaskSources)
+            float chunkSize, int uploadBudget, LightmapData[] shadowmaskSources,
+            Predicate<int> deferHlodRetirement = null, Predicate<int> exactHlodTarget = null)
         {
             ShadowmaskSources = shadowmaskSources;
             capacity = Mathf.Clamp(capacity, 32, 256);
@@ -298,7 +299,7 @@ namespace HybridLumenGI
             // Conservative bounds distance keeps large walls that surround the camera resident.
             // Stable ID breaks ties deterministically instead of changing slots with registry sort order.
             candidates.Sort(CompareCandidates);
-            SelectAtomicGroups(position, nearDistance, farSquared, capacity);
+            SelectAtomicGroups(position, nearDistance, farSquared, capacity, deferHlodRetirement, exactHlodTarget);
             int desiredCount = selectedCandidates.Count;
 
             // Never keep an old occluder/material alive while its replacement waits for budget.
@@ -472,7 +473,8 @@ namespace HybridLumenGI
             return far;
         }
 
-        private void SelectAtomicGroups(Vector3 position, float nearDistance, float farSquared, int capacity)
+        private void SelectAtomicGroups(Vector3 position, float nearDistance, float farSquared, int capacity,
+            Predicate<int> deferHlodRetirement, Predicate<int> exactHlodTarget)
         {
             available.Clear(); grouped.Clear(); orderedGroups.Clear(); selectedCandidates.Clear(); ordinaryCandidates.Clear();
             representationAdds.Clear(); representationRemoves.Clear();
@@ -532,7 +534,8 @@ namespace HybridLumenGI
                     group.target.Clear();
                     if (rootAvailable) group.target.Add(group.root.StableId);
                 }
-                if ((!group.initialized || !group.published.SetEquals(group.target)) && ReadyToPublish(group))
+                if ((!group.initialized || !group.published.SetEquals(group.target)) && ReadyToPublish(group) &&
+                    (deferHlodRetirement == null || !ReplacesExactMember(group, deferHlodRetirement, exactHlodTarget)))
                 {
                     foreach (int id in group.published) if (!group.target.Contains(id)) representationRemoves.Add(id);
                     foreach (int id in group.target) if (!group.published.Contains(id)) representationAdds.Add(id);
@@ -719,6 +722,26 @@ namespace HybridLumenGI
             }
             return true;
         }
+
+        private bool ReplacesExactMember(HlodGroup group, Predicate<int> previous, Predicate<int> target)
+        {
+            foreach (int id in group.target)
+            {
+                if (!slots.TryGetValue(id, out int targetSlot) || !target(targetSlot)) continue;
+                foreach (int oldId in group.published)
+                    if (!group.target.Contains(oldId) && TryGetPublishedSlot(oldId, out int slot) && previous(slot)) return true;
+                break;
+            }
+            return false;
+        }
+
+        internal bool HasReadyExactHlodReplacement(Predicate<int> previous, Predicate<int> target)
+        {
+            foreach (HlodGroup group in orderedGroups)
+                if (ReadyToPublish(group) && ReplacesExactMember(group, previous, target)) return true;
+            return false;
+        }
+
         private void AddSelected(int id, int phase, int capacity)
         {
             if (selectedCandidates.Count >= capacity || desired.Contains(id) || !available.TryGetValue(id, out Candidate candidate)) return;
