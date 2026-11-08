@@ -404,12 +404,18 @@ namespace HybridLumenGI
                 candidates.Add(slot);
             }
             candidates.Sort(CompareResidency);
-            int remaining=tileCount;
-            foreach(int slot in candidates)
+            FillResidency(tileCount);
+            if (RequiredCards > tileCount && RetainPublishedHlodCards(scene))
             {
-                int required=requestedCards[slot];
-                if(required>0 && required<=remaining) { desired[slot]=true;remaining-=required; }
-                else if(scene.Data[slot].identity.w==2f) WarmupBudgetBlockedCards+=required;
+                // Keep matching layouts from the original selection alongside the retained
+                // HLOD pages. Only new allocations need to compete again for the free tiles.
+                int remaining = tileCount;
+                foreach (int slot in candidates)
+                {
+                    desired[slot] = desired[slot] && MatchesRequestedLayout(slot);
+                    if (desired[slot]) remaining -= requestedCards[slot];
+                }
+                FillResidency(remaining);
             }
             for (int slot = 0; slot < owners.Length; slot++)
             {
@@ -419,18 +425,18 @@ namespace HybridLumenGI
                 if (previous != null && (uint)scene.Data[slot].identity.x == previous.stableId && scene.Data[slot].identity.w >= 0.5f)
                     previous.published = scene.Data[slot].identity.w == 1f;
                 if(previous==null) continue;
-                var asset=candidateCharts[slot];
-                bool layoutChanged=previous.stableId!=(uint)scene.Data[slot].identity.x || previous.renderer!=scene.GetRenderer(slot) || previous.sourceMesh!=GetMesh(scene.GetRenderer(slot)) ||
-                    previous.charts!=asset || (asset!=null && (previous.chartVersion!=asset.ContentVersion || previous.captureMesh!=asset.CaptureMesh)) ||
-                    previous.cardIndices.Length!=requestedCards[slot];
                 // Retire all changed layouts before allocating any of them, so an earlier
                 // growing owner can use pages released by a later shrinking owner.
-                if (!desired[slot] || layoutChanged) { Retire(slot); changed = true; }
+                if (!desired[slot] || !MatchesRequestedLayout(slot)) { Retire(slot); changed = true; }
             }
 
             foreach(int slot in candidates)
             {
-                if(!desired[slot]) continue;
+                if (!desired[slot])
+                {
+                    if (scene.IsWarming(slot)) WarmupBudgetBlockedCards += requestedCards[slot];
+                    continue;
+                }
                 HybridLumenGIProxy proxy = scene.GetProxy(slot);
                 Renderer renderer = proxy.SourceRenderer;
                 Bounds captureBounds = CaptureBounds(renderer);
@@ -1014,6 +1020,62 @@ namespace HybridLumenGI
             float largest = Mathf.Max(Mathf.Abs(ray.x), Mathf.Max(Mathf.Abs(ray.y), Mathf.Abs(ray.z)));
             if (largest > 0f) scale = Math.Min(scale, (float.MaxValue / 4d) / largest);
             return new Vector3((float)(ray.x * scale), (float)(ray.y * scale), (float)(ray.z * scale));
+        }
+
+        private void FillResidency(int remaining)
+        {
+            foreach (int slot in candidates)
+            {
+                int required = requestedCards[slot];
+                if (desired[slot] || required > remaining) continue;
+                desired[slot] = true;
+                remaining -= required;
+            }
+        }
+
+        private bool MatchesRequestedLayout(int slot)
+        {
+            Owner previous = owners[slot];
+            if (previous == null || previous.stableId != (uint)preparedScene.Data[slot].identity.x ||
+                previous.cardIndices.Length != requestedCards[slot]) return false;
+            Renderer renderer = preparedScene.GetRenderer(slot);
+            HybridLumenGISurfaceCharts asset = candidateCharts[slot];
+            return previous.renderer == renderer && previous.sourceMesh == GetMesh(renderer) &&
+                previous.charts == asset && (asset == null ||
+                    (previous.chartVersion == asset.ContentVersion && previous.captureMesh == asset.CaptureMesh));
+        }
+
+        private bool RetainPublishedHlodCards(HybridLumenGIScene scene)
+        {
+            bool retained = false;
+            foreach (var group in scene.GetPublishedHlodGroups())
+            {
+                bool needsRetention = false;
+                foreach (int id in group)
+                {
+                    if (scene.TryGetPublishedSlot(id, out int slot) && desired[slot]) continue;
+                    needsRetention = true;
+                    break;
+                }
+                if (!needsRetention) continue;
+
+                // The handoff can make all staged members compete with ordinary published
+                // objects in this Prepare. Preserve only a complete, still-current layout.
+                bool current = true;
+                foreach (int id in group)
+                {
+                    if (scene.TryGetPublishedSlot(id, out int slot) && MatchesRequestedLayout(slot) &&
+                        IsSlotSourceCurrent(slot, id, (int)scene.Data[slot].identity.y)) continue;
+                    current = false;
+                    break;
+                }
+                if (!current) continue;
+
+                foreach (int id in group)
+                    if (scene.TryGetPublishedSlot(id, out int slot)) desired[slot] = true;
+                retained = true;
+            }
+            return retained;
         }
 
         private int CompareResidency(int a, int b)

@@ -145,6 +145,13 @@ namespace HybridLumenGI
         public bool IsWarming(int slot) => slot >= 0 && slot < Capacity && Data[slot].identity.w == 2f;
         internal bool TryGetPublishedSlot(int stableId, out int slot)
             => slots.TryGetValue(stableId, out slot) && IsPublished(slot) && (int)Data[slot].identity.x == stableId;
+
+        internal IEnumerable<IReadOnlyCollection<int>> GetPublishedHlodGroups()
+        {
+            foreach (HlodGroup group in orderedGroups)
+                if (group.published.Count > 0) yield return group.published;
+        }
+
         /// <summary>Frozen bounds from the latest Prepare, including warming representations.</summary>
         public bool TryGetPreparedTraversalBounds(int slot,out Bounds bounds)
         {
