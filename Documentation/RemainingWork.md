@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release129 同源交付](../LocalComparison/Review/sdf-clipped-interval-146/delivery.json)
 
+T3／G3 的主干源码已关闭相机回调中同帧换源或清空后继续消费旧快照的资格缺口。相机准备在原预算内撤回旧来源，实际组件 CPU 回归覆盖取消、模拟栅栏退休及后续恢复。普通包整合仍待完成，原生退休和画质仍各自验收。[源码行为与回归范围](DeformedGeometry.md)
+
 T2／G4 已修复精确命中限制搜索距离时，体素细化可能越过 SDF 末段的错误。Release129 的同输入 WARP 回归恢复近端 signed SDF 命中，保留真正更近的精确命中、完整空区间与预算耗尽的未完成状态。精确三角结果由受控输入提供，整体混合回退、纹理和实体 GPU 条件继续验收。[修复和原始读回](../LocalComparison/Review/sdf-clipped-interval-146/release-notes.md)
 
 G4 已修复独立分页导出中细节分批绑定可提前发布的问题。Release128 在实际 Scene CPU 回归中保持有效粗根，全部细节满足原回执后原子接替。粗根未绑定时，单件等待，完整近景仍可按原距离规则发布。Astra Max 同意按此范围采用。实际异步到达、独立导出 rig 的普通 Renderer 组显隐及统一示例的高速冷入仍分别验收。[修复和证据边界](../LocalComparison/Review/streamed-hlod-membership-145/release-notes.md)

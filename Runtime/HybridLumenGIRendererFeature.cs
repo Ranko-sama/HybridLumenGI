@@ -805,6 +805,8 @@ namespace HybridLumenGI
                     state.lastSettingsJson=serializedSettings;state.lastTransportSettingsJson=transportSettings;
                 }
                 state.PrepareGpuBudget(s,serializedSettings,Time.frameCount);
+                // Camera callbacks can change the mesh after the once-per-frame capture pass.
+                HybridLumenGIDeformedMesh.RefreshRenderSources();
                 long fingerprintBudget=(long)Math.Max(1,Math.Min(1024,s.receiverFingerprintBudgetMiB))*1024*1024;
                 // Detect readable in-place edits before scene/SDF readiness can publish
                 // them. Unknown/over-budget receivers retain current GI without a receipt.

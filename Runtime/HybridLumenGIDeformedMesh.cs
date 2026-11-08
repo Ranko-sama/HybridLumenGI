@@ -190,11 +190,9 @@ namespace HybridLumenGI
         {
             explicitSource=readableSnapshot;requested=true;
         }
-        private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
+        /// <summary>Recheck snapshot ownership before a camera consumes the world representation.</summary>
+        internal static void RefreshRenderSources()
         {
-            if(HybridLumenGIResourceRetirement.AdmissionClosed){PollShutdownWork();return;}
-            if(lastFrame==Time.frameCount)return;
-            lastFrame=Time.frameCount;
             foreach(var owner in Active)
             {
                 if(owner==null || owner.proxy==null)continue;
@@ -209,17 +207,27 @@ namespace HybridLumenGI
                 owner.Withdraw();owner.source=current;owner.generation++;owner.requested=true;
                 foreach(var job in Jobs)if(ReferenceEquals(job.owner,owner))job.cancellation.Cancel();
             }
+            foreach (var job in Jobs)
+                if (!job.cleanupFailed && !job.cancellation.IsCancellationRequested && !BakedSourceIsCurrent(job.snapshot, job.source))
+                    job.cancellation.Cancel();
+        }
+
+        private static void BeginContext(ScriptableRenderContext context,List<Camera> cameras)
+        {
+            if(HybridLumenGIResourceRetirement.AdmissionClosed){PollShutdownWork();return;}
+            if(lastFrame==Time.frameCount)return;
+            lastFrame=Time.frameCount;
+            RefreshRenderSources();
             long uploadLeft=Math.Max(0,UploadBudgetBytesPerFrame);
             // Spend publication quota in capture order so repeated new completions
             // cannot starve an older ready snapshot. Unfinished work is still skipped.
             for(int i=0;i<Jobs.Count;i++)
             {
                 Job job=Jobs[i];if(job.cleanupFailed)continue;
-                if(!job.cancellation.IsCancellationRequested && !BakedSourceIsCurrent(job.snapshot,job.source))
-                    job.cancellation.Cancel();
                 if(!job.work.IsCompleted)continue;
                 bool current=job.owner!=null && job.owner.isActiveAndEnabled && job.owner.generation==job.generation &&
-                    job.source!=null && ReferenceEquals(job.owner.source,job.source) && !job.cancellation.IsCancellationRequested;
+                    job.source!=null && ReferenceEquals(job.owner.source,job.source) && !job.cancellation.IsCancellationRequested &&
+                    BakedSourceIsCurrent(job.snapshot,job.source);
                 Result result=null;
                 try { result=job.work.GetAwaiter().GetResult(); }
                 catch(Exception ex) { if(current)job.owner.Status="Geometry bake failed: "+ex.GetType().Name; }

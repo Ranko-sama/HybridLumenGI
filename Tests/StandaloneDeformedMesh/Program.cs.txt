@@ -379,15 +379,21 @@ static class Program
         var cancellation = (System.Threading.CancellationTokenSource)staleJob.GetType()
             .GetField("cancellation", PrivateInstance).GetValue(staleJob);
 
+        // Model URP's Context -> camera callback -> Feature ordering. Reflection
+        // lets the same input expose the old path that had no camera check.
+        var prepareCamera = typeof(HybridLumenGIDeformedMesh).GetMethod("RefreshRenderSources", PrivateStatic);
+        int beforeFrame = Time.frameCount, beforeUploads = Texture3D.Created;
         var replacement = Mesh(replacementMarker);
         skin.sharedMesh = replacement;
-        Frame();
+        prepareCamera?.Invoke(null, null);
         Require(!HybridLumenGIDeformedMesh.HasSnapshot(skin) &&
             ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(skin), replacement) &&
             HybridLumenGIDeformedMesh.GetSdf(skin, null) == null && HybridLumenGIDeformedMesh.GetCharts(skin, null) == null,
-            "Replacing sharedMesh on the same skin exposed the previous GI mesh/SDF/charts.");
+            "Late same-frame replacement exposed the previous GI mesh/SDF/charts during camera preparation.");
         Require(cancellation.IsCancellationRequested && !staleMesh.Destroyed,
             "The previous worker must be cancelled without destroying its snapshot while it runs.");
+        Require(Time.frameCount == beforeFrame && Texture3D.Created == beforeUploads && ReferenceEquals(skin.LastCaptured, staleMesh),
+            "Camera qualification ran a second capture or upload.");
         RenderPipelineManager.End();
         Require(!first.Destroyed && !firstSdf.Destroyed && !firstCharts.Destroyed,
             "The previous published snapshot was destroyed before its GPU consumers completed.");
@@ -405,8 +411,9 @@ static class Program
         Require(first.Destroyed && firstSdf.Destroyed && firstCharts.Destroyed && !owner.original.Destroyed,
             "The old snapshot must retire without destroying the borrowed source mesh.");
 
+        RenderPipelineManager.Begin();
         skin.sharedMesh = null;
-        Frame();
+        prepareCamera?.Invoke(null, null);
         Require(!HybridLumenGIDeformedMesh.HasSnapshot(skin) && HybridLumenGIDeformedMesh.GetSourceMesh(skin) == null &&
             HybridLumenGIDeformedMesh.GetSdf(skin, null) == null && HybridLumenGIDeformedMesh.GetCharts(skin, null) == null &&
             Job(owner) == null && !second.Destroyed, "Clearing sharedMesh retained a snapshot or bypassed retirement.");
@@ -414,7 +421,7 @@ static class Program
         DrainCompletedRetirements();
         Require(second.Destroyed && !replacement.Destroyed && HybridLumenGIDeformedMesh.ReservedBytes == 0,
             "Withdrawing the cleared skin did not release its owned snapshot correctly.");
-        Console.WriteLine("PASS: same-renderer Skin source replacement and clearing withdraw obsolete GI snapshots, cancel old workers and retire published data after completion.");
+        Console.WriteLine("PASS: late same-frame Skin source replacement and clearing withdraw before camera consumption, cancel old workers and retain published data until retirement completion.");
     }
     static void UnchangedCaptureCleanupFailure()
     {

@@ -14,7 +14,9 @@
 
 Mesh、SDF、捕获网格和 charts 全部生成成功后，以同一不可变快照替换。Proxy、Scene、SdfAtlas、SurfaceCache 与软件/DXR 三角准备共同读取该来源；不把更新后的 Skinned 绘制与旧 charts 混用。发布触发几何版本及局部缓存失效。这里的发布是 CPU 表示切换，GPU atlas 上传、材质捕获和 HLOD 初始化仍经过原就绪流程。形变更新有采样间隔与处理延迟，不承诺逐动画帧即时重建。
 
-`BakeMesh` 快照绑定捕获时的 `SkinnedMeshRenderer.sharedMesh`。同一 Renderer 换网格或清空来源时，下一次帧级渲染准备会撤回旧快照并取消旧作业。已提交读者保留旧快照直到退休栅栏完成，取消的后台作业在实际结束后清理。替换网格经过原捕获和发布预算。显式可读网格继续遵循各自的请求与合并规则。
+`BakeMesh` 快照绑定捕获时的 `SkinnedMeshRenderer.sharedMesh`。帧级渲染准备会撤回已失效的快照并取消旧作业。当前主干也在相机读取世界表示前复核来源，覆盖 `beginContextRendering` 后在 `beginCameraRendering` 替换或清空网格的情况。已提交读者保留旧快照直到退休栅栏完成，取消的后台作业在实际结束后清理。替换网格沿用每帧的捕获和发布预算。显式可读网格继续遵循各自的请求与合并规则。
+
+本机 `Validate-DeformedMesh.ps1` 的同输入回归在 Release129 源码复现相机准备时仍读旧 Mesh／SDF／charts，主干在同帧替换及清空时均撤回旧来源，既有异步流程可以恢复新来源。测试使用实际组件与模拟 final-context 完成，覆盖旧读者等待及相机检查没有额外捕获或上传。普通包整合、实体 GPU 退休和形变画质分别保留。[定向回归](../Tests/StandaloneDeformedMesh/Program.cs.txt)
 
 组件设置控制分辨率、更新间隔、单对象顶点/三角上限。共享的 `VertexBudgetPerFrame`、`MaximumWorkers`、`MemoryBudgetBytes`、`UploadBudgetBytesPerFrame` 约束捕获、后台任务、逻辑内存预留和发布。失败捕获也消耗本帧顶点额度，并遵守重试间隔；worker 设为零暂停新任务，仍清理已取消任务。捕获按实例轮转，不能让列表开头的对象无限占用机会。
 
