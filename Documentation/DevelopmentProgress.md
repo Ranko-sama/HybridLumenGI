@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release159，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release160，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭渲染图在传输录制前中止后，世界缓存仍接受旧照明的问题。实际 DXR 复用同一相机和管线，恢复两帧的旧红峰值从 0.030／0.024 降为 0／0，两帧仍有当前代次的有效条目。Astra Max 同意采用拒旧和恢复推进。蓝信号正控制不足，完整新色恢复继续验收。[实机读回](../LocalComparison/Review/aborted-world-preparation-183/result.md) · [Release160 同源交付](../LocalComparison/Review/aborted-world-preparation-183/delivery.json)
 
 T6／G4 已补齐固定双 Base 相机争用贴图额度的原生进展。实际 DXR 下，A 首帧用满 1 MiB，随后让位，B 录制 128 B。原生回读确认后，B 零复制复用同一页和代次，A 恢复满额上传。采用范围为共享额度、公平、实际完成和复用。Release159 保持现有交付。[实机结果与范围](../LocalComparison/Review/native-camera-texture-turn-182/result.md)
 

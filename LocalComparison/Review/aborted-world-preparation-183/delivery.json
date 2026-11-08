@@ -1,0 +1,43 @@
+{
+  "productCommit": "cf154ec318b177f1140ee03f63486059220ba985",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release160-demo",
+  "tag": "release160-demo",
+  "publishedAt": "2026-11-08T19:46:37Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Same-camera DX12 Editor world-cache rejection and valid resumed recording after native graph compile abort before transport",
+    "evidence": "result.md",
+    "baseline": "baseline.json",
+    "fixed": "fixed.json",
+    "initialObservation": "initial-insufficient.json",
+    "baselineObserverExit": 1,
+    "fixedObserverExit": 1,
+    "bluePositiveControl": "insufficient in both frozen two-frame windows"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release160-UnityProject.zip",
+      "size": 843245,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release160-demo/HybridLumenGI-Release160-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release160-Windows-x64.zip",
+      "size": 58441964,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release160-demo/HybridLumenGI-Release160-Windows-x64.zip"
+    }
+  ]
+}
