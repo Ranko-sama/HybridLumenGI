@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release130，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release131，G0 已锁定，G1／G2 本机代表性验收通过
 
-T6／G4 的主干源码已修复零启动配额下销毁资源驱动后无法排空的问题。同输入 CPU 回归在 Release130 复现旧页滞留。候选遵守活驱动的暂停配置，在销毁后完成在途逻辑 I/O、等待安全归还、排空并允许新驱动接管。Astra Max 同意按 `startsPerStep=0` 的受控范围采用。普通包仍待整合，原生 I/O 与 GPU 生命周期保持各自验收。[资源流程与回归](IndependentAssetPages.md#publication-and-lifetime)
+T6／G4 已修复零启动配额下销毁资源驱动后无法排空的问题。同输入 CPU 回归在 Release130 复现旧页滞留。Release131 遵守活驱动的暂停配置，在销毁后完成在途逻辑 I/O、等待安全归还、排空并允许新驱动接管。Astra Max 同意按 `startsPerStep=0` 的受控范围采用，修复已进入普通包，原生 I/O 与 GPU 生命周期各自验收。[资源流程与回归](IndependentAssetPages.md#publication-and-lifetime) · [同源交付](../LocalComparison/Review/paused-page-driver-148/delivery.json)
 
 T3／G3 已修复同帧相机回调换源或清空后的旧快照使用。实际组件 CPU 回归用模拟 Context 完成验证撤回、取消和原预算下恢复，旧版在同一替换输入复现旧快照。Astra Max 同意按来源资格范围采用，已进入 Release130 普通包。实体 GPU 退休、实时姿态和形变画质仍分别验收。[形变流程与回归](DeformedGeometry.md) · [同源交付](../LocalComparison/Review/skinned-camera-source-147/delivery.json)
 
