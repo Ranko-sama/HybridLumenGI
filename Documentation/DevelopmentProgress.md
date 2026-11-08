@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release139，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release140，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭已发布精确网格因无图卡而漏报 BaseMap 换色的问题。固定离屏墙的实际 DXR 请求中，旧版读到新蓝贴图后仍无局部事件。修复版同帧写入一个墙体局部照明域，把附近地板缓存优先级提高到 751。等现有纹理回读完成后，下一次仍走 DXR 的请求恢复为零。Astra Max 同意按材质通知与调度的范围采用，画面残留、收敛用时及生产预算分别验收。[实际对照](../LocalComparison/Review/cardless-material-157/result.md) · [同源交付](../LocalComparison/Review/cardless-material-157/delivery.json)
 
 T6／G4 已关闭组等待优先级丢在实际页启动之前的问题。实际 CPU 驱动与调度器的受控对照中，持续请求页由 65 步内未启动变为第 61 步启动并达到 Ready。两层纯预取依赖在中间页仍在飞时保持低优先级。Astra Max 同意按此范围采用，修复已进入 Release139。原高速首显和正式预算仍开放。[前后对照](../LocalComparison/Review/streamed-page-priority-156/result.md) · [同源交付](../LocalComparison/Review/streamed-page-priority-156/delivery.json)
 

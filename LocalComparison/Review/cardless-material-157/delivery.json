@@ -1,0 +1,75 @@
+{
+  "productCommit": "cc6634fefe6d01e5b265a24ed4f72d979d16467a",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release140-demo",
+  "tag": "release140-demo",
+  "publishedAt": "2026-11-08T11:28:32Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release140 Unity project ZIP. Actual fixed DXR Editor observation covers the local signal and patch priority on an offscreen cardless Lit BaseMap reference swap. The hold request waits for existing material metadata readback. Picture recovery and production performance have separate acceptance.",
+  "validation": {
+    "baselineCommit": "53070c4b37c3267044c84d482d2988bd4bcf3de1",
+    "baseline": "The known Blue source recorded in DXR without a local region or floor patch priority.",
+    "candidate": "The same event recorded one wall-local region and floor priority 751. The following unchanged DXR request after metadata readback recorded zero for both.",
+    "notes": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease140\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101779377
+  },
+  "nativeExit": {
+    "project": "I:/Unity test/Comparison/PortableUnified140/HybridLumenGI-Release140-UnityProject",
+    "exitCode": 0,
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified139/HybridLumenGI-Release139-UnityProject/Library/ShaderCache",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease140",
+    "productCommit": "cc6634fefe6d01e5b265a24ed4f72d979d16467a"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release140-UnityProject.zip",
+    "bytes": 836954,
+    "productCommit": "cc6634fefe6d01e5b265a24ed4f72d979d16467a",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified140\\HybridLumenGI-Release140-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release139-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIScene.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGISurfaceCache.cs",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/HybridLumenGIRendererFeature.cs",
+      "Runtime/HybridLumenGIScene.cs",
+      "Runtime/HybridLumenGISurfaceCache.cs"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release140-UnityProject.zip",
+      "bytes": 836954,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release140-demo/HybridLumenGI-Release140-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release140-Windows-x64.zip",
+      "bytes": 58437289,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release140-demo/HybridLumenGI-Release140-Windows-x64.zip"
+    }
+  ]
+}
