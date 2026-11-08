@@ -387,12 +387,36 @@ static class Program
         material.SetTexture(Id("_BaseMap"),new Texture());cache.Prepare(scene,Config(1));Capture(cache);var texture=material.GetTexture(Id("_BaseMap"));generation=cache.GetGeneration(cache.GetCardIndex(0,0));
         texture.filterMode++;Check(!cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"sampler mutation outside compact CRC/updateCount rejects publication");
         cache.Prepare(scene,Config(1));Capture(cache);Check(cache.GetGeneration(cache.GetCardIndex(0,0))!=generation,"sampler mutation forces actual recapture");
-        material.SetTexture(Id("_EmissionMap"),new RenderTexture());cache.Prepare(scene,Config(1));var rtDraw=Capture(cache);
-        Check(cache.IsSlotReady(0,proxy.StableId,proxy.Revision)&&rtDraw.Entries.Any(e=>e.Kind=="DrawMesh"),"unstable GPU texture still gets a valid current-frame capture");
+        int baseMap = Id("_BaseMap");
+        var liveTexture = new RenderTexture();
+        material.SetTexture(baseMap, liveTexture);
+        cache.Prepare(scene, Config(1));
+        var firstDraw = Capture(cache).Entries.Single(e => e.Kind == "DrawMesh");
+        Check(cache.IsSlotReady(0, proxy.StableId, proxy.Revision) && ReferenceEquals(firstDraw.MaterialValues[baseMap], liveTexture),
+            "The current-frame capture must bind the live texture.");
         Check(!cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"GPU texture cannot reuse old readiness without content proof");
-        generation=cache.GetGeneration(cache.GetCardIndex(0,0));cache.Prepare(scene,Config(1));Capture(cache);Check(cache.GetGeneration(cache.GetCardIndex(0,0))!=generation,"GPU texture pages refresh on next prepare even without updateCount");
-        material.SetTexture(Id("_EmissionMap"),null);cache.Prepare(scene,Config(1));Capture(cache);Check(cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"static texture source restores reusable publication guard");
+
+        generation = cache.GetGeneration(cache.GetCardIndex(0, 0));
+        cache.Prepare(scene, Config(1, captures: 0));
+        Capture(cache);
+        Check(cache.GetGeneration(cache.GetCardIndex(0, 0)) != generation && !cache.IsSlotReady(0, proxy.StableId, proxy.Revision) &&
+            cache.PendingCards == 1 && cache.CapturedCards == 0, "Dynamic pixels must invalidate even when capture is deferred.");
+        cache.Prepare(scene, Config(1));
+        var repeatDraw = Capture(cache).Entries.Single(e => e.Kind == "DrawMesh");
+        bool retainedMaterial = ReferenceEquals(firstDraw.Material, repeatDraw.Material) && !firstDraw.Material.Destroyed;
+        Check(cache.IsSlotReady(0, proxy.StableId, proxy.Revision) && !cache.IsSlotSourceCurrent(0, proxy.StableId, proxy.Revision) &&
+            ReferenceEquals(repeatDraw.MaterialValues[baseMap], liveTexture), "Deferred capture must use the live texture and retain the old-history rejection.");
+
+        material.SetFloat("_Metallic", .625f);
+        cache.Prepare(scene, Config(1));
+        var changedDraw = Capture(cache).Entries.Single(e => e.Kind == "DrawMesh");
+        Check(!ReferenceEquals(repeatDraw.Material, changedDraw.Material) && repeatDraw.Material.Destroyed &&
+            (float)changedDraw.MaterialValues[Id("_Metallic")] == .625f, "An actual material change must replace the capture material and retire its predecessor.");
+        material.SetTexture(baseMap, texture);
+        cache.Prepare(scene, Config(1));Capture(cache);Check(cache.IsSlotSourceCurrent(0,proxy.StableId,proxy.Revision),"static texture source restores reusable publication guard");
         renderer.Block.SetFloat("_Smoothness",float.NaN);cache.Prepare(scene,Config(1));Check(cache.GetCardCount(0)==0&&!cache.IsSlotReady(0,proxy.StableId,proxy.Revision),"invalid effective material cannot publish a fresh page");
+        Console.WriteLine($"Dynamic texture capture retains the material across equal observations: {retainedMaterial}.");
+        Check(retainedMaterial, "Equivalent dynamic source observations must not replace the capture material.");
     }
     static int Main()
     {

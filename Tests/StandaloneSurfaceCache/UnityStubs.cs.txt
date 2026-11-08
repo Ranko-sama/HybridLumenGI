@@ -87,8 +87,9 @@ namespace UnityEngine
     public sealed class MeshRenderer:Renderer{}
     public sealed class SkinnedMeshRenderer:Renderer{public Mesh sharedMesh;}
     public class Texture:Object {public uint updateCount;public int width=16,height=16,dimension=2,graphicsFormat=1,mipmapCount=1,filterMode=1,wrapModeU,wrapModeV,wrapModeW,anisoLevel=1;public float mipMapBias;public bool isDataSRGB;}
-    public sealed class Texture2D:Texture {public bool streamingMipmaps;public int activeMipmapLimit,loadedMipmapLevel,loadingMipmapLevel;}
+    public sealed class Texture2D:Texture {public static readonly Texture2D whiteTexture=new();public bool streamingMipmaps;public int activeMipmapLimit,loadedMipmapLevel,loadingMipmapLevel;}
     public sealed class RenderTexture:Texture{}
+    public sealed class LightmapData{}
     public class PropertyBag
     {
         public readonly Dictionary<int,object> Values=new();
@@ -174,6 +175,7 @@ namespace UnityEngine.Rendering
         public void SetViewport(Rect rect){Entries.Add(new(){Kind="Viewport"});}
         public void ClearRenderTarget(bool depth,bool color,Color clear,float value){Entries.Add(new(){Kind="Clear"});}
         public void SetGlobalVector(int id,Vector4 v)=>Parameters[id]=v;public void SetGlobalFloat(int id,float v)=>Parameters[id]=v;public void SetGlobalMatrix(int id,Matrix4x4 v)=>Parameters[id]=v;
+        public void SetGlobalTexture(int id,Texture value)=>Parameters[id]=value;
         public void DrawProcedural(Matrix4x4 m,Material material,int pass,MeshTopology topology,int count){Entries.Add(new(){Kind="TileClear",Material=material,Pass=pass,Parameters=Copy()});}
         public void DrawMesh(Mesh mesh,Matrix4x4 matrix,Material material,int submesh,int pass,MaterialPropertyBlock properties){Entries.Add(new(){Kind="DrawMesh",Mesh=mesh,Material=material,Submesh=submesh,Pass=pass,MaterialValues=new(material.Values),Parameters=Copy()});}
         public void DrawRenderer(Renderer renderer,Material material,int submesh,int pass){Entries.Add(new(){Kind="DrawRenderer",Renderer=renderer,Material=material,Submesh=submesh,Pass=pass,MaterialValues=new(material.Values),Parameters=Copy()});}
@@ -181,6 +183,7 @@ namespace UnityEngine.Rendering
         public void SetComputeFloatParam(ComputeShader shader,int id,float value)=>Parameters[id]=value;
         public void SetComputeVectorParam(ComputeShader shader,int id,Vector4 value)=>Parameters[id]=value;public void SetComputeVectorParam(ComputeShader shader,string name,Vector4 value)=>Parameters[Shader.PropertyToID(name)]=value;
         public void SetComputeTextureParam(ComputeShader shader,int kernel,int id,RenderTargetIdentifier value)=>Parameters[id]=value;
+        public void SetComputeTextureParam(ComputeShader shader,int kernel,int id,Texture value)=>Parameters[id]=value;
         public void SetComputeBufferParam(ComputeShader shader,int kernel,int id,ComputeBuffer buffer)=>Parameters[id]=buffer;
         public void DispatchCompute(ComputeShader shader,int kernel,int x,int y,int z){Entries.Add(new(){Kind="Dispatch",Shader=shader,Kernel=kernel,X=x,Y=y,Z=z,Parameters=Copy()});}
     }
@@ -188,6 +191,21 @@ namespace UnityEngine.Rendering
 namespace HybridLumenGI
 {
     using UnityEngine;
+    // The recording fixtures use no baked shadowmask inputs.
+    internal static class HybridLumenGIShadowmask
+    {
+        internal readonly struct Source
+        {
+            internal bool captureUv => false;
+            internal Vector4 scaleOffset => default;
+            internal bool Matches(Source other) => true;
+        }
+        internal static Source Read(Renderer renderer,LightmapData[] maps,out Texture2D texture)
+        {
+            if(maps!=null) throw new NotSupportedException("The recording fixtures use no lightmaps.");
+            texture=null;return default;
+        }
+    }
     // Dependency adapter; deformation publication has its own actual-source lifecycle check.
     public static class HybridLumenGIDeformedMesh
     {
@@ -213,5 +231,10 @@ namespace HybridLumenGI
         public HybridLumenGIScene(int count){Data=new ProxyGpuData[count];Proxies=new HybridLumenGIProxy[count];}
         public HybridLumenGIProxy GetProxy(int slot)=>Proxies[slot];public Renderer GetRenderer(int slot)=>Proxies[slot]?.SourceRenderer;
         public void Set(int slot,HybridLumenGIProxy proxy,int phase=1){Proxies[slot]=proxy;Data[slot].identity=proxy==null?default:new(proxy.StableId,proxy.Revision,0,phase);}
+        internal LightmapData[] ShadowmaskSources => null;
+        internal bool IsWarming(int slot) => Data[slot].identity.w==2f;
+        internal IEnumerable<IReadOnlyCollection<int>> GetPublishedHlodGroups() => Array.Empty<IReadOnlyCollection<int>>();
+        internal bool TryGetPublishedSlot(int stableId,out int slot)
+        { slot=Array.FindIndex(Data,value=>(int)value.identity.x==stableId&&value.identity.w==1f);return slot>=0; }
     }
 }

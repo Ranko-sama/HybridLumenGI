@@ -467,7 +467,7 @@ namespace HybridLumenGI
                 int signature = SourceSignature(renderer, sourceMaterials);
                 var bakedShadow = HybridLumenGIShadowmask.Read(renderer, shadowmaskSources, out var shadowmaskTexture);
                 int geometrySignature = GeometrySignature(renderer);
-                if (!TryCaptureMaterialSources(owner, out var observedSources))
+                if (!TryCaptureMaterialSources(owner, out var observedSources, out bool volatileMaterialContent))
                 {
                     // Invalid source uniforms/types cannot be published as fresh material pages.
                     // A RenderTexture is still observable and capturable; only its history is unstable.
@@ -475,7 +475,7 @@ namespace HybridLumenGI
                 }
                 bool materialsChanged = owner.signature != signature || owner.submeshes.Count == 0 ||
                     !SameMaterialSources(owner.materialSources, observedSources);
-                if (owner.revision != revision || owner.geometrySignature != geometrySignature || materialsChanged ||
+                if (owner.revision != revision || owner.geometrySignature != geometrySignature || materialsChanged || volatileMaterialContent ||
                     sourceGeometryChanged || !owner.bakedShadow.Matches(bakedShadow))
                 {
                     if (owner.published)
@@ -809,9 +809,11 @@ namespace HybridLumenGI
         // from the source Material, not an MPB copied into our capture Material.
         private static float SourceCull(Material material) => material.HasProperty("_Cull") ? material.GetFloat("_Cull") : 2f;
 
-        private bool TryCaptureMaterialSources(Owner owner, out HybridLumenGIMaterialSource.Snapshot[] snapshots)
+        private bool TryCaptureMaterialSources(Owner owner, out HybridLumenGIMaterialSource.Snapshot[] snapshots,
+            out bool volatileContent)
         {
             snapshots = new HybridLumenGIMaterialSource.Snapshot[sourceMaterials.Count];
+            volatileContent = false;
             Mesh mesh = GetMesh(owner.renderer);
             int count = mesh != null ? Mathf.Min(mesh.subMeshCount, sourceMaterials.Count) : 0;
             bool any = false;
@@ -819,6 +821,8 @@ namespace HybridLumenGI
             {
                 if (!Supported(sourceMaterials[i]) || mesh.GetTopology(i) != MeshTopology.Triangles) continue;
                 if (!materialSource.TryCapture(owner.renderer, i, sourceMaterials[i], out snapshots[i], out _)) return false;
+                // Live texture pixels can change without a change to the capture material's bindings.
+                volatileContent |= !snapshots[i].CanReuseHistory;
                 any = true;
             }
             return any;
@@ -830,7 +834,7 @@ namespace HybridLumenGI
             for (int i = 0; i < current.Length; i++)
             {
                 if (current[i] == null) { if (previous[i] != null) return false; continue; }
-                if (!current[i].CanReuseHistory || !current[i].Equals(previous[i])) return false;
+                if (!current[i].Equals(previous[i])) return false;
             }
             return true;
         }
