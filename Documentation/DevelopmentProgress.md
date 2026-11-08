@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release164，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release165，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭活动代理在普通校验后漏接同对象 Collider 的缺口。真实 Unity 对照中，新组件中心为 2。旧版消费待校验后仍保留中心 55 的边界，修复版在当次准备绑定并按实际边界发布。[正常校验对照](../LocalComparison/Review/pending-collider-validation-189/result.md) · [Release165 同源交付](../LocalComparison/Review/pending-collider-validation-189/delivery.json)
 
 T6 已去掉确定在域外的普通代理对本相机的无效实例刷新及候选入队。Unity 实际场景准备中，候选和查找表均从 7 项降到 3 项。共享网格通知、第二视点的当前材质、重新入域及已有 HLOD 根预热继续成立。证据限准备行为，耗时和完整预算仍待验收。[对照与范围](../LocalComparison/Review/far-ordinary-prepare-188/result.md) · [Release164 同源交付](../LocalComparison/Review/far-ordinary-prepare-188/delivery.json)
 
