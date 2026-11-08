@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release151，G0 已锁定，G1／G2 本机代表性验收通过
 
+T5／G4 已完成原 Release143 观察构建的一次实机折返。最近点无完整组，回程 7.752 单位首次提交粗根，全程没有完整细节接替，离场页账排空。78.670 秒回调间隔跳过全部域内去程采样。高速首显保持开放，按一次观察的范围保留结果。[实机与判定边界](../LocalComparison/Review/cold-crossing-143/result.md)
+
 T6／G4 已关闭相机状态重建时漏记旧软件属性与 BVH 的缺口。实际 Feature 准入与 BVH 代码在 1 MiB 下复现两代 1,280,832 B。修复后保留仍适配的属性，BVH 等旧代释放再准入，另一相机仍独立。Astra Max 同意按托管逻辑准入范围采用。真实双相机 GPU 成本与总显存分别验收。[前后对照](../LocalComparison/Review/camera-software-geometry-budget-168/result.md) · [同源交付](../LocalComparison/Review/camera-software-geometry-budget-168/delivery.json)
 
 T6／G4 已关闭相机状态重建时漏记旧 DXR 属性缓冲的缺口。同一实际 Backend 对照在 1 MiB 下由两代 1,152,392 B 改为等待安全释放，另一相机仍可独立准入。Astra Max 同意按逻辑准入范围采用。原生双相机负载和总显存分别验收。[前后对照](../LocalComparison/Review/camera-dxr-attribute-budget-167/result.md) · [同源交付](../LocalComparison/Review/camera-dxr-attribute-budget-167/delivery.json)
