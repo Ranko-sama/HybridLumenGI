@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release148，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release149，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭关闭域重载时旧帧预算阻塞再次 Play 的缺口。Unity 无图形对照中，第二轮第 1 帧恢复纹理上传与 RTAS 构建准入，受控退休预留保留到完成回调。Astra Max 同意按 Editor 生命周期与托管准入采用。实际 GPU 围栏跨会话和完整 G4 各自验收。[前后对照](../LocalComparison/Review/play-frame-admission-166/result.md) · [同源交付](../LocalComparison/Review/play-frame-admission-166/delivery.json)
 
 T2 已修复共用精确材质采样在应用 mip 偏移前夹取正足迹 LOD 的问题。实际 WARP 覆盖入口的两端裁切改为符合预期，零足迹对照一致。Astra Max 同意按此范围采用。完整材质派发曾到等待上限，实体 GPU 与画面继续验收。[输入、读回与范围](../LocalComparison/Review/mip-bias-footprint-165/result.md) · [同源交付](../LocalComparison/Review/mip-bias-footprint-165/delivery.json)
 
