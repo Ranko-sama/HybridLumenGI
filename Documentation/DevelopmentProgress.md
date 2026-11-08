@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release159，G0 已锁定，G1／G2 本机代表性验收通过
 
+T6／G4 已补齐固定双 Base 相机争用贴图额度的原生进展。实际 DXR 下，A 首帧用满 1 MiB，随后让位，B 录制 128 B。原生回读确认后，B 零复制复用同一页和代次，A 恢复满额上传。采用范围为共享额度、公平、实际完成和复用。Release159 保持现有交付。[实机结果与范围](../LocalComparison/Review/native-camera-texture-turn-182/result.md)
+
 T6／G4 已关闭最后一个 GI 相机销毁后状态滞留的问题。实际 DX12 Editor 中，存活的手动相机在空闲时保留状态。销毁后没有新增渲染上下文，管线仍在，相机状态脱离，历史纹理句柄释放，RTAS 与相机属性账目归零。Astra Max 同意按单相机真实空闲回收采用。修复已进入 Release159。[实机结果与范围](../LocalComparison/Review/destroyed-camera-idle-181/result.md) · [同源交付](../LocalComparison/Review/destroyed-camera-idle-181/delivery.json)
 
 T3／G3 已关闭硬失效域旧值在同一世界迭代中写回其他图块的缺口。实际着色器对照中，匹配标签和图卡代次的旧红值仍被旧版读取，修复版只留下域外蓝值。Gather 的本轮重建输入仍可读取，软域与位姿跳变沿用原规则。修复已进入 Release158，采用范围为读取资格和绑定。实机画面、收敛与性能继续验收。[着色器对照](../LocalComparison/Review/hard-cache-input-180/result.md) · [同源交付](../LocalComparison/Review/hard-cache-input-180/delivery.json)

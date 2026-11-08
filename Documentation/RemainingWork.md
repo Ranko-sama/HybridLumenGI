@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release159 同源交付](../LocalComparison/Review/destroyed-camera-idle-181/delivery.json)
 
+T6／G4 已补齐 Release153 上传公平修复的原生链路。Release159 的双 Base DXR 固定顺序下，后置相机从额度等待进展到原生回读 Ready，再零复制复用同页，前置相机恢复。普通 Player、实体同时在飞的共享读者撤回及正式预算分别验收。[实机结果](../LocalComparison/Review/native-camera-texture-turn-182/result.md)
+
 T6／G4 已关闭最后一台已使用 GI 的相机销毁后，无后续相机准备时的状态回收缺口。DX12 Editor 的单相机实际提交后，空闲更新归还历史纹理句柄及 RTAS／属性账目。普通 Player、在飞等待和进程显存继续按原条件验收。Astra Max 复核采用范围，并将下一个放行阻断优先级放回 T5 冷入首显和完整细节接替。[实机结果与范围](../LocalComparison/Review/destroyed-camera-idle-181/result.md)
 
 T2／G4 已关闭原空间关系下 signed SDF 与真实 DXR 最近命中的原生证据缺口。普通烘焙盒面和两个真实三角在同一命令内按距离正确选择。精确软件、画面及其余材质组合继续按各自条件验收。[实际读回](../LocalComparison/Review/native-dxr-signed-sdf-169/result.md)
@@ -87,6 +89,8 @@ T5 现有记录确认了统一示例在加载带入口的一帧绑定延后。Re
 Release110 同一路线的回程第 349–363 帧已同时容纳已发布细节与正在预热的粗根，共 21 个实例、138 张就绪图卡，实例和预热图卡阻塞均为零。这项依据限房间扩展关闭的原回程。Scene 选择发布时尚未得到新目标本帧的图卡准入结果，已就绪粗根遇目标切换时的通用共驻与完整接替继续开放。[原路线与原始记录](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
 Release110 预测带的 8 页在第 15 帧、路线约 0.04 秒已 Ready，第 307 帧才完成绑定。第 307→308 帧实际从 SDF／解析切到 DXR，早于这次切换的照明及回执会作废。现有预热排在普通对象槽位之前，直接加入界外粗根也会争用图卡和工作额度。Astra Max 据此收束界外准备候选。143 沿原路线观察后保留原可见界及照明门槛，回调空档成因与细节样本不足仍无可归因机制。[110 路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) · [143 观察](../LocalComparison/Review/cold-crossing-143/result.md) · [实际后端切换逻辑](../Runtime/HybridLumenGIRendererFeature.cs)
+
+现有回执时序不足以采用低样本格重排。110 的粗根第二份阻断来自工作帧 316，结果到达时目标已于引擎帧 320 切为细节。143 细节的两份低样本回执分别在引擎帧 282 和 286 到达，目标到 287 帧结束。原始记录只给首个阻断，无法区分未获服务、未知更新和重复失效，也无法据此判断完整组会更早发布。Astra Max 建议按原预算、样本门和采用条件收束重排候选。[110 原始记录入口](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) · [143 原始记录入口](../LocalComparison/Review/cold-crossing-143/result.md)
 
 ## 用户已暂缓或已收束的工作
 
