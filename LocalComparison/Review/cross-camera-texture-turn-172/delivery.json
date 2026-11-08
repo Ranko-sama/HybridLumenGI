@@ -1,0 +1,51 @@
+{
+  "productCommit": "8c71e70f202a6962310b9775fccf4edcea04438d",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release153-demo",
+  "tag": "release153-demo",
+  "publishedAt": "2026-11-08T16:17:30Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Two fixed-order C# hit-material batches sharing frame admission with controlled fences and readback",
+    "perFrameCopyCapBytes": 1048576,
+    "baseline": "Release152 uses the full budget again in the second frame, leaving no turn for the later camera.",
+    "fixedRecordedBytesByFrame": [
+      1048576,
+      0,
+      128,
+      1048576
+    ],
+    "preservedInFlightArena": true,
+    "stableHandleReusedAfterReadback": true,
+    "firstCameraRecordedBytesAfterRequestWithdrawal": [
+      0,
+      1048576
+    ],
+    "evidence": "../../../Tests/StandaloneHitMaterialBatch/Program.cs.txt"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release153-UnityProject.zip",
+      "size": 842053,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release153-demo/HybridLumenGI-Release153-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release153-Windows-x64.zip",
+      "size": 58440444,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release153-demo/HybridLumenGI-Release153-Windows-x64.zip"
+    }
+  ]
+}
