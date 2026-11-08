@@ -1,0 +1,71 @@
+{
+  "productCommit": "ed99f25d53ab648755fa380a28bc706529bab45d",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release148-demo",
+  "tag": "release148-demo",
+  "publishedAt": "2026-11-08T13:58:11Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release148 project ZIP. The actual exact material coverage entry executed on D3D12 WARP with three controlled mip-bias inputs and independent expected coverage. The full-material baseline hit the fence wait limit. Full color, DXR traversal, physical GPU and production performance have separate acceptance.",
+  "validation": {
+    "baselineCommit": "f0f35ae7caabe0070d77fb8bbbbbc31551926160",
+    "baseline": "The two nonzero footprints at the lower and upper mip boundary incorrectly produced known, uncovered results. The zero-radius control was known and uncovered.",
+    "candidate": "Both nonzero boundary inputs are known and covered as expected. The zero-radius control remains known and uncovered.",
+    "notes": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease148\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101781137
+  },
+  "nativeExit": {
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease148",
+    "productCommit": "ed99f25d53ab648755fa380a28bc706529bab45d",
+    "project": "I:/Unity test/Comparison/PortableUnified148/HybridLumenGI-Release148-UnityProject",
+    "exitCode": 0,
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified147/HybridLumenGI-Release147-UnityProject/Library/ShaderCache",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release148-UnityProject.zip",
+    "bytes": 840385,
+    "productCommit": "ed99f25d53ab648755fa380a28bc706529bab45d",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified148\\HybridLumenGI-Release148-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release147-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareSurface.hlsl",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareSurface.hlsl"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release148-UnityProject.zip",
+      "bytes": 840385,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release148-demo/HybridLumenGI-Release148-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release148-Windows-x64.zip",
+      "bytes": 58439104,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release148-demo/HybridLumenGI-Release148-Windows-x64.zip"
+    }
+  ]
+}

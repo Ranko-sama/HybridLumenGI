@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release147，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release148，G0 已锁定，G1／G2 本机代表性验收通过
+
+T2 已修复共用精确材质采样在应用 mip 偏移前夹取正足迹 LOD 的问题。实际 WARP 覆盖入口的两端裁切改为符合预期，零足迹对照一致。Astra Max 同意按此范围采用。完整材质派发曾到等待上限，实体 GPU 与画面继续验收。[输入、读回与范围](../LocalComparison/Review/mip-bias-footprint-165/result.md) · [同源交付](../LocalComparison/Review/mip-bias-footprint-165/delivery.json)
 
 T2／T3 已关闭待定副本使同源就绪贴图被误判为未知的问题。实际材质批次复用了原缓冲和原代次，原在途副本继续计账。收紧额度后原待定路径仍成立。Astra Max 同意按资源选择与句柄范围采用。实际颜色及动态收敛继续验收。[前后对照](../LocalComparison/Review/ready-texture-pending-copy-164/result.md) · [同源交付](../LocalComparison/Review/ready-texture-pending-copy-164/delivery.json)
 
