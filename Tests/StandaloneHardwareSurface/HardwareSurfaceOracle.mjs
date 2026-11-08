@@ -64,7 +64,7 @@ function expectedLod(c){
         return c.size.map((size,j)=>(du[j]*b1+dv[j]*b2)*c.uvScale[j]*size);}
     const a=projected(basis),b=projected(other);let length=0;
     for(let i=0;i<2048;i++){const angle=i*Math.PI/2048,delta=add(mul(a,Math.cos(angle)),mul(b,Math.sin(angle)));length=Math.max(length,norm(delta));}
-    const raw=Math.log2(2*c.radius*length);return {valid:true,lod:Math.min(maximum,Math.max(0,raw))};
+    const raw=Math.log2(2*c.radius*length);return {valid:true,lod:raw};
 }
 if(mode==='prepare'){
     const cases=[];for(let i=0;i<768;i++){

@@ -75,6 +75,8 @@ bool HLGIApplyHardwareNormal(HLGIHardwareMaterialFrame frame,float3 normalTS,out
 // of the world-to-texel UV derivative. LOD uses footprint DIAMETER (2*radius).
 // The caller must propagate radius/spread through transport; this helper does
 // not manufacture a screen derivative or claim that fixed mip zero is adequate.
+// Leave the finite footprint LOD unclamped so the texture sampler can apply
+// mip bias before clamping to the actual resident levels.
 bool HLGITryHardwareTextureLod(float3 p0,float3 p1,float3 p2,float2 uv0,float2 uv1,float2 uv2,
     float2 uvScale,uint2 textureSize,float3 rayDirection,float coneRadius,out float lod)
 {
@@ -109,6 +111,6 @@ bool HLGITryHardwareTextureLod(float3 p0,float3 p1,float3 p2,float2 uv0,float2 u
     float eigenvalue=0.5*(a+c+sqrt(max(0,(a-c)*(a-c)+4*b*b)));
     float footprintLog=1+log2(coneRadius)+log2(gradientScale)+0.5*(log2(covarianceScale)+log2(eigenvalue));
     if(!isfinite(footprintLog)) return false;
-    lod=clamp(footprintLog,0,maximumLod);return true;
+    lod=footprintLog;return true;
 }
 #endif

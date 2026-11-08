@@ -116,7 +116,7 @@ try {
         $report.warpExecuted=$true
         Run-Check ('oracle-verify-'+$variant) $node @((Join-Path $templateRoot 'HardwareMaterialsOracle.mjs'),'verify',$variantRoot,$encoding,$kind) | Out-Null
         $oracle=Get-Content -LiteralPath (Join-Path $variantRoot 'oracle-results.json') -Encoding utf8 -Raw | ConvertFrom-Json
-        if($oracle.status -ne 'passed' -or $oracle.count -ne $(if($kind -eq 'full'){248}elseif($kind -eq 'coverage'){149}else{152})){throw 'Unexpected actual-material oracle coverage.'}
+        if($oracle.status -ne 'passed' -or $oracle.count -ne $(if($kind -eq 'full'){248}else{152})){throw 'Unexpected actual-material oracle coverage.'}
         $report.oracle+=@($oracle)
         $artifacts.Add((Join-Path $variantRoot 'outputs.bin'));$artifacts.Add((Join-Path $variantRoot 'oracle-results.json'))
     }

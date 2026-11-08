@@ -127,7 +127,7 @@ function geometricLod(c,size,uvScale){
     const uv=add(scale(sub(du[1],du[0]),u),scale(sub(du[2],du[0]),vv));
     maxDiameter=Math.max(maxDiameter,2*c.radius*size*Math.sqrt(dot(uv,uv)));
   }
-  return clamp(Math.log2(maxDiameter),0,Math.log2(size));
+  return Math.log2(maxDiameter);
 }
 function expectation(c,textures){
   const zeros=Array(24).fill(0),unknown=()=>({known:false,covered:true,receives:false,values:zeros.map((x,i)=>i===15?1:x)});
@@ -176,6 +176,19 @@ if(mode==='prepare'){
     t.count=texels.length-t.offset;textures.push(t);metadata.push([t.offset,top,top,0,t.levels.length,37,1,2,t.count,0,0,0,0,1,0,0]);
   }
   textures.push({...textures[0],ready:false});metadata.push(metadata[0].map((x,i)=>i===6?0:x));
+  const biasedTextureStart=textures.length;
+  const mipColors=[[1,0,0,1],[0,1,0,0],[0,0,1,1]];
+  for(const bias of [1,-1]){
+    const offset=texels.length;
+    const levels=mipColors.map((color,mip)=>{
+      const size=4>>mip,pixels=Array(size*size).fill(color);
+      texels.push(...pixels);
+      return {size,pixels};
+    });
+    const count=texels.length-offset;
+    textures.push({generation:37,ready:true,bias,levels});
+    metadata.push([offset,4,4,0,levels.length,37,1,2,count,0,0,0,bias,1,0,0]);
+  }
   function record(flags=0,present=1023){return {identity:[19,flags,2,present],baseColor:[.8,.6,.4,.7],specColor:[.12,.3,.2,1],emissionColor:[2,.4,3,1],surface:[.37,.63,.71,1.4],detail:[.3,1.7,.8,.04],baseST:[1.7,.8,.12,-.17],detailST:[2.1,1.3,-.2,.1],proxyTint:[.6,1.2,.8,1],proxyEmission:[.12,.3,.01,1.8],handles:Array.from({length:10},(_,i)=>[i,37])};}
   function base(flags=0,present=1023){return {record:record(flags,present),identity:[101,53,29,2],geometry:[3,0,2,7],
     bindingSource:[101,53,29,7],bindingTable:[0,19,0,0],o:[[1,0,0,0],[0,1,0,0],[0,0,1,0]],
@@ -273,6 +286,20 @@ if(mode==='prepare'){
   // Base UV/texels remain real shadow dependencies; unknown is not transparent.
   for(const [name,edit] of [['base-missing',c=>c.record.handles[0]=[0xffffffff,0]],['uv-missing',c=>c.uvValid=0],['base-unready',c=>c.record.handles[0]=[12,37]]]){
     const c=base(513);c.coverage=true;c.shadow=true;c.unknown=true;edit(c);addCase('shadow-requires-'+name,c);
+  }
+  for(const [name,radius,textureIndex] of [
+    ['lod-bias-below-first',1/32,biasedTextureStart],
+    ['lod-bias-above-last',2,biasedTextureStart+1],
+    ['lod-bias-zero-footprint',0,biasedTextureStart]
+  ]){
+    const c=base(1,1);
+    c.record.handles[0]=[textureIndex,37];
+    c.record.baseST=[1,1,0,0];
+    c.record.baseColor=[1,1,1,1];
+    c.record.detail[0]=0.5;
+    c.coverage=true;
+    c.radius=radius;
+    addCase(name,c);
   }
   // Each fixture gets its own material/binding and two surface records. The
   // first surface is deliberately unusable; primitive 1 must select the second.
