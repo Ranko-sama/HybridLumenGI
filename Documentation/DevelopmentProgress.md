@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release151，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release152，G0 已锁定，G1／G2 本机代表性验收通过
 
-T6／G4 已关闭同一精确材质批次中，持续更新的动态贴图用满逐帧额度、后续稳定贴图始终拿不到上传机会的缺口。相同 1 MiB 额度下，旧实现第二帧仍跳过稳定页。修复后第二帧上传该页，受控完成回执到达后，第三帧复用其原句柄，动态页恢复复制。采用范围为普通材质批次的托管准入逻辑，后续可运行包与实体 GPU 验收待完成。[调度与适用范围](GpuBudget.md#启用与测量范围) · [前后对照](../Tests/StandaloneHitMaterialBatch/Program.cs.txt)
+T6／G4 已关闭同一精确材质批次中，持续更新的动态贴图用满逐帧额度、后续稳定贴图始终拿不到上传机会的缺口。相同 1 MiB 额度下，旧实现第二帧仍跳过稳定页。修复后第二帧上传该页，受控完成回执到达后，第三帧复用其原句柄，动态页恢复复制。修复已进入 Release152，采用范围为普通材质批次的托管准入逻辑。实体 GPU 继续验收。[调度与适用范围](GpuBudget.md#启用与测量范围) · [前后对照](../Tests/StandaloneHitMaterialBatch/Program.cs.txt) · [同源交付](../LocalComparison/Review/texture-upload-fairness-171/delivery.json)
 
 T2／G4 已取得真实 DXR 与 signed SDF 同射线竞争的有限实机依据。较近的盒面胜过真实远三角，另一条射线仍选择更近的真实三角，两个结果均有当前来源身份。Astra Max 按该静态查询范围采用。普通相机画面和整体 T2／G4 分别验收。[输入与实际读回](../LocalComparison/Review/native-dxr-signed-sdf-169/result.md)
 
