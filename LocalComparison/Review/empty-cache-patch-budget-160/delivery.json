@@ -1,0 +1,75 @@
+{
+  "productCommit": "50f69cf5673081b508aa8d937ed245a71cae0042",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release143-demo",
+  "tag": "release143-demo",
+  "publishedAt": "2026-11-08T12:24:27Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release143 Unity project ZIP. Actual HLOD readback consumption and cache scheduling C# classes were exercised with controlled callback data. The scope is logical update slots for confirmed empty cells. Real GPU cost and cold first visibility have separate acceptance.",
+  "validation": {
+    "baselineCommit": "877d71a2bb737bbfbbbc7287b47c68efb889529f",
+    "baseline": "Without a coverage observation the next two-slot mask selects cells 2 and 3, including the empty cell 2.",
+    "candidate": "The current readback selects covered cells 1 and 3 within the same quota and fairness share. Readiness still requires age two. Replacement and stale, all-zero or truncated callbacks leave unknown cells eligible.",
+    "notes": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease143\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101781937
+  },
+  "nativeExit": {
+    "productCommit": "50f69cf5673081b508aa8d937ed245a71cae0042",
+    "exitCode": 0,
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease143",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "project": "I:/Unity test/Comparison/PortableUnified143/HybridLumenGI-Release143-UnityProject",
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified142/HybridLumenGI-Release142-UnityProject/Library/ShaderCache"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release143-UnityProject.zip",
+    "bytes": 838945,
+    "productCommit": "50f69cf5673081b508aa8d937ed245a71cae0042",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified143\\HybridLumenGI-Release143-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release142-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/HybridLumenGICacheScheduler.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIHlodReadback.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/HybridLumenGICacheScheduler.cs",
+      "Runtime/HybridLumenGIHlodReadback.cs",
+      "Runtime/HybridLumenGIRendererFeature.cs"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release143-UnityProject.zip",
+      "bytes": 838945,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release143-demo/HybridLumenGI-Release143-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release143-Windows-x64.zip",
+      "bytes": 58438656,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release143-demo/HybridLumenGI-Release143-Windows-x64.zip"
+    }
+  ]
+}

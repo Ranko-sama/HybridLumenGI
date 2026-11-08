@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release142，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release143，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／T6 的世界缓存调度已关闭已确认空格占用逻辑照明配额的缺口。现有回读确认空格后，相同两格配额在实际 C# 对照中从一空一实变为两格有覆盖，零样本覆盖格仍可更新。旧代次拒绝、重捕获恢复和原发布年龄门均保持。Astra Max 同意按这一功能范围采用。原高速冷入首显和真实性能仍待验收。[同额度对照](../LocalComparison/Review/empty-cache-patch-budget-160/result.md) · [同源交付](../LocalComparison/Review/empty-cache-patch-budget-160/delivery.json)
 
 T6／G4 补上接收面发现与重验原先缺少的 CPU 时间准入。一个相机图内共享累计额度，默认关闭。实际运行时 C# 对照证明重验能耗尽余量并停止下一件来源检查，原生资格拒绝不完整输入，下一次足额扫描恢复。Astra Max 同意按此范围采用。已开始的 Unity 调用仍会完成，整帧 CPU 时间、其他阶段和完整生产预算分别验收。[实际源码对照](../LocalComparison/Review/receiver-discovery-budget-159/result.md) · [同源交付](../LocalComparison/Review/receiver-discovery-budget-159/delivery.json)
 
