@@ -19,6 +19,7 @@ namespace HybridLumenGI
         private static readonly List<Ticket> pending=new List<Ticket>();
         private static readonly List<Owned> owned=new List<Owned>();
         private static readonly HashSet<Action> shutdownOwners=new HashSet<Action>();
+        internal static event Action CollectIdleRetirements;
         private static bool registered, outsideRenderLoop, contextEnded=true, shuttingDown, withdrawing, draining, polling, submissionUncertain;
         private static bool unavailableRepresentationScanPending, demandRepresentationScanPending;
         private static int lastRepresentationContextFrame = -1;
@@ -115,6 +116,7 @@ namespace HybridLumenGI
             if(contextEnded && !submissionUncertain)outsideRenderLoop=true;
             if(outsideRenderLoop)
             {
+                CollectIdleRetirements?.Invoke();
                 // Ordinary demand already gets checked at EndContext in rendering frames.
                 bool scanDemand = atFrameEnd && demandRepresentationScanPending && lastRepresentationContextFrame != Time.frameCount;
                 if ((unavailableRepresentationScanPending || scanDemand) && SystemInfo.supportsGraphicsFence)

@@ -674,7 +674,11 @@ namespace HybridLumenGI
             private ulong backendRequest;
             internal void BackendRequestChanged() { unchecked { backendRequest++; } }
             private Cubemap rejectedEnvironment;
-            internal void StopAdmission()=>admissionStopped=true;
+            internal void StopAdmission()
+            {
+                admissionStopped=true;
+                HybridLumenGIResourceRetirement.CollectIdleRetirements-=RetireDestroyedCameras;
+            }
             internal TransportPass(ComputeShader shader,Material composite,Shader surface,Shader nativeDiffuse,Settings settings,Func<bool> featureActive,HybridLumenGIRendererFeature validationOwner)
             {
                 software=shader; this.composite=composite; this.surface=surface;this.nativeDiffuse=nativeDiffuse;s=settings;
@@ -686,6 +690,7 @@ namespace HybridLumenGI
                 ConfigureInput(ScriptableRenderPassInput.Depth|ScriptableRenderPassInput.Normal|ScriptableRenderPassInput.Motion);
                 requiresIntermediateTexture=true;
                 HybridLumenGIResourceRetirement.Register(RequiresRepresentation);
+                HybridLumenGIResourceRetirement.CollectIdleRetirements+=RetireDestroyedCameras;
             }
             private bool RequiresRepresentation(HybridLumenGIProxy proxy)
             {
@@ -1653,6 +1658,7 @@ namespace HybridLumenGI
             }
             private CameraState GetCameraState(Camera camera)
             {
+                RetireDestroyedCameras();
                 int id=camera.GetInstanceID();Evict(id);
                 if(cameras.TryGetValue(id,out var state) && !ReferenceEquals(state.camera,camera))
                 {
@@ -1666,10 +1672,23 @@ namespace HybridLumenGI
                 }
                 return state;
             }
+            private void RetireDestroyedCameras()
+            {
+                retire.Clear();
+                foreach (var entry in cameras)
+                    if (entry.Value.camera == null) retire.Add(entry.Key);
+                foreach (int id in retire)
+                {
+                    var state = cameras[id];
+                    cameras.Remove(id);
+                    // Recorded work may still read the detached state's textures and buffers.
+                    HybridLumenGIResourceRetirement.Retire(state.Dispose);
+                }
+            }
             private void Evict(int current)
             {
                 retire.Clear();
-                foreach(var entry in cameras) if(entry.Key!=current && (entry.Value.camera==null || Time.frameCount-entry.Value.lastUsed>120)) retire.Add(entry.Key);
+                foreach(var entry in cameras) if(entry.Key!=current && Time.frameCount-entry.Value.lastUsed>120) retire.Add(entry.Key);
                 foreach(int key in retire) { cameras[key].Dispose();cameras.Remove(key); }
                 if(!cameras.ContainsKey(current) && cameras.Count>=Mathf.Clamp(s.maxCameras,1,4))
                 {
@@ -1749,7 +1768,7 @@ namespace HybridLumenGI
             public void Dispose()
             {
                 HybridLumenGIResourceRetirement.Unregister(RequiresRepresentation);
-                admissionStopped=true;
+                StopAdmission();
                 foreach(var materialPass in materialPasses)materialPass.Dispose();materialPasses.Clear();
                 HybridLumenGIHitMaterialPass.PollRetired();
                 foreach(var state in cameras.Values)state.Dispose();cameras.Clear();receiverIdentityPass.Dispose();
