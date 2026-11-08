@@ -4,6 +4,8 @@ Release108 的屏幕预算根据该相机实际执行的空间滤波级数计入
 
 ## 当前已确认的起始验收目标
 
+Release167 统一三室在原热态近远路线实测两方向各 10 次完整 HLOD 接替。480 个接替和退休源帧的三段 GI 合计 p95／p99 为 16.522／17.345 ms，完整路线进程 local／nonlocal 有限采样峰值为 568.508／290.320 MiB，两项起始预算通过。冷入、启动和应用 Present 节奏单列。[路线、接替窗口及范围](../LocalComparison/Review/hot-hlod-budget-192/result.md)
+
 Release151 在原 F4 中室取得 512 个同源帧的三段 GI 和进程显存。GI 合计 p95／p99 为 15.936／16.169 ms，local／nonlocal 有限采样峰值为 566.191／286.441 MiB，达到 25 ms／1 GiB 两项起始预算。PresentMon 报告事件丢失且无 CSV，三项同窗仍证据不足。[机位、原始记录与范围](../LocalComparison/Review/three-room-middle-joint-170/result.md)
 
 当前122同源的默认活动Skin已补一个同次普通Player窗口：24顶点／12三角／2骨、K+Space、960×540／半GI／2ray／filter4、实际DXR，计时与显存观察开启、反馈关闭。35.011秒内逐源三段合计中位／p95／p99为14.958／17.088／18.115ms；进程local／nonlocal有限采样峰值572.004／303.688MiB，满足25ms／1GiB。嵌套的30秒应用Present平均63.042Hz、间隔p95／p99／最大20.083／21.770／27.078ms，非显示FPS或逐源GI配对。它只补默认已预热Skin负载，不代表观察关闭、大模型、冷启动、画质或完整G5；初始等待和可选截图未交付均保留。[实际输入、源配对及CPU帧龄](../LocalComparison/Review/active-skin-cost-01/result.md)
