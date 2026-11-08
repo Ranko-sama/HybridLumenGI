@@ -32,6 +32,7 @@ namespace UnityEngine
     public struct Vector4 : IEquatable<Vector4>
     {
         public float x,y,z,w; public Vector4(float a,float b,float c,float d){x=a;y=b;z=c;w=d;}
+        public static implicit operator Vector4(Vector3 value)=>new(value.x,value.y,value.z,0);
         public bool Equals(Vector4 b)=>x.Equals(b.x)&&y.Equals(b.y)&&z.Equals(b.z)&&w.Equals(b.w);
         public override bool Equals(object b)=>b is Vector4 v&&Equals(v);
         public override int GetHashCode()=>HashCode.Combine(x,y,z,w);
@@ -95,10 +96,20 @@ namespace UnityEngine
     public enum ComputeBufferType { Structured }
     public class ComputeBuffer : IDisposable
     {
+        public static int AttemptedFloatVoxels;
+        public static bool FailNextFloatUpload;
         public int count; public string name;
         public ComputeBuffer(int c,int stride,ComputeBufferType t){count=c;}
         public void SetData<T>(T[] data){if(data.Length>count)throw new Exception("oversized buffer upload");}
-        public void SetData<T>(T[] data,int start,int destination,int length){if(start<0||destination<0||start+length>data.Length||destination+length>count)throw new Exception("invalid buffer range");}
+        public void SetData<T>(T[] data,int start,int destination,int length)
+        {
+            if(start<0||destination<0||start+length>data.Length||destination+length>count)throw new Exception("invalid buffer range");
+            if(typeof(T)!=typeof(float))return;
+            AttemptedFloatVoxels+=length;
+            if(!FailNextFloatUpload)return;
+            FailNextFloatUpload=false;
+            throw new InvalidOperationException("Simulated voxel SetData failure");
+        }
         public void Release(){}public void Dispose(){}
     }
     public class ComputeShader { }
@@ -128,6 +139,8 @@ namespace HybridLumenGI
         public UnityEngine.Renderer SourceRenderer;
         public HybridLumenGIMeshSdf MeshSdf;
         public UnityEngine.Matrix4x4 SdfLocalToWorld=UnityEngine.Matrix4x4.identity;
+        internal bool TryGetColliderBox(out UnityEngine.Bounds world,out UnityEngine.Matrix4x4 worldToAxes,out UnityEngine.Vector3 halfSize)
+        { world=default;worldToAxes=default;halfSize=default;return false; }
     }
     public class HybridLumenGIScene
     {

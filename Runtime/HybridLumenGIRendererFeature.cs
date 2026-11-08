@@ -879,7 +879,7 @@ namespace HybridLumenGI
                 state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),s.chunkSize,s.proxyUploadsPerFrame,maps);
                 state.scenePreparedRenderer = cameraData.renderer;
                 state.scenePreparedEngineFrame = Time.frameCount; state.scenePreparedWorkFrame = state.frame;
-                state.sdf.Prepare(state.scene,2*1024*1024);
+                state.sdf.PrepareForFrame(state.scene, Time.frameCount);
                 state.globalSdf.Prepare(state.scene,state.sdf,camera.transform.position,new HybridLumenGIGlobalSdf.Configuration
                 {
                     LevelCount=s.globalSdfEnabled?s.globalSdfLevels:2,BricksPerAxis=s.globalSdfEnabled?s.globalSdfBricksPerAxis:4,

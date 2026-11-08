@@ -2,10 +2,10 @@ using HybridLumenGI;
 using UnityEngine;
 int checks=0;
 void Require(bool value,string message){if(!value)throw new Exception(message);checks++;}
-HybridLumenGIMeshSdf Asset(Texture3D texture=null)
+HybridLumenGIMeshSdf Asset(Texture3D texture=null,int resolution=16)
 {
     var asset=new HybridLumenGIMeshSdf();
-    asset.SetBakedData(new Mesh(),texture??new Texture3D(16),new Bounds(Vector3.zero,Vector3.one*4),16,true);
+    asset.SetBakedData(new Mesh(),texture??new Texture3D(resolution),new Bounds(Vector3.zero,Vector3.one*4),resolution,true);
     return asset;
 }
 void SetSlot(HybridLumenGIScene s,int slot,HybridLumenGIMeshSdf asset,int id,float x=0)
@@ -13,6 +13,65 @@ void SetSlot(HybridLumenGIScene s,int slot,HybridLumenGIMeshSdf asset,int id,flo
     s.Proxies[slot]=new HybridLumenGIProxy{MeshSdf=asset,SdfLocalToWorld=Matrix4x4.Translate(new Vector3(x,0,0))};
     s.Data[slot]=new HybridLumenGIScene.ProxyGpuData{centerShape=new Vector4(x,0,0,0),extentsRoughness=new Vector4(1,1,1,1),identity=new Vector4(id,1,0,1)};
 }
+
+void CheckSharedFrameUploads()
+{
+    const int resolution = 64;
+    const int volume = resolution * resolution * resolution;
+    var texture = new Texture3D(resolution);
+    var sharedAsset = Asset(texture, resolution);
+    var firstScene = new HybridLumenGIScene(1);
+    var secondScene = new HybridLumenGIScene(1);
+    SetSlot(firstScene, 0, sharedAsset, 1);
+    SetSlot(secondScene, 0, sharedAsset, 2);
+    using var first = new HybridLumenGISdfAtlas();
+    using var second = new HybridLumenGISdfAtlas();
+
+    void PrepareFrame(HybridLumenGISdfAtlas target, HybridLumenGIScene view, int frame)
+    {
+        target.PrepareForFrame(view, frame);
+    }
+
+    int before = ComputeBuffer.AttemptedFloatVoxels;
+    PrepareFrame(first, firstScene, 100);
+    PrepareFrame(second, secondScene, 100);
+    PrepareFrame(second, secondScene, 100);
+    PrepareFrame(first, firstScene, 100);
+    int coldVoxels = ComputeBuffer.AttemptedFloatVoxels - before;
+    Console.WriteLine($"Two cold atlases in one frame attempted {coldVoxels * sizeof(float)} voxel bytes.");
+    Require(coldVoxels == volume && first.IsReady(0, 1, 1) && !second.IsReady(0, 2, 1) && second.PendingUploadCount == 1,
+        "Cold atlases or a repeated Prepare exceeded the shared frame allowance.");
+
+    texture.updateCount++;
+    PrepareFrame(first, firstScene, 101);
+    Require(!first.IsReady(0, 1, 1) && first.PendingUploadCount == 1,
+        "The first camera reused stale voxels or consumed the waiting camera's turn.");
+    PrepareFrame(second, secondScene, 101);
+    PrepareFrame(first, firstScene, 101);
+    Require(ComputeBuffer.AttemptedFloatVoxels - before == volume * 2 && second.IsReady(0, 2, 1) && !first.IsReady(0, 1, 1),
+        "The waiting camera did not get a full upload turn despite a fresh request ahead of it.");
+
+    PrepareFrame(first, firstScene, 102);
+    PrepareFrame(second, secondScene, 102);
+    Require(ComputeBuffer.AttemptedFloatVoxels - before == volume * 3 && first.IsReady(0, 1, 1) && second.IsReady(0, 2, 1) && second.UploadedVoxels == 0,
+        "The deferred update did not recover or the ready atlas uploaded again.");
+
+    texture.updateCount++;
+    ComputeBuffer.FailNextFloatUpload = true;
+    PrepareFrame(first, firstScene, 103);
+    PrepareFrame(second, secondScene, 103);
+    Require(ComputeBuffer.AttemptedFloatVoxels - before == volume * 4 && first.UploadedVoxels == 0 &&
+        !first.IsReady(0, 1, 1) && !second.IsReady(0, 2, 1) && second.PendingUploadCount == 1,
+        "A failed native upload refunded the frame allowance or became ready.");
+
+    PrepareFrame(first, firstScene, 104);
+    PrepareFrame(second, secondScene, 104);
+    Require(ComputeBuffer.AttemptedFloatVoxels - before == volume * 5 && !first.IsReady(0, 1, 1) && second.IsReady(0, 2, 1),
+        "A failed version retried or blocked the healthy upload after the frame advanced.");
+}
+
+CheckSharedFrameUploads();
+
 const int voxels=16*16*16;
 var scene=new HybridLumenGIScene(2);
 var asset=Asset();SetSlot(scene,0,asset,1);SetSlot(scene,1,null,2,100);

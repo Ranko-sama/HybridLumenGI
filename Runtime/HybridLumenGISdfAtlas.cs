@@ -15,6 +15,7 @@ namespace HybridLumenGI
     {
         public const int DefaultVoxelBudget = 2 * 1024 * 1024; // 8 MiB, excluding metadata and source assets.
         public const int MetadataStride = 128;
+        private const int DefaultUploadVoxels = 64 * 64 * 64;
 
         public readonly struct TransformChange
         {
@@ -38,6 +39,8 @@ namespace HybridLumenGI
             public int offset, count, textureId;
             public uint textureVersion;
             public bool ready, failed;
+            public LinkedListNode<Allocation> uploadWaiter;
+            public int requestedUploadFrame;
         }
 
         private struct FreeRange
@@ -71,6 +74,9 @@ namespace HybridLumenGI
         private static readonly int SlotCountId = Shader.PropertyToID("_HLGI_SdfSlotCount");
         private static readonly int VoxelCountId = Shader.PropertyToID("_HLGI_SdfVoxelCount");
         private static readonly int StepsId = Shader.PropertyToID("_HLGI_SdfTraceSteps");
+        private static readonly LinkedList<Allocation> uploadWaiters = new LinkedList<Allocation>();
+        private static int uploadFrame = int.MinValue;
+        private static int frameUploadRemaining;
         private readonly Dictionary<HybridLumenGIMeshSdf, Allocation> allocations = new Dictionary<HybridLumenGIMeshSdf, Allocation>();
         private readonly HashSet<HybridLumenGIMeshSdf> desired = new HashSet<HybridLumenGIMeshSdf>();
         private readonly HashSet<HybridLumenGIMeshSdf> visited = new HashSet<HybridLumenGIMeshSdf>();
@@ -89,7 +95,7 @@ namespace HybridLumenGI
         private int uploadCursor;
 
         /// <summary>Hard voxel upload cap per Prepare. A single volume must fit this cap.</summary>
-        public int UploadVoxelBudget { get; set; } = 64 * 64 * 64;
+        public int UploadVoxelBudget { get; set; } = DefaultUploadVoxels;
         public int TraceSteps { get; set; } = 64;
         public int ResidentMeshCount { get; private set; }
         public int ResidentAssetCount { get; private set; }
@@ -146,13 +152,21 @@ namespace HybridLumenGI
         public long AllocatedBytes => (distancesBuffer != null ? distancesBuffer.count * 4L : 0L) +
             (metadataBuffer != null ? metadataBuffer.count * (long)MetadataStride : 0L);
 
-        public bool Prepare(HybridLumenGIScene scene, int maxVoxels = DefaultVoxelBudget)
+        public bool Prepare(HybridLumenGIScene scene, int maxVoxels = DefaultVoxelBudget) =>
+            Prepare(scene, maxVoxels, null);
+
+        internal bool PrepareForFrame(HybridLumenGIScene scene, int engineFrame) =>
+            Prepare(scene, DefaultVoxelBudget, engineFrame);
+
+        private bool Prepare(HybridLumenGIScene scene, int maxVoxels, int? engineFrame)
         {
             representationChangedBounds.Clear();
             geometryChangedBounds.Clear();
             transformChangedBounds.Clear();
             transformChanges.Clear();
             if (scene == null) throw new ArgumentNullException(nameof(scene));
+            bool shareUploads = engineFrame.HasValue;
+            if (engineFrame is int frame) BeginUploadFrame(frame);
             maxVoxels = Mathf.Clamp(maxVoxels, 0, 16 * 1024 * 1024);
             bool changed = EnsureMetadata(scene.Capacity);
             desired.Clear();
@@ -208,12 +222,14 @@ namespace HybridLumenGI
             foreach (HybridLumenGIMeshSdf asset in removals)
             {
                 Allocation allocation = allocations[asset];
+                CancelUploadRequest(allocation);
                 Free(allocation.offset, allocation.count);
                 allocations.Remove(asset);
                 changed = true;
             }
 
-            int uploadRemaining = Mathf.Max(0, UploadVoxelBudget);
+            int uploadLimit = Mathf.Max(0, UploadVoxelBudget);
+            int uploadRemaining = uploadLimit;
             visited.Clear();
             // Rotate the first candidate so a repeatedly edited asset cannot
             // monopolize the upload budget and starve later stable slots forever.
@@ -227,6 +243,7 @@ namespace HybridLumenGI
                 int count = asset.Resolution * asset.Resolution * asset.Resolution;
                 if (allocations.TryGetValue(asset, out Allocation allocation) && allocation.count != count)
                 {
+                    CancelUploadRequest(allocation);
                     Free(allocation.offset, allocation.count);
                     allocations.Remove(asset);
                     allocation = null;
@@ -249,7 +266,12 @@ namespace HybridLumenGI
                 }
                 if (!allocation.ready && !allocation.failed)
                 {
-                    if (count <= uploadRemaining)
+                    bool canUpload = count <= uploadRemaining;
+                    if (shareUploads && count <= uploadLimit)
+                        canUpload = AdmitFrameUpload(allocation, uploadRemaining);
+                    else
+                        CancelUploadRequest(allocation);
+                    if (canUpload)
                     {
                         try
                         {
@@ -257,9 +279,12 @@ namespace HybridLumenGI
                             // create a managed float[] copy; SetData copies only this upload range.
                             var voxels = texture.GetPixelData<float>(0);
                             if (voxels.Length != count) throw new InvalidOperationException("Unexpected RFloat SDF voxel count.");
+                            // Charge once the native copy is attempted. A throwing SetData may
+                            // already have issued work, so it cannot restore the allowance.
+                            uploadRemaining -= count;
+                            if (shareUploads) frameUploadRemaining -= count;
                             distancesBuffer.SetData(voxels, 0, allocation.offset, count);
                             allocation.ready = true;
-                            uploadRemaining -= count;
                             UploadedVoxels += count;
                             changed = true;
                         }
@@ -318,6 +343,50 @@ namespace HybridLumenGI
             foreach (Allocation allocation in allocations.Values) UsedVoxels += allocation.count;
             RecordRepresentationChanges(scene);
             return changed || representationChangedBounds.Count > 0;
+        }
+
+        private static void BeginUploadFrame(int frame)
+        {
+            if (frame == uploadFrame) return;
+            // Keep a turn across one skipped frame, then stop reserving for absent cameras.
+            for (var waiter = uploadWaiters.First; waiter != null;)
+            {
+                var next = waiter.Next;
+                if (frame < uploadFrame || (long)frame - waiter.Value.requestedUploadFrame > 2)
+                    CancelUploadRequest(waiter.Value);
+                waiter = next;
+            }
+            uploadFrame = frame;
+            frameUploadRemaining = DefaultUploadVoxels;
+        }
+
+        private static bool AdmitFrameUpload(Allocation allocation, int uploadRemaining)
+        {
+            var oldest = uploadWaiters.First?.Value;
+            // Another camera can use the spare voxels while the oldest whole volume waits.
+            int reserved = oldest != null && oldest != allocation ? oldest.count : 0;
+            if (allocation.count <= uploadRemaining && allocation.count <= frameUploadRemaining - reserved)
+            {
+                CancelUploadRequest(allocation);
+                return true;
+            }
+            allocation.uploadWaiter ??= uploadWaiters.AddLast(allocation);
+            allocation.requestedUploadFrame = uploadFrame;
+            return false;
+        }
+
+        private static void CancelUploadRequest(Allocation allocation)
+        {
+            if (allocation.uploadWaiter == null) return;
+            uploadWaiters.Remove(allocation.uploadWaiter);
+            allocation.uploadWaiter = null;
+        }
+
+        private void ClearAllocations()
+        {
+            foreach (Allocation allocation in allocations.Values)
+                CancelUploadRequest(allocation);
+            allocations.Clear();
         }
 
         private void RecordRepresentationChanges(HybridLumenGIScene scene)
@@ -475,7 +544,7 @@ namespace HybridLumenGI
             if (distancesBuffer != null && distancesBuffer.count == count) return false;
             distancesBuffer?.Release();
             distancesBuffer = new ComputeBuffer(count, sizeof(float), ComputeBufferType.Structured) { name = "Hybrid GI SDF Voxels" };
-            allocations.Clear();
+            ClearAllocations();
             freeRanges.Clear();
             freeRanges.Add(new FreeRange(0, count));
             return true;
@@ -537,7 +606,7 @@ namespace HybridLumenGI
             distancesBuffer?.Release();
             metadataBuffer = distancesBuffer = null;
             metadata = nextMetadata = Array.Empty<SdfMetadata>();
-            allocations.Clear();
+            ClearAllocations();
             freeRanges.Clear();
             desired.Clear();
             visited.Clear();
