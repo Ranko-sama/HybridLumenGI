@@ -52,7 +52,7 @@ namespace HybridLumenGI
 
         internal void RefreshShadowmask(LightmapData[] maps)
         {
-            var source = HybridLumenGIShadowmask.Read(sourceRenderer, maps, out _);
+            var source = HybridLumenGIShadowmask.Read(SourceRenderer, maps, out _);
             if (BakedShadowSource.Matches(source)) return;
             BakedShadowSource = source;
             MarkTransportDirty();
@@ -74,7 +74,7 @@ namespace HybridLumenGI
         public int GeometryContentRevision => geometryContentRevision;
 
         public Shape ProxyShape => shape;
-        public Renderer SourceRenderer => sourceRenderer;
+        public Renderer SourceRenderer => sourceRenderer != null ? sourceRenderer : null;
         public Collider SourceCollider => sourceCollider;
         public Color AlbedoTint => albedoTint;
         public Color EmissionOverride => emissionOverride;
@@ -340,12 +340,13 @@ namespace HybridLumenGI
 
         public Bounds GetWorldBounds()
         {
-            if(HybridLumenGIDeformedMesh.HasSnapshot(sourceRenderer))return HybridLumenGIDeformedMesh.BoundsOf(sourceRenderer);
+            Renderer renderer = SourceRenderer;
+            if (HybridLumenGIDeformedMesh.HasSnapshot(renderer)) return HybridLumenGIDeformedMesh.BoundsOf(renderer);
             // A collider may cover only part of a renderer. Mesh tracing needs conservative renderer bounds.
-            if (sourceRenderer is MeshRenderer || (meshSdf != null && meshSdf.IsValid && sourceRenderer != null)) return sourceRenderer.bounds;
+            if (renderer is MeshRenderer || (renderer != null && meshSdf != null && meshSdf.IsValid)) return renderer.bounds;
             if (TryGetColliderBox(out Bounds box, out _, out _)) return box;
             if (sourceCollider != null) return sourceCollider.bounds;
-            if (sourceRenderer != null) return sourceRenderer.bounds;
+            if (renderer != null) return renderer.bounds;
             var mesh = SourceMesh;
             if (mesh != null) return TransformBounds(mesh.bounds, transform.localToWorldMatrix);
             return new Bounds(transform.position, Vector3.one);
