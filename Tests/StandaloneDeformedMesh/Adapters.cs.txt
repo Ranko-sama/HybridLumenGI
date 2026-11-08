@@ -199,6 +199,7 @@ namespace HybridLumenGI
         public Renderer SourceRenderer;
         public Action OnDirty;
         public void MarkDirty()=>OnDirty?.Invoke();
+        internal void MarkGeometryRepresentationChanged()=>OnDirty?.Invoke();
     }
     public sealed class HybridLumenGIMeshSdf:ScriptableObject
     {

@@ -176,7 +176,7 @@ namespace HybridLumenGI
             if(!ReferenceEquals(source,null) && Published.TryGetValue(source,out var old) && ReferenceEquals(old.owner,this))
             {
                 Published.Remove(source);
-                if(proxy!=null)proxy.MarkDirty();
+                if(proxy!=null)proxy.MarkGeometryRepresentationChanged();
                 HybridLumenGIResourceRetirement.Retire(old.Destroy);
             }
         }

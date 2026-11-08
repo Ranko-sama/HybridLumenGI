@@ -214,7 +214,7 @@ namespace HybridLumenGI
                 // repeated peer invalidations as subsequent cameras refresh them.
                 if(sourceNotified)
                 {
-                    BumpGeometryRevision();CacheSignature();return true;
+                    MarkGeometryRepresentationChanged();return true;
                 }
                 CacheSignature();
                 if(contentChanged) MarkDirty();else MarkTransportDirty();
@@ -259,24 +259,25 @@ namespace HybridLumenGI
             // recursively calling MarkDirty. Different assets and chart-only owners
             // still share one editable Mesh and must invalidate their own generations.
             HybridLumenGIMeshSdf.NotifyGeometryChanged(mesh);
-            BumpGeometryRevision();
-            CacheSignature();
+            MarkGeometryRepresentationChanged();
             if (mesh == null) return;
             for (int i = 0; i < Active.Count; i++)
             {
                 HybridLumenGIProxy proxy = Active[i];
                 if (proxy == null || ReferenceEquals(proxy,this) || !proxy.isActiveAndEnabled ||
                     !ReferenceEquals(proxy.SourceMesh,mesh)) continue;
-                proxy.BumpGeometryRevision();
                 // Consume the shared source edit so the next camera/LateUpdate does
                 // not broadcast the same count/bounds change a second time.
-                proxy.CacheSignature();
+                proxy.MarkGeometryRepresentationChanged();
             }
         }
-        private void BumpGeometryRevision()
+
+        // An instance can change its GI representation without editing the shared source mesh.
+        internal void MarkGeometryRepresentationChanged()
         {
             NextExactInteger(ref geometryContentRevision);
             MarkTransportDirty();
+            CacheSignature();
         }
         private void MarkTransportDirty()
         {
