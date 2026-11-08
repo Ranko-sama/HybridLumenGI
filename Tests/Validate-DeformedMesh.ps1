@@ -39,7 +39,7 @@ if($LegacyContinuousControl -or $LegacyUnchangedControl -or $OnlyFinalCancelledW
 
 # These are deliberately source wiring contracts, not an assertion that Unity ran the consumers.
 $contracts=@{
-    'HybridLumenGIProxy.cs'=@('SourceMesh\s*=>\s*HybridLumenGIDeformedMesh\.GetSourceMesh\(sourceRenderer\)',
+    'HybridLumenGIProxy.cs'=@('SourceMesh\s*(?:=>|\{\s*get\s*\{\s*if\s*\(sourceRenderer\s*!=\s*null\)\s*return)\s*HybridLumenGIDeformedMesh\.GetSourceMesh\(sourceRenderer\)',
         'HybridLumenGIDeformedMesh\.GetSdf\(sourceRenderer,meshSdf\)', 'HybridLumenGIDeformedMesh\.GetCharts\(sourceRenderer,surfaceCharts\)')
     'HybridLumenGISurfaceCache.cs'=@('private static Mesh GetMesh\(Renderer renderer\)\s*=>\s*HybridLumenGIDeformedMesh\.GetSourceMesh\(renderer\)')
     'HybridLumenGISdfAtlas.cs'=@('HybridLumenGIDeformedMesh\.GetSourceMesh\(renderer\)\s*!=\s*asset\.SourceMesh')

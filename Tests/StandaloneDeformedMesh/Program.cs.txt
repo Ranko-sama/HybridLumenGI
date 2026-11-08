@@ -282,7 +282,7 @@ static class Program
         }
         Require(CaptureTimeBudget!=null&&(double)CaptureTimeBudget.GetValue(null)==0d,"Optional capture-time allowance must default to disabled.");
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
-        UnchangedSkinnedCaptureReuse();
+        UnchangedSkinnedCaptureReuse();SkinnedSourceMeshReplacement();
         CaptureTimeBudgetDefersAndPublishes();FailedCaptureChargesTimeBudget();UnchangedCaptureChargesTimeBudget();
         CompletedPublicationIsFair();
         FinalCancelledWorker();OpenNewSession();
@@ -354,6 +354,66 @@ static class Program
         Require(Job(owner)==null&&dirty==7&&skin.LastCaptured.Destroyed&&owner.component.PublishedFrame==lastFrame,"Final unchanged automatic capture was not reused");
         Disable(owner);DrainCompletedRetirements();Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Success-path snapshots/reservations leaked");
         Console.WriteLine("PASS: actual full fingerprint and component skip unchanged automatic captures; same-count UV edit, failed-publication retry, SDF and captured chart settings, explicit strong/coalesced requests still rebuild; old Published/version retained and temporary mesh/quota handled.");
+    }
+    static void SkinnedSourceMeshReplacement()
+    {
+        const int firstMarker = 1600, replacementMarker = 1601;
+        Defaults();
+        var owner = Add(firstMarker, true);
+        var skin = (SkinnedMeshRenderer)owner.renderer;
+        Frame();
+        Started(firstMarker);
+        var first = PendingMesh(owner);
+        PublishCompleted(owner, firstMarker);
+        var firstSdf = HybridLumenGIDeformedMesh.GetSdf(skin, null);
+        var firstCharts = HybridLumenGIDeformedMesh.GetCharts(skin, null);
+        PublishedTogether(owner, first, firstMarker);
+
+        ResetBake(firstMarker);
+        owner.component.RequestCapture();
+        Frame();
+        Started(firstMarker);
+        var staleMesh = PendingMesh(owner);
+        var staleJob = Job(owner);
+        var cancellation = (System.Threading.CancellationTokenSource)staleJob.GetType()
+            .GetField("cancellation", PrivateInstance).GetValue(staleJob);
+
+        var replacement = Mesh(replacementMarker);
+        skin.sharedMesh = replacement;
+        Frame();
+        Require(!HybridLumenGIDeformedMesh.HasSnapshot(skin) &&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(skin), replacement) &&
+            HybridLumenGIDeformedMesh.GetSdf(skin, null) == null && HybridLumenGIDeformedMesh.GetCharts(skin, null) == null,
+            "Replacing sharedMesh on the same skin exposed the previous GI mesh/SDF/charts.");
+        Require(cancellation.IsCancellationRequested && !staleMesh.Destroyed,
+            "The previous worker must be cancelled without destroying its snapshot while it runs.");
+        RenderPipelineManager.End();
+        Require(!first.Destroyed && !firstSdf.Destroyed && !firstCharts.Destroyed,
+            "The previous published snapshot was destroyed before its GPU consumers completed.");
+
+        Finish(owner, firstMarker);
+        Frame();
+        Started(replacementMarker);
+        Require(staleMesh.Destroyed && !HybridLumenGIDeformedMesh.HasSnapshot(skin),
+            "The cancelled old-source worker published or failed to release its private mesh.");
+        var second = PendingMesh(owner);
+        PublishCompleted(owner, replacementMarker);
+        PublishedTogether(owner, second, replacementMarker);
+        Require(ReferenceEquals(skin.sharedMesh, replacement), "GI publication changed the visible source mesh.");
+        DrainCompletedRetirements();
+        Require(first.Destroyed && firstSdf.Destroyed && firstCharts.Destroyed && !owner.original.Destroyed,
+            "The old snapshot must retire without destroying the borrowed source mesh.");
+
+        skin.sharedMesh = null;
+        Frame();
+        Require(!HybridLumenGIDeformedMesh.HasSnapshot(skin) && HybridLumenGIDeformedMesh.GetSourceMesh(skin) == null &&
+            HybridLumenGIDeformedMesh.GetSdf(skin, null) == null && HybridLumenGIDeformedMesh.GetCharts(skin, null) == null &&
+            Job(owner) == null && !second.Destroyed, "Clearing sharedMesh retained a snapshot or bypassed retirement.");
+        Disable(owner);
+        DrainCompletedRetirements();
+        Require(second.Destroyed && !replacement.Destroyed && HybridLumenGIDeformedMesh.ReservedBytes == 0,
+            "Withdrawing the cleared skin did not release its owned snapshot correctly.");
+        Console.WriteLine("PASS: same-renderer Skin source replacement and clearing withdraw obsolete GI snapshots, cancel old workers and retire published data after completion.");
     }
     static void UnchangedCaptureCleanupFailure()
     {

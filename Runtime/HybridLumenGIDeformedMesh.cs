@@ -58,6 +58,7 @@ namespace HybridLumenGI
         {
             internal HybridLumenGIDeformedMesh owner;
             internal Mesh mesh,capture;
+            internal Mesh bakedSourceMesh;
             internal Texture3D texture;
             internal HybridLumenGIMeshSdf sdf;
             internal HybridLumenGISurfaceCharts charts;
@@ -98,6 +99,14 @@ namespace HybridLumenGI
                 string.Equals(next.contentFingerprint,published.contentFingerprint,StringComparison.Ordinal) && next.sdfSize==published.sdfSize &&
                 a!=null && b!=null && a.maxNormalAngleDegrees==b.maxNormalAngleDegrees && a.paddingFraction==b.paddingFraction &&
                 a.minimumPadding==b.minimumPadding && a.maxTrianglesPerChart==b.maxTrianglesPerChart && a.chartBudget==b.chartBudget;
+        }
+
+        private static bool BakedSourceIsCurrent(Snapshot snapshot,Renderer renderer)
+        {
+            // Explicit producer meshes have their own request and cancellation contract.
+            Mesh captured=snapshot.bakedSourceMesh;
+            return ReferenceEquals(captured,null) || (captured!=null && renderer!=null &&
+                renderer is SkinnedMeshRenderer skin && ReferenceEquals(skin.sharedMesh,captured));
         }
 
         public static bool HasSnapshot(Renderer renderer) => renderer!=null && Published.ContainsKey(renderer);
@@ -191,7 +200,12 @@ namespace HybridLumenGI
                 if(owner==null || owner.proxy==null)continue;
                 Renderer current=owner.proxy.SourceRenderer;
                 if(current==null)current=owner.GetComponent<Renderer>();
-                if(ReferenceEquals(current,owner.source))continue;
+                if(ReferenceEquals(current,owner.source))
+                {
+                    if(current is SkinnedMeshRenderer && Published.TryGetValue(current,out var snapshot) &&
+                        ReferenceEquals(snapshot.owner,owner) && !BakedSourceIsCurrent(snapshot,current)) owner.Withdraw();
+                    continue;
+                }
                 owner.Withdraw();owner.source=current;owner.generation++;owner.requested=true;
                 foreach(var job in Jobs)if(ReferenceEquals(job.owner,owner))job.cancellation.Cancel();
             }
@@ -200,7 +214,10 @@ namespace HybridLumenGI
             // cannot starve an older ready snapshot. Unfinished work is still skipped.
             for(int i=0;i<Jobs.Count;i++)
             {
-                Job job=Jobs[i];if(job.cleanupFailed || !job.work.IsCompleted)continue;
+                Job job=Jobs[i];if(job.cleanupFailed)continue;
+                if(!job.cancellation.IsCancellationRequested && !BakedSourceIsCurrent(job.snapshot,job.source))
+                    job.cancellation.Cancel();
+                if(!job.work.IsCompleted)continue;
                 bool current=job.owner!=null && job.owner.isActiveAndEnabled && job.owner.generation==job.generation &&
                     job.source!=null && ReferenceEquals(job.owner.source,job.source) && !job.cancellation.IsCancellationRequested;
                 Result result=null;
@@ -295,6 +312,7 @@ namespace HybridLumenGI
                     bool automaticSkinCapture=skinCapture && !owner.requested;
                     if(skinCapture)
                     {
+                        next.bakedSourceMesh=original;
                         next.mesh=new Mesh{name="HLGI baked deformation",hideFlags=HideFlags.HideAndDontSave};
                         ((SkinnedMeshRenderer)owner.source).BakeMesh(next.mesh,false); // Local positions; renderer transform is applied once.
                     }
