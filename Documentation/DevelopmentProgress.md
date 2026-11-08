@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release132，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release133，G0 已锁定，G1／G2 本机代表性验收通过
 
-G4 主干已修复已发布的细节重挂后仍占用旧组、阻塞新组的缺口。实际 Scene CPU 回归在 Release132 源码复现问题，候选整组撤回旧表示，新组在旧粗根未就绪时按原回执发布。成员撤回后退回预热的同版本成员也需要新回执。该改动待整合进后续运行包，实际 GPU 回执、普通 Renderer 显隐和高速冷入分别验收。[事务合同与回归入口](HlodStreaming.md#atomic-hlod-transactions)
+G4 已修复已发布的细节重挂后仍占用旧组、阻塞新组的缺口。实际 Scene CPU 回归在 Release132 源码复现问题，Release133 整组撤回旧表示，新组在旧粗根未就绪时按原回执发布。成员撤回后退回预热的同版本成员也需要新回执。Astra Max 同意按此范围纳入普通运行包和可编辑工程，实际 GPU 回执、普通 Renderer 显隐和高速冷入分别验收。[事务合同与回归入口](HlodStreaming.md#atomic-hlod-transactions) · [同源交付](../LocalComparison/Review/retained-hlod-membership-150/delivery.json)
 
 T3／G3 已修复同一蒙皮源网格在明确内容通知后仍可使用旧自动快照的问题。实际版本服务与组件的 CPU 回归在 Release131 复现旧版本留存，Release132 撤回旧快照、取消旧作业并按原流程恢复。Astra Max 同意按明确通知的来源资格范围采用。修复已进入普通 Win64 包和同版可编辑工程，原生退休、响应时间和画质分别验收。[形变流程与验证](DeformedGeometry.md) · [同源交付](../LocalComparison/Review/notified-skin-source-149/delivery.json)
 
