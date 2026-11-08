@@ -159,7 +159,7 @@ namespace HybridLumenGI
         private void OnEnable()
         {
             sourceRenderer ??= GetComponent<Renderer>();
-            sourceCollider ??= GetComponent<Collider>();
+            if (sourceCollider == null) sourceCollider = GetComponent<Collider>();
             if (stableId == 0) stableId = NextExactInteger(ref nextStableId);
             if (!Active.Contains(this)) Active.Add(this);
             MarkDirty();
