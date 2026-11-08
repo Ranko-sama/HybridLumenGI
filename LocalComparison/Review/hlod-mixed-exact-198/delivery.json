@@ -1,0 +1,40 @@
+{
+  "productCommit": "df5b3879eb83c79b150f9bbdb736153c0d61b238",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release172-demo",
+  "tag": "release172-demo",
+  "publishedAt": "2026-11-08T23:35:46Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Actual C# Scene, BVH, HLOD readiness and shared RTAS queue with controlled lighting, exact eligibility and triangle counts.",
+    "trigger": "A ready detail group can join an existing exact set while another camera is ahead, and the complete old HLOD is approximate.",
+    "command": "Tests/Validate-HlodTransactions.ps1",
+    "exitCode": 0,
+    "evidence": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release172-UnityProject.zip",
+      "size": 846528,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release172-demo/HybridLumenGI-Release172-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release172-Windows-x64.zip",
+      "size": 58444979,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release172-demo/HybridLumenGI-Release172-Windows-x64.zip"
+    }
+  ]
+}

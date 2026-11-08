@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release171，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release172，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／T6／G4 已关闭近似旧组向精确细节接替时绕过 RTAS 等待的问题。实际 C# 回归覆盖有三角余量的等待和计费、就绪撤销、空场首发及余量不足时的发布。原生画面和高速冷入首显继续验收。[对照与范围](../LocalComparison/Review/hlod-mixed-exact-198/result.md) · [同源交付](../LocalComparison/Review/hlod-mixed-exact-198/delivery.json)
 
 T5／T6／G4 已关闭前序 RTAS 请求导致的提前接替。即使本帧构建名额尚空，后排相机也保留完整旧组。实际 C# 对照确认前序相机先构建，当前相机随后整组接替并计费。[对照与范围](../LocalComparison/Review/hlod-rtas-older-197/result.md) · [同源交付](../LocalComparison/Review/hlod-rtas-older-197/delivery.json)
 
