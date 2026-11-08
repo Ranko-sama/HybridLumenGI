@@ -82,11 +82,11 @@ Release84新增[F2运行状态日志入口](../LocalComparison/Review/keyboard-l
 
 后续一次[全局光暂态加权候选](../LocalComparison/Review/global-light-response-window-01/result.md)未满足既定响应筛选，已撤回并结束。Release78另采用来源分离功能：同一前缀240→299输出绝对变化降低92.2%，270→299降低80.0%，接收面反弹保留；该有限采用不证明物理误差或精确收敛。触发的是上传灯表为空，非所有场景光源关闭；缓存存储增加20%，实际带宽/时间增量未测。G1/G3整体收敛保持开放。
 
-当前交付为 **Release128，产品源码 `d7315b2c`**。本版修复独立分页中未到齐的细节可提前替代完整 GI 表示的问题。各项历史证据沿用原版本与适用范围。[同源交付记录](../LocalComparison/Review/streamed-hlod-membership-145/delivery.json)
+当前交付为 **Release129，产品源码 `4a88cc67`**。本版修复混合追踪在精确命中附近漏掉更近 SDF 表面的问题。各项历史证据沿用原版本与适用范围。[同源交付记录](../LocalComparison/Review/sdf-clipped-interval-146/delivery.json)
 
 | 类别 | 当前实现／交付范围 | 已有依据与未关闭边界 |
 | --- | --- | --- |
-| 当前交付环境 | Unity 6000.0.85f1、URP 17.0.4、Windows x64、Mono、DX12 和 Linear。本机 RTX2080Ti。统一示例 960×540、半分辨率 GI、2 射线和 4 级滤波，优先 DXR | 普通 Release128 从同版工程 ZIP 的独立解压目录构建。完整生产负载和其他设备的验收仍按原计划推进。[打开与重建](UnifiedUnityProject.md) · [升级与回退](Implementation.md#升级已有-unity-工程与回退) |
+| 当前交付环境 | Unity 6000.0.85f1、URP 17.0.4、Windows x64、Mono、DX12 和 Linear。本机 RTX2080Ti。统一示例 960×540、半分辨率 GI、2 射线和 4 级滤波，优先 DXR | 普通 Release129 从同版工程 ZIP 的独立解压目录构建。完整生产负载和其他设备的验收仍按原计划推进。[打开与重建](UnifiedUnityProject.md) · [升级与回退](Implementation.md#升级已有-unity-工程与回退) |
 | 固定两室关门后的照明恢复 | 对普通 MeshRenderer 同源网格的不相交姿态变更，受影响的缓存保留可显示值，直到新估计提交。旧值在等待期间不进入世界递归 | 同一固定地板在 1 秒和 2 秒前最后的残留分别为 2.637% 和 0.214%。两个保持条件成立，覆盖本机这条实际 DXR 关门光路。[原版、修复与匹配控制](../LocalComparison/Review/portal-recovery-138/result.md) |
 | 代码明确跳过／有条件拒绝 | Feature仅进入Base Game及显式允许的SceneView、Tex2D目标；非DX12、非Linear、Overlay、立体/XR、无compute或必要资源时跳过 | [实际准入](../Runtime/HybridLumenGIRendererFeature.cs)。Replace原生漫反射另要求普通Lit、Forward／Forward+、有符号HDR和MSAA关闭，Deferred／APV／Subtractive等按[替换合同](NativeDiffuseComposition.md)拒绝或保持原画面；不能把这些行为写成仅“未测试” |
 | 软件／DXR及真实材质 | 精确软件三角和可选DXR共用材质、alpha／Cull与chart绑定；不足时允许明确的SDF／解析近似或unknown。请求偏好不等于实际后端 | [88同输入2ray／filter3四时点画面对照](../LocalComparison/Review/release88-dxr-motion-01/result.md)、[121软件预算恢复](../LocalComparison/Review/software-budget-recovery-121/result.md)、[122稳定回退历史](../LocalComparison/Review/stable-fallback-history-01/result.md)和[限定二值alpha实际遍历](../LocalComparison/Review/binary-alpha-traversal-01/result.md)各按原来源复用。88不升级成当前filter4或全部Cull、mip、纹理与混合回退视觉一致；原近似边界保留 |
@@ -230,7 +230,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-Release128 将独立分页的 GI 完整组修复纳入普通三室运行包及可编辑工程。实际 Scene 回归用受控绑定与回执验证两种到达顺序。**G0 本机基线已锁定，第 6 节 G1／G2 本机代表性验收已通过，G3 固定两室关门子项已关闭。** 完整 G3–G5 及相关专项仍开放。[关门实测](../LocalComparison/Review/portal-recovery-138/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [Release128 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release128-demo)
+Release129 将混合 SDF 最近命中修复纳入普通三室运行包及可编辑工程。WARP 使用实际追踪与混合查询 HLSL，精确后端结果为受控输入。**G0 本机基线已锁定，第 6 节 G1／G2 本机代表性验收已通过，G3 固定两室关门子项已关闭。** 完整 G3–G5 及相关专项仍开放。[关门实测](../LocalComparison/Review/portal-recovery-138/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [Release129 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release129-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

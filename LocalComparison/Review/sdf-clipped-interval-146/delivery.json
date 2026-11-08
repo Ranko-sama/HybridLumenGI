@@ -1,0 +1,71 @@
+{
+  "productCommit": "4a88cc678afabe224cfc021ff73666222691854e",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release129-demo",
+  "tag": "release129-demo",
+  "publishedAt": "2026-11-08T07:52:59Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release129 Unity project ZIP, reusing available Release128 shader cache entries. D3D12 WARP ran the actual SDF tracer and detail arbitration with a controlled committed exact hit. Native DXR and final images remain separate.",
+  "validation": {
+    "status": "passed",
+    "baselineCommit": "d7315b2c0866ae99e62edad5f0d33c376ff01d36",
+    "output": "result.json",
+    "localHarness": "Temp/SdfClip146/run.py"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease129\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101770225
+  },
+  "nativeExit": {
+    "exitCode": 0,
+    "project": "I:/Unity test/Comparison/PortableUnified129/HybridLumenGI-Release129-UnityProject",
+    "productCommit": "4a88cc678afabe224cfc021ff73666222691854e",
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified128/HybridLumenGI-Release128-UnityProject/Library/ShaderCache",
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease129",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release129-UnityProject.zip",
+    "bytes": 833781,
+    "productCommit": "4a88cc678afabe224cfc021ff73666222691854e",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified129\\HybridLumenGI-Release129-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release128-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISdfTrace.hlsl",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/Resources/HybridLumenGI/HybridLumenGISdfTrace.hlsl"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release129-UnityProject.zip",
+      "bytes": 833781,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release129-demo/HybridLumenGI-Release129-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release129-Windows-x64.zip",
+      "bytes": 58445974,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release129-demo/HybridLumenGI-Release129-Windows-x64.zip"
+    }
+  ]
+}

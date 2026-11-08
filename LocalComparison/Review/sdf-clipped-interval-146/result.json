@@ -1,0 +1,239 @@
+{
+  "baselineCommit": "d7315b2c0866ae99e62edad5f0d33c376ff01d36",
+  "voxel": 0.08333333333333333,
+  "originMin": 0.0001,
+  "cases": [
+    [
+      "signed_exit_before_exact_limit",
+      0.49156666666666665,
+      0,
+      0.009683333333333332,
+      128
+    ],
+    [
+      "exact_before_signed_exit",
+      0.49156666666666665,
+      0,
+      0.004266666666666667,
+      128
+    ],
+    [
+      "same_signed_exit_without_exact_limit",
+      0.49156666666666665,
+      0,
+      0,
+      128
+    ],
+    [
+      "complete_empty_interval",
+      -1,
+      0.58,
+      0,
+      128
+    ],
+    [
+      "terminal_sample_waits_for_budget",
+      0.3749,
+      0,
+      0.12634999999999996,
+      8
+    ]
+  ],
+  "analyticShortExit": 0.008433333333333333,
+  "rows": {
+    "baseline": {
+      "signed_exit_before_exact_limit": {
+        "found": true,
+        "flags": 1041,
+        "slot": 1,
+        "representation": 1,
+        "t": 0.009683333337306976,
+        "position": [
+          0.5012499690055847,
+          0.0,
+          0.0
+        ],
+        "exactDiffuse": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "stableId": 18,
+        "revision": 3
+      },
+      "exact_before_signed_exit": {
+        "found": true,
+        "flags": 1041,
+        "slot": 1,
+        "representation": 1,
+        "t": 0.00426666671410203,
+        "position": [
+          0.4958333373069763,
+          0.0,
+          0.0
+        ],
+        "exactDiffuse": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "stableId": 18,
+        "revision": 3
+      },
+      "same_signed_exit_without_exact_limit": {
+        "found": true,
+        "flags": 259,
+        "slot": 0,
+        "representation": 2,
+        "t": 0.008303124457597733,
+        "position": [
+          0.49986979365348816,
+          0.0,
+          0.0
+        ],
+        "exactDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "stableId": 17,
+        "revision": 3
+      },
+      "complete_empty_interval": {
+        "found": false,
+        "flags": 0,
+        "slot": 4294967295,
+        "representation": 0,
+        "t": 3.0,
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "exactDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "stableId": 0,
+        "revision": 0
+      },
+      "terminal_sample_waits_for_budget": {
+        "found": true,
+        "flags": 1041,
+        "slot": 1,
+        "representation": 1,
+        "t": 0.12635000050067902,
+        "position": [
+          0.5012500286102295,
+          0.0,
+          0.0
+        ],
+        "exactDiffuse": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "stableId": 18,
+        "revision": 3
+      }
+    },
+    "candidate": {
+      "signed_exit_before_exact_limit": {
+        "found": true,
+        "flags": 259,
+        "slot": 0,
+        "representation": 2,
+        "t": 0.00841054692864418,
+        "position": [
+          0.4999772012233734,
+          0.0,
+          0.0
+        ],
+        "exactDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "stableId": 17,
+        "revision": 3
+      },
+      "exact_before_signed_exit": {
+        "found": true,
+        "flags": 1041,
+        "slot": 1,
+        "representation": 1,
+        "t": 0.00426666671410203,
+        "position": [
+          0.4958333373069763,
+          0.0,
+          0.0
+        ],
+        "exactDiffuse": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "stableId": 18,
+        "revision": 3
+      },
+      "same_signed_exit_without_exact_limit": {
+        "found": true,
+        "flags": 259,
+        "slot": 0,
+        "representation": 2,
+        "t": 0.008303124457597733,
+        "position": [
+          0.49986979365348816,
+          0.0,
+          0.0
+        ],
+        "exactDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "stableId": 17,
+        "revision": 3
+      },
+      "complete_empty_interval": {
+        "found": false,
+        "flags": 0,
+        "slot": 4294967295,
+        "representation": 0,
+        "t": 3.0,
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "exactDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "stableId": 0,
+        "revision": 0
+      },
+      "terminal_sample_waits_for_budget": {
+        "found": true,
+        "flags": 2561,
+        "slot": 4294967295,
+        "representation": 0,
+        "t": 9.999999747378752e-05,
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "exactDiffuse": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "stableId": 0,
+        "revision": 0
+      }
+    }
+  }
+}
