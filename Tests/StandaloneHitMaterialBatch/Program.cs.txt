@@ -347,6 +347,49 @@ class Program
         Check(dynamicCommand.Dispatches.Count==0&&Pool.UploadBytesUsed==0&&dynamicBatch.UnknownRecords==1,"unversioned RT larger than frame allowance never publishes a multi-frame stitched image");
         Finish(dynamicBatch,dynamicCommand);Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
     }
+
+    static void DynamicTextureCannotStarveWaitingMap()
+    {
+        scenarios++;
+        SystemInfo.supportsAsyncGPUReadback = true;
+        const int quota = 1 << 20;
+        // One current RT copy, including its metadata, uses the entire allowance.
+        var dynamicTexture = new RenderTexture { width = 516, height = 127, mipmapCount = 1, graphicsFormat = 42 };
+        var dynamicMaterial = new Fixture(dynamicTexture);
+        var stableMaterial = new Fixture(Texture(2, 2, 1));
+        HybridLumenGIHitMaterialUInt4 stableHandle = default;
+        for (int step = 0; step < 3; step++)
+        {
+            Pool.BeginFrame(2002 + step, quota);
+            dynamicTexture.updateCount++;
+            var batch = Prepare(dynamicMaterial.Freeze(), stableMaterial.Freeze(19));
+            var command = new CommandBuffer();
+            RecordBatch(batch, command);
+            var table = Table(command);
+            Check((table[0].textures0.y != 0) == (step != 1) && (table[1].textures0.y != 0) == (step != 0),
+                $"frame {step}: waiting texture did not take its turn or a deferred texture was exposed");
+            Check(Pool.UploadBytesUsed == (step == 1 ? 128 : quota), $"frame {step}: unexpected admitted copy bytes");
+
+            HybridLumenGIRayTextureMetadata[] ready = null;
+            if (step == 1)
+            {
+                stableHandle = table[1].textures0;
+                Check(batch.GetResources(out _, out _, out var metadata, out _), "stable page metadata resource");
+                ready = new HybridLumenGIRayTextureMetadata[metadata.Count];
+                ready[stableHandle.x] = command.Copies.OfType<HybridLumenGIRayTextureMetadata[]>().Single()[0];
+                ready[stableHandle.x].flags = 1;
+            }
+            if (step == 2)
+                Check(batch.TextureUploadCount == 1 && table[1].textures0.x == stableHandle.x &&
+                    table[1].textures0.y == stableHandle.y, "the RT resumes copying while the completed stable page stays ready");
+            Finish(batch, command);
+            if (ready != null) AsyncGPUReadback.CompleteNext(ready);
+        }
+        Pool.ClearReusable();
+        SystemInfo.supportsAsyncGPUReadback = false;
+        Clean();
+    }
+
     static void ClosingAdmission()
     {
         scenarios++;var fixture=new Fixture(Texture());var batch=Prepare(fixture.Freeze());var cmd=new CommandBuffer();RecordBatch(batch,cmd);
@@ -361,7 +404,8 @@ class Program
         try
         {
             Resources.Loaded=new ComputeShader();AbiAndConstantOrder();MapDedupAndFrozenViews();SourceRevalidation();GlobalBudgetsAndCaps();
-            AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();ReadyPageSurvivesPendingDuplicate();QuotaDefersUnknownMaterials();ClosingAdmission();
+            AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();ReadyPageSurvivesPendingDuplicate();QuotaDefersUnknownMaterials();
+            DynamicTextureCannotStarveWaitingMap();ClosingAdmission();
             Console.WriteLine("PASS hit-material-batch "+checks+" assertions / "+scenarios+" scenarios; actual seven C# classes, recording adapters only; no Unity/GPU execution.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}

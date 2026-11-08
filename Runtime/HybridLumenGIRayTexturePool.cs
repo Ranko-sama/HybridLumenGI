@@ -20,10 +20,10 @@ namespace HybridLumenGI
         private static readonly int TexelsId=Shader.PropertyToID("_HLGI_RayTextureTexels");
         private static readonly List<Lease> Resident=new List<Lease>();
         private static readonly List<Allocation> Allocations=new List<Allocation>();
-        private sealed class SourceEpoch { internal ulong Value; }
-        private static readonly ConditionalWeakTable<Texture,SourceEpoch> SourceEpochs=new ConditionalWeakTable<Texture,SourceEpoch>();
+        private sealed class SourceState { internal ulong Epoch, UploadOrder; }
+        private static readonly ConditionalWeakTable<Texture,SourceState> Sources=new ConditionalWeakTable<Texture,SourceState>();
         private static uint lastGeneration;
-        private static ulong lastSourceEpoch;
+        private static ulong lastSourceEpoch, lastUploadOrder;
         private static int uploadFrame=-1;
         private static long uploadBudget=long.MaxValue,uploadUsed;
         public static int UploadFrame=>uploadFrame;
@@ -126,12 +126,13 @@ namespace HybridLumenGI
                 foreach(var page in uploads)UploadByteCount+=page.Upload.Layout.ByteCount+64;
             }
         }
-        private static ulong Epoch(Texture texture)=>SourceEpochs.TryGetValue(texture,out var epoch)?epoch.Value:0;
+        private static SourceState GetSourceState(Texture texture)=>Sources.GetValue(texture,_=>new SourceState());
+        private static ulong Epoch(Texture texture)=>Sources.TryGetValue(texture,out var state)?state.Epoch:0;
         public static void InvalidateSource(Texture texture)
         {
             if(ReferenceEquals(texture,null))return;
             if(lastSourceEpoch==ulong.MaxValue)throw new InvalidOperationException("Source epochs exhausted; cannot wrap.");
-            SourceEpochs.GetValue(texture,_=>new SourceEpoch()).Value=++lastSourceEpoch;
+            GetSourceState(texture).Epoch=++lastSourceEpoch;
             foreach(var allocation in Allocations)foreach(var page in allocation.Pages)
                 if(page!=null&&ReferenceEquals(page.Upload.View.Texture,texture))page.Reusable=false;
             PollRetired();
@@ -398,6 +399,35 @@ namespace HybridLumenGI
             else if(!chosenPages[i].Ready)uploads.Add(chosenPages[i]);
             lease=Borrow(chosen,chosenPages,uploads.ToArray(),indices,!fresh);return true;
         }
+
+        private static int AdmittedUploadElements(Page page)
+        {
+            long initialBytes = page.MetadataInitialized ? 0 : MetadataStride;
+            long availableElements = Math.Max(0, uploadBudget - uploadUsed - initialBytes) / HybridLumenGIRayTextureLayout.TexelStride;
+            int remaining = page.Upload.Layout.StorageElementCount - page.UploadedElements;
+            // Unversioned sources require a complete current capture in a single frame.
+            if (!page.Reusable && availableElements < remaining) return 0;
+            return (int)Math.Min(remaining, availableElements);
+        }
+
+        private static int FirstUploadIndex(Page[] uploads)
+        {
+            int first = 0;
+            ulong oldest = ulong.MaxValue;
+            for (int index = 0; index < uploads.Length; index++)
+            {
+                var page = uploads[index];
+                if (AdmittedUploadElements(page) == 0) continue;
+                // RenderTexture pages are rebuilt. Waiting order belongs to the source.
+                var source = GetSourceState(page.Upload.View.Texture);
+                if (source.UploadOrder == 0) source.UploadOrder = ++lastUploadOrder;
+                if (source.UploadOrder >= oldest) continue;
+                oldest = source.UploadOrder;
+                first = index;
+            }
+            return first;
+        }
+
         public bool RecordUploads(CommandBuffer cmd,Lease lease,Action<CommandBuffer,Upload,GraphicsBuffer,GraphicsBuffer> importer,out string reason)
         {
             reason=null;
@@ -411,16 +441,17 @@ namespace HybridLumenGI
             {
                 if(uploadFrame>=0)
                 {
-                    foreach(var page in lease.Uploads)
+                    var uploads = lease.Uploads;
+                    int first = FirstUploadIndex(uploads);
+                    for (int index = 0; index < uploads.Length; index++)
                     {
-                        long available=Math.Max(0,uploadBudget-uploadUsed),initial=page.MetadataInitialized?0:64;
-                        long remaining=page.Upload.Layout.StorageElementCount-page.UploadedElements;
-                        // Unversioned dynamic sources may not be stitched across frames.
-                        // They remain unknown unless this entire current capture fits.
-                        if(!page.Reusable&&available<initial+remaining*16)continue;
-                        int count=(int)Math.Min(remaining,Math.Max(0,(available-initial)/16));
-                        if(count<=0)continue;
-                        uploadUsed+=initial+(long)count*16; // recording may partially succeed; never refund ambiguous commands.
+                        var page = uploads[(first + index) % uploads.Length];
+                        int count = AdmittedUploadElements(page);
+                        if (count == 0) continue;
+                        long initialBytes = page.MetadataInitialized ? 0 : MetadataStride;
+                        // A recording attempt may partially succeed. Charge it and move the source to the back.
+                        uploadUsed += initialBytes + (long)count * HybridLumenGIRayTextureLayout.TexelStride;
+                        GetSourceState(page.Upload.View.Texture).UploadOrder = ++lastUploadOrder;
                         if(!page.MetadataInitialized)
                         {cmd.SetBufferData(arena.Metadata,new[]{page.Initial},0,page.Upload.MetadataIndex,1);page.MetadataInitialized=true;arena.Initialized=true;}
                         importer(cmd,new Upload(page.Upload,page.UploadedElements,count),arena.Metadata,arena.Texels);

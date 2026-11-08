@@ -122,6 +122,8 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 | `rtasTriangleWorkPerFrame` / `rtasInstanceWorkPerFrame` | 250,000三角 / 4,096实例；包含完整dirty构建/refit工作。等待任务积累tokens，最老活跃任务优先。 |
 | `rtasTriangleBurstCapacity` / `rtasInstanceBurstCapacity` | 1,000,000三角 / 16,384实例；过大任务明确回退；暂不被相机使用的任务只退出优先队列，不据年龄销毁GPU资源。 |
 
+命中材质批次先从等待最久、能在当前剩余额度内推进的贴图来源开始，再按请求顺序循环。复制尝试计入额度后，该来源排到等待序列末尾。动态 RenderTexture 仍需在一帧内完整复制当前内容，延期时命中材质保持 unknown。受控 C# 对照覆盖同一批次中持续更新的 RenderTexture 和等待上传的稳定 Texture2D。跨相机公平和实体 GPU 成本继续单独验收。[定向回归](../Tests/StandaloneHitMaterialBatch/Program.cs.txt)
+
 资源页组件另设IO/并发/上传准入/驻留额度，形变组件另设捕获顶点/后台作业/快照上传额度，以及默认关闭的[主线程捕获经过时间准入](DeformedGeometry.md)。该时间门只延后下一份捕获，不抢占单份BakeMesh，不是GPU反馈或完整CPU硬预算。诊断中的全局纹理/RTAS计数可能在多个相机记录中重复出现，不应相加。实际分配粒度、驱动scratch与系统峰值必须在目标设备测量；静态数量配额与下方滞后时间反馈相互补充。
 
 启用反馈或只测量且 `preferNativeGpuTiming=true` 时，优先使用可选的 [原生 DX12 时间戳后端](NativeGpuTiming.md)：它返回提交身份并按实际 fence 完成读取和回收。源码包不自动安装 DLL；未安装/不支持/不可用时回退下面描述的 Recorder 路径。原生固定池有 128 个跨相机共享的可循环提交槽，不受 Recorder 的 32 个生命周期通道限制；已有上述单相机实体 GPU 有限基线，其他生产条件仍待验收。
