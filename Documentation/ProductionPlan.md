@@ -202,6 +202,8 @@ flowchart TD
 
 形变快照已增加默认关闭的[同步捕获经过时间准入](DeformedGeometry.md)：达到本帧额度后不再开始下一份捕获，保留下一对象轮次；失败和未变内容的捕获也计时，已完成作业发布／清理仍正常执行。它不能抢占单次BakeMesh，也不覆盖发布、后台任务或其他CPU准备；是上述CPU准备调度的一项具体能力，不代表全阶段时间预算完成。
 
+接收面发现增加默认关闭的[累计 CPU 时间准入](GpuBudget.md#接收面发现的-cpu-准入)。同一次相机图中的初次发现与复核共享额度，达到后停止启动后续来源检查。完成之前保持现有的原生替换与身份历史资格保护。Unity 已开始的枚举和来源调用会执行到完成。
+
 已完成的形变作业按捕获入队顺序争用上传额度，关闭持续新任务反复抢先的发布饥饿机制；未完成、失效和清理失败按原资格处理。该保证限合格且适配当帧额度的ready任务，不承诺永久大于整帧额度或无法完成的作业有固定等待上限。
 
 当前 [GPU 反馈](GpuBudget.md)只缩放 patch/capture/brick 每帧工作量，不修改 Settings、容量或资源尺寸。`adaptiveGpuBudget=false`、`measureGpuCost=false`、`targetGpuMilliseconds=0` 为默认值，两种用途均关闭时不探测或加载计时 DLL。只测量可在零目标下保持静态配额，反馈目标应按设备基线填写。启用后，`preferNativeGpuTiming=true` 优先选择可选 [原生 DX12 后端](NativeGpuTiming.md)：128 个共享提交槽按实际 fence 完成回收，每帧的六个时间戳绑定 owner、配置/设备代次和 source frame。三个范围结束后在独立 Unsafe pass 中 resolve，不能放入 native raster render pass。托管端每相机最多跟踪 32 个在途提交；反馈只取最新有效结果，独立有界队列可导出所有完整校验的完成记录。

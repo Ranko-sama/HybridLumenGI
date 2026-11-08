@@ -53,6 +53,12 @@ Release98 下载包的 GPU 面板仍显示调整设置会刷新光照历史的�
 
 自有运行入口可在Unity主线程、相机准备之前调用`TryConfigureGpuBudget(measureCost, feedback, targetMilliseconds)`；有限非负目标是基础要求，启用反馈另须严格大于零。非法输入返回false且三个字段均不变。`RequestedMeasureGpuCost`、`RequestedAdaptiveGpuBudget`、`RequestedTargetGpuMilliseconds`读取请求配置，`GetDiagnostics()`读取实际状态。默认设置保持关闭，不自动选择预算。
 
+## 接收面发现的 CPU 准入
+
+在 Renderer Data 的 Hybrid Lumen GI Feature 中，`receiverDiscoveryCpuBudgetMilliseconds` 为同一次相机图的接收面发现与重验设置累计经过时间额度。默认 0 沿用完整扫描。开启后，时间到达额度即停止后续来源检查。初次发现不完整时保留原生漫反射，身份重验不完整时保留当前 GI 并拒绝对象历史回执。
+
+只计发现调用内部的 CPU 经过时间。已经开始的 Unity 枚举或来源调用运行到完成。此设置和网格指纹字节额度各自生效。[受控功能对照](../LocalComparison/Review/receiver-discovery-budget-159/result.md)
+
 ## 驱动层进程显存观察
 
 Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开启后，现有面板和 **Log ledger** 的 `processVideoMemory` 字段给出 Unity 渲染适配器上的本进程 local/nonlocal 用量、操作系统预算与启用窗口内采样峰值。它通过可选 DX12 插件的独立 `HLGI_Memory_Query` 导出读取，不开启 GPU 计时或反馈，不改变光传输配置、更新配额、驻留或预留。

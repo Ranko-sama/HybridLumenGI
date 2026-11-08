@@ -143,6 +143,8 @@ namespace HybridLumenGI
             [Tooltip("Experimental per-pixel source/primitive identity and rigid-object history. Requires single-sample DX12 and validated stock Lit coverage; unknown pixels retain current GI.")]
             public bool receiverObjectHistory;
             [Range(1,16384)] public int receiverSourceCapacity=1024;
+            [Min(0),Tooltip("Optional CPU milliseconds for receiver discovery and its rechecks in one camera render. Zero disables the allowance. Unity source calls already in progress finish normally.")]
+            public float receiverDiscoveryCpuBudgetMilliseconds;
             [Min(1),Tooltip("Logical mesh bytes fingerprinted per source preparation or capture validation; not a CPU time or peak-memory limit.")]
             public int receiverFingerprintBudgetMiB=16;
             [Range(0.02f,1)] public float temporalCurrentWeight=0.08f;
@@ -202,6 +204,7 @@ namespace HybridLumenGI
                 transport.preferNativeGpuTiming=false;
                 transport.targetGpuMilliseconds=0;
                 transport.minimumGpuWorkFraction=0;
+                transport.receiverDiscoveryCpuBudgetMilliseconds=0;
                 return JsonUtility.ToJson(transport);
             }
         }
@@ -691,6 +694,7 @@ namespace HybridLumenGI
                 internal TransportPass owner;
                 internal HybridLumenGIHistoryLifecycle.FrameToken historyToken;
                 internal HybridLumenGIReceiverRegistry.Snapshot receiverSources;
+                internal HybridLumenGIReceiverDiscovery.ScanBudget discoveryBudget;
                 internal long fingerprintBudget;
                 internal LayerMask materialLayers;
                 internal ReceiverCaptureReceipt receiverReceipt;
@@ -763,7 +767,9 @@ namespace HybridLumenGI
                 // One initial discovery feeds both native-Lit qualification and source
                 // identity tracking. Each consumer retains its separate eligibility rules.
                 bool trackSources=s.receiverSourceTracking || s.receiverObjectHistory;
-                var discovered=(replace || trackSources)?receiverDiscovery.Scan(cameraData.camera,s.materialLayers):null;
+                bool discoverReceivers=replace || trackSources;
+                var discoveryBudget=discoverReceivers?HybridLumenGIReceiverDiscovery.ScanBudget.FromMilliseconds(s.receiverDiscoveryCpuBudgetMilliseconds):null;
+                var discovered=discoverReceivers?receiverDiscovery.Scan(cameraData.camera,s.materialLayers,discoveryBudget):null;
                 if(replace)
                 {
                     bool deferred=false;
@@ -985,6 +991,7 @@ namespace HybridLumenGI
                 {
                     data.renderers=receiverLists.ToArray();data.layers=receiverLayers.ToArray();data.state=state;data.frameTiming=frameTiming;
                     data.owner=this;data.historyToken=historyToken;data.receiverSources=receiverSources;
+                    data.discoveryBudget=discoveryBudget;
                     data.fingerprintBudget=fingerprintBudget;data.materialLayers=s.materialLayers;
                     data.receiverReceipt=receiverReceipt;data.identityExpected=identityEnabled;
                     data.staticShadowmask=staticShadowmask;
@@ -1003,7 +1010,7 @@ namespace HybridLumenGI
                             bool sourceInputsCurrent=false;
                             if(d.receiverSources!=null && d.state.historyLifecycle.IsCurrent(d.historyToken))
                                 sourceInputsCurrent=d.owner.receiverRegistry.IsCurrent(d.receiverSources,
-                                    d.owner.receiverDiscovery.Scan(d.state.camera,d.materialLayers),d.fingerprintBudget);
+                                    d.owner.receiverDiscovery.Scan(d.state.camera,d.materialLayers,d.discoveryBudget),d.fingerprintBudget);
                             ctx.cmd.SetGlobalInt("_HLGI_CaptureStaticShadowmask",d.staticShadowmask?1:0);
                             for(int i=0;i<d.renderers.Length;i++)
                             {
@@ -1032,7 +1039,7 @@ namespace HybridLumenGI
                         fullW,fullH,w,h,vp,
                         ()=>receiverReceipt.sourcesCurrent && state.historyLifecycle.IsCurrent(historyToken) &&
                             IdentityCoverageGlobalsSupported() && receiverRegistry.IsCurrent(receiverSources,
-                                receiverDiscovery.Scan(camera,identityLayers),fingerprintBudget),
+                                receiverDiscovery.Scan(camera,identityLayers,discoveryBudget),fingerprintBudget),
                         recorded=>
                         {
                             bool accepted=state.receiverHistory.MarkCaptureRecorded(historyToken,recorded && receiverReceipt.sourcesCurrent);

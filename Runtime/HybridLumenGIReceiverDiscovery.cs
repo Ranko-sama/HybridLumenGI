@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace HybridLumenGI
 {
@@ -69,10 +70,43 @@ namespace HybridLumenGI
 
         private const string LitShaderName="Universal Render Pipeline/Lit";
 
+        // One allowance belongs to a render graph. Only time spent inside its
+        // discovery calls is charged, including source reads that cannot be interrupted.
+        internal sealed class ScanBudget
+        {
+            private readonly Func<long> timestamp;
+            private double remainingTicks;
+
+            internal ScanBudget(double ticks, Func<long> timestamp)
+            {
+                remainingTicks = ticks;
+                this.timestamp = timestamp;
+            }
+
+            internal static ScanBudget FromMilliseconds(float milliseconds)
+            {
+                if (!(milliseconds > 0) || float.IsInfinity(milliseconds)) return null;
+                return new ScanBudget(Math.Max(1, milliseconds * (Stopwatch.Frequency / 1000.0)), Stopwatch.GetTimestamp);
+            }
+
+            internal long Timestamp() => timestamp();
+            internal bool IsExhausted(long started) => Timestamp() - started >= remainingTicks;
+            internal void Charge(long started) => remainingTicks = Math.Max(0, remainingTicks - (Timestamp() - started));
+        }
+
         /// <summary>Main-thread scan per camera capture, including Additive. No frame-number
         /// cache: sources can change between renders in one frame. Unsupported sources
         /// never end the scan or suppress another receiver.</summary>
-        public Snapshot Scan(Camera camera,LayerMask selectedLayers)
+        public Snapshot Scan(Camera camera,LayerMask selectedLayers) => Scan(camera, selectedLayers, null);
+
+        internal Snapshot Scan(Camera camera, LayerMask selectedLayers, ScanBudget budget)
+        {
+            long started = budget?.Timestamp() ?? 0;
+            try { return Scan(camera, selectedLayers, budget, started); }
+            finally { budget?.Charge(started); }
+        }
+
+        private Snapshot Scan(Camera camera, LayerMask selectedLayers, ScanBudget budget, long started)
         {
             var candidates=new List<Candidate>();
             int scanned=0,checkedMaterials=0;
@@ -82,6 +116,10 @@ namespace HybridLumenGI
             int cameraCullingMask=camera.cullingMask;
             int mask=cameraCullingMask & selectedLayers.value;
             Matrix4x4 cullingMatrix=default;
+            bool OutOfTime() => budget != null && budget.IsExhausted(started);
+            Snapshot Deferred() => new Snapshot(camera, selectedLayers, cullingMatrix, cameraCullingMask,
+                candidates, scanned, checkedMaterials, false, "Receiver discovery CPU allowance exhausted.", true);
+            if (mask != 0 && OutOfTime()) return Deferred();
             var planes=new Plane[6];
             bool canCull=false;
             try
@@ -103,24 +141,35 @@ namespace HybridLumenGI
 
             // Explicit LOD renderer references need not be inferred from parents.
             // Membership does not tell us the final LOD selected for this camera.
+            if (OutOfTime()) return Deferred();
             var lodRenderers=new HashSet<Renderer>(ReferenceComparer<Renderer>.Instance);
             try
             {
                 foreach(LODGroup group in Resources.FindObjectsOfTypeAll<LODGroup>())
                 {
+                    if (OutOfTime()) return Deferred();
                     if(group==null) continue;
                     try
                     {
                         GameObject go=group.gameObject;
                         if(go==null||!go.scene.IsValid()||!go.scene.isLoaded) continue;
-                        foreach(LOD lod in group.GetLODs()) if(lod.renderers!=null)
-                            foreach(Renderer renderer in lod.renderers) if(renderer!=null) lodRenderers.Add(renderer);
+                        foreach (LOD lod in group.GetLODs())
+                        {
+                            if (OutOfTime()) return Deferred();
+                            if (lod.renderers == null) continue;
+                            foreach (Renderer renderer in lod.renderers)
+                            {
+                                if (OutOfTime()) return Deferred();
+                                if (renderer != null) lodRenderers.Add(renderer);
+                            }
+                        }
                     }
                     catch(Exception) { complete=false;unknown=true; }
                 }
             }
             catch(Exception) { complete=false;unknown=true; }
 
+            if (OutOfTime()) return Deferred();
             Renderer[] renderers;
             try { renderers=Resources.FindObjectsOfTypeAll<Renderer>(); }
             catch(Exception) { return new Snapshot(camera,selectedLayers,cullingMatrix,cameraCullingMask,candidates,0,0,false,nativeReason??"Loaded Renderer discovery failed.",true); }
@@ -128,6 +177,7 @@ namespace HybridLumenGI
             RenderQueueRange opaque=RenderQueueRange.opaque;
             foreach(Renderer renderer in renderers)
             {
+                if (OutOfTime()) return Deferred();
                 scanned++;
                 if(renderer==null||!seen.Add(renderer)) continue;
                 var materials=new List<Material>();
@@ -154,6 +204,7 @@ namespace HybridLumenGI
                     renderer.GetSharedMaterials(materials);
                     for(int slot=0;slot<materials.Count;slot++)
                     {
+                        if (OutOfTime()) return Deferred();
                         Material material=materials[slot];
                         if(material==null||material.shader==null)
                         {
@@ -200,8 +251,11 @@ namespace HybridLumenGI
                         else
                         {
                             if(mesh.subMeshCount<=0||mesh.subMeshCount!=materials.Count) issues|=IdentityIssues.MeshSubmeshMismatch;
-                            for(int submesh=0;submesh<mesh.subMeshCount;submesh++)
-                                if(mesh.GetTopology(submesh)!=MeshTopology.Triangles) issues|=IdentityIssues.NonTriangleTopology;
+                            for (int submesh = 0; submesh < mesh.subMeshCount; submesh++)
+                            {
+                                if (OutOfTime()) return Deferred();
+                                if (mesh.GetTopology(submesh) != MeshTopology.Triangles) issues |= IdentityIssues.NonTriangleTopology;
+                            }
                         }
                     }
                 }

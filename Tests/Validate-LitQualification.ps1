@@ -38,7 +38,14 @@ namespace UnityEngine {
     public class MeshRenderer:Renderer { public Mesh additionalVertexStreams,enlightenVertexStream; }
     public class SkinnedMeshRenderer:Renderer { public Mesh sharedMesh; }
     public enum MeshTopology { Triangles,Lines }
-    public class Mesh { public int subMeshCount=1; public MeshTopology topology=MeshTopology.Triangles; public bool throwTopology; public MeshTopology GetTopology(int index) { if(throwTopology) throw new Exception("injected topology read failure"); return topology; } }
+    public class Mesh {
+        public int subMeshCount=1; public MeshTopology topology=MeshTopology.Triangles; public bool throwTopology;
+        public Action onTopology;
+        public MeshTopology GetTopology(int index) {
+            if(throwTopology) throw new Exception("injected topology read failure");
+            onTopology?.Invoke(); return topology;
+        }
+    }
     public class MeshFilter { public Mesh sharedMesh; }
     public struct LOD { public Renderer[] renderers; }
     public class LODGroup {
@@ -104,7 +111,8 @@ public static class LitQualificationCases {
         camera.cullingMatrix=new UnityEngine.Matrix4x4 {invalid=true}; Check(!q.Validate(camera,-1,out reason),"invalid camera matrix fails closed");
         Check(UnityEngine.Resources.scans>=19,"each eligible validation rescans live renderer set");
         RunDiscovery();
-        return "Lit qualification and receiver discovery: "+assertions+" assertions passed against both actual runtime classes with minimal Unity API stubs. Includes full scans, independent immutable camera results, source restrictions and read-only behavior; not Unity culling, RendererList contents, pixel identity or GPU rendering.";
+        RunBudgetedDiscovery();
+        return "Lit qualification and receiver discovery: "+assertions+" assertions passed against both actual runtime classes with minimal Unity API stubs. Shared CPU admission stops the next check, rejects partial native qualification and allows fresh discovery. Unity culling, RendererList contents, pixel identity and GPU rendering are outside this harness.";
     }
     private static bool Has(HybridLumenGI.HybridLumenGIReceiverDiscovery.Candidate c,HybridLumenGI.HybridLumenGIReceiverDiscovery.IdentityIssues issue) { return (c.IdentityIssues&issue)!=0; }
     private static void RunDiscovery() {
@@ -206,6 +214,42 @@ public static class LitQualificationCases {
         Check(idA.mutationCount==0&&ReferenceEquals(idA.shared,sourceSlots)&&ReferenceEquals(idA.filter.sharedMesh,sourceMesh)&&idA.gameObject.layer==4&&idA.localToWorldMatrix.offset==17&&idA.enabled&&!idA.forceRenderingOff,"scan leaves source materials, mesh, layer and transform unchanged");
         Check(noWrites.Candidates[0].HasOpaqueMaterials&&!noWrites.HasUnknownSources,"unproxied plain Lit is discoverable without GPU scene");
         Check(d.Scan(null,-1).Candidates.Count==0,"null camera yields explicit empty invalid context");
+    }
+
+    private static void RunBudgetedDiscovery() {
+        var discovery = new HybridLumenGI.HybridLumenGIReceiverDiscovery();
+        var qualification = new HybridLumenGI.HybridLumenGILitQualification();
+        var camera = new UnityEngine.Camera();
+        var first = R(Lit);
+        var second = R(Lit);
+        UnityEngine.Resources.current = new[] { first, second };
+        UnityEngine.Resources.lods = Array.Empty<UnityEngine.LODGroup>();
+        long ticks = 0;
+        first.filter.sharedMesh.onTopology = () => ticks += 40;
+        second.filter.sharedMesh.onTopology = () => ticks += 20;
+        var allowance = new HybridLumenGI.HybridLumenGIReceiverDiscovery.ScanBudget(100, () => ticks);
+        var initial = discovery.Scan(camera, -1, allowance);
+        Check(initial.ScanComplete && initial.Candidates.Count == 2 && qualification.Validate(initial, out _),
+            "the first discovery spends 60 ticks and qualifies both Lit sources");
+
+        ticks += 500; // Work between discovery calls does not spend this allowance.
+        int secondReads = second.materialReads;
+        var partial = discovery.Scan(camera, -1, allowance);
+        Check(!partial.ScanComplete && partial.HasUnknownSources && partial.ScannedRenderers == 1 &&
+            partial.Candidates.Count == 1 && ReferenceEquals(partial.Candidates[0].Renderer, first) && second.materialReads == secondReads,
+            "revalidation spends the remaining 40 ticks and never starts the second renderer");
+        Check(!qualification.Validate(partial, out var reason) && reason.Contains("CPU allowance exhausted"),
+            "actual Lit qualification rejects incomplete current sources");
+
+        int scans = UnityEngine.Resources.scans;
+        var exhausted = discovery.Scan(camera, -1, allowance);
+        Check(!exhausted.ScanComplete && exhausted.ScannedRenderers == 0 && UnityEngine.Resources.scans == scans,
+            "another recheck with the same exhausted allowance does not enumerate loaded objects again");
+        var next = HybridLumenGI.HybridLumenGIReceiverDiscovery.ScanBudget.FromMilliseconds(60000);
+        Check(next != null && discovery.Scan(camera, -1, next).ScanComplete && second.materialReads == secondReads + 1,
+            "a fresh adequate real Stopwatch allowance restores full discovery");
+        Check(HybridLumenGI.HybridLumenGIReceiverDiscovery.ScanBudget.FromMilliseconds(0) == null &&
+            discovery.Scan(camera, -1).ScanComplete, "default zero retains the complete discovery entry");
     }
 }
 '@
