@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release149，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release150，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭相机状态重建时漏记旧 DXR 属性缓冲的缺口。同一实际 Backend 对照在 1 MiB 下由两代 1,152,392 B 改为等待安全释放，另一相机仍可独立准入。Astra Max 同意按逻辑准入范围采用。原生双相机负载和总显存分别验收。[前后对照](../LocalComparison/Review/camera-dxr-attribute-budget-167/result.md) · [同源交付](../LocalComparison/Review/camera-dxr-attribute-budget-167/delivery.json)
 
 T6／G4 已关闭关闭域重载时旧帧预算阻塞再次 Play 的缺口。Unity 无图形对照中，第二轮第 1 帧恢复纹理上传与 RTAS 构建准入，受控退休预留保留到完成回调。Astra Max 同意按 Editor 生命周期与托管准入采用。实际 GPU 围栏跨会话和完整 G4 各自验收。[前后对照](../LocalComparison/Review/play-frame-admission-166/result.md) · [同源交付](../LocalComparison/Review/play-frame-admission-166/delivery.json)
 

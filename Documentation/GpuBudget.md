@@ -116,7 +116,7 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 | `materialTextureUploadMiBPerFrame` | 16 MiB，全相机共享实际复制字节；稳定大页跨帧续传，完整复制/回读后ready；不能拼接不同帧的动态RT。 |
 | `hardwareMaterialBudgetMiB` | 256 MiB，材质arena包含当前、待上传、读者持有及退休/隔离分配；复用稳定页，局部替换变化页。 |
 | `softwareGeometryBudgetMiB` | 128 MiB，每相机精确软件属性、BVH与等待fence的旧缓冲共同计账；新分配前准入，不足则回退/等待退休。 |
-| `hardwareGeometryBudgetMiB` | 128 MiB，每相机硬件精确属性，包含当前与退休分配及替换峰值；不与RTAS预留混为一项。 |
+| `hardwareGeometryBudgetMiB` | 128 MiB，同一 Feature 内按相机计入硬件精确属性。相机状态重建后仍计入待释放的旧分配，直到安全释放。RTAS 使用独立的共享预留。[定向对照](../LocalComparison/Review/camera-dxr-attribute-budget-167/result.md) |
 | `rtasMemoryBudgetMiB` | 256 MiB，跨相机RTAS预留；按64 KiB + 192 B/triangle + 1024 B/instance估算，后续 `GetSize` 观测只提高高水位；退休仍计账。估算不是驱动上界。 |
 | `rtasBuildsPerFrame` | 每引擎帧最多4次实际构建；仅准备不扣构建额度，未变场景不重复扣费。 |
 | `rtasTriangleWorkPerFrame` / `rtasInstanceWorkPerFrame` | 250,000三角 / 4,096实例；包含完整dirty构建/refit工作。等待任务积累tokens，最老活跃任务优先。 |
