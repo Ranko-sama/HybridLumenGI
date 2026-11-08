@@ -1486,7 +1486,7 @@ namespace HybridLumenGI
                         SetTexture(cmd,c,filter,"_HLGI_Output",i%2==0?d.tempA:d.tempB);cmd.SetComputeIntParam(c,"_HLGI_FilterStep",1<<i);Dispatch(cmd,c,filter,state);
                     }
                 }
-                if(current)state.readiness.Record(cmd,state.scene,state.sdf,state.surfaceCache,state.cache[1-d.cacheRead],state.patchGrid,d.epoch,d.frame);
+                if(current)state.readiness.Record(cmd,state.scene,state.sdf,state.surfaceCache,state.cache[1-d.cacheRead],state.patchGrid,d.epoch,d.frame,state.scheduler);
             }
             private static void SetTexture(CommandBuffer cmd,ComputeShader c,int kernel,string name,TextureHandle handle)
             { RTHandle rt=handle;cmd.SetComputeTextureParam(c,kernel,name,rt.nameID); }

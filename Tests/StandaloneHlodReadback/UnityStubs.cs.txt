@@ -8,12 +8,42 @@ namespace UnityEngine
         public float x,y,z,w;public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;}
         public static Vector4 zero=>new(0,0,0,0);
     }
-    public static class Mathf{public static int Max(int a,int b)=>Math.Max(a,b);}
+    public readonly record struct Vector3(float x,float y,float z)
+    {
+        public static Vector3 zero => default;
+        public float sqrMagnitude => x*x+y*y+z*z;
+        public static Vector3 Max(Vector3 a,Vector3 b)=>new(Math.Max(a.x,b.x),Math.Max(a.y,b.y),Math.Max(a.z,b.z));
+        public static Vector3 operator +(Vector3 a,Vector3 b)=>new(a.x+b.x,a.y+b.y,a.z+b.z);
+        public static Vector3 operator -(Vector3 a,Vector3 b)=>new(a.x-b.x,a.y-b.y,a.z-b.z);
+        public static Vector3 operator *(Vector3 a,float scale)=>new(a.x*scale,a.y*scale,a.z*scale);
+    }
+    public static class Mathf
+    {
+        public static int Max(int a,int b)=>Math.Max(a,b);
+        public static float Max(float a,float b)=>Math.Max(a,b);
+        public static int Min(int a,int b)=>Math.Min(a,b);
+        public static float Min(float a,float b)=>Math.Min(a,b);
+        public static int Clamp(int value,int min,int max)=>Math.Clamp(value,min,max);
+        public static float Sqrt(float value)=>MathF.Sqrt(value);
+    }
     public static class SystemInfo{public static bool supportsAsyncGPUReadback=true;}
-    public sealed class ComputeBuffer{}
+    public enum ComputeBufferType { Structured }
+    public sealed class ComputeBuffer
+    {
+        public string name;
+        public ComputeBuffer(){}
+        public ComputeBuffer(int count,int stride,ComputeBufferType type){}
+        public void SetData(Array data){}
+        public void Release(){}
+    }
     public sealed class Mesh{}
     public sealed class Texture3D{public uint updateCount;}
-    public readonly record struct Bounds(float Value);
+    public readonly record struct Bounds(Vector3 center, Vector3 size)
+    {
+        public Bounds(float value) : this(new Vector3(value,0,0),default) {}
+        public Vector3 min=>center-size*.5f;
+        public Vector3 max=>center+size*.5f;
+    }
     public readonly record struct Matrix4x4(float Value);
 }
 namespace UnityEngine.Rendering
@@ -46,7 +76,14 @@ namespace HybridLumenGI
     public sealed class HybridLumenGIProxy{public string name;public HybridLumenGIMeshSdf MeshSdf;public int StableId,Revision=3;public UnityEngine.Matrix4x4 SdfLocalToWorld;}
     public sealed class HybridLumenGIScene
     {
-        public struct ProxyGpuData{public UnityEngine.Vector4 identity;}
+        public struct ProxyGpuData{public UnityEngine.Vector4 identity,centerShape,extentsRoughness;}
+        public struct DirtyRegion
+        {
+            public int StableId;
+            public bool HasPrevious,HasCurrent;
+            public UnityEngine.Bounds PreviousBounds,CurrentBounds;
+        }
+        public IReadOnlyList<DirtyRegion> DirtyRegions { get; } = Array.Empty<DirtyRegion>();
         public readonly record struct Ticket(int Id,int Revision,bool Geometry,bool Material,bool Lighting);
         public readonly ProxyGpuData[] Data;public readonly HybridLumenGIProxy[] Proxies;
         public readonly List<Ticket> Reports=new();public readonly Dictionary<int,Ticket> Latest=new();
@@ -77,6 +114,7 @@ namespace HybridLumenGI
         public uint AtlasGeneration=1;public uint[] Generations;public readonly bool[] Ready,SourceCurrent,RequiredCoverage;
         public readonly int[] Ids,Revisions;public int[] CardOwners;public int[][] Cards;public readonly uint[] Layouts;
         public int CardCount=>CardOwners.Length;
+        public bool[] ReadyMask => CardOwners.Select(slot => slot >= 0 && slot < Ready.Length && Ready[slot]).ToArray();
         public HybridLumenGISurfaceCache(int slots)
         {
             Generations=new uint[slots*6];Ready=new bool[slots];SourceCurrent=new bool[slots];RequiredCoverage=new bool[slots];Ids=new int[slots];Revisions=new int[slots];

@@ -47,6 +47,11 @@ namespace HybridLumenGI
 
         public void Record(CommandBuffer command,HybridLumenGIScene scene,HybridLumenGISdfAtlas sdf,
             HybridLumenGISurfaceCache surface,ComputeBuffer cache,int grid,int epoch,int frame,int requiredSamples=2)
+            => Record(command,scene,sdf,surface,cache,grid,epoch,frame,null,requiredSamples);
+
+        internal void Record(CommandBuffer command,HybridLumenGIScene scene,HybridLumenGISdfAtlas sdf,
+            HybridLumenGISurfaceCache surface,ComputeBuffer cache,int grid,int epoch,int frame,
+            HybridLumenGICacheScheduler scheduler,int requiredSamples=2)
         {
             if(scene==null || sdf==null || surface==null || cache==null || command==null) throw new ArgumentNullException();
             if(grid<1 || grid>4) throw new ArgumentOutOfRangeException(nameof(grid));
@@ -103,28 +108,49 @@ namespace HybridLumenGI
                 if(request.hasError) { FailedReadbacks++;return; }
                 CompletedReadbacks++;
                 var data=request.GetData<CacheEntry>();
+                bool completeCache = scheduler != null && data.Length == (long)surface.CardCount * perCard;
                 foreach(Snapshot snapshot in snapshots)
                 {
                     if(!CurrentSnapshot(scene,surface,snapshot)) continue;
                     bool ready=true,anyCovered=false;
                     string reason=null;
                     int blockedOrdinal=-1,blockedPatch=-1;
-                    for(int ordinal=0;ordinal<snapshot.cards.Length && ready;ordinal++)
+                    for(int ordinal=0;ordinal<snapshot.cards.Length;ordinal++)
                     {
                         int card=snapshot.cards[ordinal];bool cardCovered=false;
+                        bool coverageEvidence = completeCache && scheduler.NeedsPatchCoverage(card, grid, snapshot.generations[ordinal], atlasGeneration);
+                        if (!ready && !coverageEvidence) continue;
+                        ushort emptyPatches = 0;
                         for(int local=0;local<perCard;local++)
                         {
                             long index=(long)card*perCard+local;
                             if(index>=data.Length)
-                            { ready=false;reason="Missing cache entry";blockedOrdinal=ordinal;blockedPatch=local;break; }
-                            if(!ValidatePatch(data[(int)index],snapshot.id,snapshot.revision,epoch,snapshot.generations[ordinal],requiredSamples,out bool covered))
+                            {
+                                if (ready) { reason="Missing cache entry";blockedOrdinal=ordinal;blockedPatch=local; }
+                                ready=false;coverageEvidence=false;break;
+                            }
+                            var entry = data[(int)index];
+                            bool patchReady = ValidatePatch(entry,snapshot.id,snapshot.revision,epoch,snapshot.generations[ordinal],requiredSamples,out bool covered);
+                            if (!patchReady && ready)
                             {
                                 ready=false;blockedOrdinal=ordinal;blockedPatch=local;
                                 reason=covered?"Covered patch below required sample age":"Invalid cache entry or tag mismatch";
-                                break;
                             }
                             cardCovered|=covered;
+                            if (coverageEvidence && !covered)
+                            {
+                                // Require the explicit all-zero output, separate from the
+                                // existing (looser) readiness treatment of empty cells.
+                                coverageEvidence = patchReady && entry.anchor.Equals(Vector4.zero) &&
+                                    entry.normal.Equals(Vector4.zero) && entry.guide.Equals(Vector4.zero) &&
+                                    entry.nonAnalyticIrradiance.Equals(Vector4.zero);
+                                if (coverageEvidence) emptyPatches |= (ushort)(1 << local);
+                            }
+                            if (!ready && !coverageEvidence) break;
                         }
+                        // A current covered tag proves this card was evaluated. An
+                        // entirely zero card alone cannot exclude any future work.
+                        if (coverageEvidence && cardCovered) scheduler.RecordPatchCoverage(card, emptyPatches);
                         anyCovered|=cardCovered;
                         // Authored charts are required surface domains: every chart needs a real
                         // covered patch. Legacy six-view fallback only promises object-level coverage.

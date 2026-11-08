@@ -4,6 +4,7 @@ $SourceRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
 $runDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("hlgi-hlod-readback-" + [Guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $runDirectory | Out-Null
 Copy-Item -LiteralPath (Join-Path $SourceRoot "Runtime/HybridLumenGIHlodReadback.cs") -Destination (Join-Path $runDirectory "HlodReadback.cs")
+Copy-Item -LiteralPath (Join-Path $SourceRoot "Runtime/HybridLumenGICacheScheduler.cs") -Destination (Join-Path $runDirectory "CacheScheduler.cs")
 foreach ($file in @("UnityStubs", "Program")) {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot "StandaloneHlodReadback/$file.cs.txt") -Destination (Join-Path $runDirectory "$file.cs")
 }

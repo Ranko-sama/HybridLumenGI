@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using HybridLumenGI;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -124,6 +126,52 @@ var youngPatch=underSampled.readback.LastCoverageBlock;
 Require(youngPatch.observed && youngPatch.sourceWorkFrame==37 && youngPatch.ownerId==101 && youngPatch.cardOrdinal==0 &&
     youngPatch.physicalCard==5 && youngPatch.patch==3 && youngPatch.reason=="Covered patch below required sample age",
     "An identified covered patch below the age threshold was reported as an empty chart or lost its address.");
+
+// The schedulers start with the same history. One retains the old behavior
+// without coverage evidence. The other consumes the actual readback callback.
+var scheduledCoverage=Setup();Layout(scheduledCoverage.surface,new[]{new[]{0}},1);
+using var unobservedScheduler=new HybridLumenGICacheScheduler();
+using var observedScheduler=new HybridLumenGICacheScheduler();
+void Schedule(HybridLumenGICacheScheduler scheduler,int frame) =>
+    scheduler.Prepare(scheduledCoverage.scene,scheduledCoverage.surface,2,frame,2,false,upload:false);
+void RequestCoverage(int frame) => scheduledCoverage.readback.Record(scheduledCoverage.command,scheduledCoverage.scene,
+    scheduledCoverage.sdf,scheduledCoverage.surface,scheduledCoverage.cache,2,7,frame,observedScheduler);
+Schedule(unobservedScheduler,0);Schedule(observedScheduler,0);
+Require(observedScheduler.Mask.SequenceEqual(new uint[]{1,1,0,0}),"Unknown coverage changed first-frame admission.");
+uint observedGeneration=scheduledCoverage.surface.Generations[0];
+var coveredCells=new[]{default(Entry),Valid(generation:observedGeneration,count:1),default(Entry),Valid(generation:observedGeneration,count:0)};
+RequestCoverage(0);
+scheduledCoverage.command.Complete(0,coveredCells);
+Require(!scheduledCoverage.scene.Ready(101,3)&&scheduledCoverage.readback.LastCoverageBlock.patch==1,
+    "An empty-cell observation relaxed readiness for a covered, undersampled patch.");
+Schedule(unobservedScheduler,1);Schedule(observedScheduler,1);
+Require(unobservedScheduler.Mask.SequenceEqual(new uint[]{0,0,1,1})&&
+    observedScheduler.Mask.SequenceEqual(new uint[]{0,1,0,1})&&observedScheduler.ValidEntryCount==2&&
+    observedScheduler.SelectedCount==2&&observedScheduler.FairnessSelectedCount==unobservedScheduler.FairnessSelectedCount,
+    "Current readback did not replace the empty update slot with a covered one within the same fairness quota.");
+RequestCoverage(4);
+coveredCells[1].irradiance.w=2;coveredCells[3].irradiance.w=2;
+scheduledCoverage.command.Complete(1,coveredCells);
+Require(scheduledCoverage.scene.Ready(101,3)&&scheduledCoverage.readback.AcceptedTickets==1,
+    "Complete covered data did not pass the existing readiness gate.");
+
+RequestCoverage(8);
+scheduledCoverage.surface.Generations[0]++;
+Schedule(observedScheduler,9);
+scheduledCoverage.command.Complete(2,coveredCells);
+Schedule(observedScheduler,10);
+Require(observedScheduler.ValidEntryCount==4&&scheduledCoverage.readback.AcceptedTickets==1,
+    "Capture replacement failed to revoke coverage or accepted a late old-generation callback.");
+RequestCoverage(12);
+scheduledCoverage.command.Complete(3,new Entry[4]);
+Schedule(observedScheduler,13);
+Require(observedScheduler.ValidEntryCount==4&&!scheduledCoverage.scene.Ready(101,3),
+    "An entirely zero card excluded work or qualified for publication.");
+RequestCoverage(16);
+scheduledCoverage.command.Complete(4,new[]{default(Entry),Valid(generation:observedGeneration+1),default(Entry)});
+Schedule(observedScheduler,17);
+Require(observedScheduler.ValidEntryCount==4&&!scheduledCoverage.scene.Ready(101,3),
+    "A truncated payload excluded cells or qualified for publication.");
 
 foreach(string mutation in new[]{"layout","order","missing","added","owner","generation","policy","pool shrink","source"})
 {

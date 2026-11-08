@@ -45,6 +45,8 @@ namespace HybridLumenGI
         private bool[] coveredRevision = Array.Empty<bool>();
         private int[] owners = Array.Empty<int>(), stableIds = Array.Empty<int>(), revisions = Array.Empty<int>();
         private uint[] generations = Array.Empty<uint>(), layouts = Array.Empty<uint>();
+        private ushort[] knownEmptyPatches = Array.Empty<ushort>();
+        private bool[] patchCoverageObserved = Array.Empty<bool>();
         private float[] ownerPriorities = Array.Empty<float>();
         private static readonly uint[] EmptyMask = new uint[1];
         private long tick;
@@ -52,6 +54,17 @@ namespace HybridLumenGI
         private uint lastAtlasGeneration;
 
         public int LastScheduledFrame(int entry) => entry >= 0 && entry < lastScheduledFrame.Length ? lastScheduledFrame[entry] : -1;
+
+        internal bool NeedsPatchCoverage(int card, int grid, uint generation, uint atlasGeneration)
+            => grid * grid == PatchesPerCard && atlasGeneration == lastAtlasGeneration &&
+                card >= 0 && card < generations.Length && generations[card] == generation && !patchCoverageObserved[card];
+
+        // Called only for a current, validated card in the existing HLOD readback.
+        internal void RecordPatchCoverage(int card, ushort emptyPatches)
+        {
+            knownEmptyPatches[card] = emptyPatches;
+            patchCoverageObserved[card] = true;
+        }
 
         public void Prepare(HybridLumenGIScene scene, HybridLumenGISurfaceCache surface, int grid, int frame, int budget, bool lightingChanged,
             float influenceRadius = 50f, bool upload = true, IReadOnlyList<Bounds> localLightChanges = null)
@@ -96,7 +109,13 @@ namespace HybridLumenGI
                 bool contentChanged = identityChanged || atlasChanged || revision != revisions[card] || generation != generations[card] || layout != layouts[card];
                 owners[card] = slot; stableIds[card] = id; revisions[card] = revision;
                 generations[card] = generation; layouts[card] = layout;
+                if (contentChanged)
+                {
+                    patchCoverageObserved[card] = false;
+                    knownEmptyPatches[card] = 0;
+                }
                 float changePriority = id == 0 ? 0f : ownerPriorities[slot];
+                ushort emptyPatches = knownEmptyPatches[card];
                 for (int patch = 0; patch < PatchesPerCard; patch++)
                 {
                     int entry = card * PatchesPerCard + patch;
@@ -117,6 +136,9 @@ namespace HybridLumenGI
                         lastScheduledFrame[entry] = -1;
                         pendingPriority[entry] = Mathf.Max(pendingPriority[entry], 1000f);
                     }
+                    // The GPU clears these cells before consulting the update mask. They
+                    // cannot use an update slot until this card is captured again.
+                    if ((emptyPatches & (1 << patch)) != 0) continue;
                     // Keep dirtiness until this particular patch is serviced, not merely for one frame.
                     pendingPriority[entry] = Mathf.Max(pendingPriority[entry], changePriority);
                     if (changePriority > 0f) coveredRevision[entry] = false;
@@ -213,6 +235,7 @@ namespace HybridLumenGI
             lastScheduledFrame = new int[count]; pendingPriority = new float[count]; coveredRevision = new bool[count];
             owners = new int[cards]; stableIds = new int[cards]; revisions = new int[cards];
             generations = new uint[cards]; layouts = new uint[cards];
+            knownEmptyPatches = new ushort[cards]; patchCoverageObserved = new bool[cards];
             for (int i = 0; i < cards; i++) owners[i] = -1;
             for (int i = 0; i < count; i++) lastScheduledFrame[i] = -1;
         }
@@ -222,6 +245,7 @@ namespace HybridLumenGI
             lastService = Array.Empty<long>(); lastScheduledFrame = Array.Empty<int>(); pendingPriority = Array.Empty<float>();
             coveredRevision = Array.Empty<bool>(); owners = stableIds = revisions = Array.Empty<int>();
             generations = layouts = Array.Empty<uint>(); ownerPriorities = Array.Empty<float>();
+            knownEmptyPatches = Array.Empty<ushort>(); patchCoverageObserved = Array.Empty<bool>();
             PatchesPerCard = SelectedCount = FairnessSelectedCount = ValidEntryCount = UnscheduledEntryCount = 0;
             tick = MaxFramesSinceUpdate = 0; lastFrame = int.MinValue;
             lastAtlasGeneration = 0;
