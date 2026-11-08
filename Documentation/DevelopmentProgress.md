@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release145，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release146，G0 已锁定，G1／G2 本机代表性验收通过
+
+G4 已关闭多件几何同帧变动、上传额度不足时的部分 HLOD 提交。实际 Scene／BVH 对照中，旧版让两件进入追踪，修复后整组先撤回，三个当前回执齐备后一起恢复。额度足够的同帧完整更新继续提交。Astra Max 同意按 CPU 资格采用。原高速首显与普通 Player 画面继续验收。[实际对照](../LocalComparison/Review/partial-hlod-upload-163/result.md) · [同源交付](../LocalComparison/Review/partial-hlod-upload-163/delivery.json)
 
 T6／G4 已补上对象 SDF 图集的跨相机逐帧上传额度。受控 C# 对照中，两份冷图集的同帧体素提交从 2 MiB 降到 1 MiB，晚准备的图集随后取得额度。失败的复制尝试仍占当帧额度。Astra Max 同意按逻辑准入范围采用。真实上传带宽、全阶段预算及高速首显仍待各自验收。[同输入对照](../LocalComparison/Review/sdf-frame-upload-162/result.md) · [同源交付](../LocalComparison/Review/sdf-frame-upload-162/delivery.json)
 
