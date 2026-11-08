@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release129，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release130，G0 已锁定，G1／G2 本机代表性验收通过
 
-T3／G3 的主干源码已修复同帧相机回调换源或清空后的旧快照使用。实际组件 CPU 回归用模拟 Context 完成验证撤回、取消和原预算下恢复，旧版在同一替换输入复现旧快照。Astra Max 同意按来源资格范围采用，待整合普通包。实体 GPU 退休、实时姿态和形变画质仍分别验收。[形变流程与回归](DeformedGeometry.md)
+T3／G3 已修复同帧相机回调换源或清空后的旧快照使用。实际组件 CPU 回归用模拟 Context 完成验证撤回、取消和原预算下恢复，旧版在同一替换输入复现旧快照。Astra Max 同意按来源资格范围采用，已进入 Release130 普通包。实体 GPU 退休、实时姿态和形变画质仍分别验收。[形变流程与回归](DeformedGeometry.md) · [同源交付](../LocalComparison/Review/skinned-camera-source-147/delivery.json)
 
 T2／G4 关闭精确命中截断 SDF 搜索时，未检查末段被判为确定空区的功能缺口。实际追踪和混合查询 HLSL 在 WARP 上用同一闭盒输入对照。Release128 选择 0.00968333 处的后方精确三角，Release129 恢复 0.00841055 处的近 SDF 命中。预算真正耗尽时返回未完成。Astra Max 同意按该范围采用，精确后端结果为受控输入，原生 DXR 和最终色墙画面仍分别验收。[同一输入与结果](../LocalComparison/Review/sdf-clipped-interval-146/release-notes.md) · [同源交付](../LocalComparison/Review/sdf-clipped-interval-146/delivery.json)
 

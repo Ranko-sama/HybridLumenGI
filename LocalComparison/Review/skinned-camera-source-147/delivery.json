@@ -1,0 +1,74 @@
+{
+  "productCommit": "c07eee97877a107d57bbee3e0537b030591f6fbd",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release130-demo",
+  "tag": "release130-demo",
+  "publishedAt": "2026-11-08T08:04:30Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release130 Unity project ZIP using Release129 shader cache. The same-input CPU regression executed the actual deformation and retirement C# components with adapted workers, Unity objects and completion. Shape visuals and native retirement remain separate.",
+  "validation": {
+    "command": "./Tests/Validate-DeformedMesh.ps1",
+    "baselineCommit": "4a88cc678afabe224cfc021ff73666222691854e",
+    "baseline": "Late same-frame replacement exposed the previous GI mesh/SDF/charts during camera preparation.",
+    "candidate": "passed late same-frame replacement and clear with simulated final-context completion",
+    "notes": "release-notes.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease130\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101770225
+  },
+  "nativeExit": {
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified129/HybridLumenGI-Release129-UnityProject/Library/ShaderCache",
+    "productCommit": "c07eee97877a107d57bbee3e0537b030591f6fbd",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "exitCode": 0,
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease130",
+    "project": "I:/Unity test/Comparison/PortableUnified130/HybridLumenGI-Release130-UnityProject"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release130-UnityProject.zip",
+    "bytes": 833901,
+    "productCommit": "c07eee97877a107d57bbee3e0537b030591f6fbd",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified130\\HybridLumenGI-Release130-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release129-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIDeformedMesh.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIRendererFeature.cs",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/HybridLumenGIDeformedMesh.cs",
+      "Runtime/HybridLumenGIRendererFeature.cs"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release130-UnityProject.zip",
+      "bytes": 833901,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release130-demo/HybridLumenGI-Release130-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release130-Windows-x64.zip",
+      "bytes": 58445866,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release130-demo/HybridLumenGI-Release130-Windows-x64.zip"
+    }
+  ]
+}
