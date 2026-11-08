@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release123，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release124，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 关闭同一 SkinnedMeshRenderer 更换或清空来源网格后继续使用旧 GI 形变快照的功能缺口。Release124 在帧级渲染准备撤回旧 Mesh／SDF／图卡、取消旧作业，并由原预算接纳替换网格。实际组件 CPU 回归和同源普通 Win64 构建均已通过。已交付运行包与可编辑工程，形变画质、真实 GPU 退休和整体 G3–G5 保持开放。[功能修复](../LocalComparison/Review/skinned-source-replacement-140/release-notes.md) · [同源交付](../LocalComparison/Review/skinned-source-replacement-140/delivery.json)
 
 2026-11-08，Unity Personal 授权恢复，原 G3 固定两室关门恢复子项已关闭。Release122 基线在约 2 秒仍有 10.33% 暖光残留。两个 Gather 点确认大部分余量在时域输入中已存在。采用的修复按同源几何范围识别门的跳变，避免已受影响的旧光继续递归。修复在 1 秒和 2 秒前最后源的残留分别为 2.637% 和 0.214%，首个 1% 保持窗为 1.373–1.894 秒，保持至 2.612 秒末点。首候选误用含 SDF 留边的遍历范围，未触发，其记录保留。Astra 同意整合实测源码。完整 G3–G5 保持开放。[同曝光画面与适用范围](../LocalComparison/Review/portal-recovery-138/result.md)
 
