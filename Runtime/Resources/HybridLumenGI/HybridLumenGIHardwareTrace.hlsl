@@ -31,14 +31,12 @@ bool HLGIHardwareTraceQuery(float3 origin,float3 direction,float maxT,bool shado
             (shadowQuery && HLGIShadowTwoSided(candidate.geometry.x));
         if(!sideAllowed) continue;
         float candidateT=query.CandidateTriangleRayT();
-        float candidateRadius=coneRadiusAtOrigin+coneSlope*candidateT;
-        bool footprintKnown=isfinite(coneRadiusAtOrigin) && coneRadiusAtOrigin>=0 && isfinite(coneSlope) &&
-            isfinite(candidateT) && candidateT>=0 && isfinite(candidateRadius) && candidateRadius>=0;
         bool covered=true;HLGIHitMaterialSurface candidateMaterial;float3 candidateNormal;
         bool coverageKnown=false;
-        if(footprintKnown)
+        if(isfinite(candidateT) && candidateT>=0)
             coverageKnown=HLGIHardwareEvaluateHit(query.CandidateInstanceID(),query.CandidatePrimitiveIndex(),candidate,attributes,
-                query.CandidateObjectToWorld3x4(),query.CandidateTriangleBarycentrics(),materialView,direction,candidateRadius,true,shadowQuery,
+                query.CandidateObjectToWorld3x4(),query.CandidateTriangleBarycentrics(),materialView,direction,
+                HLGIExactHitRadius(coneRadiusAtOrigin,coneSlope,candidateT),true,shadowQuery,
                 covered,candidateMaterial,candidateNormal);
         if(!HLGIHitCoverageBlocks(coverageKnown,covered)) continue;
         query.CommitNonOpaqueTriangleHit();

@@ -61,6 +61,12 @@ bool HLGIHardwareSideAllowed(uint cullMode,bool frontFace)
 {
     return cullMode==0u || (cullMode==1u && !frontFace) || (cullMode==2u && frontFace);
 }
+float HLGIExactHitRadius(float coneRadiusAtOrigin,float coneSlope,float distance)
+{
+    float radius=coneRadiusAtOrigin+coneSlope*distance;
+    return isfinite(coneRadiusAtOrigin) && coneRadiusAtOrigin>=0 && isfinite(coneSlope) &&
+        isfinite(radius) && radius>=0 ? radius : -1;
+}
 // Coverage is required for every purpose. Visibility does not require a full
 // material payload; a failure in an unrequested map cannot invalidate coverage.
 void HLGIHardwareResolveCommittedMaterial(uint instanceIndex,uint primitive,
@@ -68,14 +74,15 @@ void HLGIHardwareResolveCommittedMaterial(uint instanceIndex,uint primitive,
     float4 materialView,float3 direction,float coneRadiusAtOrigin,float coneSlope,
     bool shadowQuery,bool resolveMaterial,inout HLGIHit hit)
 {
-    float hitRadius=coneRadiusAtOrigin+coneSlope*hit.t;
-    bool footprintKnown=isfinite(coneRadiusAtOrigin) && coneRadiusAtOrigin>=0 && isfinite(coneSlope) &&
-        isfinite(hit.t) && hit.t>=0 && isfinite(hitRadius) && hitRadius>=0;
+    if(!isfinite(hit.t) || hit.t<0)
+    {
+        hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN;
+        return;
+    }
+    float hitRadius=HLGIExactHitRadius(coneRadiusAtOrigin,coneSlope,hit.t);
     bool covered=true;HLGIHitMaterialSurface material;float3 materialNormal;
-    bool coverageKnown=false;
-    if(footprintKnown)
-        coverageKnown=HLGIHardwareEvaluateHit(instanceIndex,primitive,instance,attributes,objectToWorld,barycentric,
-            materialView,direction,hitRadius,true,shadowQuery,covered,material,materialNormal);
+    bool coverageKnown=HLGIHardwareEvaluateHit(instanceIndex,primitive,instance,attributes,objectToWorld,barycentric,
+        materialView,direction,hitRadius,true,shadowQuery,covered,material,materialNormal);
     // Recheck the committed identity against the frozen material/texture batch.
     // An unexpected transparent or stale result is unknown, never a miss that
     // would silently expose geometry beyond this committed nearest triangle.

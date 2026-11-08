@@ -50,8 +50,11 @@ static class AssetPageStreamingChecks
         var retryProvider=new Provider();var retry=new Stream(new[]{Page("a")},retryProvider);
         retry.Request("a",true);for(int i=0;i<3;i++){retry.Step(budget);retryProvider.CompleteAll();}
         uint firstGeneration=retry.GetState("a").Generation;retry.Request("a",false);retry.Step(budget);
+        var noNewIo=budget;noNewIo.ioBytesPerStep=0;
+        Check(!retry.TryAdmitGroup(new[]{"a"},noNewIo,new()),"Releasing page bypassed future bundle admission.");
         retryProvider.operations.Last().error="Native unload failed.";retryProvider.CompleteAll();retry.Step(budget);
         Check(retry.GetState("a").Status==Stream.Phase.ReleaseFailed && retry.ResidentBytes==20,"Failed native release lost reservations.");
+        Check(!retry.TryAdmitGroup(new[]{"a"},noNewIo,new()),"Failed release bypassed future bundle admission.");
         retry.Request("a",true);int operations=retryProvider.operations.Count;
         for(int i=0;i<59;i++)retry.Step(budget);
         Check(retryProvider.operations.Count==operations,"Failed release ignored retry backoff or reloaded uncertain ownership.");
@@ -65,7 +68,67 @@ static class AssetPageStreamingChecks
         bool rejected=false;try{_ = new Stream(new[]{Page("a","b"),Page("b","a")},new Provider());}catch(ArgumentException){rejected=true;}
         Check(rejected,"Cyclic page dependencies accepted.");
         foreach(string path in new[]{"../a","a/../b","C:/x","/root","a\\b","a//b"})Check(!Stream.RelativePath(path),"Unsafe relative bundle path accepted: "+path);
+        RemainingWorkAdmission();
         Console.WriteLine("PASS: actual independent asset-page scheduler: dependency ordering, IO/upload/resident quotas, non-cancellable late completion, delayed consumer retirement, failed-release quarantine/retry, generations, unknown native completion and manifest/path rejection. Fake provider; Unity AssetBundle IO/GPU execution is not claimed.");
+    }
+    static void RemainingWorkAdmission()
+    {
+        var failures=new List<string>();
+        void Case(string name,Action body)
+        {
+            try{body();Console.WriteLine("PASS: "+name);}
+            catch(Exception error){failures.Add(name+": "+error.Message);Console.WriteLine("FAIL: "+failures.Last());}
+        }
+        Case("Ready shared page after lowering start budgets",()=>
+        {
+            var provider=new Provider();var small=Page("small","shared");small.fileBytes=1;small.residentBytes=2;small.uploadBytes=1;
+            var stream=new Stream(new[]{Page("shared"),small},provider);var budget=Budget();
+            stream.Request("shared",true);
+            for(int i=0;i<3;i++){stream.Step(budget);provider.CompleteAll();}
+            Check(stream.TryAcquire("shared",out var lease),"Shared page did not reach leased Ready state.");
+            budget.ioBytesPerStep=budget.uploadBytesPerStep=1;
+            // Same public scheduler sequence as AssetPageStreamer.Drive: whole groups,
+            // then their accepted root requests, then one real scheduler step.
+            for(int i=0;i<3;i++)
+            {
+                var admitted=new HashSet<string>();
+                bool shared=stream.TryAdmitGroup(new[]{"shared"},budget,admitted);
+                bool next=stream.TryAdmitGroup(new[]{"small"},budget,admitted);
+                stream.Request("shared",shared);stream.Request("small",next);stream.Step(budget);provider.CompleteAll();
+            }
+            Check(stream.GetState("small").Status==Stream.Phase.Ready,"Small new page was blocked by the historical costs of its leased Ready dependency.");
+            Check(lease.Asset!=null && provider.operations.Count(x=>x.id=="shared")==2,"Ready shared page was released or reloaded.");
+            Check(stream.BundleBytes==11 && stream.ResidentBytes==22 && stream.IoBytesInFlight==0,"Shared reservation accounting changed.");
+            var tooSmall=budget;tooSmall.maxBundleBytes=10;
+            Check(!stream.TryAdmitGroup(new[]{"small"},tooSmall,new()),"Ready pages bypassed total bundle capacity.");
+            tooSmall=budget;tooSmall.maxResidentBytes=21;
+            Check(!stream.TryAdmitGroup(new[]{"small"},tooSmall,new()),"Ready pages bypassed total resident capacity.");
+        });
+        Case("BundleReady continuation and failed-stage readmission",()=>
+        {
+            var provider=new Provider();var stream=new Stream(new[]{Page("a")},provider);var budget=Budget();
+            stream.Request("a",true);stream.Step(budget);provider.CompleteAll();
+            var paused=budget;paused.startsPerStep=0;stream.Step(paused);
+            Check(stream.GetState("a").Status==Stream.Phase.BundleReady && stream.IoBytesInFlight==0,"Bundle did not finish before the reduced budget.");
+            budget.ioBytesPerStep=budget.maxIoBytesInFlight=0;
+            Check(stream.TryAdmitGroup(new[]{"a"},budget,new()),"Completed bundle incorrectly required another file read.");
+            var noUpload=budget;noUpload.uploadBytesPerStep=7;
+            Check(!stream.TryAdmitGroup(new[]{"a"},noUpload,new()),"BundleReady page bypassed its remaining upload cost.");
+            stream.Step(budget);
+            Check(provider.operations.Count==2 && provider.operations.Last().phase=="asset" && stream.IoBytesStarted==0,"BundleReady continuation reread the file or failed to start its asset.");
+            Check(stream.TryAdmitGroup(new[]{"a"},noUpload,new()),"Already in-flight upload was charged as a new upload.");
+            provider.operations.Last().error="Asset load failed.";provider.CompleteAll();stream.Step(budget);
+            Check(stream.GetState("a").Status==Stream.Phase.Failed && stream.BundleBytes==10 && stream.ResidentBytes==0,"Asset failure lost its retained bundle accounting.");
+            Check(stream.TryAdmitGroup(new[]{"a"},budget,new()) && !stream.TryAdmitGroup(new[]{"a"},noUpload,new()),"Asset retry did not retain upload-only admission.");
+            for(int i=0;i<60;i++)stream.Step(budget);
+            provider.CompleteAll();stream.Step(budget);
+            Check(stream.GetState("a").Status==Stream.Phase.Ready && provider.operations.Count(x=>x.phase=="bundle")==1,"Asset retry did not finish without rereading the retained bundle.");
+            var failedProvider=new Provider();var failed=new Stream(new[]{Page("b")},failedProvider);
+            failed.Request("b",true);failed.Step(Budget());failedProvider.operations[0].error="Bundle load failed.";
+            failedProvider.CompleteAll();failed.Step(Budget());
+            Check(failed.GetState("b").Status==Stream.Phase.Failed && !failed.TryAdmitGroup(new[]{"b"},budget,new()),"Failed bundle retry bypassed new I/O admission.");
+        });
+        Check(failures.Count==0,string.Join("; ",failures));
     }
     sealed class Ticket : Stream.ICompletion {internal bool done;public bool IsComplete=>done;}
     sealed class Provider : Stream.IProvider

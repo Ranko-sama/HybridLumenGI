@@ -78,6 +78,8 @@ bool HLGIHardwareEvaluateHit(uint instanceIndex,uint primitive,HLGIHardwareInsta
     if(!all(isfinite(weights)) || any(weights<0)) return false;
     float2 uv0=float2(attributes.a.w,attributes.uvY.x),uv1=float2(attributes.b.w,attributes.uvY.y),uv2=float2(attributes.c.w,attributes.uvY.z);
     uint specified=required&record.identity.w;
+    // An unknown cone only invalidates evaluations that sample an assigned map.
+    if(specified!=0u && (!isfinite(coneRadius) || coneRadius<0)) return false;
     bool needsParallax=(flags&HLGI_MATERIAL_PARALLAX)!=0u;
     bool needsFrame=needsParallax || (!coverageOnly && (flags&(HLGI_MATERIAL_NORMAL|HLGI_MATERIAL_DETAIL))!=0u);
     bool needsTriangle=specified!=0u || needsFrame;

@@ -168,12 +168,11 @@ bool HLGISoftwareTraceQuery(float3 origin,float3 direction,float maxT,bool shado
             !(shadowQuery && HLGIShadowTwoSided(candidate.geometry.x)))continue;
         float3x4 candidateMatrix;bool transformKnown=HLGIExactObjectToWorld(leaf.identity.x,candidateMatrix);
         if(geometric==2u)candidateT=entry;
-        float radius=coneRadiusAtOrigin+coneSlope*candidateT;
-        bool footprintKnown=isfinite(coneRadiusAtOrigin) && coneRadiusAtOrigin>=0 && isfinite(coneSlope) && isfinite(radius) && radius>=0;
         bool covered=true,coverageKnown=false;HLGIHitMaterialSurface material;float3 materialNormal;
-        if(geometric==1u && transformKnown && footprintKnown)
+        if(geometric==1u && transformKnown)
             coverageKnown=HLGIHardwareEvaluateHit(leaf.identity.x,leaf.identity.y,candidate,attributes,candidateMatrix,candidateBary,
-                materialView,direction,radius,true,shadowQuery,covered,material,materialNormal);
+                materialView,direction,HLGIExactHitRadius(coneRadiusAtOrigin,coneSlope,candidateT),true,shadowQuery,
+                covered,material,materialNormal);
         // Unknown alpha/texture state blocks the nearest endpoint; only a known
         // transparent candidate may expose the farther triangle or SDF surface.
         if(!HLGIHitCoverageBlocks(coverageKnown,covered))continue;

@@ -159,8 +159,14 @@ namespace HybridLumenGI
             foreach(var state in closure)
             {
                 var page=state.definition;
-                if(page.fileBytes>budgets.ioBytesPerStep || page.fileBytes>budgets.maxIoBytesInFlight ||
-                    page.uploadBytes>budgets.uploadBytesPerStep)return false;
+                // Per-start limits apply only to work still to be started. Completed/shared
+                // pages and native operations already in flight keep their reservations.
+                // A releasing page must finish retirement and pass full load admission again.
+                bool needsBundle=state.Status==Phase.Unloaded || state.Status==Phase.Releasing ||
+                    state.Status==Phase.ReleaseFailed || (state.Status==Phase.Failed && !state.bundleReserved);
+                bool needsUpload=state.Status!=Phase.Ready && state.Status!=Phase.LoadingAsset;
+                if((needsBundle && (page.fileBytes>budgets.ioBytesPerStep || page.fileBytes>budgets.maxIoBytesInFlight)) ||
+                    (needsUpload && page.uploadBytes>budgets.uploadBytesPerStep))return false;
                 if(admitted.Contains(state.Id))continue;
                 if(!Fits(page.fileBytes,bundleCost,budgets.maxBundleBytes) || !Fits(page.residentBytes,residentCost,budgets.maxResidentBytes))return false;
                 bundleCost+=page.fileBytes;residentCost+=page.residentBytes;
