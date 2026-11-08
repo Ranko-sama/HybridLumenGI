@@ -2,7 +2,9 @@
 
 本表基于 [ProductionPlan](ProductionPlan.md)、[运行验收要求](Validation.md)和[当前推进表](DevelopmentProgress.md)，保留原四项目标、十条工作流及 G0–G5 范围。用途是安排剩余工作，不把未验收项判成代码缺陷，也不把有限交付判成总目标完成。
 
-G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release169 同源交付](../LocalComparison/Review/global-sdf-off-195/delivery.json)
+G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release170 同源交付](../LocalComparison/Review/camera-culling-history-196/delivery.json)
+
+T3／G3 已关闭相机可见层变化时屏幕历史票据仍兼容旧接收面的路径。掩码改变后重新累计，连续同掩码的成功帧恢复复用。实际画面和其他接收面身份变化继续验收。[定向回归和范围](../LocalComparison/Review/camera-culling-history-196/result.md)
 
 T6 已关闭 Global SDF 关闭后的无效对象和砖页准备。旧缓冲沿原完成门退休并保持计账，重开按现有配额更新未知页。启用时的实际成本及其他阶段时间预算继续按原条件验收。[定向回归和范围](../LocalComparison/Review/global-sdf-off-195/result.md)
 
@@ -96,7 +98,7 @@ T6 的原热态近远接替已在 Release167 补齐三段 GI 和进程显存依�
 | T4 / 中 | 世界表面专项验收 · G2 | 关闭尚未覆盖的材质／UV 接缝、镜像变换、图集／锚点及池复用身份问题。已有三室、薄壁、凹口、离屏纹理、内层和正比例非均匀缩放结果直接复用。一个保存重开后的静态两槽 Point／无 mip 接缝已有图集及锚点子结果，但该次四条 binding 返回数值未写入，完整冻结合同仍证据不足，不自动补采或宣称整体 T4 通过。专项要能判断正确来源与覆盖，不能用总 ready 数代替。出现具体反例时才改实现。[原条款](ProductionPlan.md#8-真实可变表面-charts已接入与剩余验收) · [接缝范围及缺失记录](../LocalComparison/Review/material-uv-seam-01/result.md) |
 | T5 / 中 | 已知使用限制，原因未闭合 · G4 | Release143 原折返的最近点无完整组。去程回调空档为 78.670 秒，回程只取得粗根，离场排空。保留一次观察的边界，具名原因出现后再选择修复。原完整组门槛、容量和细节接替仍是采用条件。[Release143 实机](../LocalComparison/Review/cold-crossing-143/result.md) · [109／110 对照](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) |
 | T6 / 中 | 资源、规模与预算能力及验收 · G4／G5 | 在已承诺平台与原规定负载内闭合资源生命周期和预算判断，复用已有双 Base 相机隔离、30 分钟流式运行、域重载清理及后端退休结果。默认活动Skin已补原小网格、已预热且观察开启的同窗预算／Present，不再将这一条件列为成本未知；其他负载边界保留。只处理会改变放行决定的冷／热、高速、流式或高更新负载缺口。全阶段时间预算尚未完成：当前反馈只缩放 patch／capture／brick 数量，不能等同于 CPU 准备、上传、RTAS 等所有阶段分别受时间预算控制；缺失能力须对照原目标处理，不新造预算／验证框架。验收仍用 960×540／30FPS、GI 三段逐帧合计 p95≤25ms、进程 local 有限采样峰值≤1GiB，记录 p99、nonlocal 单列；不混淆 Present、GI 时间和显示帧率。[原调度目标](ProductionPlan.md#5-streaming-与预算) · [目标与现有窗口](GpuBudget.md#当前已确认的起始验收目标) |
-| T7 / 最后 | 支持范围与最终放行 · G5 | Release169 提供同源运行包和工程包，沿用已交付的离线画册。继续汇总 T2–T6 在承诺平台上的有界结果，完成剩余生产放行。CI 暂缓，整体 G5 保持开放。[支持主表](ProductionPlan.md#当前支持范围与证据层级) · [离线画册](../LocalComparison/Review/picture-comparison.html) |
+| T7 / 最后 | 支持范围与最终放行 · G5 | Release170 提供同源运行包和工程包，沿用已交付的离线画册。继续汇总 T2–T6 在承诺平台上的有界结果，完成剩余生产放行。CI 暂缓，整体 G5 保持开放。[支持主表](ProductionPlan.md#当前支持范围与证据层级) · [离线画册](../LocalComparison/Review/picture-comparison.html) |
 
 这些是当前优先级，不是严格串行依赖。T2–T6 也不是一次性展开的测试矩阵。开始任何新观测前，先明确它能改变哪个采用、修复或放行决定；不能改变决定的观测不做。仅在必要时更新对应产品与证据，不新造验证系统。
 
@@ -113,6 +115,8 @@ Release110 同一路线的回程第 349–363 帧已同时容纳已发布细节�
 Release110 预测带的 8 页在第 15 帧、路线约 0.04 秒已 Ready，第 307 帧才完成绑定。第 307→308 帧实际从 SDF／解析切到 DXR，早于这次切换的照明及回执会作废。现有预热排在普通对象槽位之前，直接加入界外粗根也会争用图卡和工作额度。Astra Max 据此收束界外准备候选。143 沿原路线观察后保留原可见界及照明门槛，回调空档成因与细节样本不足仍无可归因机制。[110 路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) · [143 观察](../LocalComparison/Review/cold-crossing-143/result.md) · [实际后端切换逻辑](../Runtime/HybridLumenGIRendererFeature.cs)
 
 现有回执时序不足以采用低样本格重排。110 的粗根第二份阻断来自工作帧 316，结果到达时目标已于引擎帧 320 切为细节。143 细节的两份低样本回执分别在引擎帧 282 和 286 到达，目标到 287 帧结束。原始记录只给首个阻断，无法区分未获服务、未知更新和重复失效，也无法据此判断完整组会更早发布。Astra Max 建议按原预算、样本门和采用条件收束重排候选。[110 原始记录入口](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) · [143 原始记录入口](../LocalComparison/Review/cold-crossing-143/result.md)
+
+Release143 两份细节回执阻断的是同一块实际纯金属图卡。零漫反射命中的直接出射无需入射缓存，开启引导时屏幕采样仍可读取该缓存。当前覆盖格的原样本门继续适用，其他细节是否已就绪仍未知。[冷入回执](../LocalComparison/Review/cold-crossing-143/result.md) · [屏幕引导读取](../Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl) · [完整图卡就绪约定](HlodStreaming.md)
 
 ## 用户已暂缓或已收束的工作
 

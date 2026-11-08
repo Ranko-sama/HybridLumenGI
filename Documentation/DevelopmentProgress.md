@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release169，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release170，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭相机切换可见层时可能继承旧屏幕累计的缺口。定向回归验证同坐标掩码变化拒旧、未录制帧无法推进，以及新掩码成功录制后的恢复。画面残影幅度按原范围验收。[回归](../LocalComparison/Review/camera-culling-history-196/result.md) · [同源交付](../LocalComparison/Review/camera-culling-history-196/delivery.json)
 
 T6 已关闭 Global SDF 禁用后仍准备裁剪图的预算缺口。关闭时只绑定占位缓冲，旧裁剪图在完成前保持计账，重新开启从未知页开始。采用范围为实际 C# 调度器及受控完成信号。[启停回归](../LocalComparison/Review/global-sdf-off-195/result.md) · [同源交付](../LocalComparison/Review/global-sdf-off-195/delivery.json)
 
