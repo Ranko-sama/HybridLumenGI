@@ -122,7 +122,8 @@
   <figure><img src="offscreen-wall-texture-01/comparison.png" alt="视锥外墙纹理交换之后，地板两侧的反弹颜色跟随反转"><figcaption>同一相机只看地板。两张纹理各有一半红色和一半蓝色。</figcaption></figure>
   <p>Release102 的相邻两室共用一个门洞。关闭全部解析灯后，同一前室地板区域的平均线性亮度在开门时为 0.11809，全闭时为 0.00000530。两图分别来自固定门姿的第 119 帧，使用 2 条射线和 4 级滤波。<a href="connected-rooms-01/linear-frames.zip">开关门原始 EXR 对</a></p>
   <figure><img src="connected-rooms-01/comparison.png" alt="连通房间示意与实拍对照，暖色间接光经门洞到达前室，闭门后地板接近黑色"><figcaption>相机始终看同一接收面。两次独立运行支持这处门洞的遮挡结论；关门后的衰减时间尚未由这对画面测量。</figcaption></figure>
-  <p>同一次关门后，首个闭门帧的前室地板仍保留开闭亮度差的 47.45%。第 +59 帧降至 9.38%，第 +119 帧（该次 Editor 采集约 1.42 秒）仍有 6.34%。其后几何遮挡改变所引起的照明恢复尚未被该数据覆盖，不能由这个较早样点判断当前产品的2秒目标是否满足。</p>
+  <p>旧 640×360 观测止于约 1.42 秒。当前 122 同源 Runtime 的 960×540 匹配对照中，固定地板关门后在 1.008 秒仍剩开闭亮度差的 15.33%，2.000 秒仍剩 10.33%，2.616 秒仍剩 8.87%。1 秒和 2 秒恢复目标均未满足。<a href="portal-recovery-138/result.md">查看同曝光对照、实际时点与适用范围</a></p>
+  <figure><img src="portal-recovery-138/comparison.png" alt="相同曝光下，关门两秒后前室地板仍有暖光，首帧闭门的匹配控制接近黑色"><figcaption>上排在第 119 帧后关门，下排从首帧闭门。青色框是固定的测量地板区域。</figcaption></figure>
   <figure><img src="portal-close-response-01/comparison.png" alt="同一门在关闭前后六个时点的暖光残留"><figcaption>Release102。门已闭合，解析灯为零，亮度变化来自暖色发光面间接照明的响应。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/0e882fe/LocalComparison/Review/portal-close-response-01/result.md">同一过程的逐点读数 ↗</a></figcaption></figure>
   <p>把相机移到左门框后方，地板接收区到两块暖色发光面的直线都穿过左隔墙。开门时这块地板平均间接亮度为 0.01979983，闭门时为 0.00007467。两次独立运行均取固定门姿的第 119 帧。<a href="shaded-room-floor-01/linear-frames.zip">受遮地板原始 EXR 对</a></p>
   <figure><img src="shaded-room-floor-01/comparison.png" alt="地板与光源之间的隔墙及同一受遮地板开门、闭门的实拍"><figcaption>青框为地板接收区，金线为一条可行反弹光路。图像没有分解各墙面的贡献。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/a3a33fb/LocalComparison/Review/shaded-room-floor-01/result.md">机位与遮挡范围 ↗</a></figcaption></figure>
