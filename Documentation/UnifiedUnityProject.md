@@ -1,8 +1,8 @@
 # 在 Unity 中打开并重建统一示例
 
-将 `HybridLumenGI-Release146-UnityProject.zip` 完整解压到新目录。在 Unity Hub 中选择 **Add → Add project from disk**，选中包含 `Assets`、`Packages`、`ProjectSettings` 的目录。使用 Unity **6000.0.85f1**、Windows x64 Build Support 和可用的 Unity 许可。工程已声明 URP **17.0.4**，首次导入由 Unity 的包管理器解析依赖。
+将 `HybridLumenGI-Release147-UnityProject.zip` 完整解压到新目录。在 Unity Hub 中选择 **Add → Add project from disk**，选中包含 `Assets`、`Packages`、`ProjectSettings` 的目录。使用 Unity **6000.0.85f1**、Windows x64 Build Support 和可用的 Unity 许可。工程已声明 URP **17.0.4**，首次导入由 Unity 的包管理器解析依赖。
 
-本 ZIP 使用产品源码 `30273804`。普通 Release146 Windows 包从该 ZIP 的独立解压目录构建。从 145 升到 146 时，作者资产和构建目标相同即可沿用场景、配置、有效 SDF、charts 和 Windows 资源页。[固定产品源码](https://github.com/Ranko-sama/HybridLumenGI/tree/30273804ec48c447ca6e07f8e47cec4a5ac4dc24) · [整组提交对照](../LocalComparison/Review/partial-hlod-upload-163/result.md)
+本 ZIP 使用产品源码 `f0f35ae7`。普通 Release147 Windows 包从该 ZIP 的独立解压目录构建。从 146 升到 147 时，作者资产和构建目标相同即可沿用场景、配置、有效 SDF、charts 和 Windows 资源页。[固定产品源码](https://github.com/Ranko-sama/HybridLumenGI/tree/f0f35ae7caabe0070d77fb8bbbbbc31551926160) · [贴图复用对照](../LocalComparison/Review/ready-texture-pending-copy-164/result.md)
 
 在 Project 窗口打开 `Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity`，按 Play 进入彩墙场景。WASD 移动，C 换墙色，L 开关解析灯，M 启停门运动。F3 进入中性两室，随后按 F4 进入三室，O 开关中央滑门。1、2 分别切到近景与远景。
 

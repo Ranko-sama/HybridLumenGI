@@ -16,17 +16,17 @@
 
 HybridLumenGI 以网格距离场和表面材质描述场景，在世界空间累积间接光，再通过时域重建与空间滤波输出到 URP 相机。它关注视锥外的颜色反弹、光照变化后的响应，以及动态几何与分页资源之间的一致性。
 
-**当前交付为 Release146，几何额度不足时按完整 HLOD 组撤回。** 当前目标取得完整回执后整组恢复。可运行示例和可编辑 Unity 工程使用同版源码。项目仍处于实验阶段。[修复范围](LocalComparison/Review/partial-hlod-upload-163/release-notes.md)
+**当前交付为 Release147，保留可复用的已就绪贴图。** 完整材质请求适配已有缓冲区时，其他缓冲区中仍在等待的副本不会中断复用。可运行示例和可编辑 Unity 工程使用同版源码。项目仍处于实验阶段。[修复范围](LocalComparison/Review/ready-texture-pending-copy-164/release-notes.md)
 
 ## 开始体验
 
 | 你想做什么 | 下载 | 打开方式 |
 | --- | --- | --- |
-| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release146-demo/HybridLumenGI-Release146-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
-| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release146-demo/HybridLumenGI-Release146-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
+| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release147-demo/HybridLumenGI-Release147-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
+| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release147-demo/HybridLumenGI-Release147-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
 | **先看独立对照** | [两室关门的同曝光对照](LocalComparison/Review/portal-recovery-138/result.md) | 可直接看报告。Windows 包中的 `PictureComparison/index.html` 提供完整离线画册。 |
 
-Release146 两个包均附带 `LICENSE` 和 `NOTICE`。请保留运行包旁的数据目录与资源页。
+Release147 两个包均附带 `LICENSE` 和 `NOTICE`。请保留运行包旁的数据目录与资源页。
 
 **示例配置：** Windows x64 · DirectX 12 · Linear · URP 17.0.4 · 960×540 · 半分辨率 GI · 每像素 2 条射线 · 4 级空间滤波。启动时优先请求 DXR，实际后端以面板与日志为准。[打开场景与重新构建 →](Documentation/UnifiedUnityProject.md)
 

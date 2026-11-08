@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release146，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release147，G0 已锁定，G1／G2 本机代表性验收通过
+
+T2／T3 已关闭待定副本使同源就绪贴图被误判为未知的问题。实际材质批次复用了原缓冲和原代次，原在途副本继续计账。收紧额度后原待定路径仍成立。Astra Max 同意按资源选择与句柄范围采用。实际颜色及动态收敛继续验收。[前后对照](../LocalComparison/Review/ready-texture-pending-copy-164/result.md) · [同源交付](../LocalComparison/Review/ready-texture-pending-copy-164/delivery.json)
 
 G4 已关闭多件几何同帧变动、上传额度不足时的部分 HLOD 提交。实际 Scene／BVH 对照中，旧版让两件进入追踪，修复后整组先撤回，三个当前回执齐备后一起恢复。额度足够的同帧完整更新继续提交。Astra Max 同意按 CPU 资格采用。原高速首显与普通 Player 画面继续验收。[实际对照](../LocalComparison/Review/partial-hlod-upload-163/result.md) · [同源交付](../LocalComparison/Review/partial-hlod-upload-163/delivery.json)
 
