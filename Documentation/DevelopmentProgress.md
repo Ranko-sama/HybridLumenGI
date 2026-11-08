@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release137，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release138，G0 已锁定，G1／G2 本机代表性验收通过
+
+Release138 关闭两个独立缺口。T2／G4 中，无足迹的已知透明前板在实际精确软件及 DXR 查询中正确露出蓝后面，依赖纹理的未知覆盖仍保守遮挡。T6／G4 中，收紧每步启动额度后可复用 Ready 共享页，已读完的包可继续上传，实际 CPU 调度验证了总容量与退休门。Astra Max 同意按各自范围采用。高速冷入、普通 Player 画质及正式预算分别验收。[两项对照与范围](../LocalComparison/Review/exact-footprint-and-page-admission-155/result.md) · [同源交付](../LocalComparison/Review/exact-footprint-and-page-admission-155/delivery.json)
 
 T5／G4 已关闭统一示例在粗根未绑定时挡住完整近景细节的准入缺口。真实分页的无图形对照中，粗根声明有效且无资产，三件细节齐备后全组可进入准备，受控完整回执后才整体可提交。Astra Max 同意按该范围采用，修复已进入 Release137。原高速冷入路线的粗根预热中断和首显仍开放。[实际对照与范围](../LocalComparison/Review/cold-detail-admission-154/result.md) · [同源交付](../LocalComparison/Review/cold-detail-admission-154/delivery.json)
 

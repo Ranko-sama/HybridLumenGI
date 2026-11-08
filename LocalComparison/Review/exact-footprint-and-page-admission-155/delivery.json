@@ -1,0 +1,281 @@
+{
+  "productCommit": "2941440ba387683417854030a7d3243c497581c0",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release138-demo",
+  "tag": "release138-demo",
+  "publishedAt": "2026-11-08T10:33:54Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release138 Unity project ZIP using the Release137 shader cache. Exact traversal used the same prepared Lit geometry and ready textures for both revisions in one DX12 Editor command. Page admission used the production CPU scheduler with an adapted IO provider. Ordinary Player pixels, mixed fallback, high-speed first visibility and performance have separate acceptance.",
+  "validation": {
+    "baselineCommit": "fe8883aacfaa9ec90327ee9fecc328abcc3ef1e6",
+    "graphicsApi": "Direct3D12",
+    "graphicsDevice": "NVIDIA GeForce RTX 2080 Ti",
+    "exactTraversal": {
+      "baselineSoftware": [
+        {
+          "input": "unknownFootprintScalarClipped",
+          "flags": 959,
+          "stableId": 1,
+          "distance": 1.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "input": "unknownFootprintScalarSolidVisibility",
+          "flags": 959,
+          "stableId": 2,
+          "distance": 1.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "input": "invalidOriginTexturedCoverage",
+          "flags": 959,
+          "stableId": 3,
+          "distance": 1.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "input": "pointFootprintTexturedCoverage",
+          "flags": 1471,
+          "stableId": 4,
+          "distance": 2.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.9599999785423279
+          ]
+        }
+      ],
+      "baselineDxr": [
+        {
+          "input": "unknownFootprintScalarClipped",
+          "flags": 959,
+          "stableId": 1,
+          "distance": 1.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "input": "unknownFootprintScalarSolidVisibility",
+          "flags": 959,
+          "stableId": 2,
+          "distance": 1.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "input": "invalidOriginTexturedCoverage",
+          "flags": 959,
+          "stableId": 3,
+          "distance": 1.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "input": "pointFootprintTexturedCoverage",
+          "flags": 1471,
+          "stableId": 4,
+          "distance": 2.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.9599999785423279
+          ]
+        }
+      ],
+      "software": [
+        {
+          "input": "unknownFootprintScalarClipped",
+          "flags": 1471,
+          "stableId": 4,
+          "distance": 2.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.9599999785423279
+          ]
+        },
+        {
+          "input": "unknownFootprintScalarSolidVisibility",
+          "flags": 447,
+          "stableId": 2,
+          "distance": 1.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "input": "invalidOriginTexturedCoverage",
+          "flags": 959,
+          "stableId": 3,
+          "distance": 1.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "input": "pointFootprintTexturedCoverage",
+          "flags": 1471,
+          "stableId": 4,
+          "distance": 2.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.9599999785423279
+          ]
+        }
+      ],
+      "dxr": [
+        {
+          "input": "unknownFootprintScalarClipped",
+          "flags": 1471,
+          "stableId": 4,
+          "distance": 2.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.9599999785423279
+          ]
+        },
+        {
+          "input": "unknownFootprintScalarSolidVisibility",
+          "flags": 447,
+          "stableId": 2,
+          "distance": 1.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "input": "invalidOriginTexturedCoverage",
+          "flags": 959,
+          "stableId": 3,
+          "distance": 1.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "input": "pointFootprintTexturedCoverage",
+          "flags": 1471,
+          "stableId": 4,
+          "distance": 2.0,
+          "diffuse": [
+            0.0,
+            0.0,
+            0.9599999785423279
+          ]
+        }
+      ]
+    },
+    "pageScheduler": {
+      "baseline": [
+        "FAIL: Ready shared page after lowering start budgets: Small new page was blocked by the historical costs of its leased Ready dependency.",
+        "FAIL: BundleReady continuation and failed-stage readmission: Completed bundle incorrectly required another file read."
+      ],
+      "candidate": [
+        "PASS: Ready shared page after lowering start budgets",
+        "PASS: BundleReady continuation and failed-stage readmission"
+      ],
+      "sharedGroupAccountingBytes": {
+        "bundle": 11,
+        "resident": 22,
+        "ioInFlight": 0
+      },
+      "source": "../../../Tests/StandaloneBvh/AssetPageStreamingChecks.cs.txt"
+    },
+    "notes": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease138\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101778353
+  },
+  "nativeExit": {
+    "project": "I:/Unity test/Comparison/PortableUnified138/HybridLumenGI-Release138-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease138",
+    "exitCode": 0,
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified137/HybridLumenGI-Release137-UnityProject/Library/ShaderCache",
+    "productCommit": "2941440ba387683417854030a7d3243c497581c0"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release138-UnityProject.zip",
+    "bytes": 836444,
+    "productCommit": "2941440ba387683417854030a7d3243c497581c0",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified138\\HybridLumenGI-Release138-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release137-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIAssetPageStreaming.cs",
+      "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIExactMesh.hlsl",
+      "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareMaterials.hlsl",
+      "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl",
+      "Assets/HybridLumenGI/Runtime/Resources/HybridLumenGI/HybridLumenGISoftwareTriangleBvh.hlsl",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/HybridLumenGIAssetPageStreaming.cs",
+      "Runtime/Resources/HybridLumenGI/HybridLumenGIExactMesh.hlsl",
+      "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareMaterials.hlsl",
+      "Runtime/Resources/HybridLumenGI/HybridLumenGIHardwareTrace.hlsl",
+      "Runtime/Resources/HybridLumenGI/HybridLumenGISoftwareTriangleBvh.hlsl"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release138-UnityProject.zip",
+      "bytes": 836444,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release138-demo/HybridLumenGI-Release138-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release138-Windows-x64.zip",
+      "bytes": 58436790,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release138-demo/HybridLumenGI-Release138-Windows-x64.zip"
+    }
+  ]
+}
