@@ -87,6 +87,7 @@ namespace HybridLumenGI
         /// Allocates one table and an immutable source-texel lease under a shared global byte limit.
         /// Unsupported source encodings become zero/unknown records. Invalid source collections,
         /// unique texture count, layouts or total budget reject the batch explicitly.
+        /// An assigned map awaiting reuse confirmation keeps its presence bit and has no handle.
         /// </summary>
         public static bool TryCreate(IReadOnlyList<Source> input,long globalBudgetBytes,
             out HybridLumenGIHitMaterialBatch batch,out string reason,
@@ -152,7 +153,7 @@ namespace HybridLumenGI
             for(int i=0;i<views.Count;i++)textureRequests[i]=new HybridLumenGIRayTexturePool.Request(views[i],precision[i]);
             var pool=new HybridLumenGIRayTexturePool();
             long textureBudget=globalBudgetBytes-TotalMaterialBytes-materialBytes;
-            if(!pool.TryPrepareRequests(textureRequests,textureBudget,out var lease,out reason)){pool.Dispose();return false;}
+            if(!pool.TryPrepareRequests(textureRequests,textureBudget,out var lease,out reason,omitPendingPages:true)){pool.Dispose();return false;}
             uint generation=++lastMaterialGeneration;
             var encoded=new HybridLumenGIHitMaterialRecord[frozen.Length];
             try

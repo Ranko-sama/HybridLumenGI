@@ -205,6 +205,10 @@ namespace HybridLumenGI
         }
         /// <summary>Precision is part of the page contract. A resident wide page can satisfy a narrow request, never the reverse.</summary>
         public bool TryPrepareRequests(IReadOnlyList<Request> requests,long budgetBytes,out Lease lease,out string reason)
+            => TryPrepareRequests(requests,budgetBytes,out lease,out reason,omitPendingPages:false);
+
+        internal bool TryPrepareRequests(IReadOnlyList<Request> requests,long budgetBytes,out Lease lease,out string reason,
+            bool omitPendingPages)
         {
             lease=null;reason=null;PollRetired();
             if(HybridLumenGIResourceRetirement.AdmissionClosed){reason="GI session admission is closed.";return false;}
@@ -241,14 +245,50 @@ namespace HybridLumenGI
             Allocation chosen=null;Page[] chosenPages=null;int[] chosenSlots=null,chosenOffsets=null;int bestReused=-1;
             if(shareable)
             {
-                // Coalesce matching unfinished sources, including those in another arena.
-                foreach(var arena in Allocations)foreach(var page in arena.Pages)
-                    if(page!=null&&page.Reusable&&!page.Ready&&(!arena.Established||page.UploadComplete||page.Readers!=0||page.ReadbackPending)&&page.Epoch==Epoch(page.Upload.View.Texture)&&
-                        views.Exists(v=>v.Equals(page.Upload.View)&&(layouts[views.IndexOf(v)].PackedHalf||!page.Upload.Layout.PackedHalf)))
-                    {reason="Matching source upload/readback is pending; no duplicate large allocation.";return false;}
+                // Do not borrow a pending page or start a duplicate upload, even in another arena.
+                int[] remap = null;
+                foreach (var arena in Allocations)
+                foreach (var page in arena.Pages)
+                {
+                    if (page == null || !page.Reusable || page.Ready || page.Epoch != Epoch(page.Upload.View.Texture)) continue;
+                    if (arena.Established && !page.UploadComplete && page.Readers == 0 && !page.ReadbackPending) continue;
+                    int index = views.IndexOf(page.Upload.View);
+                    if (index < 0 || (!layouts[index].PackedHalf && page.Upload.Layout.PackedHalf)) continue;
+                    if (!omitPendingPages)
+                    {
+                        reason = "Matching source upload/readback is pending; no duplicate large allocation.";
+                        return false;
+                    }
+                    remap ??= new int[views.Count];
+                    remap[index] = -1;
+                }
+                if (remap != null)
+                {
+                    // Material records keep their original request slots. A specified map with a
+                    // zero-generation handle evaluates as unknown, including alpha coverage.
+                    int kept = 0;
+                    capacity = 0;
+                    largest = 0;
+                    for (int i = 0; i < remap.Length; i++)
+                    {
+                        if (remap[i] < 0) continue;
+                        var layout = layouts[i];
+                        remap[i] = kept;
+                        views[kept] = views[i];
+                        layouts[kept] = layout;
+                        kept++;
+                        capacity += layout.StorageElementCount;
+                        largest = Math.Max(largest, layout.StorageElementCount);
+                    }
+                    views.RemoveRange(kept, views.Count - kept);
+                    layouts.RemoveRange(kept, layouts.Count - kept);
+                    for (int i = 0; i < indices.Length; i++)
+                        if (indices[i] >= 0) indices[i] = remap[indices[i]];
+                    shareable = kept > 0;
+                }
                 foreach(var arena in Allocations)
                 {
-                    if(!arena.Shareable||!arena.Established||arena.Retiring)continue;
+                    if(!shareable||!arena.Shareable||!arena.Established||arena.Retiring)continue;
                     if(!Plan(arena,views,layouts,out var pages,out var slots,out var offsets))continue;
                     int reused=0;foreach(var page in pages)if(page!=null)reused++;
                     if(reused>bestReused){chosen=arena;chosenPages=pages;chosenSlots=slots;chosenOffsets=offsets;bestReused=reused;}
