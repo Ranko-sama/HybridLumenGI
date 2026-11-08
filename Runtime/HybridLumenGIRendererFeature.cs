@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -267,6 +268,9 @@ namespace HybridLumenGI
                 !GraphicsFormatUtility.IsSRGBFormat(cube.graphicsFormat);
         }
         private TransportPass pass;
+        // Keep attribute charges with the camera across state eviction and pass replacement.
+        private readonly ConditionalWeakTable<Camera, HybridLumenGIHardwareBackend.AttributeAllocations> hardwareAttributes =
+            new ConditionalWeakTable<Camera, HybridLumenGIHardwareBackend.AttributeAllocations>();
         private bool warnedPlatform;
         private readonly List<HybridLumenGIStreamedRepresentation> visibleHlodBindings = new List<HybridLumenGIStreamedRepresentation>();
         private Camera hlodRasterCamera;
@@ -345,7 +349,7 @@ namespace HybridLumenGI
             internal ScriptableRenderer scenePreparedRenderer;
             internal readonly Camera camera;
             internal readonly HybridLumenGIScene scene=new HybridLumenGIScene();
-            internal readonly HybridLumenGIHardwareBackend hardware=new HybridLumenGIHardwareBackend();
+            internal readonly HybridLumenGIHardwareBackend hardware;
             internal readonly HybridLumenGIHardwareBackend softwareGeometry=new HybridLumenGIHardwareBackend(true);
             internal readonly HybridLumenGIAreaEmission.Cache areaEmissionCache=new HybridLumenGIAreaEmission.Cache();
             internal long softwareGeometryBytes,areaEmitterBytes;
@@ -435,8 +439,9 @@ namespace HybridLumenGI
                 return changed;
             }
             internal readonly MaterialPropertyBlock properties=new MaterialPropertyBlock();
-            internal CameraState(Camera camera)
+            internal CameraState(Camera camera, HybridLumenGIHardwareBackend.AttributeAllocations hardwareAttributes)
             {
+                hardware = new HybridLumenGIHardwareBackend(hardwareAttributes);
                 this.camera=camera;lights=new ComputeBuffer(32,HybridLumenGILights.Stride);gpuTiming=new HybridLumenGIGpuTiming(camera.GetInstanceID());
                 nativeGpuTiming=new HybridLumenGINativeGpuTiming(camera.GetInstanceID());
             }
@@ -646,7 +651,7 @@ namespace HybridLumenGI
             internal void BackendRequestChanged() { unchecked { backendRequest++; } }
             private Cubemap rejectedEnvironment;
             internal void StopAdmission()=>admissionStopped=true;
-            internal TransportPass(ComputeShader shader,Material composite,Shader surface,Shader nativeDiffuse,Settings settings,Func<bool> featureActive,HybridLumenGIRendererFeature validationOwner=null)
+            internal TransportPass(ComputeShader shader,Material composite,Shader surface,Shader nativeDiffuse,Settings settings,Func<bool> featureActive,HybridLumenGIRendererFeature validationOwner)
             {
                 software=shader; this.composite=composite; this.surface=surface;this.nativeDiffuse=nativeDiffuse;s=settings;
                 exactSoftware=Resources.Load<ComputeShader>("HybridLumenGI/HybridLumenGIExactSoftware");
@@ -1601,7 +1606,12 @@ namespace HybridLumenGI
                 {
                     state.Dispose();cameras.Remove(id);state=null;
                 }
-                if(state==null) { state=new CameraState(camera);cameras.Add(id,state); }
+                if(state==null)
+                {
+                    var attributes = validationOwner.hardwareAttributes.GetValue(camera, static _ => new HybridLumenGIHardwareBackend.AttributeAllocations());
+                    state = new CameraState(camera, attributes);
+                    cameras.Add(id, state);
+                }
                 return state;
             }
             private void Evict(int current)

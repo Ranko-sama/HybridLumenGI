@@ -59,8 +59,19 @@ namespace HybridLumenGI
         private readonly List<TriangleSurface> surfaces = new List<TriangleSurface>();
         private readonly List<InstanceData> instances = new List<InstanceData>();
         private readonly List<Matrix4x4> objectToWorld=new List<Matrix4x4>();
+        internal sealed class AttributeAllocations
+        {
+            internal long Bytes;
+        }
+        private readonly AttributeAllocations attributeAllocations;
         private readonly bool softwareOnly;
-        public HybridLumenGIHardwareBackend(bool softwareOnly=false) { this.softwareOnly=softwareOnly; }
+        public HybridLumenGIHardwareBackend(bool softwareOnly=false)
+            : this(new AttributeAllocations(), softwareOnly) { }
+        internal HybridLumenGIHardwareBackend(AttributeAllocations attributeAllocations, bool softwareOnly=false)
+        {
+            this.attributeAllocations = attributeAllocations;
+            this.softwareOnly = softwareOnly;
+        }
         private readonly List<HybridLumenGISurfaceCache.TriangleChartBinding> bindings = new List<HybridLumenGISurfaceCache.TriangleChartBinding>();
         private readonly List<Vector3> vertices = new List<Vector3>();
         private readonly List<Vector3> vertexNormals = new List<Vector3>();
@@ -96,7 +107,8 @@ namespace HybridLumenGI
         public long CurrentAttributeBytes=>BufferBytes(flagsBuffer)+BufferBytes(instancesBuffer)+BufferBytes(normalsBuffer)+
             BufferBytes(surfaceBuffer)+BufferBytes(bindingsBuffer)+BufferBytes(objectToWorldBuffer);
         public long RetiredAttributeBytes=>retiredAttributeBytes;
-        public long AttributeBytes=>CurrentAttributeBytes+RetiredAttributeBytes;
+        // Camera states can share one allowance across their current and detached backends.
+        public long AttributeBytes=>attributeAllocations.Bytes;
         public int SceneRebuildCount { get; private set; }
         public int TransformUpdateCount { get; private set; }
         public int TriangleUploadCount { get; private set; }
@@ -598,7 +610,12 @@ namespace HybridLumenGI
         {
             if(buffer==null)return;
             long bytes=BufferBytes(buffer);retiredAttributeBytes+=bytes;
-            HybridLumenGIResourceRetirement.Retire(()=>{buffer.Release();retiredAttributeBytes-=bytes;});
+            HybridLumenGIResourceRetirement.Retire(() =>
+            {
+                buffer.Release();
+                retiredAttributeBytes -= bytes;
+                attributeAllocations.Bytes -= bytes;
+            });
         }
 
         private void Upload<T>(ref ComputeBuffer buffer, int count, int stride, List<T> values) where T : struct
@@ -619,6 +636,7 @@ namespace HybridLumenGI
             if (buffer != null && buffer.count == count && buffer.stride==stride) return;
             if(buffer!=null){var old=buffer;buffer=null;RetireAttributeBuffer(old);}
             buffer = new ComputeBuffer(count, stride, ComputeBufferType.Structured);
+            attributeAllocations.Bytes += BufferBytes(buffer);
         }
 
         /// <summary>Record before the first hardware dispatch, on the graphics queue.</summary>
