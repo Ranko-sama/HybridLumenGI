@@ -62,7 +62,18 @@ namespace HybridLumenGI
         private void Drive()
         {
             if(State==null || failed)return;
-            if(!budgets.Valid)return; // Inspector edits can temporarily contain an invalid value.
+            var stepBudgets = budgets;
+            if (destroyed)
+            {
+                // A paused owner still needs to retire after destruction. Leave
+                // load budgets at zero and give existing resources a release turn.
+                stepBudgets = new HybridLumenGIAssetPageStreaming.Budgets
+                {
+                    concurrentOperations = Math.Max(1, budgets.concurrentOperations),
+                    startsPerStep = Math.Max(1, budgets.startsPerStep)
+                };
+            }
+            if(!stepBudgets.Valid)return; // Inspector edits can temporarily contain an invalid value.
             if(tick<long.MaxValue)tick++;
             BudgetBlockedGroups=0;
             var priorities=new Dictionary<string,int>(StringComparer.Ordinal);
@@ -75,14 +86,14 @@ namespace HybridLumenGI
             var admitted=new HashSet<string>(StringComparer.Ordinal);
             foreach(var request in ordered)
             {
-                if(!State.TryAdmitGroup(request.ids,budgets,admitted)){BudgetBlockedGroups++;continue;}
+                if(!State.TryAdmitGroup(request.ids,stepBudgets,admitted)){BudgetBlockedGroups++;continue;}
                 foreach(var id in request.ids)
                     priorities[id]=priorities.TryGetValue(id,out int previous)?Math.Max(previous,request.priority):request.priority;
             }
             foreach(var state in State.States)
                 State.Request(state.Id,priorities.TryGetValue(state.Id,out int priority),priority);
             HybridLumenGIRayTexturePool.PollRetired();
-            State.Step(budgets);
+            State.Step(stepBudgets);
         }
         public bool SetRequests(object requester,IReadOnlyList<string> ids,int priority=0)
         {

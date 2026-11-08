@@ -65,6 +65,21 @@ for (int step = 0; step < 16 && !orphaned.representation.HasBoundAssets; step++)
     orphaned.Update();
 }
 Check(orphaned.representation.HasBoundAssets, "Expected a complete group before destroying its driver");
+orphaned.budget.maxResidentBytes = 80;
+orphaned.budget.startsPerStep = 0;
+orphaned.ApplyBudget();
+Check(orphaned.driver.SetRequests(new object(), new[] { "pending" }), "Unable to request the independent page");
+HybridLumenGIAssetPageStreamer.Pump();
+Check(orphaned.state.GetState("pending").Status == Stream.Phase.Unloaded && orphaned.state.OperationsStarted == 0,
+    "The live driver ignored the zero start budget");
+orphaned.budget.startsPerStep = 2;
+orphaned.ApplyBudget();
+HybridLumenGIAssetPageStreamer.Pump();
+Check(orphaned.state.GetState("pending").Status == Stream.Phase.LoadingBundle && orphaned.state.IoBytesInFlight > 0,
+    "Expected one unfinished bundle operation at teardown");
+int loadsAtTeardown = orphaned.provider.operations.Count(op => op.phase == "bundle" || op.phase == "asset");
+orphaned.budget.startsPerStep = 0;
+orphaned.ApplyBudget();
 orphaned.DestroyDriver();
 orphaned.Update();
 HybridLumenGIAssetPageStreamer.Pump();
@@ -88,12 +103,15 @@ for (int step = 0; step < 16 && orphaned.state.BundleBytes != 0; step++)
     orphaned.provider.CompleteAll();
     HybridLumenGIAssetPageStreamer.Pump();
 }
-Check(orphaned.state.BundleBytes == 0 && orphaned.state.ResidentBytes == 0 && orphaned.state.RetiringLeases == 0,
-    "Destroyed driver retained pages after safe retirement");
+Check(orphaned.state.BundleBytes == 0 && orphaned.state.ResidentBytes == 0 && orphaned.state.RetiringLeases == 0 &&
+    orphaned.state.IoBytesInFlight == 0 && orphaned.state.ActiveOperations == 0,
+    "Destroyed driver retained pages after safe retirement under the paused budget");
+Check(orphaned.provider.operations.Count(op => op.phase == "bundle" || op.phase == "asset") == loadsAtTeardown,
+    "Retirement started a new load instead of draining existing operations");
 var replacement = new HybridLumenGIAssetPageStreamer();
 replacement.Configure(new HybridLumenGIAssetPageManifest { RelativeRoot = "ReplacementPages", Pages = Array.Empty<Stream.Definition>() });
 Check(replacement.Available, "Destroyed driver still owned the global page budget after draining");
-Console.WriteLine("PASS demand withdrawal after driver destruction, original retirement gate, page drain and new driver admission.");
+Console.WriteLine("PASS demand withdrawal and page drain after destroying a paused driver, with pending IO, safe completion and new driver admission.");
 Console.WriteLine("PASS multiview cold-demand capability; actual C# representation/driver/scheduler, adapted Unity objects and IO. No Unity/AssetBundle/GPU/HLOD native-chain acceptance.");
 
 sealed class Completion : Stream.ICompletion
@@ -114,7 +132,8 @@ sealed class Fixture
     public Stream.Budgets budget=new(){ioBytesPerStep=20,maxIoBytesInFlight=20,maxBundleBytes=100,maxResidentBytes=60,uploadBytesPerStep=8,concurrentOperations=2,startsPerStep=2};
     public Fixture()
     {
-        var defs=new[]{Page("geometry",Stream.Kind.Geometry),Page("material",Stream.Kind.Material,"texture"),Page("texture",Stream.Kind.Texture)};state=new Stream(defs,provider);
+        var defs=new[]{Page("geometry",Stream.Kind.Geometry),Page("material",Stream.Kind.Material,"texture"),Page("texture",Stream.Kind.Texture),
+            Page("pending",Stream.Kind.Geometry)};state=new Stream(defs,provider);
         Set(driver,"<State>k__BackingField",state);typeof(HybridLumenGIAssetPageStreamer).GetField("owner",Hidden).SetValue(null,driver);ApplyBudget();
         filter.gameObject=renderer.gameObject;proxy.gameObject=renderer.gameObject;representation.gameObject=renderer.gameObject;representation.transform.position=new Vector3(100,0,0);
         representation.Configure(driver,proxy,filter,renderer,"geometry",null,null,new[]{"material"},new Bounds(Vector3.zero,new Vector3(2,2,2)));representation.ConfigureDistances(10,20);

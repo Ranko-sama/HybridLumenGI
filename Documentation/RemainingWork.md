@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release130 同源交付](../LocalComparison/Review/skinned-camera-source-147/delivery.json)
 
+T6／G4 的主干源码已修复资源驱动在零启动配额下销毁后阻塞接管的问题。实际组件 CPU 回归覆盖 `startsPerStep=0`、已有逻辑 I/O、旧租约等待安全完成和后继驱动接管。回归使用适配器，普通包仍待整合，原生条件按原计划验收。[生命周期与回归范围](IndependentAssetPages.md#publication-and-lifetime)
+
 T3／G3 已关闭相机回调中同帧换源或清空后继续消费旧快照的资格缺口。相机准备撤回旧来源，实际组件 CPU 回归覆盖取消、模拟栅栏退休及后续恢复。修复已进入 Release130，原生退休和画质仍各自验收。[源码行为与回归范围](DeformedGeometry.md)
 
 T2／G4 已修复精确命中限制搜索距离时，体素细化可能越过 SDF 末段的错误。Release129 的同输入 WARP 回归恢复近端 signed SDF 命中，保留真正更近的精确命中、完整空区间与预算耗尽的未完成状态。精确三角结果由受控输入提供，整体混合回退、纹理和实体 GPU 条件继续验收。[修复和原始读回](../LocalComparison/Review/sdf-clipped-interval-146/release-notes.md)
