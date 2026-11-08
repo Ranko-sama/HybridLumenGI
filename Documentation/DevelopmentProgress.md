@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release136，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release137，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／G4 已关闭统一示例在粗根未绑定时挡住完整近景细节的准入缺口。真实分页的无图形对照中，粗根声明有效且无资产，三件细节齐备后全组可进入准备，受控完整回执后才整体可提交。Astra Max 同意按该范围采用，修复已进入 Release137。原高速冷入路线的粗根预热中断和首显仍开放。[实际对照与范围](../LocalComparison/Review/cold-detail-admission-154/result.md) · [同源交付](../LocalComparison/Review/cold-detail-admission-154/delivery.json)
 
 T6／G4 已修复最后一次渲染后，启用中的分页绑定撤回需求仍滞留的问题。单个真实页组在 DX12 Editor 的零新上下文内保持有效消费者，再于其退出后通过实际空闲栅栏排空。CPU 回归补齐重新请求的及时保护和停用再启用后的待查。Astra Max 同意按该范围采用，修复已进入 Release136。普通 Player、多组负载和高速冷入分别验收。[原生对照与范围](../LocalComparison/Review/idle-demand-retirement-153/result.md) · [同源交付](../LocalComparison/Review/idle-demand-retirement-153/delivery.json)
 
