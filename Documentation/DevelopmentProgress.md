@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release127，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release128，G0 已锁定，G1／G2 本机代表性验收通过
+
+G4 关闭默认独立分页导出在细节分批到达时的 GI 发布缺口。Release127 的同一实际 Scene 回归复现了单件替掉有效粗根和单件走普通代理提前发布。Release128 依据启用绑定识别作者组，等完整细节收到原回执再接替。粗根未绑定时，完整细节也可按原距离及回执发布。Astra Max 同意按 CPU 准入范围采用。普通 Renderer 显隐、实际异步加载及 110 高速首显继续按原条件验收。[回归范围](../LocalComparison/Review/streamed-hlod-membership-145/release-notes.md) · [同源交付](../LocalComparison/Review/streamed-hlod-membership-145/delivery.json)
 
 T6／G4 关闭驱动销毁后，仍活动的流式绑定无法处理需求撤回、旧页持续占用全局预算的功能缺口。回归覆盖实际绑定、驱动和页调度代码，I/O 与读者完成由适配器提供。原安全完成后页排空，新驱动可以接管。Release127 已将修复纳入普通 Win64 与同版可编辑工程。Astra Max 同意在该范围采用，原生退休及其他负载继续按各自已有证据和原验收条件处理。[修复范围](../LocalComparison/Review/streamed-driver-withdrawal-144/release-notes.md) · [同源交付](../LocalComparison/Review/streamed-driver-withdrawal-144/delivery.json)
 

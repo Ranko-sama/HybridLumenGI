@@ -1,0 +1,84 @@
+{
+  "productCommit": "d7315b2c0866ae99e62edad5f0d33c376ff01d36",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release128-demo",
+  "tag": "release128-demo",
+  "publishedAt": "2026-11-08T07:33:35Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release128 Unity project ZIP using the Release127 shader cache. The regression compiled actual Scene and BVH with adapted streamed binding arrival, bounds and readiness receipts. Independent rig raster and high-speed native coverage have separate acceptance scope.",
+  "validation": {
+    "command": "./Tests/Validate-HlodTransactions.ps1",
+    "baselineCommit": "8dc3c3dc9eb39a7ecc2c90d4c744440232d93a0e",
+    "baseline": {
+      "retainedRoot": false,
+      "completeReplacement": false,
+      "noOrdinaryBypass": false,
+      "completeBeforeRoot": false
+    },
+    "candidate": {
+      "retainedRoot": true,
+      "completeReplacement": true,
+      "noOrdinaryBypass": true,
+      "completeBeforeRoot": true
+    },
+    "notes": "release-notes.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease128\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101797633
+  },
+  "nativeExit": {
+    "project": "I:/Unity test/Comparison/PortableUnified128/HybridLumenGI-Release128-UnityProject",
+    "productCommit": "d7315b2c0866ae99e62edad5f0d33c376ff01d36",
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease128",
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified127/HybridLumenGI-Release127-UnityProject/Library/ShaderCache",
+    "exitCode": 0,
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release128-UnityProject.zip",
+    "bytes": 833610,
+    "productCommit": "d7315b2c0866ae99e62edad5f0d33c376ff01d36",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified128\\HybridLumenGI-Release128-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release127-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIScene.cs",
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIStreamedRepresentation.cs",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/HybridLumenGIScene.cs",
+      "Runtime/HybridLumenGIStreamedRepresentation.cs"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release128-UnityProject.zip",
+      "bytes": 833610,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release128-demo/HybridLumenGI-Release128-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release128-Windows-x64.zip",
+      "bytes": 58465716,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release128-demo/HybridLumenGI-Release128-Windows-x64.zip"
+    }
+  ]
+}
