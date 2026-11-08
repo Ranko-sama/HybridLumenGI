@@ -805,8 +805,6 @@ namespace HybridLumenGI
                     state.lastSettingsJson=serializedSettings;state.lastTransportSettingsJson=transportSettings;
                 }
                 state.PrepareGpuBudget(s,serializedSettings,Time.frameCount);
-                // Camera callbacks can change the mesh after the once-per-frame capture pass.
-                HybridLumenGIDeformedMesh.RefreshRenderSources();
                 long fingerprintBudget=(long)Math.Max(1,Math.Min(1024,s.receiverFingerprintBudgetMiB))*1024*1024;
                 // Detect readable in-place edits before scene/SDF readiness can publish
                 // them. Unknown/over-budget receivers retain current GI without a receipt.
@@ -816,6 +814,9 @@ namespace HybridLumenGI
                 state.receiverUntrackedRenderers=receiverSources==null?0:receiverSources.UntrackedRenderers;
                 state.receiverFingerprintMeshes=receiverSources==null?0:receiverSources.FingerprintedMeshes;
                 state.receiverFingerprintBytes=receiverSources==null?0:receiverSources.FingerprintBytes;
+                // Consume mesh changes from camera callbacks and receiver source checks
+                // before the readiness gate or world preparation can read an old snapshot.
+                HybridLumenGIDeformedMesh.RefreshRenderSources();
                 // A material texture/MPB or SDF asset can change without the proxy's revision changing.
                 // Revoke stale receipts BEFORE Scene.Prepare is allowed to atomically publish them.
                 for(int slot=0;slot<state.scene.Capacity;slot++)

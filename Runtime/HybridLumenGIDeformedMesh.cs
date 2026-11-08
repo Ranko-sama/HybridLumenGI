@@ -59,6 +59,7 @@ namespace HybridLumenGI
             internal HybridLumenGIDeformedMesh owner;
             internal Mesh mesh,capture;
             internal Mesh bakedSourceMesh;
+            internal HybridLumenGIMeshSource.Version bakedSourceVersion;
             internal Texture3D texture;
             internal HybridLumenGIMeshSdf sdf;
             internal HybridLumenGISurfaceCharts charts;
@@ -96,6 +97,7 @@ namespace HybridLumenGI
         {
             var a=next.capturedSettings;var b=published.capturedSettings;
             return ReferenceEquals(next.owner,published.owner) && !string.IsNullOrEmpty(next.contentFingerprint) &&
+                ReferenceEquals(next.bakedSourceVersion,published.bakedSourceVersion) &&
                 string.Equals(next.contentFingerprint,published.contentFingerprint,StringComparison.Ordinal) && next.sdfSize==published.sdfSize &&
                 a!=null && b!=null && a.maxNormalAngleDegrees==b.maxNormalAngleDegrees && a.paddingFraction==b.paddingFraction &&
                 a.minimumPadding==b.minimumPadding && a.maxTrianglesPerChart==b.maxTrianglesPerChart && a.chartBudget==b.chartBudget;
@@ -106,7 +108,8 @@ namespace HybridLumenGI
             // Explicit producer meshes have their own request and cancellation contract.
             Mesh captured=snapshot.bakedSourceMesh;
             return ReferenceEquals(captured,null) || (captured!=null && renderer!=null &&
-                renderer is SkinnedMeshRenderer skin && ReferenceEquals(skin.sharedMesh,captured));
+                renderer is SkinnedMeshRenderer skin && ReferenceEquals(skin.sharedMesh,captured) &&
+                ReferenceEquals(snapshot.bakedSourceVersion,HybridLumenGIMeshSource.GetVersion(captured)));
         }
 
         public static bool HasSnapshot(Renderer renderer) => renderer!=null && Published.ContainsKey(renderer);
@@ -321,6 +324,7 @@ namespace HybridLumenGI
                     if(skinCapture)
                     {
                         next.bakedSourceMesh=original;
+                        next.bakedSourceVersion=HybridLumenGIMeshSource.GetVersion(original);
                         next.mesh=new Mesh{name="HLGI baked deformation",hideFlags=HideFlags.HideAndDontSave};
                         ((SkinnedMeshRenderer)owner.source).BakeMesh(next.mesh,false); // Local positions; renderer transform is applied once.
                     }

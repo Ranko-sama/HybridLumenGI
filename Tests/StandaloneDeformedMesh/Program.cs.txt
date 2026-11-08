@@ -282,7 +282,7 @@ static class Program
         }
         Require(CaptureTimeBudget!=null&&(double)CaptureTimeBudget.GetValue(null)==0d,"Optional capture-time allowance must default to disabled.");
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
-        UnchangedSkinnedCaptureReuse();SkinnedSourceMeshReplacement();
+        UnchangedSkinnedCaptureReuse();SkinnedSourceMeshReplacement();NotifiedSkinnedSourceEdit();
         CaptureTimeBudgetDefersAndPublishes();FailedCaptureChargesTimeBudget();UnchangedCaptureChargesTimeBudget();
         CompletedPublicationIsFair();
         FinalCancelledWorker();OpenNewSession();
@@ -423,6 +423,58 @@ static class Program
             "Withdrawing the cleared skin did not release its owned snapshot correctly.");
         Console.WriteLine("PASS: late same-frame Skin source replacement and clearing withdraw before camera consumption, cancel old workers and retain published data until retirement completion.");
     }
+    static void NotifiedSkinnedSourceEdit()
+    {
+        const int originalMarker = 1610, editedMarker = 1611;
+        Defaults();
+        var owner = Add(originalMarker, true);
+        var skin = (SkinnedMeshRenderer)owner.renderer;
+        Frame();
+        Started(originalMarker);
+        var published = PendingMesh(owner);
+        PublishCompleted(owner, originalMarker);
+        PublishedTogether(owner, published, originalMarker);
+
+        ResetBake(originalMarker);
+        owner.component.RequestCapture();
+        Frame();
+        Started(originalMarker);
+        var staleMesh = PendingMesh(owner);
+        var staleJob = Job(owner);
+        var cancellation = (System.Threading.CancellationTokenSource)staleJob.GetType()
+            .GetField("cancellation", PrivateInstance).GetValue(staleJob);
+
+        var vertices = owner.original.vertices;
+        vertices[0].x = editedMarker;
+        owner.original.vertices = vertices;
+        HybridLumenGIMeshSource.NotifyGeometryChanged(owner.original);
+        HybridLumenGIDeformedMesh.RefreshRenderSources();
+        Require(ReferenceEquals(skin.sharedMesh, owner.original) &&
+            !HybridLumenGIDeformedMesh.HasSnapshot(skin) && ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(skin), owner.original) &&
+            HybridLumenGIDeformedMesh.GetSdf(skin, null) == null && HybridLumenGIDeformedMesh.GetCharts(skin, null) == null,
+            "The notified edit of the same sharedMesh retained its previous GI mesh/SDF/charts.");
+        Require(cancellation.IsCancellationRequested && !staleMesh.Destroyed,
+            "The obsolete source version must cancel its worker and keep the private mesh until completion.");
+        RenderPipelineManager.End();
+        Require(!published.Destroyed, "Source notification destroyed an outstanding reader's snapshot.");
+
+        Finish(owner, originalMarker);
+        Frame();
+        Started(editedMarker);
+        Require(staleMesh.Destroyed && !HybridLumenGIDeformedMesh.HasSnapshot(skin),
+            "The superseded content version survived the completed worker.");
+        var updated = PendingMesh(owner);
+        PublishCompleted(owner, editedMarker);
+        PublishedTogether(owner, updated, editedMarker);
+        DrainCompletedRetirements();
+        Require(published.Destroyed && !owner.original.Destroyed,
+            "The retired snapshot retained resources or destroyed the borrowed source.");
+        Disable(owner);
+        DrainCompletedRetirements();
+        Require(HybridLumenGIDeformedMesh.ReservedBytes == 0, "Notified source edit retained reservations after safe completion.");
+        Console.WriteLine("PASS: an explicit same-reference source edit revokes the old automatic Skin snapshot and worker, then publishes the new version.");
+    }
+
     static void UnchangedCaptureCleanupFailure()
     {
         // Run last: existing intentional failed/unknown owners must remain retained too.

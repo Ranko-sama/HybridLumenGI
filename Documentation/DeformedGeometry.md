@@ -18,6 +18,8 @@ Mesh、SDF、捕获网格和 charts 全部生成成功后，以同一不可变�
 
 本机 `Validate-DeformedMesh.ps1` 的同输入回归在 Release129 源码复现相机准备时仍读旧 Mesh／SDF／charts，Release130 在同帧替换及清空时均撤回旧来源，既有异步流程可以恢复新来源。测试使用实际组件与模拟 final-context 完成，覆盖旧读者等待及相机检查没有额外捕获或上传。修复已整合普通包，实体 GPU 退休和形变画质仍分别验收。[定向回归](../Tests/StandaloneDeformedMesh/Program.cs.txt) · [同源交付](../LocalComparison/Review/skinned-camera-source-147/delivery.json)
 
+当前主干的自动 `BakeMesh` 还绑定捕获时原 `sharedMesh` 的内容版本。原地编辑后，主线程可调用 `HybridLumenGIMeshSource.NotifyGeometryChanged(skin.sharedMesh)`。相机读取世界表示前会撤回旧版本并取消旧作业，后续捕获和发布继续使用原配额。可选 receiver 来源检查产生的版本通知同样在该相机的世界准备前生效。显式可读 producer 继续以捕获请求为准。`Validate-DeformedMesh.ps1` 同输入 CPU 回归在 Release131 复现旧快照留存，主干通过撤回、取消、模拟栅栏等待和新版发布。普通包整合仍待完成。[实际组件回归](../Tests/StandaloneDeformedMesh/Program.cs.txt)
+
 组件设置控制分辨率、更新间隔、单对象顶点/三角上限。共享的 `VertexBudgetPerFrame`、`MaximumWorkers`、`MemoryBudgetBytes`、`UploadBudgetBytesPerFrame` 约束捕获、后台任务、逻辑内存预留和发布。失败捕获也消耗本帧顶点额度，并遵守重试间隔；worker 设为零暂停新任务，仍清理已取消任务。捕获按实例轮转，不能让列表开头的对象无限占用机会。
 
 完成作业按捕获入队顺序尝试发布，避免后来的快照反复抢占上传额度，使旧的合格ready快照一直等待。未完成或清理失败的条目不会阻挡后续任务；当前剩余额度不足时继续检查后项，失效完成项仍可清理且不扣发布额度。若运行时降低预算，使某份已捕获快照永久大于整帧额度，它仍会等待；此顺序不承诺所有任务有固定等待上限。
