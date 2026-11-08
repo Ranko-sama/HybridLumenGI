@@ -2,7 +2,7 @@
 
 本表基于 [ProductionPlan](ProductionPlan.md)、[运行验收要求](Validation.md)和[当前推进表](DevelopmentProgress.md)，保留原四项目标、十条工作流及 G0–G5 范围。用途是安排剩余工作，不把未验收项判成代码缺陷，也不把有限交付判成总目标完成。
 
-G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release162 同源交付](../LocalComparison/Review/published-hlod-card-retention-185/delivery.json)
+G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release163 同源交付](../LocalComparison/Review/hlod-rtas-turn-187/delivery.json)
 
 T5／G4 已关闭完整 HLOD 接替后被更近的普通对象挤掉有效图卡的缺口。单相机精确软件追踪中，七卡上限、原有普通页与整组的原布局保持，正常退出释放容量。后端切换和高速冷入首显继续按原条件验收。[实机观察](../LocalComparison/Review/published-hlod-card-retention-185/result.md)
 
@@ -82,11 +82,11 @@ T2／G4 已关闭第 9 节的静态镜像双子网格精确剔除与远层命中
 | T4 / 中 | 世界表面专项验收 · G2 | 关闭尚未覆盖的材质／UV 接缝、镜像变换、图集／锚点及池复用身份问题。已有三室、薄壁、凹口、离屏纹理、内层和正比例非均匀缩放结果直接复用。一个保存重开后的静态两槽 Point／无 mip 接缝已有图集及锚点子结果，但该次四条 binding 返回数值未写入，完整冻结合同仍证据不足，不自动补采或宣称整体 T4 通过。专项要能判断正确来源与覆盖，不能用总 ready 数代替。出现具体反例时才改实现。[原条款](ProductionPlan.md#8-真实可变表面-charts已接入与剩余验收) · [接缝范围及缺失记录](../LocalComparison/Review/material-uv-seam-01/result.md) |
 | T5 / 中 | 已知使用限制，原因未闭合 · G4 | Release143 原折返的最近点无完整组。去程回调空档为 78.670 秒，回程只取得粗根，离场排空。保留一次观察的边界，具名原因出现后再选择修复。原完整组门槛、容量和细节接替仍是采用条件。[Release143 实机](../LocalComparison/Review/cold-crossing-143/result.md) · [109／110 对照](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) |
 | T6 / 中 | 资源、规模与预算能力及验收 · G4／G5 | 在已承诺平台与原规定负载内闭合资源生命周期和预算判断，复用已有双 Base 相机隔离、30 分钟流式运行、域重载清理及后端退休结果。默认活动Skin已补原小网格、已预热且观察开启的同窗预算／Present，不再将这一条件列为成本未知；其他负载边界保留。只处理会改变放行决定的冷／热、高速、流式或高更新负载缺口。全阶段时间预算尚未完成：当前反馈只缩放 patch／capture／brick 数量，不能等同于 CPU 准备、上传、RTAS 等所有阶段分别受时间预算控制；缺失能力须对照原目标处理，不新造预算／验证框架。验收仍用 960×540／30FPS、GI 三段逐帧合计 p95≤25ms、进程 local 有限采样峰值≤1GiB，记录 p99、nonlocal 单列；不混淆 Present、GI 时间和显示帧率。[原调度目标](ProductionPlan.md#5-streaming-与预算) · [目标与现有窗口](GpuBudget.md#当前已确认的起始验收目标) |
-| T7 / 最后 | 支持范围与最终放行 · G5 | Release162 提供同源运行包和工程包，沿用已交付的离线画册。继续汇总 T2–T6 在承诺平台上的有界结果，完成剩余生产放行。CI 暂缓，整体 G5 保持开放。[支持主表](ProductionPlan.md#当前支持范围与证据层级) · [离线画册](../LocalComparison/Review/picture-comparison.html) |
+| T7 / 最后 | 支持范围与最终放行 · G5 | Release163 提供同源运行包和工程包，沿用已交付的离线画册。继续汇总 T2–T6 在承诺平台上的有界结果，完成剩余生产放行。CI 暂缓，整体 G5 保持开放。[支持主表](ProductionPlan.md#当前支持范围与证据层级) · [离线画册](../LocalComparison/Review/picture-comparison.html) |
 
 这些是当前优先级，不是严格串行依赖。T2–T6 也不是一次性展开的测试矩阵。开始任何新观测前，先明确它能改变哪个采用、修复或放行决定；不能改变决定的观测不做。仅在必要时更新对应产品与证据，不新造验证系统。
 
-T5／T6 的同帧后端回退已取得明确反例。固定设置下，竞争相机耗尽当帧 RTAS 构建额度，主相机回退时两件新细节已进入世界 BVH，但新缓存代次的照明年龄各为 1，仍低于原就绪门 2。修复须保有旧组连续覆盖及共享预算。此缺口与高速冷入首显分开。[Release162 双 Base 实机结果](../LocalComparison/Review/hlod-backend-handoff-186/result.md)
+T5／T6 已关闭旧组有精确成员退出、目标仍有可准入精确几何时的共享 RTAS 次数耗尽分支。双 Base 对照覆盖旧组连续覆盖、取消等待、真实构建公平和同代次完整接替。其他后置回退、混合近似接替和高速冷入首显分别保持开放。[Release162 反例](../LocalComparison/Review/hlod-backend-handoff-186/result.md) · [Release163 对照](../LocalComparison/Review/hlod-rtas-turn-187/result.md)
 
 T5 现有记录确认了统一示例在加载带入口的一帧绑定延后。Release110 第 306 帧写入粗根请求时 8 页已就绪，第 307 帧才绑定。示例的 `Update` 在流式表示消费需求之后执行。粗根仍在可见边界外绑定，首次完整表示空档保持未通过。[冷入折返与实际记录](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 

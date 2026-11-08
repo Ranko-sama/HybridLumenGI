@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release162，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release163，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／T6／G4 已关闭共享 RTAS 构建次数耗尽时，有精确目标的 HLOD 提前接替。双 Base 实机中，修复在耗尽帧保留完整旧根及同一照明代次。取消时撤销等待，竞争相机同帧取得构建名额。继续竞争时，等待相机按原队列取得唯一名额，两件细节达到当前照明门后一起接替。[实机对照与范围](../LocalComparison/Review/hlod-rtas-turn-187/result.md) · [Release163 同源交付](../LocalComparison/Review/hlod-rtas-turn-187/delivery.json)
 
 T5／G4 已关闭 HLOD 接替时新增普通对象抢走整组已就绪图卡的问题。实机固定七卡，旧版刚发布的两件细节各从一张有效卡降到零。修复版在接替及下一帧保持两张原卡与原有普通页，退出后新对象正常取得六张。证据限单相机 DX12 Editor 的精确软件追踪。[实机对照与范围](../LocalComparison/Review/published-hlod-card-retention-185/result.md) · [Release162 同源交付](../LocalComparison/Review/published-hlod-card-retention-185/delivery.json)
 
