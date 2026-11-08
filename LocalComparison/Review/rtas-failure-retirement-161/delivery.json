@@ -1,0 +1,71 @@
+{
+  "productCommit": "2f600925c118a2bba484392e662f35e40e717d0d",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release144-demo",
+  "tag": "release144-demo",
+  "publishedAt": "2026-11-08T12:44:15Z",
+  "prerelease": true,
+  "scope": "Ordinary Win64 build from the independently extracted Release144 Unity project ZIP. The active-camera refit failure, resource accounting and healthy-camera admission were exercised with actual C# backend and budget classes, using controlled Unity API and retirement completion adapters. This does not measure native exception recovery, GPU completion or production performance.",
+  "validation": {
+    "baselineCommit": "50f69cf5673081b508aa8d937ed245a71cae0042",
+    "baseline": "After a command recording exception, the still-active camera retained its DXR reservation and attributes even after the completion callback step. The healthy camera remained blocked.",
+    "candidate": "The original resources stay charged before completion and are released after completion. The failed camera continues software fallback, and the healthy camera builds within the same shared limit.",
+    "notes": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "output": "I:\\Unity test\\Comparison\\Builds\\LocalRelease144\\HybridLumenGIPlayer.exe",
+    "actualOptions": "None",
+    "error": "",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101781937
+  },
+  "nativeExit": {
+    "productCommit": "2f600925c118a2bba484392e662f35e40e717d0d",
+    "project": "I:/Unity test/Comparison/PortableUnified144/HybridLumenGI-Release144-UnityProject",
+    "output": "I:/Unity test/Comparison/Builds/LocalRelease144",
+    "shaderCacheFrom": "I:/Unity test/Comparison/PortableUnified143/HybridLumenGI-Release143-UnityProject/Library/ShaderCache",
+    "exitCode": 0,
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+  },
+  "projectPackage": {
+    "package": "I:\\Unity test\\Comparison\\Packages\\HybridLumenGI-Release144-UnityProject.zip",
+    "bytes": 838967,
+    "productCommit": "2f600925c118a2bba484392e662f35e40e717d0d",
+    "project": "I:\\Unity test\\Comparison\\PortableUnified144\\HybridLumenGI-Release144-UnityProject",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "previousPackage": "HybridLumenGI-Release143-UnityProject.zip",
+    "changedFiles": [
+      "Assets/HybridLumenGI/Runtime/HybridLumenGIHardwareBackend.cs",
+      "Documentation/Licenses/Boost-1.0.txt",
+      "Documentation/Licenses/Unity-Builtin-Shaders-MIT.txt",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "modified": [
+      "Runtime/HybridLumenGIHardwareBackend.cs"
+    ],
+    "added": []
+  },
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release144-UnityProject.zip",
+      "bytes": 838967,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release144-demo/HybridLumenGI-Release144-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release144-Windows-x64.zip",
+      "bytes": 58438658,
+      "state": "uploaded",
+      "download": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release144-demo/HybridLumenGI-Release144-Windows-x64.zip"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release143，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release144，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭活跃相机在 DXR 异常后继续占用共享额度的缺口。实际 C# 对照在已绑定几何的下一帧注入构建异常，失败相机继续回退，完成回调前旧资源仍计账，完成后健康相机可以准入。Astra Max 同意按功能范围采用。Unity 原生异常和真实 GPU 排空仍待各自验收。[异常前后对照](../LocalComparison/Review/rtas-failure-retirement-161/result.md) · [同源交付](../LocalComparison/Review/rtas-failure-retirement-161/delivery.json)
 
 T5／T6 的世界缓存调度已关闭已确认空格占用逻辑照明配额的缺口。现有回读确认空格后，相同两格配额在实际 C# 对照中从一空一实变为两格有覆盖，零样本覆盖格仍可更新。旧代次拒绝、重捕获恢复和原发布年龄门均保持。Astra Max 同意按这一功能范围采用。原高速冷入首显和真实性能仍待验收。[同额度对照](../LocalComparison/Review/empty-cache-patch-budget-160/result.md) · [同源交付](../LocalComparison/Review/empty-cache-patch-budget-160/delivery.json)
 
