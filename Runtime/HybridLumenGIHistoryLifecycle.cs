@@ -10,7 +10,7 @@ namespace HybridLumenGI
     public sealed class HybridLumenGIHistoryLifecycle
     {
         /// <summary>
-        /// Image-coordinate provenance, independent of camera motion and per-frame jitter.
+        /// Image-coordinate and visibility provenance, independent of camera motion and per-frame jitter.
         /// Viewport coordinates are compared exactly; finite offsets outside the target
         /// are allowed. The optional key identifies a projection convention, not a matrix.
         /// Target-object identity is guarded by the owning camera state.
@@ -20,14 +20,22 @@ namespace HybridLumenGI
             public readonly int FullWidth, FullHeight, GiWidth, GiHeight;
             public readonly float ViewportX, ViewportY, ViewportWidth, ViewportHeight;
             public readonly ulong ProjectionContextKey;
+            internal readonly int CullingMask;
 
             public FrameContext(int fullWidth, int fullHeight, int giWidth, int giHeight,
                 float viewportX, float viewportY, float viewportWidth, float viewportHeight,
                 ulong projectionContextKey = 0)
+                : this(fullWidth, fullHeight, giWidth, giHeight, viewportX, viewportY, viewportWidth, viewportHeight,
+                    projectionContextKey, -1) { }
+
+            internal FrameContext(int fullWidth, int fullHeight, int giWidth, int giHeight,
+                float viewportX, float viewportY, float viewportWidth, float viewportHeight,
+                ulong projectionContextKey, int cullingMask)
             {
                 FullWidth=fullWidth;FullHeight=fullHeight;GiWidth=giWidth;GiHeight=giHeight;
                 ViewportX=viewportX;ViewportY=viewportY;ViewportWidth=viewportWidth;ViewportHeight=viewportHeight;
                 ProjectionContextKey=projectionContextKey;
+                CullingMask=cullingMask;
             }
 
             public bool IsValid => FullWidth>0 && FullHeight>0 && GiWidth>0 && GiHeight>0 &&
@@ -38,7 +46,8 @@ namespace HybridLumenGI
             public bool Equals(FrameContext other) => FullWidth==other.FullWidth && FullHeight==other.FullHeight &&
                 GiWidth==other.GiWidth && GiHeight==other.GiHeight && ViewportX.Equals(other.ViewportX) &&
                 ViewportY.Equals(other.ViewportY) && ViewportWidth.Equals(other.ViewportWidth) &&
-                ViewportHeight.Equals(other.ViewportHeight) && ProjectionContextKey==other.ProjectionContextKey;
+                ViewportHeight.Equals(other.ViewportHeight) && ProjectionContextKey==other.ProjectionContextKey &&
+                CullingMask==other.CullingMask;
             public override bool Equals(object obj) => obj is FrameContext other && Equals(other);
             public override int GetHashCode()
             {
@@ -48,7 +57,8 @@ namespace HybridLumenGI
                     hash=hash*397^FullHeight;hash=hash*397^GiWidth;hash=hash*397^GiHeight;
                     hash=hash*397^ViewportX.GetHashCode();hash=hash*397^ViewportY.GetHashCode();
                     hash=hash*397^ViewportWidth.GetHashCode();hash=hash*397^ViewportHeight.GetHashCode();
-                    return hash*397^ProjectionContextKey.GetHashCode();
+                    hash=hash*397^ProjectionContextKey.GetHashCode();
+                    return hash*397^CullingMask;
                 }
             }
         }

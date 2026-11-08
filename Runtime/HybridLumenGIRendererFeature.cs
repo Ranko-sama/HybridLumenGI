@@ -1023,8 +1023,10 @@ namespace HybridLumenGI
                 bool historyValid=state.valid;
                 state.valid=false;
                 Rect cameraViewport=camera.pixelRect;
+                int cameraCullingMask=camera.cullingMask;
                 var historyContext=new HybridLumenGIHistoryLifecycle.FrameContext(fullW,fullH,w,h,
-                    cameraViewport.x,cameraViewport.y,cameraViewport.width,cameraViewport.height);
+                    cameraViewport.x,cameraViewport.y,cameraViewport.width,cameraViewport.height,
+                    projectionContextKey:0,cullingMask:cameraCullingMask);
                 var historyToken=state.historyLifecycle.BeginFrame(Time.frameCount,historyContext);
                 if(!historyToken.IsValid) return;
                 if(receiverSources!=null) state.receiverHistory.Begin(historyToken,receiverSources);
@@ -1057,7 +1059,7 @@ namespace HybridLumenGI
                 // UnityPerDraw exposes rendering layers, but not the GameObject layer.
                 // Disjoint renderer lists provide that identity without modifying renderers/MPBs.
                 var receiverLists=new List<RendererListHandle>();var receiverLayers=new List<int>();
-                int receiverMask=s.materialLayers.value & cameraData.camera.cullingMask;
+                int receiverMask=s.materialLayers.value & cameraCullingMask;
                 for(int layer=0;layer<32;layer++) if((receiverMask & (1<<layer))!=0)
                 {
                     var filtering=new FilteringSettings(RenderQueueRange.opaque,1<<layer);

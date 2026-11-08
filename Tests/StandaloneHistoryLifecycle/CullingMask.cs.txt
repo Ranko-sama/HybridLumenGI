@@ -1,0 +1,26 @@
+using System;
+using History = HybridLumenGI.HybridLumenGIHistoryLifecycle;
+
+static void Require(bool condition, string message)
+{
+    if (!condition) throw new InvalidOperationException(message);
+}
+
+var oldContext = new History.FrameContext(1920, 1080, 960, 540, 0, 0, 1920, 1080);
+var oldPath = new History();
+Require(oldPath.Complete(oldPath.BeginFrame(20, oldContext)), "Old-style context did not publish.");
+Require(oldPath.CanReuseHistory(oldPath.BeginFrame(21, oldContext)), "Old-style context unexpectedly rejected matching coordinates.");
+
+var firstLayer = new History.FrameContext(1920, 1080, 960, 540, 0, 0, 1920, 1080, 0, 1);
+var secondLayer = new History.FrameContext(1920, 1080, 960, 540, 0, 0, 1920, 1080, 0, int.MinValue);
+var history = new History();
+Require(history.Complete(history.BeginFrame(20, firstLayer)), "First layer output did not publish.");
+var skipped = history.BeginFrame(21, secondLayer);
+Require(skipped.IsValid && !history.CanReuseHistory(skipped), "The new visible layer accepted prior output.");
+var retry = history.BeginFrame(22, secondLayer);
+Require(!history.CanReuseHistory(retry) && !history.Complete(skipped), "Unrecorded layer output became history.");
+Require(history.Complete(retry), "The new visible layer could not publish fresh output.");
+var stable = history.BeginFrame(23, secondLayer);
+Require(history.CanReuseHistory(stable) && history.Complete(stable), "The next successful same-layer frame did not recover history.");
+Require(!history.CanReuseHistory(history.BeginFrame(24, firstLayer)), "Returning to the first layer accepted mismatched output.");
+Console.WriteLine("PASS: Camera culling-mask changes reject history at equal coordinates and matching successful frames resume reuse.");
