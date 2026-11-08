@@ -14,6 +14,8 @@
 
 Mesh、SDF、捕获网格和 charts 全部生成成功后，以同一不可变快照替换。Proxy、Scene、SdfAtlas、SurfaceCache 与软件/DXR 三角准备共同读取该来源；不把更新后的 Skinned 绘制与旧 charts 混用。发布触发几何版本及局部缓存失效。这里的发布是 CPU 表示切换，GPU atlas 上传、材质捕获和 HLOD 初始化仍经过原就绪流程。形变更新有采样间隔与处理延迟，不承诺逐动画帧即时重建。
 
+Release154 的独立单三角场景中，实际 DXR 查询消费了初始自动 `BakeMesh` 快照，命中距离、身份和另一条射线的未命中结果符合预期。骨姿改变后，观察窗口结束时尚未取得新发布，无第二次查询。变形后的原生消费、延迟和画质继续验收。[原始读回与观察范围](../LocalComparison/Review/native-skinned-hit-175/result.md)
+
 `BakeMesh` 快照绑定捕获时的 `SkinnedMeshRenderer.sharedMesh`。帧级渲染准备会撤回已失效的快照并取消旧作业。Release130 也在相机读取世界表示前复核来源，覆盖 `beginContextRendering` 后在 `beginCameraRendering` 替换或清空网格的情况。已提交读者保留旧快照直到退休栅栏完成，取消的后台作业在实际结束后清理。替换网格沿用每帧的捕获和发布预算。显式可读网格继续遵循各自的请求与合并规则。
 
 本机 `Validate-DeformedMesh.ps1` 的同输入回归在 Release129 源码复现相机准备时仍读旧 Mesh／SDF／charts，Release130 在同帧替换及清空时均撤回旧来源，既有异步流程可以恢复新来源。测试使用实际组件与模拟 final-context 完成，覆盖旧读者等待及相机检查没有额外捕获或上传。修复已整合普通包，实体 GPU 退休和形变画质仍分别验收。[定向回归](../Tests/StandaloneDeformedMesh/Program.cs.txt) · [同源交付](../LocalComparison/Review/skinned-camera-source-147/delivery.json)
