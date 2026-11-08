@@ -286,7 +286,8 @@ static class Program
         CaptureTimeBudgetDefersAndPublishes();FailedCaptureChargesTimeBudget();UnchangedCaptureChargesTimeBudget();
         CompletedPublicationIsFair();
         FinalCancelledWorker();OpenNewSession();
-        ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
+        ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();
+        IdleStreamedRetirementAfterLastCamera();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
         UnchangedCaptureCleanupFailure();
         Console.WriteLine("PASS: actual DeformedMesh and ResourceRetirement sources compiled/executed: atomic mesh/SDF/chart publication and rollback; request-generation cancellation; upload gate; workers=0 admission pause; failed capture charges vertex quota/backoff; old/disabled snapshots retain reservations until submitted end-context fence completion.");
         Console.WriteLine("Boundary: deterministic SDF/chart result stubs, recorded Unity API calls and controlled real Task.Run barriers. No SDF/chart numeric retest, Unity engine, native fence or physical GPU execution is claimed.");
@@ -673,6 +674,42 @@ static class Program
         HybridLumenGIResourceRetirement.UnregisterShutdownOwner(withdraw);RecordedGpu.AutoCompleteImmediate=false;
         Require(parent==2&&HybridLumenGIResourceRetirement.OwnedCount==0,"Known idle shutdown unnecessarily awaited a future Update");
         OpenNewSession();Console.WriteLine("PASS: detached whole-pass owner waits for real idle and submitted last reader; parent and child complete separately/exactly once with retained bytes; no-idle shutdown retained, known-idle shutdown progresses.");
+    }
+    static void IdleStreamedRetirementAfterLastCamera()
+    {
+        OpenNewSession();
+        var disabled = new HybridLumenGIStreamedRepresentation { Generation = 1 };
+        var distanceOnly = new HybridLumenGIStreamedRepresentation { Generation = 1 };
+        HybridLumenGIStreamedRepresentation.Active.Add(disabled);
+        HybridLumenGIStreamedRepresentation.Active.Add(distanceOnly);
+        RenderPipelineManager.Begin();
+        bool readerCompleted = false;
+        RenderPipelineManager.Reader(() => {
+            Require(!disabled.Retirement.IsComplete, "A last-camera reader outlived its page lease.");
+            readerCompleted = true;
+        });
+        RenderPipelineManager.SubmitReadersBeforeEnd();
+        RenderPipelineManager.End();
+
+        // The last camera has stopped. No subsequent EndContext will discover the withdrawal.
+        disabled.WantsUnload = disabled.IsUnavailable = true;
+        distanceOnly.WantsUnload = true;
+        int fencesBefore = RecordedGpu.Fences.Count;
+        HybridLumenGIResourceRetirement.RequestUnavailableRepresentationRetirement();
+        Require(disabled.Retirement == null && RecordedGpu.Fences.Count == fencesBefore,
+            "Requesting withdrawal before the idle boundary detached the pages.");
+        HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(disabled.Retirement != null && !disabled.Retirement.IsComplete &&
+            RecordedGpu.Fences.Count == fencesBefore + 1 && RecordedGpu.Fences[^1].Immediate && !readerCompleted,
+            "An explicitly disabled representation did not receive a pending idle fence after the final camera.");
+        RecordedGpu.CompleteSubmitted();
+        HybridLumenGIResourceRetirement.IdleUpdate();
+        Require(readerCompleted && disabled.Retirement.IsComplete && distanceOnly.Retirement == null &&
+            RecordedGpu.Fences.Count == fencesBefore + 1,
+            "Idle retirement failed to cover the last reader or affected ordinary distance demand.");
+        HybridLumenGIStreamedRepresentation.Active.Remove(disabled);
+        HybridLumenGIStreamedRepresentation.Active.Remove(distanceOnly);
+        Console.WriteLine("PASS: explicitly disabled streamed pages receive an idle completion ticket without another camera context; last readers and ordinary distance unload remain gated.");
     }
     static void IdleAndShutdownRetirement()
     {

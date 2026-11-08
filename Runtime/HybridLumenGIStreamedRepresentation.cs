@@ -60,8 +60,21 @@ namespace HybridLumenGI
         public void ConfigureDistances(float load,float unload)
         {loadDistance=Mathf.Max(0f,load);unloadDistance=Mathf.Max(loadDistance,unload);}
         private void OnEnable(){if(!Application.isPlaying)return;unavailable=false;if(!active.Contains(this))active.Add(this);HybridLumenGIResourceRetirement.EnsureRegistered();}
-        private void OnDisable(){unavailable=true;wanted=false;if(!bound)RemoveRequests();}
-        private void OnDestroy(){unavailable=true;wanted=false;RemoveRequests();if(!bound && retirement==null)active.Remove(this);}
+        private void OnDisable()
+        {
+            unavailable = true;
+            wanted = false;
+            if (bound) HybridLumenGIResourceRetirement.RequestUnavailableRepresentationRetirement();
+            else RemoveRequests();
+        }
+        private void OnDestroy()
+        {
+            unavailable = true;
+            wanted = false;
+            RemoveRequests();
+            if (bound) HybridLumenGIResourceRetirement.RequestUnavailableRepresentationRetirement();
+            else if (retirement == null) active.Remove(this);
+        }
         private void Update()
         {
             if(unavailable || failed || streamer==null || !streamer.Available || retirement!=null)return;

@@ -49,6 +49,11 @@ capped.near.position=new Vector3(122,0,0);capped.Update();capped.Drive();
 Check(capped.representation.WantsUnload&&capped.representation.HasBoundAssets&&capped.filter.sharedMesh!=null&&capped.renderer.enabled&&capped.proxy.enabled,"All-far demand detached a bound representation without safe-unload permission");
 Check(capped.state.GetState("geometry").ConsumerReferences==geometryRefs&&capped.state.GetState("material").ConsumerReferences==materialRefs&&capped.state.RetiringLeases==0&&capped.state.ResidentBytes==60&&!capped.provider.operations.Any(o=>o.phase=="release"),"Distance change released leases or reservations before original retirement gate");
 Console.WriteLine("PASS actual budget/ownership boundary: complete dependency group blocked at59/admitted at60; all-far bound group only requests unload, retaining bindings/leases/reservations.");
+int retirementRequests = HybridLumenGIResourceRetirement.UnavailableRetirementRequests;
+capped.Disable();
+Check(capped.representation.IsUnavailable && capped.representation.WantsUnload && capped.representation.HasBoundAssets &&
+    HybridLumenGIResourceRetirement.UnavailableRetirementRequests == retirementRequests + 1 && capped.state.RetiringLeases == 0,
+    "Explicit disable failed to request idle retirement, or released leases before acknowledgement.");
 Console.WriteLine("PASS multiview cold-demand capability; actual C# representation/driver/scheduler, adapted Unity objects and IO. No Unity/AssetBundle/GPU/HLOD native-chain acceptance.");
 
 sealed class Fixture
@@ -73,6 +78,7 @@ sealed class Fixture
     static Stream.Definition Page(string id,Stream.Kind kind,params string[] dependencies)=>new(){id=id,bundlePath=id+".bundle",assetName=id,kind=kind,fileBytes=10,residentBytes=20,uploadBytes=8,dependencies=dependencies};
     public void ApplyBudget()=>driver.SetBudgets(budget);
     public void Update()=>Call(representation,"Update");public void Drive()=>Call(driver,"Drive");
+    public void Disable()=>Call(representation,"OnDisable");
     IDictionary Requests=>(IDictionary)Get(driver,"requests");public int RequestCount=>Requests.Count;
     public long RequestSequence=>(long)Get(driver,"nextRequest");
     public bool CompleteDirectGroup=>Requests.Contains(representation)&&((string[])Get(Requests[representation],"ids")).OrderBy(x=>x).SequenceEqual(new[]{"geometry","material"});

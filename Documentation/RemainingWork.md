@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release124 同源交付](../LocalComparison/Review/skinned-source-replacement-140/delivery.json)
 
+T6／G4 已修复一个源码生命周期缺口。最后一台相机停止渲染后，明确停用或销毁的已绑定流式表示可在确认空闲时排入退休栅栏，完成后归还页引用。CPU 回归覆盖真实组件的撤回请求、最后读者和模拟栅栏，普通距离卸载继续由原相机回调负责。修复随下一次统一构建交付，实体 GPU 退休及整体 G4 保持开放。[资源生命周期](IndependentAssetPages.md#publication-and-lifetime)
+
 T3／G3 修复了同一个 SkinnedMeshRenderer 换网格或清空来源后，旧快照仍可留存或由后台作业重新发布的问题。实际组件 CPU 回归覆盖撤回、取消、新来源恢复与完成票据后的退休。Astra Max 同意按该功能范围采用，修复已进入 Release124。原形变画质和真实 GPU 退休仍各自验收。[修复与范围](../LocalComparison/Review/skinned-source-replacement-140/release-notes.md)
 
 2026-11-08 已恢复 Unity Personal 授权并关闭 G3 的固定两室关门恢复子项。修复隔离门跳变后的旧递归照明，两期限前的残留降为 2.637% 和 0.214%，符合原保持要求。Release122 的未通过基线和首个因 SDF 留边未触发的候选一并保留。[两室关门结果](../LocalComparison/Review/portal-recovery-138/result.md)

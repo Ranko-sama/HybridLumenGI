@@ -66,7 +66,12 @@ namespace HybridLumenGI
     }
     public class HybridLumenGIAssetPageManifest:UnityEngine.Object{public string RelativeRoot;public HybridLumenGIAssetPageStreaming.Definition[] Pages;}
     public static class HybridLumenGIAssetPageRetirementPump{public static void EnsureExists(){}}
-    public static class HybridLumenGIResourceRetirement{public static void EnsureRegistered(){}}
+    public static class HybridLumenGIResourceRetirement
+    {
+        public static int UnavailableRetirementRequests { get; private set; }
+        public static void EnsureRegistered() { }
+        public static void RequestUnavailableRepresentationRetirement() => UnavailableRetirementRequests++;
+    }
     public static class HybridLumenGIRayTexturePool
     {public static void PollRetired(){}public static void InvalidateSource(Texture value)=>throw new NotSupportedException();public static bool IsSourceReferenced(Texture value)=>throw new NotSupportedException();}
 }

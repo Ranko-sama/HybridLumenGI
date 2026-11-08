@@ -18,6 +18,7 @@ namespace HybridLumenGI
         private static readonly List<Owned> owned=new List<Owned>();
         private static readonly HashSet<Action> shutdownOwners=new HashSet<Action>();
         private static bool registered, outsideRenderLoop, contextEnded=true, shuttingDown, withdrawing, draining, polling, submissionUncertain;
+        private static bool unavailableRepresentationScanPending;
         private static long shutdownDeadline;
         private static int failedWithdrawals;
         private const int ShutdownMilliseconds=5000;
@@ -46,6 +47,10 @@ namespace HybridLumenGI
         public static int FailedCount {get{int n=0;foreach(var item in owned)if(item.failed)n++;return n;}}
         public static bool SubmissionUncertain=>submissionUncertain;
         public static int UnknownSubmissionCount {get{int n=0;foreach(var ticket in pending)if(ticket.submissionUnknown)n++;return n;}}
+        internal static void RequestUnavailableRepresentationRetirement()
+        {
+            unavailableRepresentationScanPending = true;
+        }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitializeRuntime()
         {
@@ -86,9 +91,17 @@ namespace HybridLumenGI
             // EndContext alone is not an outside certificate: other listeners may still run.
             if(contextEnded && !submissionUncertain)outsideRenderLoop=true;
             if(outsideRenderLoop)
+            {
+                // An explicitly withdrawn representation may have no future camera context.
+                if (unavailableRepresentationScanPending && SystemInfo.supportsGraphicsFence)
+                {
+                    unavailableRepresentationScanPending = false;
+                    QueueRepresentationRetirements(requiresContext: false);
+                }
                 foreach(var ticket in pending)
                     if(ticket.awaitDetachedPassIdle && !ticket.submissionUnknown)
                     {ticket.awaitDetachedPassIdle=false;ticket.requiresContext=false;}
+            }
             PollOwned();
             if(outsideRenderLoop)SubmitImmediate();
             PollOwned();
@@ -209,15 +222,14 @@ namespace HybridLumenGI
             pending.Add(ticket);owned.Add(new Owned{destroy=destroyOwned,ticket=ticket,prerequisite=prerequisite});
             if(shuttingDown)DrainShutdown();
         }
-        private static void EndContext(ScriptableRenderContext context,List<Camera> cameras)
+        private static void QueueRepresentationRetirements(bool requiresContext)
         {
-            contextEnded=true; // Only a subsequent IdleUpdate may certify outside this event.
-            PollOwned();
             var representations=HybridLumenGIStreamedRepresentation.Active;
             for(int i=0;i<representations.Count;i++)
             {
                 var representation=representations[i];
                 if(ReferenceEquals(representation,null) || !representation.WantsUnload)continue;
+                if (!requiresContext && !representation.IsUnavailable) continue;
                 var proxy=representation.Proxy;
                 bool required=false;
                 if(!representation.IsUnavailable && proxy!=null && proxy.isActiveAndEnabled)
@@ -229,9 +241,15 @@ namespace HybridLumenGI
                     }
                 }
                 if(required)continue;
-                var ticket=new Ticket{requiresContext=true};
+                var ticket=new Ticket{requiresContext=requiresContext};
                 if(representation.ReportUnloadSafe(representation.Generation,ticket))pending.Add(ticket);
             }
+        }
+        private static void EndContext(ScriptableRenderContext context,List<Camera> cameras)
+        {
+            contextEnded=true; // Only a subsequent IdleUpdate may certify outside this event.
+            PollOwned();
+            QueueRepresentationRetirements(requiresContext: true);
             if(pending.Count==0 || !SystemInfo.supportsGraphicsFence || submissionUncertain)return;
             var batch=new List<Ticket>();foreach(var ticket in pending)if(!ticket.submissionUnknown && !ticket.awaitDetachedPassIdle)batch.Add(ticket);
             if(batch.Count==0)return;

@@ -229,6 +229,13 @@ namespace HybridLumenGI
     {
         public static readonly List<HybridLumenGIStreamedRepresentation> Active=new List<HybridLumenGIStreamedRepresentation>();
         public bool WantsUnload,IsUnavailable;public HybridLumenGIProxy Proxy;public uint Generation;
-        public bool ReportUnloadSafe(uint generation,HybridLumenGIAssetPageStreaming.ICompletion completion)=>false;
+        public HybridLumenGIAssetPageStreaming.ICompletion Retirement { get; private set; }
+        public bool ReportUnloadSafe(uint generation,HybridLumenGIAssetPageStreaming.ICompletion completion)
+        {
+            if (!WantsUnload || generation != Generation || Retirement != null || completion == null) return false;
+            WantsUnload = false;
+            Retirement = completion;
+            return true;
+        }
     }
 }
