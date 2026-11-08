@@ -71,6 +71,11 @@ namespace HybridLumenGI
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitializeRuntime()
         {
+#if UNITY_EDITOR
+            // Editor Play restarts Time.frameCount even when the static schedulers survive.
+            HybridLumenGIRayTexturePool.ResetFrameAdmission();
+            HybridLumenGIRtasBudget.ResetFrameAdmission();
+#endif
             // No list/accounting reset: disabled domain reload may retain genuine owners.
             shuttingDown=false;shutdownDeadline=0;EnsureRegistered();
             HybridLumenGIResourceRetirementPump.EnsureExists();

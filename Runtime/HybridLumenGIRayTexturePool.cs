@@ -29,6 +29,12 @@ namespace HybridLumenGI
         public static int UploadFrame=>uploadFrame;
         public static long UploadBytesUsed=>uploadUsed;
         public static long UploadBudgetBytes=>uploadBudget;
+        internal static void ResetFrameAdmission()
+        {
+            uploadFrame = -1;
+            uploadBudget = long.MaxValue;
+            uploadUsed = 0;
+        }
         /// <summary>Call on the main thread for every camera. Same-frame calls never replenish the global allowance.</summary>
         public static void BeginFrame(int engineFrame,long maxUploadBytes)
         {

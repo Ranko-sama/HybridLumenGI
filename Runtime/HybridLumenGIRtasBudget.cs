@@ -63,6 +63,16 @@ namespace HybridLumenGI
             TriangleBurstCapacity=Math.Min(a.TriangleBurstCapacity,b.TriangleBurstCapacity),InstanceBurstCapacity=Math.Min(a.InstanceBurstCapacity,b.InstanceBurstCapacity),
             BaseEstimateBytes=Math.Max(a.BaseEstimateBytes,b.BaseEstimateBytes),BytesPerTriangle=Math.Max(a.BytesPerTriangle,b.BytesPerTriangle),BytesPerInstance=Math.Max(a.BytesPerInstance,b.BytesPerInstance)};
 
+        internal static void ResetFrameAdmission()
+        {
+            initialized = false;
+            Frame = int.MinValue;
+            triangleCredits = instanceCredits = 0;
+            BuildsThisFrame = 0;
+            TriangleWorkThisFrame = InstanceWorkThisFrame = 0;
+            demands.Clear();
+        }
+
         /// <summary>Call before Prepare for each camera. Repeated same-frame calls cannot refill or relax limits.</summary>
         public static void BeginFrame(int engineFrame,Settings requested)
         {
