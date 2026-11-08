@@ -931,24 +931,24 @@ namespace HybridLumenGI
                 bool canDeferHlodBuild = state.lastHardware && s.preferHardwareTracing && state.hardware.CanDispatch;
                 bool buildTurnBlocked = canDeferHlodBuild && state.hardware.IsBuildTurnBlocked;
                 bool readyExactReplacement = false;
-                Predicate<int> deferHlodRetirement = null;
-                Predicate<int> exactHlodTarget = null;
+                Predicate<int> preparedExact = null;
+                Func<int, bool, bool> exactHlodTarget = null;
+                Func<int, bool, bool> deferExactHlodTarget = null;
                 if (canDeferHlodBuild && (buildTurnBlocked || state.hardware.HasDeferredHlodBuild))
                 {
-                    // Require both a live exact departure and eligible target geometry.
-                    // A switch that merely empties the RTAS does not need a build turn.
-                    exactHlodTarget = slot => state.hardware.IsHlodTargetEligible(state.scene, state.surfaceCache,
-                        slot, hardwareTriangleLimit);
-                    deferHlodRetirement = slot =>
+                    preparedExact = state.hardware.HasPreparedTriangles;
+                    exactHlodTarget = (slot, removesExact) => state.hardware.IsHlodTargetEligible(state.scene,
+                        state.surfaceCache, slot, hardwareTriangleLimit, removesExact);
+                    deferExactHlodTarget = (slot, removesExact) =>
                     {
-                        if (!state.hardware.HasPreparedTriangles(slot)) return false;
+                        if (!exactHlodTarget(slot, removesExact)) return false;
                         readyExactReplacement = true;
                         return buildTurnBlocked;
                     };
                 }
                 state.scenePreparedEngineFrame = state.scenePreparedWorkFrame = -1;
                 state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),
-                    s.chunkSize,s.proxyUploadsPerFrame,maps,deferHlodRetirement,exactHlodTarget);
+                    s.chunkSize,s.proxyUploadsPerFrame,maps,preparedExact,deferExactHlodTarget);
                 if (!readyExactReplacement) state.hardware.CancelDeferredHlodBuild();
                 state.scenePreparedRenderer = cameraData.renderer;
                 state.scenePreparedEngineFrame = Time.frameCount; state.scenePreparedWorkFrame = state.frame;
@@ -987,7 +987,7 @@ namespace HybridLumenGI
                     // Admission can evict a staged page after Scene selection. Only retain
                     // queue priority for a handoff that still has its ready staging set.
                     RevokeStaleHlodReadiness(state);
-                    waitForHlodBuildTurn = state.scene.HasReadyExactHlodReplacement(state.hardware.HasPreparedTriangles, exactHlodTarget);
+                    waitForHlodBuildTurn = state.scene.HasReadyExactHlodReplacement(preparedExact, exactHlodTarget);
                     if (!waitForHlodBuildTurn) state.hardware.CancelDeferredHlodBuild();
                 }
                 // Freeze exactly the matrices later uploaded to transport. Relevance
@@ -1008,6 +1008,8 @@ namespace HybridLumenGI
                 bool hardware=hardwarePreference && state.hardware.Prepare(state.scene,state.scene.Revision,
                     hardwareTriangleLimit,state.surfaceCache,
                     Math.Max(1L,s.hardwareGeometryBudgetMiB)*1024*1024);
+                // The prepared set can reuse the RTAS if staging lost eligibility before build preparation.
+                if (!waitForHlodBuildTurn && state.hardware.CanDispatch) state.hardware.CancelDeferredHlodBuild();
                 int softwareTriangles=(int)Math.Min(Mathf.Clamp(s.meshTriangleBudget,1024,HybridLumenGISoftwareTriangleBvh.MaxTriangles),
                     Math.Max(1024,(Math.Max(1L,s.softwareGeometryBudgetMiB)*1024*1024-4096)/512));
                 bool softwareExact=!hardware && s.exactSoftwareTracing && exactSoftware!=null &&

@@ -228,7 +228,7 @@ namespace HybridLumenGI
 
         internal bool Prepare(Vector3 position, int capacity, float nearDistance, float farDistance,
             float chunkSize, int uploadBudget, LightmapData[] shadowmaskSources,
-            Predicate<int> deferHlodRetirement = null, Predicate<int> exactHlodTarget = null)
+            Predicate<int> preparedExact = null, Func<int, bool, bool> deferExactHlodTarget = null)
         {
             ShadowmaskSources = shadowmaskSources;
             capacity = Mathf.Clamp(capacity, 32, 256);
@@ -307,7 +307,7 @@ namespace HybridLumenGI
             // Conservative bounds distance keeps large walls that surround the camera resident.
             // Stable ID breaks ties deterministically instead of changing slots with registry sort order.
             candidates.Sort(CompareCandidates);
-            SelectAtomicGroups(position, nearDistance, farSquared, capacity, deferHlodRetirement, exactHlodTarget);
+            SelectAtomicGroups(position, nearDistance, farSquared, capacity, preparedExact, deferExactHlodTarget);
             int desiredCount = selectedCandidates.Count;
 
             // Never keep an old occluder/material alive while its replacement waits for budget.
@@ -482,7 +482,7 @@ namespace HybridLumenGI
         }
 
         private void SelectAtomicGroups(Vector3 position, float nearDistance, float farSquared, int capacity,
-            Predicate<int> deferHlodRetirement, Predicate<int> exactHlodTarget)
+            Predicate<int> preparedExact, Func<int, bool, bool> deferExactHlodTarget)
         {
             available.Clear(); grouped.Clear(); orderedGroups.Clear(); selectedCandidates.Clear(); ordinaryCandidates.Clear();
             representationAdds.Clear(); representationRemoves.Clear();
@@ -543,7 +543,7 @@ namespace HybridLumenGI
                     if (rootAvailable) group.target.Add(group.root.StableId);
                 }
                 if ((!group.initialized || !group.published.SetEquals(group.target)) && ReadyToPublish(group) &&
-                    (deferHlodRetirement == null || !ReplacesExactMember(group, deferHlodRetirement, exactHlodTarget)))
+                    (deferExactHlodTarget == null || !HasExactHlodHandoff(group, preparedExact, deferExactHlodTarget)))
                 {
                     foreach (int id in group.published) if (!group.target.Contains(id)) representationRemoves.Add(id);
                     foreach (int id in group.target) if (!group.published.Contains(id)) representationAdds.Add(id);
@@ -750,22 +750,30 @@ namespace HybridLumenGI
             return true;
         }
 
-        private bool ReplacesExactMember(HlodGroup group, Predicate<int> previous, Predicate<int> target)
+        private bool HasExactHlodHandoff(HlodGroup group, Predicate<int> preparedExact, Func<int, bool, bool> target)
         {
+            if (group.published.Count == 0) return false;
+            bool removesExact = false;
+            foreach (int id in group.published)
+            {
+                if (group.target.Contains(id) || !TryGetPublishedSlot(id, out int slot) || !preparedExact(slot)) continue;
+                removesExact = true;
+                break;
+            }
+            // An approximate group can also hand off to newly admitted exact geometry.
+            // Retained exact members only matter here if the handoff removes another one.
             foreach (int id in group.target)
             {
-                if (!slots.TryGetValue(id, out int targetSlot) || !target(targetSlot)) continue;
-                foreach (int oldId in group.published)
-                    if (!group.target.Contains(oldId) && TryGetPublishedSlot(oldId, out int slot) && previous(slot)) return true;
-                break;
+                if (!removesExact && group.published.Contains(id)) continue;
+                if (slots.TryGetValue(id, out int slot) && target(slot, removesExact)) return true;
             }
             return false;
         }
 
-        internal bool HasReadyExactHlodReplacement(Predicate<int> previous, Predicate<int> target)
+        internal bool HasReadyExactHlodReplacement(Predicate<int> preparedExact, Func<int, bool, bool> target)
         {
             foreach (HlodGroup group in orderedGroups)
-                if (ReadyToPublish(group) && ReplacesExactMember(group, previous, target)) return true;
+                if (ReadyToPublish(group) && HasExactHlodHandoff(group, preparedExact, target)) return true;
             return false;
         }
 

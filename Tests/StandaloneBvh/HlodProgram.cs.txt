@@ -125,16 +125,36 @@ using(var s=new HybridLumenGIScene())
 }
 Console.WriteLine("PASS: cold root fallback/readiness, fitting-detail release and exact-capacity direct-detail control.");
 
-static void ReadyHlodBehindOlderBuild(bool useQueue)
+static void ReadyHlodBehindOlderBuild(bool useQueue, bool exactRoot, bool fitsBesidePrepared = true)
 {
     var group = Group(2);
+    var independent = new HybridLumenGIProxy { StableId = 1001, bounds = new Bounds(new Vector3(0, 8, 0), Vector3.one) };
+    if (!exactRoot) HybridLumenGIProxy.ActiveProxies.Add(independent);
     using var scene = new HybridLumenGIScene();
-    Prepare(scene, true); ReportAll(scene); Prepare(scene, true);
+    Prepare(scene, true); ReportAll(scene);
+    scene.Prepare(new Vector3(100, 0, 0), 32, 20, 1000, 16, 2, null, _ => false,
+        (_, _) => throw new Exception("The first publication has no old group to defer."));
     Prepare(scene, false); ReportAll(scene);
-    RootPublished(scene, group.root.StableId);
     int rootSlot = Slot(scene, group.root.StableId);
-    Predicate<int> oldExact = slot => slot == rootSlot;
-    Predicate<int> readyExactTarget = scene.IsWarming;
+    int exactSlot = exactRoot ? rootSlot : Slot(scene, independent.StableId);
+    int independentCount = exactRoot ? 0 : 1;
+    Predicate<int> preparedExact = slot => slot == exactSlot;
+    const int triangleLimit = 1024;
+    const int detailTriangles = 6;
+    int preparedTriangles = fitsBesidePrepared ? 6 : 1020;
+    bool ReadyExactTarget(int slot, bool removesExact)
+    {
+        Require(removesExact == exactRoot, "Handoff did not distinguish approximate and exact old geometry.");
+        return scene.IsWarming(slot) && detailTriangles <= (removesExact ? triangleLimit : triangleLimit - preparedTriangles);
+    }
+    void RequireOldGroup()
+    {
+        Require(scene.IsPublished(rootSlot) && scene.IsPublished(exactSlot) && scene.PublishedCount == 1 + independentCount,
+            "The full old group and independent exact geometry must stay published.");
+        Require(scene.Bvh.NodeCount == 1 + 2 * independentCount && group.children.All(child => scene.IsWarming(Slot(scene, child.StableId))),
+            "Warm detail geometry entered the live BVH.");
+    }
+    RequireOldGroup();
 
     var main = new object();
     var older = new object();
@@ -149,14 +169,20 @@ static void ReadyHlodBehindOlderBuild(bool useQueue)
     HybridLumenGIRtasBudget.BeginFrame(31, quota);
     Require(HybridLumenGIRtasBudget.BuildsThisFrame == 0, "The current frame's build turn must be unused.");
 
-    void PrepareHandoff(bool blocked)
+    bool PrepareHandoff(bool blocked)
     {
-        Predicate<int> defer = blocked ? oldExact : null;
-        scene.Prepare(Vector3.zero, 32, 20, 1000, 16, 2, null, defer, blocked ? readyExactTarget : null);
+        bool sawExactTarget = false;
+        scene.Prepare(Vector3.zero, 32, 20, 1000, 16, 2, null, preparedExact, (slot, removesExact) =>
+        {
+            if (!ReadyExactTarget(slot, removesExact)) return false;
+            sawExactTarget = true;
+            return blocked;
+        });
+        return sawExactTarget;
     }
     bool blocked = useQueue ? HybridLumenGIRtasBudget.IsBuildTurnBlocked(main) :
         HybridLumenGIRtasBudget.BuildsThisFrame >= quota.MaxBuildsPerFrame;
-    PrepareHandoff(blocked);
+    Require(PrepareHandoff(blocked) == fitsBesidePrepared, "Wrong exact target decision for the prepared geometry.");
     if (!useQueue)
     {
         Require(scene.PublishedCount == 2 && Slot(scene, group.root.StableId) < 0 &&
@@ -164,10 +190,24 @@ static void ReadyHlodBehindOlderBuild(bool useQueue)
             reason.Contains("older active camera"), "The count-only gate must expose the late rejection.");
         return;
     }
+    if (!fitsBesidePrepared)
+    {
+        Require(scene.PublishedCount == 3 && Slot(scene, group.root.StableId) < 0 && scene.IsPublished(exactSlot) &&
+            HybridLumenGIRtasBudget.PendingDemands == 1, "Details that cannot join the retained RTAS waited for its build turn.");
+        return;
+    }
 
-    RootPublished(scene, group.root.StableId);
-    Require(scene.HasReadyExactHlodReplacement(oldExact, readyExactTarget) && HybridLumenGIRtasBudget.PendingDemands == 1,
+    RequireOldGroup();
+    Require(scene.HasReadyExactHlodReplacement(preparedExact, ReadyExactTarget) && HybridLumenGIRtasBudget.PendingDemands == 1,
         "Holding the old group lost ready staging or changed the queue before recording.");
+    if (!exactRoot)
+    {
+        var leaf = group.children[0];
+        scene.ReportReadiness(leaf.StableId, leaf.Revision, true, false, true);
+        Require(!scene.HasReadyExactHlodReplacement(preparedExact, ReadyExactTarget),
+            "Revoked material readiness must remove the deferred handoff's queue eligibility.");
+        ReportAll(scene);
+    }
     // The real Feature joins the queue only after it records DXR with the retained root.
     Require(HybridLumenGIRtasBudget.RequestBuild(main, 31, 0, 0, out _), "The retained representation could not register its waiting turn.");
     Require(HybridLumenGIRtasBudget.TryConsumeBuild(older, 31, 5, 1, out _) &&
@@ -175,16 +215,21 @@ static void ReadyHlodBehindOlderBuild(bool useQueue)
         "The held HLOD displaced the older camera or consumed its build.");
     HybridLumenGIRtasBudget.BeginFrame(32, quota);
     Require(!HybridLumenGIRtasBudget.IsBuildTurnBlocked(main), "The main camera did not reach the front.");
-    PrepareHandoff(false);
-    Require(scene.PublishedCount == 2 && Slot(scene, group.root.StableId) < 0 &&
+    Require(PrepareHandoff(false), "The queued handoff disappeared before using its turn.");
+    int buildTriangles = 2 * detailTriangles + independentCount * preparedTriangles;
+    int buildInstances = 2 + independentCount;
+    Require(scene.PublishedCount == buildInstances && Slot(scene, group.root.StableId) < 0 &&
+        (exactRoot || scene.IsPublished(exactSlot)) &&
         group.children.All(child => scene.IsPublished(Slot(scene, child.StableId))) &&
-        HybridLumenGIRtasBudget.TryConsumeBuild(main, 32, 12, 2, out _) &&
-        HybridLumenGIRtasBudget.TriangleWorkThisFrame == 12 && HybridLumenGIRtasBudget.InstanceWorkThisFrame == 2 &&
+        HybridLumenGIRtasBudget.TryConsumeBuild(main, 32, buildTriangles, buildInstances, out _) &&
+        HybridLumenGIRtasBudget.TriangleWorkThisFrame == buildTriangles && HybridLumenGIRtasBudget.InstanceWorkThisFrame == buildInstances &&
         HybridLumenGIRtasBudget.PendingDemands == 0, "The complete group did not take and pay for its own turn.");
 }
-ReadyHlodBehindOlderBuild(false);
-ReadyHlodBehindOlderBuild(true);
-Console.WriteLine("PASS: a ready exact HLOD holds its old group until the older RTAS demand receives the real build turn.");
+ReadyHlodBehindOlderBuild(useQueue: false, exactRoot: true);
+ReadyHlodBehindOlderBuild(useQueue: true, exactRoot: true);
+ReadyHlodBehindOlderBuild(useQueue: true, exactRoot: false);
+ReadyHlodBehindOlderBuild(useQueue: true, exactRoot: false, fitsBesidePrepared: false);
+Console.WriteLine("PASS: exact and approximate HLOD groups hold for a required RTAS turn, with first-publication and over-budget controls.");
 
 var changingGroup = Group(3);
 using (var s = new HybridLumenGIScene())

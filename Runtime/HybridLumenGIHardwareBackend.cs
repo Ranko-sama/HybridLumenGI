@@ -398,11 +398,14 @@ namespace HybridLumenGI
         }
 
         internal bool IsHlodTargetEligible(HybridLumenGIScene scene, HybridLumenGISurfaceCache surfaceCache,
-            int slot, int triangleLimit)
+            int slot, int triangleLimit, bool removesExact)
         {
+            // Without an exact departure, only an addition that fits beside the
+            // retained triangles requires a rebuild of the current exact geometry.
+            int availableTriangles = removesExact ? triangleLimit : triangleLimit - TriangleCount;
             Renderer renderer = scene.GetRenderer(slot);
             Mesh mesh = HybridLumenGIDeformedMesh.GetSourceMesh(renderer);
-            return Eligible(mesh, renderer, slot, surfaceCache, out long triangles) && triangles <= triangleLimit;
+            return Eligible(mesh, renderer, slot, surfaceCache, out long triangles) && triangles <= availableTriangles;
         }
 
         private bool Eligible(Mesh mesh,Renderer renderer,int slot,HybridLumenGISurfaceCache surfaceCache,out long total)
