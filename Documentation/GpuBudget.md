@@ -4,6 +4,8 @@ Release108 的屏幕预算根据该相机实际执行的空间滤波级数计入
 
 ## 当前已确认的起始验收目标
 
+Release196 已采用精确软件覆盖去重。在同一固定近景和画质下，合计中位降低 7.27%，p95／p99 为 45.887／46.349 ms，仍高于 25 ms 时间预算。候选同窗 local／nonlocal 有限采样峰值为 549.574／278.789 MiB。显存读数按各窗口采样使用。[同输入对照与采用边界](../LocalComparison/Review/software-coverage-231/result.md)
+
 Release195 固定近景的精确软件窗口已取得同源结果。960×540、半分辨率 GI、2 射线和 4 级滤波下，GI 三段合计 p95／p99 为 50.005／50.545 ms，超过 25 ms 的时间预算。进程 local／nonlocal 有限采样峰值为 576.637／281.664 MiB，local 在 1 GiB 限额内。该窗口说明软件后端的使用边界，锁定的 G0 基线为 DXR。[实测与范围](../LocalComparison/Review/software-budget-230/result.md)
 
 Release167 统一三室在原热态近远路线实测两方向各 10 次完整 HLOD 接替。480 个接替和退休源帧的三段 GI 合计 p95／p99 为 16.522／17.345 ms，完整路线进程 local／nonlocal 有限采样峰值为 568.508／290.320 MiB，两项起始预算通过。冷入、启动和应用 Present 节奏单列。[路线、接替窗口及范围](../LocalComparison/Review/hot-hlod-budget-192/result.md)

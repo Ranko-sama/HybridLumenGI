@@ -1,0 +1,42 @@
+{
+  "productCommit": "ed3ec03994e8e4a7c11f43f0759a70ed24116484",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release196-demo",
+  "tag": "release196-demo",
+  "publishedAt": "2026-11-09T07:46:06Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Fixed ordinary near view, actual exact software, 960x540, half-resolution GI, two rays, four filters.",
+    "evidence": "result.json",
+    "decision": "decision.json",
+    "baseline": "../software-budget-230/result.json",
+    "medianReductionPercent": 7.26844878463036,
+    "baselineP95Ms": 50.005278399999995,
+    "candidateP95Ms": 45.8867376,
+    "withinReferenceGiP95": false
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release196-UnityProject.zip",
+      "size": 852604,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release196-demo/HybridLumenGI-Release196-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release196-Windows-x64.zip",
+      "size": 57937929,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release196-demo/HybridLumenGI-Release196-Windows-x64.zip"
+    }
+  ]
+}

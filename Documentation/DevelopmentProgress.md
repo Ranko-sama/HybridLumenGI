@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release195，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release196，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已消除精确软件最近命中的重复材质覆盖求值。固定近景同输入中，GI 合计中位降低 7.27%，p95／p99 降至 45.887／46.349 ms。原质量和最近命中语义适用，软件 25 ms 时间缺口仍开放。[实测与范围](../LocalComparison/Review/software-coverage-231/result.md) · [同源交付](../LocalComparison/Review/software-coverage-231/delivery.json)
 
 T6／G4–G5 已明确当前精确软件静止近景的预算缺口。Release195 同窗实测 GI p95 为 50.005 ms，Transport p95 为 49.804 ms，进程 local 采样峰值 576.637 MiB。时间超过起始预算，local 达标，G0 的 DXR 裁决独立保留。[实测、同源配置与适用范围](../LocalComparison/Review/software-budget-230/result.md)
 
