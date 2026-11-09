@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release198，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release199，G0 已锁定，G1／G2 本机代表性验收通过
+
+T2／G4 已关闭额外材质槽叠绘末子网格时，软件和 DXR 误信首槽透明覆盖的缺口。实机添加不透明槽后，两个后端都拒绝旧精确批次并命中近板解析代理。撤槽恢复普通精确查询。完整叠绘颜色、纹理和生产规模继续验收。[原生覆盖与混合查询](../LocalComparison/Review/extra-material-slots-235/result.md) · [同源交付](../LocalComparison/Review/extra-material-slots-235/delivery.json)
 
 T3／G3 已关闭单个投影物在精确与后备表示之间切换时漏掉远接收面通知的问题。相机保持 DXR，实机关闭和恢复精确裁剪板时，远地板的局部缓存调度优先级均从 0 升至 1000。保持帧无重复通知。像素残留和收敛时间继续验收。[实机对照](../LocalComparison/Review/exact-shadow-reach-234/result.md) · [同源交付](../LocalComparison/Review/exact-shadow-reach-234/delivery.json)
 
