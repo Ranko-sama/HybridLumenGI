@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release217，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release218，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已补上形变快照的独立主线程发布时间准入。实际组件对照确认超过额度时首份完整发布，下一份保留原捕获与内存预留，同帧不补额度，下帧继续。默认关闭，单次发布可能超额。实际高更新负载及全阶段预算继续验收。[组件对照与范围](../LocalComparison/Review/deformed-publication-budget-265/result.md) · [Release218 同源交付](../LocalComparison/Review/deformed-publication-budget-265/delivery.json)
 
 T5／G4 已关闭独立分页细节终止失效后，把幸存叶重新发布为完整近景组的路径。实际 Scene 的同输入对照确认 GI、BVH 与栅格资格整组撤回，可用粗根取得回执后接替。首个恢复帧的实际 DXR 与冷高速首显继续验收。[对照与适用范围](../LocalComparison/Review/failed-detail-membership-264/result.md) · [Release217 同源交付](../LocalComparison/Review/failed-detail-membership-264/delivery.json)
 

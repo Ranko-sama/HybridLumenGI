@@ -16,14 +16,14 @@
 
 HybridLumenGI 以网格距离场和表面材质描述场景，在世界空间累积间接光，再通过时域重建与空间滤波输出到 URP 相机。它关注视锥外的颜色反弹、光照变化后的响应，以及动态几何与分页资源之间的一致性。
 
-**当前交付为 Release217。** 独立分页的细节绑定终止失效后仍保留作者成员声明，避免把幸存叶作为完整组提交。可运行示例和可编辑 Unity 工程使用同版源码。项目处于实验阶段。[失效与接替对照](LocalComparison/Review/failed-detail-membership-264/result.md)
+**当前交付为 Release218。** 应用可给完整形变快照的主线程发布设置独立时间额度，默认关闭。此版也包含流式细节终止失效后保持作者组完整的修复。可运行示例和可编辑 Unity 工程使用同版源码。项目处于实验阶段。[形变发布对照](LocalComparison/Review/deformed-publication-budget-265/result.md) · [流式整组对照](LocalComparison/Review/failed-detail-membership-264/result.md)
 
 ## 开始体验
 
 | 你想做什么 | 下载 | 打开方式 |
 | --- | --- | --- |
-| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release217-demo/HybridLumenGI-Release217-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
-| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release217-demo/HybridLumenGI-Release217-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
+| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release218-demo/HybridLumenGI-Release218-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
+| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release218-demo/HybridLumenGI-Release218-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
 | **先看独立对照** | [固定双点灯的同曝光换色对照](LocalComparison/Review/point-light-shared-recolor-252/result.md) | 可直接看报告。Windows 包中的 `PictureComparison/index.html` 提供离线画册。 |
 
 两个包均附带 `LICENSE` 和 `NOTICE`。请保留运行包旁的数据目录与资源页。[同源交付记录](LocalComparison/Review/author-cutout-history-263/delivery.json)
