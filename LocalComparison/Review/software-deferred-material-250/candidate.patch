@@ -1,0 +1,181 @@
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl
+index 0cec6739..577d61ea 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIHit.hlsl
+@@ -42,6 +42,8 @@ struct HLGIHit
+     float3 materialDiffuse, materialEmission;
+     float materialOcclusion;
+     uint materialReceivesShadows;
++    // The footprint at an exact software hit before its segment is rebased.
++    float materialRadius;
+ };
+ 
+ HLGIHit HLGIEmptyHit(float maxT)
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
+index e04fd771..57cab7a6 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGIKernels.hlsl
+@@ -311,7 +311,11 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
+         HLGIHit hit;
+         HLGIRayFootprint footprint;
+         HLGITryScreenRayFootprint(uv,depth,p,dir,footprint);
++#if defined(HLGI_SOFTWARE_TRIANGLES)
++        bool worldHit=sampleWeight>0 && TraceSceneVisibilityHit(origin,dir,_HLGI_MaxDistance,footprint,float4(p,1),hit);
++#else
+         bool worldHit=sampleWeight>0 && TraceSceneHit(origin,dir,_HLGI_MaxDistance,footprint,float4(p,1),hit);
++#endif
+         float3 incoming=0; float screenT;bool screenKnown;
+         // World occluders bound the screen ray, so a visible hit behind an off-screen wall cannot win.
+         float sampleConfidence=1;
+@@ -320,6 +324,9 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
+             sampleConfidence=screenKnown?1:0;
+         else if(worldHit)
+         {
++#if defined(HLGI_SOFTWARE_TRIANGLES)
++            HLGISoftwareResolveDeferredMaterial(float4(p,1),dir,hit);
++#endif
+             HLGIRayFootprint hitFootprint;HLGIAdvanceRayFootprint(footprint,hit.t,hitFootprint);
+             float emissionWeight;
+             if(!HLGIAreaDirectionEmissionWeight(origin,n,receiverCache.guide,dir,hit,emissionWeight)) { estimateKnown=false;break; }
+@@ -341,7 +348,14 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
+         {
+             HLGITryScreenRayFootprint(uv,depth,p,lightSample.direction,footprint);
+             float3 lightValue;bool lightWorldHit;HLGIHit lightHit;
++#if defined(HLGI_SOFTWARE_TRIANGLES)
++            float tolerance=HLGIAreaSampleTolerance(lightSample);
++            float limit=min(_HLGI_MaxDistance,lightSample.distance+tolerance);
++            lightWorldHit=TraceSceneVisibilityHit(origin,lightSample.direction,limit,footprint,float4(p,1),lightHit);
++            lightValue=0;bool lightKnown=true;
++#else
+             bool lightKnown=HLGIAreaLightContribution(origin,n,receiverCache.guide,lightSample,footprint,float4(p,1),lightValue,lightWorldHit,lightHit);
++#endif
+             float3 screenValue;float lightScreenT;bool lightScreenKnown;
+             if(TraceScreen(origin,lightSample.direction,lightWorldHit?lightHit.t:lightSample.distance,
+                 screenValue,lightScreenT,lightScreenKnown,false) &&
+@@ -352,6 +366,14 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
+                 // The excluded contribution is known zero regardless of endpoint radiance.
+                 lightValue=0;lightKnown=true;
+             }
++#if defined(HLGI_SOFTWARE_TRIANGLES)
++            else if(lightWorldHit && (!HLGIHitMaterialKnown(lightHit) || !HLGIAreaHitPrecedesEmitter(lightSample,lightHit,tolerance)))
++            {
++                HLGISoftwareResolveDeferredMaterial(float4(p,1),lightSample.direction,lightHit);
++                lightKnown=HLGIAreaHitContribution(origin,n,receiverCache.guide,lightSample,max(0,dot(n,lightSample.direction)),
++                    tolerance,lightHit,lightValue);
++            }
++#endif
+             if(!lightKnown || !HLGIAccumulateRadianceSample(lightValue,1,1,sum)) { estimateKnown=false;break; }
+         }
+         confidence+=sampleConfidence;
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGISoftwareTriangleBvh.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGISoftwareTriangleBvh.hlsl
+index 0b16c85e..837da005 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGISoftwareTriangleBvh.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGISoftwareTriangleBvh.hlsl
+@@ -201,9 +201,14 @@ bool HLGISoftwareTraceQuery(float3 origin,float3 direction,float maxT,bool shado
+     // The software winner is the exact candidate evaluated above, with the same
+     // frozen inputs. A known transparent candidate never reaches this point.
+     if(numericUnknown || !nearestCoverageKnown)hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN;
+-    else if(resolveMaterial && !shadowQuery)
+-        HLGIHardwareResolveCoveredMaterial(instanceIndex,primitive,instance,normals,objectToWorld,barycentric,
+-            materialView,direction,HLGIExactHitRadius(coneRadiusAtOrigin,coneSlope,hit.t),hit);
++    else if(!shadowQuery)
++    {
++        float radius=HLGIExactHitRadius(coneRadiusAtOrigin,coneSlope,hit.t);
++        if(resolveMaterial)
++            HLGIHardwareResolveCoveredMaterial(instanceIndex,primitive,instance,normals,objectToWorld,barycentric,
++                materialView,direction,radius,hit);
++        else hit.materialRadius=radius;
++    }
+     float2 uv=float2(dot(float3(normals.a.w,normals.b.w,normals.c.w),weights),dot(normals.uvY.xyz,weights));
+     if(!numericUnknown && normals.uvY.w>0.5 && all(isfinite(uv))){hit.uv=uv;hit.flags|=HLGI_HIT_UV;}
+     uint count,stride;_HLGI_HardwareTriangleBindings.GetDimensions(count,stride);
+@@ -215,5 +220,20 @@ bool HLGISoftwareTraceQuery(float3 origin,float3 direction,float maxT,bool shado
+     }
+     return true;
+ }
++
++void HLGISoftwareResolveDeferredMaterial(float4 materialView,float3 direction,inout HLGIHit hit)
++{
++    if(!HLGIHitHas(hit.flags,HLGI_HIT_VALID|HLGI_HIT_TRIANGLE) || !HLGIHitMaterialKnown(hit)) return;
++    HLGIHardwareInstance instance;HLGITriangleNormals normals;float3 rawNg;
++    float3x4 objectToWorld;
++    if(!HLGIHardwareGeometry(hit.hardwareInstance,hit.primitive,instance,normals,rawNg) ||
++        !HLGIExactObjectToWorld(hit.hardwareInstance,objectToWorld))
++    {
++        hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN|HLGI_HIT_COVERAGE_CONFIRMED;
++        return;
++    }
++    HLGIHardwareResolveCoveredMaterial(hit.hardwareInstance,hit.primitive,instance,normals,objectToWorld,
++        hit.barycentrics,materialView,direction,hit.materialRadius,hit);
++}
+ #endif
+ #endif
+diff --git a/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl b/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
+index 71b3baea..1c495ee7 100644
+--- a/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
++++ b/Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl
+@@ -594,26 +594,28 @@ bool HLGIAreaMatchedDirectionWeight(float3 origin,float3 n,float4 guide,float3 d
+     weight=(cosine/pdf)/PI;
+     return isfinite(weight) && weight>=0;
+ }
+-// Return the nearest world hit as well: screen gathering must apply its same
+-// nearest-screen winner to this sample before adding the light contribution.
+-bool HLGIAreaLightContribution(float3 origin,float3 n,float4 guide,HLGIAreaSample sample,
+-    HLGIRayFootprint footprint,float4 materialView,out float3 value,out bool worldHit,out HLGIHit hit)
++float HLGIAreaSampleTolerance(HLGIAreaSample sample)
+ {
+-    value=0;worldHit=false;hit=HLGIEmptyHit(_HLGI_MaxDistance);
+-    float cosine=max(0,dot(n,sample.direction));
+-    if(cosine==0 || sample.distance>=_HLGI_MaxDistance)return true;
+     float scale=max(sample.distance,max(abs(sample.position.x),max(abs(sample.position.y),abs(sample.position.z))));
+-    float tolerance=max(1e-5,16*1.192092896e-7*scale);
+-    float limit=min(_HLGI_MaxDistance,sample.distance+tolerance);
+-    worldHit=TraceSceneHit(origin,sample.direction,limit,footprint,materialView,hit);
+-    if(!worldHit)return true; // Alpha hole/back side has zero contribution; never resample.
++    return max(1e-5,16*1.192092896e-7*scale);
++}
++
++bool HLGIAreaHitPrecedesEmitter(HLGIAreaSample sample,HLGIHit hit,float tolerance)
++{
++    const uint blockerFlags=HLGI_HIT_VALID|HLGI_HIT_TRIANGLE|HLGI_HIT_FRONT_FACE_KNOWN;
++    bool differentPrimitive=hit.hardwareInstance!=sample.emitter.geometry.x || hit.primitive!=sample.emitter.geometry.z;
++    return HLGIHitHas(hit.flags,blockerFlags) && !HLGIHitQueryUnresolved(hit) &&
++        differentPrimitive && hit.t<sample.distance-tolerance;
++}
++
++bool HLGIAreaHitContribution(float3 origin,float3 n,float4 guide,HLGIAreaSample sample,float cosine,float tolerance,
++    HLGIHit hit,out float3 value)
++{
++    value=0;
+     if(!HLGIHitMaterialKnown(hit))
+     {
+         // A separate, covered triangle can block the emitter before its shading is ready.
+-        const uint blockerFlags=HLGI_HIT_VALID|HLGI_HIT_TRIANGLE|HLGI_HIT_FRONT_FACE_KNOWN|HLGI_HIT_COVERAGE_CONFIRMED;
+-        bool differentPrimitive=hit.hardwareInstance!=sample.emitter.geometry.x || hit.primitive!=sample.emitter.geometry.z;
+-        return HLGIHitHas(hit.flags,blockerFlags) && !HLGIHitQueryUnresolved(hit) &&
+-            differentPrimitive && hit.t<sample.distance-tolerance;
++        return HLGIHitHas(hit.flags,HLGI_HIT_COVERAGE_CONFIRMED) && HLGIAreaHitPrecedesEmitter(sample,hit,tolerance);
+     }
+     if(!HLGIAreaSampleMatchesHit(sample,hit,_HLGI_AreaMaterialGeneration))return true;
+     if(!HLGIHitHas(hit.flags,HLGI_HIT_UV_MATERIAL) || !all(isfinite(hit.materialEmission)))return false;
+@@ -622,6 +624,20 @@ bool HLGIAreaLightContribution(float3 origin,float3 n,float4 guide,HLGIAreaSampl
+     value=max(hit.materialEmission,0)*(cosine/PI)*inverseSum;
+     return all(isfinite(value));
+ }
++
++// Return the nearest world hit as well for the same nearest-screen decision.
++bool HLGIAreaLightContribution(float3 origin,float3 n,float4 guide,HLGIAreaSample sample,
++    HLGIRayFootprint footprint,float4 materialView,out float3 value,out bool worldHit,out HLGIHit hit)
++{
++    value=0;worldHit=false;hit=HLGIEmptyHit(_HLGI_MaxDistance);
++    float cosine=max(0,dot(n,sample.direction));
++    if(cosine==0 || sample.distance>=_HLGI_MaxDistance)return true;
++    float tolerance=HLGIAreaSampleTolerance(sample);
++    float limit=min(_HLGI_MaxDistance,sample.distance+tolerance);
++    worldHit=TraceSceneHit(origin,sample.direction,limit,footprint,materialView,hit);
++    if(!worldHit)return true; // An alpha hole or back side contributes zero.
++    return HLGIAreaHitContribution(origin,n,guide,sample,cosine,tolerance,hit,value);
++}
+ bool HLGITrySurfacePatchRayFootprint(HLGISurfaceSample surface,uint2 cell,float3 direction,out HLGIRayFootprint footprint)
+ {
+     footprint=(HLGIRayFootprint)0;

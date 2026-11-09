@@ -1,0 +1,99 @@
+{
+  "status": "complete-exact-software-window",
+  "product": "Release208",
+  "productCommit": "05ff285e7aa0b31aae4615d527183178f80c4bae",
+  "phase": "fixed",
+  "scope": "The fixed Release208 near view for the deferred exact software material comparison.",
+  "runDirectory": "I:\\Unity test\\Comparison\\SoftwareDeferred250Fixed\\run\\20261109-140324-a0a1019ddcd84d6a8f69c5108b63fd30",
+  "nativeFailures": [],
+  "environment": {
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "driver": "Direct3D 12 [level 12.1]",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "scope": "Release195 ordinary default near view of NeutralThreeRooms, expansion disabled; 960x540 backbuffer, half-resolution GI, 2 rays and 4 filters; exact software; NativeDX12 three-range intervals and same-window process memory.",
+    "scopeExclusions": "CPU preparation, uploads outside scopes, query resolve, whole-app GPU time, actual Present timing, instantaneous VRAM peak and GI-exclusive allocation. Queue intervals can include barriers/waits. Ledger estimates are not additive or a total-VRAM measurement.",
+    "vSyncCount": 0,
+    "targetFrameRate": -1
+  },
+  "window": {
+    "sourceStart": 159,
+    "sourceEnd": 670,
+    "count": 512,
+    "fullWidth": 960,
+    "fullHeight": 540,
+    "giWidth": 480,
+    "giHeight": 270
+  },
+  "gpuIntervals": {
+    "ReceiverCapture": {
+      "count": 512,
+      "medianMs": 0.131072,
+      "p95Ms": 0.1371664,
+      "p99Ms": 0.14051584,
+      "maxMs": 0.143584
+    },
+    "Transport": {
+      "count": 512,
+      "medianMs": 46.704576,
+      "p95Ms": 47.6132896,
+      "p99Ms": 47.991162880000005,
+      "maxMs": 48.570688
+    },
+    "Composite": {
+      "count": 512,
+      "medianMs": 0.062112,
+      "p95Ms": 0.06390080000000001,
+      "p99Ms": 0.06552543999999999,
+      "maxMs": 0.066912
+    },
+    "perSourceSum": {
+      "count": 512,
+      "medianMs": 46.889648,
+      "p95Ms": 47.8038784,
+      "p99Ms": 48.18138176,
+      "maxMs": 48.767135999999994
+    }
+  },
+  "referenceP95Ms": 25,
+  "withinReferenceGiP95": false,
+  "sceneCounts": {
+    "instances": 20,
+    "meshes": 20,
+    "unrepresented": 0,
+    "cards": 120,
+    "groupMembers": 3,
+    "visibleMembers": 3
+  },
+  "memoryWindow": {
+    "valid": true,
+    "hasSamples": true,
+    "status": "Ready",
+    "adapterLuid": "0x000000000000F968",
+    "attemptFrame": 670,
+    "sampleFrame": 670,
+    "windowFirstFrame": 159,
+    "samples": 512,
+    "failedSamples": 0,
+    "deviceEpoch": 1,
+    "localUsageBytes": 572928000,
+    "localBudgetBytes": 22504538112,
+    "nonlocalUsageBytes": 292331520,
+    "nonlocalBudgetBytes": 16334618624,
+    "peakLocalUsageBytes": 572928000,
+    "peakNonlocalUsageBytes": 292331520
+  },
+  "localSampledPeakMiB": 546.38671875,
+  "nonlocalSampledPeakMiB": 278.7890625,
+  "withinReferenceLocalLimit": true,
+  "callbackIntervals": {
+    "count": 512,
+    "medianMs": 47.1574999999973,
+    "p95Ms": 49.384790000002,
+    "p99Ms": 50.376610999994114,
+    "maxMs": 52.26509999999962
+  },
+  "callbackFrequencyHz": 21.3560942136276,
+  "callbackWindowSeconds": 23.97442129999999
+}
