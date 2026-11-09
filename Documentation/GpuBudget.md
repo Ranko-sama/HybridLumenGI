@@ -20,6 +20,8 @@ Release167 统一三室在原热态近远路线实测两方向各 10 次完整 H
 
 Release182 同源观察包在同一设备完整预热后启动应用 Present 采集。PresentMon 报告丢失 2,029 个 ETW 事件，未生成 CSV。没有取得起始时间锚点，观察器在原路线开始前退出，路线上没有新的 GI、显存或帧率数据。沿用 Release167 的两项预算结论，热态接替的应用 Present 仍待验收。[原始采集日志](<I:/Unity test/Comparison/HotHlodPresent211/run/presentmon.log>) · [退出记录](<I:/Unity test/Comparison/HotHlodPresent211/setup/native-exit.json>)
 
+已有 Release176 文件模式启动跟踪中，该 Player 的 DXGI 40／41 经本机清单确认是 Profile。PresentMon 2.6 离线读取该文件未产出 Present CSV，热态路线的文件采集源仍待确认。 [PresentMon 的 DXGI 事件定义](https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentData/ETW/Microsoft_Windows_DXGI.h#L37-L40)
+
 Release151 在原 F4 中室取得 512 个同源帧的三段 GI 和进程显存。GI 合计 p95／p99 为 15.936／16.169 ms，local／nonlocal 有限采样峰值为 566.191／286.441 MiB，达到 25 ms／1 GiB 两项起始预算。PresentMon 报告事件丢失且无 CSV，三项同窗仍证据不足。[机位、原始记录与范围](../LocalComparison/Review/three-room-middle-joint-170/result.md)
 
 当前122同源的默认活动Skin已补一个同次普通Player窗口：24顶点／12三角／2骨、K+Space、960×540／半GI／2ray／filter4、实际DXR，计时与显存观察开启、反馈关闭。35.011秒内逐源三段合计中位／p95／p99为14.958／17.088／18.115ms；进程local／nonlocal有限采样峰值572.004／303.688MiB，满足25ms／1GiB。嵌套的30秒应用Present平均63.042Hz、间隔p95／p99／最大20.083／21.770／27.078ms，非显示FPS或逐源GI配对。它只补默认已预热Skin负载，不代表观察关闭、大模型、冷启动、画质或完整G5；初始等待和可选截图未交付均保留。[实际输入、源配对及CPU帧龄](../LocalComparison/Review/active-skin-cost-01/result.md)
