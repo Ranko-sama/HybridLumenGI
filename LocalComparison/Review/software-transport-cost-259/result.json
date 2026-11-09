@@ -1,0 +1,3329 @@
+{
+  "completeAttribution": true,
+  "status": "complete-finite-transport-attribution",
+  "failures": {},
+  "scope": "One fixed 64-source exact-software near-view window; source-paired native queue intervals only",
+  "runRoot": "I:\\Unity test\\Comparison\\SoftwareTransportBreakdown259",
+  "physicalQualityAccepted": false,
+  "productionBudgetAccepted": false,
+  "diagnosticScopeMap": {
+    "begin0/end0": "WorldCache (CSUpdateCache)",
+    "begin1/end1": "Gather (CSTrace)",
+    "begin2/end2": "Reconstruction (CSTemporal or CSTemporalIdentity through all CSFilter iterations)"
+  },
+  "derivedIntervalMeaning": {
+    "FormalSum": "Sum of ReceiverCapture, Transport and Composite on each source before statistics",
+    "OtherTransport": "Formal Transport minus WorldCache and Gather on each source; includes Reconstruction",
+    "TransportRemainder": "Formal Transport minus all three child intervals on each source; other commands, gaps and instrumentation"
+  },
+  "statisticsMeaning": "Descriptive 64-source statistics; p95/p99 use linear interpolation at (n-1)*p; four consecutive 16-source blocks. No acceptance or speedup threshold.",
+  "limitations": [
+    "Queue intervals can include barriers, waits and timing instrumentation; not pure shader ALU cost.",
+    "No CPU preparation, whole-application GPU time, actual Present, image quality or memory budget decision.",
+    "Startup failures/cancellations remain in the collection; only the selected window and its drain must retain stable counters.",
+    "Post-Stop pending cancellation is accounting, not proof that every native GPU query storage allocation was synchronously destroyed.",
+    "Build/source/restoration and log verification are outside this reader; native-exit.json is reported as supplied, without hashing."
+  ],
+  "runDirectory": "I:\\Unity test\\Comparison\\SoftwareTransportBreakdown259\\run\\20261109-170812-5bfdc50a47394a05b447992fa8ea5afc",
+  "collection": {
+    "status": "collected",
+    "error": "",
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "driver": "Direct3D 12 [level 12.1]",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+    "scope": "Release214 ordinary default near view of NeutralThreeRooms, expansion disabled; 960x540 backbuffer, half-resolution GI, 2 rays and 4 filters; exact software; NativeDX12 three-range intervals and same-window process memory.",
+    "outputDirectory": "I:\\Unity test\\Comparison\\SoftwareTransportBreakdown259\\run\\20261109-170812-5bfdc50a47394a05b447992fa8ea5afc",
+    "warmupLimit": 256,
+    "window": 64,
+    "drainLimit": 32,
+    "frameLimit": 352,
+    "frames": 254,
+    "completions": 251,
+    "windowCompletions": 64,
+    "sourceStart": 159,
+    "sourceEnd": 222,
+    "firstEngineFrame": 1,
+    "backbufferWidth": 960,
+    "backbufferHeight": 540,
+    "vSyncCount": 0,
+    "targetFrameRate": -1,
+    "diagnosticCompletions": 251,
+    "diagnosticPendingBeforeStop": 2,
+    "diagnosticPendingAfterStop": 0,
+    "diagnosticCancelledAfterStop": 3,
+    "measureOnly": true,
+    "adaptive": false,
+    "targetMs": 0.0,
+    "memoryWindowCaptured": true,
+    "memoryWindow": {
+      "valid": true,
+      "hasSamples": true,
+      "status": "Ready",
+      "adapterLuid": "0x000000000000F968",
+      "attemptFrame": 222,
+      "sampleFrame": 222,
+      "windowFirstFrame": 159,
+      "samples": 64,
+      "failedSamples": 0,
+      "deviceEpoch": 1,
+      "localUsageBytes": 578498560,
+      "localBudgetBytes": 22504538112,
+      "nonlocalUsageBytes": 292347904,
+      "nonlocalBudgetBytes": 16334618624,
+      "peakLocalUsageBytes": 578498560,
+      "peakNonlocalUsageBytes": 292347904
+    },
+    "cadenceMeaning": "CPU time between consecutive target-camera endCameraRendering callbacks; not CPU busy time, actual Present timing or full-frame GPU duration.",
+    "scopes": [
+      "ReceiverCapture",
+      "Transport",
+      "Composite"
+    ],
+    "scopeExclusions": "CPU preparation, uploads outside scopes, query resolve, whole-app GPU time, actual Present timing, instantaneous VRAM peak and GI-exclusive allocation. Queue intervals can include barriers/waits. Ledger estimates are not additive or a total-VRAM measurement."
+  },
+  "nativeExit": {
+    "processId": 20968,
+    "exitCode": 0,
+    "productCommit": "403a11d6a4e1917ae7bf8ca5865f3705d8fff78f",
+    "watchdogTerminated": false,
+    "preLaunchGpuPercent": [
+      5,
+      5,
+      5,
+      5
+    ],
+    "command": [
+      "I:\\Unity test\\Comparison\\Builds\\SoftwareTransportBreakdown259\\HybridLumenGIPlayer.exe",
+      "-force-d3d12",
+      "-screen-fullscreen",
+      "0",
+      "-screen-width",
+      "960",
+      "-screen-height",
+      "540",
+      "-gpuCostOutput",
+      "I:\\Unity test\\Comparison\\SoftwareTransportBreakdown259\\run",
+      "-logFile",
+      "I:\\Unity test\\Comparison\\SoftwareTransportBreakdown259\\player.log"
+    ]
+  },
+  "nativeExitVerified": true,
+  "observationSettingChanges": {
+    "measureGpuCost": {
+      "before": false,
+      "measure": true
+    },
+    "preferHardwareTracing": {
+      "before": true,
+      "measure": false
+    }
+  },
+  "settings": {
+    "resolutionScale": 0.5,
+    "raysPerPixel": 2,
+    "screenSteps": 24,
+    "traceDistance": 50.0,
+    "shadowDistance": 200.0,
+    "rayBias": 0.029999999329447746,
+    "screenThickness": 0.15000000596046448,
+    "residentProxies": 64,
+    "nearDistance": 12.0,
+    "globalSdfEnabled": true,
+    "globalSdfLevels": 4,
+    "globalSdfBricksPerAxis": 8,
+    "globalSdfBaseVoxelSize": 1.0,
+    "globalSdfBricksPerFrame": 16,
+    "farDistance": 40.0,
+    "chunkSize": 16.0,
+    "proxyUploadsPerFrame": 16,
+    "cachePatchesPerFrame": 256,
+    "cachePatchGrid": 4,
+    "cacheRaysPerFace": 8,
+    "guidedSamplingWeight": 0.3499999940395355,
+    "emissiveSamplingWeight": 0.5,
+    "maxEmissiveProposals": 16,
+    "maxAreaEmitterTriangles": 16384,
+    "surfaceTileResolution": 32,
+    "residentSurfaceCards": 192,
+    "surfaceCapturesPerFrame": 24,
+    "surfaceDrawsPerFrame": 256,
+    "surfaceCaptureRecordingCpuBudgetMilliseconds": 0.0,
+    "surfaceAtlasBudgetMiB": 64,
+    "bounceFeedback": 1.0,
+    "maxLights": 8,
+    "spatialLightSelection": false,
+    "environmentRadiance": {
+      "r": 0.0,
+      "g": 0.0,
+      "b": 0.0,
+      "a": 1.0
+    },
+    "environmentCubemap": {
+      "instanceID": 0
+    },
+    "indirectIntensity": 1.0,
+    "radianceClamp": 0.0,
+    "temporalAccumulation": true,
+    "receiverSourceTracking": true,
+    "receiverObjectHistory": true,
+    "receiverSourceCapacity": 1024,
+    "receiverDiscoveryCpuBudgetMilliseconds": 0.0,
+    "receiverFingerprintBudgetMiB": 16,
+    "temporalCurrentWeight": 0.07999999821186066,
+    "maxHistory": 32,
+    "relativeDepthThreshold": 0.014999999664723873,
+    "normalThreshold": 0.8999999761581421,
+    "filterIterations": 4,
+    "normalsOctEncoded": false,
+    "includeSceneView": false,
+    "preferHardwareTracing": false,
+    "exactSoftwareTracing": true,
+    "meshTriangleBudget": 250000,
+    "softwareGeometryBudgetMiB": 128,
+    "hardwareGeometryBudgetMiB": 128,
+    "rtasMemoryBudgetMiB": 256,
+    "rtasBuildsPerFrame": 4,
+    "rtasTriangleWorkPerFrame": 250000,
+    "rtasInstanceWorkPerFrame": 4096,
+    "rtasTriangleBurstCapacity": 1000000,
+    "rtasInstanceBurstCapacity": 16384,
+    "hardwareMaterialBudgetMiB": 256,
+    "materialTextureUploadMiBPerFrame": 16,
+    "materialTextureRecordingCpuBudgetMilliseconds": 0.0,
+    "composition": 0,
+    "materialLayers": {
+      "serializedVersion": "2",
+      "m_Bits": 4294967295
+    },
+    "textureBudgetMiB": 128,
+    "maxCameras": 2,
+    "adaptiveGpuBudget": false,
+    "measureGpuCost": true,
+    "preferNativeGpuTiming": true,
+    "targetGpuMilliseconds": 0.0,
+    "minimumGpuWorkFraction": 0.125,
+    "debugView": 0
+  },
+  "collectionVerified": true,
+  "parentMissingSources": [],
+  "childMissingSources": [],
+  "nestedSamplesVerified": true,
+  "selectedSources": 64,
+  "statistics": {
+    "ReceiverCapture": {
+      "count": 64,
+      "medianMs": 0.151552,
+      "p95Ms": 0.1581456,
+      "p99Ms": 0.16109375999999997,
+      "minMs": 0.141728,
+      "maxMs": 0.161376
+    },
+    "Transport": {
+      "count": 64,
+      "medianMs": 44.220432,
+      "p95Ms": 45.6532096,
+      "p99Ms": 45.98288256,
+      "minMs": 42.25488,
+      "maxMs": 46.149888
+    },
+    "Composite": {
+      "count": 64,
+      "medianMs": 0.065536,
+      "p95Ms": 0.0675744,
+      "p99Ms": 0.067584,
+      "minMs": 0.06224,
+      "maxMs": 0.067584
+    },
+    "FormalSum": {
+      "count": 64,
+      "medianMs": 44.4412,
+      "p95Ms": 45.873579199999995,
+      "p99Ms": 46.20261184,
+      "minMs": 42.469856,
+      "maxMs": 46.37248
+    },
+    "WorldCache": {
+      "count": 64,
+      "medianMs": 4.274032,
+      "p95Ms": 4.7285248,
+      "p99Ms": 4.76763872,
+      "minMs": 3.122048,
+      "maxMs": 4.781408
+    },
+    "Gather": {
+      "count": 64,
+      "medianMs": 39.612016,
+      "p95Ms": 41.1595344,
+      "p99Ms": 41.385954559999995,
+      "minMs": 38.095904,
+      "maxMs": 41.423936
+    },
+    "Reconstruction": {
+      "count": 64,
+      "medianMs": 0.1552,
+      "p95Ms": 0.1569856,
+      "p99Ms": 0.157696,
+      "minMs": 0.149504,
+      "maxMs": 0.157696
+    },
+    "TransportRemainder": {
+      "count": 64,
+      "medianMs": 0.1536,
+      "p95Ms": 0.1572512,
+      "p99Ms": 0.20233695999999968,
+      "minMs": 0.149312,
+      "maxMs": 0.275296
+    },
+    "OtherTransport": {
+      "count": 64,
+      "medianMs": 0.308272,
+      "p95Ms": 0.31276,
+      "p99Ms": 0.35878975999999974,
+      "minMs": 0.30336,
+      "maxMs": 0.429632
+    }
+  },
+  "consecutiveBlocks": [
+    {
+      "sourceStart": 159,
+      "sourceEnd": 174,
+      "statistics": {
+        "ReceiverCapture": {
+          "count": 16,
+          "medianMs": 0.149664,
+          "p95Ms": 0.15751199999999999,
+          "p99Ms": 0.1581456,
+          "minMs": 0.141728,
+          "maxMs": 0.158304
+        },
+        "Transport": {
+          "count": 16,
+          "medianMs": 44.89336,
+          "p95Ms": 45.745696,
+          "p99Ms": 45.8569792,
+          "minMs": 43.812416,
+          "maxMs": 45.8848
+        },
+        "Composite": {
+          "count": 16,
+          "medianMs": 0.065424,
+          "p95Ms": 0.067416,
+          "p99Ms": 0.06755040000000001,
+          "minMs": 0.06224,
+          "maxMs": 0.067584
+        },
+        "FormalSum": {
+          "count": 16,
+          "medianMs": 45.107376,
+          "p95Ms": 45.967296,
+          "p99Ms": 46.075737600000004,
+          "minMs": 44.028096,
+          "maxMs": 46.102848
+        },
+        "WorldCache": {
+          "count": 16,
+          "medianMs": 4.178064,
+          "p95Ms": 4.73352,
+          "p99Ms": 4.7496864,
+          "minMs": 3.905536,
+          "maxMs": 4.753728
+        },
+        "Gather": {
+          "count": 16,
+          "medianMs": 40.338672,
+          "p95Ms": 41.37872,
+          "p99Ms": 41.4148928,
+          "minMs": 39.00416,
+          "maxMs": 41.423936
+        },
+        "Reconstruction": {
+          "count": 16,
+          "medianMs": 0.155312,
+          "p95Ms": 0.15620799999999999,
+          "p99Ms": 0.1568608,
+          "minMs": 0.149504,
+          "maxMs": 0.157024
+        },
+        "TransportRemainder": {
+          "count": 16,
+          "medianMs": 0.15376,
+          "p95Ms": 0.157168,
+          "p99Ms": 0.1575904,
+          "minMs": 0.151552,
+          "maxMs": 0.157696
+        },
+        "OtherTransport": {
+          "count": 16,
+          "medianMs": 0.308784,
+          "p95Ms": 0.313032,
+          "p99Ms": 0.3132816,
+          "minMs": 0.30336,
+          "maxMs": 0.313344
+        }
+      }
+    },
+    {
+      "sourceStart": 175,
+      "sourceEnd": 190,
+      "statistics": {
+        "ReceiverCapture": {
+          "count": 16,
+          "medianMs": 0.15276800000000001,
+          "p95Ms": 0.158024,
+          "p99Ms": 0.1603472,
+          "minMs": 0.145632,
+          "maxMs": 0.160928
+        },
+        "Transport": {
+          "count": 16,
+          "medianMs": 44.404911999999996,
+          "p95Ms": 45.842448,
+          "p99Ms": 46.0884,
+          "minMs": 43.53856,
+          "maxMs": 46.149888
+        },
+        "Composite": {
+          "count": 16,
+          "medianMs": 0.065568,
+          "p95Ms": 0.066128,
+          "p99Ms": 0.0661664,
+          "minMs": 0.063488,
+          "maxMs": 0.066176
+        },
+        "FormalSum": {
+          "count": 16,
+          "medianMs": 44.620416000000006,
+          "p95Ms": 46.060552,
+          "p99Ms": 46.310094400000004,
+          "minMs": 43.750304,
+          "maxMs": 46.37248
+        },
+        "WorldCache": {
+          "count": 16,
+          "medianMs": 4.368048,
+          "p95Ms": 4.6504959999999995,
+          "p99Ms": 4.7377408,
+          "minMs": 4.01648,
+          "maxMs": 4.759552
+        },
+        "Gather": {
+          "count": 16,
+          "medianMs": 39.637184,
+          "p95Ms": 41.233016,
+          "p99Ms": 41.3269232,
+          "minMs": 38.998016,
+          "maxMs": 41.3504
+        },
+        "Reconstruction": {
+          "count": 16,
+          "medianMs": 0.154144,
+          "p95Ms": 0.15636,
+          "p99Ms": 0.1566864,
+          "minMs": 0.152992,
+          "maxMs": 0.156768
+        },
+        "TransportRemainder": {
+          "count": 16,
+          "medianMs": 0.153648,
+          "p95Ms": 0.186784,
+          "p99Ms": 0.2575936,
+          "minMs": 0.149312,
+          "maxMs": 0.275296
+        },
+        "OtherTransport": {
+          "count": 16,
+          "medianMs": 0.30801599999999996,
+          "p95Ms": 0.341264,
+          "p99Ms": 0.41195839999999995,
+          "minMs": 0.30496,
+          "maxMs": 0.429632
+        }
+      }
+    },
+    {
+      "sourceStart": 191,
+      "sourceEnd": 206,
+      "statistics": {
+        "ReceiverCapture": {
+          "count": 16,
+          "medianMs": 0.153024,
+          "p95Ms": 0.156888,
+          "p99Ms": 0.1604784,
+          "minMs": 0.14416,
+          "maxMs": 0.161376
+        },
+        "Transport": {
+          "count": 16,
+          "medianMs": 44.104912,
+          "p95Ms": 44.60104,
+          "p99Ms": 44.6440864,
+          "minMs": 42.25488,
+          "maxMs": 44.654848
+        },
+        "Composite": {
+          "count": 16,
+          "medianMs": 0.065536,
+          "p95Ms": 0.067584,
+          "p99Ms": 0.067584,
+          "minMs": 0.0632,
+          "maxMs": 0.067584
+        },
+        "FormalSum": {
+          "count": 16,
+          "medianMs": 44.319103999999996,
+          "p95Ms": 44.81908,
+          "p99Ms": 44.8597264,
+          "minMs": 42.469856,
+          "maxMs": 44.869888
+        },
+        "WorldCache": {
+          "count": 16,
+          "medianMs": 4.204848,
+          "p95Ms": 4.741975999999999,
+          "p99Ms": 4.7735216,
+          "minMs": 3.122048,
+          "maxMs": 4.781408
+        },
+        "Gather": {
+          "count": 16,
+          "medianMs": 39.506192,
+          "p95Ms": 39.936368,
+          "p99Ms": 40.095536,
+          "minMs": 38.095904,
+          "maxMs": 40.135328
+        },
+        "Reconstruction": {
+          "count": 16,
+          "medianMs": 0.155328,
+          "p95Ms": 0.157696,
+          "p99Ms": 0.157696,
+          "minMs": 0.152704,
+          "maxMs": 0.157696
+        },
+        "TransportRemainder": {
+          "count": 16,
+          "medianMs": 0.1536,
+          "p95Ms": 0.157688,
+          "p99Ms": 0.159128,
+          "minMs": 0.150336,
+          "maxMs": 0.159488
+        },
+        "OtherTransport": {
+          "count": 16,
+          "medianMs": 0.309248,
+          "p95Ms": 0.31276800000000005,
+          "p99Ms": 0.3163008,
+          "minMs": 0.304736,
+          "maxMs": 0.317184
+        }
+      }
+    },
+    {
+      "sourceStart": 207,
+      "sourceEnd": 222,
+      "statistics": {
+        "ReceiverCapture": {
+          "count": 16,
+          "medianMs": 0.14856,
+          "p95Ms": 0.15612800000000002,
+          "p99Ms": 0.1582016,
+          "minMs": 0.143328,
+          "maxMs": 0.15872
+        },
+        "Transport": {
+          "count": 16,
+          "medianMs": 44.114192,
+          "p95Ms": 45.056551999999996,
+          "p99Ms": 45.1266896,
+          "minMs": 43.301216,
+          "maxMs": 45.144224
+        },
+        "Composite": {
+          "count": 16,
+          "medianMs": 0.065584,
+          "p95Ms": 0.067536,
+          "p99Ms": 0.0675744,
+          "minMs": 0.063168,
+          "maxMs": 0.067584
+        },
+        "FormalSum": {
+          "count": 16,
+          "medianMs": 44.328272,
+          "p95Ms": 45.272072,
+          "p99Ms": 45.337832,
+          "minMs": 43.510432,
+          "maxMs": 45.354272
+        },
+        "WorldCache": {
+          "count": 16,
+          "medianMs": 4.322176000000001,
+          "p95Ms": 4.686864,
+          "p99Ms": 4.6992671999999995,
+          "minMs": 3.817472,
+          "maxMs": 4.702368
+        },
+        "Gather": {
+          "count": 16,
+          "medianMs": 39.463936000000004,
+          "p95Ms": 40.398399999999995,
+          "p99Ms": 40.4415616,
+          "minMs": 38.76016,
+          "maxMs": 40.452352
+        },
+        "Reconstruction": {
+          "count": 16,
+          "medianMs": 0.155168,
+          "p95Ms": 0.156456,
+          "p99Ms": 0.15732000000000002,
+          "minMs": 0.1536,
+          "maxMs": 0.157536
+        },
+        "TransportRemainder": {
+          "count": 16,
+          "medianMs": 0.15276800000000001,
+          "p95Ms": 0.154848,
+          "p99Ms": 0.1549248,
+          "minMs": 0.149568,
+          "maxMs": 0.154944
+        },
+        "OtherTransport": {
+          "count": 16,
+          "medianMs": 0.30742400000000003,
+          "p95Ms": 0.30976000000000004,
+          "p99Ms": 0.3098368,
+          "minMs": 0.305472,
+          "maxMs": 0.309856
+        }
+      }
+    }
+  ],
+  "blockMedianRangeMs": {
+    "ReceiverCapture": 0.004463999999999996,
+    "Transport": 0.7884480000000025,
+    "Composite": 0.00016000000000000736,
+    "FormalSum": 0.7882720000000063,
+    "WorldCache": 0.18998399999999993,
+    "Gather": 0.8747359999999986,
+    "Reconstruction": 0.0011839999999999906,
+    "TransportRemainder": 0.0009919999999999929,
+    "OtherTransport": 0.0018239999999999923
+  },
+  "rankedTransportParts": [
+    "Gather",
+    "WorldCache",
+    "Reconstruction",
+    "TransportRemainder"
+  ],
+  "sourceIntervals": [
+    {
+      "sourceFrame": 159,
+      "giFrame": 159,
+      "parentToken": 40509,
+      "diagnosticToken": 40638,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 161,
+      "diagnosticReadFrame": 161,
+      "parentTicks": [
+        1794244099154700288,
+        1794244099154847744,
+        1794244099154848960,
+        1794244099199735808,
+        1794244099199737376,
+        1794244099199801120
+      ],
+      "diagnosticTicks": [
+        1794244099154982560,
+        1794244099159078528,
+        1794244099159078528,
+        1794244099199561536,
+        1794244099199561536,
+        1794244099199715328
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.147456,
+        "Transport": 44.886848,
+        "Composite": 0.063744,
+        "FormalSum": 45.098048,
+        "WorldCache": 4.095968,
+        "Gather": 40.483008,
+        "Reconstruction": 0.153792,
+        "TransportRemainder": 0.15408,
+        "OtherTransport": 0.307872
+      }
+    },
+    {
+      "sourceFrame": 160,
+      "giFrame": 160,
+      "parentToken": 40767,
+      "diagnosticToken": 40896,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 162,
+      "diagnosticReadFrame": 162,
+      "parentTicks": [
+        1794244099200387072,
+        1794244099200538624,
+        1794244099200538624,
+        1794244099245438496,
+        1794244099245438976,
+        1794244099245504256
+      ],
+      "diagnosticTicks": [
+        1794244099200671744,
+        1794244099204615584,
+        1794244099204615584,
+        1794244099245262848,
+        1794244099245262848,
+        1794244099245418496
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.151552,
+        "Transport": 44.899872,
+        "Composite": 0.06528,
+        "FormalSum": 45.116704,
+        "WorldCache": 3.94384,
+        "Gather": 40.647264,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.15312,
+        "OtherTransport": 0.308768
+      }
+    },
+    {
+      "sourceFrame": 161,
+      "giFrame": 161,
+      "parentToken": 41025,
+      "diagnosticToken": 41154,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 163,
+      "diagnosticReadFrame": 163,
+      "parentTicks": [
+        1794244099246048672,
+        1794244099246202208,
+        1794244099246202624,
+        1794244099291490304,
+        1794244099291492320,
+        1794244099291555840
+      ],
+      "diagnosticTicks": [
+        1794244099246333952,
+        1794244099250681728,
+        1794244099250681728,
+        1794244099291318272,
+        1794244099291318272,
+        1794244099291467776
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.153536,
+        "Transport": 45.28768,
+        "Composite": 0.06352,
+        "FormalSum": 45.504736,
+        "WorldCache": 4.347776,
+        "Gather": 40.636544,
+        "Reconstruction": 0.149504,
+        "TransportRemainder": 0.153856,
+        "OtherTransport": 0.30336
+      }
+    },
+    {
+      "sourceFrame": 162,
+      "giFrame": 162,
+      "parentToken": 41283,
+      "diagnosticToken": 41412,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 164,
+      "diagnosticReadFrame": 164,
+      "parentTicks": [
+        1794244099292111968,
+        1794244099292267616,
+        1794244099292268064,
+        1794244099337639744,
+        1794244099337641344,
+        1794244099337707520
+      ],
+      "diagnosticTicks": [
+        1794244099292401664,
+        1794244099296831104,
+        1794244099296831104,
+        1794244099337465664,
+        1794244099337465664,
+        1794244099337619456
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.155648,
+        "Transport": 45.37168,
+        "Composite": 0.066176,
+        "FormalSum": 45.593504,
+        "WorldCache": 4.42944,
+        "Gather": 40.63456,
+        "Reconstruction": 0.153792,
+        "TransportRemainder": 0.153888,
+        "OtherTransport": 0.30768
+      }
+    },
+    {
+      "sourceFrame": 163,
+      "giFrame": 163,
+      "parentToken": 41541,
+      "diagnosticToken": 41670,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 165,
+      "diagnosticReadFrame": 165,
+      "parentTicks": [
+        1794244099338749952,
+        1794244099338897408,
+        1794244099338898656,
+        1794244099382734464,
+        1794244099382734848,
+        1794244099382802432
+      ],
+      "diagnosticTicks": [
+        1794244099339032448,
+        1794244099343167488,
+        1794244099343167488,
+        1794244099382560768,
+        1794244099382560768,
+        1794244099382714176
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.147456,
+        "Transport": 43.835808,
+        "Composite": 0.067584,
+        "FormalSum": 44.050848,
+        "WorldCache": 4.13504,
+        "Gather": 39.39328,
+        "Reconstruction": 0.153408,
+        "TransportRemainder": 0.15408,
+        "OtherTransport": 0.307488
+      }
+    },
+    {
+      "sourceFrame": 164,
+      "giFrame": 164,
+      "parentToken": 41799,
+      "diagnosticToken": 41928,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 166,
+      "diagnosticReadFrame": 166,
+      "parentTicks": [
+        1794244099383372864,
+        1794244099383526848,
+        1794244099383527232,
+        1794244099428788224,
+        1794244099428789824,
+        1794244099428855808
+      ],
+      "diagnosticTicks": [
+        1794244099383663680,
+        1794244099388417408,
+        1794244099388417408,
+        1794244099428611744,
+        1794244099428611776,
+        1794244099428767712
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.153984,
+        "Transport": 45.260992,
+        "Composite": 0.065984,
+        "FormalSum": 45.48096,
+        "WorldCache": 4.753728,
+        "Gather": 40.194336,
+        "Reconstruction": 0.155936,
+        "TransportRemainder": 0.156992,
+        "OtherTransport": 0.312928
+      }
+    },
+    {
+      "sourceFrame": 165,
+      "giFrame": 165,
+      "parentToken": 42057,
+      "diagnosticToken": 42186,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 167,
+      "diagnosticReadFrame": 167,
+      "parentTicks": [
+        1794244099429397568,
+        1794244099429550080,
+        1794244099429550080,
+        1794244099475434880,
+        1794244099475435520,
+        1794244099475501056
+      ],
+      "diagnosticTicks": [
+        1794244099429684416,
+        1794244099433895424,
+        1794244099433895456,
+        1794244099475259104,
+        1794244099475259104,
+        1794244099475414496
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.152512,
+        "Transport": 45.8848,
+        "Composite": 0.065536,
+        "FormalSum": 46.102848,
+        "WorldCache": 4.211008,
+        "Gather": 41.363648,
+        "Reconstruction": 0.155392,
+        "TransportRemainder": 0.154752,
+        "OtherTransport": 0.310144
+      }
+    },
+    {
+      "sourceFrame": 166,
+      "giFrame": 166,
+      "parentToken": 42315,
+      "diagnosticToken": 42444,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 168,
+      "diagnosticReadFrame": 168,
+      "parentTicks": [
+        1794244099476105024,
+        1794244099476262272,
+        1794244099476262656,
+        1794244099521961984,
+        1794244099521964032,
+        1794244099522029568
+      ],
+      "diagnosticTicks": [
+        1794244099476398080,
+        1794244099480362944,
+        1794244099480362944,
+        1794244099521786880,
+        1794244099521786880,
+        1794244099521941504
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.157248,
+        "Transport": 45.699328,
+        "Composite": 0.065536,
+        "FormalSum": 45.922112,
+        "WorldCache": 3.964864,
+        "Gather": 41.423936,
+        "Reconstruction": 0.154624,
+        "TransportRemainder": 0.155904,
+        "OtherTransport": 0.310528
+      }
+    },
+    {
+      "sourceFrame": 167,
+      "giFrame": 167,
+      "parentToken": 42573,
+      "diagnosticToken": 42702,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 169,
+      "diagnosticReadFrame": 169,
+      "parentTicks": [
+        1794244099522641600,
+        1794244099522789376,
+        1794244099522789376,
+        1794244099568140064,
+        1794244099568141312,
+        1794244099568205696
+      ],
+      "diagnosticTicks": [
+        1794244099522922496,
+        1794244099526999040,
+        1794244099526999040,
+        1794244099567963904,
+        1794244099567963936,
+        1794244099568119552
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.147776,
+        "Transport": 45.350688,
+        "Composite": 0.064384,
+        "FormalSum": 45.562848,
+        "WorldCache": 4.076544,
+        "Gather": 40.964864,
+        "Reconstruction": 0.155616,
+        "TransportRemainder": 0.153664,
+        "OtherTransport": 0.30928
+      }
+    },
+    {
+      "sourceFrame": 168,
+      "giFrame": 168,
+      "parentToken": 42831,
+      "diagnosticToken": 42960,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 170,
+      "diagnosticReadFrame": 170,
+      "parentTicks": [
+        1794244099568801152,
+        1794244099568947200,
+        1794244099568948480,
+        1794244099612964288,
+        1794244099612964864,
+        1794244099613030400
+      ],
+      "diagnosticTicks": [
+        1794244099569080320,
+        1794244099573041152,
+        1794244099573041152,
+        1794244099612790784,
+        1794244099612790784,
+        1794244099612943744
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.146048,
+        "Transport": 44.015808,
+        "Composite": 0.065536,
+        "FormalSum": 44.227392,
+        "WorldCache": 3.960832,
+        "Gather": 39.749632,
+        "Reconstruction": 0.15296,
+        "TransportRemainder": 0.152384,
+        "OtherTransport": 0.305344
+      }
+    },
+    {
+      "sourceFrame": 169,
+      "giFrame": 169,
+      "parentToken": 43089,
+      "diagnosticToken": 43218,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 171,
+      "diagnosticReadFrame": 171,
+      "parentTicks": [
+        1794244099613632512,
+        1794244099613775104,
+        1794244099613775520,
+        1794244099658332160,
+        1794244099658333504,
+        1794244099658398816
+      ],
+      "diagnosticTicks": [
+        1794244099613908256,
+        1794244099618275328,
+        1794244099618275328,
+        1794244099658156032,
+        1794244099658156032,
+        1794244099658311680
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.142592,
+        "Transport": 44.55664,
+        "Composite": 0.065312,
+        "FormalSum": 44.764544,
+        "WorldCache": 4.367072,
+        "Gather": 39.880704,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.153216,
+        "OtherTransport": 0.308864
+      }
+    },
+    {
+      "sourceFrame": 170,
+      "giFrame": 170,
+      "parentToken": 43347,
+      "diagnosticToken": 43476,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 172,
+      "diagnosticReadFrame": 172,
+      "parentTicks": [
+        1794244099658980768,
+        1794244099659139072,
+        1794244099659139072,
+        1794244099703183360,
+        1794244099703184640,
+        1794244099703250944
+      ],
+      "diagnosticTicks": [
+        1794244099659276288,
+        1794244099664003072,
+        1794244099664003072,
+        1794244099703007232,
+        1794244099703007232,
+        1794244099703162880
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.158304,
+        "Transport": 44.044288,
+        "Composite": 0.066304,
+        "FormalSum": 44.268896,
+        "WorldCache": 4.726784,
+        "Gather": 39.00416,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.157696,
+        "OtherTransport": 0.313344
+      }
+    },
+    {
+      "sourceFrame": 171,
+      "giFrame": 171,
+      "parentToken": 43605,
+      "diagnosticToken": 43734,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 173,
+      "diagnosticReadFrame": 173,
+      "parentTicks": [
+        1794244099703797760,
+        1794244099703951200,
+        1794244099703951360,
+        1794244099747763776,
+        1794244099747765472,
+        1794244099747827712
+      ],
+      "diagnosticTicks": [
+        1794244099704084480,
+        1794244099707990016,
+        1794244099707990016,
+        1794244099747588096,
+        1794244099747588096,
+        1794244099747743744
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.15344,
+        "Transport": 43.812416,
+        "Composite": 0.06224,
+        "FormalSum": 44.028096,
+        "WorldCache": 3.905536,
+        "Gather": 39.59808,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.153152,
+        "OtherTransport": 0.3088
+      }
+    },
+    {
+      "sourceFrame": 172,
+      "giFrame": 172,
+      "parentToken": 43863,
+      "diagnosticToken": 43992,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 174,
+      "diagnosticReadFrame": 174,
+      "parentTicks": [
+        1794244099748422816,
+        1794244099748564544,
+        1794244099748564992,
+        1794244099793956864,
+        1794244099793958528,
+        1794244099794023488
+      ],
+      "diagnosticTicks": [
+        1794244099748698112,
+        1794244099753162752,
+        1794244099753162752,
+        1794244099793786272,
+        1794244099793786272,
+        1794244099793938432
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.141728,
+        "Transport": 45.391872,
+        "Composite": 0.06496,
+        "FormalSum": 45.59856,
+        "WorldCache": 4.46464,
+        "Gather": 40.62352,
+        "Reconstruction": 0.15216,
+        "TransportRemainder": 0.151552,
+        "OtherTransport": 0.303712
+      }
+    },
+    {
+      "sourceFrame": 173,
+      "giFrame": 173,
+      "parentToken": 44121,
+      "diagnosticToken": 44250,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 175,
+      "diagnosticReadFrame": 175,
+      "parentTicks": [
+        1794244099794574816,
+        1794244099794721984,
+        1794244099794722368,
+        1794244099839549440,
+        1794244099839551328,
+        1794244099839614560
+      ],
+      "diagnosticTicks": [
+        1794244099794855200,
+        1794244099799188992,
+        1794244099799188992,
+        1794244099839373056,
+        1794244099839373056,
+        1794244099839530080
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.147168,
+        "Transport": 44.827072,
+        "Composite": 0.063232,
+        "FormalSum": 45.037472,
+        "WorldCache": 4.333792,
+        "Gather": 40.184064,
+        "Reconstruction": 0.157024,
+        "TransportRemainder": 0.152192,
+        "OtherTransport": 0.309216
+      }
+    },
+    {
+      "sourceFrame": 174,
+      "giFrame": 174,
+      "parentToken": 44379,
+      "diagnosticToken": 44508,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 176,
+      "diagnosticReadFrame": 176,
+      "parentTicks": [
+        1794244099840186368,
+        1794244099840333824,
+        1794244099840335040,
+        1794244099884971392,
+        1794244099884972032,
+        1794244099885039392
+      ],
+      "diagnosticTicks": [
+        1794244099840468992,
+        1794244099844614112,
+        1794244099844614144,
+        1794244099884797440,
+        1794244099884797472,
+        1794244099884952704
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.147456,
+        "Transport": 44.636352,
+        "Composite": 0.06736,
+        "FormalSum": 44.851168,
+        "WorldCache": 4.14512,
+        "Gather": 40.183296,
+        "Reconstruction": 0.155232,
+        "TransportRemainder": 0.152704,
+        "OtherTransport": 0.307936
+      }
+    },
+    {
+      "sourceFrame": 175,
+      "giFrame": 175,
+      "parentToken": 44637,
+      "diagnosticToken": 44766,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 177,
+      "diagnosticReadFrame": 177,
+      "parentTicks": [
+        1794244099885784352,
+        1794244099885929984,
+        1794244099885930368,
+        1794244099929468928,
+        1794244099929470400,
+        1794244099929536512
+      ],
+      "diagnosticTicks": [
+        1794244099886063616,
+        1794244099890102272,
+        1794244099890102272,
+        1794244099929292224,
+        1794244099929292224,
+        1794244099929448288
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.145632,
+        "Transport": 43.53856,
+        "Composite": 0.066112,
+        "FormalSum": 43.750304,
+        "WorldCache": 4.038656,
+        "Gather": 39.189952,
+        "Reconstruction": 0.156064,
+        "TransportRemainder": 0.153888,
+        "OtherTransport": 0.309952
+      }
+    },
+    {
+      "sourceFrame": 176,
+      "giFrame": 176,
+      "parentToken": 44895,
+      "diagnosticToken": 45024,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 178,
+      "diagnosticReadFrame": 178,
+      "parentTicks": [
+        1794244099930103040,
+        1794244099930257216,
+        1794244099930257408,
+        1794244099974758400,
+        1794244099974760192,
+        1794244099974825984
+      ],
+      "diagnosticTicks": [
+        1794244099930393888,
+        1794244099934892032,
+        1794244099934892032,
+        1794244099974586016,
+        1794244099974586016,
+        1794244099974739968
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.154176,
+        "Transport": 44.500992,
+        "Composite": 0.065792,
+        "FormalSum": 44.72096,
+        "WorldCache": 4.498144,
+        "Gather": 39.693984,
+        "Reconstruction": 0.153952,
+        "TransportRemainder": 0.154912,
+        "OtherTransport": 0.308864
+      }
+    },
+    {
+      "sourceFrame": 177,
+      "giFrame": 177,
+      "parentToken": 45153,
+      "diagnosticToken": 45282,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 179,
+      "diagnosticReadFrame": 179,
+      "parentTicks": [
+        1794244099975550976,
+        1794244099975704576,
+        1794244099975705632,
+        1794244100019830784,
+        1794244100019832832,
+        1794244100019898368
+      ],
+      "diagnosticTicks": [
+        1794244099975837696,
+        1794244099979986944,
+        1794244099979986944,
+        1794244100019657888,
+        1794244100019657888,
+        1794244100019813536
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.1536,
+        "Transport": 44.125152,
+        "Composite": 0.065536,
+        "FormalSum": 44.344288,
+        "WorldCache": 4.149248,
+        "Gather": 39.670944,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.149312,
+        "OtherTransport": 0.30496
+      }
+    },
+    {
+      "sourceFrame": 178,
+      "giFrame": 178,
+      "parentToken": 45411,
+      "diagnosticToken": 45540,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 180,
+      "diagnosticReadFrame": 180,
+      "parentTicks": [
+        1794244100020440096,
+        1794244100020592640,
+        1794244100020593824,
+        1794244100065112064,
+        1794244100065113920,
+        1794244100065179072
+      ],
+      "diagnosticTicks": [
+        1794244100020727136,
+        1794244100025335808,
+        1794244100025335808,
+        1794244100064939232,
+        1794244100064939232,
+        1794244100065092992
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.152544,
+        "Transport": 44.51824,
+        "Composite": 0.065152,
+        "FormalSum": 44.735936,
+        "WorldCache": 4.608672,
+        "Gather": 39.603424,
+        "Reconstruction": 0.15376,
+        "TransportRemainder": 0.152384,
+        "OtherTransport": 0.306144
+      }
+    },
+    {
+      "sourceFrame": 179,
+      "giFrame": 179,
+      "parentToken": 45669,
+      "diagnosticToken": 45798,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 181,
+      "diagnosticReadFrame": 181,
+      "parentTicks": [
+        1794244100065787904,
+        1794244100065940896,
+        1794244100065941312,
+        1794244100111681280,
+        1794244100111682560,
+        1794244100111746176
+      ],
+      "diagnosticTicks": [
+        1794244100066074528,
+        1794244100070313568,
+        1794244100070313568,
+        1794244100111507456,
+        1794244100111507456,
+        1794244100111661056
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.152992,
+        "Transport": 45.739968,
+        "Composite": 0.063616,
+        "FormalSum": 45.956576,
+        "WorldCache": 4.23904,
+        "Gather": 41.193888,
+        "Reconstruction": 0.1536,
+        "TransportRemainder": 0.15344,
+        "OtherTransport": 0.30704
+      }
+    },
+    {
+      "sourceFrame": 180,
+      "giFrame": 180,
+      "parentToken": 45927,
+      "diagnosticToken": 46056,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 182,
+      "diagnosticReadFrame": 182,
+      "parentTicks": [
+        1794244100112361312,
+        1794244100112514944,
+        1794244100112515072,
+        1794244100156129280,
+        1794244100156130912,
+        1794244100156196864
+      ],
+      "diagnosticTicks": [
+        1794244100112647264,
+        1794244100116955136,
+        1794244100116955136,
+        1794244100155953152,
+        1794244100155953152,
+        1794244100156109920
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.153632,
+        "Transport": 43.614208,
+        "Composite": 0.065952,
+        "FormalSum": 43.833792,
+        "WorldCache": 4.307872,
+        "Gather": 38.998016,
+        "Reconstruction": 0.156768,
+        "TransportRemainder": 0.151552,
+        "OtherTransport": 0.30832
+      }
+    },
+    {
+      "sourceFrame": 181,
+      "giFrame": 181,
+      "parentToken": 46185,
+      "diagnosticToken": 46314,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 183,
+      "diagnosticReadFrame": 183,
+      "parentTicks": [
+        1794244100156782592,
+        1794244100156943520,
+        1794244100156943936,
+        1794244100201134080,
+        1794244100201135712,
+        1794244100201201664
+      ],
+      "diagnosticTicks": [
+        1794244100157079456,
+        1794244100161359872,
+        1794244100161359872,
+        1794244100200957952,
+        1794244100200957952,
+        1794244100201113216
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.160928,
+        "Transport": 44.190144,
+        "Composite": 0.065952,
+        "FormalSum": 44.417024,
+        "WorldCache": 4.280416,
+        "Gather": 39.59808,
+        "Reconstruction": 0.155264,
+        "TransportRemainder": 0.156384,
+        "OtherTransport": 0.311648
+      }
+    },
+    {
+      "sourceFrame": 182,
+      "giFrame": 182,
+      "parentToken": 46443,
+      "diagnosticToken": 46572,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 184,
+      "diagnosticReadFrame": 184,
+      "parentTicks": [
+        1794244100201808928,
+        1794244100201963520,
+        1794244100201963520,
+        1794244100246726656,
+        1794244100246728448,
+        1794244100246794048
+      ],
+      "diagnosticTicks": [
+        1794244100202100320,
+        1794244100206116800,
+        1794244100206116800,
+        1794244100246552576,
+        1794244100246552576,
+        1794244100246706176
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.154592,
+        "Transport": 44.763136,
+        "Composite": 0.0656,
+        "FormalSum": 44.983328,
+        "WorldCache": 4.01648,
+        "Gather": 40.435776,
+        "Reconstruction": 0.1536,
+        "TransportRemainder": 0.15728,
+        "OtherTransport": 0.31088
+      }
+    },
+    {
+      "sourceFrame": 183,
+      "giFrame": 183,
+      "parentToken": 46701,
+      "diagnosticToken": 46830,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 185,
+      "diagnosticReadFrame": 185,
+      "parentTicks": [
+        1794244100247347200,
+        1794244100247497856,
+        1794244100247498240,
+        1794244100292439456,
+        1794244100292440064,
+        1794244100292503552
+      ],
+      "diagnosticTicks": [
+        1794244100247631424,
+        1794244100252059648,
+        1794244100252059648,
+        1794244100292263552,
+        1794244100292263584,
+        1794244100292418624
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.150656,
+        "Transport": 44.941216,
+        "Composite": 0.063488,
+        "FormalSum": 45.15536,
+        "WorldCache": 4.428224,
+        "Gather": 40.203904,
+        "Reconstruction": 0.15504,
+        "TransportRemainder": 0.154048,
+        "OtherTransport": 0.309088
+      }
+    },
+    {
+      "sourceFrame": 184,
+      "giFrame": 184,
+      "parentToken": 46959,
+      "diagnosticToken": 47088,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 186,
+      "diagnosticReadFrame": 186,
+      "parentTicks": [
+        1794244100293087232,
+        1794244100293236736,
+        1794244100293236736,
+        1794244100337426432,
+        1794244100337427840,
+        1794244100337494016
+      ],
+      "diagnosticTicks": [
+        1794244100293369856,
+        1794244100298129408,
+        1794244100298129408,
+        1794244100337252352,
+        1794244100337252352,
+        1794244100337405952
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.149504,
+        "Transport": 44.189696,
+        "Composite": 0.066176,
+        "FormalSum": 44.405376,
+        "WorldCache": 4.759552,
+        "Gather": 39.122944,
+        "Reconstruction": 0.1536,
+        "TransportRemainder": 0.1536,
+        "OtherTransport": 0.3072
+      }
+    },
+    {
+      "sourceFrame": 185,
+      "giFrame": 185,
+      "parentToken": 47217,
+      "diagnosticToken": 47346,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 187,
+      "diagnosticReadFrame": 187,
+      "parentTicks": [
+        1794244100338061312,
+        1794244100338214912,
+        1794244100338214912,
+        1794244100383102944,
+        1794244100383104224,
+        1794244100383167840
+      ],
+      "diagnosticTicks": [
+        1794244100338349152,
+        1794244100342888448,
+        1794244100342888448,
+        1794244100382930944,
+        1794244100382930944,
+        1794244100383084352
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.1536,
+        "Transport": 44.888032,
+        "Composite": 0.063616,
+        "FormalSum": 45.105248,
+        "WorldCache": 4.539296,
+        "Gather": 40.042496,
+        "Reconstruction": 0.153408,
+        "TransportRemainder": 0.152832,
+        "OtherTransport": 0.30624
+      }
+    },
+    {
+      "sourceFrame": 186,
+      "giFrame": 186,
+      "parentToken": 47475,
+      "diagnosticToken": 47604,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 188,
+      "diagnosticReadFrame": 188,
+      "parentTicks": [
+        1794244100383909184,
+        1794244100384059392,
+        1794244100384059392,
+        1794244100428005376,
+        1794244100428007296,
+        1794244100428072960
+      ],
+      "diagnosticTicks": [
+        1794244100384192512,
+        1794244100388786176,
+        1794244100388786176,
+        1794244100427830784,
+        1794244100427830816,
+        1794244100427986944
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.150208,
+        "Transport": 43.945984,
+        "Composite": 0.065664,
+        "FormalSum": 44.161856,
+        "WorldCache": 4.593664,
+        "Gather": 39.044608,
+        "Reconstruction": 0.156128,
+        "TransportRemainder": 0.151584,
+        "OtherTransport": 0.307712
+      }
+    },
+    {
+      "sourceFrame": 187,
+      "giFrame": 187,
+      "parentToken": 47733,
+      "diagnosticToken": 47862,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 189,
+      "diagnosticReadFrame": 189,
+      "parentTicks": [
+        1794244100428679168,
+        1794244100428830720,
+        1794244100428830720,
+        1794244100473237504,
+        1794244100473239424,
+        1794244100473305088
+      ],
+      "diagnosticTicks": [
+        1794244100428967360,
+        1794244100433111040,
+        1794244100433111040,
+        1794244100473067456,
+        1794244100473067456,
+        1794244100473220448
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.151552,
+        "Transport": 44.406784,
+        "Composite": 0.065664,
+        "FormalSum": 44.624,
+        "WorldCache": 4.14368,
+        "Gather": 39.956416,
+        "Reconstruction": 0.152992,
+        "TransportRemainder": 0.153696,
+        "OtherTransport": 0.306688
+      }
+    },
+    {
+      "sourceFrame": 188,
+      "giFrame": 188,
+      "parentToken": 47991,
+      "diagnosticToken": 48120,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 190,
+      "diagnosticReadFrame": 190,
+      "parentTicks": [
+        1794244100474773504,
+        1794244100474922208,
+        1794244100474922656,
+        1794244100519325696,
+        1794244100519327648,
+        1794244100519392736
+      ],
+      "diagnosticTicks": [
+        1794244100475056128,
+        1794244100479670272,
+        1794244100479670272,
+        1794244100519153472,
+        1794244100519153472,
+        1794244100519307264
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.148704,
+        "Transport": 44.40304,
+        "Composite": 0.065088,
+        "FormalSum": 44.616832,
+        "WorldCache": 4.614144,
+        "Gather": 39.4832,
+        "Reconstruction": 0.153792,
+        "TransportRemainder": 0.151904,
+        "OtherTransport": 0.305696
+      }
+    },
+    {
+      "sourceFrame": 189,
+      "giFrame": 189,
+      "parentToken": 48249,
+      "diagnosticToken": 48378,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 191,
+      "diagnosticReadFrame": 191,
+      "parentTicks": [
+        1794244100519970816,
+        1794244100520122368,
+        1794244100520123552,
+        1794244100564336640,
+        1794244100564338624,
+        1794244100564403744
+      ],
+      "diagnosticTicks": [
+        1794244100520378368,
+        1794244100524621088,
+        1794244100524621088,
+        1794244100564161824,
+        1794244100564161824,
+        1794244100564316160
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.151552,
+        "Transport": 44.213088,
+        "Composite": 0.06512,
+        "FormalSum": 44.42976,
+        "WorldCache": 4.24272,
+        "Gather": 39.540736,
+        "Reconstruction": 0.154336,
+        "TransportRemainder": 0.275296,
+        "OtherTransport": 0.429632
+      }
+    },
+    {
+      "sourceFrame": 190,
+      "giFrame": 190,
+      "parentToken": 48507,
+      "diagnosticToken": 48636,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 192,
+      "diagnosticReadFrame": 192,
+      "parentTicks": [
+        1794244100564987904,
+        1794244100565144960,
+        1794244100565145344,
+        1794244100611295232,
+        1794244100611297280,
+        1794244100611362816
+      ],
+      "diagnosticTicks": [
+        1794244100565280256,
+        1794244100569767936,
+        1794244100569767936,
+        1794244100611118336,
+        1794244100611118336,
+        1794244100611274560
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.157056,
+        "Transport": 46.149888,
+        "Composite": 0.065536,
+        "FormalSum": 46.37248,
+        "WorldCache": 4.48768,
+        "Gather": 41.3504,
+        "Reconstruction": 0.156224,
+        "TransportRemainder": 0.155584,
+        "OtherTransport": 0.311808
+      }
+    },
+    {
+      "sourceFrame": 191,
+      "giFrame": 191,
+      "parentToken": 48765,
+      "diagnosticToken": 48894,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 193,
+      "diagnosticReadFrame": 193,
+      "parentTicks": [
+        1794244100612096000,
+        1794244100612251008,
+        1794244100612251456,
+        1794244100656834560,
+        1794244100656836064,
+        1794244100656900096
+      ],
+      "diagnosticTicks": [
+        1794244100612384768,
+        1794244100617166176,
+        1794244100617166208,
+        1794244100656659680,
+        1794244100656659680,
+        1794244100656814080
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.155008,
+        "Transport": 44.583104,
+        "Composite": 0.064032,
+        "FormalSum": 44.802144,
+        "WorldCache": 4.781408,
+        "Gather": 39.493472,
+        "Reconstruction": 0.1544,
+        "TransportRemainder": 0.153824,
+        "OtherTransport": 0.308224
+      }
+    },
+    {
+      "sourceFrame": 192,
+      "giFrame": 192,
+      "parentToken": 49023,
+      "diagnosticToken": 49152,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 194,
+      "diagnosticReadFrame": 194,
+      "parentTicks": [
+        1794244100657456448,
+        1794244100657605728,
+        1794244100657606112,
+        1794244100699860992,
+        1794244100699862880,
+        1794244100699928576
+      ],
+      "diagnosticTicks": [
+        1794244100657738880,
+        1794244100660860928,
+        1794244100660860928,
+        1794244100699686912,
+        1794244100699686912,
+        1794244100699842208
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.14928,
+        "Transport": 42.25488,
+        "Composite": 0.065696,
+        "FormalSum": 42.469856,
+        "WorldCache": 3.122048,
+        "Gather": 38.825984,
+        "Reconstruction": 0.155296,
+        "TransportRemainder": 0.151552,
+        "OtherTransport": 0.306848
+      }
+    },
+    {
+      "sourceFrame": 193,
+      "giFrame": 193,
+      "parentToken": 49153,
+      "diagnosticToken": 49282,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 195,
+      "diagnosticReadFrame": 195,
+      "parentTicks": [
+        1794244100700511360,
+        1794244100700657664,
+        1794244100700657664,
+        1794244100744790016,
+        1794244100744791904,
+        1794244100744857600
+      ],
+      "diagnosticTicks": [
+        1794244100700792832,
+        1794244100704892928,
+        1794244100704892928,
+        1794244100744613888,
+        1794244100744613888,
+        1794244100744771584
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.146304,
+        "Transport": 44.132352,
+        "Composite": 0.065696,
+        "FormalSum": 44.344352,
+        "WorldCache": 4.100096,
+        "Gather": 39.72096,
+        "Reconstruction": 0.157696,
+        "TransportRemainder": 0.1536,
+        "OtherTransport": 0.311296
+      }
+    },
+    {
+      "sourceFrame": 194,
+      "giFrame": 194,
+      "parentToken": 49411,
+      "diagnosticToken": 49540,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 196,
+      "diagnosticReadFrame": 196,
+      "parentTicks": [
+        1794244100745449472,
+        1794244100745603072,
+        1794244100745604160,
+        1794244100789927456,
+        1794244100789927936,
+        1794244100789995520
+      ],
+      "diagnosticTicks": [
+        1794244100745739552,
+        1794244100750424064,
+        1794244100750424064,
+        1794244100789745664,
+        1794244100789745664,
+        1794244100789903360
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.1536,
+        "Transport": 44.323296,
+        "Composite": 0.067584,
+        "FormalSum": 44.54448,
+        "WorldCache": 4.684512,
+        "Gather": 39.3216,
+        "Reconstruction": 0.157696,
+        "TransportRemainder": 0.159488,
+        "OtherTransport": 0.317184
+      }
+    },
+    {
+      "sourceFrame": 195,
+      "giFrame": 195,
+      "parentToken": 49669,
+      "diagnosticToken": 49798,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 197,
+      "diagnosticReadFrame": 197,
+      "parentTicks": [
+        1794244100790530048,
+        1794244100790691424,
+        1794244100790691808,
+        1794244100834919584,
+        1794244100834920448,
+        1794244100834983936
+      ],
+      "diagnosticTicks": [
+        1794244100790824960,
+        1794244100794877952,
+        1794244100794877952,
+        1794244100834748000,
+        1794244100834748000,
+        1794244100834901408
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.161376,
+        "Transport": 44.227776,
+        "Composite": 0.063488,
+        "FormalSum": 44.45264,
+        "WorldCache": 4.052992,
+        "Gather": 39.870048,
+        "Reconstruction": 0.153408,
+        "TransportRemainder": 0.151328,
+        "OtherTransport": 0.304736
+      }
+    },
+    {
+      "sourceFrame": 196,
+      "giFrame": 196,
+      "parentToken": 49927,
+      "diagnosticToken": 50056,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 198,
+      "diagnosticReadFrame": 198,
+      "parentTicks": [
+        1794244100835523808,
+        1794244100835667968,
+        1794244100835667968,
+        1794244100879489024,
+        1794244100879490592,
+        1794244100879554560
+      ],
+      "diagnosticTicks": [
+        1794244100835801088,
+        1794244100840518656,
+        1794244100840518656,
+        1794244100879312896,
+        1794244100879312896,
+        1794244100879468544
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.14416,
+        "Transport": 43.821056,
+        "Composite": 0.063968,
+        "FormalSum": 44.029184,
+        "WorldCache": 4.717568,
+        "Gather": 38.79424,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.1536,
+        "OtherTransport": 0.309248
+      }
+    },
+    {
+      "sourceFrame": 197,
+      "giFrame": 197,
+      "parentToken": 50185,
+      "diagnosticToken": 50314,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 199,
+      "diagnosticReadFrame": 199,
+      "parentTicks": [
+        1794244100880743840,
+        1794244100880897248,
+        1794244100880897696,
+        1794244100925052928,
+        1794244100925054784,
+        1794244100925118144
+      ],
+      "diagnosticTicks": [
+        1794244100881029120,
+        1794244100885501280,
+        1794244100885501280,
+        1794244100924878848,
+        1794244100924878848,
+        1794244100925034016
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.153408,
+        "Transport": 44.155232,
+        "Composite": 0.06336,
+        "FormalSum": 44.372,
+        "WorldCache": 4.47216,
+        "Gather": 39.377568,
+        "Reconstruction": 0.155168,
+        "TransportRemainder": 0.150336,
+        "OtherTransport": 0.305504
+      }
+    },
+    {
+      "sourceFrame": 198,
+      "giFrame": 198,
+      "parentToken": 50443,
+      "diagnosticToken": 50572,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 200,
+      "diagnosticReadFrame": 200,
+      "parentTicks": [
+        1794244100925655040,
+        1794244100925808640,
+        1794244100925808640,
+        1794244100968685184,
+        1794244100968685568,
+        1794244100968751104
+      ],
+      "diagnosticTicks": [
+        1794244100925943808,
+        1794244100930414592,
+        1794244100930414592,
+        1794244100968510496,
+        1794244100968510496,
+        1794244100968666144
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.1536,
+        "Transport": 42.876544,
+        "Composite": 0.065536,
+        "FormalSum": 43.09568,
+        "WorldCache": 4.470784,
+        "Gather": 38.095904,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.154208,
+        "OtherTransport": 0.309856
+      }
+    },
+    {
+      "sourceFrame": 199,
+      "giFrame": 199,
+      "parentToken": 50701,
+      "diagnosticToken": 50830,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 201,
+      "diagnosticReadFrame": 201,
+      "parentTicks": [
+        1794244100969355264,
+        1794244100969510656,
+        1794244100969510912,
+        1794244101013252096,
+        1794244101013253664,
+        1794244101013319680
+      ],
+      "diagnosticTicks": [
+        1794244100969648128,
+        1794244100973561056,
+        1794244100973561056,
+        1794244101013079968,
+        1794244101013079968,
+        1794244101013232672
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.155392,
+        "Transport": 43.741184,
+        "Composite": 0.066016,
+        "FormalSum": 43.962592,
+        "WorldCache": 3.912928,
+        "Gather": 39.518912,
+        "Reconstruction": 0.152704,
+        "TransportRemainder": 0.15664,
+        "OtherTransport": 0.309344
+      }
+    },
+    {
+      "sourceFrame": 200,
+      "giFrame": 200,
+      "parentToken": 50959,
+      "diagnosticToken": 51088,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 202,
+      "diagnosticReadFrame": 202,
+      "parentTicks": [
+        1794244101013900576,
+        1794244101014046720,
+        1794244101014047776,
+        1794244101057841152,
+        1794244101057842752,
+        1794244101057908288
+      ],
+      "diagnosticTicks": [
+        1794244101014183360,
+        1794244101018402816,
+        1794244101018402816,
+        1794244101057666688,
+        1794244101057666688,
+        1794244101057820640
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.146144,
+        "Transport": 43.793376,
+        "Composite": 0.065536,
+        "FormalSum": 44.005056,
+        "WorldCache": 4.219456,
+        "Gather": 39.263872,
+        "Reconstruction": 0.153952,
+        "TransportRemainder": 0.156096,
+        "OtherTransport": 0.310048
+      }
+    },
+    {
+      "sourceFrame": 201,
+      "giFrame": 201,
+      "parentToken": 51217,
+      "diagnosticToken": 51346,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 203,
+      "diagnosticReadFrame": 203,
+      "parentTicks": [
+        1794244101058695168,
+        1794244101058846720,
+        1794244101058846720,
+        1794244101102817280,
+        1794244101102818912,
+        1794244101102882112
+      ],
+      "diagnosticTicks": [
+        1794244101058979840,
+        1794244101063064832,
+        1794244101063064832,
+        1794244101102641152,
+        1794244101102641152,
+        1794244101102796800
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.151552,
+        "Transport": 43.97056,
+        "Composite": 0.0632,
+        "FormalSum": 44.185312,
+        "WorldCache": 4.084992,
+        "Gather": 39.57632,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.1536,
+        "OtherTransport": 0.309248
+      }
+    },
+    {
+      "sourceFrame": 202,
+      "giFrame": 202,
+      "parentToken": 51475,
+      "diagnosticToken": 51604,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 204,
+      "diagnosticReadFrame": 204,
+      "parentTicks": [
+        1794244101103470592,
+        1794244101103618048,
+        1794244101103619264,
+        1794244101148274112,
+        1794244101148274688,
+        1794244101148342272
+      ],
+      "diagnosticTicks": [
+        1794244101103751168,
+        1794244101108480000,
+        1794244101108480000,
+        1794244101148100608,
+        1794244101148100608,
+        1794244101148254208
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.147456,
+        "Transport": 44.654848,
+        "Composite": 0.067584,
+        "FormalSum": 44.869888,
+        "WorldCache": 4.728832,
+        "Gather": 39.620608,
+        "Reconstruction": 0.1536,
+        "TransportRemainder": 0.151808,
+        "OtherTransport": 0.305408
+      }
+    },
+    {
+      "sourceFrame": 203,
+      "giFrame": 203,
+      "parentToken": 51733,
+      "diagnosticToken": 51862,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 205,
+      "diagnosticReadFrame": 205,
+      "parentTicks": [
+        1794244101148956672,
+        1794244101149111744,
+        1794244101149112160,
+        1794244101193649760,
+        1794244101193650176,
+        1794244101193717504
+      ],
+      "diagnosticTicks": [
+        1794244101149245440,
+        1794244101153338720,
+        1794244101153338720,
+        1794244101193474048,
+        1794244101193474048,
+        1794244101193629696
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.155072,
+        "Transport": 44.5376,
+        "Composite": 0.067328,
+        "FormalSum": 44.76,
+        "WorldCache": 4.09328,
+        "Gather": 40.135328,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.153344,
+        "OtherTransport": 0.308992
+      }
+    },
+    {
+      "sourceFrame": 204,
+      "giFrame": 204,
+      "parentToken": 51991,
+      "diagnosticToken": 52120,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 206,
+      "diagnosticReadFrame": 206,
+      "parentTicks": [
+        1794244101194262496,
+        1794244101194415136,
+        1794244101194415552,
+        1794244101238851584,
+        1794244101238853312,
+        1794244101238918752
+      ],
+      "diagnosticTicks": [
+        1794244101194548704,
+        1794244101199080512,
+        1794244101199080544,
+        1794244101238677376,
+        1794244101238677408,
+        1794244101238832768
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.15264,
+        "Transport": 44.436032,
+        "Composite": 0.06544,
+        "FormalSum": 44.654112,
+        "WorldCache": 4.531808,
+        "Gather": 39.596832,
+        "Reconstruction": 0.15536,
+        "TransportRemainder": 0.152032,
+        "OtherTransport": 0.307392
+      }
+    },
+    {
+      "sourceFrame": 205,
+      "giFrame": 205,
+      "parentToken": 52249,
+      "diagnosticToken": 52378,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 207,
+      "diagnosticReadFrame": 207,
+      "parentTicks": [
+        1794244101239480320,
+        1794244101239633920,
+        1794244101239633920,
+        1794244101283370176,
+        1794244101283371008,
+        1794244101283436544
+      ],
+      "diagnosticTicks": [
+        1794244101239770784,
+        1794244101243961024,
+        1794244101243961024,
+        1794244101283196352,
+        1794244101283196384,
+        1794244101283349984
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.1536,
+        "Transport": 43.736256,
+        "Composite": 0.065536,
+        "FormalSum": 43.955392,
+        "WorldCache": 4.19024,
+        "Gather": 39.235328,
+        "Reconstruction": 0.1536,
+        "TransportRemainder": 0.157088,
+        "OtherTransport": 0.310688
+      }
+    },
+    {
+      "sourceFrame": 206,
+      "giFrame": 206,
+      "parentToken": 52507,
+      "diagnosticToken": 52636,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 208,
+      "diagnosticReadFrame": 208,
+      "parentTicks": [
+        1794244101284263808,
+        1794244101284414656,
+        1794244101284415072,
+        1794244101328492544,
+        1794244101328494592,
+        1794244101328560128
+      ],
+      "diagnosticTicks": [
+        1794244101284550656,
+        1794244101288514912,
+        1794244101288514912,
+        1794244101328317920,
+        1794244101328317920,
+        1794244101328473504
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.150848,
+        "Transport": 44.077472,
+        "Composite": 0.065536,
+        "FormalSum": 44.293856,
+        "WorldCache": 3.964256,
+        "Gather": 39.803008,
+        "Reconstruction": 0.155584,
+        "TransportRemainder": 0.154624,
+        "OtherTransport": 0.310208
+      }
+    },
+    {
+      "sourceFrame": 207,
+      "giFrame": 207,
+      "parentToken": 52765,
+      "diagnosticToken": 52894,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 209,
+      "diagnosticReadFrame": 209,
+      "parentTicks": [
+        1794244101329136768,
+        1794244101329282784,
+        1794244101329283072,
+        1794244101374310400,
+        1794244101374312064,
+        1794244101374375936
+      ],
+      "diagnosticTicks": [
+        1794244101329417664,
+        1794244101333685312,
+        1794244101333685312,
+        1794244101374137664,
+        1794244101374137664,
+        1794244101374291328
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.146016,
+        "Transport": 45.027328,
+        "Composite": 0.063872,
+        "FormalSum": 45.237216,
+        "WorldCache": 4.267648,
+        "Gather": 40.452352,
+        "Reconstruction": 0.153664,
+        "TransportRemainder": 0.153664,
+        "OtherTransport": 0.307328
+      }
+    },
+    {
+      "sourceFrame": 208,
+      "giFrame": 208,
+      "parentToken": 53023,
+      "diagnosticToken": 53152,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 210,
+      "diagnosticReadFrame": 210,
+      "parentTicks": [
+        1794244101375235936,
+        1794244101375385600,
+        1794244101375386912,
+        1794244101419517184,
+        1794244101419517952,
+        1794244101419583488
+      ],
+      "diagnosticTicks": [
+        1794244101375520000,
+        1794244101379408928,
+        1794244101379408960,
+        1794244101419343136,
+        1794244101419343168,
+        1794244101419497472
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.149664,
+        "Transport": 44.130272,
+        "Composite": 0.065536,
+        "FormalSum": 44.345472,
+        "WorldCache": 3.888928,
+        "Gather": 39.934176,
+        "Reconstruction": 0.154304,
+        "TransportRemainder": 0.152864,
+        "OtherTransport": 0.307168
+      }
+    },
+    {
+      "sourceFrame": 209,
+      "giFrame": 209,
+      "parentToken": 53281,
+      "diagnosticToken": 53410,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 211,
+      "diagnosticReadFrame": 211,
+      "parentTicks": [
+        1794244101420166944,
+        1794244101420320128,
+        1794244101420320544,
+        1794244101464258560,
+        1794244101464260608,
+        1794244101464324096
+      ],
+      "diagnosticTicks": [
+        1794244101420452896,
+        1794244101424556032,
+        1794244101424556032,
+        1794244101464082432,
+        1794244101464082432,
+        1794244101464238080
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.153184,
+        "Transport": 43.938016,
+        "Composite": 0.063488,
+        "FormalSum": 44.154688,
+        "WorldCache": 4.103136,
+        "Gather": 39.5264,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.152832,
+        "OtherTransport": 0.30848
+      }
+    },
+    {
+      "sourceFrame": 210,
+      "giFrame": 210,
+      "parentToken": 53539,
+      "diagnosticToken": 53668,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 212,
+      "diagnosticReadFrame": 212,
+      "parentTicks": [
+        1794244101464893440,
+        1794244101465044064,
+        1794244101465044448,
+        1794244101509387936,
+        1794244101509388288,
+        1794244101509455872
+      ],
+      "diagnosticTicks": [
+        1794244101465177376,
+        1794244101469879744,
+        1794244101469879744,
+        1794244101509211136,
+        1794244101509211136,
+        1794244101509367232
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.150624,
+        "Transport": 44.343488,
+        "Composite": 0.067584,
+        "FormalSum": 44.561696,
+        "WorldCache": 4.702368,
+        "Gather": 39.331392,
+        "Reconstruction": 0.156096,
+        "TransportRemainder": 0.153632,
+        "OtherTransport": 0.309728
+      }
+    },
+    {
+      "sourceFrame": 211,
+      "giFrame": 211,
+      "parentToken": 53797,
+      "diagnosticToken": 53926,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 213,
+      "diagnosticReadFrame": 213,
+      "parentTicks": [
+        1794244101510203392,
+        1794244101510356928,
+        1794244101510356992,
+        1794244101554665472,
+        1794244101554667040,
+        1794244101554733056
+      ],
+      "diagnosticTicks": [
+        1794244101510492160,
+        1794244101514891200,
+        1794244101514891232,
+        1794244101554491392,
+        1794244101554491392,
+        1794244101554646688
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.153536,
+        "Transport": 44.30848,
+        "Composite": 0.066016,
+        "FormalSum": 44.528032,
+        "WorldCache": 4.39904,
+        "Gather": 39.60016,
+        "Reconstruction": 0.155296,
+        "TransportRemainder": 0.153984,
+        "OtherTransport": 0.30928
+      }
+    },
+    {
+      "sourceFrame": 212,
+      "giFrame": 212,
+      "parentToken": 54055,
+      "diagnosticToken": 54184,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 214,
+      "diagnosticReadFrame": 214,
+      "parentTicks": [
+        1794244101555474432,
+        1794244101555633152,
+        1794244101555633568,
+        1794244101600655360,
+        1794244101600656736,
+        1794244101600720896
+      ],
+      "diagnosticTicks": [
+        1794244101555769344,
+        1794244101560215552,
+        1794244101560215552,
+        1794244101600481280,
+        1794244101600481280,
+        1794244101600636320
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.15872,
+        "Transport": 45.021792,
+        "Composite": 0.06416,
+        "FormalSum": 45.244672,
+        "WorldCache": 4.446208,
+        "Gather": 40.265728,
+        "Reconstruction": 0.15504,
+        "TransportRemainder": 0.154816,
+        "OtherTransport": 0.309856
+      }
+    },
+    {
+      "sourceFrame": 213,
+      "giFrame": 213,
+      "parentToken": 54313,
+      "diagnosticToken": 54442,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 215,
+      "diagnosticReadFrame": 215,
+      "parentTicks": [
+        1794244101601294336,
+        1794244101601447936,
+        1794244101601447936,
+        1794244101645592032,
+        1794244101645592576,
+        1794244101645655808
+      ],
+      "diagnosticTicks": [
+        1794244101601580704,
+        1794244101606061248,
+        1794244101606061248,
+        1794244101645418496,
+        1794244101645418496,
+        1794244101645572096
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.1536,
+        "Transport": 44.144096,
+        "Composite": 0.063232,
+        "FormalSum": 44.360928,
+        "WorldCache": 4.480544,
+        "Gather": 39.357248,
+        "Reconstruction": 0.1536,
+        "TransportRemainder": 0.152704,
+        "OtherTransport": 0.306304
+      }
+    },
+    {
+      "sourceFrame": 214,
+      "giFrame": 214,
+      "parentToken": 54571,
+      "diagnosticToken": 54700,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 216,
+      "diagnosticReadFrame": 216,
+      "parentTicks": [
+        1794244101646202016,
+        1794244101646349344,
+        1794244101646349760,
+        1794244101690447872,
+        1794244101690449824,
+        1794244101690515456
+      ],
+      "diagnosticTicks": [
+        1794244101646483456,
+        1794244101650872320,
+        1794244101650872320,
+        1794244101690273792,
+        1794244101690273792,
+        1794244101690429376
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.147328,
+        "Transport": 44.098112,
+        "Composite": 0.065632,
+        "FormalSum": 44.311072,
+        "WorldCache": 4.388864,
+        "Gather": 39.401472,
+        "Reconstruction": 0.155584,
+        "TransportRemainder": 0.152192,
+        "OtherTransport": 0.307776
+      }
+    },
+    {
+      "sourceFrame": 215,
+      "giFrame": 215,
+      "parentToken": 54829,
+      "diagnosticToken": 54958,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 217,
+      "diagnosticReadFrame": 217,
+      "parentTicks": [
+        1794244101691125216,
+        1794244101691271168,
+        1794244101691271168,
+        1794244101735223296,
+        1794244101735225216,
+        1794244101735289920
+      ],
+      "diagnosticTicks": [
+        1794244101691404288,
+        1794244101695401632,
+        1794244101695401632,
+        1794244101735049216,
+        1794244101735049216,
+        1794244101735204864
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.145952,
+        "Transport": 43.952128,
+        "Composite": 0.064704,
+        "FormalSum": 44.162784,
+        "WorldCache": 3.997344,
+        "Gather": 39.647584,
+        "Reconstruction": 0.155648,
+        "TransportRemainder": 0.151552,
+        "OtherTransport": 0.3072
+      }
+    },
+    {
+      "sourceFrame": 216,
+      "giFrame": 216,
+      "parentToken": 55087,
+      "diagnosticToken": 55216,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 218,
+      "diagnosticReadFrame": 218,
+      "parentTicks": [
+        1794244101735880576,
+        1794244101736023904,
+        1794244101736024064,
+        1794244101779471840,
+        1794244101779472384,
+        1794244101779539904
+      ],
+      "diagnosticTicks": [
+        1794244101736156512,
+        1794244101740188704,
+        1794244101740188704,
+        1794244101779298304,
+        1794244101779298304,
+        1794244101779451904
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.143328,
+        "Transport": 43.447776,
+        "Composite": 0.06752,
+        "FormalSum": 43.658624,
+        "WorldCache": 4.032192,
+        "Gather": 39.1096,
+        "Reconstruction": 0.1536,
+        "TransportRemainder": 0.152384,
+        "OtherTransport": 0.305984
+      }
+    },
+    {
+      "sourceFrame": 217,
+      "giFrame": 217,
+      "parentToken": 55345,
+      "diagnosticToken": 55474,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 219,
+      "diagnosticReadFrame": 219,
+      "parentTicks": [
+        1794244101780102784,
+        1794244101780248576,
+        1794244101780248576,
+        1794244101823803392,
+        1794244101823805440,
+        1794244101823872224
+      ],
+      "diagnosticTicks": [
+        1794244101780385088,
+        1794244101784315424,
+        1794244101784315424,
+        1794244101823630528,
+        1794244101823630528,
+        1794244101823784960
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.145792,
+        "Transport": 43.554816,
+        "Composite": 0.066784,
+        "FormalSum": 43.767392,
+        "WorldCache": 3.930336,
+        "Gather": 39.315104,
+        "Reconstruction": 0.154432,
+        "TransportRemainder": 0.154944,
+        "OtherTransport": 0.309376
+      }
+    },
+    {
+      "sourceFrame": 218,
+      "giFrame": 218,
+      "parentToken": 55603,
+      "diagnosticToken": 55732,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 220,
+      "diagnosticReadFrame": 220,
+      "parentTicks": [
+        1794244101824462848,
+        1794244101824618112,
+        1794244101824618496,
+        1794244101868367872,
+        1794244101868369760,
+        1794244101868435456
+      ],
+      "diagnosticTicks": [
+        1794244101824753664,
+        1794244101829435360,
+        1794244101829435360,
+        1794244101868195520,
+        1794244101868195520,
+        1794244101868349440
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.155264,
+        "Transport": 43.749376,
+        "Composite": 0.065696,
+        "FormalSum": 43.970336,
+        "WorldCache": 4.681696,
+        "Gather": 38.76016,
+        "Reconstruction": 0.15392,
+        "TransportRemainder": 0.1536,
+        "OtherTransport": 0.30752
+      }
+    },
+    {
+      "sourceFrame": 219,
+      "giFrame": 219,
+      "parentToken": 55861,
+      "diagnosticToken": 55990,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 221,
+      "diagnosticReadFrame": 221,
+      "parentTicks": [
+        1794244101868999776,
+        1794244101869143328,
+        1794244101869143712,
+        1794244101912444928,
+        1794244101912446848,
+        1794244101912512512
+      ],
+      "diagnosticTicks": [
+        1794244101869275136,
+        1794244101873092608,
+        1794244101873092608,
+        1794244101912270368,
+        1794244101912270368,
+        1794244101912426144
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.143552,
+        "Transport": 43.301216,
+        "Composite": 0.065664,
+        "FormalSum": 43.510432,
+        "WorldCache": 3.817472,
+        "Gather": 39.17776,
+        "Reconstruction": 0.155776,
+        "TransportRemainder": 0.150208,
+        "OtherTransport": 0.305984
+      }
+    },
+    {
+      "sourceFrame": 220,
+      "giFrame": 220,
+      "parentToken": 56119,
+      "diagnosticToken": 56248,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 222,
+      "diagnosticReadFrame": 222,
+      "parentTicks": [
+        1794244101913047040,
+        1794244101913194496,
+        1794244101913195680,
+        1794244101957130240,
+        1794244101957132128,
+        1794244101957197152
+      ],
+      "diagnosticTicks": [
+        1794244101913329056,
+        1794244101917705760,
+        1794244101917705760,
+        1794244101956958144,
+        1794244101956958144,
+        1794244101957111808
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.147456,
+        "Transport": 43.93456,
+        "Composite": 0.065024,
+        "FormalSum": 44.14704,
+        "WorldCache": 4.376704,
+        "Gather": 39.252384,
+        "Reconstruction": 0.153664,
+        "TransportRemainder": 0.151808,
+        "OtherTransport": 0.305472
+      }
+    },
+    {
+      "sourceFrame": 221,
+      "giFrame": 221,
+      "parentToken": 56377,
+      "diagnosticToken": 56506,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 223,
+      "diagnosticReadFrame": 223,
+      "parentTicks": [
+        1794244101957750784,
+        1794244101957897664,
+        1794244101957898080,
+        1794244102003042304,
+        1794244102003044192,
+        1794244102003107360
+      ],
+      "diagnosticTicks": [
+        1794244101958029056,
+        1794244101962485760,
+        1794244101962485760,
+        1794244102002866176,
+        1794244102002866176,
+        1794244102003023712
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.14688,
+        "Transport": 45.144224,
+        "Composite": 0.063168,
+        "FormalSum": 45.354272,
+        "WorldCache": 4.456704,
+        "Gather": 40.380416,
+        "Reconstruction": 0.157536,
+        "TransportRemainder": 0.149568,
+        "OtherTransport": 0.307104
+      }
+    },
+    {
+      "sourceFrame": 222,
+      "giFrame": 222,
+      "parentToken": 56635,
+      "diagnosticToken": 56764,
+      "parentOwner": 2,
+      "diagnosticOwner": 1,
+      "generation": 3,
+      "deviceEpoch": 1,
+      "parentEpoch": 6,
+      "diagnosticEpoch": 5,
+      "frequency": 1000000000,
+      "parentReadFrame": 224,
+      "diagnosticReadFrame": 224,
+      "parentTicks": [
+        1794244102003658208,
+        1794244102003810304,
+        1794244102003810304,
+        1794244102048018336,
+        1794244102048019616,
+        1794244102048086016
+      ],
+      "diagnosticTicks": [
+        1794244102003943424,
+        1794244102007820288,
+        1794244102007820288,
+        1794244102047843488,
+        1794244102047843488,
+        1794244102047999456
+      ],
+      "milliseconds": {
+        "ReceiverCapture": 0.152096,
+        "Transport": 44.208032,
+        "Composite": 0.0664,
+        "FormalSum": 44.426528,
+        "WorldCache": 3.876864,
+        "Gather": 40.0232,
+        "Reconstruction": 0.155968,
+        "TransportRemainder": 0.152,
+        "OtherTransport": 0.307968
+      }
+    }
+  ],
+  "release": 214,
+  "productCommit": "403a11d6a4e1917ae7bf8ca5865f3705d8fff78f",
+  "build": {
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "temporaryObserver": "Existing TransportCostProbe and fixed-view UnifiedSampleGpuCost",
+    "pluginAbiChanged": false
+  },
+  "gatherShareOfTransport": {
+    "median": 0.8964975214314359,
+    "minimum": 0.8852876571481985,
+    "maximum": 0.9188520710507283
+  },
+  "preLaunchDeferralSamples": [
+    20,
+    14,
+    4,
+    2
+  ]
+}

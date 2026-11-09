@@ -52,6 +52,8 @@ Release205 的该精确软件固定近景 p95 为 47.200 ms。只消费布尔结
 
 Release208 在同一机位确认软件 p95 为 46.868 ms。延后 Gather 的世界材质求值使配对 p95 为 47.804 ms，候选已撤回。后续软件工作仍以实质缩短该窗口和保持原画质为采用条件。[配对与范围](../LocalComparison/Review/software-deferred-material-250/result.md)
 
+Release214 的分项实测将软件近景预算缺口定位到 Gather，单段中位 39.612 ms，最低观测 38.096 ms。原 25 ms 目标和采用条件继续生效。BVH、屏幕与材质三类内部成本尚未分离。[实机分项](../LocalComparison/Review/software-transport-cost-259/result.md)
+
 T3／G3 的固定连续发光体平移已取得实际新区的供光与恢复依据。旧区参照波动占切前差 1.559%，超过 0.5% 的资格，且实际固定点与预定 X 描述有偏差。整项保持开放。[实际范围、同曝光动画和逐帧结果](../LocalComparison/Review/emitter-motion-229/result.md)
 
 T3／G3 的固定唯一发光体撤出子项已验收。实机旧绿在 1 秒前低于 5%，2 秒前低于 1%，两期限保持和末帧过滤有效性均达标。该结果覆盖解析发光板的实际几何撤出和 DXR 接收面，发光体移动、其他光路与普通 Player 另行验收。[原阈值、实测与判定](../LocalComparison/Review/emitter-removal-228/result.md)

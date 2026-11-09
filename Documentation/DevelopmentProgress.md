@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release214，G0 已锁定，G1／G2 本机代表性验收通过
 
+T6／G4–G5 已定位固定精确软件近景的主要成本。Gather 单段最低观测为 38.096 ms，单靠削减世界缓存或重建无法达到 25 ms。原软件预算门保持开放，后续集中在 Gather，具体内部热点仍待明确。[实机分项与边界](../LocalComparison/Review/software-transport-cost-259/result.md)
+
 T6／G4 已关闭精确软件 BVH 额度已拒绝时仍完整构建 CPU 树的路径。原 A → B → A 对照中，返回相机在等待帧省去 2,000 叶的构建，旧票据完成后正常构建并恢复计账。采用限软件几何 CPU 准入，软件 GPU 时间继续验收。[同输入对照与范围](../LocalComparison/Review/software-bvh-preflight-258/result.md) · [Release214 同源交付](../LocalComparison/Review/software-bvh-preflight-258/delivery.json)
 
 T3／G3 补齐普通 Player 的 L 键实际灯表和固定地板同曝光对照。切换后首个源帧的解析灯由 5 降至 0，发光面继续供光。1／2 秒附近的区域平均间接光略低于匹配关灯对照，但对照色向漂移 0.03155 超过原 0.025 稳定门槛。期限与保持验收继续开放。[实机对照与适用范围](../LocalComparison/Review/ordinary-player-lightoff-257/result.md)

@@ -10,6 +10,8 @@ Release205 的同一近景精确软件窗口实际 p95／p99 为 47.200／47.818
 
 Release208 的同一固定软件近景实测 p95／p99 为 46.868／47.240 ms，进程 local 采样峰值为 551.699 MiB。延后 Gather 世界材质求值候选的 p95 为 47.804 ms，已按冻结条件撤回。该范围内的 25 ms 时间缺口已用当前版本确认。[同源配对与范围](../LocalComparison/Review/software-deferred-material-250/result.md)
 
+Release214 同源固定近景补齐了精确软件的 Transport 成本定位。实际 Gather 中位 39.612 ms，占 Transport 逐源中位比例 89.65%。观测最低 38.096 ms，高于 25 ms 总目标。世界缓存中位 4.274 ms，重建和其余各约 0.15 ms。软件预算优化集中在 Gather，内部各路径的耗时和正式预算继续验收。[父子时间戳与定位范围](../LocalComparison/Review/software-transport-cost-259/result.md)
+
 后续在同一固定近景试过将缓冲尺寸校验和三角求交准备移到每条射线的叶遍历前。实机 GI 合计中位为 45.212 ms，p95／p99 为 46.439／47.092 ms，三项均高于上述 Release196 窗口，进程 local 有限采样峰值为 549.637 MiB。已撤回候选，沿用 Release196 的实测与适用范围。
 
 在同一 Release196 固定近景中，未赋值贴图绕过采样循环的候选测得 GI 合计中位 45.106 ms、p95／p99 46.046／46.537 ms。原窗口为 45.006／45.887／46.349 ms。未达到预定收益，候选未纳入产品。25 ms 软件时间缺口保持开放。[同输入裁决](../LocalComparison/Review/software-default-maps-238/decision.json)
