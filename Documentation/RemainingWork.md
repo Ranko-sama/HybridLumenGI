@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release212 同源交付](../LocalComparison/Review/texture-quota-tightening-254/delivery.json)
 
+T6／G4 已关闭撤回分页请求后仍启动无人请求依赖的路径。健康页取得当步名额，原在途材质包照常释放，重入恢复加载。高速冷入与原生 I/O 成本继续验收。[调度对照](../LocalComparison/Review/withdrawn-dependency-io-256/result.md)
+
 T6／G4 已关闭当帧末尾相机收紧贴图上传上限时清除有效等待的路径。额度恢复后轮到原等待上传，当帧装不下时仍可录制合格小页。原生成本与完整负载继续验收。[调度对照](../LocalComparison/Review/texture-quota-tightening-254/result.md)
 
 T5／G4 已关闭宽场景 Far 书签越过可见远界及加载界的缺口。旧场景与新生成场景均沿实际包围盒确定合法机位，根仍按原完整就绪门发布。冷高速首显是独立未完成项。[书签对照](../LocalComparison/Review/far-bookmark-255/result.md)

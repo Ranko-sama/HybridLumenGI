@@ -349,7 +349,54 @@ Check(brokenPage.Status == Stream.Phase.Ready, "An eligible retry must still com
 Console.WriteLine("PASS load retry admission: healthy group completes during backoff; the original request retries at expiry and completes.");
 CheckFailedAssetRetirement();
 Check(CheckBundleIoHeadroom(), "An admitted large page must make progress while smaller file reads overlap");
+CheckWithdrawnBundleDependency();
 Console.WriteLine("PASS multiview cold-demand capability; actual C# representation/driver/scheduler, adapted Unity objects and IO. No Unity/AssetBundle/GPU/HLOD native-chain acceptance.");
+
+static void CheckWithdrawnBundleDependency()
+{
+    var fixture = new Fixture(new[] { Fixture.Page("material", Stream.Kind.Material, "texture"),
+        Fixture.Page("texture", Stream.Kind.Texture), Fixture.Page("z-healthy", Stream.Kind.Geometry) });
+    fixture.budget.startsPerStep = 1;
+    fixture.ApplyBudget();
+    var material = fixture.state.GetState("material");
+    var texture = fixture.state.GetState("texture");
+    var healthy = fixture.state.GetState("z-healthy");
+    var requester = new object();
+    Check(fixture.driver.SetRequests(requester, new[] { material.Id }), "Material request failed");
+    fixture.Drive();
+    Check(material.Status == Stream.Phase.LoadingBundle && texture.Status == Stream.Phase.Unloaded &&
+        fixture.state.ActiveOperations == 1, "Expected only the material file to be in flight");
+    var oldRead = fixture.provider.operations.Single();
+    uint oldGeneration = material.Generation;
+
+    fixture.driver.RemoveRequests(requester);
+    Check(fixture.driver.SetRequests(new object(), new[] { healthy.Id }), "Healthy request failed");
+    fixture.Drive();
+    Console.WriteLine($"Withdrawn dependency: material={material.Status}, texture={texture.Status}, healthy={healthy.Status}, starts={fixture.state.OperationsStarted}.");
+    Check(!oldRead.done && material.Status == Stream.Phase.LoadingBundle && material.Generation == oldGeneration &&
+        texture.Status == Stream.Phase.Unloaded && healthy.Status == Stream.Phase.LoadingBundle,
+        "Retaining a withdrawn in-flight material started its unrequested texture instead of the healthy page");
+
+    oldRead.done = true;
+    fixture.Drive();
+    Check(material.Status == Stream.Phase.Releasing && texture.Status == Stream.Phase.Unloaded &&
+        fixture.state.BundleBytes == 20 && fixture.state.ResidentBytes == 0,
+        "The withdrawn bundle did not enter normal release with its reservation intact");
+    fixture.provider.operations.Last().done = true;
+    fixture.Drive();
+    Check(material.Status == Stream.Phase.Unloaded && fixture.state.BundleBytes == 10,
+        "Completing release did not return only the withdrawn material bundle's reservation");
+
+    Check(fixture.driver.SetRequests(requester, new[] { material.Id }), "Renewed material request failed");
+    for (int step = 0; step < 8 && material.Status != Stream.Phase.Ready; step++)
+    {
+        fixture.provider.CompleteAll();
+        fixture.Drive();
+    }
+    Check(material.Status == Stream.Phase.Ready && material.Generation > oldGeneration &&
+        texture.Status == Stream.Phase.Ready && healthy.Status == Stream.Phase.Ready,
+        "A renewed material request could not load its dependency or recover after safe release");
+}
 
 static void CheckFailedAssetRetirement()
 {

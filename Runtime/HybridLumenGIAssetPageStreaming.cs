@@ -54,7 +54,7 @@ namespace HybridLumenGI
             internal State[] dependencies;
             internal IOperation operation;
             internal object bundle, asset;
-            internal bool requested, bundleReserved, residentReserved;
+            internal bool requested, loadRequested, bundleReserved, residentReserved;
             internal int referenceCount, releasePins;
             internal long priority, requestedPriority, requestedAt, loadRetryAt, releaseRetryAt;
             public string Id => definition.id;
@@ -238,6 +238,8 @@ namespace HybridLumenGI
             foreach(var state in states){state.Wanted=false;state.priority=state.requestedPriority;}
             foreach(var state in states)
                 if(state.requested)MarkWanted(state,state.requestedPriority);
+            // Only live requests and their dependencies can start new loads.
+            foreach(var state in states)state.loadRequested=state.Wanted;
             // Retained operations keep unrequested pages alive without overriding
             // the priority already inherited from an admitted group.
             foreach(var state in states)
@@ -264,7 +266,7 @@ namespace HybridLumenGI
             foreach(var state in ordered)
             {
                 if(!CanStart(budgets))break;
-                if(!state.Wanted || state.operation!=null || tick<state.loadRetryAt || tick<state.releaseRetryAt || state.Status==Phase.ReleaseFailed)continue;
+                if(!state.loadRequested || state.operation!=null || tick<state.loadRetryAt || tick<state.releaseRetryAt || state.Status==Phase.ReleaseFailed)continue;
                 if(state.Status==Phase.Unloaded || (state.Status==Phase.Failed && !state.bundleReserved))
                 {
                     long bytes=state.definition.fileBytes;
