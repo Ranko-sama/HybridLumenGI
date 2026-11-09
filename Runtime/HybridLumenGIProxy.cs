@@ -158,7 +158,7 @@ namespace HybridLumenGI
 
         private void OnEnable()
         {
-            sourceRenderer ??= GetComponent<Renderer>();
+            if (sourceRenderer == null) sourceRenderer = GetComponent<Renderer>();
             if (sourceCollider == null) sourceCollider = GetComponent<Collider>();
             if (stableId == 0) stableId = NextExactInteger(ref nextStableId);
             if (!Active.Contains(this)) Active.Add(this);
@@ -255,7 +255,7 @@ namespace HybridLumenGI
         {
             if (Interlocked.Exchange(ref validationPending,0)!=0)
             {
-                sourceRenderer ??= GetComponent<Renderer>();
+                if (sourceRenderer == null) sourceRenderer = GetComponent<Renderer>();
                 if (sourceCollider == null) sourceCollider = GetComponent<Collider>();
                 if (hlodParent == this) hlodParent = null;
             }
