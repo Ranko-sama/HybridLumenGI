@@ -1,0 +1,60 @@
+{
+  "status": "measured-benefit-insufficient",
+  "adopt": false,
+  "criteria": {
+    "medianAtLeastFivePercent": false,
+    "beyondBlockSpread": false,
+    "lowerP95": false,
+    "lowerP99": false
+  },
+  "medianReductionMs": -0.09972799999999893,
+  "medianReductionPercent": -0.2215879175748382,
+  "baselineBlockMedianMs": [
+    44.895648,
+    45.098432,
+    45.070064,
+    44.943231999999995
+  ],
+  "candidateBlockMedianMs": [
+    45.068288,
+    45.100752,
+    45.214528,
+    45.01432
+  ],
+  "maxBlockMedianSpreadMs": 0.20278400000000119,
+  "baseline": {
+    "count": 512,
+    "medianMs": 45.006064,
+    "p95Ms": 45.8867376,
+    "p99Ms": 46.34933664,
+    "maxMs": 48.040192
+  },
+  "candidate": {
+    "count": 512,
+    "medianMs": 45.105792,
+    "p95Ms": 46.0461856,
+    "p99Ms": 46.5371952,
+    "maxMs": 47.391456000000005
+  },
+  "withinReferenceGiP95": false,
+  "withinReferenceLocalLimit": true,
+  "baselineEvidence": "../software-coverage-231/result.md",
+  "productBase": "ed3ec03994e8e4a7c11f43f0759a70ed24116484",
+  "candidateOverlay": [
+    "Runtime/Resources/HybridLumenGI/HybridLumenGIHitMaterials.hlsl"
+  ],
+  "candidateChange": "Use the same defaults directly if none of the required maps are assigned.",
+  "scope": "The fixed Release196 near view with the single-shader unassigned material-map fast path candidate.",
+  "window": {
+    "sourceStart": 159,
+    "sourceEnd": 670,
+    "count": 512,
+    "fullWidth": 960,
+    "fullHeight": 540,
+    "giWidth": 480,
+    "giHeight": 270
+  },
+  "localSampledPeakMiB": 549.63671875,
+  "nonlocalSampledPeakMiB": 277.7890625,
+  "runDirectory": "I:\\Unity test\\Comparison\\SoftwareDefaultMaps238\\run\\20261109-100158-d8443e1a39394db09736fc8e33d6f646"
+}

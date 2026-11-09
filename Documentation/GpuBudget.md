@@ -8,6 +8,8 @@ Release196 已采用精确软件覆盖去重。在同一固定近景和画质下
 
 后续在同一固定近景试过将缓冲尺寸校验和三角求交准备移到每条射线的叶遍历前。实机 GI 合计中位为 45.212 ms，p95／p99 为 46.439／47.092 ms，三项均高于上述 Release196 窗口，进程 local 有限采样峰值为 549.637 MiB。已撤回候选，沿用 Release196 的实测与适用范围。
 
+在同一 Release196 固定近景中，未赋值贴图绕过采样循环的候选测得 GI 合计中位 45.106 ms、p95／p99 46.046／46.537 ms。原窗口为 45.006／45.887／46.349 ms。未达到预定收益，候选未纳入产品。25 ms 软件时间缺口保持开放。[同输入裁决](../LocalComparison/Review/software-default-maps-238/decision.json)
+
 Release195 固定近景的精确软件窗口已取得同源结果。960×540、半分辨率 GI、2 射线和 4 级滤波下，GI 三段合计 p95／p99 为 50.005／50.545 ms，超过 25 ms 的时间预算。进程 local／nonlocal 有限采样峰值为 576.637／281.664 MiB，local 在 1 GiB 限额内。该窗口说明软件后端的使用边界，锁定的 G0 基线为 DXR。[实测与范围](../LocalComparison/Review/software-budget-230/result.md)
 
 Release167 统一三室在原热态近远路线实测两方向各 10 次完整 HLOD 接替。480 个接替和退休源帧的三段 GI 合计 p95／p99 为 16.522／17.345 ms，完整路线进程 local／nonlocal 有限采样峰值为 568.508／290.320 MiB，两项起始预算通过。冷入、启动和应用 Present 节奏单列。[路线、接替窗口及范围](../LocalComparison/Review/hot-hlod-budget-192/result.md)
