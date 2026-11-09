@@ -29,6 +29,18 @@ bool HLGIHasSourceCacheMeasurement(float4 irradiance,float4 guide,float4 nonAnal
     return HLGIHasCacheMeasurement(irradiance,guide) && all(isfinite(nonAnalyticIrradiance));
 }
 
+// Stored in the fourth component of the non-analytic cache alongside the
+// three per-channel analytic refresh bits.
+static const uint HLGI_CACHE_VISIBILITY_REFRESH=1u;
+static const uint HLGI_CACHE_ANALYTIC_REFRESH_SHIFT=1u;
+
+float3 HLGIReplaceCacheChannels(float3 value,float3 replacement,uint channels)
+{
+    return float3((channels&1u)!=0u?replacement.r:value.r,
+                  (channels&2u)!=0u?replacement.g:value.g,
+                  (channels&4u)!=0u?replacement.b:value.b);
+}
+
 // Call after identity/epoch/geometry invalidation. Failure keeps only a still
 // valid old estimate, including its guide and sample count; invalid old data
 // cannot be resurrected by a failed update.
@@ -52,9 +64,8 @@ bool HLGICommitCacheEstimate(bool known,float3 sum,float3 guideSum,float guidePo
     irradiance=next;guide=nextGuide;return true;
 }
 
-// Both source classes use the same accepted rays, validity, age and temporal
-// weight. Keep the established total-D commit unchanged; never recover the
-// non-analytic component by subtracting two nearly equal bright estimates.
+// Both source classes use the same accepted rays, validity and age.
+// Accumulate the non-analytic component directly to preserve faint sources.
 bool HLGICommitSourceCacheEstimate(bool known,float3 sum,float3 nonAnalyticSum,
     float3 guideSum,float guidePower,int rayCount,float3 normal,
     inout float4 irradiance,inout float4 guide,inout float4 nonAnalyticIrradiance)
@@ -65,13 +76,22 @@ bool HLGICommitSourceCacheEstimate(bool known,float3 sum,float3 nonAnalyticSum,
     float4 next=irradiance,nextGuide=guide;
     // The pending visibility refresh keeps the stored age for display and
     // readiness. Apply replacement weighting only to a successful commit.
-    if(nonAnalyticIrradiance.w>0.5) next.a=min(next.a,0.5);
+    uint refreshFlags=(uint)nonAnalyticIrradiance.w;
+    if((refreshFlags&HLGI_CACHE_VISIBILITY_REFRESH)!=0u) next.a=min(next.a,0.5);
     bool blend=next.a>=1;
     if(!HLGICommitCacheEstimate(known,sum,guideSum,guidePower,rayCount,normal,next,nextGuide)) return false;
     float3 estimate=nonAnalyticSum/rayCount;
     float alpha=max(1/next.a,0.1);
     float4 nextNonAnalytic=float4(blend?lerp(nonAnalyticIrradiance.rgb,estimate,alpha):estimate,0);
-    if(!all(isfinite(nextNonAnalytic))) return false;
+    uint refreshChannels=refreshFlags>>HLGI_CACHE_ANALYTIC_REFRESH_SHIFT;
+    if(blend && refreshChannels!=0u)
+    {
+        // Rebuild the affected analytic channels and keep the current
+        // temporal estimate of emission and environment contributions.
+        float3 analytic=max(sum/rayCount-estimate,0);
+        next.rgb=HLGIReplaceCacheChannels(next.rgb,nextNonAnalytic.rgb+analytic,refreshChannels);
+    }
+    if(!all(isfinite(nextNonAnalytic)) || !all(isfinite(next.rgb))) return false;
     irradiance=next;guide=nextGuide;nonAnalyticIrradiance=nextNonAnalytic;return true;
 }
 

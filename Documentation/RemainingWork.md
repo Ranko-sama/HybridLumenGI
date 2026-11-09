@@ -4,11 +4,13 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release206 同源交付](../LocalComparison/Review/cutout-upload-reach-247/delivery.json)
 
+T3／G3 已关闭固定双点光共用颜色通道且一盏调暗时的旧亮残留和低亮恢复缺口。实际 DXR 的旧绿、终态亮度、色向、保持以及固定蓝通道均通过原门槛。适用范围为固定点灯和既有局部照明域，其他光路及普通 Player 动态画质继续验收。[共通道同曝光对照](../LocalComparison/Review/point-light-shared-channel-248/result.md)
+
 T3／G3 已关闭静态裁剪贴图分段上传使远接收面漏刷的路径。实机 DXR 在最后写入与验证后重新绑定的可用帧触发原局部软反应。采用范围为阴影覆盖恢复的通知与调度，整项动态画质继续验收。[对照与范围](../LocalComparison/Review/cutout-upload-reach-247/result.md)
 
 T6／G4 已关闭资产加载退避阻塞失败包释放，以及新 RTAS 计划自身超限后旧预约继续挡住健康相机的缺口。两种资源都在现有完成门后归还额度。已确认原加载退避和临时 RTAS 余额等待仍正常。原生 I/O、冷入首显和生产负载继续验收。[受控调度对照与边界](../LocalComparison/Review/shared-budget-retirement-244-245/result.md)
 
-T3／G3 已关闭固定双点光的独立颜色通道中，部分光源调暗时的旧亮残留与低亮恢复缺口。旧绿增量、终态亮度和色向、保持与蓝光稳定性均达到原门槛。共通道但不同倍率、其他灯路、升亮与普通 Player 动态画质仍在原验收范围内。[实际双灯对照](../LocalComparison/Review/point-light-channels-243/result.md)
+T3／G3 已关闭固定双点光的独立颜色通道中，部分光源调暗时的旧亮残留与低亮恢复缺口。旧绿增量、终态亮度和色向、保持与蓝光稳定性均达到原门槛。[实际双灯对照](../LocalComparison/Review/point-light-channels-243/result.md)
 
 T3／G3 已关闭固定单点光正比例调暗的旧亮残留和低亮恢复缺口。原 1／2 秒门槛、匹配低亮控制与保持条件通过。[同曝光对照](../LocalComparison/Review/point-light-intensity-241/result.md)
 

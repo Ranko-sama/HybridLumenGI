@@ -1644,11 +1644,19 @@ namespace HybridLumenGI
                 cmd.SetComputeIntParam(c,"_HLGI_ProxyCount",state.scene.Capacity);cmd.SetComputeIntParam(c,"_HLGI_LightCount",d.lightCount);
                 cmd.SetComputeIntParam(c,"_HLGI_NonAnalyticOnlyChannels",d.nonAnalyticOnlyChannels);
                 Vector4 dimScale=Vector4.one;
+                int refreshChannels=0;
                 if(current && d.epoch==state.epoch && state.recordedLightEpoch==d.epoch &&
                     state.recordedLightCount==d.lightCount && state.lightChanges.Count>0)
+                {
                     for(int channel=0;channel<3;channel++)
-                        dimScale[channel]=PointLightChannelDimScale(state.recordedLightData,state.lightData,d.lightCount,channel);
+                    {
+                        dimScale[channel]=PointLightChannelDimScale(state.recordedLightData,state.lightData,d.lightCount,channel,
+                            out bool refresh);
+                        if(refresh)refreshChannels|=1<<channel;
+                    }
+                }
                 cmd.SetComputeVectorParam(c,"_HLGI_PointLightDimScale",dimScale);
+                cmd.SetComputeIntParam(c,"_HLGI_PointLightRefreshChannels",refreshChannels);
                 cmd.SetComputeIntParam(c,"_HLGI_Epoch",d.epoch);cmd.SetComputeIntParam(c,"_HLGI_FrameIndex",d.frame);
                 cmd.SetComputeIntParam(c,"_HLGI_CacheGrid",state.patchGrid);
                 cmd.SetComputeFloatParam(c,"_HLGI_GuideWeight",Mathf.Clamp(s.guidedSamplingWeight,0,0.8f));
@@ -1738,29 +1746,31 @@ namespace HybridLumenGI
             private static void Dispatch(CommandBuffer cmd,ComputeShader c,int k,CameraState state)
             { cmd.DispatchCompute(c,k,(state.width+7)/8,(state.height+7)/8,1); }
             private static float PointLightChannelDimScale(HybridLumenGILights.Data[] recorded,
-                HybridLumenGILights.Data[] prepared,int count,int channel)
+                HybridLumenGILights.Data[] prepared,int count,int channel,out bool refresh)
             {
-                // This cache sums the analytic paths in each channel. The sum can be
-                // rescaled only when every contributing source has the same decrease.
-                float scale=0;
+                refresh=false;
+                // A common ratio scales the sum. Mixed ratios require a fresh estimate.
+                float scale=1;
+                bool hasContributor=false, mixedRatios=false;
                 for(int i=0;i<count;i++)
                 {
                     var before=recorded[i];var after=prepared[i];
                     float oldValue=before.color[channel],newValue=after.color[channel];
                     if(oldValue==0 && newValue==0) continue;
-                    if(oldValue<=0 || newValue<=0 || newValue>=oldValue || before.positionType.w!=1 || before.spot.w!=0 ||
+                    if(oldValue<=0 || newValue<=0 || newValue>oldValue || before.positionType.w!=1 || before.spot.w!=0 ||
                         !before.positionType.Equals(after.positionType) || !before.directionRange.Equals(after.directionRange) ||
                         !before.spot.Equals(after.spot) || before.cullingMask!=after.cullingMask ||
                         before.renderingLayers!=after.renderingLayers || before.shadowRenderingLayers!=after.shadowRenderingLayers ||
                         before.flags!=after.flags) return 1;
-                    if(scale==0)
+                    if(!hasContributor)
                     {
                         scale=newValue/oldValue;
-                        if(scale<=0) return 1;
+                        hasContributor=true;
                     }
-                    else if(oldValue*scale!=newValue) return 1;
+                    else if(oldValue*scale!=newValue) mixedRatios=true;
                 }
-                return scale>0?scale:1;
+                refresh=mixedRatios;
+                return mixedRatios || scale<=0 ? 1 : scale;
             }
             private int UpdateLights(CameraState state,bool useRenderingLayers,UniversalCameraData cameraData,Matrix4x4 view,Matrix4x4 invVP,
                 Light mainLight,bool additionalRealtimeShadows,out int nonAnalyticOnlyChannels)

@@ -18,7 +18,7 @@ struct HLGILight
 // global-light replacement, and values >=1 hold the history/readiness weight.
 // Total D and the emission/environment-origin subset share one measurement age.
 // The second RGB is carried directly through the same rays, never subtracted.
-// Its alpha marks a visibility refresh pending on a retained measurement.
+// Its alpha stores pending visibility and analytic channel refresh flags.
 struct HLGICacheEntry { float4 irradiance; float4 tag; float4 anchor; float4 normal; float4 guide; float4 nonAnalyticIrradiance; };
 StructuredBuffer<HLGIProxy> _HLGI_Proxies;
 StructuredBuffer<HLGILight> _HLGI_Lights;
@@ -28,6 +28,7 @@ int _HLGI_ProxyCount, _HLGI_LightCount, _HLGI_Epoch, _HLGI_FrameIndex;
 int _HLGI_NonAnalyticOnlyChannels;
 #if defined(HLGI_CACHE_UPDATE_ITERATION)
 float4 _HLGI_PointLightDimScale;
+int _HLGI_PointLightRefreshChannels;
 #endif
 int _HLGI_CacheGrid, _HLGI_CacheRays;
 StructuredBuffer<uint> _HLGI_CacheUpdateMask;
@@ -57,9 +58,7 @@ float3 HLGIActiveCacheIrradiance(float3 total,float3 nonAnalytic)
         total=float3(scale.x<1?adjusted.x:total.x,scale.y<1?adjusted.y:total.y,scale.z<1?adjusted.z:total.z);
     }
 #endif
-    return float3((_HLGI_NonAnalyticOnlyChannels&1)!=0?nonAnalytic.r:total.r,
-                  (_HLGI_NonAnalyticOnlyChannels&2)!=0?nonAnalytic.g:total.g,
-                  (_HLGI_NonAnalyticOnlyChannels&4)!=0?nonAnalytic.b:total.b);
+    return HLGIReplaceCacheChannels(total,nonAnalytic,(uint)_HLGI_NonAnalyticOnlyChannels);
 }
 #include "HybridLumenGILightingPolicy.hlsl"
 #include "HybridLumenGISdfTrace.hlsl"
@@ -322,7 +321,8 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
 #if defined(HLGI_CACHE_UPDATE_ITERATION)
         // Target invalidation writes the other pool; reject stale source taps
         // from this iteration's old pool before they can feed another patch.
-        if(e.nonAnalyticIrradiance.w>0.5 || HLGIRejectOldCacheInputAt(e.anchor.xyz)) continue;
+        uint refreshFlags=(uint)e.nonAnalyticIrradiance.w;
+        if((refreshFlags&HLGI_CACHE_VISIBILITY_REFRESH)!=0u || HLGIRejectOldCacheInputAt(e.anchor.xyz)) continue;
 #endif
         // A channel absent from the current light table has no analytic contribution at any bounce.
         e.irradiance.rgb=HLGIActiveCacheIrradiance(e.irradiance.rgb,e.nonAnalyticIrradiance.rgb);
@@ -356,6 +356,17 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
                 continue;
             }
         }
+#if defined(HLGI_CACHE_UPDATE_ITERATION)
+        uint refreshChannels=refreshFlags>>HLGI_CACHE_ANALYTIC_REFRESH_SHIFT;
+        [branch] if(_HLGI_PointLightRefreshChannels!=0)
+        {
+            if(HLGIChangeAt(e.anchor.xyz).y>0.5) refreshChannels|=(uint)_HLGI_PointLightRefreshChannels;
+        }
+        // Keep the old measurement available to gather while world iteration
+        // refreshes the affected analytic channels from current inputs.
+        if(refreshChannels!=0u)
+            e.irradiance.rgb=HLGIReplaceCacheChannels(e.irradiance.rgb,e.nonAnalyticIrradiance.rgb,refreshChannels);
+#endif
         totalWeight+=weight;result.irradiance+=e.irradiance*weight;result.guide+=e.guide*weight;
         result.nonAnalyticIrradiance+=e.nonAnalyticIrradiance*weight;
     }
@@ -651,8 +662,13 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
     // Nearby changes retain an estimate but shorten its history, even if this patch awaits budget.
     if(change.y>0.5) e.irradiance.a=min(e.irradiance.a,1);
 #if defined(HLGI_CACHE_UPDATE_ITERATION)
-    if(e.irradiance.a>0 && HLGIDisjointPoseInfluenceAt(surface.position))
-        e.nonAnalyticIrradiance.w=1;
+    if(e.irradiance.a>0)
+    {
+        uint refreshFlags=(uint)e.nonAnalyticIrradiance.w;
+        if(change.y>0.5) refreshFlags|=(uint)_HLGI_PointLightRefreshChannels<<HLGI_CACHE_ANALYTIC_REFRESH_SHIFT;
+        if(HLGIDisjointPoseInfluenceAt(surface.position)) refreshFlags|=HLGI_CACHE_VISIBILITY_REFRESH;
+        e.nonAnalyticIrradiance.w=(float)refreshFlags;
+    }
 #endif
     e.tag=float4(tag,surface.generation);
     float2 geometricOct=PackNormalOctQuadEncode(surface.geometricNormal);
