@@ -4,6 +4,11 @@ using HybridLumenGI;
 using UnityEngine;
 using Stream=HybridLumenGI.HybridLumenGIAssetPageStreaming;
 static void Check(bool value,string reason){if(!value)throw new Exception(reason);}
+if (args.Contains("--bundle-io-headroom"))
+{
+    Environment.ExitCode = CheckBundleIoHeadroom() ? 0 : 1;
+    return;
+}
 var configure=typeof(HybridLumenGIStreamedRepresentation).GetMethod("SetAdditionalObservers");
 void Additional(Fixture f,params Transform[] views){Check(configure!=null,"Additional-view capability missing");configure.Invoke(f.representation,new object[]{views});}
 var cold=new Fixture();
@@ -342,7 +347,69 @@ for (int step = 0; step < 16 && brokenPage.Status != Stream.Phase.Ready; step++)
 }
 Check(brokenPage.Status == Stream.Phase.Ready, "An eligible retry must still complete after the bundle becomes readable");
 Console.WriteLine("PASS load retry admission: healthy group completes during backoff; the original request retries at expiry and completes.");
+Check(CheckBundleIoHeadroom(), "An admitted large page must make progress while smaller file reads overlap");
 Console.WriteLine("PASS multiview cold-demand capability; actual C# representation/driver/scheduler, adapted Unity objects and IO. No Unity/AssetBundle/GPU/HLOD native-chain acceptance.");
+
+static bool CheckBundleIoHeadroom()
+{
+    const long MiB = 1L << 20;
+    var shared = Fixture.Page("shared", Stream.Kind.Material);
+    shared.fileBytes = 10 * MiB;
+    var large = Fixture.Page("large", Stream.Kind.Geometry, shared.id);
+    large.fileBytes = 50 * MiB;
+    var smallPages = Enumerable.Range(0, 6).Select(index =>
+    {
+        var page = Fixture.Page($"small-{index}", Stream.Kind.Geometry, shared.id);
+        page.fileBytes = 30 * MiB;
+        return page;
+    }).ToArray();
+    var definitions = new[] { shared, large }.Concat(smallPages).ToArray();
+    var fixture = new Fixture(definitions);
+    fixture.budget = Stream.Budgets.Default;
+    fixture.budget.maxIoBytesInFlight = 60 * MiB;
+    fixture.ApplyBudget();
+
+    Check(fixture.driver.SetRequests(new object(), new[] { shared.id }), "Shared material request was rejected");
+    for (int step = 0; step < 3; step++)
+    {
+        fixture.provider.CompleteAll();
+        fixture.Drive();
+    }
+    Check(fixture.state.GetState(shared.id).Status == Stream.Phase.Ready, "Shared dependency must be ready before the overlap");
+
+    void RequestSmall(int index) => Check(fixture.driver.SetRequests(new object(), new[] { smallPages[index].id }),
+        "Small group request was rejected");
+    RequestSmall(0);
+    RequestSmall(1);
+    fixture.Drive();
+    Check(fixture.state.IoBytesInFlight == 60 * MiB, "Two small file reads must already be in flight");
+    Check(fixture.driver.SetRequests(new object(), new[] { large.id }, priority: 1), "Large group request was rejected");
+    var largePage = fixture.state.GetState(large.id);
+
+    int largeStarted = 0, largeReady = 0;
+    for (int step = 1; step <= 8; step++)
+    {
+        if (step % 2 == 0) RequestSmall(1 + step / 2);
+        var pending = fixture.provider.operations.FirstOrDefault(op => !op.done && op.phase == "asset") ??
+            fixture.provider.operations.First(op => !op.done);
+        pending.done = true;
+        fixture.Drive();
+        Check(largePage.Wanted && fixture.driver.BudgetBlockedGroups == 0, "The whole large group must remain admitted");
+        long inFlight = definitions.Where(page => fixture.state.GetState(page.id).Status == Stream.Phase.LoadingBundle)
+            .Sum(page => page.fileBytes);
+        Check(fixture.state.IoBytesInFlight == inFlight && inFlight <= fixture.budget.maxIoBytesInFlight &&
+            fixture.state.IoBytesStarted <= fixture.budget.ioBytesPerStep &&
+            fixture.state.ActiveOperations == fixture.provider.operations.Count(op => !op.done) &&
+            fixture.state.ActiveOperations <= fixture.budget.concurrentOperations &&
+            fixture.state.OperationsStarted <= fixture.budget.startsPerStep, "File or operation accounting exceeded the shared limits");
+        if (largeStarted == 0 && largePage.Status == Stream.Phase.LoadingBundle) largeStarted = step;
+        if (largeReady == 0 && largePage.Status == Stream.Phase.Ready) largeReady = step;
+    }
+
+    bool smallReady = fixture.state.GetState(smallPages[2].id).Status == Stream.Phase.Ready;
+    Console.WriteLine($"Bundle IO headroom: large start={largeStarted}, ready={largeReady}, first later small ready={smallReady} after 8 steps (0 means no event).");
+    return largeStarted > 0 && largeReady > 0 && smallReady;
+}
 
 sealed class Completion : Stream.ICompletion
 {

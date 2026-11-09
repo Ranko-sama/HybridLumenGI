@@ -260,6 +260,7 @@ namespace HybridLumenGI
                 try {state.operation=provider.Release(state.definition,state.bundle,state.asset) ?? throw new InvalidOperationException("No page release operation.");state.Status=Phase.Releasing;ActiveOperations++;}
                 catch(Exception ex){state.LastError=ex.Message;state.retryAt=tick+60;}
             }
+            bool preserveIoHeadroom = false;
             foreach(var state in ordered)
             {
                 if(!CanStart(budgets))break;
@@ -267,9 +268,16 @@ namespace HybridLumenGI
                 if(state.Status==Phase.Unloaded || (state.Status==Phase.Failed && !state.bundleReserved))
                 {
                     long bytes=state.definition.fileBytes;
-                    if(!Fits(bytes,IoBytesStarted,budgets.ioBytesPerStep) || !Fits(bytes,IoBytesInFlight,budgets.maxIoBytesInFlight) ||
+                    if(preserveIoHeadroom || bytes>budgets.maxIoBytesInFlight || !Fits(bytes,IoBytesStarted,budgets.ioBytesPerStep) ||
                         !Fits(bytes,BundleBytes,budgets.maxBundleBytes)){BudgetBlocked++;continue;}
                     if(generation==uint.MaxValue){state.LastError="Non-reusable page generation space exhausted.";continue;}
+                    if (!Fits(bytes, IoBytesInFlight, budgets.maxIoBytesInFlight))
+                    {
+                        // Let pending reads drain for this higher-ranked page. Asset loads can still proceed.
+                        preserveIoHeadroom = true;
+                        BudgetBlocked++;
+                        continue;
+                    }
                     OperationsStarted++;IoBytesStarted+=bytes;IoBytesInFlight+=bytes;BundleBytes+=bytes;state.bundleReserved=true;state.Generation=++generation;
                     try {state.operation=provider.LoadBundle(state.definition) ?? throw new InvalidOperationException("No bundle load operation.");state.Status=Phase.LoadingBundle;state.LastError=null;ActiveOperations++;}
                     catch(Exception ex){IoBytesInFlight-=bytes;BundleBytes-=bytes;state.bundleReserved=false;Fail(state,ex.Message);}
