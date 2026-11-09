@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release205，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release206，G0 已锁定，G1／G2 本机代表性验收通过
 
-T3／G3 已关闭裁剪 BaseMap 分段上传时漏掉远接收面刷新的缺口。实机 DXR 的最后写入帧与经验证重新绑定帧均恢复地板软反应，调度优先级从 0 升至 1000。稳定可用后无重复通知。像素残留、拖影及收敛时间继续验收。[实机对照与范围](../LocalComparison/Review/cutout-upload-reach-247/result.md)
+T3／G3 已关闭裁剪 BaseMap 分段上传时漏掉远接收面刷新的缺口。实机 DXR 的最后写入帧与经验证重新绑定帧均恢复地板软反应，调度优先级从 0 升至 1000。稳定可用后无重复通知。像素残留、拖影及收敛时间继续验收。[实机对照与范围](../LocalComparison/Review/cutout-upload-reach-247/result.md) · [同源交付](../LocalComparison/Review/cutout-upload-reach-247/delivery.json)
 
 T6／G4 已关闭两个共享容量阻断。分页的资产加载失败后，失败包可在加载退避期间退休，健康组取得额度，原请求仍按原时点重试。新 RTAS 计划自身超限且旧结构无法复用时，旧预约经安全退休归还，另一相机恢复录制准入。证据范围为实际 C# 调度与受控完成，冷入首显和生产负载预算继续验收。[两个对照](../LocalComparison/Review/shared-budget-retirement-244-245/result.md) · [同源交付](../LocalComparison/Review/shared-budget-retirement-244-245/delivery.json)
 
