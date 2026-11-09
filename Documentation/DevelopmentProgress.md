@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release215，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release216，G0 已锁定，G1／G2 本机代表性验收通过
 
-T2／G3 已关闭作者默认裁剪材质在单采样下无法积累可选身份历史的缺口。实机同输入的两个实心点由无身份、年龄 1 恢复到前板身份、年龄 16。两个裁剪孔洞取得后板身份，实际 A2C 的拒绝门继续生效。[实机配对与范围](../LocalComparison/Review/author-cutout-history-263/result.md)
+T2／G3 已关闭作者默认裁剪材质在单采样下无法积累可选身份历史的缺口。实机同输入的两个实心点由无身份、年龄 1 恢复到前板身份、年龄 16。两个裁剪孔洞取得后板身份，实际 A2C 的拒绝门继续生效。[实机配对与范围](../LocalComparison/Review/author-cutout-history-263/result.md) · [Release216 同源交付](../LocalComparison/Review/author-cutout-history-263/delivery.json)
 
 T6／G4–G5 已关闭原固定热态近远接替的应用 Present 墙钟节奏子项。Release215 两方向各十次完整接替，应用 Present 间隔 p95／p99 为 19.801／24.643 ms，最大 30.214 ms。同次 GI 合计 p95 为 17.365 ms，进程 local 采样峰值 570.941 MiB，两项达到起始预算。末源帧的延迟返回仍缺，事前逐帧资格判定保留。[实机结果及采用范围](../LocalComparison/Review/hot-hlod-unity-present-261/result.md)
 
