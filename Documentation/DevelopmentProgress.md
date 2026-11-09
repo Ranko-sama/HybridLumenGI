@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release190，G0 已锁定，G1／G2 本机代表性验收通过
 
+补齐原 Validation 的实际相机栈历史隔离子项。Release190 同源 DXR Editor 实测中，原生 Overlay 的标记进入输出，GI 仍只维护 Base 状态，固定地板的 GPU 历史连续保留。原双独立 Base 切镜结论各自采用。[同栈原图与读数](../LocalComparison/Review/stack-history-221/result.md)
+
 补齐原 Validation 的奇数尺寸和低渲染比例边缘子项。Release190 同源普通 DXR Player 在 URP 1.0 和 0.5 下均输出完整的 1919×1079 相机画面，四条最外边都有 GI 置信度信号。采用范围为固定机位的稳定相机输出。[两张原图及实际尺寸](../LocalComparison/Review/odd-player-edges-220/result.md)
 
 T3／G3 已关闭网格原地编辑后，旧投影者撤出而新上传延期时的远接收面漏报。实际 DXR 在撤出当帧通知旧端并提高远地板调度优先级，随后新网格在可用名额内发布。采用范围为通知、调度和恢复发布，画面残留与收敛分别验收。[延期与恢复实测](../LocalComparison/Review/deferred-caster-reach-219/result.md) · [同源交付](../LocalComparison/Review/deferred-caster-reach-219/delivery.json)
