@@ -212,7 +212,7 @@ namespace HybridLumenGI
         /// reused by every lookup, and released on retirement/disposal. No vertex/index copy is kept.</summary>
         public long TriangleMappingBytes { get; private set; }
 
-        /// <summary>Current prepared identity's geometry notification version, independent of card residency.</summary>
+        /// <summary>Current prepared exact-source geometry version, independent of card residency.</summary>
         public uint GetGeometryRevision(int slot) => TryGetPreparedProxy(slot, out var proxy) ? (uint)proxy.GeometryContentRevision : 0;
 
         /// <summary>O(1) exact original submesh/primitive mapping. Readiness is deliberately left
@@ -283,9 +283,11 @@ namespace HybridLumenGI
             proxy = null;
             if (preparedScene == null || slot < 0 || slot >= preparedScene.Capacity) return false;
             var candidate = preparedScene.GetProxy(slot);
+            if (candidate == null || !candidate.isActiveAndEnabled) return false;
+            Renderer renderer = candidate.SourceRenderer;
             Vector4 identity = preparedScene.Data[slot].identity;
-            if (candidate == null || !candidate.isActiveAndEnabled || candidate.SourceRenderer == null ||
-                !candidate.SourceRenderer.gameObject.activeInHierarchy || candidate.StableId <= 0 || candidate.Revision <= 0 || candidate.GeometryContentRevision <= 0 ||
+            if (renderer == null || !renderer.gameObject.activeInHierarchy || HasUnbakedUv0(renderer) ||
+                candidate.StableId <= 0 || candidate.Revision <= 0 || candidate.GeometryContentRevision <= 0 ||
                 (identity.w != 1f && identity.w != 2f) || identity.x != candidate.StableId || identity.y != candidate.Revision) return false;
             proxy = candidate;
             return true;
@@ -785,7 +787,7 @@ namespace HybridLumenGI
 
         private static bool CanCaptureRegisteredRenderer(Renderer renderer)
         {
-            if (renderer == null || !renderer.gameObject.activeInHierarchy || GetMesh(renderer) == null) return false;
+            if (renderer == null || !renderer.gameObject.activeInHierarchy || GetMesh(renderer) == null || HasUnbakedUv0(renderer)) return false;
             Matrix4x4 objectToWorld = renderer.localToWorldMatrix;
             float determinant = objectToWorld.determinant;
             if (!Finite(determinant) || determinant == 0f) return false;
@@ -796,6 +798,14 @@ namespace HybridLumenGI
             // cannot be assumed to have an updated deformation, so reject it.
             if (ExactSource(renderer)) return true;
             return renderer is SkinnedMeshRenderer && renderer.enabled && !renderer.forceRenderingOff;
+        }
+
+        private static bool HasUnbakedUv0(Renderer renderer)
+        {
+            // Exact hits and explicit card draws read the prepared mesh's UV0.
+            // A separate stream can change the real renderer's coverage and material.
+            Mesh stream = (renderer as MeshRenderer)?.additionalVertexStreams;
+            return stream != null && stream.HasVertexAttribute(VertexAttribute.TexCoord0);
         }
 
         private static bool ExactSource(Renderer renderer) => renderer is MeshRenderer || HybridLumenGIDeformedMesh.HasSnapshot(renderer);

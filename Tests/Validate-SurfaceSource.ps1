@@ -43,9 +43,11 @@ public class SurfaceSourceHarness {
     }
     public static class Mathf { public static float Abs(float value) {return Math.Abs(value);} }
     public static class Time {public static int frameCount=1;}
+    public enum VertexAttribute {TexCoord0}
     public class Mesh {
         public Bounds bounds=new Bounds(new Vector3(0,0,0),new Vector3(2,2,2));
         public int vertexCount=8,subMeshCount=1; public int GetInstanceID() {return 14;}
+        public bool HasVertexAttribute(VertexAttribute attribute) {return false;}
     }
     public class MeshFilter {public Mesh sharedMesh;}
     public class GameObject {public bool activeInHierarchy=true;}
@@ -58,7 +60,7 @@ public class SurfaceSourceHarness {
         public void GetSharedMaterials(List<Material> list) {list.Clear();}
         public void GetPropertyBlock(object block) {}
     }
-    public class MeshRenderer:Renderer {}
+    public class MeshRenderer:Renderer {public Mesh additionalVertexStreams;}
     public class SkinnedMeshRenderer:Renderer {public Mesh sharedMesh {get {return mesh;}}}
     public class Charts {public bool IsValid=true;public uint ContentVersion=1;public Mesh CaptureMesh=new Mesh();}
     public class Proxy {public bool isActiveAndEnabled=true;public int StableId=13,Revision=7,GeometryContentRevision=1;public Renderer SourceRenderer;public Charts SurfaceCharts;}

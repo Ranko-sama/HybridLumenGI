@@ -69,6 +69,7 @@ namespace UnityEngine
     public sealed class Mesh:Object
     {
         public int vertexCount=9;public Bounds bounds=new(Vector3.zero,Vector3.one);public readonly List<MeshTopology> Topologies=new();
+        public bool HasVertexAttribute(Rendering.VertexAttribute attribute)=>false;
         public int subMeshCount=>Topologies.Count;public MeshTopology GetTopology(int i)=>Topologies[i];
         public readonly Dictionary<int,uint> IndexCounts=new(); public int IndexCountReads;
         public uint GetIndexCount(int i){IndexCountReads++;return IndexCounts.TryGetValue(i,out uint count)?count:300;}
@@ -84,7 +85,7 @@ namespace UnityEngine
         public void GetPropertyBlock(MaterialPropertyBlock output){output.Copy(Block);}
         public void GetPropertyBlock(MaterialPropertyBlock output,int index){output.Copy(SubmeshBlocks.TryGetValue(index,out var b)?b:null);}
     }
-    public sealed class MeshRenderer:Renderer{}
+    public sealed class MeshRenderer:Renderer{public Mesh additionalVertexStreams;}
     public sealed class SkinnedMeshRenderer:Renderer{public Mesh sharedMesh;}
     public class Texture:Object {public uint updateCount;public int width=16,height=16,dimension=2,graphicsFormat=1,mipmapCount=1,filterMode=1,wrapModeU,wrapModeV,wrapModeW,anisoLevel=1;public float mipMapBias;public bool isDataSRGB;}
     public sealed class Texture2D:Texture {public static readonly Texture2D whiteTexture=new();public bool streamingMipmaps;public int activeMipmapLimit,loadedMipmapLevel,loadingMipmapLevel;}
@@ -148,6 +149,7 @@ namespace UnityEngine.Rendering
 {
     using UnityEngine;
     public enum DepthBits{None,Depth32}
+    public enum VertexAttribute{TexCoord0}
     public struct RenderTargetIdentifier{public int Id;public RenderTargetIdentifier(int id){Id=id;}}
     public sealed class RTHandle:Object
     {
