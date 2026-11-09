@@ -1,0 +1,39 @@
+{
+  "productCommit": "98e00170e90c6fb9c5ca1651b46a9265dc1fa5fe",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release202-demo",
+  "tag": "release202-demo",
+  "publishedAt": "2026-11-09T10:44:43Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Actual C# scene and BVH with controlled binding and readiness. One bound leaf, 33 declared leaves and 32 slots.",
+    "baselineSource": "f0ea4d22",
+    "comparison": "result.md",
+    "baseline": "Declared 33 / bound 1 / capacity 32: warming=0, published=0, pendingCapacity=0.",
+    "candidate": "Declared 33 / bound 1 / capacity 32: warming=1, published=0, pendingCapacity=1.\nComplete root receipt: published=1, pendingCapacity=1.\nPASS incomplete capacity fallback: one ready root, then atomic replacement by both fitting leaves."
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release202-UnityProject.zip",
+      "size": 853620,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release202-demo/HybridLumenGI-Release202-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release202-Windows-x64.zip",
+      "size": 58021301,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release202-demo/HybridLumenGI-Release202-Windows-x64.zip"
+    }
+  ]
+}

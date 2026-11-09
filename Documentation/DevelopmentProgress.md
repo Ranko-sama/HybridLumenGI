@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release201，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release202，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／G4 已关闭超槽 HLOD 组部分绑定时漏掉粗根回退的问题。实际 Scene 对照中，33 片声明叶面对 32 槽，首叶绑定后根继续预热，完整回执到达后发布。声明缩小后，两片细节按原就绪门原子接替。宽组页需求和高速冷入继续验收。[容量回退对照](../LocalComparison/Review/hlod-incomplete-capacity-240/result.md) · [同源交付](../LocalComparison/Review/hlod-incomplete-capacity-240/delivery.json)
 
 T3／G3 已关闭固定点光仍开启时，旧色通道从灯表消失却继续在缓存中反弹的残留缺口。同曝光实机对照中，约 1／2 秒旧绿从 11.84%／6.02% 降至 0.046%／0.0041%，新蓝持续供光。整项 G3 与新颜色绝对收敛继续验收。[实机对照](../LocalComparison/Review/point-light-recolor-237/result.md) · [同源交付](../LocalComparison/Review/point-light-recolor-237/delivery.json)
 
