@@ -25,6 +25,7 @@ StructuredBuffer<HLGILight> _HLGI_Lights;
 StructuredBuffer<HLGICacheEntry> _HLGI_CacheRead;
 RWStructuredBuffer<HLGICacheEntry> _HLGI_CacheWrite;
 int _HLGI_ProxyCount, _HLGI_LightCount, _HLGI_Epoch, _HLGI_FrameIndex;
+int _HLGI_NonAnalyticOnlyChannels;
 int _HLGI_CacheGrid, _HLGI_CacheRays;
 StructuredBuffer<uint> _HLGI_CacheUpdateMask;
 float _HLGI_GuideWeight;
@@ -39,6 +40,13 @@ float3 HLGIEnvironmentRadiance(float3 direction)
     // Leave nonfinite samples intact for the existing measurement guards.
     return _HLGI_EnvironmentCubeEnabled!=0 ?
         _HLGI_EnvironmentCube.SampleLevel(sampler_HLGIEnvironment_LinearClamp,direction,0).rgb : _HLGI_Environment.rgb;
+}
+float3 HLGIActiveCacheIrradiance(float3 total,float3 nonAnalytic)
+{
+    if(_HLGI_LightCount==0) return nonAnalytic;
+    return float3((_HLGI_NonAnalyticOnlyChannels&1)!=0?nonAnalytic.r:total.r,
+                  (_HLGI_NonAnalyticOnlyChannels&2)!=0?nonAnalytic.g:total.g,
+                  (_HLGI_NonAnalyticOnlyChannels&4)!=0?nonAnalytic.b:total.b);
 }
 #include "HybridLumenGILightingPolicy.hlsl"
 #include "HybridLumenGISdfTrace.hlsl"
@@ -303,9 +311,8 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
         // from this iteration's old pool before they can feed another patch.
         if(e.nonAnalyticIrradiance.w>0.5 || HLGIRejectOldCacheInputAt(e.anchor.xyz)) continue;
 #endif
-        // This camera's uploaded analytic-light table is empty. Its contribution
-        // at every bounce is known zero; retained emission/environment is not.
-        if(_HLGI_LightCount==0) e.irradiance.rgb=e.nonAnalyticIrradiance.rgb;
+        // A channel absent from the current light table has no analytic contribution at any bounce.
+        e.irradiance.rgb=HLGIActiveCacheIrradiance(e.irradiance.rgb,e.nonAnalyticIrradiance.rgb);
         float3 delta=position-e.anchor.xyz;
         float3 anchorGeometricNormal=UnpackNormalOctQuadEncode(float2(e.anchor.w,e.normal.w));
         // Shading normals compare lighting orientation; geometry normals compare the
@@ -620,10 +627,10 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
     float2 change=HLGIChangeAt(surface.position);
     if(any(e.tag.xyz!=tag) || e.tag.w!=(float)surface.generation || change.x>0.5 || !HLGIHasSourceCacheMeasurement(e.irradiance,e.guide,e.nonAnalyticIrradiance))
         e=(HLGICacheEntry)0;
-    // Persist the removal even for budget-skipped/unknown updates, so turning
-    // lights back on cannot resurrect the pre-off analytic contribution.
+    // Persist the removal even for budget-skipped/unknown updates, so a returning
+    // light channel cannot resurrect its old analytic contribution.
     // A cold/invalid entry remains age zero; this does not invent a measurement.
-    if(_HLGI_LightCount==0) e.irradiance.rgb=e.nonAnalyticIrradiance.rgb;
+    e.irradiance.rgb=HLGIActiveCacheIrradiance(e.irradiance.rgb,e.nonAnalyticIrradiance.rgb);
     // Positive age below one keeps a valid old measurement available, but marks
     // it for replacement after a global light change. Persist across budget
     // waits and unknown updates; only a committed known estimate consumes it.

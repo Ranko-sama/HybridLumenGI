@@ -791,6 +791,7 @@ namespace HybridLumenGI
                 internal Vector4 materialView;
                 internal Vector2 jitterDelta;
                 internal int read,cacheRead,cacheStart,frame,epoch,lightCount,filterIterations;
+                internal int nonAnalyticOnlyChannels;
                 internal bool valid,hasMotion,hardware,staticShadowmask;
                 internal ulong backendRequest;
                 internal bool hardwarePreference,waitForHlodBuildTurn;
@@ -1007,7 +1008,8 @@ namespace HybridLumenGI
                 Matrix4x4 invVP=vp.inverse;
                 Light mainLight=staticShadowmask && lightData.mainLightIndex>=0 ? lightData.visibleLights[lightData.mainLightIndex].light : null;
                 int lightCount=UpdateLights(state,lightData.supportsLightLayers,cameraData,view,invVP,
-                    mainLight,!staticShadowmask || frameData.Get<UniversalShadowData>().supportsAdditionalLightShadows);
+                    mainLight,!staticShadowmask || frameData.Get<UniversalShadowData>().supportsAdditionalLightShadows,
+                    out int nonAnalyticOnlyChannels);
                 AddShadowCasterChanges(state, lightCount);
                 foreach(Bounds bounds in state.surfaceCache.ChangedBounds)
                     state.changes.Add(bounds,false,Mathf.Max(1,s.traceDistance));
@@ -1164,6 +1166,7 @@ namespace HybridLumenGI
                     materialRead=graph.ImportTexture(state.material[state.readIndex]),materialWrite=graph.ImportTexture(state.material[write]),
                     momentsRead=graph.ImportTexture(state.moments[state.readIndex]),momentsWrite=graph.ImportTexture(state.moments[write]),
                     read=state.readIndex,cacheRead=state.cacheRead,cacheStart=state.cacheCursor,frame=state.frame,epoch=state.epoch,lightCount=lightCount,
+                    nonAnalyticOnlyChannels=nonAnalyticOnlyChannels,
                     valid=historyValid && state.historyLifecycle.CanReuseHistory(historyToken) && !cut && s.temporalAccumulation &&
                         (!s.receiverObjectHistory || (identityEnabled && identity.IsValid)),
                     useIdentity=identityEnabled && identity.IsValid,identity=identity,identityRead=identityRead,identityWrite=identityWrite,
@@ -1324,6 +1327,7 @@ namespace HybridLumenGI
                 b.materialRead=a.materialRead;b.materialWrite=a.materialWrite;b.momentsRead=a.momentsRead;b.momentsWrite=a.momentsWrite;b.vp=a.vp;b.invVP=a.invVP;b.view=a.view;
                 b.previousVP=a.previousVP;b.previousInvVP=a.previousInvVP;b.materialView=a.materialView;b.jitterDelta=a.jitterDelta;b.read=a.read;b.cacheRead=a.cacheRead;b.cacheStart=a.cacheStart;b.frame=a.frame;
                 b.epoch=a.epoch;b.lightCount=a.lightCount;b.valid=a.valid;b.hasMotion=a.hasMotion;b.staticShadowmask=a.staticShadowmask;
+                b.nonAnalyticOnlyChannels=a.nonAnalyticOnlyChannels;
                 b.viewport=a.viewport;
                 b.frameTiming=a.frameTiming;b.historyToken=a.historyToken;b.cachePatchBudget=a.cachePatchBudget;
                 b.useIdentity=a.useIdentity;b.identity=a.identity;b.identityRead=a.identityRead;b.identityWrite=a.identityWrite;
@@ -1571,6 +1575,7 @@ namespace HybridLumenGI
                 cmd.SetComputeVectorParam(c,"_HLGI_Size",new Vector4(state.width,state.height,1f/state.width,1f/state.height));
                 cmd.SetComputeVectorParam(c,"_HLGI_FullSize",new Vector4(d.viewport.width,d.viewport.height,1f/d.viewport.width,1f/d.viewport.height));
                 cmd.SetComputeIntParam(c,"_HLGI_ProxyCount",state.scene.Capacity);cmd.SetComputeIntParam(c,"_HLGI_LightCount",d.lightCount);
+                cmd.SetComputeIntParam(c,"_HLGI_NonAnalyticOnlyChannels",d.nonAnalyticOnlyChannels);
                 cmd.SetComputeIntParam(c,"_HLGI_Epoch",d.epoch);cmd.SetComputeIntParam(c,"_HLGI_FrameIndex",d.frame);
                 cmd.SetComputeIntParam(c,"_HLGI_CacheGrid",state.patchGrid);
                 cmd.SetComputeFloatParam(c,"_HLGI_GuideWeight",Mathf.Clamp(s.guidedSamplingWeight,0,0.8f));
@@ -1660,7 +1665,7 @@ namespace HybridLumenGI
             private static void Dispatch(CommandBuffer cmd,ComputeShader c,int k,CameraState state)
             { cmd.DispatchCompute(c,k,(state.width+7)/8,(state.height+7)/8,1); }
             private int UpdateLights(CameraState state,bool useRenderingLayers,UniversalCameraData cameraData,Matrix4x4 view,Matrix4x4 invVP,
-                Light mainLight,bool additionalRealtimeShadows)
+                Light mainLight,bool additionalRealtimeShadows,out int nonAnalyticOnlyChannels)
             {
                 state.lightDomain=default;state.lightDomainReason="Disabled";
                 if(s.spatialLightSelection) TryLightDomain(state,cameraData,view,invVP,out state.lightDomain,out state.lightDomainReason);
@@ -1671,6 +1676,15 @@ namespace HybridLumenGI
                 state.lightingChanged=state.lightChanges.Count>0;
                 foreach(var changed in state.lightChanges) AddLightChange(state,changed);
                 state.previousLightCount=count;state.lastLightHash=hash;
+                // A channel with no analytic source has only emission/environment transport.
+                nonAnalyticOnlyChannels=7;
+                for(int i=0;i<count && nonAnalyticOnlyChannels!=0;i++)
+                {
+                    Vector4 color=state.lightData[i].color;
+                    if(color.x!=0) nonAnalyticOnlyChannels&=~1;
+                    if(color.y!=0) nonAnalyticOnlyChannels&=~2;
+                    if(color.z!=0) nonAnalyticOnlyChannels&=~4;
+                }
                 if(count>0) state.lights.SetData(state.lightData,0,0,count);
                 return count;
             }

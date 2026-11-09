@@ -194,6 +194,8 @@ flowchart TD
 
 已发布的后备投影物从解析盒切到就绪的对象 SDF 时，旧、新几何范围也会按选中灯扩展局部照明通知。固定点光门洞对照中，GPU 确认光路打开、远地板收到照明反应且保持帧无重复事件。原硬域保留。画面残留和收敛时间继续验收。[对象 SDF 实测](../LocalComparison/Review/sdf-shadow-reach-236/result.md)
 
+当前相机的解析灯表在某颜色通道完全无源时，世界缓存的读写均用已有的发光和环境份额替换该通道。固定点光绿转蓝的 DXR 对照中，灯表始终有一条，旧绿满足 1／2 秒残留门及后续保持。采用范围为该固定光路的旧色消退。[同曝光对照与读数](../LocalComparison/Review/point-light-recolor-237/result.md)
+
 世界缓存迭代从旧缓冲递归取样时，按当前硬几何域剔除失效源锚点，即使它仍有匹配的身份和图卡代次。屏幕 Gather 可读取本轮重建的有效缓存。局部软照明变化与原位姿跳变保持各自规则。[实际着色器读取对照](../LocalComparison/Review/hard-cache-input-180/result.md)
 
 历史坐标为 `previousUV = currentUV - motion + previousJitter - currentJitter`；运动矢量与 jitter 需按 URP 实际 GPU 投影约定核验。保存上一帧的深度、法线、漫反射材质、亮度一二阶矩和历史长度。拒绝屏外/镜头切换、深度或法线不一致、材质变化、覆盖与分辨率变化；对有效历史做局部颜色/方差夹取。薄壁和移动物体要使用对象身份/速度/上一帧对象变换增强判定。
