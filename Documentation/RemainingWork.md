@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release195 同源交付](../LocalComparison/Review/shadow-pass-227/delivery.json)
 
+T6 的当前精确软件近景实测已补。进程 local 在 1 GiB 预算内，GI 合计 p95 为 50.005 ms，时间缺口集中在 Transport。G0 锁定的 DXR 结果及完整负载条件按各自证据验收。[实测与范围](../LocalComparison/Review/software-budget-230/result.md)
+
 T3／G3 的固定连续发光体平移已取得实际新区的供光与恢复依据。旧区参照波动占切前差 1.559%，超过 0.5% 的资格，且实际固定点与预定 X 描述有偏差。整项保持开放。[实际范围、同曝光动画和逐帧结果](../LocalComparison/Review/emitter-motion-229/result.md)
 
 T3／G3 的固定唯一发光体撤出子项已验收。实机旧绿在 1 秒前低于 5%，2 秒前低于 1%，两期限保持和末帧过滤有效性均达标。该结果覆盖解析发光板的实际几何撤出和 DXR 接收面，发光体移动、其他光路与普通 Player 另行验收。[原阈值、实测与判定](../LocalComparison/Review/emitter-removal-228/result.md)

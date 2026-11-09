@@ -4,6 +4,8 @@ Release108 的屏幕预算根据该相机实际执行的空间滤波级数计入
 
 ## 当前已确认的起始验收目标
 
+Release195 固定近景的精确软件窗口已取得同源结果。960×540、半分辨率 GI、2 射线和 4 级滤波下，GI 三段合计 p95／p99 为 50.005／50.545 ms，超过 25 ms 的时间预算。进程 local／nonlocal 有限采样峰值为 576.637／281.664 MiB，local 在 1 GiB 限额内。该窗口说明软件后端的使用边界，锁定的 G0 基线为 DXR。[实测与范围](../LocalComparison/Review/software-budget-230/result.md)
+
 Release167 统一三室在原热态近远路线实测两方向各 10 次完整 HLOD 接替。480 个接替和退休源帧的三段 GI 合计 p95／p99 为 16.522／17.345 ms，完整路线进程 local／nonlocal 有限采样峰值为 568.508／290.320 MiB，两项起始预算通过。冷入、启动和应用 Present 节奏单列。[路线、接替窗口及范围](../LocalComparison/Review/hot-hlod-budget-192/result.md)
 
 Release182 同源观察包在同一设备完整预热后启动应用 Present 采集。PresentMon 报告丢失 2,029 个 ETW 事件，未生成 CSV。没有取得起始时间锚点，观察器在原路线开始前退出，路线上没有新的 GI、显存或帧率数据。沿用 Release167 的两项预算结论，热态接替的应用 Present 仍待验收。[原始采集日志](<I:/Unity test/Comparison/HotHlodPresent211/run/presentmon.log>) · [退出记录](<I:/Unity test/Comparison/HotHlodPresent211/setup/native-exit.json>)

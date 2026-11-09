@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release195，G0 已锁定，G1／G2 本机代表性验收通过
 
+T6／G4–G5 已明确当前精确软件静止近景的预算缺口。Release195 同窗实测 GI p95 为 50.005 ms，Transport p95 为 49.804 ms，进程 local 采样峰值 576.637 MiB。时间超过起始预算，local 达标，G0 的 DXR 裁决独立保留。[实测、同源配置与适用范围](../LocalComparison/Review/software-budget-230/result.md)
+
 G3 取得一条连续发光体移动的新位置恢复依据。Release195 停稳后约 1.49 秒进入新区原亮度与色向容差，保持超过 0.5 秒。旧区静止控制波动超限，固定点的实际深度位置与预定网格描述有偏差。完整移动子项保持证据不足。[同曝光动画、曲线和实际适用范围](../LocalComparison/Review/emitter-motion-229/result.md)
 
 G3 已关闭固定机位的单一发光体撤出子项。Release195 实机在首个响应源帧退出解析发光板，地板的旧绿均值在 1 秒前剩 2.1094%、2 秒前剩 0.24697%，保持和末帧有效性均通过。发光体移动及其他动态输入仍按原条件验收。[同曝光画面、逐帧曲线与适用范围](../LocalComparison/Review/emitter-removal-228/result.md)
