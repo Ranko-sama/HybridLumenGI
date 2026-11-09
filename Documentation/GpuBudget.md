@@ -146,7 +146,7 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 | `materialTextureUploadMiBPerFrame` | 16 MiB，全相机共享实际复制字节。稳定大页跨帧续传，完整复制并回读后就绪。动态 RT 要求同帧完整复制。后置相机收紧当帧上限时，已录字节继续计账，当前装不下的等待让出额度，可按原资格参加后续帧。[定向对照](../LocalComparison/Review/texture-quota-tightening-254/result.md) |
 | `materialTextureRecordingCpuBudgetMilliseconds` | 0 ms，默认关闭。每相机材质批按已录制复制的经过时间延后下一页或续传块。 |
 | `hardwareMaterialBudgetMiB` | 256 MiB，材质arena包含当前、待上传、读者持有及退休/隔离分配；复用稳定页，局部替换变化页。 |
-| `softwareGeometryBudgetMiB` | 128 MiB，同一 Feature 内按相机合计精确软件属性和 BVH。状态重建后仍计入待释放的旧分配，额度不足时使用现有回退。[定向对照](../LocalComparison/Review/camera-software-geometry-budget-168/result.md) |
+| `softwareGeometryBudgetMiB` | 128 MiB，同一 Feature 内按相机合计精确软件属性和 BVH。状态重建后仍计入待释放的旧分配。按准备好的三角数在 CPU 构建前检查 BVH 额度，等待时使用现有回退，释放后恢复。[跨状态计账](../LocalComparison/Review/camera-software-geometry-budget-168/result.md) · [构建前准入](../LocalComparison/Review/software-bvh-preflight-258/result.md) |
 | `hardwareGeometryBudgetMiB` | 128 MiB，同一 Feature 内按相机计入硬件精确属性。相机状态重建后仍计入待释放的旧分配，直到安全释放。RTAS 使用独立的共享预留。[定向对照](../LocalComparison/Review/camera-dxr-attribute-budget-167/result.md) |
 | `rtasMemoryBudgetMiB` | 256 MiB，跨相机RTAS预留；按64 KiB + 192 B/triangle + 1024 B/instance估算，后续 `GetSize` 观测只提高高水位；退休仍计账。估算不是驱动上界。 |
 | `rtasBuildsPerFrame` | 默认每引擎帧最多 4 次实际构建。共享额度为零时，确需构建或更新位姿的计划在准备前置门拒绝。录制处理准备后的同帧收紧。已建且仍匹配的 RTAS 可复用。[定向对照](../LocalComparison/Review/rtas-zero-build-quota-206/result.md) |

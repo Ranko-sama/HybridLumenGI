@@ -587,22 +587,24 @@ namespace HybridLumenGI
                 out HybridLumenGISoftwareTriangleBvh.Layout layout,out BufferHandle nodes,out BufferHandle leaves,out string reason)
             {
                 layout=null;nodes=leaves=default;reason=null;
-                if(retainedSoftwareLayout==null || retainedSoftwareVersion!=softwareGeometry.GeometryVersion)
-                {
-                    if(!HybridLumenGISoftwareTriangleBvh.TryBuild(softwareGeometry,softwareGeometry.InstanceCount,
-                        Math.Min(HybridLumenGISoftwareTriangleBvh.MaxTriangles,Math.Max(0,triangleLimit)),out var next,out reason))return false;
-                    retainedSoftwareLayout=next;retainedSoftwareVersion=softwareGeometry.GeometryVersion;
-                }
-                var table=retainedSoftwareLayout;
-                int nodeCount=Math.Max(1,table.NodeCount),leafCount=Math.Max(1,table.LeafCount);
+                // The prepared snapshot supplies one leaf per triangle. Admit its buffers before building the CPU tree.
+                int triangleCount=softwareGeometry.TriangleCount;
+                int nodeCount=Math.Max(1,HybridLumenGISoftwareTriangleBvh.NodeCountForTriangles(triangleCount));
+                int leafCount=Math.Max(1,triangleCount);
                 bool grow=retainedSoftwareNodes==null || retainedSoftwareNodes.count<nodeCount || retainedSoftwareLeaves.count<leafCount;
-                long extra = grow ? table.ByteCount : 0;
+                long extra = grow ? HybridLumenGISoftwareTriangleBvh.BufferBytes(nodeCount,leafCount) : 0;
                 if(softwareAllocations.TotalBytes + extra > byteLimit)
                 {
                     // Release obsolete capacity through a real end-context ticket. A later frame
                     // can admit the replacement; never silently exceed the quota to resize.
                     if(grow && retainedSoftwareNodes!=null)RetireSoftwareBuffers();
                     reason="Software geometry buffer budget awaits retirement";return false;
+                }
+                if(retainedSoftwareLayout==null || retainedSoftwareVersion!=softwareGeometry.GeometryVersion)
+                {
+                    if(!HybridLumenGISoftwareTriangleBvh.TryBuild(softwareGeometry,softwareGeometry.InstanceCount,
+                        Math.Min(HybridLumenGISoftwareTriangleBvh.MaxTriangles,Math.Max(0,triangleLimit)),out var next,out reason))return false;
+                    retainedSoftwareLayout=next;retainedSoftwareVersion=softwareGeometry.GeometryVersion;
                 }
                 if(grow)
                 {
@@ -620,7 +622,7 @@ namespace HybridLumenGI
                     }
                     RetireSoftwareBuffers();retainedSoftwareNodes=newNodes;retainedSoftwareLeaves=newLeaves;uploadedSoftwareVersion=0;
                 }
-                layout=table;nodes=graph.ImportBuffer(retainedSoftwareNodes);leaves=graph.ImportBuffer(retainedSoftwareLeaves);
+                layout=retainedSoftwareLayout;nodes=graph.ImportBuffer(retainedSoftwareNodes);leaves=graph.ImportBuffer(retainedSoftwareLeaves);
                 return true;
             }
             internal long SoftwareResidentBytes => softwareAllocations.TotalBytes;

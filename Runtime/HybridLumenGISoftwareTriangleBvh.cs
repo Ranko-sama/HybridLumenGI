@@ -10,6 +10,9 @@ namespace HybridLumenGI
     public static class HybridLumenGISoftwareTriangleBvh
     {
         public const int NodeStride=32,LeafStride=64,MaxTriangles=262144;
+        internal static int NodeCountForTriangles(int triangleCount) => triangleCount == 0 ? 0 : triangleCount * 2 - 1;
+        internal static long BufferBytes(int nodeCount, int leafCount) =>
+            (long)Math.Max(1,nodeCount)*NodeStride+(long)Math.Max(1,leafCount)*LeafStride;
         [StructLayout(LayoutKind.Sequential,Pack=4)]
         public struct Node { public Vector3 minimum;public uint skipIndex;public Vector3 maximum;public int leaf; }
         [StructLayout(LayoutKind.Sequential,Pack=4)]
@@ -24,7 +27,7 @@ namespace HybridLumenGI
             public ReadOnlyCollection<Node> Nodes { get; }
             public ReadOnlyCollection<Leaf> Leaves { get; }
             public int NodeCount=>nodes.Length;public int LeafCount=>leaves.Length;
-            public long ByteCount=>(long)Math.Max(1,NodeCount)*NodeStride+(long)Math.Max(1,LeafCount)*LeafStride;
+            public long ByteCount=>BufferBytes(NodeCount,LeafCount);
             internal Layout(Node[] nodes,Leaf[] leaves){this.nodes=nodes;this.leaves=leaves;Nodes=Array.AsReadOnly(nodes);Leaves=Array.AsReadOnly(leaves);}
             public Node[] CopyNodes()=>(Node[])nodes.Clone();public Leaf[] CopyLeaves()=>(Leaf[])leaves.Clone();
         }
@@ -81,7 +84,7 @@ namespace HybridLumenGI
                         identity=new HybridLumenGIHitMaterialUInt4((uint)i,(uint)primitive,0,0)};
                     bounds[cursor]=new BoundsRecord{minimum=Min(Min(t.P0,t.P1),t.P2),maximum=Max(Max(t.P0,t.P1),t.P2),leaf=cursor};cursor++;
                 }
-                var nodes=new List<Node>(total==0?0:(int)total*2-1);
+                var nodes=new List<Node>(NodeCountForTriangles((int)total));
                 if(total>0)Build(bounds,0,bounds.Length,nodes,new CenterComparer());
                 layout=new Layout(nodes.ToArray(),leaves);return true;
             }
