@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release208 同源交付](../LocalComparison/Review/point-light-shared-off-249/delivery.json)
 
+T3／G3 已关闭固定两点灯持续开启、其中一灯退出绿色而另一灯保留绿色时的残留。实机确认灯表未缩短，旧绿、终态色向、保持及稳蓝通过原判据。其他约定光路和普通 Player 动态画质继续验收。[换色实测与适用范围](../LocalComparison/Review/point-light-shared-recolor-252/result.md)
+
 T5／G4 的独立分页首发仍有一处可复现缺口。近场首片细节绑定会撤回尚未发布的已就绪粗根。先发布粗根的候选会阻塞恰好填满槽限的完整细节，已撤回。后续采用需同时保住首发与完整接替。[受控对照与满槽反例](../LocalComparison/Review/hlod-cold-partial-251/result.md)
 
 T3／G3 已关闭只关掉固定双点灯中一盏时的共通道残亮和低亮恢复缺口。实际 DXR 对照确认稳灯和匹配终态，1／2 秒残留、色向、保持和欠亮通过原条件。其他灯表变化和普通 Player 动态质量继续验收。[单独关灯的实测范围](../LocalComparison/Review/point-light-shared-off-249/result.md)

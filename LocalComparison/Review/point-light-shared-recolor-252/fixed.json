@@ -1,0 +1,1293 @@
+{
+  "status": "qualified-pass",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "unity": "6000.0.85f1",
+  "api": "Direct3D12",
+  "quantity": "IndirectOnly Final outgoing diffuse contribution; temporal D alpha is valid stored history, not fresh raw validity",
+  "lowControl": {
+    "meanRgb": [
+      0.0,
+      0.11408931451539199,
+      0.9165884239806069
+    ],
+    "meanY": 0.14777436195280816,
+    "span": 0.5116343000000043,
+    "yRange": 0.00021629727681476973,
+    "colorL1Max": 0.00016543949786163026,
+    "greenRange": 0.00014978233310911082,
+    "blueRange": 0.0017429259088305171,
+    "pointGreen": [
+      0.12720589339733124,
+      0.12191713275387883,
+      0.11433441191911697,
+      0.11815258115530014,
+      0.11389017151668668,
+      0.1084635485894978,
+      0.11079197935760021,
+      0.10806143283843994,
+      0.10398667911067605
+    ]
+  },
+  "highControl": {
+    "meanRgb": [
+      0.0,
+      0.9067776948213577,
+      0.9221984450187948
+    ],
+    "meanY": 0.715110135066592,
+    "span": 0.5106332000000009,
+    "yRange": 0.006199883172247178,
+    "colorL1Max": 0.0014595824978215766,
+    "greenRange": 0.008333338631523968,
+    "blueRange": 0.003758158948686363,
+    "pointGreen": [
+      0.9743566736578941,
+      0.9811275079846382,
+      0.9586091190576553,
+      0.9037684388458729,
+      0.9068321622908115,
+      0.8958640210330486,
+      0.8485601022839546,
+      0.849571131169796,
+      0.8423100970685482
+    ]
+  },
+  "incrementGreen": 0.7926883803059658,
+  "uploads": [
+    {
+      "frame": 119,
+      "varyingRgb": [
+        0,
+        0,
+        20
+      ],
+      "steadyRgb": [
+        0,
+        3,
+        3
+      ],
+      "lightCount": 2
+    },
+    {
+      "frame": 239,
+      "varyingRgb": [
+        0,
+        20,
+        20
+      ],
+      "steadyRgb": [
+        0,
+        3,
+        3
+      ],
+      "lightCount": 2
+    },
+    {
+      "frame": 240,
+      "varyingRgb": [
+        0,
+        0,
+        20
+      ],
+      "steadyRgb": [
+        0,
+        3,
+        3
+      ],
+      "lightCount": 2
+    },
+    {
+      "frame": 316,
+      "varyingRgb": [
+        0,
+        0,
+        20
+      ],
+      "steadyRgb": [
+        0,
+        3,
+        3
+      ],
+      "lightCount": 2
+    }
+  ],
+  "blueHeld": true,
+  "maxBlueBiasPercent": 1.167286638896936,
+  "minGreenBiasPercent": -2.4910578264646044,
+  "deadlines": {
+    "1": {
+      "before": {
+        "logical": 268,
+        "seconds": 0.973902300000006,
+        "meanY": 0.1465972203069263,
+        "excessPercent": -0.29325536732586915,
+        "biasFromDimPercent": -0.7965804286522937,
+        "greenBiasPercent": -2.037527555748553,
+        "blueBiasPercent": 0.7334997491360573,
+        "colorL1": 0.005432439200809117,
+        "unknown": 0,
+        "largestPointExcessPercent": -0.1855200145173312
+      },
+      "after": {
+        "logical": 269,
+        "seconds": 1.008067699999998,
+        "meanY": 0.14650957328743405,
+        "excessPercent": -0.3087153685356456,
+        "biasFromDimPercent": -0.8558918128017456,
+        "greenBiasPercent": -2.1449430781448453,
+        "blueBiasPercent": 0.7335004716782612,
+        "colorL1": 0.005643690711657268,
+        "unknown": 0,
+        "largestPointExcessPercent": -0.1855200145173312
+      },
+      "excessHeld": true,
+      "recoveryHeld": true
+    },
+    "2": {
+      "before": {
+        "logical": 298,
+        "seconds": 1.9965080999999998,
+        "meanY": 0.14732235004901886,
+        "excessPercent": -0.19448378138892766,
+        "biasFromDimPercent": -0.3058797871403729,
+        "greenBiasPercent": -1.3512661928052005,
+        "blueBiasPercent": 0.9830752235214568,
+        "colorL1": 0.004562806240996878,
+        "unknown": 0,
+        "largestPointExcessPercent": -0.11546642386982015
+      },
+      "after": {
+        "logical": 299,
+        "seconds": 2.0294078000000013,
+        "meanY": 0.14738377826743657,
+        "excessPercent": -0.1850359854660461,
+        "biasFromDimPercent": -0.2643108589406862,
+        "greenBiasPercent": -1.2856232526281874,
+        "blueBiasPercent": 0.9949610429713429,
+        "colorL1": 0.0044569409745605915,
+        "unknown": 0,
+        "largestPointExcessPercent": -0.1231962678225536
+      },
+      "excessHeld": true,
+      "recoveryHeld": true
+    }
+  },
+  "firstRecoveryWindow": {
+    "start": 0.2583192000000025,
+    "end": 0.7683788000000078
+  },
+  "firstOnePercentWindow": {
+    "start": 0.32721469999999897,
+    "end": 0.8359712999999971
+  },
+  "last": {
+    "logical": 316,
+    "seconds": 2.610359900000006,
+    "meanY": 0.14799973564942678,
+    "excessPercent": -0.08540552797880245,
+    "biasFromDimPercent": 0.1525120417644521,
+    "greenBiasPercent": -0.5933944815976533,
+    "blueBiasPercent": 1.0722101988889454,
+    "colorL1": 0.003250398862829282,
+    "unknown": 0,
+    "largestPointExcessPercent": -0.03913309868997042
+  },
+  "intervalMax": 0.03537690000000282,
+  "cadenceHz": 29.344375982384946,
+  "points": [
+    {
+      "x": 435,
+      "y": 225,
+      "gx": 217,
+      "gy": 112
+    },
+    {
+      "x": 479,
+      "y": 225,
+      "gx": 239,
+      "gy": 112
+    },
+    {
+      "x": 523,
+      "y": 225,
+      "gx": 261,
+      "gy": 112
+    },
+    {
+      "x": 435,
+      "y": 269,
+      "gx": 217,
+      "gy": 134
+    },
+    {
+      "x": 479,
+      "y": 269,
+      "gx": 239,
+      "gy": 134
+    },
+    {
+      "x": 523,
+      "y": 269,
+      "gx": 261,
+      "gy": 134
+    },
+    {
+      "x": 435,
+      "y": 313,
+      "gx": 217,
+      "gy": 156
+    },
+    {
+      "x": 479,
+      "y": 313,
+      "gx": 239,
+      "gy": 156
+    },
+    {
+      "x": 523,
+      "y": 313,
+      "gx": 261,
+      "gy": 156
+    }
+  ],
+  "support": {
+    "maxDiffuseError": 0.0003400635719299494,
+    "maxFrontZError": 1.5630573699243477e-06,
+    "worldPoints": [
+      [
+        15.703333333333333,
+        0.40333333555857265,
+        0.29999843694263006
+      ],
+      [
+        15.996666666666666,
+        0.40333333555857265,
+        0.29999843694263006
+      ],
+      [
+        16.29,
+        0.40333333555857265,
+        0.29999843694263006
+      ],
+      [
+        15.703333333333333,
+        0.6966666549046834,
+        0.29999843694263006
+      ],
+      [
+        15.996666666666666,
+        0.6966666549046834,
+        0.29999843694263006
+      ],
+      [
+        16.29,
+        0.6966666549046834,
+        0.29999843694263006
+      ],
+      [
+        15.703333333333333,
+        0.9899999742507943,
+        0.29999843694263006
+      ],
+      [
+        15.996666666666666,
+        0.9899999742507943,
+        0.29999843694263006
+      ],
+      [
+        16.29,
+        0.9899999742507943,
+        0.29999843694263006
+      ]
+    ]
+  },
+  "terminal": {
+    "maxDiffuseError": 0.0003400635719299494,
+    "maxFrontZError": 1.5630573699243477e-06,
+    "worldPoints": [
+      [
+        15.703333333333333,
+        0.40333333555857265,
+        0.29999843694263006
+      ],
+      [
+        15.996666666666666,
+        0.40333333555857265,
+        0.29999843694263006
+      ],
+      [
+        16.29,
+        0.40333333555857265,
+        0.29999843694263006
+      ],
+      [
+        15.703333333333333,
+        0.6966666549046834,
+        0.29999843694263006
+      ],
+      [
+        15.996666666666666,
+        0.6966666549046834,
+        0.29999843694263006
+      ],
+      [
+        16.29,
+        0.6966666549046834,
+        0.29999843694263006
+      ],
+      [
+        15.703333333333333,
+        0.9899999742507943,
+        0.29999843694263006
+      ],
+      [
+        15.996666666666666,
+        0.9899999742507943,
+        0.29999843694263006
+      ],
+      [
+        16.29,
+        0.9899999742507943,
+        0.29999843694263006
+      ]
+    ],
+    "nativeMaxRgb": [
+      0.0,
+      1.271579384803772,
+      9.185351371765137
+    ],
+    "filteredUnknown": 0,
+    "filteredMinAlpha": 0.64990234375,
+    "filteredMeanRgb": [
+      0.0,
+      0.2259385883808136,
+      1.8455946445465088
+    ]
+  },
+  "frames": [
+    {
+      "logical": 240,
+      "seconds": 0.020425799999998162,
+      "meanY": 0.29745486683977973,
+      "excessPercent": 26.32529974633423,
+      "biasFromDimPercent": 101.28990097400803,
+      "greenBiasPercent": 182.90721883665478,
+      "blueBiasPercent": 0.6562498706762288,
+      "colorL1": 0.29695984721945357,
+      "unknown": 0,
+      "largestPointExcessPercent": 28.553514331672154
+    },
+    {
+      "logical": 241,
+      "seconds": 0.05425719999999501,
+      "meanY": 0.20426112180418438,
+      "excessPercent": 9.879374777844232,
+      "biasFromDimPercent": 38.22500676363285,
+      "greenBiasPercent": 68.64153426067281,
+      "blueBiasPercent": 0.7216153747706011,
+      "colorL1": 0.123541618390249,
+      "unknown": 0,
+      "largestPointExcessPercent": 11.624897892852355
+    },
+    {
+      "logical": 242,
+      "seconds": 0.08791739999999493,
+      "meanY": 0.17720420372618567,
+      "excessPercent": 5.093669186343219,
+      "biasFromDimPercent": 19.91539085973246,
+      "greenBiasPercent": 35.39062702135949,
+      "blueBiasPercent": 0.8345198214111837,
+      "colorL1": 0.06500534280570826,
+      "unknown": 0,
+      "largestPointExcessPercent": 5.828390692176642
+    },
+    {
+      "logical": 243,
+      "seconds": 0.12153670000000716,
+      "meanY": 0.16859024877018397,
+      "excessPercent": 3.5597012041122484,
+      "biasFromDimPercent": 14.086264046278462,
+      "greenBiasPercent": 24.73267364123086,
+      "blueBiasPercent": 0.9593064747905666,
+      "colorL1": 0.04518276325690403,
+      "unknown": 0,
+      "largestPointExcessPercent": 4.1587199606499805
+    },
+    {
+      "logical": 244,
+      "seconds": 0.1562775999999957,
+      "meanY": 0.16367133843633863,
+      "excessPercent": 2.6913688035393712,
+      "biasFromDimPercent": 10.757601165354513,
+      "greenBiasPercent": 18.699531912743737,
+      "blueBiasPercent": 0.9652493845155208,
+      "colorL1": 0.033922065294367046,
+      "unknown": 0,
+      "largestPointExcessPercent": 3.2156639598095857
+    },
+    {
+      "logical": 245,
+      "seconds": 0.1911453000000023,
+      "meanY": 0.16039262365632587,
+      "excessPercent": 2.108186248362448,
+      "biasFromDimPercent": 8.538870705831481,
+      "greenBiasPercent": 14.647600870388988,
+      "blueBiasPercent": 1.006843972252347,
+      "colorL1": 0.026196726482148325,
+      "unknown": 0,
+      "largestPointExcessPercent": 2.566347668650655
+    },
+    {
+      "logical": 246,
+      "seconds": 0.22444799999999532,
+      "meanY": 0.15786172899537615,
+      "excessPercent": 1.6770258374151445,
+      "biasFromDimPercent": 6.8261956331703955,
+      "greenBiasPercent": 11.651914120428163,
+      "blueBiasPercent": 0.8761144091480322,
+      "colorL1": 0.02078545383358417,
+      "unknown": 0,
+      "largestPointExcessPercent": 2.040708880735459
+    },
+    {
+      "logical": 247,
+      "seconds": 0.2583192000000025,
+      "meanY": 0.1560374365872807,
+      "excessPercent": 1.3600973269188723,
+      "biasFromDimPercent": 5.591683513484802,
+      "greenBiasPercent": 9.449906432633902,
+      "blueBiasPercent": 0.8345183763267539,
+      "colorL1": 0.016664067378505246,
+      "unknown": 0,
+      "largestPointExcessPercent": 1.6851304194321275
+    },
+    {
+      "logical": 248,
+      "seconds": 0.2928205000000048,
+      "meanY": 0.15472010813554127,
+      "excessPercent": 1.1221866700068661,
+      "biasFromDimPercent": 4.700237639971161,
+      "greenBiasPercent": 7.796911898604475,
+      "blueBiasPercent": 0.8820573188729641,
+      "colorL1": 0.01339337254363357,
+      "unknown": 0,
+      "largestPointExcessPercent": 1.4377716532929288
+    },
+    {
+      "logical": 249,
+      "seconds": 0.32721469999999897,
+      "meanY": 0.15371740688085556,
+      "excessPercent": 0.9383853385030748,
+      "biasFromDimPercent": 4.02170230986707,
+      "greenBiasPercent": 6.519866976503863,
+      "blueBiasPercent": 0.9414806357846306,
+      "colorL1": 0.010814186041375101,
+      "unknown": 0,
+      "largestPointExcessPercent": 1.2058744548850606
+    },
+    {
+      "logical": 250,
+      "seconds": 0.3605340999999953,
+      "meanY": 0.15287614082098006,
+      "excessPercent": 0.7872213347803636,
+      "biasFromDimPercent": 3.452411366053565,
+      "greenBiasPercent": 5.469585012934397,
+      "blueBiasPercent": 0.9652486619732947,
+      "colorL1": 0.00874023321502053,
+      "unknown": 0,
+      "largestPointExcessPercent": 1.0512738161786634
+    },
+    {
+      "logical": 251,
+      "seconds": 0.39477630000000374,
+      "meanY": 0.15226522600120967,
+      "excessPercent": 0.666977542346749,
+      "biasFromDimPercent": 3.0390008043720496,
+      "greenBiasPercent": 4.634135545375462,
+      "blueBiasPercent": 1.0722094763467194,
+      "colorL1": 0.006911396363463898,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.9121347452035972
+    },
+    {
+      "logical": 252,
+      "seconds": 0.4293777999999975,
+      "meanY": 0.1515237888627582,
+      "excessPercent": 0.5424393921616166,
+      "biasFromDimPercent": 2.5372648275398424,
+      "greenBiasPercent": 3.7688490373805728,
+      "blueBiasPercent": 1.018729069160007,
+      "colorL1": 0.005343754546763141,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.7729956742285307
+    },
+    {
+      "logical": 253,
+      "seconds": 0.46327360000000795,
+      "meanY": 0.15087018214994005,
+      "excessPercent": 0.42992544368073554,
+      "biasFromDimPercent": 2.09496434714469,
+      "greenBiasPercent": 2.987106242606341,
+      "blueBiasPercent": 0.994958875344687,
+      "colorL1": 0.003875056865261642,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.6560801395958059
+    },
+    {
+      "logical": 254,
+      "seconds": 0.49684399999999584,
+      "meanY": 0.15033250387509664,
+      "excessPercent": 0.33716595859592147,
+      "biasFromDimPercent": 1.7311134952525897,
+      "greenBiasPercent": 2.3426167362733397,
+      "blueBiasPercent": 0.9771337588809548,
+      "colorL1": 0.002658380826397133,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.5478613843446054
+    },
+    {
+      "logical": 255,
+      "seconds": 0.5297912999999994,
+      "meanY": 0.1498298449397087,
+      "excessPercent": 0.2512774459135369,
+      "biasFromDimPercent": 1.3909604885027127,
+      "greenBiasPercent": 1.7458664946378377,
+      "blueBiasPercent": 0.9533635650656347,
+      "colorL1": 0.001544210150897965,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.4473715331332064
+    },
+    {
+      "logical": 256,
+      "seconds": 0.5639795000000021,
+      "meanY": 0.14944348243872324,
+      "excessPercent": 0.17827200648570757,
+      "biasFromDimPercent": 1.1295061361510816,
+      "greenBiasPercent": 1.2386273743101972,
+      "blueBiasPercent": 0.9949603204291169,
+      "colorL1": 0.00047488087803752854,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.3932616855511401
+    },
+    {
+      "logical": 257,
+      "seconds": 0.5978731999999951,
+      "meanY": 0.14913503209617401,
+      "excessPercent": 0.11900945177567109,
+      "biasFromDimPercent": 0.9207755157152331,
+      "greenBiasPercent": 0.8268733138582451,
+      "blueBiasPercent": 1.0365563532503952,
+      "colorL1": 0.0004086844274811541,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.29277277425267306
+    },
+    {
+      "logical": 258,
+      "seconds": 0.631680099999997,
+      "meanY": 0.1487842575152715,
+      "excessPercent": 0.060605037572545,
+      "biasFromDimPercent": 0.6834037712075247,
+      "greenBiasPercent": 0.4210815822307534,
+      "blueBiasPercent": 1.006845417336777,
+      "colorL1": 0.0011424946369694017,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.2077426109467409
+    },
+    {
+      "logical": 259,
+      "seconds": 0.6664537000000053,
+      "meanY": 0.1484911626127031,
+      "excessPercent": 0.008213037525855808,
+      "biasFromDimPercent": 0.48506429019388175,
+      "greenBiasPercent": 0.0570638840404758,
+      "blueBiasPercent": 1.012786159435075,
+      "colorL1": 0.0018647215189708383,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.15363276336467466
+    },
+    {
+      "logical": 260,
+      "seconds": 0.6998819000000083,
+      "meanY": 0.1482194207655059,
+      "excessPercent": -0.039025524349469654,
+      "biasFromDimPercent": 0.30117457914646817,
+      "greenBiasPercent": -0.27114791440874253,
+      "blueBiasPercent": 1.006844694794573,
+      "colorL1": 0.0024945359046257276,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.09952291578260838
+    },
+    {
+      "logical": 261,
+      "seconds": 0.734373000000005,
+      "meanY": 0.14786041183604134,
+      "excessPercent": -0.09055865284585493,
+      "biasFromDimPercent": 0.05823059027023625,
+      "greenBiasPercent": -0.6291982045118383,
+      "blueBiasPercent": 0.9058260676038543,
+      "colorL1": 0.0030000913625481546,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.05314385206620758
+    },
+    {
+      "logical": 262,
+      "seconds": 0.7683788000000078,
+      "meanY": 0.147619757882754,
+      "excessPercent": -0.13092624231875083,
+      "biasFromDimPercent": -0.10462171381496743,
+      "greenBiasPercent": -0.909670738263535,
+      "blueBiasPercent": 0.8879987835134662,
+      "colorL1": 0.003515048598343326,
+      "unknown": 0,
+      "largestPointExcessPercent": 0.022223536342341716
+    },
+    {
+      "logical": 263,
+      "seconds": 0.8017801999999961,
+      "meanY": 0.1473173065304756,
+      "excessPercent": -0.17387044644255847,
+      "biasFromDimPercent": -0.3092927733151285,
+      "greenBiasPercent": -1.2080454962767995,
+      "blueBiasPercent": 0.7988638081459998,
+      "colorL1": 0.00392856420538569,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.039616155192458015
+    },
+    {
+      "logical": 264,
+      "seconds": 0.8359712999999971,
+      "meanY": 0.14709201241201825,
+      "excessPercent": -0.20736695907825387,
+      "biasFromDimPercent": -0.46175096395125736,
+      "greenBiasPercent": -1.4407780397220127,
+      "blueBiasPercent": 0.7453834009592875,
+      "colorL1": 0.004282575851273951,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.07730031935319866
+    },
+    {
+      "logical": 265,
+      "seconds": 0.8701829999999973,
+      "meanY": 0.1469243976301617,
+      "excessPercent": -0.23485137086182356,
+      "biasFromDimPercent": -0.5751771223467594,
+      "greenBiasPercent": -1.6317387265568972,
+      "blueBiasPercent": 0.7275568394111254,
+      "colorL1": 0.004623438249354392,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.10821969516413253
+    },
+    {
+      "logical": 266,
+      "seconds": 0.9037926000000027,
+      "meanY": 0.14684667491250566,
+      "excessPercent": -0.2520289063026693,
+      "biasFromDimPercent": -0.6277726582901821,
+      "greenBiasPercent": -1.7510876139096632,
+      "blueBiasPercent": 0.7572677753247214,
+      "colorL1": 0.004914899863403183,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.1391390709750664
+    },
+    {
+      "logical": 267,
+      "seconds": 0.9388672000000042,
+      "meanY": 0.14672007376088037,
+      "excessPercent": -0.2743598799148753,
+      "biasFromDimPercent": -0.7134445907907128,
+      "greenBiasPercent": -1.9062424010034773,
+      "blueBiasPercent": 0.7572677753247214,
+      "colorL1": 0.005219804107263887,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.15459875888053332
+    },
+    {
+      "logical": 268,
+      "seconds": 0.973902300000006,
+      "meanY": 0.1465972203069263,
+      "excessPercent": -0.29325536732586915,
+      "biasFromDimPercent": -0.7965804286522937,
+      "greenBiasPercent": -2.037527555748553,
+      "blueBiasPercent": 0.7334997491360573,
+      "colorL1": 0.005432439200809117,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.1855200145173312
+    },
+    {
+      "logical": 269,
+      "seconds": 1.008067699999998,
+      "meanY": 0.14650957328743405,
+      "excessPercent": -0.3087153685356456,
+      "biasFromDimPercent": -0.8558918128017456,
+      "greenBiasPercent": -2.1449430781448453,
+      "blueBiasPercent": 0.7335004716782612,
+      "colorL1": 0.005643690711657268,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.1855200145173312
+    },
+    {
+      "logical": 270,
+      "seconds": 1.0415683000000087,
+      "meanY": 0.14644720815022785,
+      "excessPercent": -0.31902214044360205,
+      "biasFromDimPercent": -0.8980947608517753,
+      "greenBiasPercent": -2.216554152018013,
+      "blueBiasPercent": 0.7275575619533292,
+      "colorL1": 0.005773204204333915,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.21643939032826506
+    },
+    {
+      "logical": 271,
+      "seconds": 1.0757939000000079,
+      "meanY": 0.14650226284662882,
+      "excessPercent": -0.31902203600883106,
+      "biasFromDimPercent": -0.860838841980982,
+      "greenBiasPercent": -2.2165534264090514,
+      "blueBiasPercent": 0.8107489050536598,
+      "colorL1": 0.005931964316545357,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.21643939032826506
+    },
+    {
+      "logical": 272,
+      "seconds": 1.110389699999999,
+      "meanY": 0.1464016979323493,
+      "excessPercent": -0.33190510926338623,
+      "biasFromDimPercent": -0.9288918607526897,
+      "greenBiasPercent": -2.3060645477169017,
+      "blueBiasPercent": 0.7691535947746075,
+      "colorL1": 0.006028668817994576,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.2473587661391989
+    },
+    {
+      "logical": 273,
+      "seconds": 1.1450980999999985,
+      "meanY": 0.1461983208047019,
+      "excessPercent": -0.35251844420975714,
+      "biasFromDimPercent": -1.0665186621543699,
+      "greenBiasPercent": -2.449285244245303,
+      "blueBiasPercent": 0.6384240316702927,
+      "colorL1": 0.006061129790969594,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.26281845404466586
+    },
+    {
+      "logical": 274,
+      "seconds": 1.179111700000007,
+      "meanY": 0.14622977990574307,
+      "excessPercent": -0.3525185486445264,
+      "biasFromDimPercent": -1.0452300565901629,
+      "greenBiasPercent": -2.4492859698542535,
+      "blueBiasPercent": 0.6859622516742769,
+      "colorL1": 0.006151855006860316,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.2550886100919324
+    },
+    {
+      "logical": 275,
+      "seconds": 1.2140482000000077,
+      "meanY": 0.14617603297101125,
+      "excessPercent": -0.35853064949665375,
+      "biasFromDimPercent": -1.0816010034997325,
+      "greenBiasPercent": -2.4910578264646044,
+      "blueBiasPercent": 0.6562505932184548,
+      "colorL1": 0.006177430438121773,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.2705482979973993
+    },
+    {
+      "logical": 276,
+      "seconds": 1.2489306000000084,
+      "meanY": 0.14624944250716104,
+      "excessPercent": -0.35251844420975714,
+      "biasFromDimPercent": -1.0319242292746944,
+      "greenBiasPercent": -2.449285244245303,
+      "blueBiasPercent": 0.7156731875878952,
+      "colorL1": 0.0062085162722391035,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.2932556545214859
+    },
+    {
+      "logical": 277,
+      "seconds": 1.2827800999999965,
+      "meanY": 0.14635112988683913,
+      "excessPercent": -0.3422119856061119,
+      "biasFromDimPercent": -0.9631116298939202,
+      "greenBiasPercent": -2.3776763471990203,
+      "blueBiasPercent": 0.7810379691400415,
+      "colorL1": 0.006192192127918536,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.26233533879762005
+    },
+    {
+      "logical": 278,
+      "seconds": 1.3164428999999984,
+      "meanY": 0.14640881088574728,
+      "excessPercent": -0.33619967588444605,
+      "biasFromDimPercent": -0.9240784727576501,
+      "greenBiasPercent": -2.335903039370768,
+      "blueBiasPercent": 0.8166925373208178,
+      "colorL1": 0.006177962315844748,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.2546054948448866
+    },
+    {
+      "logical": 279,
+      "seconds": 1.3511318999999986,
+      "meanY": 0.14653297198745938,
+      "excessPercent": -0.3233162893255796,
+      "biasFromDimPercent": -0.840057740019351,
+      "greenBiasPercent": -2.2463897412360434,
+      "blueBiasPercent": 0.8939409706961943,
+      "colorL1": 0.006149116481024286,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.26233533879762005
+    },
+    {
+      "logical": 280,
+      "seconds": 1.3852784999999983,
+      "meanY": 0.14661406210131114,
+      "excessPercent": -0.313868597837469,
+      "biasFromDimPercent": -0.7851834622487175,
+      "greenBiasPercent": -2.180747526667992,
+      "blueBiasPercent": 0.9355384486019025,
+      "colorL1": 0.006099349367348336,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.2473587661391989
+    },
+    {
+      "logical": 281,
+      "seconds": 1.4191957999999971,
+      "meanY": 0.14669121730857423,
+      "excessPercent": -0.30442101078412775,
+      "biasFromDimPercent": -0.7329719647714228,
+      "greenBiasPercent": -2.1151060377089026,
+      "blueBiasPercent": 0.9711908491560228,
+      "colorL1": 0.00603831380201128,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.231899078233732
+    },
+    {
+      "logical": 282,
+      "seconds": 1.453158000000002,
+      "meanY": 0.1467732455253601,
+      "excessPercent": -0.29411413444140205,
+      "biasFromDimPercent": -0.6774628658303805,
+      "greenBiasPercent": -2.043494238226773,
+      "blueBiasPercent": 1.006845417336777,
+      "colorL1": 0.005965614115866311,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.22416923428099852
+    },
+    {
+      "logical": 283,
+      "seconds": 1.4879535000000033,
+      "meanY": 0.14691781907478968,
+      "excessPercent": -0.276936599000558,
+      "biasFromDimPercent": -0.5796288792585091,
+      "greenBiasPercent": -1.924145350874018,
+      "blueBiasPercent": 1.0781516635294475,
+      "colorL1": 0.0058671902952100174,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.20097970242279814
+    },
+    {
+      "logical": 284,
+      "seconds": 1.521561399999996,
+      "meanY": 0.14686987815168168,
+      "excessPercent": -0.2812309567520759,
+      "biasFromDimPercent": -0.6120708553052912,
+      "greenBiasPercent": -1.9539823913099608,
+      "blueBiasPercent": 1.0424978178908972,
+      "colorL1": 0.005857858549775288,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.231899078233732
+    },
+    {
+      "logical": 285,
+      "seconds": 1.5545514000000082,
+      "meanY": 0.14687943138281503,
+      "excessPercent": -0.2760777274502541,
+      "biasFromDimPercent": -0.6056061133790758,
+      "greenBiasPercent": -1.918177942786825,
+      "blueBiasPercent": 1.0127868819773012,
+      "colorL1": 0.005731059706896427,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.2236861190339527
+    },
+    {
+      "logical": 286,
+      "seconds": 1.5889382000000012,
+      "meanY": 0.14683430146641202,
+      "excessPercent": -0.27779536611609096,
+      "biasFromDimPercent": -0.6361458604682402,
+      "greenBiasPercent": -1.9301120333522492,
+      "blueBiasPercent": 0.9593064747905666,
+      "colorL1": 0.005652566319978819,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.21595533516828724
+    },
+    {
+      "logical": 287,
+      "seconds": 1.621946500000007,
+      "meanY": 0.146907524157895,
+      "excessPercent": -0.26834788349752065,
+      "biasFromDimPercent": -0.586595525406497,
+      "greenBiasPercent": -1.8644712700021104,
+      "blueBiasPercent": 0.9890174107041849,
+      "colorL1": 0.005580408846780391,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.20822549121555378
+    },
+    {
+      "logical": 288,
+      "seconds": 1.6557113000000072,
+      "meanY": 0.1469064022845692,
+      "excessPercent": -0.26577116441183796,
+      "biasFromDimPercent": -0.5873547053555583,
+      "greenBiasPercent": -1.8465683201315808,
+      "blueBiasPercent": 0.9652479394310687,
+      "colorL1": 0.005499958974771138,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.16957627145188642
+    },
+    {
+      "logical": 289,
+      "seconds": 1.6903031000000084,
+      "meanY": 0.14702438689602745,
+      "excessPercent": -0.24773465298592073,
+      "biasFromDimPercent": -0.5075136490998444,
+      "greenBiasPercent": -1.7212512990826712,
+      "blueBiasPercent": 0.9890174107041849,
+      "colorL1": 0.0052994869909415016,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.17730611540461988
+    },
+    {
+      "logical": 290,
+      "seconds": 1.7246774000000045,
+      "meanY": 0.14696371184852386,
+      "excessPercent": -0.2528879867225135,
+      "biasFromDimPercent": -0.5485729009902185,
+      "greenBiasPercent": -1.7570564732147687,
+      "blueBiasPercent": 0.9414799132424045,
+      "colorL1": 0.005278970582189582,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.19276580331008683
+    },
+    {
+      "logical": 291,
+      "seconds": 1.7584446000000042,
+      "meanY": 0.1469938650780254,
+      "excessPercent": -0.24687567700084584,
+      "biasFromDimPercent": -0.5281679883226365,
+      "greenBiasPercent": -1.7152831653865164,
+      "blueBiasPercent": 0.9355377260596986,
+      "colorL1": 0.005185661901004737,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.16957627145188642
+    },
+    {
+      "logical": 292,
+      "seconds": 1.7915914000000015,
+      "meanY": 0.1469693323135376,
+      "excessPercent": -0.24773465298592073,
+      "biasFromDimPercent": -0.5447694908861433,
+      "greenBiasPercent": -1.7212512990826712,
+      "blueBiasPercent": 0.9058253450616505,
+      "colorL1": 0.0051405956735982306,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.18503595935735337
+    },
+    {
+      "logical": 293,
+      "seconds": 1.8253231999999997,
+      "meanY": 0.1469876892937554,
+      "excessPercent": -0.24172234326425313,
+      "biasFromDimPercent": -0.5323471870607444,
+      "greenBiasPercent": -1.6794779912544078,
+      "blueBiasPercent": 0.8820580414151902,
+      "colorL1": 0.005013170233068354,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.1855200145173312
+    },
+    {
+      "logical": 294,
+      "seconds": 1.8592624999999998,
+      "meanY": 0.1470785154302915,
+      "excessPercent": -0.23055690867553472,
+      "biasFromDimPercent": -0.4708844709739868,
+      "greenBiasPercent": -1.6019009605119816,
+      "blueBiasPercent": 0.9236519066098126,
+      "colorL1": 0.004940509409827543,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.17730611540461988
+    },
+    {
+      "logical": 295,
+      "seconds": 1.8936153000000076,
+      "meanY": 0.14715455115503734,
+      "excessPercent": -0.21853260253651247,
+      "biasFromDimPercent": -0.41943053556797727,
+      "greenBiasPercent": -1.5183565216823625,
+      "blueBiasPercent": 0.9355384486019025,
+      "colorL1": 0.004799386498296879,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.17102538221479097
+    },
+    {
+      "logical": 296,
+      "seconds": 1.9281150999999994,
+      "meanY": 0.14710642457140816,
+      "excessPercent": -0.21939147408681636,
+      "biasFromDimPercent": -0.4519981494579661,
+      "greenBiasPercent": -1.5243239297695554,
+      "blueBiasPercent": 0.8701729445075301,
+      "colorL1": 0.004685951006574193,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.16184642749915296
+    },
+    {
+      "logical": 297,
+      "seconds": 1.961697799999996,
+      "meanY": 0.14724519329335956,
+      "excessPercent": -0.20393147287703817,
+      "biasFromDimPercent": -0.35809233242880545,
+      "greenBiasPercent": -1.4169084073732408,
+      "blueBiasPercent": 0.9474213778829066,
+      "colorL1": 0.004623211681384909,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.13865595572802056
+    },
+    {
+      "logical": 298,
+      "seconds": 1.9965080999999998,
+      "meanY": 0.14732235004901886,
+      "excessPercent": -0.19448378138892766,
+      "biasFromDimPercent": -0.3058797871403729,
+      "greenBiasPercent": -1.3512661928052005,
+      "blueBiasPercent": 0.9830752235214568,
+      "colorL1": 0.004562806240996878,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.11546642386982015
+    },
+    {
+      "logical": 299,
+      "seconds": 2.0294078000000013,
+      "meanY": 0.14738377826743657,
+      "excessPercent": -0.1850359854660461,
+      "biasFromDimPercent": -0.2643108589406862,
+      "greenBiasPercent": -1.2856232526281874,
+      "blueBiasPercent": 0.9949610429713429,
+      "colorL1": 0.0044569409745605915,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.1231962678225536
+    },
+    {
+      "logical": 300,
+      "seconds": 2.0627633000000003,
+      "meanY": 0.14734164346986345,
+      "excessPercent": -0.18761249568218683,
+      "biasFromDimPercent": -0.2928237870402084,
+      "greenBiasPercent": -1.3035247512807935,
+      "blueBiasPercent": 0.9533642876078385,
+      "colorL1": 0.004412340369498655,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.10773657991708668
+    },
+    {
+      "logical": 301,
+      "seconds": 2.0966180000000065,
+      "meanY": 0.14747254775232738,
+      "excessPercent": -0.17215259890717968,
+      "biasFromDimPercent": -0.2042398941821677,
+      "greenBiasPercent": -1.1961099544934517,
+      "blueBiasPercent": 1.018729791702233,
+      "colorL1": 0.004327123035726688,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.12126386557892851
+    },
+    {
+      "logical": 302,
+      "seconds": 2.1302933000000053,
+      "meanY": 0.1475193662100368,
+      "excessPercent": -0.1652816265047501,
+      "biasFromDimPercent": -0.17255749874446336,
+      "greenBiasPercent": -1.14837068979593,
+      "blueBiasPercent": 1.030614166067667,
+      "colorL1": 0.004256403888530713,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.10097279022477017
+    },
+    {
+      "logical": 303,
+      "seconds": 2.163734599999998,
+      "meanY": 0.14763453981479008,
+      "excessPercent": -0.14982183416451392,
+      "biasFromDimPercent": -0.09461867144635594,
+      "greenBiasPercent": -1.0409566186175612,
+      "blueBiasPercent": 1.0722101988889454,
+      "colorL1": 0.004125834710937443,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.08551310231930322
+    },
+    {
+      "logical": 304,
+      "seconds": 2.197982699999997,
+      "meanY": 0.14768435493972565,
+      "excessPercent": -0.14380962887761728,
+      "biasFromDimPercent": -0.060908409207849346,
+      "greenBiasPercent": -0.9991840363982596,
+      "blueBiasPercent": 1.0959796701620395,
+      "colorL1": 0.004089639862491112,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.0700524745009043
+    },
+    {
+      "logical": 305,
+      "seconds": 2.2333596,
+      "meanY": 0.1477293015638987,
+      "excessPercent": -0.13865608627148432,
+      "biasFromDimPercent": -0.03049269732177118,
+      "greenBiasPercent": -0.9633774110482385,
+      "blueBiasPercent": 1.1197484188929296,
+      "colorL1": 0.0040651309571251015,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.0700524745009043
+    },
+    {
+      "logical": 306,
+      "seconds": 2.2678836999999987,
+      "meanY": 0.1476890397840076,
+      "excessPercent": -0.13951495782178822,
+      "biasFromDimPercent": -0.05773814054957915,
+      "greenBiasPercent": -0.9693448191354315,
+      "blueBiasPercent": 1.0662672891639913,
+      "colorL1": 0.00397430954967494,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.10870263417750363
+    },
+    {
+      "logical": 307,
+      "seconds": 2.301606399999997,
+      "meanY": 0.1478493449674712,
+      "excessPercent": -0.12233731794617322,
+      "biasFromDimPercent": 0.05074155873330266,
+      "greenBiasPercent": -0.8499952061737148,
+      "blueBiasPercent": 1.161344451714208,
+      "colorL1": 0.003923116840139684,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.08599551263165008
+    },
+    {
+      "logical": 308,
+      "seconds": 2.335721899999996,
+      "meanY": 0.14784822238816156,
+      "excessPercent": -0.11976080773003248,
+      "biasFromDimPercent": 0.04998190103977507,
+      "greenBiasPercent": -0.8320937075210977,
+      "blueBiasPercent": 1.1375757029833178,
+      "colorL1": 0.0038425682884291323,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.0748838619495957
+    },
+    {
+      "logical": 309,
+      "seconds": 2.369483900000006,
+      "meanY": 0.1479360544761022,
+      "excessPercent": -0.1077363971562392,
+      "biasFromDimPercent": 0.10941852237242866,
+      "greenBiasPercent": -0.7485485430825167,
+      "blueBiasPercent": 1.167286638896936,
+      "colorL1": 0.00373622415625835,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.040582620664782694
+    },
+    {
+      "logical": 310,
+      "seconds": 2.4034941999999972,
+      "meanY": 0.14793980133136111,
+      "excessPercent": -0.10430080652025428,
+      "biasFromDimPercent": 0.11195404694475108,
+      "greenBiasPercent": -0.7246781851247941,
+      "blueBiasPercent": 1.1435164450815938,
+      "colorL1": 0.003643984126798311,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.040582620664782694
+    },
+    {
+      "logical": 311,
+      "seconds": 2.4379729999999995,
+      "meanY": 0.1479855000562138,
+      "excessPercent": -0.09485290616260349,
+      "biasFromDimPercent": 0.1428787109045926,
+      "greenBiasPercent": -0.6590345193388303,
+      "blueBiasPercent": 1.1316327932583858,
+      "colorL1": 0.0034928784285759296,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.025121992846383768
+    },
+    {
+      "logical": 312,
+      "seconds": 2.4728338000000036,
+      "meanY": 0.14793549927075703,
+      "excessPercent": -0.0974296252482845,
+      "biasFromDimPercent": 0.10904281082284584,
+      "greenBiasPercent": -0.6769374692093599,
+      "blueBiasPercent": 1.0781516635294475,
+      "colorL1": 0.0034251608055581306,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.025121992846383768
+    },
+    {
+      "logical": 313,
+      "seconds": 2.5066611000000023,
+      "meanY": 0.14779560749133427,
+      "excessPercent": -0.11031311624192018,
+      "biasFromDimPercent": 0.014377012524602328,
+      "greenBiasPercent": -0.7664514929530464,
+      "blueBiasPercent": 0.9771337588809548,
+      "colorL1": 0.003406077907839977,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.040582620664782694
+    },
+    {
+      "logical": 314,
+      "seconds": 2.5410638000000034,
+      "meanY": 0.1478834395792749,
+      "excessPercent": -0.09828870566812864,
+      "biasFromDimPercent": 0.07381363385725592,
+      "greenBiasPercent": -0.6829063285144654,
+      "blueBiasPercent": 1.006844694794573,
+      "colorL1": 0.0032997453700244206,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.05459278659543736
+    },
+    {
+      "logical": 315,
+      "seconds": 2.575912900000006,
+      "meanY": 0.14787744790712992,
+      "excessPercent": -0.09657096256752082,
+      "biasFromDimPercent": 0.06975902515125032,
+      "greenBiasPercent": -0.6709715123400795,
+      "blueBiasPercent": 0.9830752235214568,
+      "colorL1": 0.003230657067678569,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.05507584309792495
+    },
+    {
+      "logical": 316,
+      "seconds": 2.610359900000006,
+      "meanY": 0.14799973564942678,
+      "excessPercent": -0.08540552797880245,
+      "biasFromDimPercent": 0.1525120417644521,
+      "greenBiasPercent": -0.5933944815976533,
+      "blueBiasPercent": 1.0722101988889454,
+      "colorL1": 0.003250398862829282,
+      "unknown": 0,
+      "largestPointExcessPercent": -0.03913309868997042
+    }
+  ]
+}

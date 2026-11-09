@@ -1775,7 +1775,8 @@ namespace HybridLumenGI
                 HybridLumenGILights.Data[] prepared,int count,int channel,out bool refresh)
             {
                 refresh=false;
-                // A common ratio scales the sum. Mixed ratios require a fresh estimate.
+                // A common ratio scales the sum. Mixed ratios require a fresh estimate,
+                // including a light losing this channel while other lights still supply it.
                 float scale=1;
                 bool hasContributor=false, mixedRatios=false;
                 for(int i=0;i<count;i++)
@@ -1783,7 +1784,7 @@ namespace HybridLumenGI
                     var before=recorded[i];var after=prepared[i];
                     float oldValue=before.color[channel],newValue=after.color[channel];
                     if(oldValue==0 && newValue==0) continue;
-                    if(oldValue<=0 || newValue<=0 || newValue>oldValue || before.positionType.w!=1 || before.spot.w!=0 ||
+                    if(oldValue<=0 || newValue<0 || newValue>oldValue || before.positionType.w!=1 || before.spot.w!=0 ||
                         !before.positionType.Equals(after.positionType) || !before.directionRange.Equals(after.directionRange) ||
                         !before.spot.Equals(after.spot) || before.cullingMask!=after.cullingMask ||
                         before.renderingLayers!=after.renderingLayers || before.shadowRenderingLayers!=after.shadowRenderingLayers ||
