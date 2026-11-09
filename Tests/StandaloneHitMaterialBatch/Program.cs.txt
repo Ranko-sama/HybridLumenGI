@@ -37,8 +37,8 @@ class Program
     {Check(Batch.TryCreate(sources,1L<<30,out var batch,out var reason),"create "+reason);return batch;}
     static Record[] Table(CommandBuffer cmd)=>cmd.Copies.OfType<Record[]>().Last();
     static Binding[] Bindings(CommandBuffer cmd)=>cmd.Copies.OfType<Binding[]>().Last();
-    static void RecordBatch(Batch batch,CommandBuffer cmd)
-    {Check(batch.Record(cmd,out var reason),"record "+reason);}
+    static void RecordBatch(Batch batch,CommandBuffer cmd,object uploadConsumer=null)
+    {Check(batch.Record(cmd,uploadConsumer,out var reason),"record "+reason);}
     static void Finish(Batch batch,CommandBuffer cmd)
     {
         if(batch.State==Batch.BatchState.Prepared){batch.Dispose();}
@@ -399,6 +399,8 @@ class Program
         var dynamicTexture = new RenderTexture { width = 516, height = 127, mipmapCount = 1, graphicsFormat = 42 };
         var firstCamera = new Fixture(dynamicTexture);
         var secondCamera = new Fixture(Texture(2, 2, 1));
+        var firstConsumer = new object();
+        var secondConsumer = new object();
 
         void RecordFirstCamera(int frame, bool deferred)
         {
@@ -406,7 +408,7 @@ class Program
             dynamicTexture.updateCount++;
             var batch = Prepare(firstCamera.Freeze());
             var commands = new CommandBuffer();
-            RecordBatch(batch, commands);
+            RecordBatch(batch, commands, firstConsumer);
             Check(Pool.UploadBytesUsed == (deferred ? 0 : quota) && batch.UnknownRecords == (deferred ? 1 : 0),
                 $"frame {frame}: the first camera did not honor the later camera's turn or failed to resume");
             Finish(batch, commands);
@@ -416,7 +418,7 @@ class Program
         var denied = Prepare(secondCamera.Freeze(19));
         var deniedCommands = new CommandBuffer();
         Pool.BeginFrame(start, quota);
-        RecordBatch(denied, deniedCommands);
+        RecordBatch(denied, deniedCommands, secondConsumer);
         Check(denied.UnknownRecords == 1 && Pool.UploadBytesUsed == quota, "the later camera was denied only by the frame quota");
         Check(denied.GetResources(out _, out _, out var originalMetadata, out var originalTexels), "denied batch resources");
         Check(denied.SealAfterConsumers(deniedCommands, out _), "seal the old reader without completing it");
@@ -427,7 +429,7 @@ class Program
         var pending = Prepare(secondCamera.Freeze(19));
         var pendingCommands = new CommandBuffer();
         Pool.BeginFrame(start + 1, quota);
-        RecordBatch(pending, pendingCommands);
+        RecordBatch(pending, pendingCommands, secondConsumer);
         Check(pending.TextureUploadCount == 0 && Table(pendingCommands)[0].textures0.y == 0 && Pool.UploadBytesUsed == 0,
             "an in-flight matching page must remain unknown");
         Finish(pending, pendingCommands);
@@ -441,7 +443,7 @@ class Program
         var admitted = Prepare(secondCamera.Freeze(19));
         var admittedCommands = new CommandBuffer();
         Pool.BeginFrame(start + 2, quota);
-        RecordBatch(admitted, admittedCommands);
+        RecordBatch(admitted, admittedCommands, secondConsumer);
         var handle = Table(admittedCommands)[0].textures0;
         Check(Pool.UploadBytesUsed == 128 && handle.y != 0, "the later camera receives the reserved capacity");
         Check(admitted.GetResources(out _, out _, out var metadata, out var texels) &&
@@ -455,7 +457,7 @@ class Program
         RecordFirstCamera(start + 3, deferred: false);
         var reuse = Prepare(secondCamera.Freeze(19));
         var reuseCommands = new CommandBuffer();
-        RecordBatch(reuse, reuseCommands);
+        RecordBatch(reuse, reuseCommands, firstConsumer);
         var used = Table(reuseCommands)[0].textures0;
         Check(reuse.TextureUploadCount == 0 && used.x == handle.x && used.y == handle.y && Pool.UploadBytesUsed == quota,
             "ready reuse and the full first camera copy both fit the original quota");
@@ -463,7 +465,7 @@ class Program
 
         var withdrawn = Prepare(new Fixture(Texture(2, 2, 1)).Freeze(23));
         var withdrawnCommands = new CommandBuffer();
-        RecordBatch(withdrawn, withdrawnCommands);
+        RecordBatch(withdrawn, withdrawnCommands, secondConsumer);
         Check(withdrawn.UnknownRecords == 1, "withdrawn request first waits for capacity");
         Finish(withdrawn, withdrawnCommands);
         RecordFirstCamera(start + 4, deferred: true);
@@ -472,6 +474,39 @@ class Program
         Pool.ClearReusable();
         SystemInfo.supportsAsyncGPUReadback = false;
         Clean();
+    }
+
+    static void CamerasSharingDynamicTextureGetSeparateUploadTurns()
+    {
+        scenarios++;
+        SystemInfo.supportsAsyncGPUReadback = true;
+        const int quota = 1 << 20;
+        var texture = new RenderTexture { width = 516, height = 127, mipmapCount = 1, graphicsFormat = 42 };
+        var cameras = new[] { new object(), new object(), new object() };
+        var fixtures = new[] { new Fixture(texture), new Fixture(texture), new Fixture(texture) };
+        var copySequence = new List<int>();
+        for (int step = 0; step <= cameras.Length; step++)
+        {
+            int frame = 2020 + step;
+            for (int camera = 0; camera < cameras.Length; camera++)
+            {
+                Pool.BeginFrame(frame, quota);
+                texture.updateCount++;
+                var batch = Prepare(fixtures[camera].Freeze((uint)(5 + camera)));
+                var command = new CommandBuffer();
+                RecordBatch(batch, command, cameras[camera]);
+                bool copied = command.Dispatches.Count > 0;
+                bool known = batch.UnknownRecords == 0 && Table(command)[0].textures0.y != 0;
+                Check(known == copied, $"frame {frame}, camera {camera}: copied={copied}, known={known}");
+                if (copied) copySequence.Add(camera);
+                Finish(batch, command);
+            }
+            Check(Pool.UploadBytesUsed == quota, $"frame {frame}: shared quota was not honored");
+        }
+        Pool.ClearReusable();
+        SystemInfo.supportsAsyncGPUReadback = false;
+        Clean();
+        Check(copySequence.SequenceEqual(new[] { 0, 1, 2, 0 }), "dynamic upload turns: " + string.Join(", ", copySequence));
     }
 
     static void ClosingAdmission()
@@ -489,7 +524,8 @@ class Program
         {
             Resources.Loaded=new ComputeShader();AbiAndConstantOrder();MapDedupAndFrozenViews();SourceRevalidation();GlobalBudgetsAndCaps();
             AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();ReadyPageSurvivesPendingDuplicate();QuotaDefersUnknownMaterials();
-            DynamicTextureCannotStarveWaitingMap();LaterCameraGetsSharedTextureUploadTurn();ClosingAdmission();
+            DynamicTextureCannotStarveWaitingMap();LaterCameraGetsSharedTextureUploadTurn();
+            CamerasSharingDynamicTextureGetSeparateUploadTurns();ClosingAdmission();
             Console.WriteLine("PASS hit-material-batch "+checks+" assertions / "+scenarios+" scenarios; actual seven C# classes, recording adapters only; no Unity/GPU execution.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}

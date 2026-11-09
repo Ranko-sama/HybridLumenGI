@@ -207,6 +207,9 @@ namespace HybridLumenGI
         /// importer and shader alone establish texture ready. Same command buffer executes once.
         /// </summary>
         public bool Record(CommandBuffer cmd,out string reason)
+            => Record(cmd, null, out reason);
+
+        internal bool Record(CommandBuffer cmd,object uploadConsumer,out string reason)
         {
             reason=null;
             if(disposed || cmd==null || State!=BatchState.Prepared){reason="Batch is canceled, invalid or already recorded.";return false;}
@@ -218,7 +221,7 @@ namespace HybridLumenGI
             command=cmd;State=BatchState.Recording;
             try
             {
-                if(!pool.RecordUploads(cmd,textureLease,importer.Record,out reason))
+                if(!pool.RecordUploads(cmd,textureLease,importer.Record,uploadConsumer,out reason))
                 { Quarantine();return false; }
                 if(disposed || State!=BatchState.Recording)throw new InvalidOperationException("Batch canceled during upload recording.");
                 UnknownRecords=0;

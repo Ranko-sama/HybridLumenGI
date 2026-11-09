@@ -1500,7 +1500,7 @@ namespace HybridLumenGI
                     else
                     {
                         int hardwareUpdate=c.FindKernel("CSUpdateCache"),hardwareTrace=c.FindKernel("CSTrace");
-                        if(!d.hitMaterials.RecordAndBind(cmd,c,hardwareUpdate,hardwareTrace,out reason))FallBackToSoftware(d,reason,sourceUncertain:true);
+                        if(!d.hitMaterials.RecordAndBind(cmd,c,hardwareUpdate,hardwareTrace,state.camera,out reason))FallBackToSoftware(d,reason,sourceUncertain:true);
                         else
                         {
                             state.hardwareMaterialUnknownRecords=d.hitMaterials.UnknownRecords;

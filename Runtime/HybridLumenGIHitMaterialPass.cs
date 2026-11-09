@@ -88,12 +88,12 @@ namespace HybridLumenGI
 
         // This method never dispatches a consumer. A failed second binding must not leave a
         // partially updated hardware path in use; the caller selects software before dispatch.
-        internal bool RecordAndBind(CommandBuffer cmd,ComputeShader shader,int cacheKernel,int traceKernel,out string reason)
+        internal bool RecordAndBind(CommandBuffer cmd,ComputeShader shader,int cacheKernel,int traceKernel,Camera uploadConsumer,out string reason)
         {
             reason=null;
             if(disposed || finished || shader==null || cacheKernel<0 || traceKernel<0)
             { reason="Invalid or completed material consumer recording.";return false; }
-            return batch.Record(cmd,out reason) && batch.Bind(cmd,shader,cacheKernel,out reason) &&
+            return batch.Record(cmd,uploadConsumer,out reason) && batch.Bind(cmd,shader,cacheKernel,out reason) &&
                 batch.Bind(cmd,shader,traceKernel,out reason);
         }
 
