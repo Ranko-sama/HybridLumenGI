@@ -140,7 +140,10 @@ static class Program
         {m.shaderKeywords=new[]{"_ALPHATEST_ON",keyword};Check(Capture(s,r,m).IdentityCoverage.SmoothnessFromAlbedoAlpha,"official alpha alias "+keyword);}
         foreach(string keyword in new[]{"_PARALLAXMAP","LOD_FADE_CROSSFADE","_ADD_PRECOMPUTED_VELOCITY"})
         {m.shaderKeywords=new[]{keyword};var unsupported=Capture(s,r,m).IdentityCoverage;Check(!unsupported.Supported&&unsupported.UnsupportedReason!=null,"unmodeled coverage "+keyword);}
-        m.shaderKeywords=Array.Empty<string>();m.Set("_AlphaToMask",1f);Check(!Capture(s,r,m).IdentityCoverage.Supported,"A2C unsupported");m.Set("_AlphaToMask",0f);
+        m.shaderKeywords=new[]{"_ALPHATEST_ON"};m.Set("_AlphaToMask",1f);
+        var cutout=Capture(s,r,m).IdentityCoverage;
+        Check(cutout.Supported&&cutout.AlphaTest,"Authored cutout remains eligible for single-sample identity with inactive A2C");
+        m.Set("_AlphaToMask",0f);
         m.Enabled["ForwardLit"]=false;Check(!Capture(s,r,m).IdentityCoverage.Supported,"disabled forward coverage");m.Enabled.Clear();
         m.shaderKeywords=new[]{"_ALPHATEST_ON"};m.Set("_BaseMap",new RenderTexture());Check(!Capture(s,r,m).IdentityCoverage.Supported,"GPU alpha texture unknown");
         m.Set("_BaseMap",new Texture2D{dimension=3});Check(!Capture(s,r,m).IdentityCoverage.Supported,"non-2D alpha texture unsupported");

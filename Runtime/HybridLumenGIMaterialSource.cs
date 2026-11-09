@@ -100,8 +100,9 @@ namespace HybridLumenGI
         /// <summary>
         /// Frozen alpha/raster inputs for the separate identity draw. Texture is a reference, not copied
         /// pixels: the caller must still revalidate Snapshot immediately before recording the draw.
-        /// Supported covers material-local coverage only. LOD groups/fading, debug alpha overrides,
-        /// MSAA, deformation and incompatible camera projection remain caller rejection conditions.
+        /// Supported covers material-local coverage with single-sample rasterization and inactive A2C.
+        /// LOD groups/fading, debug alpha overrides, MSAA, active A2C, deformation and incompatible
+        /// camera projection remain caller rejection conditions.
         /// </summary>
         public readonly struct IdentityCoverageData
         {
@@ -132,7 +133,6 @@ namespace HybridLumenGI
                 UnsupportedReason = Array.IndexOf(keywords, "_PARALLAXMAP") >= 0 ? "Parallax changes the alpha UV." :
                     Array.IndexOf(keywords, "LOD_FADE_CROSSFADE") >= 0 ? "LOD crossfade coverage is not captured." :
                     Array.IndexOf(keywords, "_ADD_PRECOMPUTED_VELOCITY") >= 0 ? "Precomputed vertex motion is not captured." :
-                    Read(values, "_AlphaToMask", default).x != 0 ? "Alpha-to-coverage is not captured." :
                     forward < 0 || !passEnabled[forward] ? "The source ForwardLit pass is unavailable." :
                     AlphaTest && !SmoothnessFromAlbedoAlpha && !textureSupported ? "Alpha texture is not a static 2D source." : null;
                 Supported = UnsupportedReason == null;

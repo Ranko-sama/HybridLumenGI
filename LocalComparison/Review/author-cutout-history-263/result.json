@@ -1,0 +1,223 @@
+{
+  "status": "passed",
+  "observationBuild": {
+    "status": "Succeeded",
+    "error": "",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "output": "I:\\Unity test\\Comparison\\Builds\\AuthorCutoutHistory263Readback\\HybridLumenGIPlayer.exe",
+    "scene": "Assets/HLGIAuthorCutoutHistory263/Coverage.unity",
+    "settingsSource": "Release215 portable Pipeline.asset / Renderer.asset",
+    "errors": 0,
+    "warnings": 6,
+    "bytes": 101369673,
+    "restored": true
+  },
+  "scope": "Stock authored Lit cutout, DX12, single sample and inactive A2C, optional identity history on. Fixed solid and hole samples.",
+  "baseline": {
+    "status": "collected",
+    "error": "",
+    "unity": "6000.0.85f1",
+    "device": "NVIDIA GeForce RTX 2080 Ti",
+    "legacy": true,
+    "frames": 16,
+    "engineFrame": 18,
+    "workFrame": 15,
+    "samples": 1,
+    "identityDraws": 1,
+    "unknownRectangles": 1,
+    "identityStatus": "Identity resolve recorded; GPU completion not implied",
+    "authoredMask": 1.0,
+    "globalA2c": 0.0,
+    "frontDepth": 0.9972991347312927,
+    "backDepth": 0.9962988495826721,
+    "points": [
+      {
+        "region": "checker",
+        "x": 70,
+        "y": 165,
+        "expectedFront": false,
+        "age": 1.0,
+        "deviceDepth": 0.9962988495826721,
+        "identity": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "region": "checker",
+        "x": 93,
+        "y": 165,
+        "expectedFront": true,
+        "age": 1.0,
+        "deviceDepth": 0.9972991347312927,
+        "identity": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "region": "checker",
+        "x": 160,
+        "y": 140,
+        "expectedFront": false,
+        "age": 1.0,
+        "deviceDepth": 0.9962988495826721,
+        "identity": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "region": "checker",
+        "x": 183,
+        "y": 140,
+        "expectedFront": true,
+        "age": 1.0,
+        "deviceDepth": 0.9972991347312927,
+        "identity": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "region": "back",
+        "x": 240,
+        "y": 135,
+        "expectedFront": false,
+        "age": 16.0,
+        "deviceDepth": 0.9962988495826721,
+        "identity": [
+          2,
+          0,
+          2,
+          1
+        ]
+      }
+    ]
+  },
+  "baselineExit": {
+    "mode": "baseline",
+    "processId": 2792,
+    "exitCode": 0,
+    "watchdog": false,
+    "preLaunchGpuPercent": [
+      2,
+      2,
+      3,
+      2
+    ]
+  },
+  "candidate": {
+    "status": "collected",
+    "error": "",
+    "unity": "6000.0.85f1",
+    "device": "NVIDIA GeForce RTX 2080 Ti",
+    "legacy": false,
+    "frames": 16,
+    "engineFrame": 18,
+    "workFrame": 15,
+    "samples": 1,
+    "identityDraws": 2,
+    "unknownRectangles": 0,
+    "identityStatus": "Identity resolve recorded; GPU completion not implied",
+    "authoredMask": 1.0,
+    "globalA2c": 0.0,
+    "frontDepth": 0.9972991347312927,
+    "backDepth": 0.9962988495826721,
+    "points": [
+      {
+        "region": "checker",
+        "x": 70,
+        "y": 165,
+        "expectedFront": false,
+        "age": 16.0,
+        "deviceDepth": 0.9962988495826721,
+        "identity": [
+          2,
+          0,
+          2,
+          1
+        ]
+      },
+      {
+        "region": "checker",
+        "x": 93,
+        "y": 165,
+        "expectedFront": true,
+        "age": 16.0,
+        "deviceDepth": 0.9972991347312927,
+        "identity": [
+          4,
+          0,
+          2,
+          1
+        ]
+      },
+      {
+        "region": "checker",
+        "x": 160,
+        "y": 140,
+        "expectedFront": false,
+        "age": 16.0,
+        "deviceDepth": 0.9962988495826721,
+        "identity": [
+          2,
+          0,
+          2,
+          1
+        ]
+      },
+      {
+        "region": "checker",
+        "x": 183,
+        "y": 140,
+        "expectedFront": true,
+        "age": 16.0,
+        "deviceDepth": 0.9972991347312927,
+        "identity": [
+          4,
+          0,
+          1,
+          1
+        ]
+      },
+      {
+        "region": "back",
+        "x": 240,
+        "y": 135,
+        "expectedFront": false,
+        "age": 16.0,
+        "deviceDepth": 0.9962988495826721,
+        "identity": [
+          2,
+          0,
+          2,
+          1
+        ]
+      }
+    ]
+  },
+  "candidateExit": {
+    "mode": "candidate",
+    "processId": 29332,
+    "exitCode": 0,
+    "watchdog": false,
+    "preLaunchGpuPercent": [
+      3,
+      2,
+      2,
+      2
+    ]
+  }
+}

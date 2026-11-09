@@ -99,7 +99,7 @@ Feature 现在连接 `Discovery → Registry → ReceiverHistory → ReceiverIde
 
 每次准备冻结矩阵、源 submesh、完整网格指纹和有效材质快照，并在 Scene/SDF 就绪发布之前完成。原材质捕获和身份捕获回调绘制前重新发现来源，核对同帧 source set、camera culling、矩阵、材质及网格指纹。新建/激活、移除、来源改变或再验证超预算会撤销来源票据；不得拿旧观察补齐。世界材质快照允许当前 RenderTexture 捕获，但这类无法证明稳定的来源不能进入 receiver 可复用记录。
 
-[MaterialSource.Snapshot.IdentityCoverage](../Runtime/HybridLumenGIMaterialSource.cs) 只从冻结的属性、纹理引用和关键词数组构造：包含有效 BaseMap、BaseMap_ST、BaseColor alpha、Cutoff、来源 Material 的 Cull、alpha-test 与 smoothness-from-albedo-alpha 关键词，以及明确的支持标记。构造 draw 参数不重读 live Material/MPB，不改原 Renderer、sharedMaterial 或属性块。alpha-test 由关键词决定；smoothness 使用 base alpha 时，覆盖 alpha 取 BaseColor.a，否则取贴图 alpha 与 BaseColor.a 的乘积。未建模的 parallax、LOD crossfade、precomputed vertex motion、alpha-to-coverage 和不兼容 alpha 纹理拒绝身份。
+[MaterialSource.Snapshot.IdentityCoverage](../Runtime/HybridLumenGIMaterialSource.cs) 从冻结的属性、纹理引用和关键词数组取得有效 BaseMap、BaseMap_ST、BaseColor alpha、Cutoff、来源 Material 的 Cull、alpha-test 与 smoothness-from-albedo-alpha 关键词及支持标记。身份绘制用独立的 draw 参数消费冻结输入。alpha-test 由关键词决定，smoothness 使用 base alpha 时，覆盖 alpha 取 BaseColor.a，否则取贴图 alpha 与 BaseColor.a 的乘积。未建模的 parallax、LOD crossfade、precomputed vertex motion 和不兼容 alpha 纹理拒绝身份。相机单采样且实际 A2C 关闭时，作者默认 `_AlphaToMask=1` 的普通裁剪仍可取得身份历史。[同输入实机对照](../LocalComparison/Review/author-cutout-history-263/result.md)
 
 [IdentityFrame](../Runtime/HybridLumenGIReceiverIdentityFrame.cs) 保留来源记录顺序和 holes，不因不支持条目而压缩后续索引。每行80B：前64B为 currentToPrevious，offset64为 uint2 key，offset72为 flags，offset76的字段名 reserved 现在保存**当前帧 Renderer group**。group 同一 Renderer 跨 submesh 一致，只用于本帧变化域归属；它不是跨帧身份。key 为该 submesh 记录的 max(geometryGeneration, materialGeneration)，代次由注册表全局单调分配、不复用。primitive 是该 submesh draw 内的原始三角序号，因此 key 加 primitive 能区分不同 submesh；ownerIndexPlusOne 只是本帧 row 寻址。
 
