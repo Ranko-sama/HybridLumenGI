@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release177，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release178，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 关闭共享 RTAS 构建额度为零时仍准备无效计划并占用预留的缺口。冷请求提前回退，已建且仍匹配的 RTAS 可复用，位姿变化与同帧收紧沿原安全退休。适用范围为实际 C# 准入与命令录制。[对照与范围](../LocalComparison/Review/rtas-zero-build-quota-206/result.md) · [同源交付](../LocalComparison/Review/rtas-zero-build-quota-206/delivery.json)
 
 T6／G4 补上相机图卡录制的 CPU 时间准入。启用后在完整卡之间延期，延后卡保持待捕获，旧来源仍立即失效。功能证据覆盖实际 C# 命令和就绪上传。实际成本、其他阶段及生产预算继续验收。[对照与范围](../LocalComparison/Review/surface-capture-recording-204/result.md) · [同源交付](../LocalComparison/Review/surface-capture-recording-204/delivery.json)
 
