@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release206，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release207，G0 已锁定，G1／G2 本机代表性验收通过
 
-T3／G3 已关闭固定双点光共用绿色通道时的调暗残亮。约 2 秒时旧绿增量从 6.64% 降至 −0.52%，修复版约 0.19 秒进入合格保持区间。整段绿均值最低比低亮终态低 3.30%，固定蓝通道最大偏差 2.17%。[同曝光实测和范围](../LocalComparison/Review/point-light-shared-channel-248/result.md)
+T3／G3 已关闭固定双点光共用绿色通道时的调暗残亮。约 2 秒时旧绿增量从 6.64% 降至 −0.52%，修复版约 0.19 秒进入合格保持区间。整段绿均值最低比低亮终态低 3.30%，固定蓝通道最大偏差 2.17%。[同曝光实测和范围](../LocalComparison/Review/point-light-shared-channel-248/result.md) · [同源交付](../LocalComparison/Review/point-light-shared-channel-248/delivery.json)
 
 T3／G3 已关闭裁剪 BaseMap 分段上传时漏掉远接收面刷新的缺口。实机 DXR 的最后写入帧与经验证重新绑定帧均恢复地板软反应，调度优先级从 0 升至 1000。稳定可用后无重复通知。像素残留、拖影及收敛时间继续验收。[实机对照与范围](../LocalComparison/Review/cutout-upload-reach-247/result.md) · [同源交付](../LocalComparison/Review/cutout-upload-reach-247/delivery.json)
 

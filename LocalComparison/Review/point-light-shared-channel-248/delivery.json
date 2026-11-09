@@ -1,0 +1,46 @@
+{
+  "productCommit": "3b424c4c08b5d18d6e8961f8bf53fb441284fd39",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release207-demo",
+  "tag": "release207-demo",
+  "publishedAt": "2026-11-09T13:21:19Z",
+  "prerelease": true,
+  "validation": {
+    "gate": "G3",
+    "baselineSource": "59f0c4332f9779900dab7d49ca305b983ee508fa",
+    "method": "Native DXR Editor Play at 960x540. Fixed gray room, two stable point lights sharing green, nine linear IndirectOnly receiver samples.",
+    "comparison": "result.md",
+    "firstCandidateStatus": "insufficient: source clock gaps",
+    "acceptedCandidateStatus": "qualified-pass",
+    "firstRecoveryWindow": {
+      "start": 0.19069230000000204,
+      "end": 0.701832600000003
+    },
+    "minGreenBiasPercent": -3.3042104876675804,
+    "maxBlueBiasPercent": 2.1699316880855024
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release207-UnityProject.zip",
+      "size": 856194,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release207-demo/HybridLumenGI-Release207-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release207-Windows-x64.zip",
+      "size": 58297844,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release207-demo/HybridLumenGI-Release207-Windows-x64.zip"
+    }
+  ]
+}
