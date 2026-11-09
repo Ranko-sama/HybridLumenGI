@@ -93,6 +93,9 @@
   <p>原640×360归档场景中，当前Runtime的地板均值相对独立蓝前史产品控制，在 <strong>1.141710～1.654460秒</strong>形成合格保持窗口，后续观测至2.611763秒未再越线。地板控制稳定性合格；<strong>白块控制自身亮度波动9.03%，超过冻结5%，其恢复不能采用</strong>，两个接收域的整体合同仍不足。</p>
   <figure><img src="reflected-color-response-01/comparison.png" alt="红墙改蓝与首帧蓝墙在地板和白块两域的同量D及亮度差"><figcaption>当前122同源，原场景／2ray／filter4／DXR，约2秒和末帧的filteredD，不是上图Final。地板有2个unknown；均值窗口不等于每个像素恢复。<a href="reflected-color-response-01/result.json">两域资格与数值</a> · <a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/reflected-color-response-01/result.md">控制不足及范围 ↗</a></figcaption></figure>
   <p class="notice">这些是各自固定光路的恢复观察，没有给出统一三室、几何遮挡改变或门运动的共同收敛时间。第3节四张门图仍不足以量化很弱拖尾的时长。</p>
+  <h3>普通 Player 重新开灯</h3>
+  <p>Release220 在固定近景地板上重新开启五盏灯。间接光的区域均值在 <strong>1.233 秒</strong>进入亮度和色向容差，保持到 5.667 秒的观察末端，满足全局 5 秒和后续 0.5 秒保持目标。</p>
+  <figure><img src="ordinary-light-restore-269/comparison.png" alt="固定地板同曝光，左列重新开灯，右列始终亮灯"><figcaption>960×540、实际 DXR，使用 F5 间接光视图。首个源帧低于亮灯控制 24.3%，约 2 秒时低 2.67%。<a href="ordinary-light-restore-269/result.json">逐源数值</a> · <a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/ordinary-light-restore-269/result.md">范围与方法 ↗</a></figcaption></figure>
   <h3>历史帧数观察</h3>
   <h3>唯一发光源切蓝后，旧绿色多久消退？</h3>
   <p>Release114 在黑环境中只保留一个发光板，从纯绿切到纯蓝。开启时间累积、递归反弹和 4 级滤波后，白地板平均 G 相对切换前的残留在首个蓝色帧为 7.46%，第 +10 帧为 1.43%，第 +30 帧为 0.285%，第 +119 帧仍有 0.0000681%。</p>

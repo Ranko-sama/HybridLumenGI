@@ -70,6 +70,47 @@ void CheckSharedFrameUploads()
         "A failed version retried or blocked the healthy upload after the frame advanced.");
 }
 
+void CheckPeriodicFrameUploads()
+{
+    const int resolution = 64;
+    const int volume = resolution * resolution * resolution;
+    var frequentTexture = new Texture3D(resolution);
+    var periodicTexture = new Texture3D(resolution);
+    var frequentScene = new HybridLumenGIScene(1);
+    var periodicScene = new HybridLumenGIScene(1);
+    SetSlot(frequentScene, 0, Asset(frequentTexture, resolution), 1);
+    SetSlot(periodicScene, 0, Asset(periodicTexture, resolution), 2);
+    using var frequent = new HybridLumenGISdfAtlas();
+    using var periodic = new HybridLumenGISdfAtlas();
+    var frequentReady = new bool[14];
+    int firstPeriodicReady = -1;
+
+    for (int step = 0; step < frequentReady.Length; step++)
+    {
+        int frame = 150 + step;
+        int attempted = ComputeBuffer.AttemptedFloatVoxels;
+        int periodicReads = periodicTexture.ReadCount;
+        frequentTexture.updateCount++;
+        frequent.PrepareForFrame(frequentScene, frame);
+        frequentReady[step] = frequent.IsReady(0, 1, 1);
+        if (step <= 9 && step % 3 == 0)
+        {
+            if (step == 9) periodicTexture.updateCount++;
+            periodic.PrepareForFrame(periodicScene, frame);
+            if (periodic.IsReady(0, 2, 1) && firstPeriodicReady < 0) firstPeriodicReady = step;
+        }
+        else
+            Require(periodicTexture.ReadCount == periodicReads, "An absent camera must not upload its pending volume.");
+        Require(ComputeBuffer.AttemptedFloatVoxels - attempted <= volume, "Periodic waiting exceeded the shared frame allowance.");
+    }
+
+    Console.WriteLine($"Three-frame camera: first ready step={firstPeriodicReady}; frequent ready at 4/5/7/10/11/13: " +
+        $"{frequentReady[4]}/{frequentReady[5]}/{frequentReady[7]}/{frequentReady[10]}/{frequentReady[11]}/{frequentReady[13]}.");
+    Require(firstPeriodicReady >= 0 && firstPeriodicReady <= 6, "The periodic camera kept missing its full-volume upload turn.");
+    Require(frequentReady[4] && frequentReady[5] && frequentReady[7] && frequentReady[10] && frequentReady[11] && frequentReady[13],
+        "The periodic reservation held intervening frames or remained after the camera stopped returning.");
+}
+
 bool CheckFailedVolumeReleasesRange()
 {
     const int resolution = 64;
@@ -125,6 +166,7 @@ bool CheckFailedVolumeReleasesRange()
 }
 
 CheckSharedFrameUploads();
+CheckPeriodicFrameUploads();
 Require(CheckFailedVolumeReleasesRange(), "A failed SDF version must yield its range after metadata revocation.");
 
 const int voxels=16*16*16;

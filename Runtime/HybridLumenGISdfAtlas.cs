@@ -16,6 +16,7 @@ namespace HybridLumenGI
         public const int DefaultVoxelBudget = 2 * 1024 * 1024; // 8 MiB, excluding metadata and source assets.
         public const int MetadataStride = 128;
         private const int DefaultUploadVoxels = 64 * 64 * 64;
+        private const int UploadReservationGraceFrames = 2;
 
         public readonly struct TransformChange
         {
@@ -48,7 +49,7 @@ namespace HybridLumenGI
             public uint textureVersion;
             public bool ready, failed;
             public LinkedListNode<Allocation> uploadWaiter;
-            public int requestedUploadFrame;
+            public long reserveFromFrame, reserveThroughFrame;
             public bool AwaitingWithdrawal => failed && offset >= 0;
         }
 
@@ -104,6 +105,8 @@ namespace HybridLumenGI
         private Representation[] nextRepresentations = Array.Empty<Representation>();
         private bool metadataUploadUncertain;
         private int uploadCursor;
+        private int? lastSharedPrepareFrame;
+        private long sharedPrepareInterval;
 
         /// <summary>Hard voxel upload cap per Prepare. A single volume must fit this cap.</summary>
         public int UploadVoxelBudget { get; set; } = DefaultUploadVoxels;
@@ -180,7 +183,15 @@ namespace HybridLumenGI
             transformChanges.Clear();
             if (scene == null) throw new ArgumentNullException(nameof(scene));
             bool shareUploads = engineFrame.HasValue;
-            if (engineFrame is int frame) BeginUploadFrame(frame);
+            if (engineFrame is int frame)
+            {
+                BeginUploadFrame(frame);
+                if (lastSharedPrepareFrame != frame)
+                {
+                    sharedPrepareInterval = lastSharedPrepareFrame is int previous && frame > previous ? (long)frame - previous : 0;
+                    lastSharedPrepareFrame = frame;
+                }
+            }
             maxVoxels = Mathf.Clamp(maxVoxels, 0, 16 * 1024 * 1024);
             bool changed = EnsureMetadata(scene.Capacity);
             desired.Clear();
@@ -383,11 +394,10 @@ namespace HybridLumenGI
         private static void BeginUploadFrame(int frame)
         {
             if (frame == uploadFrame) return;
-            // Keep a turn across one skipped frame, then stop reserving for absent cameras.
             for (var waiter = uploadWaiters.First; waiter != null;)
             {
                 var next = waiter.Next;
-                if (frame < uploadFrame || (long)frame - waiter.Value.requestedUploadFrame > 2)
+                if (frame < uploadFrame || frame > waiter.Value.reserveThroughFrame)
                     CancelUploadRequest(waiter.Value);
                 waiter = next;
             }
@@ -395,9 +405,11 @@ namespace HybridLumenGI
             frameUploadRemaining = DefaultUploadVoxels;
         }
 
-        private static bool AdmitFrameUpload(Allocation allocation, int uploadRemaining)
+        private bool AdmitFrameUpload(Allocation allocation, int uploadRemaining)
         {
-            var oldest = uploadWaiters.First?.Value;
+            var waiter = uploadWaiters.First;
+            while (waiter != null && waiter.Value.reserveFromFrame > uploadFrame) waiter = waiter.Next;
+            var oldest = waiter?.Value;
             // Another camera can use the spare voxels while the oldest whole volume waits.
             int reserved = oldest != null && oldest != allocation ? oldest.count : 0;
             if (allocation.count <= uploadRemaining && allocation.count <= frameUploadRemaining - reserved)
@@ -405,8 +417,20 @@ namespace HybridLumenGI
                 CancelUploadRequest(allocation);
                 return true;
             }
+            if (sharedPrepareInterval > UploadReservationGraceFrames)
+            {
+                // Slow periodic cameras reserve only their next expected visit.
+                // This expires if they miss it and cannot upload on their behalf.
+                long nextVisit = uploadFrame + sharedPrepareInterval;
+                allocation.reserveFromFrame = nextVisit;
+                allocation.reserveThroughFrame = nextVisit;
+            }
+            else
+            {
+                allocation.reserveFromFrame = uploadFrame;
+                allocation.reserveThroughFrame = (long)uploadFrame + UploadReservationGraceFrames;
+            }
             allocation.uploadWaiter ??= uploadWaiters.AddLast(allocation);
-            allocation.requestedUploadFrame = uploadFrame;
             return false;
         }
 
@@ -656,6 +680,8 @@ namespace HybridLumenGI
             metadata = nextMetadata = Array.Empty<SdfMetadata>();
             metadataUploadUncertain = false;
             ClearAllocations();
+            lastSharedPrepareFrame = null;
+            sharedPrepareInterval = 0;
             freeRanges.Clear();
             desired.Clear();
             visited.Clear();
