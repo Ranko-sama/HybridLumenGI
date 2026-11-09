@@ -37,6 +37,53 @@ namespace HybridLumenGI
             DetailEnabled=1u<<7,DetailScaled=1u<<8,ParallaxMap=1u<<9,ReceiveShadowsOff=1u<<10,
             SpecularHighlightsOff=1u<<11,EnvironmentReflectionsOff=1u<<12;
 
+        // Keep just the inputs of the exact shadow coverage query across frames.
+        // ShadowCaster ignores parallax, and an unassigned BaseMap contributes alpha 1.
+        internal readonly struct ShadowCoverage
+        {
+            private readonly int cull;
+            private readonly bool known, covered;
+            private readonly HybridLumenGIFrozenTextureView map;
+            private readonly Vector4 baseST;
+            private readonly float alpha, cutoff;
+
+            internal ShadowCoverage(HybridLumenGIHitMaterialData material)
+            {
+                this = default;
+                cull = material.SourceCull;
+                known = covered = true;
+                uint flags = KeywordFlags(material);
+                if ((flags & AlphaTest) == 0) return;
+
+                var baseColor = material.BaseColor;
+                float baseAlpha = baseColor.Origin == HybridLumenGIMaterialValueOrigin.Absent ? 1f : baseColor.Value.w;
+                float threshold = Scalar(material, "_Cutoff", .5f);
+                known = Finite(baseAlpha) && Finite(threshold);
+                if (!known) return;
+
+                var texture = (flags & SmoothnessFromBaseAlpha) == 0 ? material.BaseMap : default;
+                if (ReferenceEquals(texture.Texture, null))
+                {
+                    covered = baseAlpha >= threshold;
+                    return;
+                }
+
+                map = texture;
+                baseST = Transform(material, "_BaseMap_ST");
+                alpha = baseAlpha;
+                cutoff = threshold;
+            }
+
+            internal bool Matches(ShadowCoverage previous)
+            {
+                if (cull != previous.cull || known != previous.known || covered != previous.covered) return false;
+                if (ReferenceEquals(map.Texture, null)) return ReferenceEquals(previous.map.Texture, null);
+                // A dynamic alpha source can change even when its managed observation matches.
+                return map.HasTexture2DMipState && !map.IsRenderTexture && map.Equals(previous.map) &&
+                    baseST.Equals(previous.baseST) && alpha == previous.alpha && cutoff == previous.cutoff;
+            }
+        }
+
         public static uint KeywordFlags(HybridLumenGIHitMaterialData material)
         {
             if(material==null) return 0;

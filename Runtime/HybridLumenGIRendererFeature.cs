@@ -351,6 +351,11 @@ namespace HybridLumenGI
             internal readonly HybridLumenGIHardwareBackend.GeometryAllocations Hardware = new HybridLumenGIHardwareBackend.GeometryAllocations();
             internal readonly HybridLumenGIHardwareBackend.GeometryAllocations Software = new HybridLumenGIHardwareBackend.GeometryAllocations();
         }
+        private struct ExactMaterialObservation
+        {
+            internal HybridLumenGIMaterialSource.Snapshot cardlessSource;
+            internal HybridLumenGIHitMaterialLayout.ShadowCoverage shadowCoverage;
+        }
         private sealed class CameraState : IDisposable
         {
             internal int scenePreparedEngineFrame = -1, scenePreparedWorkFrame = -1;
@@ -402,7 +407,7 @@ namespace HybridLumenGI
             internal ComputeBuffer lights;
             internal readonly HybridLumenGILights.Data[] lightData=new HybridLumenGILights.Data[32];
             internal readonly List<HybridLumenGILights.Data> lightChanges=new List<HybridLumenGILights.Data>(64);
-            internal readonly List<Bounds> localLightChangeBounds=new List<Bounds>(64);
+            internal readonly List<Bounds> localLightingChangeBounds=new List<Bounds>(64);
             internal HybridLumenGILights.SelectionDiagnostics lightSelection;
             internal HybridLumenGILightRelevance.Domain lightDomain;
             internal string lightDomainReason;
@@ -412,7 +417,7 @@ namespace HybridLumenGI
             internal int fullWidth,fullHeight,fullPixelBytes;
             internal bool valid,lastHardware,lightingChanged;
             private bool worldPreparationPending;
-            internal Dictionary<ulong, HybridLumenGIMaterialSource.Snapshot> materialsWithoutCards;
+            internal Dictionary<ulong, ExactMaterialObservation> exactMaterialObservations;
             internal int[] recordedTraceOwners;
             internal string recordedTransportBackend;
             internal int transportRecordedEngineFrame = -1, transportRecordedWorkFrame = -1;
@@ -774,7 +779,7 @@ namespace HybridLumenGI
                 internal BufferHandle softwareNodes,softwareLeaves;
                 internal BufferHandle areaEmitters;
                 internal HybridLumenGIAreaEmission.Layout areaLayout;
-                internal Dictionary<ulong, HybridLumenGIMaterialSource.Snapshot> materialsWithoutCards;
+                internal Dictionary<ulong, ExactMaterialObservation> exactMaterialObservations;
                 internal int[] traceOwners;
                 internal TextureHandle depth,captureDepth,normals,motion,diffuse,emission,receiverPolicy,raw,tempA;
                 // Temporal consumes raw before the first filter dispatch. It can then serve as destination B.
@@ -1308,7 +1313,7 @@ namespace HybridLumenGI
                 b.geometry=a.geometry;b.softwareLayout=a.softwareLayout;b.softwareNodes=a.softwareNodes;b.softwareLeaves=a.softwareLeaves;
                 b.geometryVersion=a.geometryVersion;
                 b.areaEmitters=a.areaEmitters;b.areaLayout=a.areaLayout;
-                b.materialsWithoutCards=a.materialsWithoutCards;
+                b.exactMaterialObservations=a.exactMaterialObservations;
                 b.traceOwners=a.traceOwners;
                 b.owner=a.owner;b.state=a.state;b.compute=a.compute;b.hardware=a.hardware;b.depth=a.depth;b.captureDepth=a.captureDepth;b.normals=a.normals;b.motion=a.motion;b.diffuse=a.diffuse;b.emission=a.emission;b.receiverPolicy=a.receiverPolicy;
                 b.raw=a.raw;b.tempA=a.tempA;b.filterIterations=a.filterIterations;b.historyRead=a.historyRead;b.historyWrite=a.historyWrite;b.geometryRead=a.geometryRead;b.geometryWrite=a.geometryWrite;
@@ -1348,7 +1353,7 @@ namespace HybridLumenGI
                 }
                 if(!current)return;
                 state.CompleteWorldRecording(1-d.cacheRead);
-                state.materialsWithoutCards=d.geometry!=null ? d.materialsWithoutCards : null;
+                state.exactMaterialObservations=d.geometry!=null ? d.exactMaterialObservations : null;
                 state.recordedTraceOwners=d.geometry!=null ? d.traceOwners : null;
                 state.lastHardware=d.hardware;state.exactSoftwareGeometry=d.ExactSoftware;
                 state.recordedTransportBackend = d.hardware ? "DXR" : d.ExactSoftware ? "exact software" : "SDF/analytic software";
@@ -1399,7 +1404,7 @@ namespace HybridLumenGI
                     Mathf.Clamp(s.maxAreaEmitterTriangles,0,HybridLumenGIAreaEmission.MaxTriangles),out d.areaLayout,out reason))
                     d.areaLayout=null; // A missing proposal never removes the original direction estimator.
                 PrepareTraceRepresentationChanges(d);
-                PrepareMaterialChangesWithoutCards(d,sources);
+                PrepareExactMaterialChanges(d,sources);
                 state.hardwareMaterialFrameBytes=d.hitMaterials.ByteCount;
                 state.hardwareMaterialStatus="Prepared; GPU upload not yet recorded";
             }
@@ -1427,23 +1432,38 @@ namespace HybridLumenGI
                 }
             }
 
-            private void PrepareMaterialChangesWithoutCards(Work work,IReadOnlyList<HybridLumenGIHitMaterialBatch.Source> sources)
+            private void PrepareExactMaterialChanges(Work work,IReadOnlyList<HybridLumenGIHitMaterialBatch.Source> sources)
             {
-                var state=work.state;
-                foreach(var source in sources)
+                var state = work.state;
+                float traceReach = Mathf.Max(1, s.traceDistance);
+                float shadowReach = 0;
+                for (int i = 0; i < work.lightCount; i++)
                 {
-                    // Resident card owners already observe their source in SurfaceCache.Prepare.
-                    // Exact hits still use their original material when no cards fit.
-                    if(!state.scene.TryGetPublishedSlot((int)source.StableId,out int slot) ||
-                        state.surfaceCache.GetCardCount(slot)>0) continue;
-                    ulong key=((ulong)source.StableId<<32)|source.Submesh;
-                    var snapshot=source.Snapshot;
-                    (work.materialsWithoutCards ??= new Dictionary<ulong, HybridLumenGIMaterialSource.Snapshot>())[key]=snapshot;
-                    if(state.materialsWithoutCards==null || !state.materialsWithoutCards.TryGetValue(key,out var previous) ||
-                        (snapshot.CanReuseHistory && snapshot.Equals(previous))) continue;
-                    if(!state.scene.TryGetPreparedTraversalBounds(slot,out Bounds bounds)) continue;
-                    state.surfaceCache.AddChangedBounds(bounds);
-                    state.changes.Add(bounds,false,Mathf.Max(1,s.traceDistance));
+                    var light = state.lightData[i];
+                    if (light.spot.z > 0)
+                        shadowReach = Mathf.Max(shadowReach, light.positionType.w < .5f ? Mathf.Max(1, s.shadowDistance) : light.directionRange.w);
+                }
+                foreach (var source in sources)
+                {
+                    if (!state.scene.TryGetPublishedSlot((int)source.StableId, out int slot)) continue;
+                    bool cardless = state.surfaceCache.GetCardCount(slot) == 0;
+                    ulong key = ((ulong)source.StableId << 32) | source.Submesh;
+                    var snapshot = source.Snapshot;
+                    var coverage = new HybridLumenGIHitMaterialLayout.ShadowCoverage(snapshot.HitMaterial);
+                    (work.exactMaterialObservations ??= new Dictionary<ulong, ExactMaterialObservation>())[key] =
+                        new ExactMaterialObservation { cardlessSource = cardless ? snapshot : null, shadowCoverage = coverage };
+                    if (state.exactMaterialObservations == null || !state.exactMaterialObservations.TryGetValue(key, out var previous)) continue;
+
+                    // Card owners already report changes to their outgoing material. Exact
+                    // shadow coverage can also change the lighting of more distant receivers.
+                    bool nearby = cardless && previous.cardlessSource != null &&
+                        (!snapshot.CanReuseHistory || !snapshot.Equals(previous.cardlessSource));
+                    bool shadow = shadowReach > 0 && state.scene.LightingPolicies[slot].shadowCastingMode != (uint)ShadowCastingMode.Off &&
+                        !coverage.Matches(previous.shadowCoverage);
+                    if ((!nearby && !shadow) || !state.scene.TryGetPreparedTraversalBounds(slot, out Bounds bounds)) continue;
+                    if (nearby) state.surfaceCache.AddChangedBounds(bounds);
+                    if (shadow) AddLocalLightingChange(state, bounds, shadowReach + traceReach);
+                    else state.changes.Add(bounds, false, traceReach);
                 }
             }
             private void FallBackToSoftware(Work d,string reason,bool sourceUncertain=false)
@@ -1487,7 +1507,7 @@ namespace HybridLumenGI
                 // RecordCapture would starve continuously moving objects whose pages invalidate every frame.
                 state.scheduler.Prepare(state.scene,state.surfaceCache,state.patchGrid,d.frame,Mathf.Clamp(d.cachePatchBudget,1,state.cacheEntryCount),
                     state.lightingChanged,Mathf.Max(s.shadowDistance,s.traceDistance)+Mathf.Max(1,s.traceDistance),
-                    upload:true,localLightChanges:state.localLightChangeBounds,changedSurfaces:state.surfaceCache.ChangedBounds,
+                    upload:true,localLightChanges:state.localLightingChangeBounds,changedSurfaces:state.surfaceCache.ChangedBounds,
                     surfaceInfluenceRadius:Mathf.Max(1,s.traceDistance));
                 if(d.geometry!=null)
                 {
@@ -1638,7 +1658,7 @@ namespace HybridLumenGI
             {
                 state.lightDomain=default;state.lightDomainReason="Disabled";
                 if(s.spatialLightSelection) TryLightDomain(state,cameraData,view,invVP,out state.lightDomain,out state.lightDomainReason);
-                state.localLightChangeBounds.Clear();
+                state.localLightingChangeBounds.Clear();
                 int count=worldLights.Update(Time.frameCount,useRenderingLayers,state.lightData,Mathf.Clamp(s.maxLights,1,32),
                     state.previousLightCount,state.lightChanges,out int hash,s.spatialLightSelection,state.lightDomain,out state.lightSelection,
                     mainLight,additionalRealtimeShadows);
@@ -1699,13 +1719,15 @@ namespace HybridLumenGI
                 else
                 {
                     var bounds=new Bounds((Vector3)light.positionType,Vector3.one*Mathf.Max(0,light.directionRange.w)*2);
-                    float influence=Mathf.Max(1,s.traceDistance);
-                    state.changes.Add(bounds,false,influence);
-                    // Old and new records share the existing change domain. This
-                    // conservative expansion affects priority, never eligibility.
-                    bounds.Expand(influence*2);
-                    state.localLightChangeBounds.Add(bounds);
+                    AddLocalLightingChange(state, bounds, Mathf.Max(1, s.traceDistance));
                 }
+            }
+            private static void AddLocalLightingChange(CameraState state, Bounds bounds, float influence)
+            {
+                state.changes.Add(bounds, false, influence);
+                // This conservative expansion affects priority, never eligibility.
+                bounds.Expand(influence * 2);
+                state.localLightingChangeBounds.Add(bounds);
             }
             private bool TryGetPreparedCamera(Camera camera, out CameraState state)
             {
