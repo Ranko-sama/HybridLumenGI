@@ -111,7 +111,8 @@ namespace HybridLumenGI
             public readonly HashSet<int> published = new HashSet<int>();
             public readonly HashSet<int> target = new HashSet<int>();
             public float distance;
-            public bool seen, initialized, detailsPending;
+            public bool seen, initialized;
+            public int pendingDetails;
             public bool capacityFallback; // Derived again from this Prepare's requested target.
         }
 
@@ -489,7 +490,7 @@ namespace HybridLumenGI
             representationAdds.Clear(); representationRemoves.Clear();
             PendingCapacity = 0;
             foreach (HlodGroup group in groups.Values)
-            { group.seen = group.detailsPending = false; group.details.Clear(); group.target.Clear(); }
+            { group.seen = false; group.pendingDetails = 0; group.details.Clear(); group.target.Clear(); }
             for (int i = 0; i < candidates.Count; i++) available[candidates[i].proxy.StableId] = candidates[i];
             for (int i = 0; i < candidates.Count; i++)
             {
@@ -505,7 +506,7 @@ namespace HybridLumenGI
             {
                 if (aggregates.Contains(proxy) || available.ContainsKey(proxy.StableId)) continue;
                 var root = TopLevelRoot(proxy);
-                if (root != null && groups.TryGetValue(root, out HlodGroup group)) group.detailsPending = true;
+                if (root != null && root != proxy && groups.TryGetValue(root, out HlodGroup group)) group.pendingDetails++;
             }
             retiredProxies.Clear();
             foreach (var pair in groups)
@@ -526,18 +527,16 @@ namespace HybridLumenGI
                     group.initialized = false;
                 }
                 bool far = UseFarProxy(group.root, rootDistance, nearDistance);
-                if (far || group.details.Count == 0)
+                // The declared near set can already exceed capacity while some of
+                // its leaves are still waiting for pages. Those leaves cannot warm.
+                group.capacityFallback = !far && group.details.Count + group.pendingDetails > capacity &&
+                    (group.published.Count == 0 || group.published.Contains(group.root.StableId));
+                if (far || group.details.Count == 0 || group.capacityFallback)
                 {
                     if (rootAvailable) group.target.Add(group.root.StableId);
                 }
                 // An incomplete near target cannot replace a published group or reserve extra slots.
-                else if (!group.detailsPending) group.target.UnionWith(group.details);
-                group.capacityFallback = group.published.Count == 0 && group.target.Count > capacity;
-                if (group.capacityFallback)
-                {
-                    group.target.Clear();
-                    if (rootAvailable) group.target.Add(group.root.StableId);
-                }
+                else if (group.pendingDetails == 0) group.target.UnionWith(group.details);
                 if ((!group.initialized || !group.published.SetEquals(group.target)) && ReadyToPublish(group) &&
                     (deferExactHlodTarget == null || !HasExactHlodHandoff(group, preparedExact, deferExactHlodTarget)))
                 {

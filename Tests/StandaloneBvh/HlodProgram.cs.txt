@@ -26,6 +26,72 @@ static void RootPublished(HybridLumenGIScene s,int id)
     int slot=Slot(s,id);Require(slot>=0&&s.IsPublished(slot)&&s.PublishedCount==1,"Old root representation not held.");
     Require(s.Bvh.NodeCount==1&&s.Bvh.Nodes[0].proxySlot==slot,"Warm geometry leaked into traversal.");
 }
+
+if (args.Contains("--incomplete-capacity"))
+{
+    try { IncompleteCapacityFallback(Environment.GetEnvironmentVariable("HLGI_HLOD_INCOMPLETE_CAPACITY_BASELINE") == "1"); }
+    catch (Exception error) { Console.Error.WriteLine(error.Message); Environment.ExitCode = 1; }
+    return;
+}
+
+static void IncompleteCapacityFallback(bool baseline)
+{
+    var group = Group(33);
+    var declarations = HybridLumenGIStreamedRepresentation.Active;
+    declarations.Clear();
+    foreach (var leaf in group.children)
+    {
+        leaf.isActiveAndEnabled = false;
+        declarations.Add(new HybridLumenGIStreamedRepresentation { Proxy = leaf });
+    }
+    using var scene = new HybridLumenGIScene();
+    Prepare(scene, false, 32);
+    int rootSlot = Slot(scene, group.root.StableId);
+    Require(rootSlot >= 0 && scene.IsWarming(rootSlot) && scene.ValidCount == 1, "The cold root must start warming before the first leaf binds.");
+    Require(scene.ReportReadiness(group.root.StableId, group.root.Revision, true, true, false), "Current partial root receipt was rejected.");
+
+    group.children[0].isActiveAndEnabled = true;
+    Prepare(scene, false, 32);
+    Console.WriteLine($"Declared 33 / bound 1 / capacity 32: warming={scene.WarmingCount}, published={scene.PublishedCount}, pendingCapacity={scene.PendingCapacity}.");
+    if (baseline)
+    {
+        Require(scene.ValidCount == 0 && scene.PendingCapacity == 0 &&
+            !scene.ReportReadiness(group.root.StableId, group.root.Revision, true, true, true),
+            "Release201 did not reproduce loss of the warming root after a leaf bound.");
+        declarations.Clear();
+        return;
+    }
+
+    Require(scene.IsWarming(rootSlot) && scene.ValidCount == 1 && scene.PendingCapacity == 1 && scene.Bvh.NodeCount == 0,
+        "The oversized declared set must hold the original warming root without publishing partial geometry.");
+    Require(Slot(scene, group.children[0].StableId) < 0, "The single bound leaf reserved a slot for an oversized set.");
+    Require(scene.ReportReadiness(group.root.StableId, group.root.Revision, true, true, true), "Complete current root receipt was rejected.");
+    Prepare(scene, false, 32);
+    RootPublished(scene, group.root.StableId);
+    Require(scene.PendingCapacity == 1, "The still-oversized declaration must report one blocked group.");
+    Console.WriteLine("Complete root receipt: published=1, pendingCapacity=1.");
+
+    foreach (var removed in declarations.Skip(2)) removed.isActiveAndEnabled = false;
+    Prepare(scene, false, 32);
+    RootPublished(scene, group.root.StableId);
+    Require(scene.WarmingCount == 0 && scene.PendingCapacity == 0, "A fitting set with one unbound leaf staged partially or kept the old capacity block.");
+    group.children[1].isActiveAndEnabled = true;
+    Prepare(scene, false, 32);
+    RootPublished(scene, group.root.StableId);
+    Require(scene.WarmingCount == 2, "The complete fitting leaf set did not stage beside the old root.");
+    var first = group.children[0];
+    Require(scene.ReportReadiness(first.StableId, first.Revision, true, true, true), "The first complete leaf receipt was rejected.");
+    Prepare(scene, false, 32);
+    RootPublished(scene, group.root.StableId);
+    var second = group.children[1];
+    Require(scene.ReportReadiness(second.StableId, second.Revision, true, true, true), "The second complete leaf receipt was rejected.");
+    Prepare(scene, false, 32);
+    Require(scene.PublishedCount == 2 && scene.WarmingCount == 0 && scene.PendingCapacity == 0 &&
+        scene.Bvh.NodeCount == 3 && Slot(scene, group.root.StableId) < 0,
+        "The two ready leaves did not replace the root as a complete set.");
+    declarations.Clear();
+    Console.WriteLine("PASS incomplete capacity fallback: one ready root, then atomic replacement by both fitting leaves.");
+}
 // The same cold-start inputs run against frozen old source and the candidate.
 // Only assertions differ; the baseline then skips the pre-existing control suite.
 static void ColdStartRootFallback(bool baseline)
@@ -109,6 +175,7 @@ if(coldBaseline)
     Console.WriteLine("PASS: frozen-source cold-start hole established with the same 33/32 inputs; fitting-detail sequence remains functional. Candidate-only controls were not executed.");
     return;
 }
+IncompleteCapacityFallback(false);
 // An empty scene can fit all 32 leaves: do not reserve an unnecessary root slot.
 var fitting=Group(32);
 using(var s=new HybridLumenGIScene())
