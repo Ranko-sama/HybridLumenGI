@@ -176,11 +176,29 @@ if(coldBaseline)
     return;
 }
 IncompleteCapacityFallback(false);
-// An empty scene can fit all 32 leaves: do not reserve an unnecessary root slot.
+// An empty scene can fit all 32 declared leaves, even if the root binds first.
 var fitting=Group(32);
+var fittingDeclarations=HybridLumenGIStreamedRepresentation.Active;
+foreach(var child in fitting.children)
+{
+    child.isActiveAndEnabled=false;
+    fittingDeclarations.Add(new HybridLumenGIStreamedRepresentation { Proxy=child });
+}
 using(var s=new HybridLumenGIScene())
 {
     Prepare(s,false,32);
+    bool warmedRootFirst=Slot(s,fitting.root.StableId)>=0;
+    if(warmedRootFirst)
+    {
+        ReportAll(s);
+        Prepare(s,false,32);
+    }
+    int firstPublication=s.PublishedCount;
+    foreach(var child in fitting.children)child.isActiveAndEnabled=true;
+    Prepare(s,false,32);
+    Console.WriteLine($"COLD32 root first: root warmed={warmedRootFirst}, initial published={firstPublication}, " +
+        $"leaves warming={s.WarmingCount}, pending capacity={s.PendingCapacity}.");
+    Require(!warmedRootFirst&&firstPublication==0,"A root-first arrival consumed a slot needed by the declared exact-fit detail set.");
     Require(s.ValidCount==32&&s.WarmingCount==32&&s.PublishedCount==0&&s.Bvh.NodeCount==0&&s.PendingCapacity==0&&s.PendingUploadCount==0,
         "Exactly fitting cold detail group did not stage directly.");
     Require(Slot(s,fitting.root.StableId)<0&&fitting.children.All(c=>s.IsWarming(Slot(s,c.StableId))),
@@ -190,6 +208,7 @@ using(var s=new HybridLumenGIScene())
         Slot(s,fitting.root.StableId)<0&&fitting.children.All(c=>s.IsPublished(Slot(s,c.StableId))),
         "Exactly fitting details failed whole-group publication.");
 }
+fittingDeclarations.Clear();
 Console.WriteLine("PASS: cold root fallback/readiness, fitting-detail release and exact-capacity direct-detail control.");
 
 static void ReadyHlodBehindOlderBuild(bool useQueue, bool exactRoot, bool fitsBesidePrepared = true)

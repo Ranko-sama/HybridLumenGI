@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release225 同源交付](../LocalComparison/Review/object-sdf-upload-time-274/delivery.json)
 
+T5／G4 已关闭冷近场根先到时占槽、使恰好满槽的完整细节无法预热的缺口。完整细节齐备后按原回执发布。采用限首次发布前的场景槽位选择，高速入场首显和其他共驻额度继续验收。[同顺序对照与范围](../LocalComparison/Review/hlod-root-first-capacity-275/result.md)
+
 T6／G4 已补对象 SDF 同步整卷上传的共享 CPU 时间准入。后置相机收紧额度时计入同帧已有上传，时间延期沿原周期队列继续，失败仍计时。采用范围是对象卷的 CPU 准入，原生上传时间和全阶段生产预算继续验收。[受控对照](../LocalComparison/Review/object-sdf-upload-time-274/result.md)
 
 T6／G4 已关闭固定周期相机反复失去共享材质贴图上传的路径。实际 Batch／Pool 中，两帧周期相机录制完整稳定页，经原完成门取得同代句柄，高频相机在间隔帧继续提交。原生多相机画面和成本继续验收。[同输入对照](../LocalComparison/Review/periodic-material-upload-273/result.md)

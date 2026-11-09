@@ -539,11 +539,14 @@ namespace HybridLumenGI
                     group.initialized = false;
                 }
                 bool far = UseFarProxy(group.root, rootDistance, nearDistance);
+                int declaredDetails = group.details.Count + group.pendingDetails;
                 // The declared near set can already exceed capacity while some of
                 // its leaves are still waiting for pages. Those leaves cannot warm.
-                group.capacityFallback = !far && group.details.Count + group.pendingDetails > capacity &&
+                group.capacityFallback = !far && declaredDetails > capacity &&
                     (group.published.Count == 0 || group.published.Contains(group.root.StableId));
-                if (far || group.details.Count == 0 || group.capacityFallback || group.hasUnavailableDetails)
+                // At a cold near start, a published root would prevent an exact-fit detail set from staging.
+                bool detailsNeedEverySlot = group.published.Count == 0 && declaredDetails == capacity;
+                if (far || (group.details.Count == 0 && !detailsNeedEverySlot) || group.capacityFallback || group.hasUnavailableDetails)
                 {
                     if (rootAvailable) group.target.Add(group.root.StableId);
                 }
