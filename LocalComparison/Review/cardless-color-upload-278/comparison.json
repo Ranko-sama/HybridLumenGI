@@ -1,0 +1,1106 @@
+{
+  "baselineCommit": "6223df0783a750a08ddddda33b116596262450a3",
+  "method": "One fixed opaque cardless wall, real DXR full-material query and change region in the same transport command, then receiver scheduling inspection.",
+  "baseline": {
+    "status": "observed",
+    "error": "",
+    "api": "Direct3D12",
+    "unity": "6000.0.85f1",
+    "scope": "One fixed cardless opaque wall; real DXR full material hit plus current change query. Unknown diffuse RGB is canonical zero, not known black.",
+    "wallOutside": true,
+    "floorVisible": true,
+    "sawBluePending": true,
+    "sawBlueKnown": true,
+    "cameraPosition": {
+      "x": 0.8500000238418579,
+      "y": 0.550000011920929,
+      "z": 0.0
+    },
+    "receiverPoint": {
+      "x": 2.5,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "rayOrigin": {
+      "x": 2.5,
+      "y": 0.019999999552965164,
+      "z": 0.0
+    },
+    "rayDirection": {
+      "x": -0.9310228228569031,
+      "y": 0.3649609684944153,
+      "z": 0.0
+    },
+    "cameraRotation": {
+      "x": 0.5,
+      "y": -0.5,
+      "z": 0.5,
+      "w": 0.5
+    },
+    "wallBounds": {
+      "m_Center": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "m_Extent": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 2.0
+      }
+    },
+    "floorBounds": {
+      "m_Center": {
+        "x": 2.5,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "m_Extent": {
+        "x": 2.5,
+        "y": 0.0,
+        "z": 3.0
+      }
+    },
+    "traceDistance": 4.0,
+    "rayLimit": 2.7852187156677246,
+    "blueWidth": 512,
+    "blueHeight": 512,
+    "uploadMiB": 1,
+    "rows": [
+      {
+        "stage": "before",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless red",
+        "engine": 3,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 0,
+        "changedBounds": 0,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": false,
+        "pagePresent": false,
+        "uploadComplete": false,
+        "pageReady": false,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": false,
+        "pageGeneration": 0,
+        "uploadedElements": 0,
+        "storageElements": 0,
+        "floorPriority": 0.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 0.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 2.6852188110351562,
+          "w": 1471.0
+        },
+        "diffuse": {
+          "x": 0.9599999785423279,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 0
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 4,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 1,
+        "changedBounds": 1,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": true,
+        "uploadComplete": false,
+        "pageReady": false,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": true,
+        "pageGeneration": 2,
+        "uploadedElements": 65532,
+        "storageElements": 131072,
+        "floorPriority": 751.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 4.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 2.6852188110351562,
+          "w": 5055.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": -1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 1.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 1.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 1048576
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 5,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 0,
+        "changedBounds": 0,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": true,
+        "uploadComplete": false,
+        "pageReady": false,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": false,
+        "pageGeneration": 2,
+        "uploadedElements": 131068,
+        "storageElements": 131072,
+        "floorPriority": 0.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 0.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 2.6852188110351562,
+          "w": 5055.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": -1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 1048576
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 6,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 0,
+        "changedBounds": 0,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": true,
+        "uploadComplete": true,
+        "pageReady": false,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": false,
+        "pageGeneration": 2,
+        "uploadedElements": 131072,
+        "storageElements": 131072,
+        "floorPriority": 0.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 0.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 2.6852188110351562,
+          "w": 1471.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.9599999785423279,
+          "w": 1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 64
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 7,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 0,
+        "changedBounds": 0,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": false,
+        "uploadComplete": true,
+        "pageReady": false,
+        "readbackPending": true,
+        "lightingChanged": false,
+        "wallBoundMatches": false,
+        "pageGeneration": 2,
+        "uploadedElements": 131072,
+        "storageElements": 131072,
+        "floorPriority": 0.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 0.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 2.6852188110351562,
+          "w": 5055.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": -1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 0
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 8,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 0,
+        "changedBounds": 0,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": true,
+        "uploadComplete": true,
+        "pageReady": true,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": false,
+        "pageGeneration": 2,
+        "uploadedElements": 131072,
+        "storageElements": 131072,
+        "floorPriority": 0.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 0.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 2.6852188110351562,
+          "w": 1471.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.9599999785423279,
+          "w": 1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 0
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 9,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 0,
+        "changedBounds": 0,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": true,
+        "uploadComplete": true,
+        "pageReady": true,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": false,
+        "pageGeneration": 2,
+        "uploadedElements": 131072,
+        "storageElements": 131072,
+        "floorPriority": 0.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 0.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 2.6852188110351562,
+          "w": 1471.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.9599999785423279,
+          "w": 1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 0
+      }
+    ]
+  },
+  "fixed": {
+    "status": "observed",
+    "error": "",
+    "api": "Direct3D12",
+    "unity": "6000.0.85f1",
+    "scope": "One fixed cardless opaque wall; real DXR full material hit plus current change query. Unknown diffuse RGB is canonical zero, not known black.",
+    "wallOutside": true,
+    "floorVisible": true,
+    "sawBluePending": true,
+    "sawBlueKnown": true,
+    "cameraPosition": {
+      "x": 0.8500000238418579,
+      "y": 0.550000011920929,
+      "z": 0.0
+    },
+    "receiverPoint": {
+      "x": 2.5,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "rayOrigin": {
+      "x": 2.5,
+      "y": 0.019999999552965164,
+      "z": 0.0
+    },
+    "rayDirection": {
+      "x": -0.9310228228569031,
+      "y": 0.3649609684944153,
+      "z": 0.0
+    },
+    "cameraRotation": {
+      "x": 0.5,
+      "y": -0.5,
+      "z": 0.5,
+      "w": 0.5
+    },
+    "wallBounds": {
+      "m_Center": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "m_Extent": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 2.0
+      }
+    },
+    "floorBounds": {
+      "m_Center": {
+        "x": 2.5,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "m_Extent": {
+        "x": 2.5,
+        "y": 0.0,
+        "z": 3.0
+      }
+    },
+    "traceDistance": 4.0,
+    "rayLimit": 2.7852187156677246,
+    "blueWidth": 512,
+    "blueHeight": 512,
+    "uploadMiB": 1,
+    "rows": [
+      {
+        "stage": "before",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless red",
+        "engine": 3,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 0,
+        "changedBounds": 0,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": false,
+        "pagePresent": false,
+        "uploadComplete": false,
+        "pageReady": false,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": false,
+        "pageGeneration": 0,
+        "uploadedElements": 0,
+        "storageElements": 0,
+        "floorPriority": 0.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 0.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 2.6852188110351562,
+          "w": 1471.0
+        },
+        "diffuse": {
+          "x": 0.9599999785423279,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 0
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 4,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 1,
+        "changedBounds": 1,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": true,
+        "uploadComplete": false,
+        "pageReady": false,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": true,
+        "pageGeneration": 2,
+        "uploadedElements": 65532,
+        "storageElements": 131072,
+        "floorPriority": 751.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 4.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 2.6852188110351562,
+          "w": 5055.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": -1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 1.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 1.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 1048576
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 5,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 0,
+        "changedBounds": 0,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": true,
+        "uploadComplete": false,
+        "pageReady": false,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": false,
+        "pageGeneration": 2,
+        "uploadedElements": 131068,
+        "storageElements": 131072,
+        "floorPriority": 0.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 0.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 2.6852188110351562,
+          "w": 5055.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": -1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 1048576
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 6,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 1,
+        "changedBounds": 1,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": true,
+        "uploadComplete": true,
+        "pageReady": false,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": true,
+        "pageGeneration": 2,
+        "uploadedElements": 131072,
+        "storageElements": 131072,
+        "floorPriority": 751.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 4.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 2.6852188110351562,
+          "w": 1471.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.9599999785423279,
+          "w": 1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 1.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 1.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 64
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 7,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 0,
+        "changedBounds": 0,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": false,
+        "uploadComplete": true,
+        "pageReady": false,
+        "readbackPending": true,
+        "lightingChanged": false,
+        "wallBoundMatches": false,
+        "pageGeneration": 2,
+        "uploadedElements": 131072,
+        "storageElements": 131072,
+        "floorPriority": 0.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 0.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 2.6852188110351562,
+          "w": 5055.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": -1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 0
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 8,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 1,
+        "changedBounds": 1,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": true,
+        "uploadComplete": true,
+        "pageReady": true,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": true,
+        "pageGeneration": 2,
+        "uploadedElements": 131072,
+        "storageElements": 131072,
+        "floorPriority": 751.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 4.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 2.6852188110351562,
+          "w": 1471.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.9599999785423279,
+          "w": 1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 1.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 1.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 0
+      },
+      {
+        "stage": "switched",
+        "backend": "DXR",
+        "geometryVersion": "1",
+        "materialStatus": "Uploads and both consumers bound; GPU completion unproven",
+        "baseMap": "Cardless blue 512",
+        "engine": 9,
+        "wallCards": 0,
+        "floorCards": 6,
+        "exactMeshes": 2,
+        "unknown": 0,
+        "regions": 0,
+        "changedBounds": 0,
+        "epoch": 5,
+        "sceneRevision": 1,
+        "ownerRevision": 4,
+        "geometryContentRevision": 4,
+        "wallChange": 0,
+        "wallShadowMode": 0,
+        "scheduledFloorPatches": 24,
+        "reusableSource": true,
+        "sameSwappedSource": true,
+        "pagePresent": true,
+        "uploadComplete": true,
+        "pageReady": true,
+        "readbackPending": false,
+        "lightingChanged": false,
+        "wallBoundMatches": false,
+        "pageGeneration": 2,
+        "uploadedElements": 131072,
+        "storageElements": 131072,
+        "floorPriority": 0.0,
+        "floorPending": 0.0,
+        "globalReactive": 0.0,
+        "globalGeometry": 0.0,
+        "regionKind": 0.0,
+        "radius": 0.0,
+        "gpu": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 2.6852188110351562,
+          "w": 1471.0
+        },
+        "diffuse": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.9599999785423279,
+          "w": 1.0
+        },
+        "hitIdentity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "receiverChange": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "wallChangeGpu": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "uv": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "frameUploadBytes": 0
+      }
+    ]
+  }
+}

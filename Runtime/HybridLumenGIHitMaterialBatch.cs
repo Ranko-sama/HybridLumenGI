@@ -45,13 +45,27 @@ namespace HybridLumenGI
             }
         }
         public enum BatchState { Prepared,Recording,Recorded,Quarantined,SealedAwaitingFence,ReleasePending,Released }
+
+        internal readonly struct MapRecording
+        {
+            internal readonly bool AllRequiredMapsRecorded;
+            internal readonly bool? ShadowMapRecorded;
+
+            internal MapRecording(bool allRequiredMapsRecorded, bool? shadowMapRecorded)
+            {
+                AllRequiredMapsRecorded = allRequiredMapsRecorded;
+                ShadowMapRecorded = shadowMapRecorded;
+            }
+        }
+
         private readonly Source[] sources;
         private readonly HybridLumenGIHitMaterialRecord[] encoded;
+        private readonly ushort[] requiredMaps;
         private readonly HybridLumenGIMaterialSource validator;
         private readonly HybridLumenGIRayTextureImporter importer;
         private readonly HybridLumenGIRayTexturePool pool;
         private readonly HybridLumenGIRayTexturePool.Lease textureLease;
-        private Dictionary<ulong,bool> shadowMapUploads;
+        private Dictionary<ulong,MapRecording> mapRecordings;
         private GraphicsBuffer records,bindings;
         private CommandBuffer command;
         private GraphicsFence fence;
@@ -68,13 +82,14 @@ namespace HybridLumenGI
         public int TextureUploadCount => textureLease.UploadCount;
         public Texture GetUploadSource(int index) => textureLease.GetUpload(index).View.Texture;
         public Source GetSource(int index) => sources[index];
-        internal IReadOnlyDictionary<ulong,bool> ShadowMapUploads => shadowMapUploads;
+        internal IReadOnlyDictionary<ulong,MapRecording> MapRecordings => mapRecordings;
 
-        private HybridLumenGIHitMaterialBatch(Source[] sources,HybridLumenGIHitMaterialRecord[] encoded,
+        private HybridLumenGIHitMaterialBatch(Source[] sources,HybridLumenGIHitMaterialRecord[] encoded,ushort[] requiredMaps,
             uint generation,HybridLumenGIMaterialSource validator,HybridLumenGIRayTextureImporter importer,
             HybridLumenGIRayTexturePool pool,HybridLumenGIRayTexturePool.Lease textureLease)
         {
-            this.sources=sources;this.encoded=encoded;Generation=generation;this.validator=validator;this.importer=importer;
+            this.sources=sources;this.encoded=encoded;this.requiredMaps=requiredMaps;
+            Generation=generation;this.validator=validator;this.importer=importer;
             this.pool=pool;this.textureLease=textureLease;MaterialByteCount=(long)sources.Length*(HybridLumenGIHitMaterialLayout.Stride+BindingStride);
             State=BatchState.Prepared;
         }
@@ -111,6 +126,7 @@ namespace HybridLumenGI
             if(materialBytes>globalBudgetBytes || TotalMaterialBytes>globalBudgetBytes-materialBytes)
             { reason="Global budget includes all material and texture resources awaiting completion.";return false; }
             var frozen=new Source[count];var usable=new bool[frozen.Length];
+            var requiredMaps=new ushort[frozen.Length];
             var mapping=new int[frozen.Length*HybridLumenGIHitMaterialLayout.TextureCount];
             for(int i=0;i<mapping.Length;i++)mapping[i]=-1;
             var views=new List<HybridLumenGIFrozenTextureView>();
@@ -131,6 +147,7 @@ namespace HybridLumenGI
                         if(!HybridLumenGIHitMaterialLayout.UsesTexture(flags,map)) continue;
                         var view=HybridLumenGIHitMaterialLayout.GetTexture(material,map);
                         if(ReferenceEquals(view.Texture,null)) continue;
+                        requiredMaps[index] |= (ushort)(1 << map);
                         // Coverage inputs must not acquire new binary16 rounding at the cutoff
                         // or in the height value which shifts the alpha lookup coordinate.
                         bool coverageWide=(flags&HybridLumenGIHitMaterialLayout.AlphaTest)!=0&&(map==0||map==9);
@@ -173,7 +190,7 @@ namespace HybridLumenGI
                 }
             }
             catch(Exception ex){pool.ReleaseUnrecorded(lease);pool.Dispose();reason="Material encoding failed: "+ex.GetType().Name;return false;}
-            var next=new HybridLumenGIHitMaterialBatch(frozen,encoded,generation,validator??new HybridLumenGIMaterialSource(),
+            var next=new HybridLumenGIHitMaterialBatch(frozen,encoded,requiredMaps,generation,validator??new HybridLumenGIMaterialSource(),
                 importer??new HybridLumenGIRayTextureImporter(),pool,lease);
             // Account before native allocation. A partial disposal failure remains budgeted.
             Resident.Add(next);TotalMaterialBytes+=materialBytes;
@@ -237,17 +254,22 @@ namespace HybridLumenGI
                     // Leave assigned maps present when a quota defers their first metadata write.
                     // A zero handle stays unknown for queries that use it, while other maps and
                     // scalar alpha remain available to coverage queries.
-                    bool baseMapRecorded=ClearUninitializedHandles(ref materialRecords[i].textures0);
-                    ClearUninitializedHandles(ref materialRecords[i].textures1);
-                    ClearUninitializedHandles(ref materialRecords[i].textures2);
-                    ClearUninitializedHandles(ref materialRecords[i].textures3);
-                    ClearUninitializedHandles(ref materialRecords[i].textures4);
+                    uint recordedMaps=ClearUninitializedHandles(ref materialRecords[i].textures0) |
+                        ClearUninitializedHandles(ref materialRecords[i].textures1) << 2 |
+                        ClearUninitializedHandles(ref materialRecords[i].textures2) << 4 |
+                        ClearUninitializedHandles(ref materialRecords[i].textures3) << 6 |
+                        ClearUninitializedHandles(ref materialRecords[i].textures4) << 8;
                     Source source=sources[i];
-                    const uint shadowBaseMapFlags=HybridLumenGIHitMaterialLayout.AlphaTest |
-                        HybridLumenGIHitMaterialLayout.SmoothnessFromBaseAlpha | HybridLumenGIHitMaterialLayout.ShadowCasterDisabled;
-                    if((materialRecords[i].identity.y&shadowBaseMapFlags)==HybridLumenGIHitMaterialLayout.AlphaTest &&
-                        (materialRecords[i].identity.w&1u)!=0)
-                        (shadowMapUploads ??= new Dictionary<ulong,bool>())[source.MaterialKey]=baseMapRecorded;
+                    uint required = requiredMaps[i];
+                    if (required != 0)
+                    {
+                        const uint shadowBaseMapFlags = HybridLumenGIHitMaterialLayout.AlphaTest |
+                            HybridLumenGIHitMaterialLayout.SmoothnessFromBaseAlpha | HybridLumenGIHitMaterialLayout.ShadowCasterDisabled;
+                        bool observesShadow = (materialRecords[i].identity.y & shadowBaseMapFlags) == HybridLumenGIHitMaterialLayout.AlphaTest &&
+                            (required & 1u) != 0;
+                        (mapRecordings ??= new Dictionary<ulong,MapRecording>())[source.MaterialKey] =
+                            new MapRecording((recordedMaps & required) == required, observesShadow ? (recordedMaps & 1u) != 0 : (bool?)null);
+                    }
                     materialBindings[i]=new HybridLumenGIHitMaterialBinding
                     {
                         table=new HybridLumenGIHitMaterialUInt4((uint)i,Generation,0,0),
@@ -269,18 +291,18 @@ namespace HybridLumenGI
             return importer.LastRejection==null;
         }
 
-        private bool ClearUninitializedHandles(ref HybridLumenGIHitMaterialUInt4 pair)
+        private uint ClearUninitializedHandles(ref HybridLumenGIHitMaterialUInt4 pair)
         {
-            bool firstUploadRecorded=false;
+            bool firstUploadRecorded = false, secondUploadRecorded = false;
             if (pair.y != 0 && !pool.IsHandleCurrent(textureLease, new HybridLumenGIRayTexturePool.Handle(pair.x, pair.y),out firstUploadRecorded))
             {
                 pair.x = pair.y = 0;
             }
-            if (pair.w != 0 && !pool.IsHandleCurrent(textureLease, new HybridLumenGIRayTexturePool.Handle(pair.z, pair.w)))
+            if (pair.w != 0 && !pool.IsHandleCurrent(textureLease, new HybridLumenGIRayTexturePool.Handle(pair.z, pair.w),out secondUploadRecorded))
             {
                 pair.z = pair.w = 0;
             }
-            return firstUploadRecorded;
+            return (firstUploadRecorded ? 1u : 0u) | (secondUploadRecorded ? 2u : 0u);
         }
 
         /// <summary>Borrow only for RenderGraph declarations; no mutation, disposal or consumption authority.</summary>

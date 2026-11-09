@@ -27,7 +27,7 @@ namespace HybridLumenGI
         internal long TextureUploadByteCount => batch.TextureUploadByteCount;
         internal bool ReusesTextureResidency => batch.ReusesTextureResidency;
         internal int UnknownRecords => batch.UnknownRecords;
-        internal IReadOnlyDictionary<ulong,bool> ShadowMapUploads => batch.ShadowMapUploads;
+        internal IReadOnlyDictionary<ulong,HybridLumenGIHitMaterialBatch.MapRecording> MapRecordings => batch.MapRecordings;
         internal HybridLumenGIHitMaterialBatch.BatchState State => batch.State;
 
         private sealed class TextureReferences : IEqualityComparer<Texture>
