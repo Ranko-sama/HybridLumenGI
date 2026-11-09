@@ -22,6 +22,8 @@ Release167 统一三室在原热态近远路线实测两方向各 10 次完整 H
 
 Release182 同源观察包在同一设备完整预热后启动应用 Present 采集。PresentMon 报告丢失 2,029 个 ETW 事件，未生成 CSV。没有取得起始时间锚点，观察器在原路线开始前退出，路线上没有新的 GI、显存或帧率数据。沿用 Release167 的两项预算结论，热态接替的应用 Present 仍待验收。[原始采集日志](<I:/Unity test/Comparison/HotHlodPresent211/run/presentmon.log>) · [退出记录](<I:/Unity test/Comparison/HotHlodPresent211/setup/native-exit.json>)
 
+Release215 使用工程已启用的 Unity 帧计时读取应用 Present，并沿用同一热态路线。两方向各十次完整接替，GI 合计 p95／p99 为 17.365／19.019 ms，进程 local／nonlocal 采样峰值为 570.941／288.313 MiB。与接替和退休窗口重叠的 510 个实测 Present 间隔 p95／p99 为 19.801／24.643 ms，最大 30.214 ms，通过该固定热窗的应用节奏条件。时间戳跨过路线终点，末源帧 1167 的逐帧返回仍缺失。逐帧资格和墙钟判定分别保存。[同窗结果与适用范围](../LocalComparison/Review/hot-hlod-unity-present-261/result.md)
+
 已有 Release176 文件模式启动跟踪中，该 Player 的 DXGI 40／41 经本机清单确认是 Profile。PresentMon 2.6 离线读取该文件未产出 Present CSV，热态路线的文件采集源仍待确认。 [PresentMon 的 DXGI 事件定义](https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentData/ETW/Microsoft_Windows_DXGI.h#L37-L40)
 
 Release151 在原 F4 中室取得 512 个同源帧的三段 GI 和进程显存。GI 合计 p95／p99 为 15.936／16.169 ms，local／nonlocal 有限采样峰值为 566.191／286.441 MiB，达到 25 ms／1 GiB 两项起始预算。PresentMon 报告事件丢失且无 CSV，三项同窗仍证据不足。[机位、原始记录与范围](../LocalComparison/Review/three-room-middle-joint-170/result.md)

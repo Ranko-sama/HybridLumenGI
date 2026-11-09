@@ -196,7 +196,7 @@ T2／G4 已关闭第 9 节的静态镜像双子网格精确剔除与远层命中
 
 ## 当前优先级
 
-T6 的原热态近远接替已在 Release167 补齐三段 GI 和进程显存依据。驻留域内完整交接、共驻及退休达到起始预算。Release182 补采在移动前遇到 ETW 事件丢失，热态接替应用 Present 仍无可采用结果。T5 冷入首显和 T6 其余规模与负载条件继续开放。[实机接替与预算](../LocalComparison/Review/hot-hlod-budget-192/result.md) · [补采边界](GpuBudget.md#当前已确认的起始验收目标)
+T6 的原固定热态近远接替已关闭应用 Present 墙钟节奏子项。Release215 同次复核三段 GI 与进程显存，两项达到起始预算。末源帧未返回的逐帧资格边界保留。T5 冷入首显和 T6 其余规模与负载条件继续开放。[Release215 同窗结果](../LocalComparison/Review/hot-hlod-unity-present-261/result.md) · [Release167 原接替与预算](../LocalComparison/Review/hot-hlod-budget-192/result.md)
 
 | ID / 优先级 | 类别与关卡 | 剩余任务、完成条件与当前边界 |
 | --- | --- | --- |

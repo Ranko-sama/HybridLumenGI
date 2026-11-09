@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release215，G0 已锁定，G1／G2 本机代表性验收通过
 
+T6／G4–G5 已关闭原固定热态近远接替的应用 Present 墙钟节奏子项。Release215 两方向各十次完整接替，应用 Present 间隔 p95／p99 为 19.801／24.643 ms，最大 30.214 ms。同次 GI 合计 p95 为 17.365 ms，进程 local 采样峰值 570.941 MiB，两项达到起始预算。末源帧的延迟返回仍缺，事前逐帧资格判定保留。[实机结果及采用范围](../LocalComparison/Review/hot-hlod-unity-present-261/result.md)
+
 T6／G4 已关闭精确软件切回 DXR 后闲置属性和 BVH 持续占额的缺口。普通 Win64 同一机位确认逻辑计账从 80,864 B 归零，再次进入精确软件时恢复。采用范围为实际切换及退休端点。[实机对照](../LocalComparison/Review/inactive-software-geometry-260/result.md) · [Release215 同源交付](../LocalComparison/Review/inactive-software-geometry-260/delivery.json)
 
 T6／G4–G5 已定位固定精确软件近景的主要成本。Gather 单段最低观测为 38.096 ms，单靠削减世界缓存或重建无法达到 25 ms。原软件预算门保持开放，后续集中在 Gather，具体内部热点仍待明确。[实机分项与边界](../LocalComparison/Review/software-transport-cost-259/result.md)
