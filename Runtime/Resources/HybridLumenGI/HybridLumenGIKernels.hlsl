@@ -622,9 +622,11 @@ void CSFilter(uint3 id:SV_DispatchThreadID)
     float3 shadingNormal,geometricNormal;bool hasGeometry;
     if(!HLGIDecodeScreenGeometry(g,shadingNormal,geometricNormal,hasGeometry)) { _HLGI_Output[pixel]=0; return; }
     if(!hasGeometry) { _HLGI_Output[pixel]=center; return; }
+    float4 moments=_HLGI_Moments.Load(int3(pixel,0));
+    // A held pre-change value can display at this texel, without spreading to its neighbors.
+    if(HLGIIsPendingLightingHistory(moments.z)) { _HLGI_Output[pixel]=center;return; }
     float3 p=WorldPosition(HLGIGiSampleUv((uint2)pixel,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),g.w,_HLGI_InvVP);
     float3 rho=_HLGI_Material.Load(int3(pixel,0)).rgb;
-    float4 moments=_HLGI_Moments.Load(int3(pixel,0));
     float sigma=HLGILuminanceFilterSigma(moments);
     bool shortHistory=all(isfinite(moments)) && isfinite(sigma) && moments.z>0 && moments.z<4;
     float3 sum=center.rgb*4; float weight=4;
@@ -639,22 +641,20 @@ void CSFilter(uint3 id:SV_DispatchThreadID)
         float3 qp=WorldPosition(HLGIGiSampleUv((uint2)q,(uint2)_HLGI_Size.xy,(uint2)_HLGI_FullSize.xy),ng.w,_HLGI_InvVP);
         float4 sampleGI=_HLGI_Input.Load(int3(q,0));
         if(!HLGIHasRadianceMeasurement(sampleGI)) continue;
+        float4 neighborMoments=_HLGI_Moments.Load(int3(q,0));
+        if(HLGIIsPendingLightingHistory(neighborMoments.z)) continue;
         float3 qrho=_HLGI_Material.Load(int3(q,0)).rgb;
         float normalWeight=pow(saturate(dot(shadingNormal,neighborShadingNormal)),32);
         float planeDistance=max(abs(dot(qp-p,geometricNormal)),abs(dot(qp-p,neighborGeometricNormal)));
         float pairSigma=sigma;
-        if(shortHistory)
+        if(shortHistory && all(isfinite(neighborMoments)) && neighborMoments.z>0 && neighborMoments.z<4)
         {
-            float4 neighborMoments=_HLGI_Moments.Load(int3(q,0));
-            if(all(isfinite(neighborMoments)) && neighborMoments.z>0 && neighborMoments.z<4)
-            {
-                // Short histories have noisy current-frame edges. Use the same
-                // width in either direction instead of letting a quiet dark tap
-                // reject a noisy bright tap that accepts it in return. Mature
-                // histories and incomplete neighbor statistics retain the old rule.
-                float neighborSigma=HLGILuminanceFilterSigma(neighborMoments);
-                if(isfinite(neighborSigma))pairSigma=0.5*sigma+0.5*neighborSigma;
-            }
+            // Short histories have noisy current-frame edges. Use the same
+            // width in either direction instead of letting a quiet dark tap
+            // reject a noisy bright tap that accepts it in return. Mature
+            // histories and incomplete neighbor statistics retain the old rule.
+            float neighborSigma=HLGILuminanceFilterSigma(neighborMoments);
+            if(isfinite(neighborSigma))pairSigma=0.5*sigma+0.5*neighborSigma;
         }
         float w=exp(-planeDistance/max(_HLGI_DepthThreshold,0.001)-length(qrho-rho)*8-
             abs(LuminanceGI(sampleGI.rgb)-LuminanceGI(center.rgb))/pairSigma)*normalWeight;

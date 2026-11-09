@@ -100,6 +100,12 @@ bool HLGIHasTemporalHistory(float4 history,float4 moments)
     return HLGIHasRadianceMeasurement(history) && all(isfinite(moments)) && moments.z>0;
 }
 
+bool HLGIIsPendingLightingHistory(float historyLength)
+{
+    // A fractional positive age displays the old value while awaiting a known replacement.
+    return historyLength>0 && historyLength<1;
+}
+
 // The caller must first perform the complete reprojection, identity, geometry,
 // material and change-region rejection. This function never invents validity.
 void HLGIResolveUnknownHistory(bool validated,float4 history,float4 moments,

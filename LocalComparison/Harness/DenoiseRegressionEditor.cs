@@ -122,10 +122,10 @@ public static partial class DenoiseRegressionEditor
         internal static Color Gray(float x,float a=1) { return new Color(x,x,x,a); }
         internal static Color[] Fill(Color x) { var p=new Color[Count];for(int i=0;i<Count;i++)p[i]=x;return p; }
         internal static void Set(Texture2D t,Color[] p){t.SetPixels(p);t.Apply(false,false);}
-        Texture2D Tex(TextureFormat format,Color color)
-        {var t=new Texture2D(Size,Size,format,false,true);owned.Add(t);Set(t,Fill(color));return t;}
-        RenderTexture Rt(RenderTextureFormat format)
-        {var t=new RenderTexture(Size,Size,0,format,RenderTextureReadWrite.Linear){enableRandomWrite=true};t.Create();owned.Add(t);return t;}
+        Texture2D Tex(TextureFormat format,Color color,int size=Size)
+        {var t=new Texture2D(size,size,format,false,true);owned.Add(t);var pixels=new Color[size*size];Array.Fill(pixels,color);Set(t,pixels);return t;}
+        RenderTexture Rt(RenderTextureFormat format,int size=Size)
+        {var t=new RenderTexture(size,size,0,format,RenderTextureReadWrite.Linear){enableRandomWrite=true};t.Create();owned.Add(t);return t;}
         RenderTexture IdentityTexture(uint primitive)
         {
             var t=new RenderTexture(new RenderTextureDescriptor(Size,Size){graphicsFormat=GraphicsFormat.R32G32B32A32_UInt,depthBufferBits=0,enableRandomWrite=true,msaaSamples=1});t.Create();
@@ -181,16 +181,18 @@ public static partial class DenoiseRegressionEditor
             shader.SetTexture(filter,"_HLGI_Geometry",geometry);shader.SetTexture(filter,"_HLGI_Material",material);shader.SetTexture(filter,"_HLGI_Moments",moments[read]);
             shader.SetInt("_HLGI_FilterStep",step);shader.Dispatch(filter,(Size+7)/8,(Size+7)/8,1);return Read(filtered[index%2]);
         }
-        internal float[] DebugVariance(int mode=3)
+        internal float[] RenderComposite(int mode=3,int fullSize=Size,Texture inputGi=null,Shader source=null)
         {
-            var debugShader=Shader.Find("Hidden/HybridLumenGI/Composite");if(debugShader==null)throw new Exception("Missing composite shader");
-            var mat=new Material(debugShader);var normal=Tex(TextureFormat.RGBAFloat,new Color(0,0,1,1));var depth=Tex(TextureFormat.RGBAFloat,Gray(.5f));var emission=Tex(TextureFormat.RGBAFloat,Gray(0));var target=Rt(RenderTextureFormat.ARGBFloat);
+            var debugShader=source!=null?source:Shader.Find("Hidden/HybridLumenGI/Composite");if(debugShader==null)throw new Exception("Missing composite shader");
+            var mat=new Material(debugShader);var normal=Tex(TextureFormat.RGBAFloat,new Color(0,0,1,1),fullSize);var depth=Tex(TextureFormat.RGBAFloat,Gray(.5f),fullSize);
+            var emission=Tex(TextureFormat.RGBAFloat,Gray(0),fullSize);var target=Rt(RenderTextureFormat.ARGBFloat,fullSize);
+            var diffuse=fullSize==Size?material:Tex(TextureFormat.RGBA32,new Color(.5f,.5f,.5f,1),fullSize);
             try
             {
-                mat.SetTexture("_HLGI_GITexture",history[read]);mat.SetTexture("_HLGI_Geometry",geometry);mat.SetTexture("_HLGI_Diffuse",material);mat.SetTexture("_HLGI_Emission",emission);
+                mat.SetTexture("_HLGI_GITexture",inputGi!=null?inputGi:history[read]);mat.SetTexture("_HLGI_Geometry",geometry);mat.SetTexture("_HLGI_Diffuse",diffuse);mat.SetTexture("_HLGI_Emission",emission);
                 mat.SetTexture("_HLGI_Normals",normal);mat.SetTexture("_HLGI_Depth",depth);mat.SetTexture("_HLGI_CaptureDepth",depth);mat.SetTexture("_HLGI_Moments",moments[read]);
                 mat.SetVector("_HLGI_Size",new Vector4(Size,Size,1f/Size,1f/Size));mat.SetMatrix("_HLGI_InvVP",Matrix4x4.identity);mat.SetFloat("_HLGI_DepthThreshold",.015f);mat.SetFloat("_HLGI_Intensity",1);mat.SetInt("_HLGI_Debug",mode);
-                using(var cmd=new CommandBuffer()){cmd.SetRenderTarget(target);cmd.ClearRenderTarget(false,true,Color.clear);cmd.SetViewport(new Rect(0,0,Size,Size));cmd.DrawProcedural(Matrix4x4.identity,mat,1,MeshTopology.Triangles,3);Graphics.ExecuteCommandBuffer(cmd);}
+                using(var cmd=new CommandBuffer()){cmd.SetRenderTarget(target);cmd.ClearRenderTarget(false,true,Color.clear);cmd.SetViewport(new Rect(0,0,fullSize,fullSize));cmd.DrawProcedural(Matrix4x4.identity,mat,1,MeshTopology.Triangles,3);Graphics.ExecuteCommandBuffer(cmd);}
                 return Read(target);
             }
             finally{UnityEngine.Object.DestroyImmediate(mat);}
@@ -230,7 +232,7 @@ public static partial class DenoiseRegressionEditor
     }
     static void DebugCheck(List<ContractRow> rows,Fixture f,string name)
     {
-        var a=f.DebugVariance();var r=Observe(rows,f,name,0,"actual-composite-debug",a);
+        var a=f.RenderComposite();var r=Observe(rows,f,name,0,"actual-composite-debug",a);
         for(int i=0;i<Fixture.Count;i++)
         {
             float v=f.lastMoments[i*4+3],expected=v/(1+v);
@@ -270,7 +272,7 @@ public static partial class DenoiseRegressionEditor
                 for(int index=0;index<3;index++){var a=f.Filter(1<<index,index);var rr=Observe(rows,f,unknown?"unknown-center":"measured-black",1,"filter-"+(1<<index),a);for(int c=0;c<4;c++)Require(rr,Mathf.Abs(a[Fixture.Center+c]-(c==3&&!unknown?1:0))<.001f,"black/unknown center changed");}
             }
             f.Reset();for(int frame=1;frame<=5;frame++)f.Step(frame>1);DebugCheck(rows,f,"uniform-accepted");
-            var final=f.DebugVariance(0);var finalRow=Observe(rows,f,"uniform-accepted",5,"actual-composite-final",final);
+            var final=f.RenderComposite(0);var finalRow=Observe(rows,f,"uniform-accepted",5,"actual-composite-final",final);
             float reflectance=f.material.GetPixel(8,8).r;
             for(int i=0;i<Fixture.Count;i++){for(int c=0;c<3;c++)Require(finalRow,Mathf.Abs(final[i*4+c]-reflectance)<.002f,"Final radiance changed");Require(finalRow,final[i*4+3]==0,"Final alpha changed");}
             // R1/R2: controlled inputs, not a physical-scene reference. History feedback is never filtered.

@@ -49,6 +49,7 @@ Shader "Hidden/HybridLumenGI/Composite"
             uint2 lower,upper;float2 f;
             HLGIGiBilinearFootprint(uv,(uint2)_HLGI_Size.xy,fullSize,lower,upper,f);
             float4 sum=0; float total=0;
+            float4 pendingSum=0; float pendingTotal=0;
             [unroll] for(int y=0;y<2;y++) [unroll] for(int x=0;x<2;x++)
             {
                 uint2 q=uint2(x==0?lower.x:upper.x,y==0?lower.y:upper.y);
@@ -76,8 +77,12 @@ Shader "Hidden/HybridLumenGI/Composite"
                 float planeWeight=exp(-abs(dot(qp-p,geometricNormal))/max(_HLGI_DepthThreshold,0.001));
                 weight*=pow(saturate(dot(n,shadingNormal)),32)*planeWeight;
                 if(!isfinite(weight) || weight<=0) continue;
-                sum+=sampleGI*weight; total+=weight;
+                if(HLGIIsPendingLightingHistory(_HLGI_Moments.Load(int3(q,0)).z))
+                { pendingSum+=sampleGI*weight; pendingTotal+=weight; }
+                else { sum+=sampleGI*weight; total+=weight; }
             }
+            // Held lighting can cover an unresolved footprint, but cannot tint usable current support.
+            if(total<=1e-5) { sum=pendingSum;total=pendingTotal; }
             float4 result=total>1e-5 && isfinite(total)?sum/total:0;
             resolved=HLGIHasRadianceMeasurement(result);
             return resolved?result:0;
