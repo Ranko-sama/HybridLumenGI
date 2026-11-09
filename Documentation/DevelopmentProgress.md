@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release231，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release232，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭独立流式场景组停用后仍阻挡后继驱动的缺口。实际组件对照中，旧组在读者和 I/O 完成后归还全局额度，后继成功加载，旧组重新启用后开始新的页代次。采用范围为顺序切换的组件生命周期，I/O 与读者完成由受控适配器提供。[定向对照](../LocalComparison/Review/sequential-page-drivers-283/result.md) · [Release232 同源交付](../LocalComparison/Review/sequential-page-drivers-283/delivery.json)
 
 T3／G3／G4 已补齐单三角改骨姿后，实际 DXR 消费新自动蒙皮快照的证据。固定两条射线在旧／新姿态之间交换命中，命中绑定当前几何版本。普通 Player 的画质和延迟继续验收。此次观察器立即退出 Play 时报告待退休资源，G5 的退出账目单列。[原生查询和范围](../LocalComparison/Review/skinned-dxr-pose-282/result.md)
 
