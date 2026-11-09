@@ -27,7 +27,7 @@ RWStructuredBuffer<HLGICacheEntry> _HLGI_CacheWrite;
 int _HLGI_ProxyCount, _HLGI_LightCount, _HLGI_Epoch, _HLGI_FrameIndex;
 int _HLGI_NonAnalyticOnlyChannels;
 #if defined(HLGI_CACHE_UPDATE_ITERATION)
-float _HLGI_PointLightDimScale;
+float4 _HLGI_PointLightDimScale;
 #endif
 int _HLGI_CacheGrid, _HLGI_CacheRays;
 StructuredBuffer<uint> _HLGI_CacheUpdateMask;
@@ -48,9 +48,14 @@ float3 HLGIActiveCacheIrradiance(float3 total,float3 nonAnalytic)
 {
     if(_HLGI_LightCount==0) return nonAnalytic;
 #if defined(HLGI_CACHE_UPDATE_ITERATION)
-    // Both inputs are old-pool estimates. Only the analytic share responds to
-    // the dimming. Gather reads the already adjusted current pool.
-    if(_HLGI_PointLightDimScale>0) total=lerp(nonAnalytic,total,_HLGI_PointLightDimScale);
+    // Both inputs are old-pool estimates. Keep channels with no proven change
+    // as stored. Gather reads the already adjusted current pool.
+    float3 scale=_HLGI_PointLightDimScale.xyz;
+    if(any(scale<1))
+    {
+        float3 adjusted=lerp(nonAnalytic,total,scale);
+        total=float3(scale.x<1?adjusted.x:total.x,scale.y<1?adjusted.y:total.y,scale.z<1?adjusted.z:total.z);
+    }
 #endif
     return float3((_HLGI_NonAnalyticOnlyChannels&1)!=0?nonAnalytic.r:total.r,
                   (_HLGI_NonAnalyticOnlyChannels&2)!=0?nonAnalytic.g:total.g,
