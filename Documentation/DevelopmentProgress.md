@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release183，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release184，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／T6 已关闭降低形变发布额度后，已完成且超额的快照占住工作槽的问题。实际组件在一个工作槽下保留原大快照，小快照在新额度内发布，恢复额度后大快照继续发布。采用范围为 CPU 捕获、发布与受控退休。[形变准入](DeformedGeometry.md) · [同源交付](../LocalComparison/Review/deformation-worker-admission-213/delivery.json)
 
 T6／G4 已补命中材质贴图复制录制的 CPU 时间准入。定向对照确认整页延期、延期材质保持未知、原轮次继续推进及关闭时沿用字节路径。构建后的普通 Player 与可编辑工程已公开交付。[配置与范围](GpuBudget.md#命中材质贴图录制的-cpu-准入) · [同源交付](../LocalComparison/Review/material-texture-recording-212/delivery.json)
 
