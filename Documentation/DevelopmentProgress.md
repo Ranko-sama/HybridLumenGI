@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release182，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release183，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已补命中材质贴图复制录制的 CPU 时间准入。定向对照确认整页延期、延期材质保持未知、原轮次继续推进及关闭时沿用字节路径。构建后的普通 Player 与可编辑工程已公开交付。[配置与范围](GpuBudget.md#命中材质贴图录制的-cpu-准入) · [同源交付](../LocalComparison/Review/material-texture-recording-212/delivery.json)
 
 T6／G4 已关闭停止补充 RTAS 积分时，余额不足的大请求阻挡余额足够的小请求的缺口。实际 Backend 对照验证了扣费、无效准备拒绝、匹配复用与安全退休。帧末临时收紧的 HLOD 排队控制通过。[对照与范围](../LocalComparison/Review/rtas-nonreplenishing-210/result.md) · [同源交付](../LocalComparison/Review/rtas-nonreplenishing-210/delivery.json)
 
