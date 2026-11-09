@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release204，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release205，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭两个共享容量阻断。分页的资产加载失败后，失败包可在加载退避期间退休，健康组取得额度，原请求仍按原时点重试。新 RTAS 计划自身超限且旧结构无法复用时，旧预约经安全退休归还，另一相机恢复录制准入。证据范围为实际 C# 调度与受控完成，冷入首显和生产负载预算继续验收。[两个对照](../LocalComparison/Review/shared-budget-retirement-244-245/result.md) · [同源交付](../LocalComparison/Review/shared-budget-retirement-244-245/delivery.json)
 
 T3／G3 已关闭固定双点光中一盏调暗而另一盏保持时的颜色恢复缺口。约 2 秒时，绿通道相对低亮基准的偏差从 +55.48% 降至 +1.06%，约 0.25 秒进入合格保持区间。蓝通道全窗口最大偏差为 2.28%。采用范围为两盏点光的独立颜色通道。不同倍率的共通道光源、升亮与普通 Player 动态质量继续验收。[同曝光实测](../LocalComparison/Review/point-light-channels-243/result.md) · [同源交付](../LocalComparison/Review/point-light-channels-243/delivery.json)
 
