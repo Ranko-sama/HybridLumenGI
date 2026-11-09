@@ -408,6 +408,8 @@ namespace HybridLumenGI
             internal readonly ComputeBuffer[] cache=new ComputeBuffer[2];
             internal ComputeBuffer lights;
             internal readonly HybridLumenGILights.Data[] lightData=new HybridLumenGILights.Data[32];
+            internal HybridLumenGILights.Data recordedSoleLight;
+            internal int recordedSoleLightEpoch;
             internal readonly List<HybridLumenGILights.Data> lightChanges=new List<HybridLumenGILights.Data>(64);
             internal readonly List<Bounds> localLightingChangeBounds=new List<Bounds>(64);
             internal HybridLumenGILights.SelectionDiagnostics lightSelection;
@@ -792,6 +794,7 @@ namespace HybridLumenGI
                 internal Vector2 jitterDelta;
                 internal int read,cacheRead,cacheStart,frame,epoch,lightCount,filterIterations;
                 internal int nonAnalyticOnlyChannels;
+                internal HybridLumenGILights.Data soleLight;
                 internal bool valid,hasMotion,hardware,staticShadowmask;
                 internal ulong backendRequest;
                 internal bool hardwarePreference,waitForHlodBuildTurn;
@@ -1167,6 +1170,7 @@ namespace HybridLumenGI
                     momentsRead=graph.ImportTexture(state.moments[state.readIndex]),momentsWrite=graph.ImportTexture(state.moments[write]),
                     read=state.readIndex,cacheRead=state.cacheRead,cacheStart=state.cacheCursor,frame=state.frame,epoch=state.epoch,lightCount=lightCount,
                     nonAnalyticOnlyChannels=nonAnalyticOnlyChannels,
+                    soleLight=lightCount==1?state.lightData[0]:default,
                     valid=historyValid && state.historyLifecycle.CanReuseHistory(historyToken) && !cut && s.temporalAccumulation &&
                         (!s.receiverObjectHistory || (identityEnabled && identity.IsValid)),
                     useIdentity=identityEnabled && identity.IsValid,identity=identity,identityRead=identityRead,identityWrite=identityWrite,
@@ -1328,6 +1332,7 @@ namespace HybridLumenGI
                 b.previousVP=a.previousVP;b.previousInvVP=a.previousInvVP;b.materialView=a.materialView;b.jitterDelta=a.jitterDelta;b.read=a.read;b.cacheRead=a.cacheRead;b.cacheStart=a.cacheStart;b.frame=a.frame;
                 b.epoch=a.epoch;b.lightCount=a.lightCount;b.valid=a.valid;b.hasMotion=a.hasMotion;b.staticShadowmask=a.staticShadowmask;
                 b.nonAnalyticOnlyChannels=a.nonAnalyticOnlyChannels;
+                b.soleLight=a.soleLight;
                 b.viewport=a.viewport;
                 b.frameTiming=a.frameTiming;b.historyToken=a.historyToken;b.cachePatchBudget=a.cachePatchBudget;
                 b.useIdentity=a.useIdentity;b.identity=a.identity;b.identityRead=a.identityRead;b.identityWrite=a.identityWrite;
@@ -1361,6 +1366,8 @@ namespace HybridLumenGI
                 }
                 if(!current)return;
                 state.CompleteWorldRecording(1-d.cacheRead);
+                state.recordedSoleLight=d.soleLight;
+                state.recordedSoleLightEpoch=d.lightCount==1?d.epoch:0;
                 state.exactMaterialObservations=d.geometry!=null ? d.exactMaterialObservations : null;
                 state.recordedTraceOwners=d.geometry!=null ? d.traceOwners : null;
                 state.lastHardware=d.hardware;state.exactSoftwareGeometry=d.ExactSoftware;
@@ -1576,6 +1583,9 @@ namespace HybridLumenGI
                 cmd.SetComputeVectorParam(c,"_HLGI_FullSize",new Vector4(d.viewport.width,d.viewport.height,1f/d.viewport.width,1f/d.viewport.height));
                 cmd.SetComputeIntParam(c,"_HLGI_ProxyCount",state.scene.Capacity);cmd.SetComputeIntParam(c,"_HLGI_LightCount",d.lightCount);
                 cmd.SetComputeIntParam(c,"_HLGI_NonAnalyticOnlyChannels",d.nonAnalyticOnlyChannels);
+                float dimScale=current && d.lightCount==1 && state.recordedSoleLightEpoch==d.epoch
+                    ? PointLightDimScale(state.recordedSoleLight,d.soleLight) : 0;
+                cmd.SetComputeFloatParam(c,"_HLGI_PointLightDimScale",dimScale);
                 cmd.SetComputeIntParam(c,"_HLGI_Epoch",d.epoch);cmd.SetComputeIntParam(c,"_HLGI_FrameIndex",d.frame);
                 cmd.SetComputeIntParam(c,"_HLGI_CacheGrid",state.patchGrid);
                 cmd.SetComputeFloatParam(c,"_HLGI_GuideWeight",Mathf.Clamp(s.guidedSamplingWeight,0,0.8f));
@@ -1664,6 +1674,21 @@ namespace HybridLumenGI
             { RTHandle rt=handle;cmd.SetComputeTextureParam(c,kernel,name,rt.nameID); }
             private static void Dispatch(CommandBuffer cmd,ComputeShader c,int k,CameraState state)
             { cmd.DispatchCompute(c,k,(state.width+7)/8,(state.height+7)/8,1); }
+            private static float PointLightDimScale(HybridLumenGILights.Data before, HybridLumenGILights.Data after)
+            {
+                // Only rescale retained analytic light when the complete recorded
+                // source has the same transport and shadow policy at lower intensity.
+                if(before.positionType.w!=1 || before.spot.w!=0 || !before.positionType.Equals(after.positionType) ||
+                    !before.directionRange.Equals(after.directionRange) || !before.spot.Equals(after.spot) ||
+                    before.cullingMask!=after.cullingMask || before.renderingLayers!=after.renderingLayers ||
+                    before.shadowRenderingLayers!=after.shadowRenderingLayers || before.flags!=after.flags) return 0;
+                Vector3 oldRgb=before.color, newRgb=after.color;
+                if(oldRgb.x<0 || oldRgb.y<0 || oldRgb.z<0) return 0;
+                float largest=Mathf.Max(oldRgb.x,Mathf.Max(oldRgb.y,oldRgb.z));
+                if(largest<=0) return 0;
+                float scale=Mathf.Max(newRgb.x,Mathf.Max(newRgb.y,newRgb.z))/largest;
+                return scale>0 && scale<1 && (oldRgb*scale).Equals(newRgb)?scale:0;
+            }
             private int UpdateLights(CameraState state,bool useRenderingLayers,UniversalCameraData cameraData,Matrix4x4 view,Matrix4x4 invVP,
                 Light mainLight,bool additionalRealtimeShadows,out int nonAnalyticOnlyChannels)
             {
