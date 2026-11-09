@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release195，G0 已锁定，G1／G2 本机代表性验收通过
 
+G3 已关闭固定机位的单一发光体撤出子项。Release195 实机在首个响应源帧退出解析发光板，地板的旧绿均值在 1 秒前剩 2.1094%、2 秒前剩 0.24697%，保持和末帧有效性均通过。发光体移动及其他动态输入仍按原条件验收。[同曝光画面、逐帧曲线与适用范围](../LocalComparison/Review/emitter-removal-228/result.md)
+
 T2／原第 9 节已关闭普通 URP Lit 逐材质 `ShadowCaster` 被精确阴影查询忽略的问题。近板通道开、关、恢复时，实际软件 BVH 和 DXR 的阴影命中均为近、远、近，普通表面始终命中同一近板。两次切换均进入阴影覆盖变化判断。远处接收面的画面恢复和收敛仍归 G3。[实测与适用范围](../LocalComparison/Review/shadow-pass-227/result.md) · [同源交付](../LocalComparison/Review/shadow-pass-227/delivery.json)
 
 T2／原第 9 节已关闭面积光对已确认近遮挡因无关着色贴图待定而丢弃估计的路径。共用 committed resolver 和面积贡献函数的 WARP 对照中，旧版为未知，修复版为已知零。未知覆盖、同层、目标材质以及未完成查询继续按各自资格处理。真实遍历和相机画面继续验收。[对照与范围](../LocalComparison/Review/area-covered-blocker-226/result.md) · [同源交付](../LocalComparison/Review/area-covered-blocker-226/delivery.json)

@@ -1,0 +1,859 @@
+{
+  "status": "withdrawal-and-decay-observed",
+  "product": "Release195",
+  "sourceKind": "disabled entire GameObject",
+  "scope": "One fixed analytic emitter geometrically withdrawn in a brown-wall and white-floor scene with DXR receivers.",
+  "eventEngineFrame": 123,
+  "terminalWithdrawalVerified": true,
+  "initialAnalysis": {
+    "terminalGatePassed": false,
+    "status": "terminal-withdrawal-miss",
+    "extraCondition": "Unpublished proxy payload RGB must be zero, beyond the frozen geometry and emission withdrawal condition."
+  },
+  "firstWithdrawnFrame": {
+    "logical": 120,
+    "elapsed": 0.026284900000007383,
+    "oldGreenMeanRatio": 0.26215743564743466,
+    "oldGreenWorstPointRatio": 0.3358143576531106,
+    "temporalUnknownPoints": 0,
+    "temporalQualified": true,
+    "geometryWithdrawn": true
+  },
+  "sourceBefore": {
+    "stableId": 1,
+    "slot": 1,
+    "active": true,
+    "published": true,
+    "publishedInstances": 3,
+    "dxrMeshes": 2,
+    "analyticFallbacks": 1,
+    "gpuEmission": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0,
+      "w": 1.0
+    }
+  },
+  "sourceTerminal": {
+    "active": false,
+    "published": false,
+    "publishedInstances": 2,
+    "dxrMeshes": 2,
+    "analyticFallbacks": 0,
+    "originalSlotIdentity": {
+      "x": 1.0,
+      "y": 3.0,
+      "z": 0.0,
+      "w": 0.0
+    },
+    "originalSlotEmission": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0,
+      "w": 1.0
+    }
+  },
+  "beforeFinalMeanRgb": [
+    0.0,
+    0.28673146113201425,
+    0.0
+  ],
+  "currentRawFreshness": "not-observed",
+  "intermediateFilteredValidity": "not-directly-observed",
+  "finalPhysicalSourceTerm": "zero; no requirement of finite-time bitwise zero",
+  "sourceLastLogical": 196,
+  "deadlines": {
+    "1": {
+      "before": {
+        "logical": 148,
+        "elapsed": 0.9838841000000116,
+        "oldGreenMeanRatio": 0.021093951143976473,
+        "oldGreenWorstPointRatio": 0.022520795852116356,
+        "temporalUnknownPoints": 0,
+        "temporalQualified": true,
+        "geometryWithdrawn": true
+      },
+      "after": {
+        "logical": 149,
+        "elapsed": 1.0175140999999996,
+        "oldGreenMeanRatio": 0.019636763596634715,
+        "oldGreenWorstPointRatio": 0.020919986193858278,
+        "temporalUnknownPoints": 0,
+        "temporalQualified": true,
+        "geometryWithdrawn": true
+      },
+      "observedBeforeLimit": true,
+      "remainingSourcesBelowLimit": true
+    },
+    "2": {
+      "before": {
+        "logical": 177,
+        "elapsed": 1.9730340000000126,
+        "oldGreenMeanRatio": 0.002469715277316245,
+        "oldGreenWorstPointRatio": 0.0025677445408586086,
+        "temporalUnknownPoints": 0,
+        "temporalQualified": true,
+        "geometryWithdrawn": true
+      },
+      "after": {
+        "logical": 178,
+        "elapsed": 2.0072107999999957,
+        "oldGreenMeanRatio": 0.002286708784458277,
+        "oldGreenWorstPointRatio": 0.002378805980359463,
+        "temporalUnknownPoints": 0,
+        "temporalQualified": true,
+        "geometryWithdrawn": true
+      },
+      "observedBeforeLimit": true,
+      "remainingSourcesBelowLimit": true
+    }
+  },
+  "firstObservedTemporalQualifiedOnePercentWindow": {
+    "start": 1.3581736000000149,
+    "end": 1.870737900000023,
+    "span": 0.5125643000000082,
+    "firstLogical": 159,
+    "lastLogical": 174
+  },
+  "temporalUnknownPointSamples": 0,
+  "terminalFilteredUnknownPoints": 0,
+  "terminalFilteredMeanRgb": [
+    0.0,
+    0.00016848687664605677,
+    0.0
+  ],
+  "terminalFilteredMinAlpha": 0.297607421875,
+  "terminalFinalMeanRgb": [
+    0.0,
+    0.0001618795471990274,
+    0.0
+  ],
+  "last": {
+    "logical": 196,
+    "elapsed": 2.6246650000000216,
+    "oldGreenMeanRatio": 0.0005645684870433396,
+    "oldGreenWorstPointRatio": 0.0005924251242776558,
+    "temporalUnknownPoints": 0,
+    "temporalQualified": true,
+    "geometryWithdrawn": true
+  },
+  "finalOtherChannelsMaximum": 0.0,
+  "sourceHz": 29.24899247804414,
+  "intervalMedian": 0.03418379999999388,
+  "intervalP95": 0.03504917499999749,
+  "intervalMax": 0.03538780000002362,
+  "peakPending": 4,
+  "earlyEngineGap": 0,
+  "earlySourceGap": 75.4316657,
+  "baselineSupport": {
+    "maxNativeAbs": 0.0,
+    "maxFloorAbsY": 8.386576392333714e-06
+  },
+  "terminalSupport": {
+    "maxNativeAbs": 0.0,
+    "maxFloorAbsY": 8.386576392333714e-06
+  },
+  "terminalCaptureReceipt": {
+    "logical": 196,
+    "work": 196,
+    "engine": 200
+  },
+  "finalReadbackMedianLatency": 0.041357300000015584,
+  "historyReadbackMedianLatency": 0.04140759999998522,
+  "terminalDrainSeconds": 0.9582853,
+  "frames": [
+    {
+      "logical": 120,
+      "elapsed": 0.026284900000007383,
+      "oldGreenMeanRatio": 0.26215743564743466,
+      "oldGreenWorstPointRatio": 0.3358143576531106,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 121,
+      "elapsed": 0.06019840000001864,
+      "oldGreenMeanRatio": 0.19166704708330923,
+      "oldGreenWorstPointRatio": 0.23533274754068886,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 122,
+      "elapsed": 0.0952146000000198,
+      "oldGreenMeanRatio": 0.1549731869447876,
+      "oldGreenWorstPointRatio": 0.1877189143195929,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 123,
+      "elapsed": 0.12892120000000773,
+      "oldGreenMeanRatio": 0.13227362988410915,
+      "oldGreenWorstPointRatio": 0.15871277740365322,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 124,
+      "elapsed": 0.16315890000001332,
+      "oldGreenMeanRatio": 0.11623036334346923,
+      "oldGreenWorstPointRatio": 0.1371497412606995,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 125,
+      "elapsed": 0.1983069999999998,
+      "oldGreenMeanRatio": 0.10429638473984634,
+      "oldGreenWorstPointRatio": 0.12160683152301674,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 126,
+      "elapsed": 0.23199320000000512,
+      "oldGreenMeanRatio": 0.0949529615487112,
+      "oldGreenWorstPointRatio": 0.10994964921975468,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 127,
+      "elapsed": 0.2653853000000197,
+      "oldGreenMeanRatio": 0.08732332022451297,
+      "oldGreenWorstPointRatio": 0.10037215642933202,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 128,
+      "elapsed": 0.29915160000001606,
+      "oldGreenMeanRatio": 0.08088480407719743,
+      "oldGreenWorstPointRatio": 0.09238178724089773,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 129,
+      "elapsed": 0.33381250000002183,
+      "oldGreenMeanRatio": 0.07541774679602106,
+      "oldGreenWorstPointRatio": 0.08570490397002088,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 130,
+      "elapsed": 0.3682500000000175,
+      "oldGreenMeanRatio": 0.07067691570438066,
+      "oldGreenWorstPointRatio": 0.07984894765926405,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 131,
+      "elapsed": 0.40258110000002034,
+      "oldGreenMeanRatio": 0.0663744722877561,
+      "oldGreenWorstPointRatio": 0.07464973430728591,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 132,
+      "elapsed": 0.43745309999999904,
+      "oldGreenMeanRatio": 0.06233430294457148,
+      "oldGreenWorstPointRatio": 0.06988835654790719,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 133,
+      "elapsed": 0.4716003999999998,
+      "oldGreenMeanRatio": 0.0584901299353439,
+      "oldGreenWorstPointRatio": 0.06518169519995291,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 134,
+      "elapsed": 0.5059829000000207,
+      "oldGreenMeanRatio": 0.054844793994124154,
+      "oldGreenWorstPointRatio": 0.06080341576150837,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 135,
+      "elapsed": 0.5406375999999966,
+      "oldGreenMeanRatio": 0.051356633387375436,
+      "oldGreenWorstPointRatio": 0.05664404368924316,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 136,
+      "elapsed": 0.5744143000000008,
+      "oldGreenMeanRatio": 0.048111337316713416,
+      "oldGreenWorstPointRatio": 0.05286777689132571,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 137,
+      "elapsed": 0.6083538999999973,
+      "oldGreenMeanRatio": 0.04501232816263308,
+      "oldGreenWorstPointRatio": 0.04931042093629438,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 138,
+      "elapsed": 0.6420696000000135,
+      "oldGreenMeanRatio": 0.042115468983100125,
+      "oldGreenWorstPointRatio": 0.046081436460652415,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 139,
+      "elapsed": 0.6761782000000096,
+      "oldGreenMeanRatio": 0.039345487182795624,
+      "oldGreenWorstPointRatio": 0.04290717882655527,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 140,
+      "elapsed": 0.7106315999999993,
+      "oldGreenMeanRatio": 0.036757298527389064,
+      "oldGreenWorstPointRatio": 0.03995183898875783,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 141,
+      "elapsed": 0.7453959999999995,
+      "oldGreenMeanRatio": 0.034306875248054765,
+      "oldGreenWorstPointRatio": 0.03716068315230167,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 142,
+      "elapsed": 0.7796380999999997,
+      "oldGreenMeanRatio": 0.03203966524004635,
+      "oldGreenWorstPointRatio": 0.03464316847698325,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 143,
+      "elapsed": 0.8130662000000086,
+      "oldGreenMeanRatio": 0.029893651263463515,
+      "oldGreenWorstPointRatio": 0.03223511443816808,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 144,
+      "elapsed": 0.8474044000000163,
+      "oldGreenMeanRatio": 0.027907652874207604,
+      "oldGreenWorstPointRatio": 0.030045971242239018,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 145,
+      "elapsed": 0.8820828000000063,
+      "oldGreenMeanRatio": 0.026013024673474088,
+      "oldGreenWorstPointRatio": 0.027938923523687386,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 146,
+      "elapsed": 0.915799700000008,
+      "oldGreenMeanRatio": 0.024274862195117826,
+      "oldGreenWorstPointRatio": 0.026037105806812365,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 147,
+      "elapsed": 0.9496651000000043,
+      "oldGreenMeanRatio": 0.0226451129863028,
+      "oldGreenWorstPointRatio": 0.02421738182896138,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 148,
+      "elapsed": 0.9838841000000116,
+      "oldGreenMeanRatio": 0.021093951143976473,
+      "oldGreenWorstPointRatio": 0.022520795852116356,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 149,
+      "elapsed": 1.0175140999999996,
+      "oldGreenMeanRatio": 0.019636763596634715,
+      "oldGreenWorstPointRatio": 0.020919986193858278,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 150,
+      "elapsed": 1.0517131000000006,
+      "oldGreenMeanRatio": 0.01828420195413015,
+      "oldGreenWorstPointRatio": 0.019414951115833745,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 151,
+      "elapsed": 1.0854206000000204,
+      "oldGreenMeanRatio": 0.017029874745296564,
+      "oldGreenWorstPointRatio": 0.018019373197605666,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 152,
+      "elapsed": 1.1192810000000009,
+      "oldGreenMeanRatio": 0.015875912881568227,
+      "oldGreenWorstPointRatio": 0.01673325243917404,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 153,
+      "elapsed": 1.1536368000000152,
+      "oldGreenMeanRatio": 0.014773790294035697,
+      "oldGreenWorstPointRatio": 0.015542906260975963,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 154,
+      "elapsed": 1.1878188000000023,
+      "oldGreenMeanRatio": 0.013746231727304827,
+      "oldGreenWorstPointRatio": 0.014420972111415714,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 155,
+      "elapsed": 1.2214858000000106,
+      "oldGreenMeanRatio": 0.012785661865511258,
+      "oldGreenWorstPointRatio": 0.01338112909334941,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 156,
+      "elapsed": 1.255981300000002,
+      "oldGreenMeanRatio": 0.011885689974318454,
+      "oldGreenWorstPointRatio": 0.012382333813971823,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 157,
+      "elapsed": 1.2896324000000163,
+      "oldGreenMeanRatio": 0.011047617565613248,
+      "oldGreenWorstPointRatio": 0.01149299482521399,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 158,
+      "elapsed": 1.3236399000000176,
+      "oldGreenMeanRatio": 0.010261029807505047,
+      "oldGreenWorstPointRatio": 0.010658384416354385,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 159,
+      "elapsed": 1.3581736000000149,
+      "oldGreenMeanRatio": 0.009535039734288145,
+      "oldGreenWorstPointRatio": 0.009885343877174458,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 160,
+      "elapsed": 1.3924285000000225,
+      "oldGreenMeanRatio": 0.008858403821279512,
+      "oldGreenWorstPointRatio": 0.009173872338497513,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 161,
+      "elapsed": 1.4260749999999973,
+      "oldGreenMeanRatio": 0.008232068774319095,
+      "oldGreenWorstPointRatio": 0.008503447669332587,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 162,
+      "elapsed": 1.4602877000000092,
+      "oldGreenMeanRatio": 0.007646921318515159,
+      "oldGreenWorstPointRatio": 0.007894449060020514,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 163,
+      "elapsed": 1.494501299999996,
+      "oldGreenMeanRatio": 0.007098582219445269,
+      "oldGreenWorstPointRatio": 0.007329909677030525,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 164,
+      "elapsed": 1.5287093999999968,
+      "oldGreenMeanRatio": 0.0065855130068124814,
+      "oldGreenWorstPointRatio": 0.006801791648597803,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 165,
+      "elapsed": 1.562843700000002,
+      "oldGreenMeanRatio": 0.0061083645042282406,
+      "oldGreenWorstPointRatio": 0.0063146484393943846,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 166,
+      "elapsed": 1.5966412000000219,
+      "oldGreenMeanRatio": 0.005668675362437581,
+      "oldGreenWorstPointRatio": 0.005859374855390477,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 167,
+      "elapsed": 1.6314733000000103,
+      "oldGreenMeanRatio": 0.005264196980261545,
+      "oldGreenWorstPointRatio": 0.005445075512177778,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 168,
+      "elapsed": 1.665716599999996,
+      "oldGreenMeanRatio": 0.0048853423765109205,
+      "oldGreenWorstPointRatio": 0.005053540021696704,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 169,
+      "elapsed": 1.6994106000000215,
+      "oldGreenMeanRatio": 0.00453116480775241,
+      "oldGreenWorstPointRatio": 0.004693873577977046,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 170,
+      "elapsed": 1.7341439000000207,
+      "oldGreenMeanRatio": 0.004202078492564839,
+      "oldGreenWorstPointRatio": 0.004356970986989011,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 171,
+      "elapsed": 1.7682092000000011,
+      "oldGreenMeanRatio": 0.003898971182895094,
+      "oldGreenWorstPointRatio": 0.004042831959513554,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 172,
+      "elapsed": 1.8028861000000234,
+      "oldGreenMeanRatio": 0.0036119601205868435,
+      "oldGreenWorstPointRatio": 0.003746903898535776,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 173,
+      "elapsed": 1.83632750000001,
+      "oldGreenMeanRatio": 0.0033477324334746953,
+      "oldGreenWorstPointRatio": 0.003473739690289622,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 174,
+      "elapsed": 1.870737900000023,
+      "oldGreenMeanRatio": 0.003102116067853001,
+      "oldGreenWorstPointRatio": 0.003221062602439073,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 175,
+      "elapsed": 1.9045006999999998,
+      "oldGreenMeanRatio": 0.0028747855592853463,
+      "oldGreenWorstPointRatio": 0.0029865967703052504,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 176,
+      "elapsed": 1.9392988000000173,
+      "oldGreenMeanRatio": 0.00266432066480439,
+      "oldGreenWorstPointRatio": 0.0027680651723330893,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 177,
+      "elapsed": 1.9730340000000126,
+      "oldGreenMeanRatio": 0.002469715277316245,
+      "oldGreenWorstPointRatio": 0.0025677445408586086,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 178,
+      "elapsed": 2.0072107999999957,
+      "oldGreenMeanRatio": 0.002286708784458277,
+      "oldGreenWorstPointRatio": 0.002378805980359463,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 179,
+      "elapsed": 2.0413963999999964,
+      "oldGreenMeanRatio": 0.002119680187574138,
+      "oldGreenWorstPointRatio": 0.002206940164799512,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 180,
+      "elapsed": 2.0752841000000046,
+      "oldGreenMeanRatio": 0.001963747369744204,
+      "oldGreenWorstPointRatio": 0.0020453179094373627,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 181,
+      "elapsed": 2.1091511000000196,
+      "oldGreenMeanRatio": 0.0018179339376592305,
+      "oldGreenWorstPointRatio": 0.0018950775804410255,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 182,
+      "elapsed": 2.1435189999999977,
+      "oldGreenMeanRatio": 0.0016838524374346742,
+      "oldGreenWorstPointRatio": 0.0017562190332009767,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 183,
+      "elapsed": 2.1777719000000104,
+      "oldGreenMeanRatio": 0.001557271660347397,
+      "oldGreenWorstPointRatio": 0.0016241895260927963,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 184,
+      "elapsed": 2.211627700000008,
+      "oldGreenMeanRatio": 0.0014417423247161372,
+      "oldGreenWorstPointRatio": 0.0015046801669089135,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 185,
+      "elapsed": 2.2463960000000043,
+      "oldGreenMeanRatio": 0.0013336397623413742,
+      "oldGreenWorstPointRatio": 0.001391999847856899,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 186,
+      "elapsed": 2.280041699999998,
+      "oldGreenMeanRatio": 0.0012340587649117074,
+      "oldGreenWorstPointRatio": 0.0012895632336122102,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 187,
+      "elapsed": 2.315429500000022,
+      "oldGreenMeanRatio": 0.0011416530374609107,
+      "oldGreenWorstPointRatio": 0.0011928175825504275,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 188,
+      "elapsed": 2.349480600000021,
+      "oldGreenMeanRatio": 0.0010565113642060765,
+      "oldGreenWorstPointRatio": 0.0011040391931789989,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 189,
+      "elapsed": 2.383233500000017,
+      "oldGreenMeanRatio": 0.0009775093524540162,
+      "oldGreenWorstPointRatio": 0.0010226589547186814,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 190,
+      "elapsed": 2.417112599999996,
+      "oldGreenMeanRatio": 0.0009038185161757205,
+      "oldGreenWorstPointRatio": 0.000945831457882784,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 191,
+      "elapsed": 2.4518453999999963,
+      "oldGreenMeanRatio": 0.0008362155809948533,
+      "oldGreenWorstPointRatio": 0.0008752640350090354,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 192,
+      "elapsed": 2.485484000000014,
+      "oldGreenMeanRatio": 0.0007732432867111629,
+      "oldGreenWorstPointRatio": 0.0008098183922341882,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 193,
+      "elapsed": 2.520080500000006,
+      "oldGreenMeanRatio": 0.000714642732615376,
+      "oldGreenWorstPointRatio": 0.0007483564526092796,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 194,
+      "elapsed": 2.555280400000015,
+      "oldGreenMeanRatio": 0.0006605840464776783,
+      "oldGreenWorstPointRatio": 0.0006920162930832723,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 195,
+      "elapsed": 2.589433000000014,
+      "oldGreenMeanRatio": 0.0006106160169220104,
+      "oldGreenWorstPointRatio": 0.0006402288751816851,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    },
+    {
+      "logical": 196,
+      "elapsed": 2.6246650000000216,
+      "oldGreenMeanRatio": 0.0005645684870433396,
+      "oldGreenWorstPointRatio": 0.0005924251242776558,
+      "temporalUnknownPoints": 0,
+      "temporalQualified": true,
+      "geometryWithdrawn": true
+    }
+  ]
+}
