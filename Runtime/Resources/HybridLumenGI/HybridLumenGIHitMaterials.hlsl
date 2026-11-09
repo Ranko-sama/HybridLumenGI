@@ -49,6 +49,11 @@ float4 HLGIHitDefaultPackedNormal()
 }
 
 bool HLGIHitMaterialFlag(HLGIHitMaterialRecord r,uint flag) { return (r.identity.y&flag)!=0u; }
+bool HLGIHitAlphaUsesBaseTexture(HLGIHitMaterialRecord r)
+{
+    // Unassigned Lit BaseMap is white, so UV displacement cannot change its alpha.
+    return (r.identity.w&1u)!=0u && !HLGIHitMaterialFlag(r,HLGI_MATERIAL_SMOOTH_BASE_ALPHA);
+}
 bool HLGIHitMaterialHeaderValid(HLGIHitMaterialRecord r)
 {
     // Bits 11/12 preserve Lit's specular/environment switches for later shading.
@@ -101,7 +106,7 @@ bool HLGIEvaluateHitCoverage(HLGIHitMaterialRecord r,float2 uv,float3 viewDirTS,
     if(!HLGIHitMaterialFlag(r,HLGI_MATERIAL_ALPHA_TEST)) return true;
     if(!isfinite(r.baseColor.a) || !isfinite(r.detail.x)) return false;
     float alpha=r.baseColor.a;
-    if(!HLGIHitMaterialFlag(r,HLGI_MATERIAL_SMOOTH_BASE_ALPHA))
+    if(HLGIHitAlphaUsesBaseTexture(r))
     {
         float2 mapped;float4 base;
         if(!HLGIHitMaterialUv(r,uv,viewDirTS,lods,mapped) || !HLGIHitTexture(r,0u,mapped,lods,1,base)) return false;

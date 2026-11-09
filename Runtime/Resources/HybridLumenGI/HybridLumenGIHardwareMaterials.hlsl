@@ -43,7 +43,7 @@ uint HLGIHardwareMaterialTextureMask(HLGIHitMaterialRecord record,bool coverageO
     uint flags=record.identity.y;
     if(coverageOnly)
     {
-        if((flags&HLGI_MATERIAL_ALPHA_TEST)==0u || (flags&HLGI_MATERIAL_SMOOTH_BASE_ALPHA)!=0u) return 0u;
+        if((flags&HLGI_MATERIAL_ALPHA_TEST)==0u || !HLGIHitAlphaUsesBaseTexture(record)) return 0u;
         return 1u|((flags&HLGI_MATERIAL_PARALLAX)!=0u?512u:0u);
     }
     uint required=1u;

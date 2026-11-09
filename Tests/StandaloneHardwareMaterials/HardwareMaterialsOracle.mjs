@@ -57,7 +57,7 @@ function reference(input,textures){
     if(!flag(0)){coverageKnown=true;}
     else{
       let alpha=r.baseColor[3];if(!finite(alpha)||!finite(r.detail[0]))throw Error('alpha constants');
-      if(!flag(3))alpha*=texture(0,uv())[3];
+      if(!flag(3)&&(r.identity[3]&1)!==0)alpha*=texture(0,uv())[3];
       if(!finite(alpha))throw Error('invalid alpha');coverageKnown=true;covered=alpha>=r.detail[0];
     }
   }catch{}
@@ -202,7 +202,12 @@ if(mode==='prepare'){
     inputs.push(c);cases.push({name,...expectation(c,textures)});
   }
   for(const flags of [0,1,2,3,4,5,7,9,16,32,64,128,384,512,513,521,1023,2047,4095,8191])for(const present of [0,1023])for(const coverage of [false,true]){
-    const c=base(flags,present);c.coverage=coverage;addCase(`flags-${flags}-present-${present}-coverage-${coverage}`,c);
+    const c=base(flags,present);c.coverage=coverage;
+    if(flags===513&&present===0&&coverage){
+      c.record.identity[3]=512;c.record.handles[9]=[0xffffffff,0];
+      c.record.baseColor[3]=.25;c.record.detail[0]=.5;
+      addCase('default-base-ignores-unready-height',c);
+    }else addCase(`flags-${flags}-present-${present}-coverage-${coverage}`,c);
   }
   const rejects=[
     ['binding-generation',c=>c.bindingTable[1]++],['binding-reserved',c=>c.bindingTable[3]=1],

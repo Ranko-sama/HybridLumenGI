@@ -57,7 +57,7 @@ function reference(input,textures){
     if(!flag(0)){coverageKnown=true;}
     else{
       let alpha=r.baseColor[3];if(!finite(alpha)||!finite(r.detail[0]))throw Error('alpha constants');
-      if(!flag(3))alpha*=texture(0,uv())[3];
+      if(!flag(3)&&(r.identity[3]&1)!==0)alpha*=texture(0,uv())[3];
       if(!finite(alpha))throw Error('invalid alpha');coverageKnown=true;covered=alpha>=r.detail[0];
     }
   }catch{}
