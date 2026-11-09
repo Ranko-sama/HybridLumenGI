@@ -90,6 +90,13 @@ namespace HybridLumenGI
                 snapshots.Add(snapshot);
             }
             if(snapshots.Count==0) { LastCoverageBlock=default;return; }
+            int firstCard=surface.CardCount,lastCard=-1;
+            foreach(Snapshot snapshot in snapshots)
+            foreach(int card in snapshot.cards)
+            {
+                firstCard=Math.Min(firstCard,card);
+                lastCard=Math.Max(lastCard,card);
+            }
             uint atlasGeneration=surface.AtlasGeneration;int serial=invalidationSerial;
             int perCard=grid*grid;
             pending=true;lastRequestFrame=frame;
@@ -97,7 +104,10 @@ namespace HybridLumenGI
             // data, unlike a CPU mask that merely says a dispatch has been scheduled.
             try
             {
-            command.RequestAsyncReadback(cache,request=>
+            int entryCount=checked((lastCard-firstCard+1)*perCard);
+            int byteOffset=checked(firstCard*perCard*cache.stride);
+            int byteCount=checked(entryCount*cache.stride);
+            command.RequestAsyncReadback(cache,byteCount,byteOffset,request=>
             {
                 pending=false;
                 LastCoverageBlock=default;
@@ -108,7 +118,7 @@ namespace HybridLumenGI
                 if(request.hasError) { FailedReadbacks++;return; }
                 CompletedReadbacks++;
                 var data=request.GetData<CacheEntry>();
-                bool completeCache = scheduler != null && data.Length == (long)surface.CardCount * perCard;
+                bool completeRange = scheduler != null && data.Length == entryCount;
                 foreach(Snapshot snapshot in snapshots)
                 {
                     if(!CurrentSnapshot(scene,surface,snapshot)) continue;
@@ -118,12 +128,12 @@ namespace HybridLumenGI
                     for(int ordinal=0;ordinal<snapshot.cards.Length;ordinal++)
                     {
                         int card=snapshot.cards[ordinal];bool cardCovered=false;
-                        bool coverageEvidence = completeCache && scheduler.NeedsPatchCoverage(card, grid, snapshot.generations[ordinal], atlasGeneration);
+                        bool coverageEvidence = completeRange && scheduler.NeedsPatchCoverage(card, grid, snapshot.generations[ordinal], atlasGeneration);
                         if (!ready && !coverageEvidence) continue;
                         ushort emptyPatches = 0;
                         for(int local=0;local<perCard;local++)
                         {
-                            long index=(long)card*perCard+local;
+                            long index=(long)(card-firstCard)*perCard+local;
                             if(index>=data.Length)
                             {
                                 if (ready) { reason="Missing cache entry";blockedOrdinal=ordinal;blockedPatch=local; }

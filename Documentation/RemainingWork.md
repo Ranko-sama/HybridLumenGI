@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release226 同源交付](../LocalComparison/Review/hlod-root-first-capacity-275/delivery.json)
 
+T5／T6 已关闭 HLOD 小范围就绪检查固定回读整池的路径。单次请求覆盖所有待确认卡的最小连续区，沿用原完整回执与节流。实际耗时和高速首显继续验收。[传输对照与范围](../LocalComparison/Review/hlod-readback-span-276/result.md)
+
 T5／G4 已关闭冷近场根先到时占槽、使恰好满槽的完整细节无法预热的缺口。完整细节齐备后按原回执发布。采用限首次发布前的场景槽位选择，高速入场首显和其他共驻额度继续验收。[同顺序对照与范围](../LocalComparison/Review/hlod-root-first-capacity-275/result.md)
 
 T6／G4 已补对象 SDF 同步整卷上传的共享 CPU 时间准入。后置相机收紧额度时计入同帧已有上传，时间延期沿原周期队列继续，失败仍计时。采用范围是对象卷的 CPU 准入，原生上传时间和全阶段生产预算继续验收。[受控对照](../LocalComparison/Review/object-sdf-upload-time-274/result.md)
@@ -240,7 +242,7 @@ T5／T6 已关闭旧组有精确成员退出、目标仍有可准入精确几何
 
 T5 现有记录确认了统一示例在加载带入口的一帧绑定延后。Release110 第 306 帧写入粗根请求时 8 页已就绪，第 307 帧才绑定。示例的 `Update` 在流式表示消费需求之后执行。粗根仍在可见边界外绑定，首次完整表示空档保持未通过。[冷入折返与实际记录](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
-同一记录的第 307–309 帧已绑定粗根，40 单位可见门仍挡住预热，第 310 帧才进入 Warming。第 316、320 帧实际回读均因同一覆盖 patch 的可信样本数不足而拒绝。记录无法区分缺少第二次调度与更新返回未知。第 320 帧目标切到细节，已开始的粗根预热随之撤回。第 308／309 帧分别已有 2／8 个其他发布对象和 192／256 个缓存 patch 更新，空域预热候选仅覆盖第 307 帧。Astra Max 保留原发布界、照明就绪和共享预算作为采用条件。[实际路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
+同一记录的第 307–309 帧已绑定粗根，40 单位可见门仍挡住预热，第 310 帧才进入 Warming。第 316、320 帧实际回读均因同一覆盖 patch 的可信样本数不足而拒绝。记录无法区分缺少第二次调度与更新返回未知。第 317 帧细节已全部绑定，目标在第 320 帧才切到细节，粗根预热随之撤回。第 308／309 帧分别已有 2／8 个其他发布对象和 192／256 个缓存 patch 更新，空域预热候选仅覆盖第 307 帧。Astra Max 保留原发布界、照明就绪和共享预算作为采用条件。[实际路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 
 源码还允许另一条时序。粗根的完整就绪票据在相机准备前到达，细节恰好成为新目标且尚未就绪时，发布只检查细节，已就绪的粗根也会撤回。保留粗根会占用一份代理槽及图卡额度，细节恰满时可能无法开始整组准备。此时序在源码中可达，Release110 的第 320 帧仍是粗根票据不足的实录。两种情形分别保留，采用仍以首显与完整切换能同时推进为条件。[目标与容量门](../Runtime/HybridLumenGIScene.cs) · [实际路线](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)
 

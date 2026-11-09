@@ -106,6 +106,31 @@ var variableData=new Entry[20*4];
 for(int slot=0;slot<3;slot++)foreach(int card in variableCards[slot])variableData[card*4+2]=Valid(101+slot,generation:variable.surface.Generations[card]);
 variable.command.Complete(0,variableData);
 Require(variable.readback.AcceptedTickets==3&&Enumerable.Range(0,3).All(slot=>variable.scene.Ready(101+slot,3)),"Variable/noncontiguous card indices or per-chart sparse coverage failed.");
+
+// Published cards outside this warming set must not enlarge the transfer. The
+// callback receives a local array whose first entry belongs to physical card 102.
+const int poolCards=192,firstWarmCard=102,warmCards=18,rangeGrid=4,entryBytes=96;
+const int entriesPerCard=rangeGrid*rangeGrid;
+var ranged=Setup(2);
+Layout(ranged.surface,new[]{Enumerable.Range(firstWarmCard,warmCards).ToArray(),new[]{0,poolCards-1}},poolCards);
+ranged.scene.Data[1].identity.w=1;
+using var rangeScheduler=new HybridLumenGICacheScheduler();
+rangeScheduler.Prepare(ranged.scene,ranged.surface,rangeGrid,0,2,false,upload:false);
+ranged.readback.Record(ranged.command,ranged.scene,ranged.sdf,ranged.surface,ranged.cache,rangeGrid,7,0,rangeScheduler);
+var rangeRequest=ranged.command.Requests[0];
+Require(ranged.command.Requests.Count==1 && rangeRequest.Stride==entryBytes &&
+    rangeRequest.OffsetBytes==firstWarmCard*entriesPerCard*entryBytes && rangeRequest.SizeBytes==warmCards*entriesPerCard*entryBytes,
+    "The request must cover exactly the warming cards at their nonzero byte offset.");
+var rangeData=Data(ranged.surface,grid:rangeGrid);
+rangeData[firstWarmCard*entriesPerCard+1]=default;
+ranged.command.Complete(0,rangeData);
+Require(ranged.readback.AcceptedTickets==1 && ranged.scene.Ready(101,3) && ranged.scene.Reports.Count==1 && !ranged.scene.Ready(102,3),
+    "Nonzero-offset cache data failed local indexing or issued a ticket for an excluded published owner.");
+rangeScheduler.Prepare(ranged.scene,ranged.surface,rangeGrid,1,2,false,upload:false);
+Require(rangeScheduler.ValidEntryCount==(warmCards+2)*entriesPerCard-1,"A complete partial range lost its explicit empty patch evidence.");
+Console.WriteLine($"HLOD readback span: {rangeRequest.SizeBytes} B at offset {rangeRequest.OffsetBytes}, " +
+    $"full cache {rangeData.Length*entryBytes} B. Current ticket and empty patch evidence accepted.");
+
 for(int slot=0;slot<3;slot++)foreach(int emptyCard in variableCards[slot])
 {
     var f=Setup(3);Layout(f.surface,variableCards,20);Record(f);var data=Data(f.surface);

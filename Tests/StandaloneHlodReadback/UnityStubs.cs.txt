@@ -31,8 +31,9 @@ namespace UnityEngine
     public sealed class ComputeBuffer
     {
         public string name;
-        public ComputeBuffer(){}
-        public ComputeBuffer(int count,int stride,ComputeBufferType type){}
+        public int stride {get;}
+        public ComputeBuffer(){stride=96;}
+        public ComputeBuffer(int count,int stride,ComputeBufferType type){this.stride=stride;}
         public void SetData(Array data){}
         public void Release(){}
     }
@@ -58,12 +59,36 @@ namespace UnityEngine.Rendering
     {
         public bool ThrowOnRequest;
         public readonly List<Action<AsyncGPUReadbackRequest>> Callbacks=new();
+        public readonly List<(int SizeBytes,int OffsetBytes,int Stride)> Requests=new();
         public void RequestAsyncReadback(UnityEngine.ComputeBuffer buffer,Action<AsyncGPUReadbackRequest> callback)
         {
             if(ThrowOnRequest)throw new InvalidOperationException("simulated native request recording failure");
+            Requests.Add((-1,0,buffer.stride));
             Callbacks.Add(callback);
         }
-        public void Complete(int index,Array values,bool error=false)=>Callbacks[index](new AsyncGPUReadbackRequest(values,error));
+        public void RequestAsyncReadback(UnityEngine.ComputeBuffer buffer,int size,int offset,Action<AsyncGPUReadbackRequest> callback)
+        {
+            if(ThrowOnRequest)throw new InvalidOperationException("simulated native request recording failure");
+            if(size<=0||offset<0||buffer.stride<=0||size%buffer.stride!=0||offset%buffer.stride!=0)
+                throw new ArgumentOutOfRangeException(nameof(size),"Readback range must contain complete buffer entries.");
+            Requests.Add((size,offset,buffer.stride));
+            Callbacks.Add(callback);
+        }
+        public void Complete(int index,Array values,bool error=false)
+        {
+            var range=Requests[index];
+            if(range.SizeBytes>=0)
+            {
+                // Fixtures provide the physical cache. Deliver only the requested
+                // range, without padding a deliberately truncated payload.
+                int first=range.OffsetBytes/range.Stride;
+                int count=Math.Min(range.SizeBytes/range.Stride,Math.Max(0,values.Length-first));
+                var slice=Array.CreateInstance(values.GetType().GetElementType(),count);
+                if(count>0)Array.Copy(values,first,slice,0,count);
+                values=slice;
+            }
+            Callbacks[index](new AsyncGPUReadbackRequest(values,error));
+        }
     }
 }
 namespace HybridLumenGI

@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release226，G0 已锁定，G1／G2 本机代表性验收通过
 
+T5／T6 的 HLOD 就绪流程已消除小范围预热仍固定请求整池缓存的传输。受控 192 卡池中，18 张连续预热卡的请求由 288 KiB 缩至 27 KiB，原回执和空格证据仍能使用。分散布局可能跨整池。实机开销和高速首显继续验收。[实际录制字节与范围](../LocalComparison/Review/hlod-readback-span-276/result.md)
+
 T5／G4 已关闭冷近场的根先到满槽阻塞。32 个健康声明叶恰需全部 32 槽时，先绑定的根等待。叶齐后 32 个叶都能预热，完整回执到达后整组发布。首次显示可能等到叶齐，已发布远根受原共驻条件约束。高速冷入实机首显继续验收。[同顺序对照与范围](../LocalComparison/Review/hlod-root-first-capacity-275/result.md) · [Release226 同源交付](../LocalComparison/Review/hlod-root-first-capacity-275/delivery.json)
 
 T6／G4 已接入对象 SDF 整卷上传的共享 CPU 时间准入。额度用完后延后下一卷，轮到因时间延期的请求时先给它一次上传机会。实际 Atlas 宿主覆盖同帧收紧、来源变更后的解析回退、失败计时和次帧恢复。默认关闭，单卷可能超额。原生耗时及其他阶段预算继续验收。[对照与范围](../LocalComparison/Review/object-sdf-upload-time-274/result.md) · [Release225 同源交付](../LocalComparison/Review/object-sdf-upload-time-274/delivery.json)
