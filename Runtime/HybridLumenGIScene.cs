@@ -274,7 +274,7 @@ namespace HybridLumenGI
                 HybridLumenGIProxy proxy = active[i];
                 if (proxy == null || !proxy.isActiveAndEnabled) continue;
                 streamedBindings.TryGetValue(proxy, out var binding);
-                if (binding != null && binding.IsUnavailable) continue;
+                if (binding != null && binding.IsSourceUnavailable) continue;
                 if (!TryGetCandidateBounds(proxy, position, farSquared, out Bounds bounds, out float distance)) continue;
                 if (!activeById.ContainsKey(proxy.StableId))
                 {
@@ -518,7 +518,7 @@ namespace HybridLumenGI
                 var root = TopLevelRoot(proxy);
                 if (root == null || root == proxy || !groups.TryGetValue(root, out HlodGroup group)) continue;
                 group.pendingDetails++;
-                group.hasUnavailableDetails |= declaration.Value.IsUnavailable;
+                group.hasUnavailableDetails |= declaration.Value.IsSourceUnavailable;
             }
             retiredProxies.Clear();
             foreach (var pair in groups)

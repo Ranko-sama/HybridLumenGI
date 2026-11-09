@@ -47,11 +47,13 @@ namespace HybridLumenGI
         public bool WantsUnload=>bound && (IsUnavailable || (!wanted && (!manualMode || !manualWanted)));
         public bool HasBoundAssets=>bound;
         public bool IsUnavailable=>unavailable || failure == FailureState.BoundDestination;
+        // A terminal cold failure blocks HLOD source admission without a bound destination to retire.
+        internal bool IsSourceUnavailable=>unavailable || failure != FailureState.None;
         public HybridLumenGIProxy Proxy=>proxy;
         public Renderer SourceRenderer=>targetRenderer;
         public string LastError { get; private set; }
         internal bool UsesHlodRasterVisibility => useHlodRasterVisibility;
-        internal bool CanSubmitHlodRaster => useHlodRasterVisibility && bound && !IsUnavailable &&
+        internal bool CanSubmitHlodRaster => useHlodRasterVisibility && bound && !IsSourceUnavailable &&
             targetRenderer != null && targetRenderer.enabled && targetRenderer.gameObject.activeInHierarchy;
         public void Configure(HybridLumenGIAssetPageStreamer owner,HybridLumenGIProxy source,MeshFilter filter,MeshRenderer renderer,
             string mesh,string sdf,string charts,string[] materials,Bounds bounds)
@@ -110,7 +112,7 @@ namespace HybridLumenGI
         }
         private void Update()
         {
-            if(unavailable || failure!=FailureState.None || retirement!=null)return;
+            if(IsSourceUnavailable || retirement!=null)return;
             bool pagesAvailable = streamer != null && streamer.Available;
             // A bound representation can still withdraw its demand after the driver is destroyed.
             if (!pagesAvailable && !bound) return;

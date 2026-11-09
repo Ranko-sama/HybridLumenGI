@@ -126,7 +126,11 @@ coldFailure.DestroyRendererAndUpdate();
 Check(coldFailure.representation.LastError != null && !coldFailure.representation.IsUnavailable &&
     !coldFailure.representation.HasBoundAssets && !coldFailure.representation.WantsUnload &&
     HybridLumenGIResourceRetirement.UnavailableRetirementRequests == unavailableRequests,
-    "A cold failure stopped declaring an unbound member or requested retirement without leases.");
+    "A cold failure changed the retirement state without a bound destination.");
+var sourceUnavailable = typeof(HybridLumenGIStreamedRepresentation).GetProperty("IsSourceUnavailable", BindingFlags.Instance | BindingFlags.NonPublic);
+Check(sourceUnavailable != null && (bool)sourceUnavailable.GetValue(coldFailure.representation) &&
+    !(bool)sourceUnavailable.GetValue(cold.representation),
+    "HLOD source admission must distinguish a terminal cold failure from a healthy unbound request.");
 
 var brokenDestination = new Fixture();
 brokenDestination.Enable();

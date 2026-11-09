@@ -496,6 +496,38 @@ Require(rootHeld && completeReplacement && noOrdinaryBypass && completeBeforeRoo
 Console.WriteLine("PASS streamed HLOD: staged page arrivals retain complete GI groups and complete near details can publish while the root is unbound.");
 
 g = StreamedGroup();
+var coldDetail = HybridLumenGIStreamedRepresentation.Active.Single(binding => binding.Proxy == g.children[1]);
+SetResident(coldDetail.Proxy, false);
+foreach (var binding in HybridLumenGIStreamedRepresentation.Active)
+{
+    binding.UsesHlodRasterVisibility = true;
+    binding.CanSubmitHlodRaster = binding != coldDetail;
+    binding.Generation = binding == coldDetail ? 0u : 1u;
+}
+using (var s = new HybridLumenGIScene())
+{
+    Prepare(s, false, 32);
+    Require(s.PublishedCount == 0 && s.WarmingCount == 0,
+        "A healthy pending leaf must still wait for the complete near group.");
+
+    // The binding stays enabled and has never acquired a destination generation.
+    coldDetail.FailedBeforeBinding = true;
+    Prepare(s, false, 32);
+    var visible = new List<HybridLumenGIStreamedRepresentation>();
+    s.CollectHlodRaster(Vector3.zero, 1000, visible);
+    bool rootWarming = s.IsWarming(Slot(s, g.root.StableId));
+    Console.WriteLine($"Terminal unbound detail: published={s.PublishedCount}, raster={visible.Count}, root warming={rootWarming}.");
+    Require(rootWarming && s.PublishedCount == 0 && s.Bvh.NodeCount == 0 && visible.Count == 0 &&
+        Slot(s, g.children[0].StableId) < 0, "Only the complete root may warm after a required unbound leaf fails.");
+    ReportAll(s); Prepare(s, false, 32);
+    RootPublished(s, g.root.StableId);
+    s.CollectHlodRaster(Vector3.zero, 1000, visible);
+    Require(visible.Count == 1 && visible[0].Proxy == g.root, "The qualified root must be the entire raster group.");
+}
+HybridLumenGIStreamedRepresentation.Active.Clear();
+Console.WriteLine("PASS terminal unbound detail: healthy pending leaves wait, and an irrevocably failed leaf permits the ready root.");
+
+g = StreamedGroup();
 var failedDetail = HybridLumenGIStreamedRepresentation.Active.Single(binding => binding.Proxy == g.children[0]);
 var survivingDetail = HybridLumenGIStreamedRepresentation.Active.Single(binding => binding.Proxy == g.children[1]);
 var fallbackRoot = HybridLumenGIStreamedRepresentation.Active.Single(binding => binding.Proxy == g.root);

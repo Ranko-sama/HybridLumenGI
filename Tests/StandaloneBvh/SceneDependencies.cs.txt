@@ -94,7 +94,8 @@ namespace HybridLumenGI
     public class HybridLumenGIStreamedRepresentation
     {
         public static readonly List<HybridLumenGIStreamedRepresentation> Active = new();
-        public bool isActiveAndEnabled = true, IsUnavailable;
+        public bool isActiveAndEnabled = true, IsUnavailable, FailedBeforeBinding;
+        internal bool IsSourceUnavailable => IsUnavailable || FailedBeforeBinding;
         public bool UsesHlodRasterVisibility, CanSubmitHlodRaster;
         public uint Generation;
         public HybridLumenGIProxy Proxy;
