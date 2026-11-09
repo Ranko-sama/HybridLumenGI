@@ -4,7 +4,9 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release189 同源交付](../LocalComparison/Review/shadow-caster-reach-218/delivery.json)
 
-T3／G3 已关闭长范围点光下，投影者移动或撤除时漏掉远接收面通知的路径。双网格实测两种事件均提高远地板调度优先级，移动的旧缓存拒绝半径保留原距离。原地几何编辑仅记 `Manual` 且上传延期的情况，以及画面残留和收敛仍待处理。[实测与适用范围](../LocalComparison/Review/shadow-caster-reach-218/result.md)
+T3／G3 已关闭原地编辑后，旧投影网格撤出、新网格上传延期时漏掉远接收面通知的路径。实际 DXR 在撤出的当帧提高远地板更新优先级，随后新网格在可用名额内发布。画面残留和收敛继续验收。[延期与恢复实测](../LocalComparison/Review/deferred-caster-reach-219/result.md)
+
+T3／G3 已关闭长范围点光下，投影者移动或撤除时漏掉远接收面通知的路径。双网格实测两种事件均提高远地板调度优先级，移动的旧缓存拒绝半径保留原距离。画面残留和收敛继续验收。[实测与适用范围](../LocalComparison/Review/shadow-caster-reach-218/result.md)
 
 T3／G3 已关闭长范围点光的投影资格变化漏报远接收面的问题。实际 DXR 关闭投影时，远地板取得局部调度优先级；保持禁投影的层掩码对照沿用原范围。采用范围为通知与调度，画面残留和收敛继续验收。[实际点光对照](../LocalComparison/Review/shadow-policy-reach-217/result.md)
 

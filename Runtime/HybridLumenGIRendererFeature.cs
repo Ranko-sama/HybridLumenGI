@@ -1741,7 +1741,13 @@ namespace HybridLumenGI
                 foreach (var change in state.scene.DirtyRegions)
                 {
                     bool geometryChanged = (change.Kind & geometry) != 0;
-                    if (!geometryChanged && (change.Kind & HybridLumenGIScene.ChangeKind.Lighting) == 0) continue;
+                    // A manual revision can clear the old caster before its replacement earns an upload.
+                    // The recorded current bounds are only a candidate until the scene publishes it.
+                    bool deferredWithdrawal = !geometryChanged && change.HasPrevious &&
+                        (change.Kind & HybridLumenGIScene.ChangeKind.Manual) != 0 &&
+                        !state.scene.TryGetPublishedSlot(change.StableId, out _);
+                    if (!geometryChanged && !deferredWithdrawal && (change.Kind & HybridLumenGIScene.ChangeKind.Lighting) == 0) continue;
+                    bool hasCurrent = change.HasCurrent && !deferredWithdrawal;
                     float previousReach = baselineReach, currentReach = baselineReach;
                     for (int i = 0; i < lightCount; i++)
                     {
@@ -1749,12 +1755,12 @@ namespace HybridLumenGI
                         float reach = ShadowReach(light);
                         if (reach <= previousReach && reach <= currentReach) continue;
                         uint previous = change.HasPrevious ? EffectiveShadowMode(change.PreviousLighting, light) : 0;
-                        uint current = change.HasCurrent ? EffectiveShadowMode(change.CurrentLighting, light) : 0;
+                        uint current = hasCurrent ? EffectiveShadowMode(change.CurrentLighting, light) : 0;
                         if (!geometryChanged && previous == current) continue;
                         if (previous != 0) previousReach = Mathf.Max(previousReach, reach);
                         if (current != 0) currentReach = Mathf.Max(currentReach, reach);
                     }
-                    if (change.HasPrevious && change.HasCurrent && change.CurrentBounds.Equals(change.PreviousBounds))
+                    if (change.HasPrevious && hasCurrent && change.CurrentBounds.Equals(change.PreviousBounds))
                     {
                         previousReach = Mathf.Max(previousReach, currentReach);
                         currentReach = baselineReach;
