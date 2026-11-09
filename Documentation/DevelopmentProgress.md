@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release200，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release201，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭固定点光仍开启时，旧色通道从灯表消失却继续在缓存中反弹的残留缺口。同曝光实机对照中，约 1／2 秒旧绿从 11.84%／6.02% 降至 0.046%／0.0041%，新蓝持续供光。整项 G3 与新颜色绝对收敛继续验收。[实机对照](../LocalComparison/Review/point-light-recolor-237/result.md) · [同源交付](../LocalComparison/Review/point-light-recolor-237/delivery.json)
 
 T3／G3 已关闭后备投影物切换解析盒与对象 SDF 时漏掉远接收面的问题。固定点光的实机 GPU 查询确认上传后光路穿过门洞，修复版远地板取得局部照明反应和调度优先级。保持帧无重复事件。画面残留、收敛及高速 HLOD 首显继续验收。[实机对照](../LocalComparison/Review/sdf-shadow-reach-236/result.md) · [同源交付](../LocalComparison/Review/sdf-shadow-reach-236/delivery.json)
 

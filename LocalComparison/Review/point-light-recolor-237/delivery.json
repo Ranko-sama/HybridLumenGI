@@ -1,0 +1,43 @@
+{
+  "productCommit": "992c7c72cb0dab9250996b78ce9765a6a4b75f50",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release201-demo",
+  "tag": "release201-demo",
+  "publishedAt": "2026-11-09T09:56:45Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Fixed DXR Editor room, one analytic point light remains active and changes from green to blue. Nine fixed points and actual source-time old-green deadlines.",
+    "baseline": "baseline.json",
+    "candidate": "fixed.json",
+    "observerBaseCommit": "e656b702e1bf6da53162d4f70b92444ba09ba69a",
+    "observerOverlay": [
+      "Runtime/HybridLumenGIRendererFeature.cs",
+      "Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl"
+    ],
+    "comparison": "comparison.png"
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release201-UnityProject.zip",
+      "size": 853547,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release201-demo/HybridLumenGI-Release201-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release201-Windows-x64.zip",
+      "size": 58021331,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release201-demo/HybridLumenGI-Release201-Windows-x64.zip"
+    }
+  ]
+}
