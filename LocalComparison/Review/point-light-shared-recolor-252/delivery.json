@@ -1,0 +1,51 @@
+{
+  "productCommit": "548319d1c7c8245dc64a467869090b7dfe9063df",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release210-demo",
+  "tag": "release210-demo",
+  "publishedAt": "2026-11-09T14:45:53Z",
+  "prerelease": true,
+  "validation": {
+    "gate": "G3",
+    "baselineSource": "05ff285e7aa0b31aae4615d527183178f80c4bae",
+    "method": "Native DXR Editor Play at 960x540, one point light changes from cyan to blue while the other stays cyan. Nine linear IndirectOnly receiver samples.",
+    "comparison": "result.md",
+    "acceptedCandidateStatus": "qualified-pass",
+    "actualLightCounts": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "firstRecoveryWindow": {
+      "start": 0.2583192000000025,
+      "end": 0.7683788000000078
+    },
+    "minGreenBiasPercent": -2.4910578264646044,
+    "maxBlueBiasPercent": 1.167286638896936
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release210-UnityProject.zip",
+      "size": 856484,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release210-demo/HybridLumenGI-Release210-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release210-Windows-x64.zip",
+      "size": 58485077,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release210-demo/HybridLumenGI-Release210-Windows-x64.zip"
+    }
+  ]
+}

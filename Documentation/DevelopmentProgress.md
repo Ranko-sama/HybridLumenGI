@@ -1,10 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度　Release208，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release210，G0 已锁定，G1／G2 本机代表性验收通过
 
-T3／G3 已关闭两盏固定点灯均开启时，一盏青灯换蓝后旧绿继续反弹的缺口。实际 DXR 同曝光对照中，约 1／2 秒的旧绿增量从 12.72%／6.33% 降至 −0.29%／−0.19%，约 0.26 秒进入合格保持区间。恢复中绿色最低比终态低 2.49%，未变蓝通道的最大偏差为 1.17%。[同输入对照与范围](../LocalComparison/Review/point-light-shared-recolor-252/result.md)
+T3／G3 已关闭两盏固定点灯均开启时，一盏青灯换蓝后旧绿继续反弹的缺口。实际 DXR 同曝光对照中，约 1／2 秒的旧绿增量从 12.72%／6.33% 降至 −0.29%／−0.19%，约 0.26 秒进入合格保持区间。恢复中绿色最低比终态低 2.49%，未变蓝通道的最大偏差为 1.17%。[同输入对照与范围](../LocalComparison/Review/point-light-shared-recolor-252/result.md) · [同源交付](../LocalComparison/Review/point-light-shared-recolor-252/delivery.json)
 
-T5／G4 复现独立分页首发缺口。粗根已就绪时首片细节绑定，组发布和预热均归零。先发布粗根的候选在两片叶、32 槽对照中工作，但细节恰好占满槽限时会挡住整组接替。候选已撤回，Release208 继续交付，冷入首显仍待解决。[对照和撤回依据](../LocalComparison/Review/hlod-cold-partial-251/result.md)
+T5／G4 复现独立分页首发缺口。粗根已就绪时首片细节绑定，组发布和预热均归零。先发布粗根的候选在两片叶、32 槽对照中工作，但细节恰好占满槽限时会挡住整组接替。候选已撤回，冷入首显仍待解决。[对照和撤回依据](../LocalComparison/Review/hlod-cold-partial-251/result.md)
 
 T6／G4 的当前固定软件近景实测 GI p95 为 46.868 ms，local 采样峰值为 551.699 MiB。延后世界材质求值的候选 p95 为 47.804 ms，已按冻结条件撤回。软件 25 ms 时间缺口继续开放。[同源成本对照与范围](../LocalComparison/Review/software-deferred-material-250/result.md)
 

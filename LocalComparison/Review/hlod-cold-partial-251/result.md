@@ -10,4 +10,4 @@
 
 Astra Max 复审指出，先发布粗根也必须保住细节的接替能力。按源码推演，32 片叶恰好填满 32 槽时，先发布的根占用第一个槽，细节整组需要 32 个额外槽。现有选择先保留完整发布，再为整个目标预留槽位，因此会一直报告 `PendingCapacity`，直到粗根退出或容量增加。旧版在相同到达顺序下会撤掉预热根，随后 32 片叶能直接预热。这个槽位反例足以否决候选；新增粗根的图卡、SDF 和 DXR 准入也缺少同阶段依据。 [场景槽位选择](../../../Runtime/HybridLumenGIScene.cs) · [原有满槽直发夹具](../../../Tests/StandaloneBvh/HlodProgram.cs.txt)
 
-候选的 Win64 普通构建成功。候选源码已从主分支回退，Release209 未公开，当前交付仍为 Release208。T5 的独立分页首发缺口和统一示例高速冷入首显继续开放。 [Release208](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release208-demo)
+候选的 Win64 普通构建成功。候选源码已从主分支回退，Release209 未公开，该轮沿用 Release208 交付。T5 的独立分页首发缺口和统一示例高速冷入首显继续开放。 [Release208](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release208-demo)
