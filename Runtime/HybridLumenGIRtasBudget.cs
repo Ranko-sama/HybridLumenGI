@@ -106,6 +106,8 @@ namespace HybridLumenGI
         private static void EnsureFrame(){if(!initialized)BeginFrame(0,Settings.Default);}
         public static long Estimate(long triangles,long instances)
         {EnsureFrame();return Add(settings.BaseEstimateBytes,Add(Multiply(Math.Max(0,triangles),settings.BytesPerTriangle),Multiply(Math.Max(0,instances),settings.BytesPerInstance)));}
+        internal static bool EstimateFitsMemory(long triangles,long instances)
+            => Estimate(triangles,instances)<=settings.MemoryBudgetBytes;
         internal static bool TryReserve(long triangles,long instances,Reservation current,out Reservation result,out string reason)
         {
             EnsureFrame();result=current;reason=null;

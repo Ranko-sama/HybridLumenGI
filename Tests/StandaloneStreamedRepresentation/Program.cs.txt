@@ -347,8 +347,70 @@ for (int step = 0; step < 16 && brokenPage.Status != Stream.Phase.Ready; step++)
 }
 Check(brokenPage.Status == Stream.Phase.Ready, "An eligible retry must still complete after the bundle becomes readable");
 Console.WriteLine("PASS load retry admission: healthy group completes during backoff; the original request retries at expiry and completes.");
+CheckFailedAssetRetirement();
 Check(CheckBundleIoHeadroom(), "An admitted large page must make progress while smaller file reads overlap");
 Console.WriteLine("PASS multiview cold-demand capability; actual C# representation/driver/scheduler, adapted Unity objects and IO. No Unity/AssetBundle/GPU/HLOD native-chain acceptance.");
+
+static void CheckFailedAssetRetirement()
+{
+    var fixture = new Fixture(new[] { Fixture.Page("broken", Stream.Kind.Geometry, "shared"),
+        Fixture.Page("healthy", Stream.Kind.Geometry, "shared"), Fixture.Page("shared", Stream.Kind.Material) });
+    fixture.budget.maxBundleBytes = 20;
+    fixture.budget.maxResidentBytes = 40;
+    fixture.ApplyBudget();
+    fixture.provider.FailingAsset = "broken";
+    var first = new object();
+    var second = new object();
+    Check(fixture.driver.SetRequests(first, new[] { "broken" }, priority: 1) &&
+        fixture.driver.SetRequests(second, new[] { "healthy" }), "Both complete groups must remain requested");
+
+    var broken = fixture.state.GetState("broken");
+    var healthy = fixture.state.GetState("healthy");
+    for (int step = 0; step < 8 && broken.Status != Stream.Phase.Failed; step++)
+    {
+        fixture.provider.CompleteAll();
+        fixture.Drive();
+    }
+    uint failedGeneration = broken.Generation;
+    Check(broken.Status == Stream.Phase.Failed && failedGeneration > 0 && healthy.Status == Stream.Phase.Unloaded &&
+        fixture.state.BundleBytes == 20 && fixture.state.ResidentBytes == 20 && fixture.driver.TryAcquire("shared", out _),
+        "The asset failure must leave only its real bundle and the shared dependency charged");
+
+    int elapsed = 0;
+    void Advance(bool complete = true)
+    {
+        if (complete) fixture.provider.CompleteAll();
+        fixture.Drive();
+        elapsed++;
+    }
+    Advance(complete: false);
+    Check(broken.Status == Stream.Phase.Releasing && fixture.state.BundleBytes == 20 && healthy.Status == Stream.Phase.Unloaded,
+        "Asset load backoff must not delay releasing its unrequested bundle");
+    Advance(complete: false);
+    Check(broken.Status == Stream.Phase.Releasing && fixture.state.BundleBytes == 20 && healthy.Status == Stream.Phase.Unloaded,
+        "An unfinished release must keep the failed bundle charged");
+    Advance();
+    Check(broken.Status == Stream.Phase.Failed && broken.Generation == failedGeneration && fixture.state.BundleBytes == 10,
+        "Release completion must return only the failed bundle and preserve load backoff");
+    for (; elapsed < 12 && healthy.Status != Stream.Phase.Ready;) Advance();
+    int healthyReadyAt = elapsed;
+    Check(healthy.Status == Stream.Phase.Ready && fixture.state.BundleBytes == 20 && fixture.state.ResidentBytes == 40 &&
+        broken.Status == Stream.Phase.Failed && broken.Generation == failedGeneration,
+        "The healthy group must finish during the asset load backoff within the original limits");
+
+    fixture.driver.RemoveRequests(second);
+    fixture.provider.FailingAsset = null;
+    for (; elapsed < 59;) Advance();
+    Check(broken.Status == Stream.Phase.Failed && broken.Generation == failedGeneration && fixture.state.BundleBytes == 10,
+        "Releasing the failed bundle must not advance the load retry");
+    Advance();
+    Check(broken.Status == Stream.Phase.LoadingBundle && broken.Generation != failedGeneration,
+        "The original request must retry on step 60 under a fresh generation");
+    for (; elapsed < 68 && broken.Status != Stream.Phase.Ready;) Advance();
+    Check(broken.Status == Stream.Phase.Ready && fixture.state.BundleBytes == 20 && fixture.state.ResidentBytes == 40,
+        "The original request must recover once its asset can load");
+    Console.WriteLine($"PASS failed asset retirement: release starts at step 1, healthy page ready at step {healthyReadyAt}, original retries at step 60 and becomes ready at step {elapsed}.");
+}
 
 static bool CheckBundleIoHeadroom()
 {
@@ -461,14 +523,15 @@ sealed class Provider:Stream.IProvider
 {
     public sealed class Op:Stream.IOperation{public string phase;public bool done;public object value;public bool IsDone=>done;public string Error=>null;public object Result=>value;}
     public readonly List<Op> operations=new();
-    public string FailingBundle;
+    public string FailingBundle,FailingAsset;
     Op Add(string phase,object value){var op=new Op{phase=phase,value=value};operations.Add(op);return op;}
     public Stream.IOperation LoadBundle(Stream.Definition definition)
     {
         if (definition.id == FailingBundle) throw new System.IO.IOException("Controlled bundle read failure.");
         return Add("bundle", new object());
     }
-    public Stream.IOperation LoadAsset(Stream.Definition definition,object bundle)=>Add("asset",definition.kind==Stream.Kind.Geometry?new Mesh():definition.kind==Stream.Kind.Material?new Material():new Texture());
+    public Stream.IOperation LoadAsset(Stream.Definition definition,object bundle)
+        => Add("asset",definition.id==FailingAsset?null:definition.kind==Stream.Kind.Geometry?new Mesh():definition.kind==Stream.Kind.Material?new Material():new Texture());
     public Stream.IOperation Release(Stream.Definition definition,object bundle,object asset)=>Add("release",null);
     public void CompleteAll(){foreach(var op in operations)op.done=true;}
 }

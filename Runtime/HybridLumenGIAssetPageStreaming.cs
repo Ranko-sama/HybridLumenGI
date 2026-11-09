@@ -56,7 +56,7 @@ namespace HybridLumenGI
             internal object bundle, asset;
             internal bool requested, bundleReserved, residentReserved;
             internal int referenceCount, releasePins;
-            internal long priority, requestedPriority, requestedAt, retryAt;
+            internal long priority, requestedPriority, requestedAt, loadRetryAt, releaseRetryAt;
             public string Id => definition.id;
             public Kind PageKind => definition.kind;
             public uint Generation { get; internal set; }
@@ -160,7 +160,7 @@ namespace HybridLumenGI
                 // Retained reservations above still count while this group waits for a load retry.
                 long nextTick = NextStepTick;
                 foreach (var state in closure)
-                    if (state.Status == Phase.Failed && nextTick < state.retryAt)
+                    if (nextTick < state.loadRetryAt)
                     {
                         waitingForRetry = true;
                         return false;
@@ -255,16 +255,16 @@ namespace HybridLumenGI
             foreach(var state in ordered)
             {
                 if(!CanStart(budgets))break;
-                if((state.Wanted && state.Status!=Phase.ReleaseFailed) || state.referenceCount!=0 || state.operation!=null || !state.bundleReserved || tick<state.retryAt)continue;
+                if((state.Wanted && state.Status!=Phase.ReleaseFailed) || state.referenceCount!=0 || state.operation!=null || !state.bundleReserved || tick<state.releaseRetryAt)continue;
                 OperationsStarted++;
                 try {state.operation=provider.Release(state.definition,state.bundle,state.asset) ?? throw new InvalidOperationException("No page release operation.");state.Status=Phase.Releasing;ActiveOperations++;}
-                catch(Exception ex){state.LastError=ex.Message;state.retryAt=tick+60;}
+                catch(Exception ex){state.LastError=ex.Message;state.releaseRetryAt=tick+60;}
             }
             bool preserveIoHeadroom = false;
             foreach(var state in ordered)
             {
                 if(!CanStart(budgets))break;
-                if(!state.Wanted || state.operation!=null || tick<state.retryAt || state.Status==Phase.ReleaseFailed)continue;
+                if(!state.Wanted || state.operation!=null || tick<state.loadRetryAt || tick<state.releaseRetryAt || state.Status==Phase.ReleaseFailed)continue;
                 if(state.Status==Phase.Unloaded || (state.Status==Phase.Failed && !state.bundleReserved))
                 {
                     long bytes=state.definition.fileBytes;
@@ -280,7 +280,7 @@ namespace HybridLumenGI
                     }
                     OperationsStarted++;IoBytesStarted+=bytes;IoBytesInFlight+=bytes;BundleBytes+=bytes;state.bundleReserved=true;state.Generation=++generation;
                     try {state.operation=provider.LoadBundle(state.definition) ?? throw new InvalidOperationException("No bundle load operation.");state.Status=Phase.LoadingBundle;state.LastError=null;ActiveOperations++;}
-                    catch(Exception ex){IoBytesInFlight-=bytes;BundleBytes-=bytes;state.bundleReserved=false;Fail(state,ex.Message);}
+                    catch(Exception ex){IoBytesInFlight-=bytes;BundleBytes-=bytes;state.bundleReserved=false;FailLoad(state,ex.Message);}
                 }
                 else if(state.Status==Phase.BundleReady || (state.Status==Phase.Failed && state.bundle!=null))
                 {
@@ -291,12 +291,12 @@ namespace HybridLumenGI
                     if(!Fits(bytes,ResidentBytes,budgets.maxResidentBytes) || !Fits(upload,UploadBytesStarted,budgets.uploadBytesPerStep)){BudgetBlocked++;continue;}
                     OperationsStarted++;UploadBytesStarted+=upload;ResidentBytes+=bytes;state.residentReserved=true;
                     try {state.operation=provider.LoadAsset(state.definition,state.bundle) ?? throw new InvalidOperationException("No asset load operation.");state.Status=Phase.LoadingAsset;state.LastError=null;ActiveOperations++;}
-                    catch(Exception ex){ResidentBytes-=bytes;state.residentReserved=false;Fail(state,ex.Message);}
+                    catch(Exception ex){ResidentBytes-=bytes;state.residentReserved=false;FailLoad(state,ex.Message);}
                 }
             }
         }
         private bool CanStart(Budgets budgets) => OperationsStarted<budgets.startsPerStep && ActiveOperations<budgets.concurrentOperations;
-        private void Fail(State state,string message){state.LastError=message;state.Status=Phase.Failed;state.retryAt=tick+60;}
+        private void FailLoad(State state,string message){state.LastError=message;state.Status=Phase.Failed;state.loadRetryAt=tick+60;}
         private void Poll(State state)
         {
             if(state.operation==null)return;
@@ -307,20 +307,22 @@ namespace HybridLumenGI
             if(phase==Phase.LoadingBundle)
             {
                 IoBytesInFlight-=state.definition.fileBytes;
-                if(error!=null || result==null){BundleBytes-=state.definition.fileBytes;state.bundleReserved=false;Fail(state,error??"Missing loaded bundle.");return;}
+                if(error!=null || result==null){BundleBytes-=state.definition.fileBytes;state.bundleReserved=false;FailLoad(state,error??"Missing loaded bundle.");return;}
                 state.bundle=result;state.Status=Phase.BundleReady;
             }
             else if(phase==Phase.LoadingAsset)
             {
-                if(error!=null || result==null){ResidentBytes-=state.definition.residentBytes;state.residentReserved=false;Fail(state,error??"Missing loaded asset.");return;}
+                if(error!=null || result==null){ResidentBytes-=state.definition.residentBytes;state.residentReserved=false;FailLoad(state,error??"Missing loaded asset.");return;}
                 state.asset=result;state.Status=Phase.Ready;
             }
             else if(phase==Phase.Releasing)
             {
-                if(error!=null){state.LastError=error;state.Status=Phase.ReleaseFailed;state.retryAt=tick+60;return;}
+                if(error!=null){state.LastError=error;state.Status=Phase.ReleaseFailed;state.releaseRetryAt=tick+60;return;}
                 if(state.residentReserved)ResidentBytes-=state.definition.residentBytes;
                 if(state.bundleReserved)BundleBytes-=state.definition.fileBytes;
-                state.bundle=state.asset=null;state.residentReserved=state.bundleReserved=false;state.Status=Phase.Unloaded;
+                state.bundle=state.asset=null;state.residentReserved=state.bundleReserved=false;
+                // Retiring a failed bundle returns its capacity without advancing the next load.
+                state.Status=tick<state.loadRetryAt ? Phase.Failed : Phase.Unloaded;
             }
         }
     }

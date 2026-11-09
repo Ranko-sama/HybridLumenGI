@@ -894,6 +894,57 @@ Require(Prepare(healthyCamera.backend,healthyCamera.scene,2)&&healthyCamera.back
     "A healthy camera could not build after the failed camera's retirement completed.");
 failedCommand.backend.Dispose();healthyCamera.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
 
+// Keep a reusable RTAS during temporary memory pressure, then retire it if the
+// camera's complete replacement plan alone exceeds the same shared cap.
+{
+    const int initialTriangles = 1000, readyTriangles = 3000;
+    var quota = Quota(memoryBaseline + 1024 * 1024, rate: 250000, burst: 1000000, builds: 4);
+    HybridLumenGIRtasBudget.BeginFrame(1703, quota);
+    var growing = new HybridLumenGIHardwareBackend();
+    var growingScene = new HybridLumenGIScene(2);
+    Slot(growingScene, 0, Renderer(Mesh(initialTriangles)));
+    var growingCommands = new CommandBuffer();
+    Require(Prepare(growing, growingScene, 1) && growing.RecordBuild(growingCommands),
+        "Memory growth control could not record the old RTAS.");
+    var oldNative = RayTracingAccelerationStructure.Last;
+    long oldBytes = growing.ReservedAccelerationBytes;
+
+    var other = BudgetCamera(readyTriangles);
+    var otherCommands = new CommandBuffer();
+    Require(Prepare(other.backend, other.scene, 1) && other.backend.RecordBuild(otherCommands),
+        "Memory growth control could not record the second camera.");
+    long otherBytes = other.backend.ReservedAccelerationBytes;
+    other.backend.Deactivate();
+
+    Slot(growingScene, 1, Renderer(Mesh(readyTriangles - initialTriangles)));
+    Require(!Prepare(growing, growingScene, 2) && growing.ReservedAccelerationBytes == oldBytes &&
+        !oldNative.Disposed && HybridLumenGIRtasBudget.RetiredBytes == otherBytes,
+        "Temporary pressure from the other camera retired the first camera's reusable RTAS.");
+    HybridLumenGIResourceRetirement.Complete();
+    Require(Prepare(growing, growingScene, 2) && growing.RecordBuild(growingCommands) &&
+        growing.TriangleCount == readyTriangles && oldNative.BuildCount == 2,
+        "The admissible replacement could not reuse the old RTAS once the other camera released its bytes.");
+
+    HybridLumenGIRtasBudget.BeginFrame(1704, quota);
+    int addedTriangles = (int)((quota.MemoryBudgetBytes - quota.BaseEstimateBytes - quota.BytesPerInstance) / quota.BytesPerTriangle);
+    Slot(growingScene, 1, Renderer(Mesh(addedTriangles)));
+    long heldBytes = growing.ReservedAccelerationBytes;
+    Require(HybridLumenGIRtasBudget.Estimate(initialTriangles + addedTriangles, 2) > quota.MemoryBudgetBytes &&
+        !Prepare(growing, growingScene, 3) && !growing.RecordBuild(growingCommands) && growingCommands.BuildCalls == 2,
+        "A replacement that exceeds the shared memory cap was not rejected before a native build.");
+    Require(!oldNative.Disposed && HybridLumenGIRtasBudget.RetiredBytes == heldBytes &&
+        HybridLumenGIRtasBudget.AccountedBytes == memoryBaseline + heldBytes,
+        "The rejected replacement did not retire its old RTAS while keeping it charged.");
+    Require(!Prepare(other.backend, other.scene, 2), "The second camera reused bytes before retirement completed.");
+
+    HybridLumenGIResourceRetirement.Complete();
+    Require(oldNative.Disposed && HybridLumenGIRtasBudget.AccountedBytes == memoryBaseline &&
+        !Prepare(growing, growingScene, 3), "Completion did not return the old reservation while the oversized plan remained rejected.");
+    Require(Prepare(other.backend, other.scene, 2) && other.backend.RecordBuild(otherCommands) && otherCommands.BuildCalls == 2,
+        "The second camera could not record its admissible RTAS after the first camera retired.");
+    growing.Dispose(); other.backend.Dispose(); HybridLumenGIResourceRetirement.Complete();
+}
+
 // Allocation admission counts physical attributes, including detached replacements.
 // A topology change cannot allocate first and hide the old buffers behind list sizes.
 var attributeCamera=BudgetCamera(1,true);var attributeQuotaBackend=attributeCamera.backend;

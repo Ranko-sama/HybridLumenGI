@@ -311,7 +311,14 @@ namespace HybridLumenGI
                     if(!HybridLumenGIRtasBudget.TryReserve(planTriangles,planInstances,reservation,out var admitted,out string reason))
                     {
                         BudgetStatus=reason;IsReady=false;CancelBuildDemand();
-                        if(reservation!=null && !HybridLumenGIRtasBudget.MemoryWithinBudget)RetireResources();
+                        if(reservation!=null)
+                        {
+                            // An oversized replacement cannot use the previous structure.
+                            // Temporary competition for shared capacity can still resolve.
+                            bool oversizedReplacement = !reuseGeometry &&
+                                !HybridLumenGIRtasBudget.EstimateFitsMemory(planTriangles,planInstances);
+                            if(!HybridLumenGIRtasBudget.MemoryWithinBudget || oversizedReplacement)RetireResources();
+                        }
                         return false;
                     }
                     reservation=admitted;preparedRtasFrame=HybridLumenGIRtasBudget.Frame;
