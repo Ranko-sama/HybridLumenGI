@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release196，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release197，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／T6 已关闭形变捕获在顶点额度不足时持续跳过合格对象的缺口。实际组件对照中，较小后续对象继续使用当帧余量，延期的蒙皮在下一可用帧捕获并完整发布新姿态。原生 GPU 对新快照的消费、拖影及画面收敛继续按 G3 验收。[捕获合同](DeformedGeometry.md) · [同源交付](../LocalComparison/Review/capture-vertex-turn-233/delivery.json)
 
 T6／G4 已消除精确软件最近命中的重复材质覆盖求值。固定近景同输入中，GI 合计中位降低 7.27%，p95／p99 降至 45.887／46.349 ms。原质量和最近命中语义适用，软件 25 ms 时间缺口仍开放。[实测与范围](../LocalComparison/Review/software-coverage-231/result.md) · [同源交付](../LocalComparison/Review/software-coverage-231/delivery.json)
 

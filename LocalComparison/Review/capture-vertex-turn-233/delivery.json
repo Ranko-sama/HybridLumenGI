@@ -1,0 +1,40 @@
+{
+  "productCommit": "a5d03188e2a2d920bd09ef77873c0a9cf2d1af10",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release197-demo",
+  "tag": "release197-demo",
+  "publishedAt": "2026-11-09T08:17:09Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Actual component scheduling and atomic publication with controlled Unity APIs and real task barriers.",
+    "fixture": "Tests/StandaloneDeformedMesh/Program.cs.txt",
+    "entry": "VertexBudgetKeepsDeferredCaptureTurn",
+    "frameVertexBudget": 6,
+    "baseline": "Release196 did not capture the eligible four-vertex skin on the next available frame.",
+    "candidate": "The changed skin captured on its next available frame and published Mesh, SDF and charts together. A smaller capture still used the remaining vertices of the preceding frame."
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release197-UnityProject.zip",
+      "size": 852713,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release197-demo/HybridLumenGI-Release197-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release197-Windows-x64.zip",
+      "size": 57937967,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release197-demo/HybridLumenGI-Release197-Windows-x64.zip"
+    }
+  ]
+}
