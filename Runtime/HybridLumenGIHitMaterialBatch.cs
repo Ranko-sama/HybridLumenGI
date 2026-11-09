@@ -229,8 +229,16 @@ namespace HybridLumenGI
                 {
                     // Catch a material/source change made by a producer/import callback.
                     // An earlier rejection never becomes valid again during this recording.
-                    if(materialRecords[i].identity.x==0 || !SourceStillMatches(sources[i]) || !HandlesInitialized(materialRecords[i]))
+                    if(materialRecords[i].identity.x==0 || !SourceStillMatches(sources[i]))
                     { materialRecords[i]=default;UnknownRecords++;continue; }
+                    // Leave assigned maps present when a quota defers their first metadata write.
+                    // A zero handle stays unknown for queries that use it, while other maps and
+                    // scalar alpha remain available to coverage queries.
+                    ClearUninitializedHandles(ref materialRecords[i].textures0);
+                    ClearUninitializedHandles(ref materialRecords[i].textures1);
+                    ClearUninitializedHandles(ref materialRecords[i].textures2);
+                    ClearUninitializedHandles(ref materialRecords[i].textures3);
+                    ClearUninitializedHandles(ref materialRecords[i].textures4);
                     Source source=sources[i];
                     materialBindings[i]=new HybridLumenGIHitMaterialBinding
                     {
@@ -247,16 +255,16 @@ namespace HybridLumenGI
             catch(Exception ex){Quarantine();reason="Material recording unproven: "+ex.GetType().Name;return false;}
         }
 
-        private bool HandlesInitialized(HybridLumenGIHitMaterialRecord record)
+        private void ClearUninitializedHandles(ref HybridLumenGIHitMaterialUInt4 pair)
         {
-            // A frame quota may defer even the first ready=0 metadata write. Such
-            // rows are unknown and must not expose an uninitialized descriptor.
-            foreach(var pair in new[]{record.textures0,record.textures1,record.textures2,record.textures3,record.textures4})
+            if (pair.y != 0 && !pool.IsHandleCurrent(textureLease, new HybridLumenGIRayTexturePool.Handle(pair.x, pair.y)))
             {
-                if(pair.y!=0&&!pool.IsHandleCurrent(textureLease,new HybridLumenGIRayTexturePool.Handle(pair.x,pair.y)))return false;
-                if(pair.w!=0&&!pool.IsHandleCurrent(textureLease,new HybridLumenGIRayTexturePool.Handle(pair.z,pair.w)))return false;
+                pair.x = pair.y = 0;
             }
-            return true;
+            if (pair.w != 0 && !pool.IsHandleCurrent(textureLease, new HybridLumenGIRayTexturePool.Handle(pair.z, pair.w)))
+            {
+                pair.z = pair.w = 0;
+            }
         }
 
         /// <summary>Borrow only for RenderGraph declarations; no mutation, disposal or consumption authority.</summary>

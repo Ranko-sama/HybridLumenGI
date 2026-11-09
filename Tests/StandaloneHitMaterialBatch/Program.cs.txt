@@ -37,6 +37,8 @@ class Program
     {Check(Batch.TryCreate(sources,1L<<30,out var batch,out var reason),"create "+reason);return batch;}
     static Record[] Table(CommandBuffer cmd)=>cmd.Copies.OfType<Record[]>().Last();
     static Binding[] Bindings(CommandBuffer cmd)=>cmd.Copies.OfType<Binding[]>().Last();
+    static bool AssignedBaseMapIsUnknown(Record record) => record.identity.x != 0 && (record.identity.w & 1u) != 0 &&
+        record.textures0.x == 0 && record.textures0.y == 0;
     static void RecordBatch(Batch batch,CommandBuffer cmd,object uploadConsumer=null)
     {Check(batch.Record(cmd,uploadConsumer,out var reason),"record "+reason);}
     static void Finish(Batch batch,CommandBuffer cmd)
@@ -338,13 +340,18 @@ class Program
     static void QuotaDefersUnknownMaterials()
     {
         scenarios++;SystemInfo.supportsAsyncGPUReadback=true;Pool.BeginFrame(2000,80);
-        var a=new Fixture(Texture());var b=new Fixture(Texture());var batch=Prepare(a.Freeze(),b.Freeze(19));var command=new CommandBuffer();RecordBatch(batch,command);
+        var a=new Fixture(Texture());var b=new Fixture(Texture());b.Material.shaderKeywords=new[]{"_ALPHATEST_ON"};
+        var batch=Prepare(a.Freeze(),b.Freeze(19));var command=new CommandBuffer();RecordBatch(batch,command);
         Check(Pool.UploadBytesUsed==80&&command.CopyRanges.Count==1&&command.Dispatches.Count==2,"actual Batch records one initial row plus one physical element within global frame cap");
-        Check(Table(command)[0].identity.x!=0&&Table(command)[1].identity.x==0&&batch.UnknownRecords==1,"uninitialized deferred texture descriptor cannot enter a valid material row");
-        Check(Bindings(command)[1].table.y==0&&batch.Bind(command,new ComputeShader(),0,out _),"both legal buffers still bind while deferred row is explicitly unknown");
+        var records=Table(command);
+        Check(records[0].textures0.y!=0 && AssignedBaseMapIsUnknown(records[1]) &&
+            (records[1].identity.y&HybridLumenGIHitMaterialLayout.AlphaTest)!=0 && batch.UnknownRecords==0,
+            "deferred alpha must keep its assignment and an invalid handle rather than sampling a default");
+        Check(Bindings(command)[1].table.y==batch.Generation&&batch.Bind(command,new ComputeShader(),0,out _),"both valid sources can bind with per-map readiness");
         Finish(batch,command);Pool.ClearReusable();Clean();
         Pool.BeginFrame(2001,80);var rt=new RenderTexture{width=4,height=4,mipmapCount=3,graphicsFormat=42};var dynamicBatch=Prepare(new Fixture(rt).Freeze());var dynamicCommand=new CommandBuffer();RecordBatch(dynamicBatch,dynamicCommand);
-        Check(dynamicCommand.Dispatches.Count==0&&Pool.UploadBytesUsed==0&&dynamicBatch.UnknownRecords==1,"unversioned RT larger than frame allowance never publishes a multi-frame stitched image");
+        Check(dynamicCommand.Dispatches.Count==0&&Pool.UploadBytesUsed==0&&AssignedBaseMapIsUnknown(Table(dynamicCommand)[0]),
+            "unversioned RT larger than frame allowance never publishes a multi-frame stitched image");
         Finish(dynamicBatch,dynamicCommand);Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
     }
 
@@ -409,7 +416,9 @@ class Program
             var batch = Prepare(firstCamera.Freeze());
             var commands = new CommandBuffer();
             RecordBatch(batch, commands, firstConsumer);
-            Check(Pool.UploadBytesUsed == (deferred ? 0 : quota) && batch.UnknownRecords == (deferred ? 1 : 0),
+            var record = Table(commands)[0];
+            Check(Pool.UploadBytesUsed == (deferred ? 0 : quota) &&
+                (deferred ? AssignedBaseMapIsUnknown(record) : record.textures0.y != 0),
                 $"frame {frame}: the first camera did not honor the later camera's turn or failed to resume");
             Finish(batch, commands);
         }
@@ -419,7 +428,7 @@ class Program
         var deniedCommands = new CommandBuffer();
         Pool.BeginFrame(start, quota);
         RecordBatch(denied, deniedCommands, secondConsumer);
-        Check(denied.UnknownRecords == 1 && Pool.UploadBytesUsed == quota, "the later camera was denied only by the frame quota");
+        Check(AssignedBaseMapIsUnknown(Table(deniedCommands)[0]) && Pool.UploadBytesUsed == quota, "the later camera was denied only by the frame quota");
         Check(denied.GetResources(out _, out _, out var originalMetadata, out var originalTexels), "denied batch resources");
         Check(denied.SealAfterConsumers(deniedCommands, out _), "seal the old reader without completing it");
         denied.Dispose();
@@ -466,7 +475,7 @@ class Program
         var withdrawn = Prepare(new Fixture(Texture(2, 2, 1)).Freeze(23));
         var withdrawnCommands = new CommandBuffer();
         RecordBatch(withdrawn, withdrawnCommands, secondConsumer);
-        Check(withdrawn.UnknownRecords == 1, "withdrawn request first waits for capacity");
+        Check(AssignedBaseMapIsUnknown(Table(withdrawnCommands)[0]), "withdrawn request first waits for capacity");
         Finish(withdrawn, withdrawnCommands);
         RecordFirstCamera(start + 4, deferred: true);
         RecordFirstCamera(start + 5, deferred: false);
@@ -540,12 +549,66 @@ class Program
             Check(command.Dispatches.Count == 3 * recordedPages && Pool.UploadBytesUsed == bytesPerPage * recordedPages,
                 "only whole admitted dynamic copies are charged and recorded");
             var table = Table(command);
-            Check((table[0].identity.x != 0) == (step != 1) && (table[1].identity.x != 0) == (step != 0) &&
-                batch.UnknownRecords == (limited ? 1 : 0), "unrecorded rows stay unknown and the deferred page goes first next frame");
+            Check((step != 1 ? table[0].textures0.y != 0 : AssignedBaseMapIsUnknown(table[0])) &&
+                (step != 0 ? table[1].textures0.y != 0 : AssignedBaseMapIsUnknown(table[1])) && batch.UnknownRecords == 0,
+                "unrecorded maps stay unknown and the deferred page goes first next frame");
             Finish(batch, command);
         }
         Pool.ClearReusable();
         Clean();
+    }
+
+    static void CoverageSurvivesDeferredNormal()
+    {
+        scenarios++;
+        SystemInfo.supportsAsyncGPUReadback = true;
+        const int quota = 1 << 20;
+        const int start = 2040;
+        const uint baseAndNormalMaps = (1u << 0) | (1u << 3);
+        var front = new Fixture(Texture(8, 8, 1));
+        front.Material.shaderKeywords = new[] { "_ALPHATEST_ON" };
+        front.Material.Set("_Cutoff", .5f);
+        Pool.BeginFrame(start, quota);
+        var initial = Prepare(front.Freeze());
+        var initialCommands = new CommandBuffer();
+        RecordBatch(initial, initialCommands);
+        var baseHandle = Table(initialCommands)[0].textures0;
+        Check(initial.GetResources(out _, out _, out var metadata, out _) && baseHandle.y != 0,
+            "initial alpha page has its own valid handle");
+        var ready = new HybridLumenGIRayTextureMetadata[metadata.Count];
+        ready[baseHandle.x] = initialCommands.Copies.OfType<HybridLumenGIRayTextureMetadata[]>().Single()[0];
+        ready[baseHandle.x].flags = 1;
+        Finish(initial, initialCommands);
+        AsyncGPUReadback.CompleteNext(ready);
+
+        Pool.BeginFrame(start + 1, quota);
+        var largeTexture = new RenderTexture { width = 516, height = 127, mipmapCount = 1, graphicsFormat = 42 };
+        var earlier = Prepare(new Fixture(largeTexture).Freeze(19));
+        var earlierCommands = new CommandBuffer();
+        RecordBatch(earlier, earlierCommands);
+        Check(Pool.UploadBytesUsed == quota, "earlier camera consumes the current upload quota");
+        Finish(earlier, earlierCommands);
+
+        front.Material.shaderKeywords = new[] { "_ALPHATEST_ON", "_NORMALMAP" };
+        front.Material.Set("_BumpMap", Texture(2, 2, 1));
+        var deferred = Prepare(front.Freeze());
+        var commands = new CommandBuffer();
+        RecordBatch(deferred, commands);
+        var record = Table(commands)[0];
+        Check(deferred.TextureUploadCount == 1 && commands.Dispatches.Count == 0 && Pool.UploadBytesUsed == quota &&
+            deferred.GetResources(out _, out _, out var reusedMetadata, out _) && ReferenceEquals(reusedMetadata, metadata),
+            "the normal page is reserved in the ready alpha arena and awaits its first recording");
+        Check(record.identity.x == deferred.Generation && Bindings(commands)[0].table.y == deferred.Generation &&
+            (record.identity.y & HybridLumenGIHitMaterialLayout.AlphaTest) != 0 && record.detail.x == .5f &&
+            (record.identity.w & baseAndNormalMaps) == baseAndNormalMaps &&
+            record.textures0.x == baseHandle.x && record.textures0.y == baseHandle.y &&
+            record.textures1.z == 0 && record.textures1.w == 0 && deferred.UnknownRecords == 0,
+            "coverage retains the confirmed BaseMap and source while the assigned normal map has no usable handle");
+        Finish(deferred, commands);
+        Pool.ClearReusable();
+        SystemInfo.supportsAsyncGPUReadback = false;
+        Clean();
+        Console.WriteLine("PASS deferred normal: ready alpha handle and source preserved, assigned normal remains unknown.");
     }
 
     static void ClosingAdmission()
@@ -564,7 +627,7 @@ class Program
             Resources.Loaded=new ComputeShader();AbiAndConstantOrder();MapDedupAndFrozenViews();SourceRevalidation();GlobalBudgetsAndCaps();
             AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();ReadyPageSurvivesPendingDuplicate();QuotaDefersUnknownMaterials();
             DynamicTextureCannotStarveWaitingMap();LaterCameraGetsSharedTextureUploadTurn();
-            CamerasSharingDynamicTextureGetSeparateUploadTurns();RecordingTimeDefersWholeUploads();ClosingAdmission();
+            CamerasSharingDynamicTextureGetSeparateUploadTurns();RecordingTimeDefersWholeUploads();CoverageSurvivesDeferredNormal();ClosingAdmission();
             Console.WriteLine("PASS hit-material-batch "+checks+" assertions / "+scenarios+" scenarios; actual seven C# classes, recording adapters only; no Unity/GPU execution.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}
