@@ -55,7 +55,7 @@ direction Le weight = pB / (pB + pL)
 area contribution   = Le * receiverCosine / (pi * (pB + pL))
 ```
 
-方向命中中的反射/direct/cache 部分保持原权重，只配对 Le。采样点继续使用真实 UV、纹理、Cull、alpha 和最近遮挡查询；面积点落入透明孔或被遮挡时计零，不能重采样。材质、数值或身份未知会拒绝本次估计。开启面积配对时关闭独立方向 luminance clamp，避免非线性操作破坏两项的积分关系。
+方向命中中的反射/direct/cache 部分保持原权重，只配对 Le。采样点继续使用真实 UV、纹理、Cull、alpha 和最近遮挡查询。面积点落入透明孔或被遮挡时，保留这次零贡献。不同三角形严格在端点之前且覆盖、面向已确认时，遮挡物的完整材质待定也可以确认零。端点发光或必要的覆盖、数值、身份未知时拒绝本次估计。开启面积配对时关闭独立方向 luminance clamp，避免非线性操作破坏两项的积分关系。[近遮挡对照](../LocalComparison/Review/area-covered-blocker-226/result.md)
 
 DXR 与精确软件三角路径共用来源属性和材质求值。软件 BVH 接纳某个 owner 后用其完整三角集合替代该 owner 的 SDF 命中；准备不完整则整表退回 SDF。SDF/解析命中不猜 primitive，光 PDF 为零。屏幕路径仍使用相同最近命中判定：屏幕命中胜出时方向 Le 保持原权重，对应面积项为零，从而避免重复计能。
 

@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release193，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release194，G0 已锁定，G1／G2 本机代表性验收通过
+
+T2／原第 9 节已关闭面积光对已确认近遮挡因无关着色贴图待定而丢弃估计的路径。共用 committed resolver 和面积贡献函数的 WARP 对照中，旧版为未知，修复版为已知零。未知覆盖、同层、目标材质以及未完成查询继续按各自资格处理。真实遍历和相机画面继续验收。[对照与范围](../LocalComparison/Review/area-covered-blocker-226/result.md) · [同源交付](../LocalComparison/Review/area-covered-blocker-226/delivery.json)
 
 T6／G4 已关闭失败对象 SDF 卷长期占用可服务区间的问题。实际图集受控对照中，旧元数据撤销写入失败后会重传，成功后归还区间，健康卷在下一帧按原额度上传。失败版本保持回退，换版可重新准入。采用范围为逻辑区间和提交状态。[对照与范围](../LocalComparison/Review/sdf-failed-range-225/result.md) · [同源交付](../LocalComparison/Review/sdf-failed-range-225/delivery.json)
 
