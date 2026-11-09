@@ -91,7 +91,11 @@ namespace HybridLumenGI
             var admitted=new HashSet<string>(StringComparer.Ordinal);
             foreach(var request in ordered)
             {
-                if(!State.TryAdmitGroup(request.ids,stepBudgets,admitted)){BudgetBlockedGroups++;continue;}
+                if (!State.TryAdmitGroup(request.ids, stepBudgets, admitted, checkRetry: true, out bool waitingForRetry))
+                {
+                    if (!waitingForRetry) BudgetBlockedGroups++;
+                    continue;
+                }
                 long score=request.Score(tick);
                 foreach(var id in request.ids)
                     priorities[id]=priorities.TryGetValue(id,out long previous)?Math.Max(previous,score):score;

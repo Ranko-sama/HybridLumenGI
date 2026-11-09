@@ -82,6 +82,7 @@ namespace HybridLumenGI
         private readonly Dictionary<string,State> byId = new Dictionary<string,State>(StringComparer.Ordinal);
         private readonly List<Lease> retiring = new List<Lease>();
         private long tick;
+        private long NextStepTick => tick < long.MaxValue ? tick + 1 : tick;
         private uint generation;
         public IReadOnlyList<State> States => states;
         public long IoBytesInFlight { get; private set; }
@@ -143,11 +144,28 @@ namespace HybridLumenGI
         /// scheduler step. Existing reservations (including pending/failed retirement) always count.
         /// </summary>
         public bool TryAdmitGroup(IReadOnlyList<string> ids,Budgets budgets,HashSet<string> admitted)
+            => TryAdmitGroup(ids, budgets, admitted, checkRetry: false, out _);
+
+        internal bool TryAdmitGroup(IReadOnlyList<string> ids, Budgets budgets, HashSet<string> admitted,
+            bool checkRetry, out bool waitingForRetry)
         {
+            waitingForRetry = false;
             if(ids==null || admitted==null || !budgets.Valid)return false;
             foreach(var state in states)if(state.bundleReserved)admitted.Add(state.Id);
             var closure=new HashSet<State>();
             foreach(string id in ids){State state=GetState(id);if(state==null)return false;AddClosure(state,closure);}
+            if (checkRetry)
+            {
+                // The driver plans for the next Step, which advances the clock before starting work.
+                // Retained reservations above still count while this group waits for a load retry.
+                long nextTick = NextStepTick;
+                foreach (var state in closure)
+                    if (state.Status == Phase.Failed && nextTick < state.retryAt)
+                    {
+                        waitingForRetry = true;
+                        return false;
+                    }
+            }
             long bundleCost=0,residentCost=0;
             foreach(string id in admitted)
             {
@@ -207,7 +225,7 @@ namespace HybridLumenGI
         public void Step(Budgets budgets)
         {
             if(!budgets.Valid)throw new ArgumentException("Negative page budget.");
-            if(tick<long.MaxValue)tick++;
+            tick = NextStepTick;
             IoBytesStarted=UploadBytesStarted=0;OperationsStarted=BudgetBlocked=0;
             for(int i=retiring.Count-1;i>=0;i--)
             {
