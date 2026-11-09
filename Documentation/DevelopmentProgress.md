@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release186，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release187，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭失败重试等待中的页组继续占用计划容量的问题。受控 I/O 对照中，健康组在原容量内就绪，失败组按原时点与顺序恢复。采用范围为 Driver 与页调度器的准入，原生 I/O 和完整压力继续验收。[分页准入](IndependentAssetPages.md) · [同源交付](../LocalComparison/Review/asset-retry-admission-216/delivery.json)
 
 T2／G4 已关闭无关贴图延期造成整条裁切材质记录失效的问题。实际批次保留已就绪 BaseMap 的槽位、代次和冻结来源，延期法线仍按指定但未知处理。原生候选命中和相机画面继续验收。[材质表合同](Implementation.md) · [同源交付](../LocalComparison/Review/deferred-hit-material-215/delivery.json)
 

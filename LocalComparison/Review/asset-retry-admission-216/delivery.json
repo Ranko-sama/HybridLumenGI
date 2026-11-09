@@ -1,0 +1,38 @@
+{
+  "productCommit": "27ad2ce82e07929dba37c1b04176d024a00fc2c8",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release187-demo",
+  "tag": "release187-demo",
+  "publishedAt": "2026-11-09T03:44:16Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Actual C# asset-page driver and scheduler with controlled IO and Unity adapters.",
+    "fixture": "Tests/StandaloneStreamedRepresentation/Program.cs.txt",
+    "command": "Tests/Validate-ChunkStreaming.ps1 -RepresentationOnly",
+    "result": "The healthy group reaches Ready during load backoff, with shared capacity still charged. The failed request retains its original turn and completes after becoming eligible on retry step 60. The public capacity query is unchanged."
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release187-UnityProject.zip",
+      "size": 850732,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release187-demo/HybridLumenGI-Release187-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release187-Windows-x64.zip",
+      "size": 58442836,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release187-demo/HybridLumenGI-Release187-Windows-x64.zip"
+    }
+  ]
+}
