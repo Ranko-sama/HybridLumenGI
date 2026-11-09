@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release187，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release188，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭长范围点光投影资格变化漏报远接收面的问题。实际 DXR 关闭投影时，上传软域半径为 34，远地板优先级为 1000。保持关闭并修改渲染层时沿用半径 9。采用范围为通知和调度。[实际点光对照](../LocalComparison/Review/shadow-policy-reach-217/result.md) · [同源交付](../LocalComparison/Review/shadow-policy-reach-217/delivery.json)
 
 T6／G4 已关闭失败重试等待中的页组继续占用计划容量的问题。受控 I/O 对照中，健康组在原容量内就绪，失败组按原时点与顺序恢复。采用范围为 Driver 与页调度器的准入，原生 I/O 和完整压力继续验收。[分页准入](IndependentAssetPages.md) · [同源交付](../LocalComparison/Review/asset-retry-admission-216/delivery.json)
 
