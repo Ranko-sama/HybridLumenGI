@@ -27,6 +27,13 @@ namespace HybridLumenGI
             internal UploadTurn SharedTurn;
             internal ConditionalWeakTable<object, UploadTurn> ConsumerTurns;
         }
+        private sealed class TextureViewComparer : IEqualityComparer<HybridLumenGIFrozenTextureView>
+        {
+            internal static readonly TextureViewComparer Instance = new TextureViewComparer();
+            public bool Equals(HybridLumenGIFrozenTextureView a, HybridLumenGIFrozenTextureView b) => a.Equals(b);
+            public int GetHashCode(HybridLumenGIFrozenTextureView view)
+                => unchecked((RuntimeHelpers.GetHashCode(view.Texture) * 397 ^ view.GetHashCode()) * 397 ^ (int)view.UpdateCount);
+        }
         private sealed class UploadTurn
         {
             internal readonly SourceState Source;
@@ -174,6 +181,7 @@ namespace HybridLumenGI
             internal readonly Allocation allocation;
             internal readonly Page[] Pages,Uploads;
             internal readonly Handle[] Handles;
+            private readonly ulong[] borrowedPageSlots;
             internal readonly List<ulong> DeferredWaitOrders;
             internal GraphicsFence Fence;
             public uint Generation=>allocation.Generation;
@@ -191,7 +199,20 @@ namespace HybridLumenGI
             {
                 Owner=owner;this.allocation=allocation;Pages=pages;Uploads=uploads;Handles=handles;IsReused=reused;State=LeaseState.Prepared;
                 DeferredWaitOrders=deferredWaitOrders;
+                borrowedPageSlots = new ulong[(allocation.Pages.Length + 63) / 64];
+                foreach (var page in pages)
+                {
+                    int slot = page.Upload.MetadataIndex;
+                    borrowedPageSlots[slot / 64] |= 1ul << (slot % 64);
+                }
                 foreach(var page in uploads)UploadByteCount+=page.Upload.Layout.ByteCount+64;
+            }
+
+            internal Page GetBorrowedPage(uint slot)
+            {
+                if (slot >= allocation.Pages.Length || (borrowedPageSlots[slot / 64] & (1ul << (int)(slot % 64))) == 0) return null;
+                // The lease's reader count pins the borrowed slot until this lease retires.
+                return allocation.Pages[slot];
             }
         }
         private static SourceState GetSourceState(Texture texture)=>Sources.GetValue(texture,_=>new SourceState());
@@ -254,32 +275,41 @@ namespace HybridLumenGI
             return TotalAllocatedBytes<=budget;
         }
         // Best-fit holes are derived from live pages. Old-reader and readback pages stay occupied.
-        private static bool Plan(Allocation arena,List<HybridLumenGIFrozenTextureView> views,List<HybridLumenGIRayTextureLayout> layouts,
-            out Page[] pages,out int[] slots,out int[] offsets,bool[] pendingViews=null)
+        private static bool Plan(Allocation arena,List<HybridLumenGIRayTextureLayout> layouts,
+            Dictionary<HybridLumenGIFrozenTextureView,int> viewIndices,out Page[] pages,out int[] slots,out int[] offsets,bool[] pendingViews)
         {
-            pages=new Page[views.Count];slots=new int[views.Count];offsets=new int[views.Count];
-            var occupied=new List<(int Start,int End)>();var used=new bool[arena.Pages.Length];
-            for(int i=0;i<arena.Pages.Length;i++)if(arena.Pages[i]!=null)
-            {var p=arena.Pages[i];used[i]=true;occupied.Add((p.Upload.TexelOffset,p.Upload.TexelOffset+p.Upload.Layout.StorageElementCount));}
-            for(int i=0;i<views.Count;i++)
+            pages=new Page[layouts.Count];slots=new int[layouts.Count];offsets=new int[layouts.Count];
+            // Match in physical slot order to retain the first eligible copy of each view.
+            foreach (var page in arena.Pages)
+            {
+                if (page == null || !page.Reusable) continue;
+                var view = page.Upload.View;
+                if (!viewIndices.TryGetValue(view, out int index) || pages[index] != null || !Reusable(view) || page.Epoch != Epoch(view.Texture) ||
+                    (!layouts[index].PackedHalf && page.Upload.Layout.PackedHalf) ||
+                    (!page.Ready && (pendingViews?[index] == true || page.UploadComplete || page.Readers != 0 || page.ReadbackPending))) continue;
+                pages[index] = page;
+            }
+
+            List<(int Start,int End)> occupied = null;
+            bool[] used = null;
+            for(int i=0;i<layouts.Count;i++)
             {
                 slots[i]=-1;
-                bool needsReadyPage = pendingViews != null && pendingViews[i];
-                if (Reusable(views[i]))
-                {
-                    foreach (var page in arena.Pages)
-                    {
-                        if (page == null || !page.Reusable ||
-                            (!page.Ready && (needsReadyPage || page.UploadComplete || page.Readers != 0 || page.ReadbackPending)) ||
-                            page.Epoch != Epoch(views[i].Texture) || !page.Upload.View.Equals(views[i]) ||
-                            (!layouts[i].PackedHalf && page.Upload.Layout.PackedHalf)) continue;
-                        pages[i] = page;
-                        break;
-                    }
-                }
                 if(pages[i]!=null)continue;
                 // A matching upload in another arena prevents a new copy, but not reuse of a ready page.
-                if (needsReadyPage) return false;
+                if (pendingViews?[i] == true) return false;
+                if (used == null)
+                {
+                    used = new bool[arena.Pages.Length];
+                    occupied = new List<(int Start,int End)>();
+                    for (int slotIndex = 0; slotIndex < arena.Pages.Length; slotIndex++)
+                    {
+                        var page = arena.Pages[slotIndex];
+                        if (page == null) continue;
+                        used[slotIndex] = true;
+                        occupied.Add((page.Upload.TexelOffset, page.Upload.TexelOffset + page.Upload.Layout.StorageElementCount));
+                    }
+                }
                 int slot=Array.FindIndex(used,value=>!value);if(slot<0)return false;
                 occupied.Sort((a,b)=>a.Start.CompareTo(b.Start));int start=0,best=-1,bestSize=int.MaxValue;
                 foreach(var region in occupied)
@@ -291,8 +321,9 @@ namespace HybridLumenGI
             return true;
         }
 
-        private static Allocation FindArena(List<HybridLumenGIFrozenTextureView> views, List<HybridLumenGIRayTextureLayout> layouts,
-            bool[] pendingViews, out Page[] chosenPages, out int[] chosenSlots, out int[] chosenOffsets)
+        private static Allocation FindArena(List<HybridLumenGIRayTextureLayout> layouts,
+            Dictionary<HybridLumenGIFrozenTextureView,int> viewIndices,bool[] pendingViews,
+            out Page[] chosenPages, out int[] chosenSlots, out int[] chosenOffsets)
         {
             Allocation chosen = null;
             chosenPages = null;
@@ -301,7 +332,7 @@ namespace HybridLumenGI
             foreach (var arena in Allocations)
             {
                 if (!arena.Shareable || !arena.Established || arena.Retiring) continue;
-                if (!Plan(arena, views, layouts, out var pages, out var slots, out var offsets, pendingViews)) continue;
+                if (!Plan(arena, layouts, viewIndices, out var pages, out var slots, out var offsets, pendingViews)) continue;
                 int reused = 0;
                 foreach (var page in pages)
                     if (page != null) reused++;
@@ -347,6 +378,7 @@ namespace HybridLumenGI
             if(leases.Count>=MaxBatchesPerPool||Resident.Count>=MaxResidentBatches)
             {reason="Outstanding consumer lease capacity reached.";return false;}
             var views=new List<HybridLumenGIFrozenTextureView>();var layouts=new List<HybridLumenGIRayTextureLayout>();
+            var viewIndices = new Dictionary<HybridLumenGIFrozenTextureView,int>(TextureViewComparer.Instance);
             int[] indices=new int[requests.Count];long capacity=0;int largest=0;bool shareable=SystemInfo.supportsAsyncGPUReadback;
             try
             {
@@ -357,8 +389,7 @@ namespace HybridLumenGI
                         !request.RequireFloat32&&HybridLumenGIRayTextureLayout.CanPackHalf(view.GraphicsFormat))||
                         !layout.TryMakeMetadata(0,layout.StorageElementCount,1,view.FilterMode,view.WrapModeU,view.WrapModeV,view.MipMapBias,view.AnisoLevel,out _))
                     {reason="Unsupported frozen texture layout or sampler.";return false;}
-                    int existing=views.FindIndex(value=>value.Equals(view));
-                    if(existing>=0)
+                    if(viewIndices.TryGetValue(view,out int existing))
                     {
                         indices[i]=existing;
                         if(layouts[existing].PackedHalf&&!layout.PackedHalf)
@@ -366,7 +397,7 @@ namespace HybridLumenGI
                         if(capacity>int.MaxValue){reason="Combined texture capacity exceeds int range.";return false;}
                         continue;
                     }
-                    indices[i]=views.Count;views.Add(view);layouts.Add(layout);capacity+=layout.StorageElementCount;largest=Math.Max(largest,layout.StorageElementCount);
+                    indices[i]=views.Count;viewIndices.Add(view,views.Count);views.Add(view);layouts.Add(layout);capacity+=layout.StorageElementCount;largest=Math.Max(largest,layout.StorageElementCount);
                     if(capacity>int.MaxValue){reason="Combined texture capacity exceeds int range.";return false;}
                 }
             }
@@ -383,15 +414,14 @@ namespace HybridLumenGI
                 {
                     if (page == null || !page.Reusable || page.Ready || page.Epoch != Epoch(page.Upload.View.Texture)) continue;
                     if (arena.Established && !page.UploadComplete && page.Readers == 0 && !page.ReadbackPending) continue;
-                    int index = views.IndexOf(page.Upload.View);
-                    if (index < 0 || (!layouts[index].PackedHalf && page.Upload.Layout.PackedHalf)) continue;
+                    if (!viewIndices.TryGetValue(page.Upload.View,out int index) || (!layouts[index].PackedHalf && page.Upload.Layout.PackedHalf)) continue;
                     pendingViews ??= new bool[views.Count];
                     pendingViews[index] = true;
                 }
 
                 // Try the complete batch first. It may borrow a current ready copy while
                 // a different arena's copy is still waiting for completion.
-                chosen = FindArena(views, layouts, pendingViews, out chosenPages, out chosenSlots, out chosenOffsets);
+                chosen = FindArena(layouts, viewIndices, pendingViews, out chosenPages, out chosenSlots, out chosenOffsets);
                 if (chosen != null && !Trim(budgetBytes, chosen))
                 {
                     if (pendingViews == null || !omitPendingPages)
@@ -412,6 +442,7 @@ namespace HybridLumenGI
                     // zero-generation handle evaluates as unknown, including alpha coverage.
                     var remap = new int[views.Count];
                     int kept = 0;
+                    viewIndices.Clear();
                     capacity = 0;
                     largest = 0;
                     for (int i = 0; i < remap.Length; i++)
@@ -427,6 +458,7 @@ namespace HybridLumenGI
                         }
                         var layout = layouts[i];
                         remap[i] = kept;
+                        viewIndices.Add(views[i], kept);
                         views[kept] = views[i];
                         layouts[kept] = layout;
                         kept++;
@@ -439,7 +471,7 @@ namespace HybridLumenGI
                         if (indices[i] >= 0) indices[i] = remap[indices[i]];
                     shareable = kept > 0;
                     if (shareable)
-                        chosen = FindArena(views, layouts, null, out chosenPages, out chosenSlots, out chosenOffsets);
+                        chosen = FindArena(layouts, viewIndices, null, out chosenPages, out chosenSlots, out chosenOffsets);
                     if (chosen != null && !Trim(budgetBytes, chosen))
                     {
                         reason = arenaBudgetExceeded;
@@ -473,7 +505,7 @@ namespace HybridLumenGI
                     chosen.Metadata=new GraphicsBuffer(GraphicsBuffer.Target.Structured,metadataCount,64);
                 }
                 catch(Exception ex){TryFree(chosen);reason="GPU allocation failed: "+ex.GetType().Name;return false;}
-                if(!Plan(chosen,views,layouts,out chosenPages,out chosenSlots,out chosenOffsets))
+                if(!Plan(chosen,layouts,viewIndices,out chosenPages,out chosenSlots,out chosenOffsets,null))
                 {TryFree(chosen);reason="Arena layout planning failed.";return false;}
             }
             uint generation=chosen.Generation;bool hasNew=false;foreach(var page in chosenPages)hasNew|=page==null;
@@ -678,14 +710,11 @@ namespace HybridLumenGI
         {
             uploadRecorded=false;
             if(!Owns(lease)||disposed||lease.State!=LeaseState.Recorded||!handle.IsValid)return false;
-            foreach(var page in lease.Pages)
-            {
-                if(!page.MetadataInitialized||page.Upload.MetadataIndex!=handle.Index||page.Upload.Generation!=handle.Generation)continue;
-                // The copy commands precede consumers. The shader still decides whether the data is valid.
-                uploadRecorded=page.UploadComplete&&!page.UploadRejected;
-                return true;
-            }
-            return false;
+            var page = lease.GetBorrowedPage(handle.Index);
+            if (page == null || !page.MetadataInitialized || page.Upload.Generation != handle.Generation) return false;
+            // The copy commands precede consumers. The shader still decides whether the data is valid.
+            uploadRecorded=page.UploadComplete&&!page.UploadRejected;
+            return true;
         }
         /// <summary>Borrow for RenderGraph declarations only, not disposal/consumption authority.</summary>
         public bool GetResources(Lease lease,out GraphicsBuffer metadata,out GraphicsBuffer texels)

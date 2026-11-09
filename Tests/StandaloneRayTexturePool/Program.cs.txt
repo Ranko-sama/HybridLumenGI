@@ -299,10 +299,12 @@ class Program
         Check(second.TryPrepare(new[]{b,a,a},bytes,out var reuse,out _),"exact global budget reuses completed source set despite request order");
         Check(reuse.IsReused&&reuse.UploadCount==0&&reuse.UploadByteCount==0&&reuse.Generation==original.Generation,"reuse carries allocation identity without uploads");
         Check(reuse.GetHandle(0).Index==1&&reuse.GetHandle(1).Index==0&&reuse.GetHandle(2).Index==0,"remapped duplicate handles retain exact texture identity");
-        var again=Prepare(first,a,b);var reuseCommand=new CommandBuffer();Record(second,reuse,reuseCommand);Record(first,again);
+        var again=Prepare(first,a);var reuseCommand=new CommandBuffer();Record(second,reuse,reuseCommand);Record(first,again);
         Check(reuseCommand.Calls==0&&second.IsHandleCurrent(reuse,reuse.GetHandle(0)),"shared record does not overwrite metadata or texels");
         second.GetResources(reuse,out var meta,out var texels);first.GetResources(again,out var meta2,out var texels2);
         Check(ReferenceEquals(meta,meta2)&&ReferenceEquals(texels,texels2)&&Pool.TotalAllocatedBytes==bytes,"two active readers share one physical allocation");
+        Check(first.IsHandleCurrent(again,reuse.GetHandle(1))&&!first.IsHandleCurrent(again,reuse.GetHandle(0)),
+            "a recorded lease validates only its borrowed pages, even when another current handle shares the arena and generation");
         var f1=Fence();var f2=Fence();Check(second.MarkSubmitted(reuse,f1,out _)&&first.MarkSubmitted(again,f2,out _),"independent final consumer fences");
         Pool.InvalidateSource(a.Texture);f2.Signal.Complete=true;Pool.PollRetired();
         Check(again.State==Pool.LeaseState.Released&&reuse.State==Pool.LeaseState.Submitted&&Pool.IsSourceReferenced(a.Texture),"newer reader completion cannot free older reader");
