@@ -210,6 +210,8 @@ flowchart TD
 
 默认 AssetBundle 驱动为通过其他准入条件的队首文件读取保留在途空间。后续文件读取暂缓，已具备条件的资产装载和安全释放继续推进。受控 I/O 对照已关闭后续小页反复补满余额、使大页持续等待的情况。[对照与范围](../LocalComparison/Review/asset-bundle-headroom-223/result.md)
 
+对象 SDF 失败版本在元数据撤销成功后让出区间，失败的写入尝试仍计入当帧体素额度。元数据提交异常期间拒绝图集快照，后续准备重传完整表。连续区间容量和一般碎片化仍按原条件处理。[回收及恢复范围](../LocalComparison/Review/sdf-failed-range-225/result.md)
+
 Global SDF 每层扩张一次局部脏范围，按受影响砖行记录失效。相同输入下的页代次、年龄和录制作业顺序与逐砖检查一致。实机耗时和全阶段时间准入按原条件验收。[CPU 工作量和范围](../LocalComparison/Review/global-sdf-dirty-rows-199/result.md)
 
 相机场景准备保留活动代理的共享几何检查，再按当前驻留边界省掉域外普通代理的实例刷新和排序。另一个视点或同一相机重新入域时照常取得当前实例。该改动减少确定无效的准备工作，完整时间预算仍按上段验收。[实际准备行为](../LocalComparison/Review/far-ordinary-prepare-188/result.md)

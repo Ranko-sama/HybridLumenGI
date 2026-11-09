@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release192，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release193，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭失败对象 SDF 卷长期占用可服务区间的问题。实际图集受控对照中，旧元数据撤销写入失败后会重传，成功后归还区间，健康卷在下一帧按原额度上传。失败版本保持回退，换版可重新准入。采用范围为逻辑区间和提交状态。[对照与范围](../LocalComparison/Review/sdf-failed-range-225/result.md) · [同源交付](../LocalComparison/Review/sdf-failed-range-225/delivery.json)
 
 补齐 G3 原验收表的普通 Base 固定中心转向子项。Release192 同源实际 DXR 中，三次转向的共同可见地板历史从 13 增到 16，原视口外新入画的地板均从 1 开始。遮挡物后的新显露使用既有 Release73 TAA 横移证据。Final 画面和完整 G3 继续验收。[转向记录](../LocalComparison/Review/base-camera-turn-224/result.md) · [横移记录](ReviewBrief-CameraMotionTaaResponse03.md)
 
