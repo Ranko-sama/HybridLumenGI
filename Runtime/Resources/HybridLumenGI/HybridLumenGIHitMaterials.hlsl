@@ -38,6 +38,7 @@ struct HLGIHitMaterialSurface
 #define HLGI_MATERIAL_DETAIL_SCALED 256u
 #define HLGI_MATERIAL_PARALLAX 512u
 #define HLGI_MATERIAL_RECEIVE_SHADOWS_OFF 1024u
+#define HLGI_MATERIAL_SHADOW_CASTER_DISABLED 8192u
 
 float4 HLGIHitDefaultPackedNormal()
 {
@@ -58,7 +59,7 @@ bool HLGIHitMaterialHeaderValid(HLGIHitMaterialRecord r)
 {
     // Bits 11/12 preserve Lit's specular/environment switches for later shading.
     // They do not change the BRDF diffuse share or the material's F0 itself.
-    return r.identity.x!=0u && (r.identity.y&~8191u)==0u && r.identity.z<=2u &&
+    return r.identity.x!=0u && (r.identity.y&~16383u)==0u && r.identity.z<=2u &&
         (r.identity.w&~1023u)==0u;
 }
 uint2 HLGIHitTextureHandle(HLGIHitMaterialRecord r,uint map)

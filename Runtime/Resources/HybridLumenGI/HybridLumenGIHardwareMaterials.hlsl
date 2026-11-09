@@ -69,7 +69,15 @@ bool HLGIHardwareEvaluateHit(uint instanceIndex,uint primitive,HLGIHardwareInsta
     // Stock URP ShadowCaster samples transformed base UV directly. Its alpha
     // test does not use the ForwardLit parallax offset or require a height map,
     // tangent frame or camera view. Ordinary visibility keeps surface coverage.
-    if(shadowCoverage) record.identity.y&=~HLGI_MATERIAL_PARALLAX;
+    if (shadowCoverage)
+    {
+        if (HLGIHitMaterialFlag(record, HLGI_MATERIAL_SHADOW_CASTER_DISABLED))
+        {
+            covered = false;
+            return true;
+        }
+        record.identity.y&=~HLGI_MATERIAL_PARALLAX;
+    }
     HLGIHitMaterialLods lods=(HLGIHitMaterialLods)0;
     uint flags=record.identity.y,required=HLGIHardwareMaterialTextureMask(record,coverageOnly);
     if(coverageOnly && required==0u)

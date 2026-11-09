@@ -84,12 +84,14 @@ namespace HybridLumenGI
         private readonly HybridLumenGIMaterialSource.Value[] values;
         private readonly HybridLumenGIMaterialSource.TextureValue[] textures;
         private readonly string[] keywords;
+        public bool ShadowCasterDisabled { get; }
         internal HybridLumenGIHitMaterialData(HybridLumenGIMaterialSource.Value[] values,
-            HybridLumenGIMaterialSource.TextureValue[] textures, string[] keywords)
+            HybridLumenGIMaterialSource.TextureValue[] textures, string[] keywords, bool shadowCasterDisabled = false)
         {
             this.values = (HybridLumenGIMaterialSource.Value[])values.Clone();
             this.textures = (HybridLumenGIMaterialSource.TextureValue[])textures.Clone();
             this.keywords = (string[])keywords.Clone();
+            ShadowCasterDisabled = shadowCasterDisabled;
         }
         public int KeywordCount => keywords.Length;
         public string GetKeyword(int index) => keywords[index];

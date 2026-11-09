@@ -178,7 +178,8 @@ namespace HybridLumenGI
                 this.values = (Value[])values.Clone(); this.textures = (TextureValue[])textures.Clone(); CanReuseHistory = reusable;
                 this.keywords = (string[])keywords.Clone(); this.passes = (string[])passes.Clone(); passEnabled = (bool[])enabled.Clone();
                 IdentityCoverage = new IdentityCoverageData(this.values, this.textures, this.keywords, this.passes, passEnabled);
-                HitMaterial = new HybridLumenGIHitMaterialData(this.values, this.textures, this.keywords);
+                HitMaterial = new HybridLumenGIHitMaterialData(this.values, this.textures, this.keywords,
+                    !source.GetShaderPassEnabled("ShadowCaster"));
             }
             public bool Equals(Snapshot other)
             {
@@ -188,6 +189,7 @@ namespace HybridLumenGI
                     MaterialIndex != other.MaterialIndex || materialCount != other.materialCount || rawQueue != other.rawQueue ||
                     effectiveQueue != other.effectiveQueue || giFlags != other.giFlags || instancing != other.instancing ||
                     doubleSided != other.doubleSided || CanReuseHistory != other.CanReuseHistory ||
+                    HitMaterial.ShadowCasterDisabled != other.HitMaterial.ShadowCasterDisabled ||
                     shaderName != other.shaderName || renderType != other.renderType || values.Length != other.values.Length ||
                     textures.Length != other.textures.Length || keywords.Length != other.keywords.Length || passes.Length != other.passes.Length) return false;
                 for (int i = 0; i < values.Length; i++) if (!values[i].Equals(other.values[i])) return false;

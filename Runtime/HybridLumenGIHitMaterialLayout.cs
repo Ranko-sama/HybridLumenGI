@@ -35,7 +35,7 @@ namespace HybridLumenGI
         public const uint AlphaTest=1u<<0,SpecularWorkflow=1u<<1,MetallicSpecularMap=1u<<2,
             SmoothnessFromBaseAlpha=1u<<3,NormalMap=1u<<4,Emission=1u<<5,OcclusionMap=1u<<6,
             DetailEnabled=1u<<7,DetailScaled=1u<<8,ParallaxMap=1u<<9,ReceiveShadowsOff=1u<<10,
-            SpecularHighlightsOff=1u<<11,EnvironmentReflectionsOff=1u<<12;
+            SpecularHighlightsOff=1u<<11,EnvironmentReflectionsOff=1u<<12,ShadowCasterDisabled=1u<<13;
 
         // Keep just the inputs of the exact shadow coverage query across frames.
         // ShadowCaster ignores parallax, and an unassigned BaseMap contributes alpha 1.
@@ -50,8 +50,10 @@ namespace HybridLumenGI
             internal ShadowCoverage(HybridLumenGIHitMaterialData material)
             {
                 this = default;
+                known = true;
+                if (material.ShadowCasterDisabled) return;
                 cull = material.SourceCull;
-                known = covered = true;
+                covered = true;
                 uint flags = KeywordFlags(material);
                 if ((flags & AlphaTest) == 0) return;
 
@@ -101,6 +103,7 @@ namespace HybridLumenGI
             if(material.IsKeywordEnabled("_RECEIVE_SHADOWS_OFF")) flags|=ReceiveShadowsOff;
             if(material.IsKeywordEnabled("_SPECULARHIGHLIGHTS_OFF")) flags|=SpecularHighlightsOff;
             if(material.IsKeywordEnabled("_ENVIRONMENTREFLECTIONS_OFF")) flags|=EnvironmentReflectionsOff;
+            if(material.ShadowCasterDisabled) flags|=ShadowCasterDisabled;
             return flags;
         }
 
