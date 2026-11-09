@@ -1,0 +1,62 @@
+{
+  "productCommit": "c0fef0bcf5afe499ae0148eb379420330a40cfac",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release182-demo",
+  "tag": "release182-demo",
+  "publishedAt": "2026-11-09T02:27:21Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Actual C# HardwareBackend and RtasBudget with recording adapters and controlled retirement.",
+    "fixture": "Tests/StandaloneHardwareBackend/Program.cs.txt",
+    "bankedTriangleCredits": 4,
+    "olderTriangleDemand": 6,
+    "newTriangleDemand": 3,
+    "baseline": {
+      "waiting": 1,
+      "smallRecorded": false,
+      "charged": 0,
+      "remaining": 4,
+      "coldPrepared": true,
+      "coldVertexReads": 1,
+      "coldReserved": 67712,
+      "oldRetiring": false
+    },
+    "candidate": {
+      "blocked": false,
+      "smallRecorded": true,
+      "charged": 3,
+      "remaining": 1,
+      "coldPrepared": false,
+      "coldVertexReads": 0,
+      "coldReserved": 0,
+      "oldRetiring": true
+    },
+    "waitingTurnAfterLateLimit": "passed",
+    "evidence": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release182-UnityProject.zip",
+      "size": 849455,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release182-demo/HybridLumenGI-Release182-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release182-Windows-x64.zip",
+      "size": 58442160,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release182-demo/HybridLumenGI-Release182-Windows-x64.zip"
+    }
+  ]
+}

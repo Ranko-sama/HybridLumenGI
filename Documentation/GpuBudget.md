@@ -127,7 +127,7 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 | `hardwareGeometryBudgetMiB` | 128 MiB，同一 Feature 内按相机计入硬件精确属性。相机状态重建后仍计入待释放的旧分配，直到安全释放。RTAS 使用独立的共享预留。[定向对照](../LocalComparison/Review/camera-dxr-attribute-budget-167/result.md) |
 | `rtasMemoryBudgetMiB` | 256 MiB，跨相机RTAS预留；按64 KiB + 192 B/triangle + 1024 B/instance估算，后续 `GetSize` 观测只提高高水位；退休仍计账。估算不是驱动上界。 |
 | `rtasBuildsPerFrame` | 默认每引擎帧最多 4 次实际构建。共享额度为零时，确需构建或更新位姿的计划在准备前置门拒绝。录制处理准备后的同帧收紧。已建且仍匹配的 RTAS 可复用。[定向对照](../LocalComparison/Review/rtas-zero-build-quota-206/result.md) |
-| `rtasTriangleWorkPerFrame` / `rtasInstanceWorkPerFrame` | 250,000三角 / 4,096实例；包含完整dirty构建/refit工作。等待任务积累tokens，最老活跃任务优先。 |
+| `rtasTriangleWorkPerFrame` / `rtasInstanceWorkPerFrame` | 250,000三角 / 4,096实例；包含完整 dirty 构建／refit 工作。能够在当前有效配置下取得所需积分的最老活跃任务优先。停止补充某项积分后仍可消费已有余额，超出余额的已知请求本帧让出队首。帧末收紧的其他相机额度可在下一帧恢复，原等待顺序继续有效。[余额及跨帧票龄对照](../LocalComparison/Review/rtas-nonreplenishing-210/result.md) |
 | `rtasTriangleBurstCapacity` / `rtasInstanceBurstCapacity` | 1,000,000 三角 / 16,384 实例。需要新构建或更新位姿的 RTAS 在超过突发上限时于几何准备阶段回退，录制仍复核同一上限。当前几何和位姿的已建 RTAS 可继续使用。[定向对照](../LocalComparison/Review/rtas-burst-preflight-178/result.md) |
 
 不再活跃的需求退出构建等待队列。已有 GPU 资源在安全退休并完成销毁后归还预留。

@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release181，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release182，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭停止补充 RTAS 积分时，余额不足的大请求阻挡余额足够的小请求的缺口。实际 Backend 对照验证了扣费、无效准备拒绝、匹配复用与安全退休。帧末临时收紧的 HLOD 排队控制通过。[对照与范围](../LocalComparison/Review/rtas-nonreplenishing-210/result.md) · [同源交付](../LocalComparison/Review/rtas-nonreplenishing-210/delivery.json)
 
 T3／G3 已关闭精确投影覆盖改变后漏报远处接收面的更新缺口。实际 Unity 对照中，软域覆盖约 12 单位外的地板，地板获得缓存更新优先级。纯 RGB 控制仍只影响近域。[对照与范围](../LocalComparison/Review/cutout-shadow-change-209/result.md) · [同源交付](../LocalComparison/Review/cutout-shadow-change-209/delivery.json)
 
