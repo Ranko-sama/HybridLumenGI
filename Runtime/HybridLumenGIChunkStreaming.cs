@@ -7,6 +7,8 @@ namespace HybridLumenGI
     /// <summary>Bounded additive-scene IO policy. Scene activation and GI readiness are separate states.</summary>
     public sealed class HybridLumenGIChunkStreaming
     {
+        private const int LoadFairnessWaitSteps = 60;
+
         [Serializable]
         public sealed class Definition
         {
@@ -37,19 +39,26 @@ namespace HybridLumenGI
             internal Definition definition;
             internal IOperation operation;
             internal int ownedHandle, retryAfter;
+            internal long loadWaitSteps;
             internal float distanceSquared;
         }
-        private sealed class DistanceComparer : IComparer<State>
+        private sealed class LoadComparer : IComparer<State>
         {
             public int Compare(State a, State b)
             {
+                // A continuously eligible scene must get a turn even when nearer requests keep arriving.
+                if (Math.Max(a.loadWaitSteps, b.loadWaitSteps) >= LoadFairnessWaitSteps)
+                {
+                    int wait = b.loadWaitSteps.CompareTo(a.loadWaitSteps);
+                    if (wait != 0) return wait;
+                }
                 int priority = b.definition.priority.CompareTo(a.definition.priority);
                 if (priority != 0) return priority;
                 int distance = a.distanceSquared.CompareTo(b.distanceSquared);
                 return distance != 0 ? distance : string.CompareOrdinal(a.Id, b.Id);
             }
         }
-        private static readonly DistanceComparer Ordering = new DistanceComparer();
+        private static readonly LoadComparer LoadOrder = new LoadComparer();
         private readonly IBackend backend;
         private readonly State[] states;
         private readonly State[] candidates;
@@ -142,8 +151,14 @@ namespace HybridLumenGI
                 else if (state.Loading) reserved++;
                 if (state.operation != null) ActiveOperations++;
                 if (!state.Wanted && state.Owned && state.Loaded && !state.UnloadSafe && state.operation == null) BlockedUnloads++;
-                if (state.Wanted && !state.Loaded && state.operation == null)
-                { PendingLoads++; candidates[candidateCount++] = state; }
+                bool pendingLoad = state.Wanted && !state.Loaded && state.operation == null;
+                if (pendingLoad) PendingLoads++;
+                if (pendingLoad && tick >= state.retryAfter)
+                {
+                    state.loadWaitSteps++;
+                    candidates[candidateCount++] = state;
+                }
+                else state.loadWaitSteps = 0;
             }
             // Reclaim only explicitly safe owned scenes. Unity AsyncOperation cannot be cancelled;
             // loads that become unwanted finish, then wait for the same safety receipt as any unload.
@@ -161,12 +176,12 @@ namespace HybridLumenGI
                 }
                 catch (Exception error) { Fail(state, error.Message); }
             }
-            Array.Sort(candidates, 0, candidateCount, Ordering);
+            Array.Sort(candidates, 0, candidateCount, LoadOrder);
             for (int i = 0; i < candidateCount && reserved < maxResidentScenes && CanStart(maxConcurrentOperations, maxStartsPerStep); i++)
             {
                 State state = candidates[i];
-                if (tick < state.retryAfter) continue;
                 OperationsStarted++;
+                state.loadWaitSteps = 0;
                 try
                 {
                     state.operation = backend.BeginLoad(state.ScenePath);
