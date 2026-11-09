@@ -231,6 +231,97 @@ replacement.Configure(new HybridLumenGIAssetPageManifest { RelativeRoot = "Repla
 Check(replacement.Available, "Destroyed driver still owned the global page budget after draining");
 Console.WriteLine("PASS demand withdrawal and page drain after destroying a paused driver, with pending IO, safe completion and new driver admission.");
 
+var firstRig = new Fixture();
+firstRig.Enable();
+firstRig.representation.SetWanted(true);
+firstRig.Update();
+for (int step = 0; step < 16 && !firstRig.representation.HasBoundAssets; step++)
+{
+    firstRig.provider.CompleteAll();
+    HybridLumenGIAssetPageStreamer.Pump();
+    firstRig.Update();
+}
+Check(firstRig.representation.HasBoundAssets, "Expected a complete first rig before switching.");
+uint firstGeometryGeneration = firstRig.state.GetState("geometry").Generation;
+firstRig.budget.maxResidentBytes = 80;
+firstRig.ApplyBudget();
+Check(firstRig.driver.SetRequests(new object(), new[] { "pending" }), "Unable to queue first-rig IO.");
+HybridLumenGIAssetPageStreamer.Pump();
+Check(firstRig.state.GetState("pending").Status == Stream.Phase.LoadingBundle, "Expected first-rig IO in flight.");
+int firstLoads = firstRig.provider.operations.Count(op => op.phase != "release");
+firstRig.budget.startsPerStep = 0;
+firstRig.ApplyBudget();
+
+var secondRig = new HybridLumenGIAssetPageStreamer();
+secondRig.gameObject.activeInHierarchy = false;
+secondRig.Configure(new HybridLumenGIAssetPageManifest { RelativeRoot = "SecondRigPages",
+    Pages = new[] { Fixture.Page("second", Stream.Kind.Geometry) } });
+secondRig.gameObject.activeInHierarchy = true;
+bool activeOwnerRejected = false;
+try { Fixture.Call(secondRig, "OnEnable"); }
+catch (Exception error) when (error.Message.StartsWith("Only one HybridLumenGI asset-page driver", StringComparison.Ordinal))
+{ activeOwnerRejected = true; }
+Check(activeOwnerRejected && firstRig.driver.Available && !secondRig.Available, "An active owner must keep exclusive admission.");
+secondRig.gameObject.activeInHierarchy = false;
+
+firstRig.driver.gameObject.activeInHierarchy = false;
+firstRig.Disable();
+secondRig.gameObject.activeInHierarchy = true;
+Fixture.Call(secondRig, "OnEnable");
+var firstReaders = new Completion();
+Check(firstRig.representation.ReportUnloadSafe(firstRig.representation.Generation, firstReaders), "Disabled rig must enter the existing retirement gate.");
+HybridLumenGIAssetPageStreamer.Pump();
+Fixture.Call(secondRig, "Update");
+Check(!firstRig.driver.Available && !secondRig.Available && firstRig.state.IoBytesInFlight == 10 &&
+    firstRig.state.RetiringLeases == 2 && firstRig.state.ResidentBytes == 60,
+    "Disabled rig must retain pending IO and reader ownership while denying new demand.");
+firstRig.provider.CompleteAll();
+HybridLumenGIAssetPageStreamer.Pump();
+Fixture.Call(secondRig, "Update");
+Check(!secondRig.Available && firstRig.state.IoBytesInFlight == 0 && firstRig.state.RetiringLeases == 2,
+    "Completion of IO alone must not let the second rig take over.");
+firstReaders.IsComplete = true;
+for (int step = 0; step < 16 && !secondRig.Available; step++)
+{
+    firstRig.provider.CompleteAll();
+    HybridLumenGIAssetPageStreamer.Pump();
+    Fixture.Call(secondRig, "Update");
+}
+Check(secondRig.Available && firstRig.state.BundleBytes == 0 && firstRig.state.ResidentBytes == 0 &&
+    firstRig.state.ActiveOperations == 0 && firstRig.state.RetiringLeases == 0 &&
+    firstRig.provider.operations.Count(op => op.phase != "release") == firstLoads,
+    "The waiting rig must acquire only after release-only draining of the first rig.");
+
+// Use the same controlled IO as the first rig after normal manifest initialization.
+var secondProvider = new Provider();
+Fixture.Set(secondRig.State, "provider", secondProvider);
+Check(secondRig.SetRequests(new object(), new[] { "second" }), "The successor did not accept its page request.");
+for (int step = 0; step < 8 && secondRig.State.GetState("second").Status != Stream.Phase.Ready; step++)
+{
+    secondProvider.CompleteAll();
+    HybridLumenGIAssetPageStreamer.Pump();
+}
+Check(secondRig.State.GetState("second").Status == Stream.Phase.Ready, "The successor must load its own page.");
+
+secondRig.gameObject.activeInHierarchy = false;
+firstRig.budget.startsPerStep = 2;
+firstRig.ApplyBudget();
+firstRig.driver.gameObject.activeInHierarchy = true;
+Fixture.Call(firstRig.driver, "OnEnable");
+for (int step = 0; step < 8 && !firstRig.driver.Available; step++)
+{
+    secondProvider.CompleteAll();
+    HybridLumenGIAssetPageStreamer.Pump();
+    Fixture.Call(firstRig.driver, "Update");
+}
+Check(firstRig.driver.Available && secondRig.State.BundleBytes == 0 && !secondRig.Available,
+    "The first rig must reacquire ownership after the second rig drains.");
+Check(firstRig.driver.SetRequests(new object(), new[] { "geometry" }), "The returning rig could not request its geometry.");
+HybridLumenGIAssetPageStreamer.Pump();
+Check(firstRig.state.GetState("geometry").Generation > firstGeometryGeneration,
+    "The returning rig must start a fresh page generation.");
+Console.WriteLine("PASS sequential rig switch: paused owner drains IO and leases, successor loads, returning rig loads a new generation.");
+
 var nested = new Fixture(new[] { Fixture.Page("geometry", Stream.Kind.Geometry), Fixture.Page("material", Stream.Kind.Material),
     Fixture.Page("middle", Stream.Kind.Geometry), Fixture.Page("leaf", Stream.Kind.Geometry) });
 var root = nested.representation;

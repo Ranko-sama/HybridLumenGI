@@ -22,7 +22,7 @@ namespace HybridLumenGI
         }
 #endif
         private readonly Dictionary<object,RequestSet> requests=new Dictionary<object,RequestSet>();
-        private bool failed, destroyed;
+        private bool failed, destroyed, waitingForOwner;
         private sealed class RequestSet
         {
             internal string[] ids;
@@ -33,7 +33,8 @@ namespace HybridLumenGI
         private long tick,nextRequest;
         public HybridLumenGIAssetPageStreaming State { get; private set; }
         public HybridLumenGIAssetPageManifest Manifest => manifest;
-        public bool Available => State!=null && !failed && !destroyed && ReferenceEquals(owner,this);
+        private bool Draining => destroyed || !isActiveAndEnabled;
+        public bool Available => State!=null && !failed && ReferenceEquals(owner,this) && !Draining;
         public int BudgetBlockedGroups { get; private set; }
         public void Configure(HybridLumenGIAssetPageManifest value)
         {
@@ -46,33 +47,51 @@ namespace HybridLumenGI
         private void OnEnable()
         {
             if(!Application.isPlaying)return;
-            if(!ReferenceEquals(owner,null) && !ReferenceEquals(owner,this)){failed=true;Debug.LogError("Only one HybridLumenGI asset-page driver may own the global asset IO budget.",this);return;}
+            if(!ReferenceEquals(owner,null) && !ReferenceEquals(owner,this))
+            {
+                // A stopped owner still holds the budget while native work or
+                // reader leases are outstanding. Resume admission after its drain.
+                waitingForOwner = owner.Draining;
+                failed = !waitingForOwner;
+                if(failed)Debug.LogError("Only one HybridLumenGI asset-page driver may own the global asset IO budget.",this);
+                return;
+            }
+            waitingForOwner=false;
             failed=false;
-            if(State!=null)return;
-            if(manifest==null){failed=true;return;}
+            if(State==null && manifest==null){failed=true;return;}
             try
             {
-                string root=ContainedPath(Application.streamingAssetsPath,manifest.RelativeRoot);
-                State=new HybridLumenGIAssetPageStreaming(manifest.Pages,new BundleProvider(root));
-                owner=this;
+                if(State==null)
+                {
+                    string root=ContainedPath(Application.streamingAssetsPath,manifest.RelativeRoot);
+                    State=new HybridLumenGIAssetPageStreaming(manifest.Pages,new BundleProvider(root));
+                }
                 HybridLumenGIAssetPageRetirementPump.EnsureExists();
+                owner=this;
             }
             catch(Exception error){failed=true;Debug.LogException(error,this);}
+        }
+        private void Update()
+        {
+            if(waitingForOwner && ReferenceEquals(owner,null))OnEnable();
         }
         internal static void Pump()
         {
             if(ReferenceEquals(owner,null))return;
             owner.Drive();
-            if(owner.destroyed && (owner.State==null || (owner.State.BundleBytes==0 && owner.State.RetiringLeases==0)))owner=null;
+            var state=owner.State;
+            if(owner.Draining && (state==null || (state.BundleBytes==0 && state.ResidentBytes==0 &&
+                state.IoBytesInFlight==0 && state.ActiveOperations==0 && state.RetiringLeases==0)))owner=null;
         }
         private void Drive()
         {
             if(State==null || failed)return;
+            bool draining=Draining;
             var stepBudgets = budgets;
-            if (destroyed)
+            if (draining)
             {
-                // A paused owner still needs to retire after destruction. Leave
-                // load budgets at zero and give existing resources a release turn.
+                // Suspend requests while disabled, retaining them for re-enable.
+                // Only releases get an allowance during the drain, even if paused.
                 stepBudgets = new HybridLumenGIAssetPageStreaming.Budgets
                 {
                     concurrentOperations = Math.Max(1, budgets.concurrentOperations),
@@ -83,7 +102,7 @@ namespace HybridLumenGI
             if(tick<long.MaxValue)tick++;
             BudgetBlockedGroups=0;
             var priorities=new Dictionary<string,long>(StringComparer.Ordinal);
-            var ordered=new List<RequestSet>(requests.Values);
+            var ordered=draining?new List<RequestSet>():new List<RequestSet>(requests.Values);
             ordered.Sort((a,b)=>
             {
                 int rank=b.Score(tick).CompareTo(a.Score(tick));return rank!=0?rank:a.sequence.CompareTo(b.sequence);

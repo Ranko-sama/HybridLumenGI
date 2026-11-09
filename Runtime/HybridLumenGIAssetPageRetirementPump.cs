@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace HybridLumenGI
 {
-    // One process-wide main-thread owner, including while an authoring streamer is disabled or
-    // destroyed. Native requests and unproven GPU consumers outlive scene/component teardown.
+    // One process-wide main-thread owner. A disabled or destroyed owner stays
+    // reachable until native requests and GPU consumers have finished retiring.
     internal sealed class HybridLumenGIAssetPageRetirementPump : MonoBehaviour
     {
         private static HybridLumenGIAssetPageRetirementPump instance;
