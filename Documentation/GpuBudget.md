@@ -34,6 +34,8 @@ Release117 普通三室在已有 F4 中室机位取得同窗结果。960×540、
 
 显式切到软件追踪后，摄像机原有的 RTAS 预约与硬件几何属性继续计入退休中的资源，直到最后读者完成并销毁。Release113 普通 Player 已在固定机位观察到这两项归零，再次选择 DXR 时重新取得额度。[三次端点的实际逻辑账目](../LocalComparison/Review/disabled-dxr-retirement-01/result.md)
 
+Release215 补齐精确软件切回 DXR 的反向归还。实际 DXR 录制后，旧软件属性和 BVH 进入原退休流程。普通 Player 固定机位的逻辑计账为 80,864 B → 0 B → 80,864 B，分别对应精确软件、DXR 和精确软件重入。范围限已完成退休的逻辑额度。[实机端点](../LocalComparison/Review/inactive-software-geometry-260/result.md)
+
 Release144 将准备或构建异常接入同一退休流程。故障相机保留软件回退，可能已录制的构建仍计入本帧额度。现有 C# 宿主模拟完成回调后，健康相机能够重新取得共享额度。[对照与范围](../LocalComparison/Review/rtas-failure-retirement-161/result.md)
 
 Release205 在非复用的新 RTAS 计划自身超过共享内存上限时退休旧结构。旧预约随现有释放完成归还。暂时的共享余额竞争可等待并复用原结构。采用依据为实际 C# 后端与受控完成回调。[对照与范围](../LocalComparison/Review/shared-budget-retirement-244-245/result.md)

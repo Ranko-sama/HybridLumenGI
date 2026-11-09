@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release214 同源交付](../LocalComparison/Review/software-bvh-preflight-258/delivery.json)
 
+T6／G4 已关闭从精确软件切回实际 DXR 后软件三角属性和 BVH 持续占额的路径。普通 Player 在同一固定近景确认完成退休后逻辑计账归零，并在软件重入时恢复。进程显存、冷入首显和软件时间门继续验收。[实机对照](../LocalComparison/Review/inactive-software-geometry-260/result.md)
+
 T6／G4 已关闭软件几何额度不足时先构造完整 CPU BVH 的路径。原 1 MiB 回返场景在拒绝帧跳过构建，旧缓冲完成退休后恢复精确布局。完整 CPU 时间预算及软件 GPU 超标继续推进。[拒绝与恢复对照](../LocalComparison/Review/software-bvh-preflight-258/result.md)
 
 T3／G3 普通 Player 的 L 键已确认在下一个渲染源帧退出解析灯并保留发光面。固定地板的匹配对照色向稳定性不足，关灯期限及保持判定仍待验收。[实际响应与控制资格](../LocalComparison/Review/ordinary-player-lightoff-257/result.md)
