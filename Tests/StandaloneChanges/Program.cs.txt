@@ -79,7 +79,8 @@ uint Group(Renderer r)=>ReferenceEquals(r,receiverA)?3u:ReferenceEquals(r,receiv
 changes.Begin(scene,0);changes.AddTransform(a,9,receiverA);changes.AddTransform(b,9,receiverB);
 changes.ResolveReceiverGroups(Group);Bind();
 Require(Owner(0)==3&&Owner(1)==11,"Independent occluders lost their per-frame source owner.");
-changes.Add(a,false,12);changes.ResolveReceiverGroups(Group);Bind();Require(Owner(0)==3,"Lighting-only merge erased a proven pose owner.");
+changes.Add(a,false,12);changes.RecordUpload(command);changes.Bind(command,shader,7);
+Require(Owner(0)==3&&Read(0).maximum.w==12,"Late lighting-only merge or upload erased a proven pose owner.");
 changes.AddTransform(a,9,receiverB);changes.ResolveReceiverGroups(Group);Bind();Require(Owner(0)==0,"Overlapping owners acquired one receiver's exemption.");
 changes.AddTransform(a,9,receiverA);changes.ResolveReceiverGroups(Group);Bind();Require(Owner(0)==0,"Ambiguous ownership incorrectly recovered after another same-owner event.");
 changes.Add(b,true,9);changes.ResolveReceiverGroups(Group);Bind();Require(Owner(1)==0&&Read(1).minimum.w==2,"Strong changes retained an exemption owner.");

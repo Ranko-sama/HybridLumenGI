@@ -418,10 +418,64 @@ static class Program
         Console.WriteLine($"Dynamic texture capture retains the material across equal observations: {retainedMaterial}.");
         Check(retainedMaterial, "Equivalent dynamic source observations must not replace the capture material.");
     }
+    static void CaptureRecordingTimeBudget()
+    {
+        scenarios++;
+        var scene = new HybridLumenGIScene(3);
+        for (int slot = 0; slot < scene.Capacity; slot++)
+        {
+            var proxy = Proxy(90 + slot, 1);
+            proxy.SourceRenderer.localToWorldMatrix = Matrix4x4.Translate(new Vector3(slot * 2, 0, 0));
+            scene.Set(slot, proxy);
+        }
+        using var cache = new HybridLumenGISurfaceCache();
+        var config = Config(3);
+        config.captureRecordingCpuBudgetMilliseconds = 1;
+        config.capturesPerFrame = 0;
+        cache.Prepare(scene, config);
+        Check(cache.ChangedBounds.Count == 3 && cache.ReadyCards == 0,
+            "New material sources must invalidate without a capture allocation.");
+        config.capturesPerFrame = 3;
+        cache.Prepare(scene, config);
+        Check(cache.ChangedBounds.Count == 0 && cache.ScheduledCards == 3,
+            "Cards waiting to record must not report recovered bounds.");
+        var command = new CommandBuffer { BeforeDrawMesh = () => System.Threading.Thread.Sleep(15) };
+        int captured = cache.RecordCapture(command, Viewport);
+        Check(captured == 1 && cache.ReadyCards == 1 && cache.PendingCards == 2,
+            "An over-budget card must finish and defer the other scheduled cards.");
+        var metadataBuffer = Buffer(cache, "metadataBuffer");
+        var uploaded = command.Entries.Last(e => e.Kind == "Upload" && e.Buffer == metadataBuffer).Data;
+        Check(command.Entries.Count(e => e.Kind == "DrawMesh") == 1 &&
+            command.Entries.Count(e => e.Kind == "Dispatch") == 1 &&
+            cache.ChangedBounds.Count == 1 && cache.ReadyMask[0] &&
+            U(uploaded[0], "ready") == 1 && U(uploaded[1], "ready") == 0 && U(uploaded[2], "ready") == 0 &&
+            !cache.IsSlotReady(1, 91, scene.Proxies[1].Revision) && !cache.IsSlotReady(2, 92, scene.Proxies[2].Revision),
+            "Only the recorded oldest card may publish a draw, anchors, readiness and a recovered bound.");
+        cache.Prepare(scene, config);
+        var next = new CommandBuffer { BeforeDrawMesh = command.BeforeDrawMesh };
+        Check(cache.RecordCapture(next, Viewport) == 1 && cache.ReadyMask[1] &&
+            cache.ReadyCards == 2 && cache.PendingCards == 1 && cache.ChangedBounds.Count == 1,
+            "The deferred cards must continue in their original order.");
+        config.captureRecordingCpuBudgetMilliseconds = 0;
+        cache.Prepare(scene, config);
+        Check(cache.ChangedBounds.Count == 1 && Capture(cache).Entries.Count(e => e.Kind == "DrawMesh") == 1 &&
+            cache.ReadyMask[2] && cache.PendingCards == 0,
+            "Zero must restore the normal scheduled capture path.");
+        config.captureRecordingCpuBudgetMilliseconds = 1;
+        config.capturesPerFrame = 0;
+        scene.Proxies[2].SourceRenderer.Materials[1].SetFloat("_Metallic", .625f);
+        cache.Prepare(scene, config);
+        var invalidated = Capture(cache);
+        var invalidationUploads = invalidated.Entries.Where(e => e.Kind == "Upload" && e.Buffer == metadataBuffer).ToArray();
+        Check(cache.ChangedBounds.Count == 1 && !cache.ReadyMask[2] && invalidationUploads.Length > 0 &&
+            invalidationUploads.All(e => U(e.Data[2], "ready") == 0) &&
+            invalidated.Entries.All(e => e.Kind != "DrawMesh"),
+            "A changed source must revoke old ready metadata even if no capture is allowed.");
+    }
     static int Main()
     {
         VariableChartsAndOrder();SparseRetirementAndLayout();AtomicCapacityAndEligibility();PartialCaptureBudgetAndGrid();SourceHashAndPublicationGuard();DisposalAndGuards();EmissionBudgetAndTextureCapture();
-        TriangleIdentityAndLifetime();MappingDefensesAndOracle();HardwareSubmeshConstants();GeometryDirectionAndCullMetadata();PropertyHashIdentity();ExactMaterialObservations();
+        TriangleIdentityAndLifetime();MappingDefensesAndOracle();HardwareSubmeshConstants();GeometryDirectionAndCullMetadata();PropertyHashIdentity();ExactMaterialObservations();CaptureRecordingTimeBudget();
         Console.WriteLine($"Actual-source SurfaceCache: {assertions} assertions in {scenarios} scenarios passed. Recording Unity/asset substitutes only; no raster, GPU, native material or fence validation.");return 0;
     }
 }

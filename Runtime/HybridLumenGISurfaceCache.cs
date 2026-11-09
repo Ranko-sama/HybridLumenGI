@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+using Stopwatch = System.Diagnostics.Stopwatch;
 using static HybridLumenGI.HybridLumenGIUniformLighting;
 
 namespace HybridLumenGI
@@ -22,6 +23,7 @@ namespace HybridLumenGI
             public int maxResidentCards = 384;
             public int capturesPerFrame = 24;
             public int maxDrawsPerFrame = 256;
+            public float captureRecordingCpuBudgetMilliseconds;
             public int maxAtlasMiB = 64;
             public int patchGrid = 4;
             public int layerMask = -1;
@@ -163,6 +165,7 @@ namespace HybridLumenGI
         private Shader captureShader;
         private Material clearMaterial;
         private HybridLumenGIScene preparedScene;
+        private double captureRecordingBudgetTicks;
         private Vector3 referencePosition;
         private int tileSize, tileCount, tileColumns;
         private bool clearPending, metadataDirty;
@@ -186,6 +189,7 @@ namespace HybridLumenGI
         public int PendingCards { get; private set; }
         public int ScheduledCards => scheduled.Count;
         public int CapturedCards { get; private set; }
+        internal bool LimitsCaptureRecording => captureRecordingBudgetTicks > 0;
         public int UnsupportedRenderers { get; private set; }
         public int DrawBudgetBlockedCards { get; private set; }
         public int WarmupBudgetBlockedCards { get; private set; }
@@ -368,6 +372,9 @@ namespace HybridLumenGI
             while (wantedTiles > 0 && EstimateBytes(wantedTiles, resolution, scene.Capacity,grid) > budget) wantedTiles--;
             bool changed = EnsureStorage(scene.Capacity, wantedTiles, resolution,grid);
             preparedScene = scene;
+            float captureMilliseconds = config.captureRecordingCpuBudgetMilliseconds;
+            captureRecordingBudgetTicks = captureMilliseconds > 0 && !float.IsInfinity(captureMilliseconds)
+                ? captureMilliseconds * (Stopwatch.Frequency / 1000.0) : 0;
             referencePosition = config.referencePosition;
             candidates.Clear();
             Array.Clear(desired, 0, desired.Length);
@@ -547,7 +554,9 @@ namespace HybridLumenGI
                 if (draws > drawRemaining) { DrawBudgetBlockedCards++; continue; }
                 if (captureRemaining == 0) break;
                 scheduled.Add(index);
-                if (owner.published) AddChangedBounds(owner.bounds);
+                // Time-limited capture may stop before this card. Only report
+                // its recovery once the draw and anchors have been recorded.
+                if (owner.published && !LimitsCaptureRecording) AddChangedBounds(owner.bounds);
                 drawRemaining -= draws;
                 captureRemaining--;
             }
@@ -602,12 +611,19 @@ namespace HybridLumenGI
                     command.ClearRenderTarget(true, true, Color.clear, SystemInfo.usesReversedZBuffer ? 0f : 1f);
                     clearPending = false;
                 }
+                long firstCapture = 0;
                 foreach (int index in scheduled)
                 {
                     Card card = cards[index];
                     Owner owner = owners[CardOwners[index]];
                     if (owner == null || owner.proxy == null || !owner.proxy.isActiveAndEnabled ||
                         !CanCaptureRegisteredRenderer(owner.renderer)) continue;
+                    if (LimitsCaptureRecording)
+                    {
+                        long now = Stopwatch.GetTimestamp();
+                        if (CapturedCards == 0) firstCapture = now;
+                        else if (now - firstCapture >= captureRecordingBudgetTicks) break;
+                    }
                     Rect fullTile = TileRect(card.tile);
                     // ClearRenderTarget may clear an entire attachment regardless of
                     // viewport. A raster clear preserves every other resident tile.
@@ -669,6 +685,7 @@ namespace HybridLumenGI
                     card.dirty = false;
                     card.age = 0;
                     CapturedCards++;
+                    if (owner.published && LimitsCaptureRecording) AddChangedBounds(owner.bounds);
                 }
                 command.SetViewport(restoreViewport);
                 command.SetGlobalTexture(CardShadowmaskId, Texture2D.whiteTexture);

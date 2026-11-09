@@ -66,9 +66,9 @@ namespace HybridLumenGI
                     if(prior.minimum.w==0) receiverSources[existing]=receiver;
                     else if(kind>=2 || prior.minimum.w>=2 || !ReferenceEquals(receiverSources[existing],receiver))
                         receiverSources[existing]=null;
+                    prior.receiver.x = 0; // Geometry merges can change the resolved receiver.
                 }
                 prior.minimum.w=Mathf.Max(prior.minimum.w,kind);
-                prior.receiver.x = 0; // Re-resolve only from the final frozen frame.
                 if (disjointPose) prior.receiver.y = 1;
                 prior.maximum.w=Mathf.Max(prior.maximum.w,Mathf.Max(0,influenceRadius));
                 regions[existing]=prior;return;
@@ -98,8 +98,17 @@ namespace HybridLumenGI
         public void MarkGlobalLightingChange() { globalReactive = 1; }
         public void Upload()
         {
-            if (buffer == null) buffer = new ComputeBuffer(Capacity, 48) { name = "HLGI local changes" };
+            EnsureBuffer();
             if (count > 0) buffer.SetData(regions, 0, 0, count);
+        }
+        internal void RecordUpload(CommandBuffer command)
+        {
+            EnsureBuffer();
+            if (count > 0) command.SetBufferData(buffer, regions, 0, 0, count);
+        }
+        private void EnsureBuffer()
+        {
+            if (buffer == null) buffer = new ComputeBuffer(Capacity, 48) { name = "HLGI local changes" };
         }
         public void Bind(CommandBuffer cmd, ComputeShader shader, int kernel)
         {

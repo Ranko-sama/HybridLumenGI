@@ -46,6 +46,7 @@ namespace UnityEngine.Rendering
         public readonly Dictionary<string,int> ints=new();
         public readonly Dictionary<string,float> floats=new();
         public readonly Dictionary<string,UnityEngine.ComputeBuffer> buffers=new();
+        public void SetBufferData(UnityEngine.ComputeBuffer buffer,Array data,int source,int destination,int count)=>buffer.SetData(data,source,destination,count);
         public void SetComputeBufferParam(UnityEngine.ComputeShader shader,int kernel,string name,UnityEngine.ComputeBuffer buffer)=>buffers[name]=buffer;
         public void SetComputeIntParam(UnityEngine.ComputeShader shader,string name,int value)=>ints[name]=value;
         public void SetComputeFloatParam(UnityEngine.ComputeShader shader,string name,float value)=>floats[name]=value;

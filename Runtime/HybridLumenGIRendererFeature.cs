@@ -128,6 +128,8 @@ namespace HybridLumenGI
             [Range(6,1536)] public int residentSurfaceCards=384;
             [Range(1,96)] public int surfaceCapturesPerFrame=24;
             [Range(1,1024)] public int surfaceDrawsPerFrame=256;
+            [Min(0),Tooltip("CPU milliseconds for recording surface cards per camera render. Finishes the current card before deferring the rest. Zero disables the time limit.")]
+            public float surfaceCaptureRecordingCpuBudgetMilliseconds;
             [Min(1)] public int surfaceAtlasBudgetMiB=64;
             [Range(0,1)] public float bounceFeedback=1;
             [Range(1,32)] public int maxLights=16;
@@ -206,6 +208,7 @@ namespace HybridLumenGI
                 transport.targetGpuMilliseconds=0;
                 transport.minimumGpuWorkFraction=0;
                 transport.receiverDiscoveryCpuBudgetMilliseconds=0;
+                transport.surfaceCaptureRecordingCpuBudgetMilliseconds=0;
                 return JsonUtility.ToJson(transport);
             }
         }
@@ -978,6 +981,7 @@ namespace HybridLumenGI
                 {
                     tileResolution=s.surfaceTileResolution,maxResidentCards=s.residentSurfaceCards,capturesPerFrame=state.effectiveBudget.SurfaceCaptures,
                     maxDrawsPerFrame=s.surfaceDrawsPerFrame,maxAtlasMiB=s.surfaceAtlasBudgetMiB,layerMask=s.materialLayers,referencePosition=camera.transform.position,
+                    captureRecordingCpuBudgetMilliseconds=s.surfaceCaptureRecordingCpuBudgetMilliseconds,
                     patchGrid=Mathf.Clamp(s.cachePatchGrid,1,4)
                 });
                 state.EnsureCache(slots,Mathf.Clamp(s.cachePatchGrid,1,4),state.surfaceCache.CardCount);
@@ -1163,7 +1167,7 @@ namespace HybridLumenGI
                 };
                 PrepareHardwareMaterials(graph,work);
                 if(identityFrame!=null) state.changes.ResolveReceiverGroups(identityFrame.GetReceiverGroup);
-                state.changes.Upload();
+                if(!state.surfaceCache.LimitsCaptureRecording) state.changes.Upload();
                 // Bind a real transient buffer even when the table is empty; an unbound SRV
                 // is not portable merely because a runtime count happens to be zero.
                 work.areaEmitters=graph.CreateBuffer(new BufferDesc(Math.Max(1,work.areaLayout?.Count??0),HybridLumenGIAreaEmission.Stride)
@@ -1464,7 +1468,16 @@ namespace HybridLumenGI
                 {
                     using(d.frameTiming.Profile(cmd,"HLGI Global SDF dirty bricks")) state.globalSdf.RecordUpdate(cmd);
                 }
+                int previousSurfaceChanges = state.surfaceCache.ChangedBounds.Count;
                 using(d.frameTiming.Profile(cmd,"HLGI World material capture")) state.surfaceCache.RecordCapture(cmd,d.viewport);
+                if (state.surfaceCache.LimitsCaptureRecording)
+                {
+                    var changedBounds = state.surfaceCache.ChangedBounds;
+                    for (int i = previousSurfaceChanges; i < changedBounds.Count; i++)
+                        state.changes.Add(changedBounds[i], false, Mathf.Max(1, s.traceDistance));
+                    state.lightingChanged |= changedBounds.Count > previousSurfaceChanges;
+                    state.changes.RecordUpload(cmd);
+                }
                 // This distribution changes sampling only. Do not mark lighting dirty or reset
                 // the cache when rebuilding it; all consumers use the same ordered GPU table.
                 bool emissiveBuilt;

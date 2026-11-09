@@ -169,6 +169,7 @@ namespace UnityEngine.Rendering
             public Dictionary<int,object> Parameters;public Dictionary<int,object> MaterialValues;public ComputeShader Shader;
         }
         public readonly List<Entry> Entries=new();public readonly Dictionary<int,object> Parameters=new();
+        public Action BeforeDrawMesh;
         Dictionary<int,object> Copy()=>new(Parameters);
         public void SetBufferData(ComputeBuffer buffer,Array data){Entries.Add(new(){Kind="Upload",Buffer=buffer,Data=ComputeBuffer.Snapshot(data),Parameters=Copy()});}
         public void SetRenderTarget(RenderTargetIdentifier[] targets,RenderTargetIdentifier depth){Entries.Add(new(){Kind="Targets"});}
@@ -177,7 +178,7 @@ namespace UnityEngine.Rendering
         public void SetGlobalVector(int id,Vector4 v)=>Parameters[id]=v;public void SetGlobalFloat(int id,float v)=>Parameters[id]=v;public void SetGlobalMatrix(int id,Matrix4x4 v)=>Parameters[id]=v;
         public void SetGlobalTexture(int id,Texture value)=>Parameters[id]=value;
         public void DrawProcedural(Matrix4x4 m,Material material,int pass,MeshTopology topology,int count){Entries.Add(new(){Kind="TileClear",Material=material,Pass=pass,Parameters=Copy()});}
-        public void DrawMesh(Mesh mesh,Matrix4x4 matrix,Material material,int submesh,int pass,MaterialPropertyBlock properties){Entries.Add(new(){Kind="DrawMesh",Mesh=mesh,Material=material,Submesh=submesh,Pass=pass,MaterialValues=new(material.Values),Parameters=Copy()});}
+        public void DrawMesh(Mesh mesh,Matrix4x4 matrix,Material material,int submesh,int pass,MaterialPropertyBlock properties){BeforeDrawMesh?.Invoke();Entries.Add(new(){Kind="DrawMesh",Mesh=mesh,Material=material,Submesh=submesh,Pass=pass,MaterialValues=new(material.Values),Parameters=Copy()});}
         public void DrawRenderer(Renderer renderer,Material material,int submesh,int pass){Entries.Add(new(){Kind="DrawRenderer",Renderer=renderer,Material=material,Submesh=submesh,Pass=pass,MaterialValues=new(material.Values),Parameters=Copy()});}
         public void SetComputeIntParam(ComputeShader shader,int id,int value)=>Parameters[id]=value;public void SetComputeIntParam(ComputeShader shader,string name,int value)=>Parameters[Shader.PropertyToID(name)]=value;
         public void SetComputeFloatParam(ComputeShader shader,int id,float value)=>Parameters[id]=value;
