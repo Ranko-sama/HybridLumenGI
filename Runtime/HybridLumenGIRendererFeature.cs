@@ -708,7 +708,7 @@ namespace HybridLumenGI
             internal void StopAdmission()
             {
                 admissionStopped=true;
-                HybridLumenGIResourceRetirement.CollectIdleRetirements-=RetireDestroyedCameras;
+                HybridLumenGIResourceRetirement.CollectIdleRetirements-=RetireIdleCameraStates;
             }
             internal TransportPass(ComputeShader shader,Material composite,Shader surface,Shader nativeDiffuse,Settings settings,Func<bool> featureActive,HybridLumenGIRendererFeature validationOwner)
             {
@@ -721,7 +721,7 @@ namespace HybridLumenGI
                 ConfigureInput(ScriptableRenderPassInput.Depth|ScriptableRenderPassInput.Normal|ScriptableRenderPassInput.Motion);
                 requiresIntermediateTexture=true;
                 HybridLumenGIResourceRetirement.Register(RequiresRepresentation);
-                HybridLumenGIResourceRetirement.CollectIdleRetirements+=RetireDestroyedCameras;
+                HybridLumenGIResourceRetirement.CollectIdleRetirements+=RetireIdleCameraStates;
             }
             private bool RequiresRepresentation(HybridLumenGIProxy proxy)
             {
@@ -742,16 +742,43 @@ namespace HybridLumenGI
             private static bool UsesPreparedRenderer(CameraState state)
             {
                 var pipeline = UniversalRenderPipeline.asset;
-                if (pipeline == null || state.scenePreparedRenderer == null) return false;
+                return pipeline != null && state.scenePreparedRenderer != null &&
+                    ReferenceEquals(SelectedBaseRenderer(pipeline, state.camera), state.scenePreparedRenderer);
+            }
+            private static ScriptableRenderer SelectedBaseRenderer(UniversalRenderPipelineAsset pipeline, Camera camera)
+            {
                 ScriptableRenderer renderer = null;
                 // Match URP's default Renderer and forced Base rules for Scene View.
-                if (state.camera.cameraType != CameraType.SceneView &&
-                    state.camera.TryGetComponent<UniversalAdditionalCameraData>(out var cameraData))
+                if (camera.cameraType != CameraType.SceneView &&
+                    camera.TryGetComponent<UniversalAdditionalCameraData>(out var cameraData))
                 {
-                    if (cameraData.renderType != CameraRenderType.Base) return false;
+                    if (cameraData.renderType != CameraRenderType.Base) return null;
                     renderer = cameraData.scriptableRenderer;
                 }
-                return ReferenceEquals(renderer ?? pipeline.scriptableRenderer, state.scenePreparedRenderer);
+                return renderer ?? pipeline.scriptableRenderer;
+            }
+            private bool IsReassignedCamera(CameraState state)
+            {
+                var pipeline = UniversalRenderPipeline.asset;
+                var prepared = state.scenePreparedRenderer;
+                if (admissionStopped || pipeline == null || prepared == null) return false;
+                var selected = SelectedBaseRenderer(pipeline, state.camera);
+                if (admissionStopped || selected == null || ReferenceEquals(selected, prepared)) return false;
+
+                // Both renderers must still belong to this pipeline. Asset replacement
+                // and renderer recreation have their own pass-disposal lifecycle.
+                var renderers = pipeline.renderers;
+                var data = pipeline.rendererDataList;
+                bool hasPrepared = false;
+                int selectedIndex = -1;
+                for (int i = 0; i < Math.Min(renderers.Length, data.Length); i++)
+                {
+                    if (ReferenceEquals(renderers[i], prepared)) hasPrepared = true;
+                    if (ReferenceEquals(renderers[i], selected)) selectedIndex = i;
+                }
+                if (!hasPrepared || selectedIndex < 0 || data[selectedIndex] == null) return false;
+                var features = data[selectedIndex].rendererFeatures;
+                return features != null && !features.Contains(validationOwner);
             }
             private sealed class SurfacePassData
             {
@@ -1881,7 +1908,7 @@ namespace HybridLumenGI
             }
             private CameraState GetCameraState(Camera camera)
             {
-                RetireDestroyedCameras();
+                RetireCameraStates(includeReassigned: false);
                 int id=camera.GetInstanceID();Evict(id);
                 if(cameras.TryGetValue(id,out var state) && !ReferenceEquals(state.camera,camera))
                 {
@@ -1895,11 +1922,13 @@ namespace HybridLumenGI
                 }
                 return state;
             }
-            private void RetireDestroyedCameras()
+            private void RetireIdleCameraStates() => RetireCameraStates(includeReassigned: true);
+            private void RetireCameraStates(bool includeReassigned)
             {
                 retire.Clear();
                 foreach (var entry in cameras)
-                    if (entry.Value.camera == null) retire.Add(entry.Key);
+                    if (entry.Value.camera == null || (includeReassigned && IsReassignedCamera(entry.Value)))
+                        retire.Add(entry.Key);
                 foreach (int id in retire)
                 {
                     var state = cameras[id];
