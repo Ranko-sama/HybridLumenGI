@@ -1,8 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度　Release227，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release228，G0 已锁定，G1／G2 本机代表性验收通过
 
-T6 已确认 Release227 精确软件固定近景仍有 25 ms 缺口。基线 p95 为 45.465 ms，单次全距候选为 43.860 ms。降幅 3.53%，低于 15% 采用门槛，继续交付 Release227。[配对成本与判定](../LocalComparison/Review/software-full-range-277/result.md)
+T3／G3 已关闭 DXR 无图卡材质贴图恢复可采样时漏发局部照明刷新的路径。实际不透明墙在最后一段写入和同页恢复绑定时读取已知蓝色，修复使地板软反应由 0 变为 1，调度优先级由 0 升为 751。读回等待和稳定帧没有额外刷新。屏幕残留、运动拖影和收敛时间继续按原范围验收。[实机对照与适用范围](../LocalComparison/Review/cardless-color-upload-278/result.md) · [Release228 同源交付](../LocalComparison/Review/cardless-color-upload-278/delivery.json)
+
+T6 已确认 Release227 精确软件固定近景仍有 25 ms 缺口。基线 p95 为 45.465 ms，单次全距候选为 43.860 ms。降幅 3.53%，低于 15% 采用门槛，候选留在隔离工程。[配对成本与判定](../LocalComparison/Review/software-full-range-277/result.md)
 
 T5／T6 的 HLOD 就绪流程已消除小范围预热仍固定请求整池缓存的传输。受控 192 卡池中，18 张连续预热卡的请求由 288 KiB 缩至 27 KiB，原回执和空格证据仍能使用。分散布局可能跨整池。实机开销和高速首显继续验收。[实际录制字节与范围](../LocalComparison/Review/hlod-readback-span-276/result.md) · [Release227 同源交付](../LocalComparison/Review/hlod-readback-span-276/delivery.json)
 
