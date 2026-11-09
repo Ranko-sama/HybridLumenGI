@@ -38,6 +38,12 @@ namespace HybridLumenGI
         /// A single capture is not preemptible and may exceed this allowance.
         /// </summary>
         public static double CaptureBudgetMillisecondsPerFrame;
+        /// <summary>
+        /// Optional shared elapsed-time allowance for starting synchronous snapshot publications per engine frame.
+        /// Zero, negative or nonfinite values disable it. Each admitted attempt runs to completion.
+        /// Ready snapshots deferred by this allowance keep their queue order and memory reservation.
+        /// </summary>
+        public static double PublicationBudgetMillisecondsPerFrame;
         public static long ReservedBytes { get; private set; }
         public static int PendingWorkerCount=>Jobs.Count;
         public static int PublishedSnapshotCount=>Published.Count;
@@ -223,6 +229,9 @@ namespace HybridLumenGI
             RefreshRenderSources();
             long uploadBudget = Math.Max(0, UploadBudgetBytesPerFrame);
             long uploadLeft = uploadBudget;
+            double publicationBudget = PublicationBudgetMillisecondsPerFrame;
+            bool publicationTimeLimited = publicationBudget > 0 && !double.IsNaN(publicationBudget) && !double.IsInfinity(publicationBudget);
+            double publicationMilliseconds = 0;
             int overBudgetCompletions = 0;
             // Spend publication quota in capture order so repeated new completions
             // cannot starve an older ready snapshot. Unfinished work is still skipped.
@@ -253,7 +262,13 @@ namespace HybridLumenGI
                     catch(Exception error){job.cleanupFailed=true;Debug.LogException(error);}
                     continue;
                 }
+                if (publicationTimeLimited && publicationMilliseconds >= publicationBudget)
+                {
+                    job.owner.Status = "Snapshot ready, publication time budget pending";
+                    continue;
+                }
                 Snapshot old=null;
+                long publicationStarted = publicationTimeLimited ? Stopwatch.GetTimestamp() : 0;
                 try
                 {
                     uploadLeft-=upload;
@@ -287,6 +302,11 @@ namespace HybridLumenGI
                         job.cleanupFailed=true;job.owner.Status+="; cleanup failed; snapshot retained";
                         Debug.LogException(ex);Debug.LogException(cleanupError);continue;
                     }
+                }
+                finally
+                {
+                    if (publicationTimeLimited)
+                        publicationMilliseconds += (Stopwatch.GetTimestamp() - publicationStarted) * (1000.0 / Stopwatch.Frequency);
                 }
                 // Ownership is now transferred to Published or private cleanup succeeded.
                 job.cancellation.Dispose();Jobs.RemoveAt(i--);

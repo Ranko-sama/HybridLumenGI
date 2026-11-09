@@ -11,6 +11,7 @@ static class Program
     const BindingFlags PrivateInstance=BindingFlags.NonPublic|BindingFlags.Instance;
     const BindingFlags PrivateStatic=BindingFlags.NonPublic|BindingFlags.Static;
     static readonly FieldInfo CaptureTimeBudget=typeof(HybridLumenGIDeformedMesh).GetField("CaptureBudgetMillisecondsPerFrame",BindingFlags.Public|BindingFlags.Static);
+    static readonly FieldInfo PublicationTimeBudget=typeof(HybridLumenGIDeformedMesh).GetField("PublicationBudgetMillisecondsPerFrame",BindingFlags.Public|BindingFlags.Static);
     sealed class Owner {public HybridLumenGIDeformedMesh component;public HybridLumenGIProxy proxy;public Renderer renderer;public Mesh original;}
     static void Require(bool result,string message){if(!result)throw new Exception(message);}
     static Mesh Mesh(int marker)
@@ -59,6 +60,7 @@ static class Program
         HybridLumenGIDeformedMesh.MemoryBudgetBytes=128L<<20;HybridLumenGIDeformedMesh.UploadBudgetBytesPerFrame=8L<<20;
         // Keep historical source/control entry points compilable without the new optional API.
         if(CaptureTimeBudget!=null)CaptureTimeBudget.SetValue(null,0d);
+        if(PublicationTimeBudget!=null)PublicationTimeBudget.SetValue(null,0d);
     }
     static void AtomicGenerationAndRetirement()
     {
@@ -130,10 +132,9 @@ static class Program
         Require(CaptureTimeBudget!=null,"Current source lacks the capture-time budget API.");
         CaptureTimeBudget.SetValue(null,.1d);
     }
-    static void SpendCaptureTime()
+    static void SpendSynchronousTime()
     {
-        // A lower-bound delay inside the existing capture hook, not a performance assertion
-        // or an injected product clock. One whole attempt exceeds the 0.1 ms allowance.
+        // One whole attempt exceeds the 0.1 ms allowance using the real clock.
         var elapsed=System.Diagnostics.Stopwatch.StartNew();
         while(elapsed.Elapsed.TotalMilliseconds<1)System.Threading.Thread.SpinWait(32);
     }
@@ -147,12 +148,12 @@ static class Program
         var lastCapture=typeof(HybridLumenGIDeformedMesh).GetField("lastCapture",PrivateInstance);
         object oldRequest=requested.GetValue(second.component),oldGeneration=generation.GetValue(second.component),oldCapture=lastCapture.GetValue(second.component);
         string oldStatus=second.component.Status;long firstReservation=0;int publications=0;Mesh firstMesh=null;
-        firstSkin.Captured=_=>{firstReservation=HybridLumenGIDeformedMesh.ReservedBytes;SpendCaptureTime();};
+        firstSkin.Captured=_=>{firstReservation=HybridLumenGIDeformedMesh.ReservedBytes;SpendSynchronousTime();};
         secondSkin.Captured=_=>
         {
             Require(publications==1&&Job(first)==null&&ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(first.renderer),firstMesh),
                 "New capture ran before the previously completed job was published.");
-            SpendCaptureTime();
+            SpendSynchronousTime();
         };
         typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).SetValue(null,0);
         Frame();Started(1100);firstMesh=PendingMesh(first);
@@ -168,7 +169,7 @@ static class Program
         Require(firstSkin.BakeCount==1&&secondSkin.BakeCount==0,"Another camera context reopened the exhausted engine-frame allowance.");
         Finish(first,1100);
         // Publication itself exceeds the capture allowance, but is outside that allowance.
-        first.proxy.OnDirty=()=>{publications++;SpendCaptureTime();};
+        first.proxy.OnDirty=()=>{publications++;SpendSynchronousTime();};
         Frame();Started(1101);
         Require(publications==1&&firstSkin.BakeCount==1&&secondSkin.BakeCount==1&&second.component.PendingFrame==Time.frameCount&&
             (int)typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).GetValue(null)==2,
@@ -184,8 +185,8 @@ static class Program
         Defaults();LimitCaptureTime();
         var first=Add(1200,true);var second=Add(1201,true);first.component.updateIntervalFrames=4;
         var firstSkin=(SkinnedMeshRenderer)first.renderer;var secondSkin=(SkinnedMeshRenderer)second.renderer;
-        firstSkin.Captured=_=>{SpendCaptureTime();throw new InvalidOperationException("Controlled failure after timed capture");};
-        secondSkin.Captured=_=>SpendCaptureTime();
+        firstSkin.Captured=_=>{SpendSynchronousTime();throw new InvalidOperationException("Controlled failure after timed capture");};
+        secondSkin.Captured=_=>SpendSynchronousTime();
         typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).SetValue(null,0);
         Frame();
         Require(firstSkin.BakeCount==1&&firstSkin.LastCaptured.Destroyed&&Job(first)==null&&
@@ -204,7 +205,7 @@ static class Program
         Mesh published=HybridLumenGIDeformedMesh.GetSourceMesh(first.renderer);
         int publishedFrame=first.component.PublishedFrame;long held=HybridLumenGIDeformedMesh.ReservedBytes;
         var second=Add(1301,true);var secondSkin=(SkinnedMeshRenderer)second.renderer;
-        firstSkin.Captured=_=>SpendCaptureTime();secondSkin.Captured=_=>SpendCaptureTime();
+        firstSkin.Captured=_=>SpendSynchronousTime();secondSkin.Captured=_=>SpendSynchronousTime();
         ResetBake(1300);LimitCaptureTime();
         typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).SetValue(null,0);
         Frame();
@@ -349,6 +350,44 @@ static class Program
         Defaults();
         Console.WriteLine("PASS: an oversized completed snapshot yields the capture slot, a fitting snapshot publishes, and the retained completion publishes after the budget recovers.");
     }
+    static void PublicationTimeBudgetDefersWholeSnapshot()
+    {
+        Defaults();
+        var first=Add(1650);Frame();Started(1650);
+        var second=Add(1651);Frame();Started(1651);
+        var secondJob=Job(second);
+        Mesh firstMesh=PendingMesh(first), secondMesh=PendingMesh(second);
+        int secondCapture=second.component.PendingFrame;
+        long retainedBytes=HybridLumenGIDeformedMesh.ReservedBytes;
+
+        var cancelled=Add(1652);
+        HybridLumenGIDeformedMesh.MaximumWorkers=3;Frame();Started(1652);
+        Disable(cancelled);Finish(cancelled,1652);
+        Finish(first,1650);Finish(second,1651);
+        HybridLumenGIDeformedMesh.MaximumWorkers=0;
+        PublicationTimeBudget.SetValue(null,.1d);
+        first.proxy.OnDirty=SpendSynchronousTime;
+
+        Frame();
+        PublishedTogether(first,firstMesh,1650);
+        Require(Job(cancelled)==null && HybridLumenGIDeformedMesh.ReservedBytes==retainedBytes,
+            "A cancelled completion after the time limit must still clean up while the ready snapshot retains its reservation.");
+        Require(ReferenceEquals(Job(second),secondJob) && !HybridLumenGIDeformedMesh.HasSnapshot(second.renderer) &&
+            second.component.PendingFrame==secondCapture && second.component.Status=="Snapshot ready, publication time budget pending",
+            "The next ready snapshot must retain its original job and capture frame when publication time runs out.");
+        RenderPipelineManager.Begin();
+        Require(ReferenceEquals(Job(second),secondJob),"A second context in the same frame replenished the publication allowance.");
+
+        Frame();
+        PublishedTogether(first,firstMesh,1650);
+        PublishedTogether(second,secondMesh,1651);
+        Require(Job(second)==null && second.component.PublishedFrame==secondCapture &&
+            HybridLumenGIDeformedMesh.ReservedBytes==retainedBytes,"The deferred job must publish its original complete snapshot in the next frame.");
+        Disable(first);Disable(second);DrainCompletedRetirements();
+        Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Timed publications left a reservation after retirement.");
+        Defaults();
+        Console.WriteLine("PASS: publication time defers a complete job with its capture and reservation, preserves cancelled cleanup, and resumes in the next engine frame.");
+    }
     public static void Main()
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
@@ -378,11 +417,12 @@ static class Program
             return;
         }
         Require(CaptureTimeBudget!=null&&(double)CaptureTimeBudget.GetValue(null)==0d,"Optional capture-time allowance must default to disabled.");
+        Require(PublicationTimeBudget!=null&&(double)PublicationTimeBudget.GetValue(null)==0d,"Optional publication-time allowance must default to disabled.");
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
         UnchangedSkinnedCaptureReuse();ExplicitSkinnedCaptureWaitsForDemand();SkinnedSourceMeshReplacement();NotifiedSkinnedSourceEdit();
         CaptureTimeBudgetDefersAndPublishes();FailedCaptureChargesTimeBudget();UnchangedCaptureChargesTimeBudget();
         VertexBudgetKeepsDeferredCaptureTurn();
-        CompletedPublicationIsFair();OversizedCompletionReleasesCaptureSlot();
+        CompletedPublicationIsFair();OversizedCompletionReleasesCaptureSlot();PublicationTimeBudgetDefersWholeSnapshot();
         FinalCancelledWorker();OpenNewSession();
         ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();
         IdleStreamedRetirementAfterLastCamera();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
