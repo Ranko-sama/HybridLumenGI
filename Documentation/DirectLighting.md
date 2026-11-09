@@ -34,6 +34,8 @@
 
 新命中材质路径将已到达表面的空间足迹投影到阴影方向：方向光保持平行半径，点/聚光向实际灯位置收缩。点光阴影射线从加bias的原点重新计算方向和焦距；N.L与距离衰减仍在真实表面点求值。近远场跳跃只推进半径，不改变材质观察源。普通表面覆盖在依赖已赋值的 BaseMap 时保留 parallax。默认白底图可直接以材质 alpha 判定覆盖，stock-shadow 覆盖禁用 parallax。未知覆盖仍遮挡并使入射光未知。当前 CPU 材质快照与精确几何准入允许普通 Lit 二值 alpha-test；DXR 强制非不透明候选逐项求值，已知透明继续遍历，已知实心或未知覆盖保留遮挡。代码接入不代替实际候选遍历的验收，也不扩展至 MSAA／A2C 或完整材质等价。空间LOD过滤也不能替代完整区域可见性或软阴影。[默认底图对照](../LocalComparison/Review/default-base-alpha-207/result.md)
 
+成功录制的精确命中材质会保存投影覆盖输入。覆盖变化时，已选实时投影光的可达距离加一段 GI 追踪距离用于局部时域失效和缓存优先级。方向光取阴影距离，点光和聚光取范围。[实际方向光对照](../LocalComparison/Review/cutout-shadow-change-209/result.md)
+
 精确软件与 DXR 只在实际采样已分配纹理时要求有效足迹。无足迹时仍可按标量判定已知透明或实心，确需纹理的覆盖保持未知并保守阻挡。完整材质解析另外要求其自身使用的纹理与属性有效。[双后端实机对照](../LocalComparison/Review/exact-footprint-and-page-admission-155/result.md#足迹缺失时的精确命中)
 
 | Renderer 模式 | 当前阴影查询 | 一般表面／GI 查询 |
