@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release203，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release204，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭固定双点光中一盏调暗而另一盏保持时的颜色恢复缺口。约 2 秒时，绿通道相对低亮基准的偏差从 +55.48% 降至 +1.06%，约 0.25 秒进入合格保持区间。蓝通道全窗口最大偏差为 2.28%。采用范围为两盏点光的独立颜色通道。不同倍率的共通道光源、升亮与普通 Player 动态质量继续验收。[同曝光实测](../LocalComparison/Review/point-light-channels-243/result.md) · [同源交付](../LocalComparison/Review/point-light-channels-243/delivery.json)
 
 T3／G3 已关闭固定单点光调暗后的旧亮残留与低亮恢复缺口。九点线性间接光在约 2 秒时的低亮偏差从 +55.45% 降至 +1.06%，首个合格保持窗口始于 0.260 秒。多灯、升亮与普通 Player 动态质量继续验收。[实机同曝光对照](../LocalComparison/Review/point-light-intensity-241/result.md) · [同源交付](../LocalComparison/Review/point-light-intensity-241/delivery.json)
 

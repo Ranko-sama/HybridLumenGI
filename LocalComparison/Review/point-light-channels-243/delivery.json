@@ -1,0 +1,42 @@
+{
+  "productCommit": "52fa0689ce8a981b481bb5878278140bca0aa71c",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release204-demo",
+  "tag": "release204-demo",
+  "publishedAt": "2026-11-09T11:33:02Z",
+  "prerelease": true,
+  "validation": {
+    "gate": "G3",
+    "baselineSource": "e4181c4d365885db9b94a130d22c4cb5bdf3d5e9",
+    "method": "Independent Release203 comparison, Unity 6000.0.85f1, RTX 2080 Ti, D3D12 Editor Play",
+    "comparison": "result.md",
+    "baseline": "baseline.json",
+    "fixed": "fixed.json",
+    "scope": "Two fixed point lights with independent RGB channels. Green dims from 20 to 2 while blue remains at 3.",
+    "status": "qualified-pass"
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release204-UnityProject.zip",
+      "size": 854709,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release204-demo/HybridLumenGI-Release204-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release204-Windows-x64.zip",
+      "size": 58198028,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release204-demo/HybridLumenGI-Release204-Windows-x64.zip"
+    }
+  ]
+}
