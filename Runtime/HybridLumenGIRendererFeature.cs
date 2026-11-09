@@ -642,6 +642,13 @@ namespace HybridLumenGI
                 cmd.SetBufferData((GraphicsBuffer)nodes,layout.CopyNodes());cmd.SetBufferData((GraphicsBuffer)leaves,layout.CopyLeaves());
                 uploadedSoftwareVersion=version; // Ordered graphics-queue write, not a completion/readiness claim.
             }
+            internal void DeactivateSoftwareGeometry()
+            {
+                if (retainedSoftwareLayout == null && retainedSoftwareNodes == null && softwareGeometry.MeshCount == 0) return;
+                softwareGeometry.Deactivate();
+                RetireSoftwareBuffers();
+                retainedSoftwareLayout = null;
+            }
             private void RetireSoftwareBuffers()
             {
                 var nodes=retainedSoftwareNodes;var leaves=retainedSoftwareLeaves;if(nodes==null)return;
@@ -1404,6 +1411,8 @@ namespace HybridLumenGI
                 state.transportRecordedWorkFrame = d.frame;
                 state.recordedBackendRequest = d.backendRequest;
                 state.recordedHardwarePreference = d.hardwarePreference;
+                // Use the recorded backend after any preparation or recording fallback.
+                if (d.hardware || !s.exactSoftwareTracing) state.DeactivateSoftwareGeometry();
                 if (d.hardware && d.waitForHlodBuildTurn) state.hardware.QueueDeferredHlodBuild(d.historyToken.EngineFrame);
             }
 
