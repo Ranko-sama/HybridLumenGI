@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release197，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release198，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭单个投影物在精确与后备表示之间切换时漏掉远接收面通知的问题。相机保持 DXR，实机关闭和恢复精确裁剪板时，远地板的局部缓存调度优先级均从 0 升至 1000。保持帧无重复通知。像素残留和收敛时间继续验收。[实机对照](../LocalComparison/Review/exact-shadow-reach-234/result.md) · [同源交付](../LocalComparison/Review/exact-shadow-reach-234/delivery.json)
 
 T3／T6 已关闭形变捕获在顶点额度不足时持续跳过合格对象的缺口。实际组件对照中，较小后续对象继续使用当帧余量，延期的蒙皮在下一可用帧捕获并完整发布新姿态。原生 GPU 对新快照的消费、拖影及画面收敛继续按 G3 验收。[捕获合同](DeformedGeometry.md) · [同源交付](../LocalComparison/Review/capture-vertex-turn-233/delivery.json)
 
