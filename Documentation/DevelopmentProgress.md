@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release188，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release189，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭投影者移动或撤除漏报长范围点光远接收面的问题。双网格 DXR 观察中，照明通知半径为 34，移动时刚体旧缓存拒绝半径为 9，远地板两次均取得调度优先级。采用范围为通知和调度，画面恢复仍待验收。[实测](../LocalComparison/Review/shadow-caster-reach-218/result.md) · [同源交付](../LocalComparison/Review/shadow-caster-reach-218/delivery.json)
 
 T3／G3 已关闭长范围点光投影资格变化漏报远接收面的问题。实际 DXR 关闭投影时，上传软域半径为 34，远地板优先级为 1000。保持关闭并修改渲染层时沿用半径 9。采用范围为通知和调度。[实际点光对照](../LocalComparison/Review/shadow-policy-reach-217/result.md) · [同源交付](../LocalComparison/Review/shadow-policy-reach-217/delivery.json)
 
