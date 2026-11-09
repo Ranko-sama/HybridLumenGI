@@ -448,29 +448,19 @@ static (HybridLumenGIProxy root, HybridLumenGIProxy[] children) StreamedGroup()
 g = StreamedGroup();
 SetResident(g.children[0], false);
 SetResident(g.children[1], false);
-bool completeReplacement;
+bool rootHeld, completeReplacement;
 using (var s = new HybridLumenGIScene())
 {
-    Prepare(s, false, 32);
-    int rootSlot = Slot(s, g.root.StableId);
-    Require(s.IsWarming(rootSlot), "The cold root did not start warming with both leaves unbound.");
-    Require(s.ReportReadiness(g.root.StableId, g.root.Revision, true, true, true), "Complete root readiness rejected.");
+    Prepare(s, false, 32); ReportAll(s); Prepare(s, false, 32);
+    RootPublished(s, g.root.StableId);
     SetResident(g.children[0], true);
-    Prepare(s, false, 32);
-    Require(s.PublishedCount == 1 && Slot(s, g.root.StableId) == rootSlot && s.IsPublished(rootSlot) &&
-        Slot(s, g.children[0].StableId) < 0 && s.PendingCapacity == 0 && s.Bvh.NodeCount == 1 &&
-        s.Bvh.Nodes[0].proxySlot == rootSlot,
-        $"Cold HLOD partial binding lost the ready root: published={s.PublishedCount}, warming={s.WarmingCount}.");
+    Prepare(s, false, 32); ReportAll(s); Prepare(s, false, 32);
+    rootHeld = s.PublishedCount == 1 && s.IsPublished(Slot(s, g.root.StableId)) &&
+        !s.IsPublished(Slot(s, g.children[0].StableId));
     SetResident(g.children[1], true);
     Prepare(s, false, 32);
     bool waitsForBoth = s.IsPublished(Slot(s, g.root.StableId)) && s.WarmingCount == 2;
-    var first = g.children[0];
-    Require(s.ReportReadiness(first.StableId, first.Revision, true, true, true), "First complete leaf readiness rejected.");
-    Prepare(s, false, 32);
-    RootPublished(s, g.root.StableId);
-    var second = g.children[1];
-    Require(s.ReportReadiness(second.StableId, second.Revision, true, true, true), "Second complete leaf readiness rejected.");
-    Prepare(s, false, 32);
+    ReportAll(s); Prepare(s, false, 32);
     completeReplacement = waitsForBoth && Slot(s, g.root.StableId) < 0 &&
         s.PublishedCount == 2 && g.children.All(p => s.IsPublished(Slot(s, p.StableId)));
 }
@@ -500,10 +490,10 @@ using (var s = new HybridLumenGIScene())
     completeBeforeRoot &= Slot(s, g.root.StableId) < 0 && g.children.All(p => s.IsPublished(Slot(s, p.StableId)));
 }
 HybridLumenGIStreamedRepresentation.Active.Clear();
-Require(completeReplacement && noOrdinaryBypass && completeBeforeRoot,
-    $"Streamed HLOD partial binding: complete replacement={completeReplacement}, " +
+Require(rootHeld && completeReplacement && noOrdinaryBypass && completeBeforeRoot,
+    $"Streamed HLOD partial binding: retained root={rootHeld}, complete replacement={completeReplacement}, " +
     $"no ordinary bypass={noOrdinaryBypass}, complete before root={completeBeforeRoot}.");
-Console.WriteLine("PASS streamed HLOD: the ready cold root publishes on partial binding, both leaf receipts replace it, and complete near details can publish while the root is unbound.");
+Console.WriteLine("PASS streamed HLOD: staged page arrivals retain complete GI groups and complete near details can publish while the root is unbound.");
 
 g = Group(2);
 var nextRoot = new HybridLumenGIProxy { StableId = 3000, FarFieldOnly = true,

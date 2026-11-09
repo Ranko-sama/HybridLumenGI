@@ -4,8 +4,6 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release208 同源交付](../LocalComparison/Review/point-light-shared-off-249/delivery.json)
 
-T5／G4 已关闭独立分页组可装入槽限时，细节分批绑定使已就绪粗根被撤回的路径。空发布组可让可用粗根先通过完整回执门，近场细节在两片都就绪后原子接替。统一示例高速冷入首显继续验收。[实际 Scene 对照与边界](../LocalComparison/Review/hlod-cold-partial-251/result.md)
-
 T3／G3 已关闭只关掉固定双点灯中一盏时的共通道残亮和低亮恢复缺口。实际 DXR 对照确认稳灯和匹配终态，1／2 秒残留、色向、保持和欠亮通过原条件。其他灯表变化和普通 Player 动态质量继续验收。[单独关灯的实测范围](../LocalComparison/Review/point-light-shared-off-249/result.md)
 
 T3／G3 已关闭固定双点光共用颜色通道且一盏调暗时的旧亮残留和低亮恢复缺口。实际 DXR 的旧绿、终态亮度、色向、保持以及固定蓝通道均通过原门槛。适用范围为固定点灯和既有局部照明域，其他光路及普通 Player 动态画质继续验收。[共通道同曝光对照](../LocalComparison/Review/point-light-shared-channel-248/result.md)

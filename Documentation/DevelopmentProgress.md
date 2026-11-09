@@ -2,8 +2,6 @@
 
 ## 当前总进度　Release208，G0 已锁定，G1／G2 本机代表性验收通过
 
-T5／G4 已关闭两片独立分页细节可以装入槽限时，首片绑定仍撤回已就绪粗根的缺口。受控到达顺序中，旧版发布数和预热数均为 0。修复版先从原槽发布粗根，再等两片细节取得完整回执后一起接替。原生 I/O 和统一示例高速冷入首显继续验收。[同输入对照与范围](../LocalComparison/Review/hlod-cold-partial-251/result.md)
-
 T6／G4 的当前固定软件近景实测 GI p95 为 46.868 ms，local 采样峰值为 551.699 MiB。延后世界材质求值的候选 p95 为 47.804 ms，已按冻结条件撤回。软件 25 ms 时间缺口继续开放。[同源成本对照与范围](../LocalComparison/Review/software-deferred-material-250/result.md)
 
 T3／G3 已关闭固定双点灯共用通道时单独关灯的残亮。实际灯表从两条变为一条，青灯全程保持。约 2 秒时旧绿增量从 6.37% 降至 −0.21%，约 0.26 秒进入合格保持区间。整段绿均值最低比青灯终态低 2.45%，蓝通道最大偏差 2.19%。[同曝光实测与范围](../LocalComparison/Review/point-light-shared-off-249/result.md) · [同源交付](../LocalComparison/Review/point-light-shared-off-249/delivery.json)
