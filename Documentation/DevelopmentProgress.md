@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release212，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release213，G0 已锁定，G1／G2 本机代表性验收通过
 
-T6／G4 已关闭分页撤回后仅由在途父包保留的依赖继续启动新加载的缺口。单步唯一启动名额交给仍有需求的页面，原材质包正常完成并安全释放，重入后重新加载。对照使用实际 C# 调度与受控 I/O。[同输入对照](../LocalComparison/Review/withdrawn-dependency-io-256/result.md)
+T6／G4 已关闭分页撤回后仅由在途父包保留的依赖继续启动新加载的缺口。单步唯一启动名额交给仍有需求的页面，原材质包正常完成并安全释放，重入后重新加载。对照使用实际 C# 调度与受控 I/O。[同输入对照](../LocalComparison/Review/withdrawn-dependency-io-256/result.md) · [同源交付](../LocalComparison/Review/withdrawn-dependency-io-256/delivery.json)
 
 T6／G4 已关闭后置相机降低当帧额度时丢失贴图上传轮次的缺口。实际 Batch／Pool 受控对照中，次帧额度恢复后等待相机录制完整的 2 MiB。低额度帧装不下的大页让出额度，1 MiB 小页正常录制。[受控对照与边界](../LocalComparison/Review/texture-quota-tightening-254/result.md) · [两项修复的同源交付](../LocalComparison/Review/texture-quota-tightening-254/delivery.json)
 
