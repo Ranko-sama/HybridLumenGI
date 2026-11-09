@@ -24,7 +24,9 @@ T2／G4 已关闭普通 MeshRenderer 的额外槽实际覆盖近板时，精确�
 
 T3／T6 已关闭形变对象在顶点额度竞争中持续失去捕获轮次的问题。实际组件在保留小对象当帧捕获的同时，让延期蒙皮在下一可用帧完整发布新姿态。原生 GPU 消费和形变画质继续验收。[对照与边界](DeformedGeometry.md)
 
-T6 的精确软件重复覆盖已消除。当前近景的 GI 合计 p95 从 50.005 降至 45.887 ms，进程 local 采样在 1 GiB 预算内。软件时间缺口、G0 的 DXR 范围及完整负载分别按原条件验收。[基线](../LocalComparison/Review/software-budget-230/result.md) · [实测改进](../LocalComparison/Review/software-coverage-231/result.md)
+T6 的精确软件重复覆盖已在 Release196 消除。该版近景的 GI 合计 p95 从 50.005 降至 45.887 ms，进程 local 采样在 1 GiB 预算内。软件时间缺口、G0 的 DXR 范围及完整负载分别按原条件验收。[基线](../LocalComparison/Review/software-budget-230/result.md) · [实测改进](../LocalComparison/Review/software-coverage-231/result.md)
+
+Release205 复用该近景的精确软件固定窗口，确认当前 p95 为 47.200 ms。只消费布尔结果的阴影提前结束候选通过实际查询判定，p95 降低 3.27%，收益未达冻结门槛后撤回。现有结果供后续选择能实质缩短软件时间的工作，25 ms 目标仍开放。[同源配对](../LocalComparison/Review/software-shadow-246/result.md)
 
 T3／G3 的固定连续发光体平移已取得实际新区的供光与恢复依据。旧区参照波动占切前差 1.559%，超过 0.5% 的资格，且实际固定点与预定 X 描述有偏差。整项保持开放。[实际范围、同曝光动画和逐帧结果](../LocalComparison/Review/emitter-motion-229/result.md)
 
