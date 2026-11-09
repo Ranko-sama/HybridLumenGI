@@ -133,6 +133,14 @@ namespace HybridLumenGI
         public static void CancelBuildDemand(object owner)
         {for(int i=demands.Count-1;i>=0;i--)if(ReferenceEquals(demands[i].owner,owner))demands.RemoveAt(i);}
 
+        internal static bool BuildsEnabled(out string reason)
+        {
+            EnsureFrame();
+            bool enabled = settings.MaxBuildsPerFrame > 0;
+            reason = enabled ? null : "RTAS builds are disabled by the shared frame quota.";
+            return enabled;
+        }
+
         internal static bool FitsBuildBurst(long triangles, long instances, out string reason)
         {
             EnsureFrame();
@@ -145,7 +153,7 @@ namespace HybridLumenGI
         {
             EnsureFrame();reason=null;
             if(owner==null || frame!=Frame || triangles<0 || instances<0){reason="RTAS build demand belongs to a stale frame.";return false;}
-            if(!FitsBuildBurst(triangles,instances,out reason))
+            if(!BuildsEnabled(out reason) || !FitsBuildBurst(triangles,instances,out reason))
             {CancelBuildDemand(owner);return false;}
             Demand demand=null;foreach(var d in demands)if(ReferenceEquals(d.owner,owner)){demand=d;break;}
             if(demand==null){if(sequence==long.MaxValue){reason="RTAS demand sequence exhausted.";return false;}demand=new Demand{owner=owner,sequence=++sequence};demands.Add(demand);}

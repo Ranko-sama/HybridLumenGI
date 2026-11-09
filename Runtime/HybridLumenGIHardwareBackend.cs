@@ -295,11 +295,12 @@ namespace HybridLumenGI
                     long buildTriangles = reuseGeometry ? TriangleCount : planTriangles;
                     long buildInstances = reuseGeometry ? InstanceCount : planInstances;
                     if ((!reuseGeometry || poseChanged || buildPending) &&
-                        !HybridLumenGIRtasBudget.FitsBuildBurst(buildTriangles, buildInstances, out var burstReason))
+                        (!HybridLumenGIRtasBudget.BuildsEnabled(out var buildReason) ||
+                         !HybridLumenGIRtasBudget.FitsBuildBurst(buildTriangles, buildInstances, out buildReason)))
                     {
                         Deactivate();
                         FallbackCount = publishedCount;
-                        BudgetStatus = burstReason;
+                        BudgetStatus = buildReason;
                         return false;
                     }
                     // Measured values never lower the retained high-water reservation. Old GPU
@@ -686,6 +687,16 @@ namespace HybridLumenGI
             {
                 if (buildPending)
                 {
+                    // Another preparation can lower the shared limit after this
+                    // backend reserved its plan. Nothing in the queue can build at zero.
+                    if (!HybridLumenGIRtasBudget.BuildsEnabled(out var disabledReason))
+                    {
+                        int fallbackCount = MeshCount + FallbackCount;
+                        Deactivate();
+                        FallbackCount = fallbackCount;
+                        BudgetStatus = disabledReason;
+                        return false;
+                    }
                     // Charge every dirty build/refit, not only changes in GetSize. Use all
                     // prepared triangles/instances conservatively for Unity's opaque build work.
                     if(!HybridLumenGIRtasBudget.TryReserve(TriangleCount,InstanceCount,reservation,out var admitted,out string memoryReason))

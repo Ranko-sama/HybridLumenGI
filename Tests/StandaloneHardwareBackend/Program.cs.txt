@@ -680,6 +680,60 @@ Require(retainedUnderBurstNative.Disposed && Prepare(retainedUnderBurst.backend,
 retainedUnderBurst.backend.Dispose();
 HybridLumenGIResourceRetirement.Complete();
 
+// Zero builds is a hard limit even when the plan fits the burst and credits.
+var disabledQuota = Quota(rate: 6, builds: 0);
+HybridLumenGIRtasBudget.BeginFrame(1114, disabledQuota);
+var disabledCamera = BudgetCamera(2);
+var disabledCommand = new CommandBuffer();
+var beforeDisabledNative = RayTracingAccelerationStructure.Last;
+int beforeDisabledBuffers = ComputeBuffer.AllocationCount;
+long beforeDisabledBytes = HybridLumenGIRtasBudget.AccountedBytes;
+bool coldDisabledPrepared = Prepare(disabledCamera.backend, disabledCamera.scene, 1);
+bool coldDisabledRecorded = disabledCamera.backend.RecordBuild(disabledCommand);
+disabledCamera.backend.QueueDeferredHlodBuild(1114);
+Require(!coldDisabledPrepared && !coldDisabledRecorded &&
+    ReferenceEquals(beforeDisabledNative, RayTracingAccelerationStructure.Last) &&
+    ComputeBuffer.AllocationCount == beforeDisabledBuffers && disabledCamera.renderer.Filter.sharedMesh.VertexReads == 0 &&
+    HybridLumenGIRtasBudget.AccountedBytes == beforeDisabledBytes && HybridLumenGIRtasBudget.PendingDemands == 0 &&
+    !disabledCamera.backend.HasDeferredHlodBuild && disabledCommand.BuildCalls == 0,
+    "Zero shared builds prepared geometry or queued an impossible cold build.");
+
+HybridLumenGIRtasBudget.BeginFrame(1115, Quota());
+Require(Prepare(disabledCamera.backend, disabledCamera.scene, 1) && disabledCamera.backend.RecordBuild(disabledCommand),
+    "Restoring a positive quota did not admit the cold camera.");
+var disabledNative = RayTracingAccelerationStructure.Last;
+long disabledReserved = disabledCamera.backend.ReservedAccelerationBytes;
+HybridLumenGIRtasBudget.BeginFrame(1116, disabledQuota);
+Require(Prepare(disabledCamera.backend, disabledCamera.scene, 1) && disabledCamera.backend.RecordBuild(disabledCommand) &&
+    disabledCamera.backend.CanDispatch && disabledCommand.BuildCalls == 1,
+    "An already built current RTAS must remain usable at zero builds.");
+MoveBudgetCamera(disabledCamera, 2);
+Require(!Prepare(disabledCamera.backend, disabledCamera.scene, 2) && !disabledCamera.backend.CanDispatch &&
+    disabledNative.Updates.Count == 0 && !disabledNative.Disposed && HybridLumenGIRtasBudget.RetiredBytes >= disabledReserved,
+    "A disabled refit changed the old RTAS or bypassed fenced retirement.");
+HybridLumenGIResourceRetirement.Complete();
+HybridLumenGIRtasBudget.BeginFrame(1117, Quota());
+Require(disabledNative.Disposed && Prepare(disabledCamera.backend, disabledCamera.scene, 2) &&
+    disabledCamera.backend.RecordBuild(disabledCommand) && disabledCommand.BuildCalls == 2,
+    "New pose could not build after the old reservation returned.");
+
+HybridLumenGIRtasBudget.BeginFrame(1118, Quota());
+var lateDisabled = BudgetCamera(1);
+Require(Prepare(lateDisabled.backend, lateDisabled.scene, 1), "Late-disable control did not prepare.");
+var lateDisabledNative = RayTracingAccelerationStructure.Last;
+lateDisabled.backend.QueueDeferredHlodBuild(1118);
+HybridLumenGIRtasBudget.BeginFrame(1118, disabledQuota);
+Require(!lateDisabled.backend.RecordBuild(disabledCommand) && !lateDisabled.backend.CanDispatch &&
+    lateDisabled.backend.ReservedAccelerationBytes == 0 && !lateDisabledNative.Disposed &&
+    HybridLumenGIRtasBudget.PendingDemands == 0 && disabledCommand.BuildCalls == 2,
+    "A stricter same-frame zero quota left a pending RTAS or work request.");
+HybridLumenGIResourceRetirement.Complete();
+Require(lateDisabledNative.Disposed, "Late rejection did not retire the prepared RTAS.");
+lateDisabled.backend.Dispose();
+disabledCamera.backend.Dispose();
+HybridLumenGIResourceRetirement.Complete();
+Console.WriteLine("RTAS zero build quota: cold request rejected before allocation, current RTAS reused, dirty and late plans safely retired.");
+
 HybridLumenGIRtasBudget.BeginFrame(1200,Quota(rate:0,burst:0,builds:0));
 var abandoned=BudgetCamera(6);var nextCamera=BudgetCamera(1);var nextCmd=new CommandBuffer();
 HybridLumenGIRtasBudget.BeginFrame(1201,Quota());Require(Prepare(abandoned.backend,abandoned.scene,1)&&!abandoned.backend.RecordBuild(new CommandBuffer()),"Abandoned demand setup failed.");
