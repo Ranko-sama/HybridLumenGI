@@ -218,6 +218,56 @@ static class Program
         Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Timed unchanged/recovery captures left a reservation.");Defaults();
         Console.WriteLine("PASS: whole capture may overrun its time allowance; deferred demand/turn/reservation preserved; next-frame rotation and completed-job publication progress; failed and unchanged attempts also charge time.");
     }
+    static void VertexBudgetKeepsDeferredCaptureTurn()
+    {
+        Defaults();
+        const int unchangedMarker=1620, oldPose=1621, newPose=1622, fittingMarker=1623;
+        var unchanged=Add(unchangedMarker,true);
+        var moving=Add(oldPose,true);
+        var vertices=moving.original.vertices;
+        Array.Resize(ref vertices,4);
+        vertices[3]=new Vector3(oldPose,1,1);
+        moving.original.vertices=vertices;
+        moving.original.normals=new Vector3[4];
+        moving.original.tangents=new Vector4[4];
+        moving.original.uv=new Vector2[4];
+        moving.original.SetIndices(new[]{0,1,2,1,3,2},MeshTopology.Triangles,0,false);
+
+        Frame();Started(unchangedMarker);Started(oldPose);
+        PublishCompleted(unchanged,unchangedMarker);PublishCompleted(moving,oldPose);
+        Mesh oldMesh=HybridLumenGIDeformedMesh.GetSourceMesh(moving.renderer);
+        var unchangedSkin=(SkinnedMeshRenderer)unchanged.renderer;
+        var movingSkin=(SkinnedMeshRenderer)moving.renderer;
+        movingSkin.Captured=mesh=>
+        {
+            Vector3[] baked=mesh.vertices;
+            for(int i=0;i<baked.Length;i++)baked[i].x+=1;
+            mesh.vertices=baked;
+        };
+        var fitting=Add(fittingMarker);
+        HybridLumenGIDeformedMesh.VertexBudgetPerFrame=6;
+        typeof(HybridLumenGIDeformedMesh).GetField("cursor",PrivateStatic).SetValue(null,0);
+        Frame();
+        Require(unchangedSkin.BakeCount==2 && Job(unchanged)==null && movingSkin.BakeCount==1 && Job(moving)==null &&
+            moving.component.Status=="Capture vertex budget pending" && Job(fitting)!=null,
+            "The unchanged capture must charge its vertices while leaving the remaining budget available to a fitting capture.");
+        PublishCompleted(fitting,fittingMarker);
+
+        Frame();
+        Require(movingSkin.BakeCount==2 && Job(moving)!=null && unchangedSkin.BakeCount==2 &&
+            ReferenceEquals(HybridLumenGIDeformedMesh.GetSourceMesh(moving.renderer),oldMesh),
+            "The owner deferred by the vertex budget did not get its capture turn in the next eligible frame.");
+        Mesh newMesh=PendingMesh(moving);
+        PublishCompleted(moving,newPose);
+        PublishedTogether(moving,newMesh,newPose);
+        Frame();
+        Require(unchangedSkin.BakeCount==3 && movingSkin.BakeCount==2,
+            "The original owner must resume without exceeding the frame vertex budget.");
+        Disable(unchanged);Disable(moving);Disable(fitting);DrainCompletedRetirements();
+        Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Capture turn regression left a reservation.");
+        Defaults();
+        Console.WriteLine("PASS: a vertex-budget waiter captures and publishes its changed pose while fitting work uses the remaining vertices.");
+    }
     static void CompletedPublicationIsFair()
     {
         Defaults();HybridLumenGIDeformedMesh.MaximumWorkers=1;
@@ -310,6 +360,12 @@ static class Program
         }
         if(Environment.GetEnvironmentVariable("HLGI_SKINNED_UNCHANGED_LEGACY_CONTROL")=="1")
         {LegacyUnchangedSkinnedControl();return;}
+        if(Environment.GetEnvironmentVariable("HLGI_VERTEX_CAPTURE_TURN_CASE")=="1")
+        {
+            try { VertexBudgetKeepsDeferredCaptureTurn(); }
+            catch(Exception error) { Console.Error.WriteLine(error.Message); Environment.ExitCode=1; }
+            return;
+        }
         if(Environment.GetEnvironmentVariable("HLGI_COALESCED_LEGACY_CONTROL")=="1")
         {LegacyContinuousControl();return;}
         // The failed snapshot is intentionally retained: isolate this case from success-suite accounting.
@@ -325,6 +381,7 @@ static class Program
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
         UnchangedSkinnedCaptureReuse();ExplicitSkinnedCaptureWaitsForDemand();SkinnedSourceMeshReplacement();NotifiedSkinnedSourceEdit();
         CaptureTimeBudgetDefersAndPublishes();FailedCaptureChargesTimeBudget();UnchangedCaptureChargesTimeBudget();
+        VertexBudgetKeepsDeferredCaptureTurn();
         CompletedPublicationIsFair();OversizedCompletionReleasesCaptureSlot();
         FinalCancelledWorker();OpenNewSession();
         ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();

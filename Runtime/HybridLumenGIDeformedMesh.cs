@@ -294,7 +294,8 @@ namespace HybridLumenGI
             double captureBudget=CaptureBudgetMillisecondsPerFrame;
             bool captureTimeLimited=captureBudget>0 && !double.IsNaN(captureBudget) && !double.IsInfinity(captureBudget);
             double captureMilliseconds=0;
-            int verticesLeft=Math.Max(0,VertexBudgetPerFrame),visits=Active.Count;
+            int vertexBudget=Math.Max(0,VertexBudgetPerFrame);
+            int verticesLeft=vertexBudget,visits=Active.Count,firstVertexWaiter=-1;
             while (visits-- > 0 && Active.Count > 0 && Jobs.Count - overBudgetCompletions < Math.Max(0, MaximumWorkers))
             {
                 // Leave the next owner's turn and demand untouched. At least one
@@ -315,7 +316,7 @@ namespace HybridLumenGI
                 int vertices=original.vertexCount;long indices=0;
                 for(int sub=0;sub<original.subMeshCount;sub++)indices+=(long)original.GetIndexCount(sub);
                 if(indices/3>Math.Max(1,owner.maximumTriangles)) { owner.Status="Source exceeds triangle limit";continue; }
-                if(vertices>verticesLeft) { owner.Status="Capture vertex budget pending";continue; }
+                if(vertices>vertexBudget) { owner.Status="Capture vertex budget pending";continue; }
                 int size=Mathf.Clamp(owner.sdfResolution,16,64);
                 // Includes copied streams, two owned meshes, output volume and conservative
                 // triangle/chart working storage. Driver/Unity allocator overhead is not measured.
@@ -325,6 +326,13 @@ namespace HybridLumenGI
                 long uploadBytes=checked(Math.Max(vertexBytes*2,vertices*96L)+indices*8L+size*(long)size*size*4);
                 if(uploadBytes>Math.Max(0,UploadBudgetBytesPerFrame)) { owner.Status="Snapshot exceeds per-frame publication byte budget";continue; }
                 if(reservation>Math.Max(0,MemoryBudgetBytes)-ReservedBytes) { owner.Status="Geometry memory budget pending";continue; }
+                if(vertices>verticesLeft)
+                {
+                    owner.Status="Capture vertex budget pending";
+                    // Keep the first eligible turn while smaller captures use the remaining vertices.
+                    if(firstVertexWaiter<0)firstVertexWaiter=cursor-1;
+                    continue;
+                }
                 var next=new Snapshot{owner=owner,reservation=reservation,uploadBytes=uploadBytes};ReservedBytes+=reservation;
                 // Failed capture attempts consume the same frame quota and retry interval.
                 verticesLeft-=vertices;owner.lastCapture=Time.frameCount;
@@ -401,6 +409,7 @@ namespace HybridLumenGI
                         captureMilliseconds+=(Stopwatch.GetTimestamp()-captureStarted)*(1000.0/Stopwatch.Frequency);
                 }
             }
+            if(firstVertexWaiter>=0)cursor=firstVertexWaiter;
         }
     }
 }
