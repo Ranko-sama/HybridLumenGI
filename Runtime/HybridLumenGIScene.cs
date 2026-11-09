@@ -636,6 +636,10 @@ namespace HybridLumenGI
             return Finite(bounds.center) && Finite(bounds.extents) ? bounds.SqrDistance(position) : float.PositiveInfinity;
         }
 
+        internal bool HasManagedRasterBinding(HybridLumenGIProxy proxy) =>
+            streamedBindings.TryGetValue(proxy, out var binding) && binding != null && binding.UsesHlodRasterVisibility &&
+            ReferenceEquals(binding.SourceRenderer, proxy.SourceRenderer);
+
         internal void CollectHlodRaster(Vector3 position, float farDistance, List<HybridLumenGIStreamedRepresentation> visible)
         {
             if (!hasManagedHlodRaster) return;

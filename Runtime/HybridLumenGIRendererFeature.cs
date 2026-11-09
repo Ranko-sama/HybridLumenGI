@@ -318,7 +318,7 @@ namespace HybridLumenGI
             HideHlodRaster();
             if (HybridLumenGIResourceRetirement.AdmissionClosed || !AcceptsCamera(in cameraData)) return;
             pass.CollectHlodRaster(cameraData.camera, visibleHlodBindings);
-            if (visibleHlodBindings.Count == 0) return;
+            // An empty selection is also a result of this camera's pre-cull.
             hlodRasterCamera = cameraData.camera;
             foreach (var binding in visibleHlodBindings) binding.SetHlodRasterVisible(true);
         }
@@ -432,6 +432,8 @@ namespace HybridLumenGI
             internal int[] recordedTraceOwners;
             internal string recordedTransportBackend;
             internal int transportRecordedEngineFrame = -1, transportRecordedWorkFrame = -1;
+            internal int rasterOnlyFrame = -1;
+            internal HashSet<int> rasterOnlyOwners;
             internal ulong recordedBackendRequest;
             internal bool recordedHardwarePreference;
             private (Texture2D texture,uint version)[] shadowmaskSlots;
@@ -749,7 +751,9 @@ namespace HybridLumenGI
                         if(ReferenceEquals(state.scene.GetProxy(slot),proxy) &&
                             (state.scene.IsPublished(slot) || state.scene.IsWarming(slot)))
                         {
-                            if (UsesPreparedRenderer(state)) return true;
+                            if (!UsesPreparedRenderer(state)) break;
+                            bool rasterOnly = state.rasterOnlyFrame == Time.frameCount && state.scene.HasManagedRasterBinding(proxy);
+                            if (!rasterOnly || state.rasterOnlyOwners.Contains(proxy.StableId)) return true;
                             break;
                         }
                 }
@@ -917,6 +921,7 @@ namespace HybridLumenGI
                     SystemInfo.supportedRenderTargetCount<(staticShadowmask?5:replace?4:3)) return;
                 var camera=cameraData.camera;
                 var state=GetCameraState(camera);
+                state.rasterOnlyFrame=-1;
                 state.surfaceCache.SetShadowmaskSources(maps);
                 state.PrepareHistoryTarget(camera.targetTexture);
                 state.lastUsed=Time.frameCount;
@@ -943,6 +948,16 @@ namespace HybridLumenGI
                 state.receiverIdentityBufferBytes=screenBudget.IdentityBufferBytes;
                 if(!screenBudget.Fits)
                 {
+                    // This render records no GI. Keep the managed representations
+                    // selected for ordinary rendering by this same camera's pre-cull.
+                    if (ReferenceEquals(validationOwner.hlodRasterCamera, camera))
+                    {
+                        var owners = state.rasterOnlyOwners ??= new HashSet<int>();
+                        owners.Clear();
+                        foreach (var binding in validationOwner.visibleHlodBindings)
+                            if (binding != null && binding.Proxy != null) owners.Add(binding.Proxy.StableId);
+                        state.rasterOnlyFrame = Time.frameCount;
+                    }
                     if(!warnedBudget) { Debug.LogWarning("[HybridLumenGI] Texture budget cannot fit the capture buffers; this camera is skipped."); warnedBudget=true; }
                     return;
                 }
@@ -2014,6 +2029,7 @@ namespace HybridLumenGI
             internal void CollectHlodRaster(Camera camera, List<HybridLumenGIStreamedRepresentation> visible)
             {
                 if (!TryGetPreparedCamera(camera, out var state)) return;
+                state.rasterOnlyFrame = -1;
                 float farDistance = Mathf.Max(Mathf.Max(0.1f, s.nearDistance), s.farDistance);
                 state.scene.CollectHlodRaster(camera.transform.position, farDistance, visible);
             }
