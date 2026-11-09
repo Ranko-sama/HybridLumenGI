@@ -1,0 +1,57 @@
+{
+  "productCommit": "949641500fd5d58b36df5e40275bedff979991b3",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release180-demo",
+  "tag": "release180-demo",
+  "publishedAt": "2026-11-09T01:52:36Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Actual C# material batch and shared upload pool, with recording adapters and controlled completion.",
+    "fixture": "Tests/StandaloneHitMaterialBatch/Program.cs.txt",
+    "sharedBytesPerFrame": 1048576,
+    "fixedCameraOrder": [
+      "A",
+      "B",
+      "C"
+    ],
+    "baselineCopies": [
+      "A",
+      "A",
+      "A",
+      "A"
+    ],
+    "candidateCopies": [
+      "A",
+      "B",
+      "C",
+      "A"
+    ],
+    "staticPageRetirementAndReuseControl": "passed",
+    "evidence": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release180-UnityProject.zip",
+      "size": 848441,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release180-demo/HybridLumenGI-Release180-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release180-Windows-x64.zip",
+      "size": 58441517,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release180-demo/HybridLumenGI-Release180-Windows-x64.zip"
+    }
+  ]
+}

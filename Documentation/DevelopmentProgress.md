@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release179，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release180，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭后序相机的同源动态贴图上传保留被前序相机消费的问题。实际 C# 旧新对照中，固定三相机按原帧额度轮流录制各自的动态复制，静态页通过原完成门共享。[对照与范围](../LocalComparison/Review/shared-dynamic-upload-208/result.md) · [同源交付](../LocalComparison/Review/shared-dynamic-upload-208/delivery.json)
 
 T2／G4 已关闭普通 Lit 未赋值 BaseMap 时，高度图待定阻塞精确表面裁剪的缺口。默认白底图由材质 alpha 确定覆盖，确需视差采样的已赋值底图仍按原依赖判定。采用范围为软件精确追踪与 DXR 共用的覆盖函数。[对照与范围](../LocalComparison/Review/default-base-alpha-207/result.md) · [同源交付](../LocalComparison/Review/default-base-alpha-207/delivery.json)
 
