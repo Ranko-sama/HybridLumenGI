@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release175，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release176，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／G4 已关闭独立分页组在相机首次出域时仍提交旧组的路径。实际 Scene 对照中，跨界相机的旧粗根失去提交资格，域内相机的细节和共享绑定保持。采用范围为 CPU 栅格收集。高速冷入首显仍按原条件验收。[对照与范围](../LocalComparison/Review/streamed-hlod-cull-range-202/result.md) · [同源交付](../LocalComparison/Review/streamed-hlod-cull-range-202/delivery.json)
 
 T3／G3 已关闭新 Skin 发布后仍被旧 Renderer 引用挡住的自动接源缺口。真实 Unity 对照覆盖待校验和重新启用，两条入口随后都把新 Renderer 及同一份 Mesh、SDF 和图卡交给 Scene。采用范围为组件生命周期及真实场景准备。[对照与范围](../LocalComparison/Review/replaced-renderer-rebind-201/result.md) · [同源交付](../LocalComparison/Review/replaced-renderer-rebind-201/delivery.json)
 

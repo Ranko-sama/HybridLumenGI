@@ -1,0 +1,46 @@
+{
+  "productCommit": "5da52183d757aafc706fd7608bd6a1a1ed48c9a8",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release176-demo",
+  "tag": "release176-demo",
+  "publishedAt": "2026-11-09T00:33:45Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Actual C# Scene, BVH and readiness with controlled illumination receipts. Raster collection before the next camera preparation.",
+    "command": "Tests/Validate-HlodTransactions.ps1",
+    "baselineCommit": "f4d60022b8aa2a14188886c2427f2fdaa29a4b63",
+    "baselineExitCode": 1,
+    "baselineExpectedFailure": "The out-of-range camera still collects the previous coarse root.",
+    "exitCode": 0,
+    "outsideRasterCountBefore": 1,
+    "outsideRasterCountAfter": 0,
+    "insideRasterCount": 2,
+    "sharedBindingsRetained": true,
+    "evidence": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release176-UnityProject.zip",
+      "size": 847369,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release176-demo/HybridLumenGI-Release176-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release176-Windows-x64.zip",
+      "size": 58445523,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release176-demo/HybridLumenGI-Release176-Windows-x64.zip"
+    }
+  ]
+}
