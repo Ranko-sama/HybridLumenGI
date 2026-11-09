@@ -131,6 +131,8 @@ namespace HybridLumenGI
             [Min(0),Tooltip("CPU milliseconds for recording surface cards per camera render. Finishes the current card before deferring the rest. Zero disables the time limit.")]
             public float surfaceCaptureRecordingCpuBudgetMilliseconds;
             [Min(1)] public int surfaceAtlasBudgetMiB=64;
+            [Min(0),Tooltip("Shared CPU milliseconds for object SDF volume uploads per engine frame. Finishes an upload already started. Zero disables this time limit.")]
+            public float objectSdfUploadCpuBudgetMilliseconds;
             [Range(0,1)] public float bounceFeedback=1;
             [Range(1,32)] public int maxLights=16;
             [Tooltip("Experimental: only when capacity overflows, exclude local lights proven outside the complete finite screen/world transport domain. Unknown coverage retains legacy admission.")]
@@ -211,6 +213,7 @@ namespace HybridLumenGI
                 transport.minimumGpuWorkFraction=0;
                 transport.receiverDiscoveryCpuBudgetMilliseconds=0;
                 transport.surfaceCaptureRecordingCpuBudgetMilliseconds=0;
+                transport.objectSdfUploadCpuBudgetMilliseconds=0;
                 return JsonUtility.ToJson(transport);
             }
         }
@@ -1004,7 +1007,7 @@ namespace HybridLumenGI
                 if (!readyExactReplacement) state.hardware.CancelDeferredHlodBuild();
                 state.scenePreparedRenderer = cameraData.renderer;
                 state.scenePreparedEngineFrame = Time.frameCount; state.scenePreparedWorkFrame = state.frame;
-                state.sdf.PrepareForFrame(state.scene, Time.frameCount);
+                state.sdf.PrepareForFrame(state.scene, Time.frameCount, s.objectSdfUploadCpuBudgetMilliseconds);
                 if (s.globalSdfEnabled)
                     state.globalSdf.Prepare(state.scene,state.sdf,camera.transform.position,new HybridLumenGIGlobalSdf.Configuration
                     {

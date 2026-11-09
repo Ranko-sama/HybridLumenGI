@@ -111,6 +111,75 @@ void CheckPeriodicFrameUploads()
         "The periodic reservation held intervening frames or remained after the camera stopped returning.");
 }
 
+void CheckSharedFrameCpuUploadBudget()
+{
+    const int resolution = 16, volume = resolution * resolution * resolution, start = 180;
+    const float cpuBudgetMilliseconds = 0.1f;
+    var firstTexture = new Texture3D(resolution);
+    var secondTexture = new Texture3D(resolution);
+    var firstScene = new HybridLumenGIScene(1);
+    var secondScene = new HybridLumenGIScene(1);
+    SetSlot(firstScene, 0, Asset(firstTexture, resolution), 1);
+    SetSlot(secondScene, 0, Asset(secondTexture, resolution), 2);
+    using var first = new HybridLumenGISdfAtlas();
+    using var second = new HybridLumenGISdfAtlas();
+    int before = ComputeBuffer.AttemptedFloatVoxels;
+    var previousCallback = ComputeBuffer.BeforeFloatUpload;
+    // An actual SetData attempt lasts longer than the admission allowance. This
+    // is controlled work in the native-API shim, not an injected product clock.
+    long delayTicks = Math.Max(1L, System.Diagnostics.Stopwatch.Frequency / 1000L);
+    ComputeBuffer.BeforeFloatUpload = () =>
+    {
+        long began = System.Diagnostics.Stopwatch.GetTimestamp();
+        System.Threading.SpinWait.SpinUntil(() => System.Diagnostics.Stopwatch.GetTimestamp() - began >= delayTicks);
+    };
+    try
+    {
+        first.PrepareForFrame(firstScene, start, 0f);
+        second.PrepareForFrame(secondScene, start, cpuBudgetMilliseconds);
+        second.PrepareForFrame(secondScene, start, 0f);
+        Require(first.IsReady(0, 1, 1) && !second.IsReady(0, 2, 1) && second.PendingUploadCount == 1 &&
+            secondTexture.ReadCount == 0 && ComputeBuffer.AttemptedFloatVoxels - before == volume,
+            "A later CPU allowance must count earlier unrestricted work; repeated calls must not renew it.");
+
+        firstTexture.updateCount++;
+        first.PrepareForFrame(firstScene, start + 1, 0f);
+        Require(!first.IsReady(0, 1, 1) && first.PendingUploadCount == 1 && ComputeBuffer.AttemptedFloatVoxels - before == volume,
+            "The earlier camera's new version must yield to the whole-volume CPU waiter despite spare byte capacity.");
+        second.PrepareForFrame(secondScene, start + 1, cpuBudgetMilliseconds);
+        Require(second.IsReady(0, 2, 1) && second.UploadedVoxels == volume && ComputeBuffer.AttemptedFloatVoxels - before == 2 * volume,
+            "The CPU waiter must receive its complete volume on the next frame.");
+
+        first.PrepareForFrame(firstScene, start + 2, cpuBudgetMilliseconds);
+        second.PrepareForFrame(secondScene, start + 2, cpuBudgetMilliseconds);
+        Require(first.IsReady(0, 1, 1) && second.IsReady(0, 2, 1) && ComputeBuffer.AttemptedFloatVoxels - before == 3 * volume,
+            "The yielding camera must recover without reuploading the ready peer.");
+
+        firstTexture.updateCount++;
+        secondTexture.updateCount++;
+        ComputeBuffer.FailNextFloatUpload = true;
+        first.PrepareForFrame(firstScene, start + 3, cpuBudgetMilliseconds);
+        int failedReads = firstTexture.ReadCount;
+        second.PrepareForFrame(secondScene, start + 3, cpuBudgetMilliseconds);
+        second.PrepareForFrame(secondScene, start + 3, cpuBudgetMilliseconds);
+        Require(!ComputeBuffer.FailNextFloatUpload && !first.IsReady(0, 1, 1) && !second.IsReady(0, 2, 1) &&
+            second.PendingUploadCount == 1 && secondTexture.ReadCount == 1 && ComputeBuffer.AttemptedFloatVoxels - before == 4 * volume,
+            "A throwing SetData must consume its elapsed CPU allowance and leave the second version pending.");
+
+        first.PrepareForFrame(firstScene, start + 4, cpuBudgetMilliseconds);
+        second.PrepareForFrame(secondScene, start + 4, cpuBudgetMilliseconds);
+        Require(!first.IsReady(0, 1, 1) && firstTexture.ReadCount == failedReads && second.IsReady(0, 2, 1) &&
+            second.UploadedVoxels == volume && ComputeBuffer.AttemptedFloatVoxels - before == 5 * volume,
+            "The failed source must not retry or block the healthy version after the frame allowance resets.");
+        Console.WriteLine("Shared SDF CPU allowance: late cap and repeated calls deferred B; B won the next frame; failed A still consumed time; B recovered. Five whole 16^3 SetData attempts, including one failure.");
+    }
+    finally
+    {
+        ComputeBuffer.BeforeFloatUpload = previousCallback;
+        ComputeBuffer.FailNextFloatUpload = false;
+    }
+}
+
 bool CheckFailedVolumeReleasesRange()
 {
     const int resolution = 64;
@@ -167,6 +236,7 @@ bool CheckFailedVolumeReleasesRange()
 
 CheckSharedFrameUploads();
 CheckPeriodicFrameUploads();
+CheckSharedFrameCpuUploadBudget();
 Require(CheckFailedVolumeReleasesRange(), "A failed SDF version must yield its range after metadata revocation.");
 
 const int voxels=16*16*16;

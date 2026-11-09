@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace HybridLumenGI
 {
@@ -50,6 +51,7 @@ namespace HybridLumenGI
             public bool ready, failed;
             public LinkedListNode<Allocation> uploadWaiter;
             public long reserveFromFrame, reserveThroughFrame;
+            public bool reserveCpuTurn;
             public bool AwaitingWithdrawal => failed && offset >= 0;
         }
 
@@ -87,6 +89,8 @@ namespace HybridLumenGI
         private static readonly LinkedList<Allocation> uploadWaiters = new LinkedList<Allocation>();
         private static int uploadFrame = int.MinValue;
         private static int frameUploadRemaining;
+        private static double frameUploadCpuBudgetTicks = double.PositiveInfinity;
+        private static long frameUploadCpuTicks;
         private readonly Dictionary<HybridLumenGIMeshSdf, Allocation> allocations = new Dictionary<HybridLumenGIMeshSdf, Allocation>();
         private readonly HashSet<HybridLumenGIMeshSdf> desired = new HashSet<HybridLumenGIMeshSdf>();
         private readonly HashSet<HybridLumenGIMeshSdf> visited = new HashSet<HybridLumenGIMeshSdf>();
@@ -169,12 +173,12 @@ namespace HybridLumenGI
             (metadataBuffer != null ? metadataBuffer.count * (long)MetadataStride : 0L);
 
         public bool Prepare(HybridLumenGIScene scene, int maxVoxels = DefaultVoxelBudget) =>
-            Prepare(scene, maxVoxels, null);
+            Prepare(scene, maxVoxels, null, 0f);
 
-        internal bool PrepareForFrame(HybridLumenGIScene scene, int engineFrame) =>
-            Prepare(scene, DefaultVoxelBudget, engineFrame);
+        internal bool PrepareForFrame(HybridLumenGIScene scene, int engineFrame, float uploadCpuBudgetMilliseconds = 0f) =>
+            Prepare(scene, DefaultVoxelBudget, engineFrame, uploadCpuBudgetMilliseconds);
 
-        private bool Prepare(HybridLumenGIScene scene, int maxVoxels, int? engineFrame)
+        private bool Prepare(HybridLumenGIScene scene, int maxVoxels, int? engineFrame, float uploadCpuBudgetMilliseconds)
         {
             representationChangedBounds.Clear();
             geometryChangedBounds.Clear();
@@ -185,7 +189,7 @@ namespace HybridLumenGI
             bool shareUploads = engineFrame.HasValue;
             if (engineFrame is int frame)
             {
-                BeginUploadFrame(frame);
+                BeginUploadFrame(frame, uploadCpuBudgetMilliseconds);
                 if (lastSharedPrepareFrame != frame)
                 {
                     sharedPrepareInterval = lastSharedPrepareFrame is int previous && frame > previous ? (long)frame - previous : 0;
@@ -305,6 +309,8 @@ namespace HybridLumenGI
                         CancelUploadRequest(allocation);
                     if (canUpload)
                     {
+                        // A later camera may tighten the shared allowance after this attempt.
+                        long started = shareUploads ? Stopwatch.GetTimestamp() : 0;
                         try
                         {
                             // This NativeArray aliases the readable texture. Do not dispose it or
@@ -324,6 +330,10 @@ namespace HybridLumenGI
                         {
                             allocation.failed = true;
                             Debug.LogWarning($"HybridLumenGI mesh SDF '{asset.name}' uses its analytic fallback: {exception.Message}", asset);
+                        }
+                        finally
+                        {
+                            if (shareUploads) frameUploadCpuTicks += Stopwatch.GetTimestamp() - started;
                         }
                     }
                     else PendingUploadCount++;
@@ -391,9 +401,16 @@ namespace HybridLumenGI
             return changed || representationChangedBounds.Count > 0;
         }
 
-        private static void BeginUploadFrame(int frame)
+        private static void BeginUploadFrame(int frame, float uploadCpuBudgetMilliseconds)
         {
-            if (frame == uploadFrame) return;
+            double cpuBudgetTicks = uploadCpuBudgetMilliseconds > 0f && !float.IsInfinity(uploadCpuBudgetMilliseconds)
+                ? Math.Max(1d, uploadCpuBudgetMilliseconds * (Stopwatch.Frequency / 1000d))
+                : double.PositiveInfinity;
+            if (frame == uploadFrame)
+            {
+                frameUploadCpuBudgetTicks = Math.Min(frameUploadCpuBudgetTicks, cpuBudgetTicks);
+                return;
+            }
             for (var waiter = uploadWaiters.First; waiter != null;)
             {
                 var next = waiter.Next;
@@ -403,6 +420,8 @@ namespace HybridLumenGI
             }
             uploadFrame = frame;
             frameUploadRemaining = DefaultUploadVoxels;
+            frameUploadCpuBudgetTicks = cpuBudgetTicks;
+            frameUploadCpuTicks = 0;
         }
 
         private bool AdmitFrameUpload(Allocation allocation, int uploadRemaining)
@@ -412,7 +431,10 @@ namespace HybridLumenGI
             var oldest = waiter?.Value;
             // Another camera can use the spare voxels while the oldest whole volume waits.
             int reserved = oldest != null && oldest != allocation ? oldest.count : 0;
-            if (allocation.count <= uploadRemaining && allocation.count <= frameUploadRemaining - reserved)
+            // A single copy can use the entire time allowance. Serve a time-deferred turn first.
+            bool timeDeferred = frameUploadCpuTicks >= frameUploadCpuBudgetTicks ||
+                (oldest != allocation && oldest?.reserveCpuTurn == true);
+            if (!timeDeferred && allocation.count <= uploadRemaining && allocation.count <= frameUploadRemaining - reserved)
             {
                 CancelUploadRequest(allocation);
                 return true;
@@ -430,6 +452,7 @@ namespace HybridLumenGI
                 allocation.reserveFromFrame = uploadFrame;
                 allocation.reserveThroughFrame = (long)uploadFrame + UploadReservationGraceFrames;
             }
+            allocation.reserveCpuTurn |= timeDeferred;
             allocation.uploadWaiter ??= uploadWaiters.AddLast(allocation);
             return false;
         }
@@ -439,6 +462,7 @@ namespace HybridLumenGI
             if (allocation.uploadWaiter == null) return;
             uploadWaiters.Remove(allocation.uploadWaiter);
             allocation.uploadWaiter = null;
+            allocation.reserveCpuTurn = false;
         }
 
         private void ClearAllocations()

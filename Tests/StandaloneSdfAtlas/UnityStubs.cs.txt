@@ -98,6 +98,7 @@ namespace UnityEngine
     {
         public static int AttemptedFloatVoxels, AttemptedMetadataUploads;
         public static bool FailNextFloatUpload, FailNextMetadataUpload;
+        public static Action BeforeFloatUpload;
         public int count; public string name;
         public ComputeBuffer(int c,int stride,ComputeBufferType t){count=c;}
         public void SetData<T>(T[] data){if(data.Length>count)throw new Exception("oversized buffer upload");}
@@ -112,6 +113,7 @@ namespace UnityEngine
                 throw new InvalidOperationException("Simulated metadata SetData failure");
             }
             AttemptedFloatVoxels+=length;
+            BeforeFloatUpload?.Invoke();
             if(!FailNextFloatUpload)return;
             FailNextFloatUpload=false;
             throw new InvalidOperationException("Simulated voxel SetData failure");
