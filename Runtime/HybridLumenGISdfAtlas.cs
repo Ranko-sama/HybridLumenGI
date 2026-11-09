@@ -24,6 +24,14 @@ namespace HybridLumenGI
             internal TransformChange(Bounds bounds,Renderer sourceRenderer) { Bounds=bounds;SourceRenderer=sourceRenderer; }
         }
 
+        internal readonly struct PublishedGeometryChange
+        {
+            internal readonly int Slot;
+            internal readonly Bounds PreviousBounds, CurrentBounds;
+            internal PublishedGeometryChange(int slot, Bounds previousBounds, Bounds currentBounds)
+            { Slot = slot; PreviousBounds = previousBounds; CurrentBounds = currentBounds; }
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         private struct SdfMetadata
         {
@@ -86,6 +94,7 @@ namespace HybridLumenGI
         private readonly List<Candidate> candidates = new List<Candidate>();
         private readonly List<Bounds> representationChangedBounds = new List<Bounds>();
         private readonly List<Bounds> geometryChangedBounds = new List<Bounds>();
+        private readonly List<PublishedGeometryChange> publishedGeometryChanges = new List<PublishedGeometryChange>();
         private readonly List<Bounds> transformChangedBounds = new List<Bounds>();
         private readonly List<TransformChange> transformChanges = new List<TransformChange>();
         private ComputeBuffer metadataBuffer, distancesBuffer;
@@ -118,6 +127,8 @@ namespace HybridLumenGI
         /// Pure prepared HLOD publication/unchanged retirement remains reactive-only.
         /// </summary>
         public IReadOnlyList<Bounds> GeometryChangedBounds => geometryChangedBounds;
+        // Keep the slot only for changes to the same owner that stays published.
+        internal IReadOnlyList<PublishedGeometryChange> PublishedGeometryChanges => publishedGeometryChanges;
         /// <summary>
         /// Published old/new domains with an exact scene receipt proving only pose
         /// (optionally lighting policy) changed. World caches still invalidate these;
@@ -164,6 +175,7 @@ namespace HybridLumenGI
         {
             representationChangedBounds.Clear();
             geometryChangedBounds.Clear();
+            publishedGeometryChanges.Clear();
             transformChangedBounds.Clear();
             transformChanges.Clear();
             if (scene == null) throw new ArgumentNullException(nameof(scene));
@@ -434,6 +446,8 @@ namespace HybridLumenGI
                     IsPureRepresentationRemoval(scene,slot,before) && MatchesCurrentSource(before,before.proxy);
                 bool pose = IsPureTransform(scene,slot,before,after);
                 bool hard = !purePublication && !pureRetirement && !pose;
+                if (hard && before.published && after.published && before.stableId == after.stableId)
+                    publishedGeometryChanges.Add(new PublishedGeometryChange(slot, before.worldBounds, after.worldBounds));
                 if (before.present && before.published)
                 {
                     representationChangedBounds.Add(before.worldBounds);
@@ -650,6 +664,7 @@ namespace HybridLumenGI
             representations = nextRepresentations = Array.Empty<Representation>();
             representationChangedBounds.Clear();
             geometryChangedBounds.Clear();
+            publishedGeometryChanges.Clear();
             transformChangedBounds.Clear();
             transformChanges.Clear();
             uploadCursor = 0;

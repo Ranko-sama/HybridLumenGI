@@ -1174,6 +1174,7 @@ namespace HybridLumenGI
                     cachePatchBudget=state.effectiveBudget.CachePatches
                 };
                 PrepareHardwareMaterials(graph,work);
+                AddSdfShadowChanges(work);
                 if(identityFrame!=null) state.changes.ResolveReceiverGroups(identityFrame.GetReceiverGroup);
                 if(!state.surfaceCache.LimitsCaptureRecording) state.changes.Upload();
                 // Bind a real transient buffer even when the table is empty; an unbound SRV
@@ -1435,14 +1436,7 @@ namespace HybridLumenGI
                     state.surfaceCache.AddChangedBounds(bounds);
 
                     // Exact coverage can change the shadow even when the scene owner did not move.
-                    var policy = scene.LightingPolicies[slot];
-                    float shadowReach = 0;
-                    for (int i = 0; i < work.lightCount; i++)
-                    {
-                        var light = state.lightData[i];
-                        if (EffectiveShadowMode(policy, light) != 0)
-                            shadowReach = Mathf.Max(shadowReach, ShadowReach(light));
-                    }
+                    float shadowReach = CasterShadowReach(state, work.lightCount, scene.LightingPolicies[slot]);
                     if (shadowReach > 0) AddLocalLightingChange(state, bounds, shadowReach + traceReach);
                 }
             }
@@ -1742,6 +1736,33 @@ namespace HybridLumenGI
                 if (policy.shadowCastingMode == 0 || (policy.objectLayerBit & light.cullingMask) == 0 ||
                     ((light.flags & 1u) != 0 && (policy.renderingLayerMask & light.shadowRenderingLayers) == 0)) return 0;
                 return policy.shadowCastingMode == (uint)ShadowCastingMode.TwoSided ? 2u : 1u;
+            }
+
+            private float CasterShadowReach(CameraState state, int lightCount, HybridLumenGIScene.LightingPolicyData policy)
+            {
+                float reach = 0;
+                for (int i = 0; i < lightCount; i++)
+                {
+                    var light = state.lightData[i];
+                    if (EffectiveShadowMode(policy, light) != 0)
+                        reach = Mathf.Max(reach, ShadowReach(light));
+                }
+                return reach;
+            }
+
+            private void AddSdfShadowChanges(Work work)
+            {
+                var state = work.state;
+                float traceReach = Mathf.Max(1, s.traceDistance);
+                foreach (var change in state.sdf.PublishedGeometryChanges)
+                {
+                    if (work.geometry != null && work.geometry.HasPreparedTriangles(change.Slot)) continue;
+                    float reach = CasterShadowReach(state, work.lightCount, state.scene.LightingPolicies[change.Slot]);
+                    if (reach <= 0) continue;
+                    AddLocalLightingChange(state, change.PreviousBounds, reach + traceReach);
+                    if (!change.CurrentBounds.Equals(change.PreviousBounds))
+                        AddLocalLightingChange(state, change.CurrentBounds, reach + traceReach);
+                }
             }
 
             private void AddShadowCasterChanges(CameraState state, int lightCount)

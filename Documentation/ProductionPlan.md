@@ -192,6 +192,8 @@ flowchart TD
 
 同一表示切换也会按选中灯的投影距离通知受影响的远接收面。固定点光的实际 DXR 对照中，精确裁剪板退出和恢复时，远地板都获得了局部缓存调度优先级。硬几何域保留原对象包围盒。采用范围为通知与调度。[远接收面实测](../LocalComparison/Review/exact-shadow-reach-234/result.md)
 
+已发布的后备投影物从解析盒切到就绪的对象 SDF 时，旧、新几何范围也会按选中灯扩展局部照明通知。固定点光门洞对照中，GPU 确认光路打开、远地板收到照明反应且保持帧无重复事件。原硬域保留。画面残留和收敛时间继续验收。[对象 SDF 实测](../LocalComparison/Review/sdf-shadow-reach-236/result.md)
+
 世界缓存迭代从旧缓冲递归取样时，按当前硬几何域剔除失效源锚点，即使它仍有匹配的身份和图卡代次。屏幕 Gather 可读取本轮重建的有效缓存。局部软照明变化与原位姿跳变保持各自规则。[实际着色器读取对照](../LocalComparison/Review/hard-cache-input-180/result.md)
 
 历史坐标为 `previousUV = currentUV - motion + previousJitter - currentJitter`；运动矢量与 jitter 需按 URP 实际 GPU 投影约定核验。保存上一帧的深度、法线、漫反射材质、亮度一二阶矩和历史长度。拒绝屏外/镜头切换、深度或法线不一致、材质变化、覆盖与分辨率变化；对有效历史做局部颜色/方差夹取。薄壁和移动物体要使用对象身份/速度/上一帧对象变换增强判定。
