@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release228，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release229，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭精确材质稳定复用时，按请求反复扫描整张页表的 CPU 路径。候选池按物理槽匹配冻结来源，录制直接定位本租约借入的槽位。同池同代次的未借入页仍被拒绝。原生帧耗时和软件时间预算继续验收。[范围与定向回归](../LocalComparison/Review/texture-page-index-279/result.md) · [Release229 同源交付](../LocalComparison/Review/texture-page-index-279/delivery.json)
 
 T3／G3 已关闭 DXR 无图卡材质贴图恢复可采样时漏发局部照明刷新的路径。实际不透明墙在最后一段写入和同页恢复绑定时读取已知蓝色，修复使地板软反应由 0 变为 1，调度优先级由 0 升为 751。读回等待和稳定帧没有额外刷新。屏幕残留、运动拖影和收敛时间继续按原范围验收。[实机对照与适用范围](../LocalComparison/Review/cardless-color-upload-278/result.md) · [Release228 同源交付](../LocalComparison/Review/cardless-color-upload-278/delivery.json)
 
