@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release229，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release230，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭固定实时点灯与聚光灯共用绿色时的换色残留。实际 DXR 对照中，1／2 秒前旧绿增量由 12.173%／6.069% 降至 0.303%／0.014%。终态约 0.840 秒进入容差并持续至 2.608 秒。固定青色聚光灯的绿色和稳定蓝色通过原范围，普通 Player 与其他动态光路继续验收。[同曝光对照](../LocalComparison/Review/mixed-light-recolor-280/result.md) · [Release230 同源交付](../LocalComparison/Review/mixed-light-recolor-280/delivery.json)
 
 T6／G4 已关闭精确材质稳定复用时，按请求反复扫描整张页表的 CPU 路径。候选池按物理槽匹配冻结来源，录制直接定位本租约借入的槽位。同池同代次的未借入页仍被拒绝。原生帧耗时和软件时间预算继续验收。[范围与定向回归](../LocalComparison/Review/texture-page-index-279/result.md) · [Release229 同源交付](../LocalComparison/Review/texture-page-index-279/delivery.json)
 

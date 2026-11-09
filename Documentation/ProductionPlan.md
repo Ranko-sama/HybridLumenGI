@@ -198,6 +198,8 @@ flowchart TD
 
 同一固定点灯表的解析通道可按统一降幅缩放。各灯降幅不同时，受影响的通道在现有局部域内等待可信更新。旧解析份额暂停进入世界迭代，发光、环境和其他通道继续参与。实机双灯共用绿色的对照满足残留、终态及保持目标。[共通道调暗对照](../LocalComparison/Review/point-light-shared-channel-248/result.md)
 
+参与同通道的恒亮聚光灯也可进入这一比例比较。实际 DXR 中，固定点灯从青切蓝，固定青色聚光灯继续供光。修复后的 1／2 秒旧绿、匹配终态、保持及稳定蓝色均通过原条件。[固定 Point＋Spot 同曝光对照](../LocalComparison/Review/mixed-light-recolor-280/result.md)
+
 有效灯表缩短时，当前行按完整内容匹配到上一份成功录制的有序灯表。确认只退出无烘焙通道的点灯后，仍有源的受影响通道复用同一局部待替换流程。实际 DXR 中单独关闭绿灯、青灯继续供光时，九点的残留、恢复和稳灯条件均通过。[单独关灯对照](../LocalComparison/Review/point-light-shared-off-249/result.md)
 
 世界缓存迭代从旧缓冲递归取样时，按当前硬几何域剔除失效源锚点，即使它仍有匹配的身份和图卡代次。屏幕 Gather 可读取本轮重建的有效缓存。局部软照明变化与原位姿跳变保持各自规则。[实际着色器读取对照](../LocalComparison/Review/hard-cache-input-180/result.md)
