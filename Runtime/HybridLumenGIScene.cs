@@ -520,6 +520,14 @@ namespace HybridLumenGI
                 group.pendingDetails++;
                 group.hasUnavailableDetails |= declaration.Value.IsSourceUnavailable;
             }
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Candidate candidate = candidates[i];
+                if (grouped.Contains(candidate.proxy.StableId) || candidate.distanceSquared > farSquared) continue;
+                if (candidate.proxy.FarFieldOnly && !UseFarProxy(candidate.proxy, candidate.distanceSquared, nearDistance)) continue;
+                ordinaryCandidates.Add(candidate);
+            }
+            ordinaryCandidates.Sort(CompareCandidates);
             retiredProxies.Clear();
             foreach (var pair in groups)
             {
@@ -578,14 +586,6 @@ namespace HybridLumenGI
                 if (!targetFits) continue;
                 foreach (int id in group.target) AddSelected(id, group.published.Contains(id) ? 1 : 2, capacity);
             }
-            for (int i = 0; i < candidates.Count; i++)
-            {
-                Candidate candidate = candidates[i];
-                if (grouped.Contains(candidate.proxy.StableId) || candidate.distanceSquared > farSquared) continue;
-                if (candidate.proxy.FarFieldOnly && !UseFarProxy(candidate.proxy, candidate.distanceSquared, nearDistance)) continue;
-                ordinaryCandidates.Add(candidate);
-            }
-            ordinaryCandidates.Sort(CompareCandidates);
             for (int i = 0; i < ordinaryCandidates.Count && selectedCandidates.Count < capacity; i++)
                 AddSelected(ordinaryCandidates[i].proxy.StableId, 1, capacity);
         }
@@ -801,6 +801,17 @@ namespace HybridLumenGI
             {
                 if (!removesExact && group.published.Contains(id)) continue;
                 if (slots.TryGetValue(id, out int slot) && target(slot, removesExact)) return true;
+            }
+            if (!removesExact) return false;
+
+            // Removing exact instances still needs a build when ordinary exact
+            // geometry survives. Use the prefix that fits even if all group members stage.
+            int retainedOrdinaryCount = Math.Min(ordinaryCandidates.Count, Capacity - grouped.Count);
+            for (int i = 0; i < retainedOrdinaryCount; i++)
+            {
+                var candidate = ordinaryCandidates[i];
+                if (!candidate.bindingReplaced && TryGetPublishedSlot(candidate.proxy.StableId, out int slot) &&
+                    (int)Data[slot].identity.y == candidate.proxy.Revision && preparedExact(slot) && target(slot, true)) return true;
             }
             return false;
         }

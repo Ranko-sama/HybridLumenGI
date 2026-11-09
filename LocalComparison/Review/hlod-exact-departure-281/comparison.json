@@ -1,0 +1,1916 @@
+{
+  "baselineCommit": "73ea8658bed5142d7b9e33af848d8665ebf0e565",
+  "method": "Two manual Base cameras, actual shared DXR build quota, current root cache data and world BVH publication.",
+  "baseline": {
+    "status": "observed",
+    "error": "",
+    "unity": "6000.0.85f1",
+    "api": "Direct3D12",
+    "rootTriangles": 1058,
+    "rootCharts": 1,
+    "triangleLimit": 1024,
+    "baselineDepartureFailure": true,
+    "heldExactDetails": false,
+    "sameRootPageAfter": true,
+    "sameEpochAfter": false,
+    "near": {
+      "frame": 9,
+      "work": 5,
+      "epoch": 5,
+      "acceptedTickets": 2,
+      "failedReadbacks": 0,
+      "builds": 1,
+      "pendingBuilds": 0,
+      "hardwareMeshes": 3,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS build recorded within shared work quota; native completion unproven",
+      "known": true,
+      "coarse": false,
+      "details": true,
+      "readbackPending": false,
+      "publishedIds": [
+        2,
+        3
+      ],
+      "targetIds": [
+        2,
+        3
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 1058,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 1,
+        "cards": 1,
+        "card": 2,
+        "slot": 1,
+        "triangles": 2,
+        "layout": 3,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          2
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 1,
+        "cards": 1,
+        "card": 1,
+        "slot": 0,
+        "triangles": 2,
+        "layout": 2,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          1
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 2,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        2,
+        1,
+        3
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 2.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 2.0,
+          "y": 3.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 2.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatches": []
+    },
+    "ready": {
+      "frame": 12,
+      "work": 8,
+      "epoch": 5,
+      "acceptedTickets": 3,
+      "failedReadbacks": 0,
+      "builds": 0,
+      "pendingBuilds": 0,
+      "hardwareMeshes": 3,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS estimate reserved; pending build work is admitted at command recording",
+      "known": true,
+      "coarse": false,
+      "details": true,
+      "readbackPending": false,
+      "publishedIds": [
+        2,
+        3
+      ],
+      "targetIds": [
+        4
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 2,
+        "cards": 1,
+        "card": 3,
+        "slot": 3,
+        "triangles": 1058,
+        "layout": 4,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [
+          3
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 1,
+        "cards": 1,
+        "card": 2,
+        "slot": 1,
+        "triangles": 2,
+        "layout": 3,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          2
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 1,
+        "cards": 1,
+        "card": 1,
+        "slot": 0,
+        "triangles": 2,
+        "layout": 2,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          1
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 2,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        2,
+        1,
+        3
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 5.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 2.0,
+          "y": 3.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 5.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 4.0,
+          "y": 2.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 3.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "rootPatches": [
+        {
+          "tag": {
+            "x": 4.0,
+            "y": 2.0,
+            "z": 5.0,
+            "w": 1.0
+          },
+          "age": 3.0,
+          "covered": true,
+          "meetsCurrentGate": true
+        }
+      ]
+    },
+    "competing": {
+      "frame": 13,
+      "work": 0,
+      "epoch": 5,
+      "acceptedTickets": 0,
+      "failedReadbacks": 0,
+      "builds": 1,
+      "pendingBuilds": 0,
+      "hardwareMeshes": 1,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS build recorded within shared work quota; native completion unproven",
+      "known": true,
+      "coarse": false,
+      "details": false,
+      "readbackPending": true,
+      "publishedIds": [],
+      "targetIds": [
+        4
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 2,
+        "cards": 1,
+        "card": 1,
+        "slot": 0,
+        "triangles": 1058,
+        "layout": 2,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [
+          1
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 1,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        1
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatches": []
+    },
+    "handoff": {
+      "frame": 13,
+      "work": 9,
+      "epoch": 6,
+      "acceptedTickets": 3,
+      "failedReadbacks": 0,
+      "builds": 1,
+      "pendingBuilds": 1,
+      "hardwareMeshes": 1,
+      "hardwareFallbacks": 1,
+      "backend": "SDF/analytic software",
+      "coverageBlock": "",
+      "buildStatus": "RTAS build deferred while shared work credits accumulate.",
+      "known": true,
+      "coarse": true,
+      "details": false,
+      "readbackPending": false,
+      "publishedIds": [
+        4
+      ],
+      "targetIds": [
+        4
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 1,
+        "cards": 1,
+        "card": 3,
+        "slot": 3,
+        "triangles": 1058,
+        "layout": 4,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [
+          3
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 2,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": false,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        4,
+        1
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 4.0,
+          "y": 2.0,
+          "z": 6.0,
+          "w": 1.0
+        },
+        "age": 1.0,
+        "covered": true,
+        "meetsCurrentGate": false
+      },
+      "rootPatches": [
+        {
+          "tag": {
+            "x": 4.0,
+            "y": 2.0,
+            "z": 6.0,
+            "w": 1.0
+          },
+          "age": 1.0,
+          "covered": true,
+          "meetsCurrentGate": false
+        }
+      ]
+    },
+    "nextFrame": {
+      "frame": 14,
+      "work": 10,
+      "epoch": 7,
+      "acceptedTickets": 3,
+      "failedReadbacks": 0,
+      "builds": 1,
+      "pendingBuilds": 0,
+      "hardwareMeshes": 1,
+      "hardwareFallbacks": 1,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS build recorded within shared work quota; native completion unproven",
+      "known": true,
+      "coarse": true,
+      "details": false,
+      "readbackPending": false,
+      "publishedIds": [
+        4
+      ],
+      "targetIds": [
+        4
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 1,
+        "cards": 1,
+        "card": 3,
+        "slot": 3,
+        "triangles": 1058,
+        "layout": 4,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [
+          3
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 2,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        4,
+        1
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 4.0,
+          "y": 2.0,
+          "z": 7.0,
+          "w": 1.0
+        },
+        "age": 1.0,
+        "covered": true,
+        "meetsCurrentGate": false
+      },
+      "rootPatches": [
+        {
+          "tag": {
+            "x": 4.0,
+            "y": 2.0,
+            "z": 7.0,
+            "w": 1.0
+          },
+          "age": 1.0,
+          "covered": true,
+          "meetsCurrentGate": false
+        }
+      ]
+    },
+    "latest": {
+      "frame": 14,
+      "work": 10,
+      "epoch": 7,
+      "acceptedTickets": 3,
+      "failedReadbacks": 0,
+      "builds": 1,
+      "pendingBuilds": 0,
+      "hardwareMeshes": 1,
+      "hardwareFallbacks": 1,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS build recorded within shared work quota; native completion unproven",
+      "known": true,
+      "coarse": true,
+      "details": false,
+      "readbackPending": false,
+      "publishedIds": [
+        4
+      ],
+      "targetIds": [
+        4
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 1,
+        "cards": 1,
+        "card": 3,
+        "slot": 3,
+        "triangles": 1058,
+        "layout": 4,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [
+          3
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 2,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        4,
+        1
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 4.0,
+          "y": 2.0,
+          "z": 7.0,
+          "w": 1.0
+        },
+        "age": 1.0,
+        "covered": true,
+        "meetsCurrentGate": false
+      },
+      "rootPatches": [
+        {
+          "tag": {
+            "x": 4.0,
+            "y": 2.0,
+            "z": 7.0,
+            "w": 1.0
+          },
+          "age": 1.0,
+          "covered": true,
+          "meetsCurrentGate": false
+        }
+      ]
+    }
+  },
+  "fixed": {
+    "status": "observed",
+    "error": "",
+    "unity": "6000.0.85f1",
+    "api": "Direct3D12",
+    "rootTriangles": 1058,
+    "rootCharts": 1,
+    "triangleLimit": 1024,
+    "baselineDepartureFailure": false,
+    "heldExactDetails": true,
+    "sameRootPageAfter": true,
+    "sameEpochAfter": true,
+    "near": {
+      "frame": 9,
+      "work": 5,
+      "epoch": 5,
+      "acceptedTickets": 2,
+      "failedReadbacks": 0,
+      "builds": 1,
+      "pendingBuilds": 0,
+      "hardwareMeshes": 3,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS build recorded within shared work quota; native completion unproven",
+      "known": true,
+      "coarse": false,
+      "details": true,
+      "readbackPending": false,
+      "publishedIds": [
+        2,
+        3
+      ],
+      "targetIds": [
+        2,
+        3
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 1058,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 1,
+        "cards": 1,
+        "card": 2,
+        "slot": 1,
+        "triangles": 2,
+        "layout": 3,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          2
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 1,
+        "cards": 1,
+        "card": 1,
+        "slot": 0,
+        "triangles": 2,
+        "layout": 2,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          1
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 2,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        2,
+        1,
+        3
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 2.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 2.0,
+          "y": 3.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 2.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatches": []
+    },
+    "ready": {
+      "frame": 12,
+      "work": 8,
+      "epoch": 5,
+      "acceptedTickets": 3,
+      "failedReadbacks": 0,
+      "builds": 0,
+      "pendingBuilds": 0,
+      "hardwareMeshes": 3,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS estimate reserved; pending build work is admitted at command recording",
+      "known": true,
+      "coarse": false,
+      "details": true,
+      "readbackPending": false,
+      "publishedIds": [
+        2,
+        3
+      ],
+      "targetIds": [
+        4
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 2,
+        "cards": 1,
+        "card": 3,
+        "slot": 3,
+        "triangles": 1058,
+        "layout": 4,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [
+          3
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 1,
+        "cards": 1,
+        "card": 2,
+        "slot": 1,
+        "triangles": 2,
+        "layout": 3,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          2
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 1,
+        "cards": 1,
+        "card": 1,
+        "slot": 0,
+        "triangles": 2,
+        "layout": 2,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          1
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 2,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        2,
+        1,
+        3
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 5.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 2.0,
+          "y": 3.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 5.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 4.0,
+          "y": 2.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 3.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "rootPatches": [
+        {
+          "tag": {
+            "x": 4.0,
+            "y": 2.0,
+            "z": 5.0,
+            "w": 1.0
+          },
+          "age": 3.0,
+          "covered": true,
+          "meetsCurrentGate": true
+        }
+      ]
+    },
+    "competing": {
+      "frame": 13,
+      "work": 0,
+      "epoch": 5,
+      "acceptedTickets": 0,
+      "failedReadbacks": 0,
+      "builds": 1,
+      "pendingBuilds": 0,
+      "hardwareMeshes": 1,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS build recorded within shared work quota; native completion unproven",
+      "known": true,
+      "coarse": false,
+      "details": false,
+      "readbackPending": true,
+      "publishedIds": [],
+      "targetIds": [
+        4
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 2,
+        "cards": 1,
+        "card": 1,
+        "slot": 0,
+        "triangles": 1058,
+        "layout": 2,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [
+          1
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 1,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        1
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatches": []
+    },
+    "handoff": {
+      "frame": 13,
+      "work": 9,
+      "epoch": 5,
+      "acceptedTickets": 3,
+      "failedReadbacks": 0,
+      "builds": 1,
+      "pendingBuilds": 1,
+      "hardwareMeshes": 3,
+      "hardwareFallbacks": 0,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS estimate reserved; pending build work is admitted at command recording",
+      "known": true,
+      "coarse": false,
+      "details": true,
+      "readbackPending": false,
+      "publishedIds": [
+        2,
+        3
+      ],
+      "targetIds": [
+        4
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 2,
+        "cards": 1,
+        "card": 3,
+        "slot": 3,
+        "triangles": 1058,
+        "layout": 4,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [
+          3
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 1,
+        "cards": 1,
+        "card": 2,
+        "slot": 1,
+        "triangles": 2,
+        "layout": 3,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          2
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 1,
+        "cards": 1,
+        "card": 1,
+        "slot": 0,
+        "triangles": 2,
+        "layout": 2,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          1
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 2,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        2,
+        1,
+        3
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 6.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 2.0,
+          "y": 3.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 6.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 4.0,
+          "y": 2.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 4.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "rootPatches": [
+        {
+          "tag": {
+            "x": 4.0,
+            "y": 2.0,
+            "z": 5.0,
+            "w": 1.0
+          },
+          "age": 4.0,
+          "covered": true,
+          "meetsCurrentGate": true
+        }
+      ]
+    },
+    "nextFrame": {
+      "frame": 14,
+      "work": 10,
+      "epoch": 5,
+      "acceptedTickets": 3,
+      "failedReadbacks": 0,
+      "builds": 1,
+      "pendingBuilds": 0,
+      "hardwareMeshes": 1,
+      "hardwareFallbacks": 1,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS build recorded within shared work quota; native completion unproven",
+      "known": true,
+      "coarse": true,
+      "details": false,
+      "readbackPending": false,
+      "publishedIds": [
+        4
+      ],
+      "targetIds": [
+        4
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 1,
+        "cards": 1,
+        "card": 3,
+        "slot": 3,
+        "triangles": 1058,
+        "layout": 4,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [
+          3
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 2,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        4,
+        1
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 4.0,
+          "y": 2.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 2.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "rootPatches": [
+        {
+          "tag": {
+            "x": 4.0,
+            "y": 2.0,
+            "z": 5.0,
+            "w": 1.0
+          },
+          "age": 2.0,
+          "covered": true,
+          "meetsCurrentGate": true
+        }
+      ]
+    },
+    "latest": {
+      "frame": 14,
+      "work": 10,
+      "epoch": 5,
+      "acceptedTickets": 3,
+      "failedReadbacks": 0,
+      "builds": 1,
+      "pendingBuilds": 0,
+      "hardwareMeshes": 1,
+      "hardwareFallbacks": 1,
+      "backend": "DXR",
+      "coverageBlock": "",
+      "buildStatus": "RTAS build recorded within shared work quota; native completion unproven",
+      "known": true,
+      "coarse": true,
+      "details": false,
+      "readbackPending": false,
+      "publishedIds": [
+        4
+      ],
+      "targetIds": [
+        4
+      ],
+      "root": {
+        "id": 4,
+        "revision": 2,
+        "phase": 1,
+        "cards": 1,
+        "card": 3,
+        "slot": 3,
+        "triangles": 1058,
+        "layout": 4,
+        "generation": 1,
+        "current": true,
+        "ticket": true,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [
+          3
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "first": {
+        "id": 3,
+        "revision": 2,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "second": {
+        "id": 2,
+        "revision": 3,
+        "phase": 0,
+        "cards": 0,
+        "card": -1,
+        "slot": -1,
+        "triangles": 2,
+        "layout": 0,
+        "generation": 0,
+        "current": false,
+        "ticket": false,
+        "exactEligible": false,
+        "preparedExact": false,
+        "actualExact": false,
+        "gpuStoredExactFlag": 0,
+        "cardIndices": [],
+        "cardGenerations": []
+      },
+      "existing": {
+        "id": 1,
+        "revision": 4,
+        "phase": 1,
+        "cards": 1,
+        "card": 0,
+        "slot": 2,
+        "triangles": 2,
+        "layout": 1,
+        "generation": 1,
+        "current": true,
+        "ticket": false,
+        "exactEligible": true,
+        "preparedExact": true,
+        "actualExact": true,
+        "gpuStoredExactFlag": 1,
+        "cardIndices": [
+          0
+        ],
+        "cardGenerations": [
+          1
+        ]
+      },
+      "worldLeaves": [
+        4,
+        1
+      ],
+      "firstPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "secondPatch": {
+        "tag": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "age": 0.0,
+        "covered": false,
+        "meetsCurrentGate": false
+      },
+      "rootPatch": {
+        "tag": {
+          "x": 4.0,
+          "y": 2.0,
+          "z": 5.0,
+          "w": 1.0
+        },
+        "age": 2.0,
+        "covered": true,
+        "meetsCurrentGate": true
+      },
+      "rootPatches": [
+        {
+          "tag": {
+            "x": 4.0,
+            "y": 2.0,
+            "z": 5.0,
+            "w": 1.0
+          },
+          "age": 2.0,
+          "covered": true,
+          "meetsCurrentGate": true
+        }
+      ]
+    }
+  }
+}
