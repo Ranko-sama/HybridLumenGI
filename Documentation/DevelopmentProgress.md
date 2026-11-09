@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release224，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release225，G0 已锁定，G1／G2 本机代表性验收通过
 
-T6／G4 已接入对象 SDF 整卷上传的共享 CPU 时间准入。额度用完后延后下一卷，最早有效的时间等待在原周期内优先。实际 Atlas 宿主覆盖同帧收紧、来源变更后的解析回退、失败计时和次帧恢复。默认关闭，单卷可能超额。原生耗时及其他阶段预算继续验收。[对照与范围](../LocalComparison/Review/object-sdf-upload-time-274/result.md)
+T6／G4 已接入对象 SDF 整卷上传的共享 CPU 时间准入。额度用完后延后下一卷，轮到因时间延期的请求时先给它一次上传机会。实际 Atlas 宿主覆盖同帧收紧、来源变更后的解析回退、失败计时和次帧恢复。默认关闭，单卷可能超额。原生耗时及其他阶段预算继续验收。[对照与范围](../LocalComparison/Review/object-sdf-upload-time-274/result.md) · [Release225 同源交付](../LocalComparison/Review/object-sdf-upload-time-274/delivery.json)
 
 T6／G4 已关闭固定周期相机反复错失共享材质贴图上传。实际 Batch／Pool 对照中，两帧周期相机录制稳定页，并通过原完成门复用同代句柄。高频相机中间帧继续录制，1 MiB 共享硬上限及原读者门保持。同批未来需求无法覆盖当前有效续等。原生多相机画面及完整成本仍待验收。[前后对照](../LocalComparison/Review/periodic-material-upload-273/result.md) · [Release224 同源交付](../LocalComparison/Review/periodic-material-upload-273/delivery.json)
 
