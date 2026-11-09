@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release230，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release231，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／T6／G4 已关闭精确细节转近似粗根时，独立精确对象仍需 RTAS 而接替先于构建准入的缺口。双 Base 实机中，另一相机用完当帧名额时，主相机保留完整旧组与 DXR。下一帧按原额度录制构建，粗根以原图卡和 epoch 5 接替，独立对象保持精确。采用范围为热态世界发布与照明初始化，普通光栅和冷高速首显继续验收。[实际前后对照](../LocalComparison/Review/hlod-exact-departure-281/result.md) · [Release231 同源交付](../LocalComparison/Review/hlod-exact-departure-281/delivery.json)
 
 T3／G3 已关闭固定实时点灯与聚光灯共用绿色时的换色残留。实际 DXR 对照中，1／2 秒前旧绿增量由 12.173%／6.069% 降至 0.303%／0.014%。终态约 0.840 秒进入容差并持续至 2.608 秒。固定青色聚光灯的绿色和稳定蓝色通过原范围，普通 Player 与其他动态光路继续验收。[同曝光对照](../LocalComparison/Review/mixed-light-recolor-280/result.md) · [Release230 同源交付](../LocalComparison/Review/mixed-light-recolor-280/delivery.json)
 
