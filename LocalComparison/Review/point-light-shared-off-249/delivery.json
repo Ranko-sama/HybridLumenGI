@@ -1,0 +1,51 @@
+{
+  "productCommit": "05ff285e7aa0b31aae4615d527183178f80c4bae",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release208-demo",
+  "tag": "release208-demo",
+  "publishedAt": "2026-11-09T13:42:01Z",
+  "prerelease": true,
+  "validation": {
+    "gate": "G3",
+    "baselineSource": "3b424c4c08b5d18d6e8961f8bf53fb441284fd39",
+    "method": "Native DXR Editor Play at 960x540, two fixed point lights sharing green. Disable the green Light component while cyan remains on. Nine linear IndirectOnly receiver samples.",
+    "comparison": "result.md",
+    "acceptedCandidateStatus": "qualified-pass",
+    "actualLightCounts": [
+      1,
+      2,
+      1,
+      1
+    ],
+    "firstRecoveryWindow": {
+      "start": 0.26154780000000244,
+      "end": 0.7668157000000022
+    },
+    "minGreenBiasPercent": -2.4513974194355748,
+    "maxBlueBiasPercent": 2.1858160263424686
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release208-UnityProject.zip",
+      "size": 856438,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release208-demo/HybridLumenGI-Release208-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release208-Windows-x64.zip",
+      "size": 58385402,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release208-demo/HybridLumenGI-Release208-Windows-x64.zip"
+    }
+  ]
+}

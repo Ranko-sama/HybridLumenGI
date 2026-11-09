@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release207，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release208，G0 已锁定，G1／G2 本机代表性验收通过
 
-T3／G3 已关闭固定双点灯共用通道时单独关灯的残亮。实际灯表从两条变为一条，青灯全程保持。约 2 秒时旧绿增量从 6.37% 降至 −0.21%，约 0.26 秒进入合格保持区间。整段绿均值最低比青灯终态低 2.45%，蓝通道最大偏差 2.19%。[同曝光实测与范围](../LocalComparison/Review/point-light-shared-off-249/result.md)
+T3／G3 已关闭固定双点灯共用通道时单独关灯的残亮。实际灯表从两条变为一条，青灯全程保持。约 2 秒时旧绿增量从 6.37% 降至 −0.21%，约 0.26 秒进入合格保持区间。整段绿均值最低比青灯终态低 2.45%，蓝通道最大偏差 2.19%。[同曝光实测与范围](../LocalComparison/Review/point-light-shared-off-249/result.md) · [同源交付](../LocalComparison/Review/point-light-shared-off-249/delivery.json)
 
 T3／G3 已关闭固定双点光共用绿色通道时的调暗残亮。约 2 秒时旧绿增量从 6.64% 降至 −0.52%，修复版约 0.19 秒进入合格保持区间。整段绿均值最低比低亮终态低 3.30%，固定蓝通道最大偏差 2.17%。[同曝光实测和范围](../LocalComparison/Review/point-light-shared-channel-248/result.md) · [同源交付](../LocalComparison/Review/point-light-shared-channel-248/delivery.json)
 
