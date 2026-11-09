@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release231 同源交付](../LocalComparison/Review/hlod-exact-departure-281/delivery.json)
 
+T3／G3／G4 的单三角新姿态 DXR 消费已取得实际读回，形变专项继续按普通 Player 画质与消费延迟推进。Editor 观察器立即退出时的退休警告按原 G5 范围单列。[读回及退出边界](../LocalComparison/Review/skinned-dxr-pose-282/result.md)
+
 T5／T6／G4 已关闭精确细节退出后，仍需为确定保留的普通精确对象重建 RTAS 时，近似粗根接替绕过共享轮次的问题。实际双 Base 验证旧组连续覆盖、原额度真实录制与原图卡和 epoch 接替。冷高速首显、普通光栅和其他回退原因继续验收。[热态逆接替对照](../LocalComparison/Review/hlod-exact-departure-281/result.md)
 
 T3／G3 已关闭固定 Point＋Spot 共通道换色的旧绿残留。实际两盏灯保持开启，点灯退出绿色，固定聚光灯的投影和供光保持。残留、终态、保持及独立颜色门均通过。普通 Player 和其他灯型变化继续验收。[实际 DXR 对照](../LocalComparison/Review/mixed-light-recolor-280/result.md)
