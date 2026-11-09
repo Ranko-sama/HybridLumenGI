@@ -96,15 +96,21 @@ namespace UnityEngine
     public enum ComputeBufferType { Structured }
     public class ComputeBuffer : IDisposable
     {
-        public static int AttemptedFloatVoxels;
-        public static bool FailNextFloatUpload;
+        public static int AttemptedFloatVoxels, AttemptedMetadataUploads;
+        public static bool FailNextFloatUpload, FailNextMetadataUpload;
         public int count; public string name;
         public ComputeBuffer(int c,int stride,ComputeBufferType t){count=c;}
         public void SetData<T>(T[] data){if(data.Length>count)throw new Exception("oversized buffer upload");}
         public void SetData<T>(T[] data,int start,int destination,int length)
         {
             if(start<0||destination<0||start+length>data.Length||destination+length>count)throw new Exception("invalid buffer range");
-            if(typeof(T)!=typeof(float))return;
+            if(typeof(T)!=typeof(float))
+            {
+                AttemptedMetadataUploads++;
+                if(!FailNextMetadataUpload)return;
+                FailNextMetadataUpload=false;
+                throw new InvalidOperationException("Simulated metadata SetData failure");
+            }
             AttemptedFloatVoxels+=length;
             if(!FailNextFloatUpload)return;
             FailNextFloatUpload=false;

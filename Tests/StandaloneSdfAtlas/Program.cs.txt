@@ -70,7 +70,62 @@ void CheckSharedFrameUploads()
         "A failed version retried or blocked the healthy upload after the frame advanced.");
 }
 
+bool CheckFailedVolumeReleasesRange()
+{
+    const int resolution = 64;
+    const int volume = resolution * resolution * resolution;
+    const int failureFrame = 208;
+    var scene = new HybridLumenGIScene(9);
+    using var atlas = new HybridLumenGISdfAtlas();
+    var failedTexture = new Texture3D(resolution);
+    for (int slot = 0; slot < 8; slot++)
+    {
+        SetSlot(scene, slot, Asset(slot == 7 ? failedTexture : null, resolution), slot + 1);
+        atlas.PrepareForFrame(scene, failureFrame - 8 + slot);
+        Require(atlas.IsReady(slot, slot + 1, 1), "The starting volumes must fit and become ready in order.");
+    }
+    Require(atlas.UsedVoxels == HybridLumenGISdfAtlas.DefaultVoxelBudget, "The original atlas must be full.");
+    long allocatedBytes = atlas.AllocatedBytes;
+
+    failedTexture.updateCount++;
+    ComputeBuffer.FailNextFloatUpload = ComputeBuffer.FailNextMetadataUpload = true;
+    int beforeFailure = ComputeBuffer.AttemptedFloatVoxels;
+    bool metadataFailed = false;
+    try { atlas.PrepareForFrame(scene, failureFrame); }
+    catch (InvalidOperationException error) when (error.Message == "Simulated metadata SetData failure") { metadataFailed = true; }
+    Require(metadataFailed && ComputeBuffer.AttemptedFloatVoxels - beforeFailure == volume && !atlas.IsReady(7, 8, 1),
+        "The failed voxel attempt must keep its charge and the failed metadata must prevent a ready receipt.");
+    int failedReads = failedTexture.ReadCount;
+
+    SetSlot(scene, 8, Asset(resolution: resolution), 9);
+    int metadataAttempts = ComputeBuffer.AttemptedMetadataUploads;
+    atlas.PrepareForFrame(scene, failureFrame);
+    bool metadataRetried = ComputeBuffer.AttemptedMetadataUploads > metadataAttempts;
+    int voxelsAfterRevocation = atlas.UsedVoxels;
+    Require(!atlas.IsReady(8, 9, 1) && ComputeBuffer.AttemptedFloatVoxels - beforeFailure == volume,
+        "Retrying metadata must not refund the failed voxel upload within the same frame.");
+
+    atlas.PrepareForFrame(scene, failureFrame + 1);
+    bool healthyReady = atlas.IsReady(8, 9, 1);
+    int healthyUploaded = atlas.UploadedVoxels;
+    Require(failedTexture.ReadCount == failedReads && !atlas.IsReady(7, 8, 1), "A failed texture version must remain in fallback.");
+    for (int slot = 0; slot < 7; slot++)
+        Require(atlas.IsReady(slot, slot + 1, 1), "Unrelated ready volumes must keep their receipts.");
+    Require(atlas.AllocatedBytes == allocatedBytes, "Recovery must use the original atlas capacity.");
+
+    scene.Data[8] = default;
+    scene.Proxies[8] = null;
+    failedTexture.updateCount++;
+    atlas.PrepareForFrame(scene, failureFrame + 2);
+    Require(atlas.IsReady(7, 8, 1) && failedTexture.ReadCount == failedReads + 1 && atlas.UploadedVoxels == volume,
+        "A changed source must be able to reacquire an available range.");
+
+    Console.WriteLine($"Failed SDF volume: metadata retried={metadataRetried}, occupied after revocation={voxelsAfterRevocation}, healthy ready={healthyReady}, healthy uploaded={healthyUploaded} voxels.");
+    return metadataRetried && voxelsAfterRevocation == 7 * volume && healthyReady && healthyUploaded == volume;
+}
+
 CheckSharedFrameUploads();
+Require(CheckFailedVolumeReleasesRange(), "A failed SDF version must yield its range after metadata revocation.");
 
 const int voxels=16*16*16;
 var scene=new HybridLumenGIScene(2);

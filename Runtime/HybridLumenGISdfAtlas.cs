@@ -36,11 +36,12 @@ namespace HybridLumenGI
 
         private sealed class Allocation
         {
-            public int offset, count, textureId;
+            public int offset = -1, count, textureId;
             public uint textureVersion;
             public bool ready, failed;
             public LinkedListNode<Allocation> uploadWaiter;
             public int requestedUploadFrame;
+            public bool AwaitingWithdrawal => failed && offset >= 0;
         }
 
         private struct FreeRange
@@ -92,6 +93,7 @@ namespace HybridLumenGI
         private SdfMetadata[] nextMetadata = Array.Empty<SdfMetadata>();
         private Representation[] representations = Array.Empty<Representation>();
         private Representation[] nextRepresentations = Array.Empty<Representation>();
+        private bool metadataUploadUncertain;
         private int uploadCursor;
 
         /// <summary>Hard voxel upload cap per Prepare. A single volume must fit this cap.</summary>
@@ -128,7 +130,7 @@ namespace HybridLumenGI
         /// Metadata and voxel upload readiness from the last Prepare, including warming slots.
         /// Pure CPU query, not a GPU completion fence and not proof that the scene has published it.
         /// </summary>
-        public bool IsReady(int slot, uint stableId, uint revision) => slot >= 0 && slot < metadata.Length &&
+        public bool IsReady(int slot, uint stableId, uint revision) => !metadataUploadUncertain && slot >= 0 && slot < metadata.Length &&
             (metadata[slot].valid & 1u) != 0 && metadata[slot].stableId == stableId && metadata[slot].revision == revision;
         public bool IsReady(int slot, int stableId, int revision) => IsReady(slot, (uint)stableId, (uint)revision);
         /// <summary>Read-only pre-publication check; does not consume this frame's change events.</summary>
@@ -222,8 +224,9 @@ namespace HybridLumenGI
             foreach (HybridLumenGIMeshSdf asset in removals)
             {
                 Allocation allocation = allocations[asset];
+                if (allocation.AwaitingWithdrawal) continue;
                 CancelUploadRequest(allocation);
-                Free(allocation.offset, allocation.count);
+                ReleaseRange(allocation);
                 allocations.Remove(asset);
                 changed = true;
             }
@@ -241,18 +244,19 @@ namespace HybridLumenGI
                 if (!visited.Add(asset)) continue;
                 Texture3D texture = asset.DistanceTexture;
                 int count = asset.Resolution * asset.Resolution * asset.Resolution;
-                if (allocations.TryGetValue(asset, out Allocation allocation) && allocation.count != count)
+                allocations.TryGetValue(asset, out Allocation allocation);
+                if (allocation != null && allocation.AwaitingWithdrawal) continue;
+                if (allocation != null && allocation.count != count)
                 {
                     CancelUploadRequest(allocation);
-                    Free(allocation.offset, allocation.count);
+                    ReleaseRange(allocation);
                     allocations.Remove(asset);
                     allocation = null;
                     changed = true;
                 }
                 if (allocation == null)
                 {
-                    if (!Allocate(count, out int offset)) continue;
-                    allocation = new Allocation { offset = offset, count = count };
+                    allocation = new Allocation { count = count };
                     allocations.Add(asset, allocation);
                 }
                 int textureId = texture.GetInstanceID();
@@ -266,6 +270,11 @@ namespace HybridLumenGI
                 }
                 if (!allocation.ready && !allocation.failed)
                 {
+                    if (allocation.offset < 0)
+                    {
+                        if (!Allocate(count, out int offset)) continue;
+                        allocation.offset = offset;
+                    }
                     bool canUpload = count <= uploadRemaining;
                     if (shareUploads && count <= uploadLimit)
                         canUpload = AdmitFrameUpload(allocation, uploadRemaining);
@@ -328,19 +337,33 @@ namespace HybridLumenGI
                 FallbackCount--;
             }
 
-            // Small metadata arrays are retained across frames; upload changed contiguous spans.
+            // A failed write may have reached the queue. Resubmit the whole snapshot after it.
             for (int begin = 0; begin < metadata.Length;)
             {
-                if (Equal(metadata[begin], nextMetadata[begin])) { begin++; continue; }
-                int end = begin + 1;
+                if (!metadataUploadUncertain && Equal(metadata[begin], nextMetadata[begin])) { begin++; continue; }
+                int end = metadataUploadUncertain ? metadata.Length : begin + 1;
                 while (end < metadata.Length && !Equal(metadata[end], nextMetadata[end])) end++;
+                metadataUploadUncertain = true;
+                metadataBuffer.SetData(nextMetadata, begin, begin, end - begin);
                 Array.Copy(nextMetadata, begin, metadata, begin, end - begin);
-                metadataBuffer.SetData(metadata, begin, begin, end - begin);
+                metadataUploadUncertain = false;
                 begin = end;
                 changed = true;
             }
             UsedVoxels = 0;
-            foreach (Allocation allocation in allocations.Values) UsedVoxels += allocation.count;
+            removals.Clear();
+            foreach (var pair in allocations)
+            {
+                Allocation allocation = pair.Value;
+                // Keep the failed version, but let the range go after its metadata is withdrawn.
+                if (allocation.AwaitingWithdrawal)
+                {
+                    ReleaseRange(allocation);
+                    if (!desired.Contains(pair.Key)) removals.Add(pair.Key);
+                }
+                if (allocation.offset >= 0) UsedVoxels += allocation.count;
+            }
+            foreach (HybridLumenGIMeshSdf asset in removals) allocations.Remove(asset);
             RecordRepresentationChanges(scene);
             return changed || representationChangedBounds.Count > 0;
         }
@@ -531,11 +554,14 @@ namespace HybridLumenGI
             count = Mathf.Max(1, count);
             if (metadataBuffer != null && metadata.Length == count) return false;
             metadataBuffer?.Release();
+            metadataBuffer = null;
             metadata = new SdfMetadata[count];
             nextMetadata = new SdfMetadata[count];
             nextRepresentations = new Representation[count];
             metadataBuffer = new ComputeBuffer(count, MetadataStride, ComputeBufferType.Structured) { name = "Hybrid GI SDF Metadata" };
+            metadataUploadUncertain = true;
             metadataBuffer.SetData(metadata);
+            metadataUploadUncertain = false;
             return true;
         }
 
@@ -548,6 +574,13 @@ namespace HybridLumenGI
             freeRanges.Clear();
             freeRanges.Add(new FreeRange(0, count));
             return true;
+        }
+
+        private void ReleaseRange(Allocation allocation)
+        {
+            if (allocation.offset < 0) return;
+            Free(allocation.offset, allocation.count);
+            allocation.offset = -1;
         }
 
         private bool Allocate(int count, out int offset)
@@ -592,7 +625,8 @@ namespace HybridLumenGI
         /// <summary>Bind inside the dispatch callback after Prepare, on the owning camera's queue.</summary>
         public void Bind(CommandBuffer command, ComputeShader compute, int kernel)
         {
-            if (metadataBuffer == null || distancesBuffer == null) throw new InvalidOperationException("Prepare the SDF atlas before binding.");
+            if (metadataBuffer == null || distancesBuffer == null || metadataUploadUncertain)
+                throw new InvalidOperationException("Prepare the SDF atlas before binding.");
             command.SetComputeBufferParam(compute, kernel, MetadataId, metadataBuffer);
             command.SetComputeBufferParam(compute, kernel, DistancesId, distancesBuffer);
             command.SetComputeIntParam(compute, SlotCountId, metadata.Length);
@@ -606,6 +640,7 @@ namespace HybridLumenGI
             distancesBuffer?.Release();
             metadataBuffer = distancesBuffer = null;
             metadata = nextMetadata = Array.Empty<SdfMetadata>();
+            metadataUploadUncertain = false;
             ClearAllocations();
             freeRanges.Clear();
             desired.Clear();
