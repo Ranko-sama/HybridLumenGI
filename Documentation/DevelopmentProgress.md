@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release218，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release219，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭普通近景书签短距切镜沿用上一镜屏幕历史的缺口。同一普通 DXR Player 对照中，连续小幅移动后两程的地板历史年龄均为 32。切镜后旧行为仍为 32，修复后首帧为 1、下一帧为 2。两程的世界缓存代次和就绪图卡数保持。可见拖影、缩放和其他切镜继续各自验收。[实机对照与范围](../LocalComparison/Review/ordinary-bookmark-cut-267/result.md) · [Release219 同源交付](../LocalComparison/Review/ordinary-bookmark-cut-267/delivery.json)
 
 T3／G3 已关闭普通 Player 固定两室开门后的新照明恢复子项。首个开门源帧地板为同源控制的 46.85%，约 0.634 秒进入容差并保持到 +2.800 秒。2 秒前最后一帧亮度低 3.82%，色向 L1 为 0.00160。门轮廓拖影与其他动态光路继续验收。[同曝光对照与范围](../LocalComparison/Review/ordinary-portal-open-266/result.md)
 
