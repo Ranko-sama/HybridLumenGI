@@ -46,6 +46,8 @@ Published owners have admission priority ahead of warming owners. Each admitted 
 
 `IsSlotSourceCurrent(slot, stableId, revision)` is a read-only pre-publication guard. It checks all current cards, proxy identity/revision/source renderer, chart asset/content version/capture mesh, source eligibility, material CRC, texture update counts, property blocks, transform and geometry/bounds signatures. A mismatch revokes readiness before `Scene.Prepare` publishes a previous receipt. The guard does not upload data or consume `ChangedBounds`; normal `Prepare` still reports and schedules the change. Its per-frame geometry signature is not a full vertex-buffer hash, so in-place edits require the explicit geometry revision described above. Enabled skinned sources may use the legacy approximate path but do not gain baked-chart or stable HLOD support.
 
+Live RenderTexture inputs invalidate the affected owner's cards on each prepare, so the capture budget decides when to record fresh content. When the source signature and all per-slot observations match, the draws reuse the existing capture Material and its live texture reference. A configuration change replaces that Material. Live pixels still require a new capture, and `IsSlotSourceCurrent` requires a source whose content can be reused. [Capture preparation comparison](../LocalComparison/Review/dynamic-card-material-200/result.md)
+
 ## Storage
 
 | Resource | Format | Meaning |

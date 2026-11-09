@@ -1,0 +1,44 @@
+{
+  "productCommit": "585b36199d7bd9a217333219eb5ccdae835d06e5",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release174-demo",
+  "tag": "release174-demo",
+  "publishedAt": "2026-11-09T00:00:10Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Paired actual C# SurfaceCache and MaterialSource with Unity recording substitutes, single-slot Lit owner with one chart and no baked lightmap.",
+    "entry": "Tests/StandaloneSurfaceCache/Program.cs.txt::ExactMaterialObservations via Tests/Invoke-CSharpHarness.ps1",
+    "baselineCommit": "f20f9ff8ad3fe95f1b7d7d8900b9236c36fb74aa",
+    "baselineExitCode": 1,
+    "exitCode": 0,
+    "equalConfigurationRetainsCaptureMaterialBefore": false,
+    "equalConfigurationRetainsCaptureMaterialAfter": true,
+    "deferredCaptureInvalidationRecaptureAndReplacementControls": true,
+    "evidence": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release174-UnityProject.zip",
+      "size": 847045,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release174-demo/HybridLumenGI-Release174-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release174-Windows-x64.zip",
+      "size": 58445261,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release174-demo/HybridLumenGI-Release174-Windows-x64.zip"
+    }
+  ]
+}

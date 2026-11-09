@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release173，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release174，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭动态图卡在逐槽来源配置相同时仍反复销毁和重建捕获材质的缺口。实际 C# 对照确认动态像素继续触发失效和预算内捕获，配置变化仍更换材质，无效来源仍撤销图卡。采用范围为 CPU 准备及材质对象生命周期。[对照与范围](../LocalComparison/Review/dynamic-card-material-200/result.md) · [同源交付](../LocalComparison/Review/dynamic-card-material-200/delivery.json)
 
 T6／G4 已关闭 Global SDF 对每块保留砖重复展开所有脏区的 CPU 准备缺口。相同输入的旧源码和候选源码失效相同的 55 块砖，页代次、就绪、年龄和重建提交序列一致。受控脏范围读取从 348 次降到 6 次。完整分阶段时间预算和实机耗时继续验收。[对照与范围](../LocalComparison/Review/global-sdf-dirty-rows-199/result.md) · [同源交付](../LocalComparison/Review/global-sdf-dirty-rows-199/delivery.json)
 
