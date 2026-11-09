@@ -79,6 +79,9 @@
 </section>
 <section id="recovery">
   <h2>4. 变化后，多久恢复到匹配的最终状态？</h2>
+  <h3>唯一点光从 20 降到 2</h3>
+  <p>封闭灰墙房间中，修复版的九点间接亮度在 <strong>0.260–0.772 秒</strong>形成首个匹配低亮控制的保持窗口。2 秒前最后一帧相对低亮控制的亮度偏差由 <strong>+55.45% 降至 +1.06%</strong>，相对高低控制之差的旧亮增量由 6.23% 降至 0.12%。灯全程为绿色。</p>
+  <figure><img src="point-light-intensity-241/comparison.png" alt="上排 Release202，下排修复版。两排依次显示低亮、高亮和点光调暗约两秒后的间接光"><figcaption>同曝光 IndirectOnly，960×540、半分辨率 GI、实际 DXR Editor Play。白圈为固定接收点。范围为固定单点光调暗。<a href="point-light-intensity-241/baseline.json">Release202 读数</a> · <a href="point-light-intensity-241/fixed.json">修复版读数</a> · <a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/point-light-intensity-241/result.md">适用范围 ↗</a></figcaption></figure>
   <h3>发光换色：固定域均值的可用响应时间</h3>
   <p>当前122同源产品、实际棕墙／白地板中，绿转蓝路径相对同工作帧的较长蓝前史产品控制，固定地板均值在 <strong>0.193958～0.708270秒</strong>形成首个合格保持窗口；之后观测到2.612935秒未再次越线。采用亮度±10%、色向L1≤0.05并保持至少0.5秒的工程目标，控制本身满足预定稳定性条件。</p>
   <figure><img src="final-state-response-01/comparison.png" alt="绿转蓝与首帧蓝色两程在约2秒及末帧的同工作帧Final对照"><figcaption>960×540／GI480×270、2ray／filter4，图为work178／196，同曝光的线性Final HDR经Reinhard+sRGB显示。控制是产品输出，不是独立物理真值，也不是无限稳态。<a href="final-state-response-01/result.json">恢复窗口与逐源读数</a></figcaption></figure>
