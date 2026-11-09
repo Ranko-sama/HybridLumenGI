@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release222，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release223，G0 已锁定，G1／G2 本机代表性验收通过
 
-T3／G3 已关闭全局灯光变化后，待替换旧值经滤波与半分辨率合成串入可信像素的缺口。实际 DX12 受控同平面中，可信黑经过四轮滤波与合成后仍为有效零。待替换中心保留原值，仅待替换样点可用时继续显示，可信邻点控制一致。整景关灯与原生开销继续验收。[实际着色器对照](../LocalComparison/Review/pending-lighting-spatial-272/result.md)
+T3／G3 已关闭全局灯光变化后，待替换旧值经滤波与半分辨率合成串入可信像素的缺口。实际 DX12 受控同平面中，可信黑经过四轮滤波与合成后仍为有效零。待替换中心保留原值，仅待替换样点可用时继续显示，可信邻点控制一致。整景关灯与原生开销继续验收。[实际着色器对照](../LocalComparison/Review/pending-lighting-spatial-272/result.md) · [Release223 同源交付](../LocalComparison/Review/pending-lighting-spatial-272/delivery.json)
 
 T6／G4 已关闭固定周期相机因等待过期反复失去共享 RTAS 构建机会的路径。实际 Backend 中两帧周期相机第三次返回取得构建，高频相机在间隔帧按当前位姿录制。原次数与工作量计费、HLOD 等候撤回及退休回归通过。实际原生多相机负载继续验收。[同输入对照与范围](../LocalComparison/Review/periodic-rtas-build-271/result.md) · [Release222 同源交付](../LocalComparison/Review/periodic-rtas-build-271/delivery.json)
 
