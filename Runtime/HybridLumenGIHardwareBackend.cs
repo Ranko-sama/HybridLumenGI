@@ -231,7 +231,9 @@ namespace HybridLumenGI
                 state.geometryRevision!=instance.geometryRevision || preparedSurfaceCache.GetGeometryRevision(slot)!=instance.geometryRevision)
             { reason="Hardware owner, renderer, mesh, pose or geometry identity is stale.";return false; }
             renderer.GetSharedMaterials(sharedMaterials);
-            if(submesh>=sharedMaterials.Count || sharedMaterials[submesh]==null)
+            if(!SupportsExactMaterialSlots(mesh,sharedMaterials.Count))
+            { reason="Hardware material slots no longer match the prepared submesh layout.";return false; }
+            if(sharedMaterials[submesh]==null)
             { reason="Original hardware submesh material is missing.";return false; }
             material=sharedMaterials[submesh];
             Color linearTint=proxy.AlbedoTint.linear,linearEmission=proxy.EmissionOverride.linear;
@@ -390,6 +392,14 @@ namespace HybridLumenGI
         private static bool Published(float state) => state>0.5f && state<1.5f;
         private static bool ExactSource(Renderer renderer) => renderer is MeshRenderer || HybridLumenGIDeformedMesh.HasSnapshot(renderer);
 
+        private static bool SupportsExactMaterialSlots(Mesh mesh,int materialCount)
+        {
+            int submeshes=mesh.subMeshCount;
+            // Extra slots can redraw the last submesh. One exact material per submesh
+            // represents that layout only when the repeated submesh has no indices.
+            return materialCount>=submeshes && (materialCount==submeshes || mesh.GetIndexCount(submeshes-1)==0);
+        }
+
         private static bool GeometryChanged(HybridLumenGIScene scene,int slot)
         {
             foreach(var change in scene.DirtyRegions)
@@ -414,7 +424,7 @@ namespace HybridLumenGI
             if (!ExactSource(renderer) || !renderer.enabled || mesh==null || !mesh.isReadable || mesh.subMeshCount==0) return false;
             if(surfaceCache.GetGeometryRevision(slot)==0) return false;
             renderer.GetSharedMaterials(sharedMaterials);
-            if(sharedMaterials.Count<mesh.subMeshCount) return false;
+            if(!SupportsExactMaterialSlots(mesh,sharedMaterials.Count)) return false;
             for (int submesh = 0; submesh < mesh.subMeshCount; submesh++)
             {
                 Material material = sharedMaterials[submesh];
