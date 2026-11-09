@@ -65,6 +65,10 @@ Release98 下载包的 GPU 面板仍显示调整设置会刷新光照历史的�
 
 只计发现调用内部的 CPU 经过时间。已经开始的 Unity 枚举或来源调用运行到完成。此设置和网格指纹字节额度各自生效。[受控功能对照](../LocalComparison/Review/receiver-discovery-budget-159/result.md)
 
+## 图卡录制的 CPU 准入
+
+在 Renderer Data 的 Hybrid Lumen GI Feature 中，`surfaceCaptureRecordingCpuBudgetMilliseconds` 为一次相机渲染的图卡命令录制设置经过时间额度，默认 0。正数在第一张有效图卡开始录制时计时，额度达到后延后下一张完整图卡。卡数、draw 数和等待顺序继续生效。已发现的旧来源失效立即生效，实际录制完成后才提交恢复域。单卡和准备阶段各有自己的成本，实际 CPU、GPU 与显存窗口继续按原条件验收。[功能对照](../LocalComparison/Review/surface-capture-recording-204/result.md)
+
 ## 驱动层进程显存观察
 
 Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开启后，现有面板和 **Log ledger** 的 `processVideoMemory` 字段给出 Unity 渲染适配器上的本进程 local/nonlocal 用量、操作系统预算与启用窗口内采样峰值。它通过可选 DX12 插件的独立 `HLGI_Memory_Query` 导出读取，不开启 GPU 计时或反馈，不改变光传输配置、更新配额、驻留或预留。

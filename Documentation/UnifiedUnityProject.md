@@ -1,12 +1,14 @@
 # 在 Unity 中打开并重建统一示例
 
-将 `HybridLumenGI-Release176-UnityProject.zip` 完整解压到新目录。在 Unity Hub 中选择 **Add → Add project from disk**，选中包含 `Assets`、`Packages`、`ProjectSettings` 的目录。使用 Unity **6000.0.85f1**、Windows x64 Build Support 和可用的 Unity 许可。工程已声明 URP **17.0.4**，首次导入由 Unity 的包管理器解析依赖。
+将 `HybridLumenGI-Release177-UnityProject.zip` 完整解压到新目录。在 Unity Hub 中选择 **Add → Add project from disk**，选中包含 `Assets`、`Packages`、`ProjectSettings` 的目录。使用 Unity **6000.0.85f1**、Windows x64 Build Support 和可用的 Unity 许可。工程已声明 URP **17.0.4**，首次导入由 Unity 的包管理器解析依赖。
 
-本 ZIP 使用产品源码 `5da52183`。普通 Release176 Windows 包从该 ZIP 的独立解压目录构建。从 175 升到 176 时，作者资产和构建目标相同即可沿用场景、配置、有效 SDF、charts 和 Windows 资源页。[固定产品源码](https://github.com/Ranko-sama/HybridLumenGI/tree/5da52183d757aafc706fd7608bd6a1a1ed48c9a8) · [同源交付](../LocalComparison/Review/streamed-hlod-cull-range-202/delivery.json)
+本 ZIP 使用产品源码 `389914e2`。普通 Release177 Windows 包从该 ZIP 的独立解压目录构建。从 176 升到 177 时，作者资产和构建目标相同即可沿用场景、配置、有效 SDF、charts 和 Windows 资源页。[固定产品源码](https://github.com/Ranko-sama/HybridLumenGI/tree/389914e2abaca6be4d5fcfa3e18c18f6b9248674) · [同源交付](../LocalComparison/Review/surface-capture-recording-204/delivery.json)
 
 在 Project 窗口打开 `Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity`，按 Play 进入彩墙场景。WASD 移动，C 换墙色，L 开关解析灯，M 启停门运动。F3 进入中性两室，随后按 F4 进入三室，O 开关中央滑门。1、2 分别切到近景与远景。
 
 按 **F5** 或点击 **F5: show indirect light** 可以单独看间接光。再次按 F5 回到原视图。要观察颜色反弹，可对准白色地板，按 C 换墙色，再用 F5 对照最终画面。运行时代码也可在相机准备前调用 Renderer Feature 的 `SetIndirectIntensity(float)` 与 `SetDebugView(DebugView)`。强度只接受有限非负数。
+
+在 Renderer Feature 设置 `surfaceCaptureRecordingCpuBudgetMilliseconds` 可启用图卡录制的 CPU 时间准入，默认 0。[设置范围](GpuBudget.md#图卡录制的-cpu-准入)
 
 工程含普通渲染及编辑器源码、活动场景和 Renderer Feature、材质与烘焙资产、可编辑分页源以及 `Assets/StreamingAssets/UnifiedNeutral106` 下的 Windows 资源页。可直接查看、修改场景。若修改分页源网格、贴图或材质，需要用分页导出工具重新生成对应的资源页。首次打开时请保留已有的 `.meta` 和分页目录，使场景引用及物理页路径保持匹配。
 

@@ -84,11 +84,11 @@ Release84新增[F2运行状态日志入口](../LocalComparison/Review/keyboard-l
 
 后续一次[全局光暂态加权候选](../LocalComparison/Review/global-light-response-window-01/result.md)未满足既定响应筛选，已撤回并结束。Release78另采用来源分离功能：同一前缀240→299输出绝对变化降低92.2%，270→299降低80.0%，接收面反弹保留；该有限采用不证明物理误差或精确收敛。触发的是上传灯表为空，非所有场景光源关闭；缓存存储增加20%，实际带宽/时间增量未测。G1/G3整体收敛保持开放。
 
-当前交付为 **Release176，产品源码 `5da52183`**。独立分页组在剔除前复核当前机位的远界，首次出域即隐藏该相机的旧组。各项历史证据沿用原版本与适用范围。[栅格提交资格对照](../LocalComparison/Review/streamed-hlod-cull-range-202/result.md) · [同源交付](../LocalComparison/Review/streamed-hlod-cull-range-202/delivery.json)
+当前交付为 **Release177，产品源码 `389914e2`**。相机图卡录制提供默认关闭的 CPU 时间额度，按完整图卡延期并保留立即失效。各项历史证据沿用原版本与适用范围。[图卡时间准入对照](../LocalComparison/Review/surface-capture-recording-204/result.md) · [同源交付](../LocalComparison/Review/surface-capture-recording-204/delivery.json)
 
 | 类别 | 当前实现／交付范围 | 已有依据与未关闭边界 |
 | --- | --- | --- |
-| 当前交付环境 | Unity 6000.0.85f1、URP 17.0.4、Windows x64、Mono、DX12 和 Linear。本机 RTX2080Ti。统一示例 960×540、半分辨率 GI、2 射线和 4 级滤波，优先 DXR | 普通 Release176 从同版工程 ZIP 的独立解压目录构建。完整生产负载和其他设备的验收仍按原计划推进。[打开与重建](UnifiedUnityProject.md) · [升级与回退](Implementation.md#升级已有-unity-工程与回退) |
+| 当前交付环境 | Unity 6000.0.85f1、URP 17.0.4、Windows x64、Mono、DX12 和 Linear。本机 RTX2080Ti。统一示例 960×540、半分辨率 GI、2 射线和 4 级滤波，优先 DXR | 普通 Release177 从同版工程 ZIP 的独立解压目录构建。完整生产负载和其他设备的验收仍按原计划推进。[打开与重建](UnifiedUnityProject.md) · [升级与回退](Implementation.md#升级已有-unity-工程与回退) |
 | 固定两室关门后的照明恢复 | 对普通 MeshRenderer 同源网格的不相交姿态变更，受影响的缓存保留可显示值，直到新估计提交。旧值在等待期间不进入世界递归 | 同一固定地板在 1 秒和 2 秒前最后的残留分别为 2.637% 和 0.214%。两个保持条件成立，覆盖本机这条实际 DXR 关门光路。[原版、修复与匹配控制](../LocalComparison/Review/portal-recovery-138/result.md) |
 | 代码明确跳过／有条件拒绝 | Feature仅进入Base Game及显式允许的SceneView、Tex2D目标；非DX12、非Linear、Overlay、立体/XR、无compute或必要资源时跳过 | [实际准入](../Runtime/HybridLumenGIRendererFeature.cs)。Replace原生漫反射另要求普通Lit、Forward／Forward+、有符号HDR和MSAA关闭，Deferred／APV／Subtractive等按[替换合同](NativeDiffuseComposition.md)拒绝或保持原画面；不能把这些行为写成仅“未测试” |
 | 软件／DXR及真实材质 | 精确软件三角和可选DXR共用材质、alpha／Cull与chart绑定；不足时允许明确的SDF／解析近似或unknown。请求偏好不等于实际后端 | [88同输入2ray／filter3四时点画面对照](../LocalComparison/Review/release88-dxr-motion-01/result.md)、[121软件预算恢复](../LocalComparison/Review/software-budget-recovery-121/result.md)、[122稳定回退历史](../LocalComparison/Review/stable-fallback-history-01/result.md)和[限定二值alpha实际遍历](../LocalComparison/Review/binary-alpha-traversal-01/result.md)各按原来源复用。88不升级成当前filter4或全部Cull、mip、纹理与混合回退视觉一致；原近似边界保留 |
@@ -216,6 +216,8 @@ Global SDF 每层扩张一次局部脏范围，按受影响砖行记录失效。
 
 接收面发现增加默认关闭的[累计 CPU 时间准入](GpuBudget.md#接收面发现的-cpu-准入)。同一次相机图中的初次发现与复核共享额度，达到后停止启动后续来源检查。完成之前保持现有的原生替换与身份历史资格保护。Unity 已开始的枚举和来源调用会执行到完成。
 
+图卡命令录制增加默认关闭的[每相机 CPU 时间准入](GpuBudget.md#图卡录制的-cpu-准入)。达到额度后延后下一张完整图卡，延后卡保持待录制。准备阶段发现的失效立即生效，实际录制的恢复域在本次追踪前提交。此项覆盖整卡录制准入，完整分阶段时间预算和生产负载仍待验收。
+
 已完成的形变作业按捕获入队顺序争用上传额度，关闭持续新任务反复抢先的发布饥饿机制；未完成、失效和清理失败按原资格处理。该保证限合格且适配当帧额度的ready任务，不承诺永久大于整帧额度或无法完成的作业有固定等待上限。
 
 当前 [GPU 反馈](GpuBudget.md)只缩放 patch/capture/brick 每帧工作量，不修改 Settings、容量或资源尺寸。`adaptiveGpuBudget=false`、`measureGpuCost=false`、`targetGpuMilliseconds=0` 为默认值，两种用途均关闭时不探测或加载计时 DLL。只测量可在零目标下保持静态配额，反馈目标应按设备基线填写。启用后，`preferNativeGpuTiming=true` 优先选择可选 [原生 DX12 后端](NativeGpuTiming.md)：128 个共享提交槽按实际 fence 完成回收，每帧的六个时间戳绑定 owner、配置/设备代次和 source frame。三个范围结束后在独立 Unsafe pass 中 resolve，不能放入 native raster render pass。托管端每相机最多跟踪 32 个在途提交；反馈只取最新有效结果，独立有界队列可导出所有完整校验的完成记录。
@@ -244,7 +246,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-**G0 本机基线已锁定，第 6 节 G1／G2 本机代表性验收已通过。** G3 已关闭固定两室关门恢复、离屏无图卡 BaseMap 换色通知和匹配贴图回读等待导致的整体回退，并修复待定副本遮蔽同源就绪页、蒙皮实例误捕获／撤回、单对象表示切换漏发失效、硬域旧缓存回流、渲染图中止后恢复时沿用旧世界缓存、待校验及重新启用漏接 Collider 和 Renderer，以及 Renderer 销毁后中断相机准备。G4 已修复几何上传不足时的部分 HLOD 提交、对象 SDF 跨相机上传、Editor 重进 Play 的帧预算、相机状态重建时的软件几何与 DXR 属性预算、固定顺序下的贴图上传饥饿、超出突发上限的 RTAS 占用共享预留、最后一个 GI 相机销毁后资源滞留、统一示例整组撤回后的旧细节持续显示，以及独立分页组首次出域仍可提交旧组。完整 HLOD 接替已补齐有效图卡保留，以及共享 RTAS 构建轮次受阻时从精确或近似旧组接替精确细节的连续覆盖。精确材质 mip 偏移次序已获定向覆盖依据。冷入首显、完整 G3–G5 及相关专项仍待验收。[剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [Release176 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release176-demo)
+**G0 本机基线已锁定，第 6 节 G1／G2 本机代表性验收已通过。** G3 已关闭固定两室关门恢复、离屏无图卡 BaseMap 换色通知和匹配贴图回读等待导致的整体回退，并修复待定副本遮蔽同源就绪页、蒙皮实例误捕获／撤回、单对象表示切换漏发失效、硬域旧缓存回流、渲染图中止后恢复时沿用旧世界缓存、待校验及重新启用漏接 Collider 和 Renderer，以及 Renderer 销毁后中断相机准备。G4 已修复几何上传不足时的部分 HLOD 提交、对象 SDF 跨相机上传、Editor 重进 Play 的帧预算、相机状态重建时的软件几何与 DXR 属性预算、固定顺序下的贴图上传饥饿、超出突发上限的 RTAS 占用共享预留、最后一个 GI 相机销毁后资源滞留、统一示例整组撤回后的旧细节持续显示，以及独立分页组首次出域仍可提交旧组。完整 HLOD 接替已补齐有效图卡保留，以及共享 RTAS 构建轮次受阻时从精确或近似旧组接替精确细节的连续覆盖。精确材质 mip 偏移次序已获定向覆盖依据。冷入首显、完整 G3–G5 及相关专项仍待验收。[剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [Release177 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release177-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

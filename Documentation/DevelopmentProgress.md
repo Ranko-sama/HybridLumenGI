@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release176，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release177，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 补上相机图卡录制的 CPU 时间准入。启用后在完整卡之间延期，延后卡保持待捕获，旧来源仍立即失效。功能证据覆盖实际 C# 命令和就绪上传。实际成本、其他阶段及生产预算继续验收。[对照与范围](../LocalComparison/Review/surface-capture-recording-204/result.md) · [同源交付](../LocalComparison/Review/surface-capture-recording-204/delivery.json)
 
 T5／G4 已关闭独立分页组在相机首次出域时仍提交旧组的路径。实际 Scene 对照中，跨界相机的旧粗根失去提交资格，域内相机的细节和共享绑定保持。采用范围为 CPU 栅格收集。高速冷入首显仍按原条件验收。[对照与范围](../LocalComparison/Review/streamed-hlod-cull-range-202/result.md) · [同源交付](../LocalComparison/Review/streamed-hlod-cull-range-202/delivery.json)
 
