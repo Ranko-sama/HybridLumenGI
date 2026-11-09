@@ -227,6 +227,8 @@ namespace HybridLumenGI
             settings.preferHardwareTracing = value;
             pass?.BackendRequestChanged();
         }
+        /// <summary>Start a fresh HLGI screen history for an explicit camera cut. Call on the main thread before preparing that camera.</summary>
+        public void ResetCameraHistory(Camera camera) => pass?.ResetCameraHistory(camera);
         public float RequestedIndirectIntensity => settings.indirectIntensity;
         public DebugView RequestedDebugView => settings.debugView;
         /// <summary>Set the composite intensity before camera preparation, preserving accumulated GI.</summary>
@@ -1999,6 +2001,11 @@ namespace HybridLumenGI
                 if (!TryGetPreparedCamera(camera, out var state)) return;
                 float farDistance = Mathf.Max(Mathf.Max(0.1f, s.nearDistance), s.farDistance);
                 state.scene.CollectHlodRaster(camera.transform.position, farDistance, visible);
+            }
+            internal void ResetCameraHistory(Camera camera)
+            {
+                if (camera != null && cameras.TryGetValue(camera.GetInstanceID(), out var state) && ReferenceEquals(state.camera, camera))
+                    state.InvalidateScreenHistory();
             }
             private CameraState GetCameraState(Camera camera)
             {

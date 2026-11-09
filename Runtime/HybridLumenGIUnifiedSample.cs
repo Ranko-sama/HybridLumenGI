@@ -296,19 +296,21 @@ namespace HybridLumenGI
                 feature.SetDebugView(HybridLumenGIRendererFeature.DebugView.IndirectOnly);
             }
         }
-        private void GoTo(Vector3 position, Quaternion rotation)
+        internal void GoTo(Camera camera, Vector3 position, Quaternion rotation)
         {
-            previousCameraTime = -1;
-            targetCamera.transform.SetPositionAndRotation(position, rotation);
+            if (camera == targetCamera) previousCameraTime = -1;
+            Transform pose = camera.transform;
+            if (feature && (pose.position != position || pose.rotation != rotation)) feature.ResetCameraHistory(camera);
+            pose.SetPositionAndRotation(position, rotation);
         }
-        public void GoNear() => GoTo(nearPosition, nearRotation);
+        public void GoNear() => GoTo(targetCamera, nearPosition, nearRotation);
         public void GoFar()
         {
             if (TryFitFarPosition(farPosition, out Vector3 fitted))
-                GoTo(fitted, Quaternion.LookRotation(groupBounds.center - fitted, Vector3.up));
-            else GoTo(farPosition, farRotation);
+                GoTo(targetCamera, fitted, Quaternion.LookRotation(groupBounds.center - fitted, Vector3.up));
+            else GoTo(targetCamera, farPosition, farRotation);
         }
-        public void Leave() => GoTo(outsidePosition, outsideRotation);
+        public void Leave() => GoTo(targetCamera, outsidePosition, outsideRotation);
 
         [Serializable] public sealed class Ledger
         {

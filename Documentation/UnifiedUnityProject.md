@@ -8,6 +8,8 @@ Windows 运行包从同版工程 ZIP 的独立解压目录构建。工程根目�
 
 宽场景保存的 Far 机位越过远界时，使用远景按钮会沿原方向移到组包围盒的可见远带。完整粗根仍按几何、材质和照明就绪后发布。 [机位对照](../LocalComparison/Review/far-bookmark-255/result.md)
 
+书签和房间布局的显式相机跳转会为该相机开始新的 HLGI 屏幕历史。应用自己的切镜控制器可在主线程、该相机准备前调用 Renderer Feature 的 `ResetCameraHistory(Camera)`。普通连续导航按既有重投影条件积累。 [短距书签实机对照](../LocalComparison/Review/ordinary-bookmark-cut-267/result.md)
+
 按 **F5** 或点击 **F5: show indirect light** 可以单独看间接光。再次按 F5 回到原视图。要观察颜色反弹，可对准白色地板，按 C 换墙色，再用 F5 对照最终画面。运行时代码也可在相机准备前调用 Renderer Feature 的 `SetIndirectIntensity(float)` 与 `SetDebugView(DebugView)`。强度只接受有限非负数。
 
 在 Renderer Feature 设置 `surfaceCaptureRecordingCpuBudgetMilliseconds` 可启用图卡录制的 CPU 时间准入，默认 0。[设置范围](GpuBudget.md#图卡录制的-cpu-准入)

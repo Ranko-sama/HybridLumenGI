@@ -192,7 +192,7 @@ namespace HybridLumenGI
                 sourceCeiling.gameObject.SetActive(true);
                 for (int i = 1; i < passageSpans.Length; i++) passageSpans[i].Join(connectedRooms.transform.forward);
                 TurnedPassage = true;
-                targetCamera.transform.SetPositionAndRotation(connectedRooms.transform.TransformPoint(2.65f, 1.5f, -8.8f), connectedRooms.transform.rotation);
+                sample.GoTo(targetCamera, connectedRooms.transform.TransformPoint(2.65f, 1.5f, -8.8f), connectedRooms.transform.rotation);
             }
             else
             {
