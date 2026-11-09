@@ -1646,14 +1646,20 @@ namespace HybridLumenGI
                 Vector4 dimScale=Vector4.one;
                 int refreshChannels=0;
                 if(current && d.epoch==state.epoch && state.recordedLightEpoch==d.epoch &&
-                    state.recordedLightCount==d.lightCount && state.lightChanges.Count>0)
+                    state.lightChanges.Count>0)
                 {
-                    for(int channel=0;channel<3;channel++)
+                    if(d.lightCount==state.recordedLightCount)
                     {
-                        dimScale[channel]=PointLightChannelDimScale(state.recordedLightData,state.lightData,d.lightCount,channel,
-                            out bool refresh);
-                        if(refresh)refreshChannels|=1<<channel;
+                        for(int channel=0;channel<3;channel++)
+                        {
+                            dimScale[channel]=PointLightChannelDimScale(state.recordedLightData,state.lightData,d.lightCount,channel,
+                                out bool refresh);
+                            if(refresh)refreshChannels|=1<<channel;
+                        }
                     }
+                    else if(d.lightCount>0 && d.lightCount<state.recordedLightCount)
+                        refreshChannels=RemovedPointLightRefreshChannels(state.recordedLightData,state.recordedLightCount,
+                            state.lightData,d.lightCount)&~d.nonAnalyticOnlyChannels;
                 }
                 cmd.SetComputeVectorParam(c,"_HLGI_PointLightDimScale",dimScale);
                 cmd.SetComputeIntParam(c,"_HLGI_PointLightRefreshChannels",refreshChannels);
@@ -1745,6 +1751,26 @@ namespace HybridLumenGI
             { RTHandle rt=handle;cmd.SetComputeTextureParam(c,kernel,name,rt.nameID); }
             private static void Dispatch(CommandBuffer cmd,ComputeShader c,int k,CameraState state)
             { cmd.DispatchCompute(c,k,(state.width+7)/8,(state.height+7)/8,1); }
+            private static int RemovedPointLightRefreshChannels(HybridLumenGILights.Data[] recorded,int recordedCount,
+                HybridLumenGILights.Data[] prepared,int preparedCount)
+            {
+                // Selection preserves InstanceID order. Match the whole surviving
+                // row, including its color and shadow policy, across compaction.
+                int next=0, channels=0;
+                for(int i=0;i<recordedCount;i++)
+                {
+                    var before=recorded[i];
+                    if(next<preparedCount && before.Equals(prepared[next]))
+                    {
+                        next++;
+                        continue;
+                    }
+                    if(before.positionType.w!=1 || before.spot.w!=0) return 0;
+                    for(int channel=0;channel<3;channel++)
+                        if(before.color[channel]>0)channels|=1<<channel;
+                }
+                return next==preparedCount?channels:0;
+            }
             private static float PointLightChannelDimScale(HybridLumenGILights.Data[] recorded,
                 HybridLumenGILights.Data[] prepared,int count,int channel,out bool refresh)
             {

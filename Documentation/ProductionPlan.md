@@ -198,6 +198,8 @@ flowchart TD
 
 同一固定点灯表的解析通道可按统一降幅缩放。各灯降幅不同时，受影响的通道在现有局部域内等待可信更新。旧解析份额暂停进入世界迭代，发光、环境和其他通道继续参与。实机双灯共用绿色的对照满足残留、终态及保持目标。[共通道调暗对照](../LocalComparison/Review/point-light-shared-channel-248/result.md)
 
+有效灯表缩短时，当前行按完整内容匹配到上一份成功录制的有序灯表。确认只退出无烘焙通道的点灯后，仍有源的受影响通道复用同一局部待替换流程。实际 DXR 中单独关闭绿灯、青灯继续供光时，九点的残留、恢复和稳灯条件均通过。[单独关灯对照](../LocalComparison/Review/point-light-shared-off-249/result.md)
+
 世界缓存迭代从旧缓冲递归取样时，按当前硬几何域剔除失效源锚点，即使它仍有匹配的身份和图卡代次。屏幕 Gather 可读取本轮重建的有效缓存。局部软照明变化与原位姿跳变保持各自规则。[实际着色器读取对照](../LocalComparison/Review/hard-cache-input-180/result.md)
 
 历史坐标为 `previousUV = currentUV - motion + previousJitter - currentJitter`；运动矢量与 jitter 需按 URP 实际 GPU 投影约定核验。保存上一帧的深度、法线、漫反射材质、亮度一二阶矩和历史长度。拒绝屏外/镜头切换、深度或法线不一致、材质变化、覆盖与分辨率变化；对有效历史做局部颜色/方差夹取。薄壁和移动物体要使用对象身份/速度/上一帧对象变换增强判定。
