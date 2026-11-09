@@ -1,0 +1,269 @@
+{
+  "productCommit": "6223df0783a750a08ddddda33b116596262450a3",
+  "candidateOverlay": "Runtime/Resources/HybridLumenGI/HybridLumenGITransport.hlsl",
+  "candidateChange": "TraceSceneQuery selects maxT as its detail limit for HLGI_SOFTWARE_TRIANGLES when _HLGI_ExactCoversPublished is nonzero and maxT is finite.",
+  "frozenMinimumP95ReductionPercent": 15,
+  "p95ReductionPercent": 3.529359763612294,
+  "gpuUtilizationSampleBeforeEachPlayerPercent": [
+    1,
+    1
+  ],
+  "baseline": {
+    "status": "complete-exact-software-window",
+    "product": "Release227",
+    "productCommit": "6223df0783a750a08ddddda33b116596262450a3",
+    "phase": "baseline",
+    "scope": "The fixed Release227 near view for the exact software full-range comparison.",
+    "runDirectory": "I:\\Unity test\\Comparison\\SoftwareFullRange277\\run\\20261109-215252-bbd18904d43843fdb23b7b55bef58d04",
+    "nativeFailures": [],
+    "environment": {
+      "unity": "6000.0.85f1",
+      "gpu": "NVIDIA GeForce RTX 2080 Ti",
+      "api": "Direct3D12",
+      "driver": "Direct3D 12 [level 12.1]",
+      "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+      "scope": "Release195 ordinary default near view of NeutralThreeRooms, expansion disabled; 960x540 backbuffer, half-resolution GI, 2 rays and 4 filters; exact software; NativeDX12 three-range intervals and same-window process memory.",
+      "scopeExclusions": "CPU preparation, uploads outside scopes, query resolve, whole-app GPU time, actual Present timing, instantaneous VRAM peak and GI-exclusive allocation. Queue intervals can include barriers/waits. Ledger estimates are not additive or a total-VRAM measurement.",
+      "vSyncCount": 0,
+      "targetFrameRate": -1
+    },
+    "window": {
+      "sourceStart": 159,
+      "sourceEnd": 670,
+      "count": 512,
+      "fullWidth": 960,
+      "fullHeight": 540,
+      "giWidth": 480,
+      "giHeight": 270
+    },
+    "gpuIntervals": {
+      "ReceiverCapture": {
+        "count": 512,
+        "medianMs": 0.145312,
+        "p95Ms": 0.151696,
+        "p99Ms": 0.15493695999999998,
+        "maxMs": 0.157696
+      },
+      "Transport": {
+        "count": 512,
+        "medianMs": 44.390671999999995,
+        "p95Ms": 45.2444464,
+        "p99Ms": 45.670811199999996,
+        "maxMs": 46.958848
+      },
+      "Composite": {
+        "count": 512,
+        "medianMs": 0.071488,
+        "p95Ms": 0.0733584,
+        "p99Ms": 0.07469631999999998,
+        "maxMs": 0.0752
+      },
+      "perSourceSum": {
+        "count": 512,
+        "medianMs": 44.604144000000005,
+        "p95Ms": 45.4651072,
+        "p99Ms": 45.8850256,
+        "maxMs": 47.177984
+      }
+    },
+    "referenceP95Ms": 25,
+    "withinReferenceGiP95": false,
+    "sceneCounts": {
+      "instances": 20,
+      "meshes": 20,
+      "unrepresented": 0,
+      "cards": 120,
+      "groupMembers": 3,
+      "visibleMembers": 3
+    },
+    "memoryWindow": {
+      "valid": true,
+      "hasSamples": true,
+      "status": "Ready",
+      "adapterLuid": "0x000000000000F968",
+      "attemptFrame": 670,
+      "sampleFrame": 670,
+      "windowFirstFrame": 159,
+      "samples": 512,
+      "failedSamples": 0,
+      "deviceEpoch": 1,
+      "localUsageBytes": 579940352,
+      "localBudgetBytes": 22504538112,
+      "nonlocalUsageBytes": 293380096,
+      "nonlocalBudgetBytes": 16334618624,
+      "peakLocalUsageBytes": 579940352,
+      "peakNonlocalUsageBytes": 293380096
+    },
+    "localSampledPeakMiB": 553.07421875,
+    "nonlocalSampledPeakMiB": 279.7890625,
+    "withinReferenceLocalLimit": true,
+    "callbackIntervals": {
+      "count": 512,
+      "medianMs": 44.92424999999933,
+      "p95Ms": 46.67605999999953,
+      "p99Ms": 47.58335500000102,
+      "maxMs": 47.840899999998854
+    },
+    "callbackFrequencyHz": 22.229053314504462,
+    "callbackWindowSeconds": 23.032919699999994
+  },
+  "candidate": {
+    "status": "complete-exact-software-window",
+    "product": "Release227",
+    "productCommit": "6223df0783a750a08ddddda33b116596262450a3",
+    "phase": "fixed",
+    "scope": "The fixed Release227 near view for the exact software full-range comparison.",
+    "runDirectory": "I:\\Unity test\\Comparison\\SoftwareFullRange277Fixed\\run\\20261109-215722-0e76ef7fe57d46009758432b296ecf3f",
+    "nativeFailures": [],
+    "environment": {
+      "unity": "6000.0.85f1",
+      "gpu": "NVIDIA GeForce RTX 2080 Ti",
+      "api": "Direct3D12",
+      "driver": "Direct3D 12 [level 12.1]",
+      "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity",
+      "scope": "Release195 ordinary default near view of NeutralThreeRooms, expansion disabled; 960x540 backbuffer, half-resolution GI, 2 rays and 4 filters; exact software; NativeDX12 three-range intervals and same-window process memory.",
+      "scopeExclusions": "CPU preparation, uploads outside scopes, query resolve, whole-app GPU time, actual Present timing, instantaneous VRAM peak and GI-exclusive allocation. Queue intervals can include barriers/waits. Ledger estimates are not additive or a total-VRAM measurement.",
+      "vSyncCount": 0,
+      "targetFrameRate": -1
+    },
+    "window": {
+      "sourceStart": 159,
+      "sourceEnd": 670,
+      "count": 512,
+      "fullWidth": 960,
+      "fullHeight": 540,
+      "giWidth": 480,
+      "giHeight": 270
+    },
+    "gpuIntervals": {
+      "ReceiverCapture": {
+        "count": 512,
+        "medianMs": 0.146688,
+        "p95Ms": 0.155648,
+        "p99Ms": 0.1600288,
+        "maxMs": 0.172672
+      },
+      "Transport": {
+        "count": 512,
+        "medianMs": 42.450832,
+        "p95Ms": 43.6441296,
+        "p99Ms": 44.0413104,
+        "maxMs": 44.789888
+      },
+      "Composite": {
+        "count": 512,
+        "medianMs": 0.07168,
+        "p95Ms": 0.073728,
+        "p99Ms": 0.0747168,
+        "maxMs": 0.075776
+      },
+      "perSourceSum": {
+        "count": 512,
+        "medianMs": 42.666976,
+        "p95Ms": 43.86048,
+        "p99Ms": 44.25796896,
+        "maxMs": 45.00528
+      }
+    },
+    "referenceP95Ms": 25,
+    "withinReferenceGiP95": false,
+    "sceneCounts": {
+      "instances": 20,
+      "meshes": 20,
+      "unrepresented": 0,
+      "cards": 120,
+      "groupMembers": 3,
+      "visibleMembers": 3
+    },
+    "memoryWindow": {
+      "valid": true,
+      "hasSamples": true,
+      "status": "Ready",
+      "adapterLuid": "0x000000000000F968",
+      "attemptFrame": 670,
+      "sampleFrame": 670,
+      "windowFirstFrame": 159,
+      "samples": 512,
+      "failedSamples": 0,
+      "deviceEpoch": 1,
+      "localUsageBytes": 577318912,
+      "localBudgetBytes": 22504538112,
+      "nonlocalUsageBytes": 291282944,
+      "nonlocalBudgetBytes": 16334618624,
+      "peakLocalUsageBytes": 577318912,
+      "peakNonlocalUsageBytes": 291282944
+    },
+    "localSampledPeakMiB": 550.57421875,
+    "nonlocalSampledPeakMiB": 277.7890625,
+    "withinReferenceLocalLimit": true,
+    "callbackIntervals": {
+      "count": 512,
+      "medianMs": 42.97015000000215,
+      "p95Ms": 45.32026500000086,
+      "p99Ms": 46.60354699999573,
+      "maxMs": 47.80219999999957
+    },
+    "callbackFrequencyHz": 23.243172100290796,
+    "callbackWindowSeconds": 22.027974400000005
+  },
+  "decision": {
+    "status": "measured-benefit-insufficient",
+    "adopt": false,
+    "semanticCheckNeeded": false,
+    "criteria": {
+      "p95AtLeastFifteenPercent": false,
+      "beyondBlockSpread": true,
+      "lowerP99": true,
+      "withinReferenceLocalLimit": true
+    },
+    "medianReductionMs": 1.9371680000000069,
+    "medianReductionPercent": 4.343022477911484,
+    "baselineBlockMedianMs": [
+      44.6276,
+      44.529056,
+      44.669632,
+      44.579136
+    ],
+    "candidateBlockMedianMs": [
+      42.706688,
+      42.667728,
+      42.793408,
+      42.580687999999995
+    ],
+    "maxBlockMedianSpreadMs": 0.21272000000000446,
+    "baseline": {
+      "count": 512,
+      "medianMs": 44.604144000000005,
+      "p95Ms": 45.4651072,
+      "p99Ms": 45.8850256,
+      "maxMs": 47.177984
+    },
+    "candidate": {
+      "count": 512,
+      "medianMs": 42.666976,
+      "p95Ms": 43.86048,
+      "p99Ms": 44.25796896,
+      "maxMs": 45.00528
+    },
+    "withinReferenceGiP95": false,
+    "withinReferenceLocalLimit": true
+  },
+  "nativeExits": {
+    "baseline": {
+      "endedUtc": "2026-11-10T05:53:24.832089+08:00",
+      "exitCode": 0,
+      "watchdogTerminated": false,
+      "processId": 18060,
+      "product": "6223df0783a750a08ddddda33b116596262450a3",
+      "output": "I:\\Unity test\\Comparison\\SoftwareFullRange277\\run"
+    },
+    "candidate": {
+      "endedUtc": "2026-11-10T05:58:36.05741+08:00",
+      "exitCode": 0,
+      "watchdogTerminated": false,
+      "processId": 28792,
+      "product": "6223df0783a750a08ddddda33b116596262450a3",
+      "output": "I:\\Unity test\\Comparison\\SoftwareFullRange277Fixed\\run"
+    }
+  }
+}

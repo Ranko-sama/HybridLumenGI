@@ -4,6 +4,8 @@ Release108 的屏幕预算根据该相机实际执行的空间滤波级数计入
 
 ## 当前已确认的起始验收目标
 
+Release227 的同一固定近景精确软件窗口，GI 合计 p95／p99 为 45.465／45.885 ms，local 有限采样峰值为 553.074 MiB。完整精确覆盖时单次全距查询的候选 p95 为 43.860 ms，降幅 3.53%，低于事前 15% 采用门槛，候选已收束。软件 25 ms 时间目标继续开放。[同源实机对照](../LocalComparison/Review/software-full-range-277/result.md)
+
 Release196 已采用精确软件覆盖去重。在同一固定近景和画质下，合计中位降低 7.27%，p95／p99 为 45.887／46.349 ms，仍高于 25 ms 时间预算。候选同窗 local／nonlocal 有限采样峰值为 549.574／278.789 MiB。显存读数按各窗口采样使用。[同输入对照与采用边界](../LocalComparison/Review/software-coverage-231/result.md)
 
 Release205 的同一近景精确软件窗口实际 p95／p99 为 47.200／47.818 ms，进程 local 采样峰值为 550.699 MiB。确定阴影遮挡时提前结束的候选使 p95 降至 45.658 ms，未达到预定的 15% 采用门槛，已撤回。软件 25 ms 时间缺口继续开放。[同源配对与采用判定](../LocalComparison/Review/software-shadow-246/result.md)

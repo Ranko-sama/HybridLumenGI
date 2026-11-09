@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release227 同源交付](../LocalComparison/Review/hlod-readback-span-276/delivery.json)
 
+T6 的软件 25 ms 缺口在 Release227 同源固定近景仍可复现。完整精确覆盖时单次全距查询使 p95 从 45.465 降至 43.860 ms，低于采用所需的 15% 收益，候选留在隔离工程。此路径的采用判断已结束。[实机配对与停线](../LocalComparison/Review/software-full-range-277/result.md)
+
 T5／T6 已关闭 HLOD 小范围就绪检查固定回读整池的路径。单次请求覆盖所有待确认卡的最小连续区，沿用原完整回执与节流。实际耗时和高速首显继续验收。[传输对照与范围](../LocalComparison/Review/hlod-readback-span-276/result.md)
 
 T5／G4 已关闭冷近场根先到时占槽、使恰好满槽的完整细节无法预热的缺口。完整细节齐备后按原回执发布。采用限首次发布前的场景槽位选择，高速入场首显和其他共驻额度继续验收。[同顺序对照与范围](../LocalComparison/Review/hlod-root-first-capacity-275/result.md)

@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release227，G0 已锁定，G1／G2 本机代表性验收通过
 
+T6 已确认 Release227 精确软件固定近景仍有 25 ms 缺口。基线 p95 为 45.465 ms，单次全距候选为 43.860 ms。降幅 3.53%，低于 15% 采用门槛，继续交付 Release227。[配对成本与判定](../LocalComparison/Review/software-full-range-277/result.md)
+
 T5／T6 的 HLOD 就绪流程已消除小范围预热仍固定请求整池缓存的传输。受控 192 卡池中，18 张连续预热卡的请求由 288 KiB 缩至 27 KiB，原回执和空格证据仍能使用。分散布局可能跨整池。实机开销和高速首显继续验收。[实际录制字节与范围](../LocalComparison/Review/hlod-readback-span-276/result.md) · [Release227 同源交付](../LocalComparison/Review/hlod-readback-span-276/delivery.json)
 
 T5／G4 已关闭冷近场的根先到满槽阻塞。32 个健康声明叶恰需全部 32 槽时，先绑定的根等待。叶齐后 32 个叶都能预热，完整回执到达后整组发布。首次显示可能等到叶齐，已发布远根受原共驻条件约束。高速冷入实机首显继续验收。[同顺序对照与范围](../LocalComparison/Review/hlod-root-first-capacity-275/result.md) · [Release226 同源交付](../LocalComparison/Review/hlod-root-first-capacity-275/delivery.json)
