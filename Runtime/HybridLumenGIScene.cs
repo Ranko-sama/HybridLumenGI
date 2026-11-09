@@ -38,6 +38,7 @@ namespace HybridLumenGI
             public bool DisjointSourcePose;
             public int Slot, StableId, PreviousRevision, Revision;
             public ChangeKind Kind;
+            internal LightingPolicyData PreviousLighting, CurrentLighting;
         }
         private struct Signature
         {
@@ -351,7 +352,7 @@ namespace HybridLumenGI
                             disjointSourcePose = !previousSource.Intersects(currentSource);
                         }
                         RecordDirty(slot, owner.StableId, true, traversalBounds[slot], true, newBounds,
-                            kind, (int)Data[slot].identity.y, owner.Revision, disjointSourcePose);
+                            kind, (int)Data[slot].identity.y, owner.Revision, disjointSourcePose, signatures[slot].lighting, next.lighting);
                     }
                     readiness.Invalidate(owner.StableId);
                     if ((kind & ~(ChangeKind.Material | ChangeKind.Lighting)) == 0)
@@ -946,7 +947,8 @@ namespace HybridLumenGI
         }
 
         private void RecordDirty(int slot, int id, bool hasPrevious, Bounds previous, bool hasCurrent,
-            Bounds current, ChangeKind kind, int previousRevision, int revision, bool disjointSourcePose = false)
+            Bounds current, ChangeKind kind, int previousRevision, int revision, bool disjointSourcePose = false,
+            LightingPolicyData previousLighting = default, LightingPolicyData currentLighting = default)
         {
             // Merge same-frame invalidation/reupload for the same object. Slot reuse with a different
             // stable ID remains two events, preserving the old object's region as well as the new one.
@@ -973,13 +975,18 @@ namespace HybridLumenGI
                     existing.DisjointSourcePose = false;
                 }
                 if (hasPrevious && hasCurrent) existing.DisjointSourcePose = disjointSourcePose;
+                if ((kind & ChangeKind.Lighting) != 0)
+                {
+                    existing.PreviousLighting = previousLighting;
+                    existing.CurrentLighting = currentLighting;
+                }
                 if (!sameFramePoseUpload) existing.Kind |= kind;
                 dirtyRegions[i] = existing;
                 return;
             }
             dirtyRegions.Add(new DirtyRegion { Slot = slot, StableId = id, HasPrevious = hasPrevious, HasCurrent = hasCurrent,
                 PreviousBounds = previous, CurrentBounds = current, PreviousRevision = previousRevision, Revision = revision,
-                Kind = kind, DisjointSourcePose = disjointSourcePose });
+                Kind = kind, DisjointSourcePose = disjointSourcePose, PreviousLighting = previousLighting, CurrentLighting = currentLighting });
         }
 
         private static Vector3Int Chunk(Vector3 center, float size) => new Vector3Int(

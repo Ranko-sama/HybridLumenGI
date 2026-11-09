@@ -1008,6 +1008,7 @@ namespace HybridLumenGI
                 Light mainLight=staticShadowmask && lightData.mainLightIndex>=0 ? lightData.visibleLights[lightData.mainLightIndex].light : null;
                 int lightCount=UpdateLights(state,lightData.supportsLightLayers,cameraData,view,invVP,
                     mainLight,!staticShadowmask || frameData.Get<UniversalShadowData>().supportsAdditionalLightShadows);
+                AddShadowPolicyChanges(state, lightCount);
                 foreach(Bounds bounds in state.surfaceCache.ChangedBounds)
                     state.changes.Add(bounds,false,Mathf.Max(1,s.traceDistance));
                 state.lightingChanged|=state.surfaceCache.ChangedBounds.Count>0 || state.sdf.RepresentationChangedBounds.Count>0;
@@ -1440,11 +1441,7 @@ namespace HybridLumenGI
                 float traceReach = Mathf.Max(1, s.traceDistance);
                 float shadowReach = 0;
                 for (int i = 0; i < work.lightCount; i++)
-                {
-                    var light = state.lightData[i];
-                    if (light.spot.z > 0)
-                        shadowReach = Mathf.Max(shadowReach, light.positionType.w < .5f ? Mathf.Max(1, s.shadowDistance) : light.directionRange.w);
-                }
+                    shadowReach = Mathf.Max(shadowReach, ShadowReach(state.lightData[i]));
                 foreach (var source in sources)
                 {
                     if (!state.scene.TryGetPublishedSlot((int)source.StableId, out int slot)) continue;
@@ -1725,6 +1722,40 @@ namespace HybridLumenGI
                     AddLocalLightingChange(state, bounds, Mathf.Max(1, s.traceDistance));
                 }
             }
+            private float ShadowReach(HybridLumenGILights.Data light) => light.spot.z > 0
+                ? (light.positionType.w < .5f ? Mathf.Max(1, s.shadowDistance) : light.directionRange.w) : 0;
+
+            private static uint EffectiveShadowMode(HybridLumenGIScene.LightingPolicyData policy, HybridLumenGILights.Data light)
+            {
+                if (policy.shadowCastingMode == 0 || (policy.objectLayerBit & light.cullingMask) == 0 ||
+                    ((light.flags & 1u) != 0 && (policy.renderingLayerMask & light.shadowRenderingLayers) == 0)) return 0;
+                return policy.shadowCastingMode == (uint)ShadowCastingMode.TwoSided ? 2u : 1u;
+            }
+
+            private void AddShadowPolicyChanges(CameraState state, int lightCount)
+            {
+                float baselineReach = Mathf.Max(s.shadowDistance, s.traceDistance);
+                foreach (var change in state.scene.DirtyRegions)
+                {
+                    if ((change.Kind & HybridLumenGIScene.ChangeKind.Lighting) == 0) continue;
+                    float shadowReach = baselineReach;
+                    for (int i = 0; i < lightCount; i++)
+                    {
+                        var light = state.lightData[i];
+                        float reach = ShadowReach(light);
+                        if (reach <= shadowReach) continue;
+                        uint previous = change.HasPrevious ? EffectiveShadowMode(change.PreviousLighting, light) : 0;
+                        uint current = change.HasCurrent ? EffectiveShadowMode(change.CurrentLighting, light) : 0;
+                        if (previous != current) shadowReach = reach;
+                    }
+                    if (shadowReach <= baselineReach) continue;
+                    float influence = shadowReach + Mathf.Max(1, s.traceDistance);
+                    if (change.HasPrevious) AddLocalLightingChange(state, change.PreviousBounds, influence);
+                    if (change.HasCurrent && (!change.HasPrevious || !change.CurrentBounds.Equals(change.PreviousBounds)))
+                        AddLocalLightingChange(state, change.CurrentBounds, influence);
+                }
+            }
+
             private static void AddLocalLightingChange(CameraState state, Bounds bounds, float influence)
             {
                 state.changes.Add(bounds, false, influence);
