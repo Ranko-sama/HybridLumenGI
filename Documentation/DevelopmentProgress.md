@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release199，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release200，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭后备投影物切换解析盒与对象 SDF 时漏掉远接收面的问题。固定点光的实机 GPU 查询确认上传后光路穿过门洞，修复版远地板取得局部照明反应和调度优先级。保持帧无重复事件。画面残留、收敛及高速 HLOD 首显继续验收。[实机对照](../LocalComparison/Review/sdf-shadow-reach-236/result.md) · [同源交付](../LocalComparison/Review/sdf-shadow-reach-236/delivery.json)
 
 T2／G4 已关闭额外材质槽叠绘末子网格时，软件和 DXR 误信首槽透明覆盖的缺口。实机添加不透明槽后，两个后端都拒绝旧精确批次并命中近板解析代理。撤槽恢复普通精确查询。完整叠绘颜色、纹理和生产规模继续验收。[原生覆盖与混合查询](../LocalComparison/Review/extra-material-slots-235/result.md) · [同源交付](../LocalComparison/Review/extra-material-slots-235/delivery.json)
 

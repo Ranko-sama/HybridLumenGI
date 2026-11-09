@@ -1,0 +1,42 @@
+{
+  "productCommit": "e656b702e1bf6da53162d4f70b92444ba09ba69a",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release200-demo",
+  "tag": "release200-demo",
+  "publishedAt": "2026-11-09T09:28:41Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Fixed DXR camera with a rendererless doorway transitioning from analytic fallback to ready object SDF. Actual GPU fallback shadow and change masks, and local scheduling.",
+    "baseline": "baseline.json",
+    "candidate": "fixed.json",
+    "observerBaseCommit": "ce732841efe3ca23ce0878f627742c3820a0c955",
+    "observerOverlay": [
+      "Runtime/HybridLumenGISdfAtlas.cs",
+      "Runtime/HybridLumenGIRendererFeature.cs"
+    ]
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release200-UnityProject.zip",
+      "size": 853303,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release200-demo/HybridLumenGI-Release200-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release200-Windows-x64.zip",
+      "size": 57938387,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release200-demo/HybridLumenGI-Release200-Windows-x64.zip"
+    }
+  ]
+}
