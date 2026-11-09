@@ -1008,7 +1008,7 @@ namespace HybridLumenGI
                 Light mainLight=staticShadowmask && lightData.mainLightIndex>=0 ? lightData.visibleLights[lightData.mainLightIndex].light : null;
                 int lightCount=UpdateLights(state,lightData.supportsLightLayers,cameraData,view,invVP,
                     mainLight,!staticShadowmask || frameData.Get<UniversalShadowData>().supportsAdditionalLightShadows);
-                AddShadowPolicyChanges(state, lightCount);
+                AddShadowCasterChanges(state, lightCount);
                 foreach(Bounds bounds in state.surfaceCache.ChangedBounds)
                     state.changes.Add(bounds,false,Mathf.Max(1,s.traceDistance));
                 state.lightingChanged|=state.surfaceCache.ChangedBounds.Count>0 || state.sdf.RepresentationChangedBounds.Count>0;
@@ -1732,27 +1732,35 @@ namespace HybridLumenGI
                 return policy.shadowCastingMode == (uint)ShadowCastingMode.TwoSided ? 2u : 1u;
             }
 
-            private void AddShadowPolicyChanges(CameraState state, int lightCount)
+            private void AddShadowCasterChanges(CameraState state, int lightCount)
             {
+                const HybridLumenGIScene.ChangeKind geometry = HybridLumenGIScene.ChangeKind.Added | HybridLumenGIScene.ChangeKind.Removed |
+                    HybridLumenGIScene.ChangeKind.Transform | HybridLumenGIScene.ChangeKind.Topology;
                 float baselineReach = Mathf.Max(s.shadowDistance, s.traceDistance);
+                float traceReach = Mathf.Max(1, s.traceDistance);
                 foreach (var change in state.scene.DirtyRegions)
                 {
-                    if ((change.Kind & HybridLumenGIScene.ChangeKind.Lighting) == 0) continue;
-                    float shadowReach = baselineReach;
+                    bool geometryChanged = (change.Kind & geometry) != 0;
+                    if (!geometryChanged && (change.Kind & HybridLumenGIScene.ChangeKind.Lighting) == 0) continue;
+                    float previousReach = baselineReach, currentReach = baselineReach;
                     for (int i = 0; i < lightCount; i++)
                     {
                         var light = state.lightData[i];
                         float reach = ShadowReach(light);
-                        if (reach <= shadowReach) continue;
+                        if (reach <= previousReach && reach <= currentReach) continue;
                         uint previous = change.HasPrevious ? EffectiveShadowMode(change.PreviousLighting, light) : 0;
                         uint current = change.HasCurrent ? EffectiveShadowMode(change.CurrentLighting, light) : 0;
-                        if (previous != current) shadowReach = reach;
+                        if (!geometryChanged && previous == current) continue;
+                        if (previous != 0) previousReach = Mathf.Max(previousReach, reach);
+                        if (current != 0) currentReach = Mathf.Max(currentReach, reach);
                     }
-                    if (shadowReach <= baselineReach) continue;
-                    float influence = shadowReach + Mathf.Max(1, s.traceDistance);
-                    if (change.HasPrevious) AddLocalLightingChange(state, change.PreviousBounds, influence);
-                    if (change.HasCurrent && (!change.HasPrevious || !change.CurrentBounds.Equals(change.PreviousBounds)))
-                        AddLocalLightingChange(state, change.CurrentBounds, influence);
+                    if (change.HasPrevious && change.HasCurrent && change.CurrentBounds.Equals(change.PreviousBounds))
+                    {
+                        previousReach = Mathf.Max(previousReach, currentReach);
+                        currentReach = baselineReach;
+                    }
+                    if (previousReach > baselineReach) AddLocalLightingChange(state, change.PreviousBounds, previousReach + traceReach);
+                    if (currentReach > baselineReach) AddLocalLightingChange(state, change.CurrentBounds, currentReach + traceReach);
                 }
             }
 

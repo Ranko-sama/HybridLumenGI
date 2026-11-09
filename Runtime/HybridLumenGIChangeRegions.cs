@@ -57,6 +57,7 @@ namespace HybridLumenGI
         { AddKind(bounds,1,influenceRadius,receiver); }
         private void AddKind(Bounds bounds,float kind,float influenceRadius,Renderer receiver,bool disjointPose=false)
         {
+            float influence = Mathf.Max(0, influenceRadius);
             hasLocalGeometryChange |= kind > 0.5f;
             if (byBounds.TryGetValue(bounds,out int existing))
             {
@@ -69,8 +70,12 @@ namespace HybridLumenGI
                     prior.receiver.x = 0; // Geometry merges can change the resolved receiver.
                 }
                 prior.minimum.w=Mathf.Max(prior.minimum.w,kind);
-                if (disjointPose) prior.receiver.y = 1;
-                prior.maximum.w=Mathf.Max(prior.maximum.w,Mathf.Max(0,influenceRadius));
+                if (disjointPose)
+                {
+                    prior.receiver.y = 1;
+                    prior.receiver.z = Mathf.Max(prior.receiver.z, influence);
+                }
+                prior.maximum.w=Mathf.Max(prior.maximum.w,influence);
                 regions[existing]=prior;return;
             }
             if (count == regions.Length) { globalReactive = globalGeometryChange = 1; return; }
@@ -80,8 +85,9 @@ namespace HybridLumenGI
             regions[count++] = new Region
             {
                 minimum = new Vector4(lo.x, lo.y, lo.z, kind),
-                maximum = new Vector4(hi.x, hi.y, hi.z, Mathf.Max(0, influenceRadius)),
-                receiver = new Vector4(0, disjointPose ? 1 : 0, 0, 0)
+                maximum = new Vector4(hi.x, hi.y, hi.z, influence),
+                // A longer lighting reach must not extend the disjoint pose rejection.
+                receiver = new Vector4(0, disjointPose ? 1 : 0, disjointPose ? influence : 0, 0)
             };
         }
         public void ResolveReceiverGroups(Func<Renderer,uint> resolve)

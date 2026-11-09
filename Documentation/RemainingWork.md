@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release188 同源交付](../LocalComparison/Review/shadow-policy-reach-217/delivery.json)
 
+T3／G3 已关闭长范围点光下，投影者移动或撤除时漏掉远接收面通知的路径。双网格实测两种事件均提高远地板调度优先级，移动的旧缓存拒绝半径保留原距离。原地几何编辑仅记 `Manual` 且上传延期的情况，以及画面残留和收敛仍待处理。[实测与适用范围](../LocalComparison/Review/shadow-caster-reach-218/result.md)
+
 T3／G3 已关闭长范围点光的投影资格变化漏报远接收面的问题。实际 DXR 关闭投影时，远地板取得局部调度优先级；保持禁投影的层掩码对照沿用原范围。采用范围为通知与调度，画面残留和收敛继续验收。[实际点光对照](../LocalComparison/Review/shadow-policy-reach-217/result.md)
 
 T6／G4 已关闭读包失败组在重试等待中仍占用计划容量的问题。实际 Driver 的受控 I/O 对照确认健康组在原容量内就绪，实际共享页继续计账，失败组在第 60 个调度步恢复原请求顺序并成功加载。采用范围为当前步准入与恢复，原生 I/O 和完整压力验收继续开放。[准入与重试](IndependentAssetPages.md)

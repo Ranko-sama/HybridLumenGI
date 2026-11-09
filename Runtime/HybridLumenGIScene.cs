@@ -352,7 +352,7 @@ namespace HybridLumenGI
                             disjointSourcePose = !previousSource.Intersects(currentSource);
                         }
                         RecordDirty(slot, owner.StableId, true, traversalBounds[slot], true, newBounds,
-                            kind, (int)Data[slot].identity.y, owner.Revision, disjointSourcePose, signatures[slot].lighting, next.lighting);
+                            kind, (int)Data[slot].identity.y, owner.Revision, disjointSourcePose, next.lighting);
                     }
                     readiness.Invalidate(owner.StableId);
                     if ((kind & ~(ChangeKind.Material | ChangeKind.Lighting)) == 0)
@@ -948,8 +948,11 @@ namespace HybridLumenGI
 
         private void RecordDirty(int slot, int id, bool hasPrevious, Bounds previous, bool hasCurrent,
             Bounds current, ChangeKind kind, int previousRevision, int revision, bool disjointSourcePose = false,
-            LightingPolicyData previousLighting = default, LightingPolicyData currentLighting = default)
+            LightingPolicyData? currentLighting = null)
         {
+            // Capture the resident caster policy before its slot can be cleared or reused.
+            LightingPolicyData previousLighting = hasPrevious ? LightingPolicies[slot] : default;
+            LightingPolicyData nextLighting = hasCurrent ? currentLighting ?? LightingPolicies[slot] : default;
             // Merge same-frame invalidation/reupload for the same object. Slot reuse with a different
             // stable ID remains two events, preserving the old object's region as well as the new one.
             for (int i = dirtyRegions.Count - 1; i >= 0; i--)
@@ -965,28 +968,35 @@ namespace HybridLumenGI
                     existing.HasPrevious && existing.HasCurrent && existing.Revision == revision &&
                     (existing.Kind & ChangeKind.Transform) != 0 && (existing.Kind & ~pose) == 0;
                 if (hasPrevious && !existing.HasPrevious)
-                { existing.PreviousBounds = previous; existing.PreviousRevision = previousRevision; existing.HasPrevious = true; }
-                if (hasCurrent) { existing.CurrentBounds = current; existing.Revision = revision; existing.HasCurrent = true; }
+                {
+                    existing.PreviousBounds = previous;
+                    existing.PreviousRevision = previousRevision;
+                    existing.PreviousLighting = previousLighting;
+                    existing.HasPrevious = true;
+                }
+                if (hasCurrent)
+                {
+                    existing.CurrentBounds = current;
+                    existing.Revision = revision;
+                    existing.CurrentLighting = nextLighting;
+                    existing.HasCurrent = true;
+                }
                 else if ((kind & ChangeKind.Removed) != 0)
                 {
                     existing.CurrentBounds = default;
                     existing.Revision = 0;
+                    existing.CurrentLighting = default;
                     existing.HasCurrent = false;
                     existing.DisjointSourcePose = false;
                 }
                 if (hasPrevious && hasCurrent) existing.DisjointSourcePose = disjointSourcePose;
-                if ((kind & ChangeKind.Lighting) != 0)
-                {
-                    existing.PreviousLighting = previousLighting;
-                    existing.CurrentLighting = currentLighting;
-                }
                 if (!sameFramePoseUpload) existing.Kind |= kind;
                 dirtyRegions[i] = existing;
                 return;
             }
             dirtyRegions.Add(new DirtyRegion { Slot = slot, StableId = id, HasPrevious = hasPrevious, HasCurrent = hasCurrent,
                 PreviousBounds = previous, CurrentBounds = current, PreviousRevision = previousRevision, Revision = revision,
-                Kind = kind, DisjointSourcePose = disjointSourcePose, PreviousLighting = previousLighting, CurrentLighting = currentLighting });
+                Kind = kind, DisjointSourcePose = disjointSourcePose, PreviousLighting = previousLighting, CurrentLighting = nextLighting });
         }
 
         private static Vector3Int Chunk(Vector3 center, float size) => new Vector3Int(

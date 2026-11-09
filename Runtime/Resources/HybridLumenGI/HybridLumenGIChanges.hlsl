@@ -45,7 +45,7 @@ bool HLGIRejectOldCacheInputAt(float3 position)
         float distanceSquared=HLGIChangeDistanceSquared(position,region);
         if(distanceSquared<=1e-8) return true;
         if(_HLGI_HasDisjointPoseChange!=0 && region.receiver.y>=0.5 &&
-            distanceSquared<=region.maximum.w*region.maximum.w) return true;
+            distanceSquared<=region.receiver.z*region.receiver.z) return true;
     }
     return false;
 }
@@ -57,7 +57,7 @@ bool HLGIDisjointPoseInfluenceAt(float3 position)
     {
         HLGIChangeRegion region=_HLGI_ChangeRegions[i];
         if(region.receiver.y<0.5) continue;
-        if(HLGIChangeDistanceSquared(position,region)<=region.maximum.w*region.maximum.w) return true;
+        if(HLGIChangeDistanceSquared(position,region)<=region.receiver.z*region.receiver.z) return true;
     }
     return false;
 }
