@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release178，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release179，G0 已锁定，G1／G2 本机代表性验收通过
+
+T2／G4 已关闭普通 Lit 未赋值 BaseMap 时，高度图待定阻塞精确表面裁剪的缺口。默认白底图由材质 alpha 确定覆盖，确需视差采样的已赋值底图仍按原依赖判定。采用范围为软件精确追踪与 DXR 共用的覆盖函数。[对照与范围](../LocalComparison/Review/default-base-alpha-207/result.md) · [同源交付](../LocalComparison/Review/default-base-alpha-207/delivery.json)
 
 T6／G4 关闭共享 RTAS 构建额度为零时仍准备无效计划并占用预留的缺口。冷请求提前回退，已建且仍匹配的 RTAS 可复用，位姿变化与同帧收紧沿原安全退休。适用范围为实际 C# 准入与命令录制。[对照与范围](../LocalComparison/Review/rtas-zero-build-quota-206/result.md) · [同源交付](../LocalComparison/Review/rtas-zero-build-quota-206/delivery.json)
 

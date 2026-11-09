@@ -1,0 +1,60 @@
+{
+  "productCommit": "af53fcb4fec5fd6dc65fdf55e6d08c55a6daa411",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release179-demo",
+  "tag": "release179-demo",
+  "publishedAt": "2026-11-09T01:38:13Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "The shared exact-hit surface coverage evaluator on D3D12 WARP, with identical inputs in Release178 and Release179.",
+    "fixture": "Tests/StandaloneHardwareMaterials/HardwareMaterialsOracle.mjs",
+    "cases": {
+      "default-base-ignores-unready-height": {
+        "baseline": {
+          "known": false,
+          "covered": true
+        },
+        "candidate": {
+          "known": true,
+          "covered": false
+        }
+      },
+      "surface-requires-height-missing": {
+        "baseline": {
+          "known": false,
+          "covered": true
+        },
+        "candidate": {
+          "known": false,
+          "covered": true
+        }
+      }
+    },
+    "evidence": "result.md"
+  },
+  "build": {
+    "status": "Succeeded",
+    "unity": "6000.0.85f1",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release179-UnityProject.zip",
+      "size": 848183,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release179-demo/HybridLumenGI-Release179-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release179-Windows-x64.zip",
+      "size": 58441106,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release179-demo/HybridLumenGI-Release179-Windows-x64.zip"
+    }
+  ]
+}
