@@ -209,7 +209,7 @@ namespace HybridLumenGI
         public bool Record(CommandBuffer cmd,out string reason)
             => Record(cmd, null, out reason);
 
-        internal bool Record(CommandBuffer cmd,object uploadConsumer,out string reason)
+        internal bool Record(CommandBuffer cmd,object uploadConsumer,out string reason,float recordingBudgetMilliseconds=0f)
         {
             reason=null;
             if(disposed || cmd==null || State!=BatchState.Prepared){reason="Batch is canceled, invalid or already recorded.";return false;}
@@ -221,7 +221,7 @@ namespace HybridLumenGI
             command=cmd;State=BatchState.Recording;
             try
             {
-                if(!pool.RecordUploads(cmd,textureLease,importer.Record,uploadConsumer,out reason))
+                if(!pool.RecordUploads(cmd,textureLease,importer.Record,uploadConsumer,out reason,recordingBudgetMilliseconds))
                 { Quarantine();return false; }
                 if(disposed || State!=BatchState.Recording)throw new InvalidOperationException("Batch canceled during upload recording.");
                 UnknownRecords=0;

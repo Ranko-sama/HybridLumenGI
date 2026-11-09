@@ -6,6 +6,8 @@ Release108 的屏幕预算根据该相机实际执行的空间滤波级数计入
 
 Release167 统一三室在原热态近远路线实测两方向各 10 次完整 HLOD 接替。480 个接替和退休源帧的三段 GI 合计 p95／p99 为 16.522／17.345 ms，完整路线进程 local／nonlocal 有限采样峰值为 568.508／290.320 MiB，两项起始预算通过。冷入、启动和应用 Present 节奏单列。[路线、接替窗口及范围](../LocalComparison/Review/hot-hlod-budget-192/result.md)
 
+Release182 同源观察包在同一设备完整预热后启动应用 Present 采集。PresentMon 报告丢失 2,029 个 ETW 事件，未生成 CSV。没有取得起始时间锚点，观察器在原路线开始前退出，路线上没有新的 GI、显存或帧率数据。沿用 Release167 的两项预算结论，热态接替的应用 Present 仍待验收。[原始采集日志](<I:/Unity test/Comparison/HotHlodPresent211/run/presentmon.log>) · [退出记录](<I:/Unity test/Comparison/HotHlodPresent211/setup/native-exit.json>)
+
 Release151 在原 F4 中室取得 512 个同源帧的三段 GI 和进程显存。GI 合计 p95／p99 为 15.936／16.169 ms，local／nonlocal 有限采样峰值为 566.191／286.441 MiB，达到 25 ms／1 GiB 两项起始预算。PresentMon 报告事件丢失且无 CSV，三项同窗仍证据不足。[机位、原始记录与范围](../LocalComparison/Review/three-room-middle-joint-170/result.md)
 
 当前122同源的默认活动Skin已补一个同次普通Player窗口：24顶点／12三角／2骨、K+Space、960×540／半GI／2ray／filter4、实际DXR，计时与显存观察开启、反馈关闭。35.011秒内逐源三段合计中位／p95／p99为14.958／17.088／18.115ms；进程local／nonlocal有限采样峰值572.004／303.688MiB，满足25ms／1GiB。嵌套的30秒应用Present平均63.042Hz、间隔p95／p99／最大20.083／21.770／27.078ms，非显示FPS或逐源GI配对。它只补默认已预热Skin负载，不代表观察关闭、大模型、冷启动、画质或完整G5；初始等待和可选截图未交付均保留。[实际输入、源配对及CPU帧龄](../LocalComparison/Review/active-skin-cost-01/result.md)
@@ -69,6 +71,12 @@ Release98 下载包的 GPU 面板仍显示调整设置会刷新光照历史的�
 
 在 Renderer Data 的 Hybrid Lumen GI Feature 中，`surfaceCaptureRecordingCpuBudgetMilliseconds` 为一次相机渲染的图卡命令录制设置经过时间额度，默认 0。正数在第一张有效图卡开始录制时计时，额度达到后延后下一张完整图卡。卡数、draw 数和等待顺序继续生效。已发现的旧来源失效立即生效，实际录制完成后才提交恢复域。单卡和准备阶段各有自己的成本，实际 CPU、GPU 与显存窗口继续按原条件验收。[功能对照](../LocalComparison/Review/surface-capture-recording-204/result.md)
 
+## 命中材质贴图录制的 CPU 准入
+
+在 Renderer Data 的 Hybrid Lumen GI Feature 中，`materialTextureRecordingCpuBudgetMilliseconds` 设置单个相机材质批的贴图复制录制额度，默认 0 沿用原字节准入。开启后，从第一个通过共享字节准入的页或续传块开始计时。达到额度后延期后续复制，已开始的复制可以录完。字节不足的请求仍登记原有跨相机等待，时间延期保留原轮次。
+
+稳定页继续按字节分块，动态页须在同一帧完成整页复制。延期的未初始化页保持未知，驻留就绪仍由完整上传、读者围栏和有效元数据回读决定。额度作用于复制命令录制的开始时机。单块录制可能越过额度，来源扫描、材质表录制和 GPU 执行另计。[定向行为对照](../Tests/StandaloneHitMaterialBatch/Program.cs.txt)
+
 ## 驱动层进程显存观察
 
 Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开启后，现有面板和 **Log ledger** 的 `processVideoMemory` 字段给出 Unity 渲染适配器上的本进程 local/nonlocal 用量、操作系统预算与启用窗口内采样峰值。它通过可选 DX12 插件的独立 `HLGI_Memory_Query` 导出读取，不开启 GPU 计时或反馈，不改变光传输配置、更新配额、驻留或预留。
@@ -122,6 +130,7 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 | --- | --- |
 | 对象 SDF 图集的 Feature 入口 | 每引擎帧跨相机共享 262,144 个 RFloat 体素（1 MiB）的 `SetData` 尝试额度。最早等待的整卷优先，独立 `Prepare` 按自身额度计账。[驻留与准入](SdfAtlasResidency.md) |
 | `materialTextureUploadMiBPerFrame` | 16 MiB，全相机共享实际复制字节；稳定大页跨帧续传，完整复制/回读后ready；不能拼接不同帧的动态RT。 |
+| `materialTextureRecordingCpuBudgetMilliseconds` | 0 ms，默认关闭。每相机材质批按已录制复制的经过时间延后下一页或续传块。 |
 | `hardwareMaterialBudgetMiB` | 256 MiB，材质arena包含当前、待上传、读者持有及退休/隔离分配；复用稳定页，局部替换变化页。 |
 | `softwareGeometryBudgetMiB` | 128 MiB，同一 Feature 内按相机合计精确软件属性和 BVH。状态重建后仍计入待释放的旧分配，额度不足时使用现有回退。[定向对照](../LocalComparison/Review/camera-software-geometry-budget-168/result.md) |
 | `hardwareGeometryBudgetMiB` | 128 MiB，同一 Feature 内按相机计入硬件精确属性。相机状态重建后仍计入待释放的旧分配，直到安全释放。RTAS 使用独立的共享预留。[定向对照](../LocalComparison/Review/camera-dxr-attribute-budget-167/result.md) |

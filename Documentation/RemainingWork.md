@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release182 同源交付](../LocalComparison/Review/rtas-nonreplenishing-210/delivery.json)
 
+T6／G4 已补命中材质贴图复制录制的 CPU 时间准入。定向对照覆盖整页延期、未录制材质未知、下一帧按原轮次推进和关闭时原字节路径。GPU 成本、准备扫描及其他阶段继续按原条件验收。[配置和范围](GpuBudget.md#命中材质贴图录制的-cpu-准入)
+
 T6／G4 已关闭不可补足的 RTAS 请求占据队首并消耗无效准备的问题。当前额度下可服务的小请求可以推进，其他相机本帧临时收紧时保留下一帧的等待顺序。采用范围为 CPU 准入与受控退休。[对照和边界](../LocalComparison/Review/rtas-nonreplenishing-210/result.md)
 
 T3／G3 已关闭无图卡精确投影板改变 Alpha Clip 时，近域通知漏掉阴影范围内接收面的路径。实际 DXR 对照取得远地板的局部调度优先级。画面残留与收敛继续按原条件验收。[对照和边界](../LocalComparison/Review/cutout-shadow-change-209/result.md)
@@ -112,7 +114,7 @@ T2／G4 已关闭第 9 节的静态镜像双子网格精确剔除与远层命中
 
 ## 当前优先级
 
-T6 的原热态近远接替已在 Release167 补齐三段 GI 和进程显存依据。驻留域内完整交接、共驻及退休达到起始预算，T5 冷入首显和 T6 其余规模与负载条件继续开放。[实机接替与预算](../LocalComparison/Review/hot-hlod-budget-192/result.md)
+T6 的原热态近远接替已在 Release167 补齐三段 GI 和进程显存依据。驻留域内完整交接、共驻及退休达到起始预算。Release182 补采在移动前遇到 ETW 事件丢失，热态接替应用 Present 仍无可采用结果。T5 冷入首显和 T6 其余规模与负载条件继续开放。[实机接替与预算](../LocalComparison/Review/hot-hlod-budget-192/result.md) · [补采边界](GpuBudget.md#当前已确认的起始验收目标)
 
 | ID / 优先级 | 类别与关卡 | 剩余任务、完成条件与当前边界 |
 | --- | --- | --- |

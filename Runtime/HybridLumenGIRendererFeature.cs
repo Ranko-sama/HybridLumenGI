@@ -176,6 +176,8 @@ namespace HybridLumenGI
             public int hardwareMaterialBudgetMiB=256;
             [Min(1),Tooltip("Shared bytes of original-texture copies admitted during actual GPU command recording each engine frame. Stable pages can finish over several frames.")]
             public int materialTextureUploadMiBPerFrame=16;
+            [Min(0), Tooltip("CPU milliseconds before deferring the next texture page or page range in this camera's hit-material batch. Zero disables this limit. An upload that has started records to completion.")]
+            public float materialTextureRecordingCpuBudgetMilliseconds;
             [Tooltip("Additive keeps URP ambient and baked diffuse. Choose Replace Native Diffuse GI to substitute HLGI for that term on opaque stock Lit receivers. Requires Forward/Forward+, signed RGBA float HDR and MSAA off. Zero indirect intensity removes the captured native term.")]
             public CompositionMode composition=CompositionMode.Additive;
             [Tooltip("Only standard opaque URP Lit material layers are supported.")]
@@ -1520,7 +1522,8 @@ namespace HybridLumenGI
                     else
                     {
                         int hardwareUpdate=c.FindKernel("CSUpdateCache"),hardwareTrace=c.FindKernel("CSTrace");
-                        if(!d.hitMaterials.RecordAndBind(cmd,c,hardwareUpdate,hardwareTrace,state.camera,out reason))FallBackToSoftware(d,reason,sourceUncertain:true);
+                        if(!d.hitMaterials.RecordAndBind(cmd,c,hardwareUpdate,hardwareTrace,out reason,state.camera,
+                            s.materialTextureRecordingCpuBudgetMilliseconds))FallBackToSoftware(d,reason,sourceUncertain:true);
                         else
                         {
                             state.hardwareMaterialUnknownRecords=d.hitMaterials.UnknownRecords;

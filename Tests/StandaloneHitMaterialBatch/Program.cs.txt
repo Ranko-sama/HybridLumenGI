@@ -509,6 +509,45 @@ class Program
         Check(copySequence.SequenceEqual(new[] { 0, 1, 2, 0 }), "dynamic upload turns: " + string.Join(", ", copySequence));
     }
 
+    static void RecordingTimeDefersWholeUploads()
+    {
+        scenarios++;
+        var firstTexture = new RenderTexture { width = 2, height = 2, mipmapCount = 1, graphicsFormat = 42 };
+        var secondTexture = new RenderTexture { width = 2, height = 2, mipmapCount = 1, graphicsFormat = 42 };
+        var first = new Fixture(firstTexture);
+        var second = new Fixture(secondTexture);
+        var camera = new object();
+        const int bytesPerPage = 128;
+        for (int step = 0; step < 3; step++)
+        {
+            Pool.BeginFrame(2030 + step, 2 * bytesPerPage);
+            firstTexture.updateCount++;
+            secondTexture.updateCount++;
+            var batch = Prepare(first.Freeze(), second.Freeze(19));
+            var command = new CommandBuffer();
+            bool limited = step < 2;
+            if (limited)
+            {
+                command.OnCall = (buffer, _) =>
+                {
+                    buffer.OnCall = null;
+                    long tick = System.Diagnostics.Stopwatch.GetTimestamp();
+                    System.Threading.SpinWait.SpinUntil(() => System.Diagnostics.Stopwatch.GetTimestamp() > tick);
+                };
+            }
+            Check(batch.Record(command, camera, out var reason, limited ? float.Epsilon : 0f), "record with CPU time allowance: " + reason);
+            int recordedPages = limited ? 1 : 2;
+            Check(command.Dispatches.Count == 3 * recordedPages && Pool.UploadBytesUsed == bytesPerPage * recordedPages,
+                "only whole admitted dynamic copies are charged and recorded");
+            var table = Table(command);
+            Check((table[0].identity.x != 0) == (step != 1) && (table[1].identity.x != 0) == (step != 0) &&
+                batch.UnknownRecords == (limited ? 1 : 0), "unrecorded rows stay unknown and the deferred page goes first next frame");
+            Finish(batch, command);
+        }
+        Pool.ClearReusable();
+        Clean();
+    }
+
     static void ClosingAdmission()
     {
         scenarios++;var fixture=new Fixture(Texture());var batch=Prepare(fixture.Freeze());var cmd=new CommandBuffer();RecordBatch(batch,cmd);
@@ -525,7 +564,7 @@ class Program
             Resources.Loaded=new ComputeShader();AbiAndConstantOrder();MapDedupAndFrozenViews();SourceRevalidation();GlobalBudgetsAndCaps();
             AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();ReadyPageSurvivesPendingDuplicate();QuotaDefersUnknownMaterials();
             DynamicTextureCannotStarveWaitingMap();LaterCameraGetsSharedTextureUploadTurn();
-            CamerasSharingDynamicTextureGetSeparateUploadTurns();ClosingAdmission();
+            CamerasSharingDynamicTextureGetSeparateUploadTurns();RecordingTimeDefersWholeUploads();ClosingAdmission();
             Console.WriteLine("PASS hit-material-batch "+checks+" assertions / "+scenarios+" scenarios; actual seven C# classes, recording adapters only; no Unity/GPU execution.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}

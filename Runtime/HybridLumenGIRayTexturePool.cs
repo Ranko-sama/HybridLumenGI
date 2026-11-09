@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace HybridLumenGI
 {
@@ -520,7 +521,7 @@ namespace HybridLumenGI
             => RecordUploads(cmd, lease, importer, null, out reason);
 
         internal bool RecordUploads(CommandBuffer cmd,Lease lease,Action<CommandBuffer,Upload,GraphicsBuffer,GraphicsBuffer> importer,
-            object uploadConsumer,out string reason)
+            object uploadConsumer,out string reason,float recordingBudgetMilliseconds=0f)
         {
             reason=null;
             if(disposed||cmd==null||importer==null||!Owns(lease)||lease.State!=LeaseState.Prepared)
@@ -536,6 +537,9 @@ namespace HybridLumenGI
                     long earlierBatchBytes = uploadUsed;
                     var uploads = lease.Uploads;
                     int first = FirstUploadIndex(uploads, uploadConsumer);
+                    double recordingBudgetTicks = recordingBudgetMilliseconds > 0f && !float.IsInfinity(recordingBudgetMilliseconds)
+                        ? recordingBudgetMilliseconds * (Stopwatch.Frequency / 1000d) : 0d;
+                    long? firstRecording = null;
                     for (int index = 0; index < uploads.Length; index++)
                     {
                         var page = uploads[(first + index) % uploads.Length];
@@ -545,6 +549,17 @@ namespace HybridLumenGI
                         {
                             if (earlierBatchBytes > 0) RememberBlockedUpload(page, turn, earlierBatchBytes);
                             continue;
+                        }
+                        if (recordingBudgetTicks > 0)
+                        {
+                            long now = Stopwatch.GetTimestamp();
+                            if (firstRecording.HasValue && now - firstRecording.Value >= recordingBudgetTicks)
+                            {
+                                // A time deferral keeps the existing byte reservation and order.
+                                if (ReferenceEquals(uploadWaiter.Turn, turn)) uploadWaiter.ObservedFrame = uploadFrame;
+                                continue;
+                            }
+                            firstRecording ??= now;
                         }
                         long initialBytes = page.MetadataInitialized ? 0 : MetadataStride;
                         // A recording attempt may partially succeed. Charge it and move the turn to the back.
