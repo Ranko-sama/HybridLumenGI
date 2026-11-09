@@ -1419,7 +1419,8 @@ namespace HybridLumenGI
                 int[] previous = state.recordedTraceOwners;
                 int[] current = work.traceOwners = new int[scene.Capacity];
                 bool comparable = previous != null && previous.Length == current.Length && work.hardware == state.lastHardware;
-                float influence = Mathf.Max(s.shadowDistance, s.traceDistance) + Mathf.Max(1, s.traceDistance);
+                float traceReach = Mathf.Max(1, s.traceDistance);
+                float influence = Mathf.Max(s.shadowDistance, s.traceDistance) + traceReach;
                 for (int slot = 0; slot < current.Length; slot++)
                 {
                     if (!scene.IsPublished(slot)) continue;
@@ -1432,6 +1433,17 @@ namespace HybridLumenGI
                         !scene.TryGetPreparedTraversalBounds(slot, out Bounds bounds)) continue;
                     state.changes.Add(bounds, true, influence);
                     state.surfaceCache.AddChangedBounds(bounds);
+
+                    // Exact coverage can change the shadow even when the scene owner did not move.
+                    var policy = scene.LightingPolicies[slot];
+                    float shadowReach = 0;
+                    for (int i = 0; i < work.lightCount; i++)
+                    {
+                        var light = state.lightData[i];
+                        if (EffectiveShadowMode(policy, light) != 0)
+                            shadowReach = Mathf.Max(shadowReach, ShadowReach(light));
+                    }
+                    if (shadowReach > 0) AddLocalLightingChange(state, bounds, shadowReach + traceReach);
                 }
             }
 
