@@ -12,6 +12,8 @@ Release208 的同一固定软件近景实测 p95／p99 为 46.868／47.240 ms，
 
 Release214 同源固定近景补齐了精确软件的 Transport 成本定位。实际 Gather 中位 39.612 ms，占 Transport 逐源中位比例 89.65%。观测最低 38.096 ms，高于 25 ms 总目标。世界缓存中位 4.274 ms，重建和其余各约 0.15 ms。软件预算优化集中在 Gather，内部各路径的耗时和正式预算继续验收。[父子时间戳与定位范围](../LocalComparison/Review/software-transport-cost-259/result.md)
 
+软件精确三角 BVH 的同轴子树排序复用候选已撤回。受控 4,096 三角的首个位姿生成相同的完整布局，比较调用减少 16.47%，低于事前采用线。该结果属于 CPU 构建，完整位姿更新成本及软件 GPU 时间各自开放。[前后工作量及范围](../LocalComparison/Review/software-bvh-sort-reuse-262/result.md)
+
 后续在同一固定近景试过将缓冲尺寸校验和三角求交准备移到每条射线的叶遍历前。实机 GI 合计中位为 45.212 ms，p95／p99 为 46.439／47.092 ms，三项均高于上述 Release196 窗口，进程 local 有限采样峰值为 549.637 MiB。已撤回候选，沿用 Release196 的实测与适用范围。
 
 在同一 Release196 固定近景中，未赋值贴图绕过采样循环的候选测得 GI 合计中位 45.106 ms、p95／p99 46.046／46.537 ms。原窗口为 45.006／45.887／46.349 ms。未达到预定收益，候选未纳入产品。25 ms 软件时间缺口保持开放。[同输入裁决](../LocalComparison/Review/software-default-maps-238/decision.json)
