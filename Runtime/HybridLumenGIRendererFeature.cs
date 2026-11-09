@@ -1720,7 +1720,9 @@ namespace HybridLumenGI
             }
             internal void CollectHlodRaster(Camera camera, List<HybridLumenGIStreamedRepresentation> visible)
             {
-                if (TryGetPreparedCamera(camera, out var state)) state.scene.CollectHlodRaster(visible);
+                if (!TryGetPreparedCamera(camera, out var state)) return;
+                float farDistance = Mathf.Max(Mathf.Max(0.1f, s.nearDistance), s.farDistance);
+                state.scene.CollectHlodRaster(camera.transform.position, farDistance, visible);
             }
             private CameraState GetCameraState(Camera camera)
             {

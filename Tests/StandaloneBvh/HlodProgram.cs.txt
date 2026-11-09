@@ -484,6 +484,7 @@ using (var s = new HybridLumenGIScene())
 Console.WriteLine("PASS HLOD membership: reparented members warm in the new group; withdrawal invalidates receipts of unchanged members returned to warming.");
 
 g = StreamedGroup();
+g.children[1].bounds = new Bounds(new Vector3(52, 0, 0), Vector3.one);
 var rasterBindings = HybridLumenGIStreamedRepresentation.Active;
 foreach (var binding in rasterBindings)
 {
@@ -491,17 +492,34 @@ foreach (var binding in rasterBindings)
     binding.Generation = 1;
 }
 using (var s = new HybridLumenGIScene())
+using (var farView = new HybridLumenGIScene())
 {
+    const float rasterFar = 40f;
+    var farPosition = new Vector3(-30, 0, 0);
     var raster = new List<HybridLumenGIStreamedRepresentation>();
-    int VisibleCount()
+    int CountAt(HybridLumenGIScene view, Vector3 position)
     {
         raster.Clear();
-        s.CollectHlodRaster(raster);
+        view.CollectHlodRaster(position, rasterFar, raster);
         return raster.Count;
     }
+    int VisibleCount() => CountAt(s, Vector3.zero);
+    void PrepareRaster(HybridLumenGIScene view, Vector3 position) => view.Prepare(position, 32, 20, rasterFar, 16, 32);
 
-    Prepare(s, false, 32); ReportAll(s); Prepare(s, false, 32);
+    PrepareRaster(s, Vector3.zero); ReportAll(s); PrepareRaster(s, Vector3.zero);
     Require(VisibleCount() == 2, "The initial complete streamed group did not reach raster selection.");
+    PrepareRaster(farView, farPosition); ReportAll(farView); PrepareRaster(farView, farPosition);
+    Require(CountAt(farView, farPosition) == 1 && CountAt(farView, Vector3.zero) == 1,
+        "The old aggregate must remain available during an in-range move before preparation.");
+    Require(CountAt(farView, new Vector3(92.5f, 0, 0)) == 1,
+        "The group must stay visible at the inclusive boundary of its nearest detail, even when the root is farther away.");
+    int outsideCount = CountAt(farView, new Vector3(92.625f, 0, 0));
+    int insideCount = VisibleCount();
+    bool stillBound = rasterBindings.All(binding => binding.CanSubmitHlodRaster && binding.Generation == 1);
+    Console.WriteLine($"Raster range before another Prepare: outside={outsideCount}, other in-range view={insideCount}, bindings retained={stillBound}.");
+    Require(outsideCount == 0 && insideCount == 2 && stillBound && farView.PublishedCount == 1 && s.PublishedCount == 2,
+        "The first out-of-range cull must hide only that view's old publication without withdrawing shared bindings.");
+
     var rebound = g.children[0];
     rebound.Revision++;
     Require(VisibleCount() == 2, "A transport revision hid a still-bound raster member.");
@@ -510,22 +528,22 @@ using (var s = new HybridLumenGIScene())
     rebound.Revision++;
     rebound.GeometryContentRevision++;
     bool oldReceiptRejected = VisibleCount() == 0;
-    Prepare(s, false, 32);
+    PrepareRaster(s, Vector3.zero);
     bool freshReceiptsRequired = VisibleCount() == 0 && s.WarmingCount == 2 && s.Bvh.NodeCount == 0;
-    ReportAll(s); Prepare(s, false, 32);
+    ReportAll(s); PrepareRaster(s, Vector3.zero);
     bool newSetPublished = VisibleCount() == 2;
 
     // The remaining detail still has an authored parent, even after it is retired.
     rasterBindings.Single(binding => binding.Proxy == g.root).IsUnavailable = true;
     SetResident(g.root, false);
     SetResident(g.children[1], false);
-    Prepare(s, false, 32);
+    PrepareRaster(s, Vector3.zero);
     bool unavailableParentHeldHidden = VisibleCount() == 0;
     rebound.HLODParent = null;
     rebound.Revision++;
     rebound.GeometryContentRevision++;
-    Prepare(s, false, 32);
-    bool explicitlyUnparentedVisible = VisibleCount() == 1;
+    PrepareRaster(s, Vector3.zero);
+    bool explicitlyUnparentedVisible = VisibleCount() == 1 && CountAt(s, new Vector3(50, 0, 0)) == 0;
     Require(oldReceiptRejected && freshReceiptsRequired && newSetPublished && unavailableParentHeldHidden && explicitlyUnparentedVisible,
         $"Raster qualification: old generation rejected={oldReceiptRejected}, fresh receipts required={freshReceiptsRequired}, " +
         $"fresh group published={newSetPublished}, unavailable parent held hidden={unavailableParentHeldHidden}, " +

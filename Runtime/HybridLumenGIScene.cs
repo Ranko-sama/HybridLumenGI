@@ -513,12 +513,7 @@ namespace HybridLumenGI
                 if (!group.seen) { retiredProxies.Add(pair.Key); continue; }
                 bool rootAvailable = available.TryGetValue(group.root.StableId, out Candidate rootCandidate);
                 // Use the same authored bounds as page demand when the root has no mesh yet.
-                float rootDistance = rootCandidate.distanceSquared;
-                if (!rootAvailable)
-                {
-                    Bounds bounds = streamedBindings[group.root].GetWorldBounds();
-                    rootDistance = Finite(bounds.center) && Finite(bounds.extents) ? bounds.SqrDistance(position) : float.PositiveInfinity;
-                }
+                float rootDistance = rootAvailable ? rootCandidate.distanceSquared : AuthoredDistanceSquared(streamedBindings[group.root], position);
                 group.distance = rootDistance;
                 foreach (int id in group.details)
                     group.distance = Mathf.Min(group.distance, available[id].distanceSquared);
@@ -620,9 +615,16 @@ namespace HybridLumenGI
             return residency.SqrDistance(position);
         }
 
-        internal void CollectHlodRaster(List<HybridLumenGIStreamedRepresentation> visible)
+        private static float AuthoredDistanceSquared(HybridLumenGIStreamedRepresentation binding, Vector3 position)
+        {
+            Bounds bounds = binding.GetWorldBounds();
+            return Finite(bounds.center) && Finite(bounds.extents) ? bounds.SqrDistance(position) : float.PositiveInfinity;
+        }
+
+        internal void CollectHlodRaster(Vector3 position, float farDistance, List<HybridLumenGIStreamedRepresentation> visible)
         {
             if (!hasManagedHlodRaster) return;
+            float farSquared = farDistance * farDistance;
             // Binding or hierarchy changes can arrive between the previous Prepare and this cull.
             RefreshStreamedBindings();
             aggregates.Clear();
@@ -636,7 +638,8 @@ namespace HybridLumenGI
 
             foreach (var group in groups.Values)
             {
-                if (!group.seen || !streamedBindings.TryGetValue(group.root, out var root) || !root.UsesHlodRasterVisibility) continue;
+                if (!group.seen || group.published.Count == 0 || !streamedBindings.TryGetValue(group.root, out var root) ||
+                    !root.UsesHlodRasterVisibility || !IsRasterGroupInRange(group, root, position, farSquared)) continue;
                 int first = visible.Count;
                 foreach (int id in group.published)
                 {
@@ -652,7 +655,24 @@ namespace HybridLumenGI
             // A runtime unparented member can return as an ordinary published proxy.
             foreach (var member in available.Values)
                 if (member.streamedBinding != null && ReferenceEquals(member.proxy.HLODParent, null) && !grouped.Contains(member.proxy.StableId) &&
-                    TopLevelRoot(member.proxy) == null && TryGetRasterBinding(member, out var binding)) visible.Add(binding);
+                    TopLevelRoot(member.proxy) == null && TryGetRasterBinding(member, out var binding) &&
+                    TryGetCandidateBounds(member.proxy, position, farSquared, out _, out float distance) && distance <= farSquared) visible.Add(binding);
+        }
+
+        private bool IsRasterGroupInRange(HlodGroup group, HybridLumenGIStreamedRepresentation root, Vector3 position, float farSquared)
+        {
+            // Culling precedes the next Scene.Prepare. A retained binding or
+            // prior publication alone does not establish this camera's current range.
+            float rootDistance = group.root.isActiveAndEnabled && TryGetCandidateBounds(group.root, position, farSquared, out _, out float distance)
+                ? distance : AuthoredDistanceSquared(root, position);
+            if (rootDistance <= farSquared) return true;
+            foreach (int id in group.details)
+            {
+                var detail = available[id].proxy;
+                if (detail == null || !detail.isActiveAndEnabled || TopLevelRoot(detail) != group.root || aggregates.Contains(detail)) continue;
+                if (TryGetCandidateBounds(detail, position, farSquared, out _, out float detailDistance) && detailDistance <= farSquared) return true;
+            }
+            return false;
         }
 
         private bool TryGetRasterBinding(Candidate prepared, out HybridLumenGIStreamedRepresentation binding)
