@@ -250,7 +250,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-**G0 本机基线已锁定，第 6 节 G1／G2 本机代表性验收已通过。** G3 已关闭固定两室关门恢复、离屏无图卡 BaseMap 换色通知、裁剪覆盖变化漏报远处接收面和匹配贴图回读等待导致的整体回退，并修复待定副本遮蔽同源就绪页、蒙皮实例误捕获／撤回、单对象表示切换漏发失效、硬域旧缓存回流、渲染图中止后恢复时沿用旧世界缓存、待校验及重新启用漏接 Collider 和 Renderer，以及 Renderer 销毁后中断相机准备。G4 已修复几何上传不足时的部分 HLOD 提交、对象 SDF 跨相机上传、Editor 重进 Play 的帧预算、相机状态重建时的软件几何与 DXR 属性预算、固定顺序下的贴图上传饥饿（含相机共用同一动态来源）、超出突发上限或共享构建额度为零的 RTAS 占用预留、停止补充后无法获足额积分的 RTAS 队首阻挡、最后一个 GI 相机销毁后资源滞留、统一示例整组撤回后的旧细节持续显示，以及独立分页组首次出域仍可提交旧组。完整 HLOD 接替已补齐有效图卡保留，以及共享 RTAS 构建轮次受阻时从精确或近似旧组接替精确细节的连续覆盖。精确材质 mip 偏移次序已获定向覆盖依据。默认白底图的裁剪已解除无关高度图的等待。冷入首显、完整 G3–G5 及相关专项仍待验收。[覆盖对照](../LocalComparison/Review/default-base-alpha-207/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [Release184 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release184-demo)
+**G0 本机基线已锁定，第 6 节 G1／G2 本机代表性验收已通过。** G3 已关闭固定两室关门恢复、离屏无图卡 BaseMap 换色通知、裁剪覆盖变化漏报远处接收面和匹配贴图回读等待导致的整体回退，并修复待定副本遮蔽同源就绪页、蒙皮实例误捕获／撤回、单对象表示切换漏发失效、硬域旧缓存回流、渲染图中止后恢复时沿用旧世界缓存、待校验及重新启用漏接 Collider 和 Renderer，以及 Renderer 销毁后中断相机准备。G4 已修复几何上传不足时的部分 HLOD 提交、对象 SDF 跨相机上传、Editor 重进 Play 的帧预算、相机状态重建时的软件几何与 DXR 属性预算、固定顺序下的贴图上传饥饿（含相机共用同一动态来源）、超出突发上限或共享构建额度为零的 RTAS 占用预留、停止补充后无法获足额积分的 RTAS 队首阻挡、最后一个 GI 相机销毁后资源滞留、统一示例整组撤回后的旧细节持续显示，以及独立分页组首次出域仍可提交旧组。完整 HLOD 接替已补齐有效图卡保留，以及共享 RTAS 构建轮次受阻时从精确或近似旧组接替精确细节的连续覆盖。精确材质 mip 偏移次序已获定向覆盖依据。默认白底图的裁剪已解除无关高度图的等待。冷入首显、完整 G3–G5 及相关专项仍待验收。[覆盖对照](../LocalComparison/Review/default-base-alpha-207/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [Release185 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release185-demo)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |

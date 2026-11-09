@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release184，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release185，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／G4 已关闭默认独立导出嵌套树的中间聚合自动占页。受控 I/O 对照覆盖冷态自动需求、原安全退休、粗根与叶组共驻和重挂后需求恢复。统一示例高速冷入首显与原生像素、照明分别验收。[分页需求范围](IndependentAssetPages.md) · [同源交付](../LocalComparison/Review/nested-hlod-demand-214/delivery.json)
 
 T3／T6 已关闭降低形变发布额度后，已完成且超额的快照占住工作槽的问题。实际组件在一个工作槽下保留原大快照，小快照在新额度内发布，恢复额度后大快照继续发布。采用范围为 CPU 捕获、发布与受控退休。[形变准入](DeformedGeometry.md) · [同源交付](../LocalComparison/Review/deformation-worker-admission-213/delivery.json)
 
