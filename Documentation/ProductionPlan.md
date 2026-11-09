@@ -338,6 +338,8 @@ owner 的三项直接光策略变化提升传输版本并触发局部 reactive�
 
 面积样本若被已确认覆盖且严格更近的另一三角形挡住，遮挡物完整材质待定时仍保留零贡献。原未知覆盖、同一端点和未完成查询的拒绝条件继续生效。[共享函数对照](../LocalComparison/Review/area-covered-blocker-226/result.md)
 
+普通 URP Lit 的 `ShadowCaster` 停用状态按材质进入精确阴影覆盖。Release195 的实际软件 BVH 和 DXR 在同一 Renderer 的双子网格上确认关闭时命中后方投影者，重新开启时恢复近板。普通表面命中保持近板，两次切换进入阴影变化比较。G3 的接收面缓存与像素响应仍按原条件验收。[双后端实机对照](../LocalComparison/Review/shadow-pass-227/result.md)
+
 Release151 的真实 DXR 与 Release167 的精确软件 BVH 分别在同组固定几何中验证了 16³ 有符号 SDF 的最近命中合并。较近盒面胜过远三角，另一条射线保留更近的三角。普通相机画面和其他混合输入继续验收。[DXR 读回](../LocalComparison/Review/native-dxr-signed-sdf-169/result.md) · [精确软件读回](../LocalComparison/Review/software-signed-sdf-193/result.md)
 
 这些项仍归入G1/G2/G4验收：背面单/双面发光、薄层不同材质、submesh接缝、负/非均匀缩放、卡池复用及软件/DXR切换都需要参考图与实机回归。物理双面翻转Ns模式还需按侧区分照明缓存；当前未将一份正面半球缓存冒充该模式。设计依据为PBRT第四版的[几何/着色法线与身份分离](https://pbr-book.org/4ed/Geometry_and_Transformations/Interactions)和[Area Lights的面积采样合同](https://pbr-book.org/4ed/Light_Sources/Area_Lights)。

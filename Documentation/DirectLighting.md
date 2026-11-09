@@ -32,6 +32,8 @@
 
 阴影候选须为 published owner，并同时通过 GameObject culling mask、启用时的阴影 rendering layers，以及 `Renderer.shadowCastingMode != Off`。DXR 在提交每个候选前过滤；排除前方不投影或层不匹配对象后，仍继续寻找后方合法投影者，不能先取最近命中再将整条射线判为无遮挡。
 
+普通 URP Lit 的逐材质 `ShadowCaster` 通道也参与精确候选覆盖。关闭通道时，软件 BVH 和 DXR 跳过该材质的阴影覆盖，继续寻找后方投影者。普通表面按独立的覆盖规则判断。通道切换纳入既有阴影覆盖比较，远处接收面刷新与收敛仍按 G3 验收。SDF 和解析体仍按各自的近似规则处理。[双后端实机对照](../LocalComparison/Review/shadow-pass-227/result.md)
+
 新命中材质路径将已到达表面的空间足迹投影到阴影方向：方向光保持平行半径，点/聚光向实际灯位置收缩。点光阴影射线从加bias的原点重新计算方向和焦距；N.L与距离衰减仍在真实表面点求值。近远场跳跃只推进半径，不改变材质观察源。普通表面覆盖在依赖已赋值的 BaseMap 时保留 parallax。默认白底图可直接以材质 alpha 判定覆盖，stock-shadow 覆盖禁用 parallax。未知覆盖仍遮挡并使入射光未知。当前 CPU 材质快照与精确几何准入允许普通 Lit 二值 alpha-test；DXR 强制非不透明候选逐项求值，已知透明继续遍历，已知实心或未知覆盖保留遮挡。代码接入不代替实际候选遍历的验收，也不扩展至 MSAA／A2C 或完整材质等价。空间LOD过滤也不能替代完整区域可见性或软阴影。[默认底图对照](../LocalComparison/Review/default-base-alpha-207/result.md)
 
 成功录制的精确命中材质会保存投影覆盖输入。覆盖变化时，已选实时投影光的可达距离加一段 GI 追踪距离用于局部时域失效和缓存优先级。方向光取阴影距离，点光和聚光取范围。[实际方向光对照](../LocalComparison/Review/cutout-shadow-change-209/result.md)

@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release194，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release195，G0 已锁定，G1／G2 本机代表性验收通过
+
+T2／原第 9 节已关闭普通 URP Lit 逐材质 `ShadowCaster` 被精确阴影查询忽略的问题。近板通道开、关、恢复时，实际软件 BVH 和 DXR 的阴影命中均为近、远、近，普通表面始终命中同一近板。两次切换均进入阴影覆盖变化判断。远处接收面的画面恢复和收敛仍归 G3。[实测与适用范围](../LocalComparison/Review/shadow-pass-227/result.md) · [同源交付](../LocalComparison/Review/shadow-pass-227/delivery.json)
 
 T2／原第 9 节已关闭面积光对已确认近遮挡因无关着色贴图待定而丢弃估计的路径。共用 committed resolver 和面积贡献函数的 WARP 对照中，旧版为未知，修复版为已知零。未知覆盖、同层、目标材质以及未完成查询继续按各自资格处理。真实遍历和相机画面继续验收。[对照与范围](../LocalComparison/Review/area-covered-blocker-226/result.md) · [同源交付](../LocalComparison/Review/area-covered-blocker-226/delivery.json)
 
