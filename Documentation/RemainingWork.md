@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release218 同源交付](../LocalComparison/Review/deformed-publication-budget-265/delivery.json)
 
+T3／G3 已关闭普通 Player 固定两室开门后前室地板的照明恢复子项。原 2 秒与连续保持要求均达到。该结果与固定关门的旧光消退各按自己的配置和区域采用，完整 G3、拖影和其他光路继续验收。[普通开门同曝光对照](../LocalComparison/Review/ordinary-portal-open-266/result.md)
+
 T6／G4 已补上已完成形变快照的独立主线程发布时间准入。达到额度后保留下一份完整快照到后续引擎帧，原上传字节、来源复核和退休条件继续生效。完整高更新负载与其他阶段预算仍开放。[组件对照与边界](../LocalComparison/Review/deformed-publication-budget-265/result.md)
 
 T5／G4 已关闭独立分页绑定终止失效时错误缩小作者细节集合的缺口。保留活动绑定的作者声明，撤回原残缺组，并按原回执门恢复可用粗根。故障后的恢复时间、实际后端与冷高速首显仍待验收。[受控对照与范围](../LocalComparison/Review/failed-detail-membership-264/result.md)
