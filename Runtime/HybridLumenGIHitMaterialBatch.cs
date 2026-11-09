@@ -36,6 +36,7 @@ namespace HybridLumenGI
             public readonly HybridLumenGIMaterialSource.Snapshot Snapshot;
             public readonly uint StableId,OwnerRevision,GeometryRevision,Submesh;
             public readonly Vector4 LinearProxyTint,LinearProxyEmission;
+            internal ulong MaterialKey => ((ulong)StableId << 32) | Submesh;
             public Source(HybridLumenGIMaterialSource.Snapshot snapshot,uint stableId,uint ownerRevision,
                 uint geometryRevision,uint submesh,Vector4 linearProxyTint,Vector4 linearProxyEmission)
             {
@@ -50,6 +51,7 @@ namespace HybridLumenGI
         private readonly HybridLumenGIRayTextureImporter importer;
         private readonly HybridLumenGIRayTexturePool pool;
         private readonly HybridLumenGIRayTexturePool.Lease textureLease;
+        private Dictionary<ulong,bool> shadowMapUploads;
         private GraphicsBuffer records,bindings;
         private CommandBuffer command;
         private GraphicsFence fence;
@@ -66,6 +68,7 @@ namespace HybridLumenGI
         public int TextureUploadCount => textureLease.UploadCount;
         public Texture GetUploadSource(int index) => textureLease.GetUpload(index).View.Texture;
         public Source GetSource(int index) => sources[index];
+        internal IReadOnlyDictionary<ulong,bool> ShadowMapUploads => shadowMapUploads;
 
         private HybridLumenGIHitMaterialBatch(Source[] sources,HybridLumenGIHitMaterialRecord[] encoded,
             uint generation,HybridLumenGIMaterialSource validator,HybridLumenGIRayTextureImporter importer,
@@ -221,7 +224,7 @@ namespace HybridLumenGI
             command=cmd;State=BatchState.Recording;
             try
             {
-                if(!pool.RecordUploads(cmd,textureLease,importer.Record,uploadConsumer,out reason,recordingBudgetMilliseconds))
+                if(!pool.RecordUploads(cmd,textureLease,RecordUpload,uploadConsumer,out reason,recordingBudgetMilliseconds))
                 { Quarantine();return false; }
                 if(disposed || State!=BatchState.Recording)throw new InvalidOperationException("Batch canceled during upload recording.");
                 UnknownRecords=0;
@@ -234,12 +237,17 @@ namespace HybridLumenGI
                     // Leave assigned maps present when a quota defers their first metadata write.
                     // A zero handle stays unknown for queries that use it, while other maps and
                     // scalar alpha remain available to coverage queries.
-                    ClearUninitializedHandles(ref materialRecords[i].textures0);
+                    bool baseMapRecorded=ClearUninitializedHandles(ref materialRecords[i].textures0);
                     ClearUninitializedHandles(ref materialRecords[i].textures1);
                     ClearUninitializedHandles(ref materialRecords[i].textures2);
                     ClearUninitializedHandles(ref materialRecords[i].textures3);
                     ClearUninitializedHandles(ref materialRecords[i].textures4);
                     Source source=sources[i];
+                    const uint shadowBaseMapFlags=HybridLumenGIHitMaterialLayout.AlphaTest |
+                        HybridLumenGIHitMaterialLayout.SmoothnessFromBaseAlpha | HybridLumenGIHitMaterialLayout.ShadowCasterDisabled;
+                    if((materialRecords[i].identity.y&shadowBaseMapFlags)==HybridLumenGIHitMaterialLayout.AlphaTest &&
+                        (materialRecords[i].identity.w&1u)!=0)
+                        (shadowMapUploads ??= new Dictionary<ulong,bool>())[source.MaterialKey]=baseMapRecorded;
                     materialBindings[i]=new HybridLumenGIHitMaterialBinding
                     {
                         table=new HybridLumenGIHitMaterialUInt4((uint)i,Generation,0,0),
@@ -255,9 +263,16 @@ namespace HybridLumenGI
             catch(Exception ex){Quarantine();reason="Material recording unproven: "+ex.GetType().Name;return false;}
         }
 
-        private void ClearUninitializedHandles(ref HybridLumenGIHitMaterialUInt4 pair)
+        private bool RecordUpload(CommandBuffer cmd,HybridLumenGIRayTexturePool.Upload upload,GraphicsBuffer metadata,GraphicsBuffer texels)
         {
-            if (pair.y != 0 && !pool.IsHandleCurrent(textureLease, new HybridLumenGIRayTexturePool.Handle(pair.x, pair.y)))
+            importer.Record(cmd,upload,metadata,texels);
+            return importer.LastRejection==null;
+        }
+
+        private bool ClearUninitializedHandles(ref HybridLumenGIHitMaterialUInt4 pair)
+        {
+            bool firstUploadRecorded=false;
+            if (pair.y != 0 && !pool.IsHandleCurrent(textureLease, new HybridLumenGIRayTexturePool.Handle(pair.x, pair.y),out firstUploadRecorded))
             {
                 pair.x = pair.y = 0;
             }
@@ -265,6 +280,7 @@ namespace HybridLumenGI
             {
                 pair.z = pair.w = 0;
             }
+            return firstUploadRecorded;
         }
 
         /// <summary>Borrow only for RenderGraph declarations; no mutation, disposal or consumption authority.</summary>

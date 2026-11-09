@@ -119,7 +119,7 @@ namespace HybridLumenGI
             internal readonly ulong Epoch;
             internal int Readers;
             internal bool Reusable,Ready,ReadbackPending,ReadbackStarted;
-            internal bool MetadataInitialized,UploadComplete;
+            internal bool MetadataInitialized,UploadComplete,UploadRejected;
             internal int UploadedElements;
             internal Page(Upload upload,HybridLumenGIRayTextureMetadata initial,ulong epoch,bool reusable)
             {Upload=upload;Initial=initial;Epoch=epoch;Reusable=reusable;}
@@ -518,9 +518,13 @@ namespace HybridLumenGI
         }
 
         public bool RecordUploads(CommandBuffer cmd,Lease lease,Action<CommandBuffer,Upload,GraphicsBuffer,GraphicsBuffer> importer,out string reason)
-            => RecordUploads(cmd, lease, importer, null, out reason);
+            => RecordUploads(cmd, lease, importer == null ? null : (command, upload, metadata, texels) =>
+            {
+                importer(command, upload, metadata, texels);
+                return true;
+            }, null, out reason);
 
-        internal bool RecordUploads(CommandBuffer cmd,Lease lease,Action<CommandBuffer,Upload,GraphicsBuffer,GraphicsBuffer> importer,
+        internal bool RecordUploads(CommandBuffer cmd,Lease lease,Func<CommandBuffer,Upload,GraphicsBuffer,GraphicsBuffer,bool> importer,
             object uploadConsumer,out string reason,float recordingBudgetMilliseconds=0f)
         {
             reason=null;
@@ -568,7 +572,8 @@ namespace HybridLumenGI
                         turn.Order = ++lastUploadOrder;
                         if(!page.MetadataInitialized)
                         {cmd.SetBufferData(arena.Metadata,new[]{page.Initial},0,page.Upload.MetadataIndex,1);page.MetadataInitialized=true;arena.Initialized=true;}
-                        importer(cmd,new Upload(page.Upload,page.UploadedElements,count),arena.Metadata,arena.Texels);
+                        if(!importer(cmd,new Upload(page.Upload,page.UploadedElements,count),arena.Metadata,arena.Texels))
+                            page.UploadRejected=true;
                         if(disposed||lease.State!=LeaseState.Recording)throw new InvalidOperationException("Progressive upload canceled during recording.");
                         page.UploadedElements+=count;page.UploadComplete=page.UploadedElements==page.Upload.Layout.StorageElementCount;
                     }
@@ -587,7 +592,7 @@ namespace HybridLumenGI
                 foreach(var page in lease.Uploads)
                 {
                     page.MetadataInitialized=true;
-                    importer(cmd,page.Upload,arena.Metadata,arena.Texels);
+                    if(!importer(cmd,page.Upload,arena.Metadata,arena.Texels))page.UploadRejected=true;
                     if(disposed||lease.State!=LeaseState.Recording)throw new InvalidOperationException("Upload canceled during recording.");
                     page.UploadedElements=page.Upload.Layout.StorageElementCount;page.UploadComplete=true;
                 }
@@ -596,9 +601,19 @@ namespace HybridLumenGI
             catch(Exception ex){Quarantine(lease);reason="Upload recording unproven: "+ex.GetType().Name;return false;}
         }
         public bool IsHandleCurrent(Lease lease,Handle handle)
+            => IsHandleCurrent(lease,handle,out _);
+
+        internal bool IsHandleCurrent(Lease lease,Handle handle,out bool uploadRecorded)
         {
+            uploadRecorded=false;
             if(!Owns(lease)||disposed||lease.State!=LeaseState.Recorded||!handle.IsValid)return false;
-            foreach(var page in lease.Pages)if(page.MetadataInitialized&&page.Upload.MetadataIndex==handle.Index&&page.Upload.Generation==handle.Generation)return true;
+            foreach(var page in lease.Pages)
+            {
+                if(!page.MetadataInitialized||page.Upload.MetadataIndex!=handle.Index||page.Upload.Generation!=handle.Generation)continue;
+                // The copy commands precede consumers. The shader still decides whether the data is valid.
+                uploadRecorded=page.UploadComplete&&!page.UploadRejected;
+                return true;
+            }
             return false;
         }
         /// <summary>Borrow for RenderGraph declarations only, not disposal/consumption authority.</summary>

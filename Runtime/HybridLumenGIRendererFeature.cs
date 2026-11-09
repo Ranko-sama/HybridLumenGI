@@ -357,6 +357,7 @@ namespace HybridLumenGI
         {
             internal HybridLumenGIMaterialSource.Snapshot cardlessSource;
             internal HybridLumenGIHitMaterialLayout.ShadowCoverage shadowCoverage;
+            internal bool? shadowMapUploadRecorded;
         }
         private sealed class CameraState : IDisposable
         {
@@ -1488,25 +1489,58 @@ namespace HybridLumenGI
                 {
                     if (!state.scene.TryGetPublishedSlot((int)source.StableId, out int slot)) continue;
                     bool cardless = state.surfaceCache.GetCardCount(slot) == 0;
-                    ulong key = ((ulong)source.StableId << 32) | source.Submesh;
+                    ulong key = source.MaterialKey;
                     var snapshot = source.Snapshot;
                     var coverage = new HybridLumenGIHitMaterialLayout.ShadowCoverage(snapshot.HitMaterial);
+                    ExactMaterialObservation previous = default;
+                    bool hasPrevious = state.exactMaterialObservations != null &&
+                        state.exactMaterialObservations.TryGetValue(key, out previous);
+                    bool sameCoverage = hasPrevious && coverage.Matches(previous.shadowCoverage);
                     (work.exactMaterialObservations ??= new Dictionary<ulong, ExactMaterialObservation>())[key] =
-                        new ExactMaterialObservation { cardlessSource = cardless ? snapshot : null, shadowCoverage = coverage };
-                    if (state.exactMaterialObservations == null || !state.exactMaterialObservations.TryGetValue(key, out var previous)) continue;
+                        new ExactMaterialObservation
+                        {
+                            cardlessSource = cardless ? snapshot : null, shadowCoverage = coverage,
+                            shadowMapUploadRecorded = sameCoverage ? previous.shadowMapUploadRecorded : null
+                        };
+                    if (!hasPrevious) continue;
 
                     // Card owners already report changes to their outgoing material. Exact
                     // shadow coverage can also change the lighting of more distant receivers.
                     bool nearby = cardless && previous.cardlessSource != null &&
                         (!snapshot.CanReuseHistory || !snapshot.Equals(previous.cardlessSource));
                     bool shadow = shadowReach > 0 && state.scene.LightingPolicies[slot].shadowCastingMode != (uint)ShadowCastingMode.Off &&
-                        !coverage.Matches(previous.shadowCoverage);
+                        !sameCoverage;
                     if ((!nearby && !shadow) || !state.scene.TryGetPreparedTraversalBounds(slot, out Bounds bounds)) continue;
                     if (nearby) state.surfaceCache.AddChangedBounds(bounds);
                     if (shadow) AddLocalLightingChange(state, bounds, shadowReach + traceReach);
                     else state.changes.Add(bounds, false, traceReach);
                 }
             }
+
+            private bool AddRecordedShadowMapChanges(Work work)
+            {
+                var observations = work.exactMaterialObservations;
+                var uploads = work.hitMaterials.ShadowMapUploads;
+                if (observations == null || uploads == null) return false;
+                var state = work.state;
+                float traceReach = Mathf.Max(1, s.traceDistance);
+                bool changed = false;
+                foreach (var upload in uploads)
+                {
+                    if (!observations.TryGetValue(upload.Key, out var observation)) continue;
+                    bool becameRecorded = upload.Value && observation.shadowMapUploadRecorded == false;
+                    observation.shadowMapUploadRecorded = upload.Value;
+                    observations[upload.Key] = observation;
+                    // The source change may have been serviced while its alpha was still unknown.
+                    if (!becameRecorded || !state.scene.TryGetPublishedSlot((int)(upload.Key >> 32), out int slot)) continue;
+                    float reach = CasterShadowReach(state, work.lightCount, state.scene.LightingPolicies[slot]);
+                    if (reach <= 0 || !state.scene.TryGetPreparedTraversalBounds(slot, out Bounds bounds)) continue;
+                    AddLocalLightingChange(state, bounds, reach + traceReach);
+                    changed = true;
+                }
+                return changed;
+            }
+
             private void FallBackToSoftware(Work d,string reason,bool sourceUncertain=false)
             {
                 var state=d.state;
@@ -1531,25 +1565,19 @@ namespace HybridLumenGI
                 }
                 int previousSurfaceChanges = state.surfaceCache.ChangedBounds.Count;
                 using(d.frameTiming.Profile(cmd,"HLGI World material capture")) state.surfaceCache.RecordCapture(cmd,d.viewport);
-                if (state.surfaceCache.LimitsCaptureRecording)
+                bool uploadChanges = state.surfaceCache.LimitsCaptureRecording;
+                if (uploadChanges)
                 {
                     var changedBounds = state.surfaceCache.ChangedBounds;
                     for (int i = previousSurfaceChanges; i < changedBounds.Count; i++)
                         state.changes.Add(changedBounds[i], false, Mathf.Max(1, s.traceDistance));
                     state.lightingChanged |= changedBounds.Count > previousSurfaceChanges;
-                    state.changes.RecordUpload(cmd);
                 }
                 // This distribution changes sampling only. Do not mark lighting dirty or reset
                 // the cache when rebuilding it; all consumers use the same ordered GPU table.
                 bool emissiveBuilt;
                 using(d.frameTiming.Profile(cmd,"HLGI Emissive proposals"))
                     emissiveBuilt=state.emissiveSampling.RecordBuild(cmd,state.scene,state.surfaceCache,EffectiveEmissiveBudget);
-                // Newly captured moving cards must be eligible in this same frame. Scheduling before
-                // RecordCapture would starve continuously moving objects whose pages invalidate every frame.
-                state.scheduler.Prepare(state.scene,state.surfaceCache,state.patchGrid,d.frame,Mathf.Clamp(d.cachePatchBudget,1,state.cacheEntryCount),
-                    state.lightingChanged,Mathf.Max(s.shadowDistance,s.traceDistance)+Mathf.Max(1,s.traceDistance),
-                    upload:true,localLightChanges:state.localLightingChangeBounds,changedSurfaces:state.surfaceCache.ChangedBounds,
-                    surfaceInfluenceRadius:Mathf.Max(1,s.traceDistance));
                 if(d.geometry!=null)
                 {
                     string reason=null;
@@ -1567,10 +1595,17 @@ namespace HybridLumenGI
                         {
                             state.hardwareMaterialUnknownRecords=d.hitMaterials.UnknownRecords;
                             state.hardwareMaterialStatus="Uploads and both consumers bound; GPU completion unproven";
+                            if(current && AddRecordedShadowMapChanges(d))uploadChanges=true;
                         }
                     }
                     c=d.compute;
                 }
+                if (uploadChanges) state.changes.RecordUpload(cmd);
+                // Newly captured cards and the shadows they receive must be eligible in this frame.
+                state.scheduler.Prepare(state.scene,state.surfaceCache,state.patchGrid,d.frame,Mathf.Clamp(d.cachePatchBudget,1,state.cacheEntryCount),
+                    state.lightingChanged,Mathf.Max(s.shadowDistance,s.traceDistance)+Mathf.Max(1,s.traceDistance),
+                    upload:true,localLightChanges:state.localLightingChangeBounds,changedSurfaces:state.surfaceCache.ChangedBounds,
+                    surfaceInfluenceRadius:Mathf.Max(1,s.traceDistance));
                 // Compare the representation that will actually trace against the last successful
                 // recording. A rejected material allocation can select the same fallback every frame.
                 if(!current)
