@@ -10,6 +10,7 @@ namespace HybridLumenGI
     [DefaultExecutionOrder(10000), DisallowMultipleComponent]
     public sealed class HybridLumenGIUnifiedSample : MonoBehaviour
     {
+        private const float DetailRequestExitScale = 1.4f;
         [SerializeField] private Camera targetCamera;
         [SerializeField] private HybridLumenGIRendererFeature feature;
         [SerializeField] private HybridLumenGIAssetPageStreamer streamer;
@@ -66,10 +67,40 @@ namespace HybridLumenGI
             if (outward.sqrMagnitude < .5f) outward = Vector3.back;
             float radius = bounds.extents.magnitude;
             farPosition = bounds.center + outward * (radius + nearDistance * 1.5f);
+            if (TryFitFarPosition(farPosition, out Vector3 fitted)) farPosition = fitted;
             outsidePosition = bounds.center + outward * (radius + farDistance + 20f);
             farRotation = Quaternion.LookRotation(bounds.center - farPosition, Vector3.up);
             outsideRotation = Quaternion.LookRotation(bounds.center - outsidePosition, Vector3.up);
             foreach (var binding in Bindings()) { binding.SetWanted(false); binding.SourceRenderer.forceRenderingOff = true; }
+        }
+
+        private bool TryFitFarPosition(Vector3 position, out Vector3 fitted)
+        {
+            fitted = position;
+            float farSquared = farDistance * farDistance;
+            // Far must release a detail request that is already active.
+            float minimumFarDistance = nearDistance * DetailRequestExitScale;
+            if (!(farDistance > minimumFarDistance && groupBounds.SqrDistance(position) > farSquared)) return false;
+
+            // Distance from the box increases along the ray of the authored bookmark.
+            Vector3 offset = position - groupBounds.center;
+            Vector3 outward = offset.normalized;
+            float preferredFarDistance = nearDistance * 1.5f;
+            float targetDistance = preferredFarDistance < farDistance ? preferredFarDistance :
+                minimumFarDistance + (farDistance - minimumFarDistance) * .5f;
+            float targetSquared = targetDistance * targetDistance;
+            float low = 0f, high = offset.magnitude;
+            for (int i = 0; i < 24; i++)
+            {
+                float middle = low + (high - low) * .5f;
+                if (groupBounds.SqrDistance(groupBounds.center + outward * middle) < targetSquared) low = middle;
+                else high = middle;
+            }
+            Vector3 candidate = groupBounds.center + outward * high;
+            float candidateSquared = groupBounds.SqrDistance(candidate);
+            if (!(candidateSquared > minimumFarDistance * minimumFarDistance && candidateSquared <= farSquared)) return false;
+            fitted = candidate;
+            return true;
         }
 
         private IEnumerable<HybridLumenGIStreamedRepresentation> Bindings()
@@ -151,7 +182,7 @@ namespace HybridLumenGI
             previousCameraPosition = position; previousCameraTime = now;
             if (!residentWanted) detailsWanted = false;
             else if (distance < nearDistance * 1.2f) detailsWanted = true;
-            else if (distance > nearDistance * 1.4f) detailsWanted = false;
+            else if (distance > nearDistance * DetailRequestExitScale) detailsWanted = false;
             aggregate.SetWanted(residentWanted, prefetchingAggregatePages);
             foreach (var item in details) item.SetWanted(residentWanted && detailsWanted);
             requestEngineFrame = Time.frameCount;
@@ -271,7 +302,12 @@ namespace HybridLumenGI
             targetCamera.transform.SetPositionAndRotation(position, rotation);
         }
         public void GoNear() => GoTo(nearPosition, nearRotation);
-        public void GoFar() => GoTo(farPosition, farRotation);
+        public void GoFar()
+        {
+            if (TryFitFarPosition(farPosition, out Vector3 fitted))
+                GoTo(fitted, Quaternion.LookRotation(groupBounds.center - fitted, Vector3.up));
+            else GoTo(farPosition, farRotation);
+        }
         public void Leave() => GoTo(outsidePosition, outsideRotation);
 
         [Serializable] public sealed class Ledger

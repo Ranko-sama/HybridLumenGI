@@ -4,6 +4,10 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release211 同源交付](../LocalComparison/Review/direct-uv0-source-253/delivery.json)
 
+T6／G4 已关闭当帧末尾相机收紧贴图上传上限时清除有效等待的路径。额度恢复后轮到原等待上传，当帧装不下时仍可录制合格小页。原生成本与完整负载继续验收。[调度对照](../LocalComparison/Review/texture-quota-tightening-254/result.md)
+
+T5／G4 已关闭宽场景 Far 书签越过可见远界及加载界的缺口。旧场景与新生成场景均沿实际包围盒确定合法机位，根仍按原完整就绪门发布。冷高速首显是独立未完成项。[书签对照](../LocalComparison/Review/far-bookmark-255/result.md)
+
 T2／T4 已关闭普通 Lit 直接 UV0 覆盖使两种精确查询继续相信基础 UV 透明度的缺口。实机显示近板覆盖后撤销旧批次与图卡，保留近板解析遮挡，撤覆盖后恢复精确资格。实时顶点流着色和完整材质专项继续按原范围处理。[同输入对照](../LocalComparison/Review/direct-uv0-source-253/result.md)
 
 T3／G3 已关闭固定两点灯持续开启、其中一灯退出绿色而另一灯保留绿色时的残留。实机确认灯表未缩短，旧绿、终态色向、保持及稳蓝通过原判据。其他约定光路和普通 Player 动态画质继续验收。[换色实测与适用范围](../LocalComparison/Review/point-light-shared-recolor-252/result.md)

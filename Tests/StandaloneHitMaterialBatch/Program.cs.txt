@@ -518,6 +518,57 @@ class Program
         Check(copySequence.SequenceEqual(new[] { 0, 1, 2, 0 }), "dynamic upload turns: " + string.Join(", ", copySequence));
     }
 
+    static void LateLowerQuotaPreservesUploadTurn()
+    {
+        scenarios++;
+        const int largeQuota = 2 << 20, smallQuota = 1 << 20, start = 2025;
+        var first = new Fixture(new RenderTexture { width = 604, height = 217, mipmapCount = 1, graphicsFormat = 42 });
+        var waiting = new Fixture(new RenderTexture { width = 604, height = 217, mipmapCount = 1, graphicsFormat = 42 });
+        var small = new Fixture(new RenderTexture { width = 516, height = 127, mipmapCount = 1, graphicsFormat = 42 });
+        var firstCamera = new object();
+        var waitingCamera = new object();
+        var smallCamera = new object();
+
+        void Record(Fixture fixture, object camera, bool shouldCopy, string description)
+        {
+            var batch = Prepare(fixture.Freeze());
+            var commands = new CommandBuffer();
+            RecordBatch(batch, commands, camera);
+            bool copied = commands.Dispatches.Count > 0;
+            Check(copied == shouldCopy &&
+                (shouldCopy ? Table(commands)[0].textures0.y != 0 : AssignedBaseMapIsUnknown(Table(commands)[0])),
+                $"{description}: copied={copied}, used={Pool.UploadBytesUsed}, cap={Pool.UploadBudgetBytes}");
+            Finish(batch, commands);
+        }
+
+        void DeferLargeThenTighten(int frame)
+        {
+            Pool.BeginFrame(frame, largeQuota);
+            Record(first, firstCamera, true, "first whole texture uses the early allowance");
+            Record(waiting, waitingCamera, false, "waiting texture is denied by earlier recorded bytes");
+            Pool.BeginFrame(frame, smallQuota);
+            Check(Pool.UploadBudgetBytes == smallQuota && Pool.UploadBytesUsed == largeQuota,
+                "the late quota keeps already recorded bytes charged");
+        }
+
+        DeferLargeThenTighten(start);
+        Pool.BeginFrame(start + 1, largeQuota);
+        Record(first, firstCamera, false, "first camera must honor the turn after the quota returns");
+        Record(waiting, waitingCamera, true, "waiting camera records its complete upload");
+        Check(Pool.UploadBytesUsed == largeQuota, "only the waiting upload consumed the restored allowance");
+
+        DeferLargeThenTighten(start + 2);
+        Pool.BeginFrame(start + 3, largeQuota);
+        Pool.BeginFrame(start + 3, smallQuota);
+        Record(small, smallCamera, true, "an over-cap reservation must leave the reduced allowance available");
+        Record(waiting, waitingCamera, false, "the whole large texture remains deferred under the reduced cap");
+        Check(Pool.UploadBytesUsed == smallQuota, "the reduced allowance is honored");
+
+        Pool.ClearReusable();
+        Clean();
+        Console.WriteLine("PASS texture upload turns: an earlier 2 MiB waiter proceeds after a late 1 MiB cap, and an ineligible turn leaves the reduced allowance free.");
+    }
+
     static void RecordingTimeDefersWholeUploads()
     {
         scenarios++;
@@ -627,7 +678,8 @@ class Program
             Resources.Loaded=new ComputeShader();AbiAndConstantOrder();MapDedupAndFrozenViews();SourceRevalidation();GlobalBudgetsAndCaps();
             AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();ReadyPageSurvivesPendingDuplicate();QuotaDefersUnknownMaterials();
             DynamicTextureCannotStarveWaitingMap();LaterCameraGetsSharedTextureUploadTurn();
-            CamerasSharingDynamicTextureGetSeparateUploadTurns();RecordingTimeDefersWholeUploads();CoverageSurvivesDeferredNormal();ClosingAdmission();
+            CamerasSharingDynamicTextureGetSeparateUploadTurns();LateLowerQuotaPreservesUploadTurn();
+            RecordingTimeDefersWholeUploads();CoverageSurvivesDeferredNormal();ClosingAdmission();
             Console.WriteLine("PASS hit-material-batch "+checks+" assertions / "+scenarios+" scenarios; actual seven C# classes, recording adapters only; no Unity/GPU execution.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}

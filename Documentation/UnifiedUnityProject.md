@@ -6,6 +6,8 @@ Windows 运行包从同版工程 ZIP 的独立解压目录构建。工程根目�
 
 在 Project 窗口打开 `Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity`，按 Play 进入彩墙场景。WASD 移动，C 换墙色，L 开关解析灯，M 启停门运动。F3 进入中性两室，随后按 F4 进入三室，O 开关中央滑门。1、2 分别切到近景与远景。
 
+宽场景保存的 Far 机位越过远界时，使用远景按钮会沿原方向移到组包围盒的可见远带。完整粗根仍按几何、材质和照明就绪后发布。 [机位对照](../LocalComparison/Review/far-bookmark-255/result.md)
+
 按 **F5** 或点击 **F5: show indirect light** 可以单独看间接光。再次按 F5 回到原视图。要观察颜色反弹，可对准白色地板，按 C 换墙色，再用 F5 对照最终画面。运行时代码也可在相机准备前调用 Renderer Feature 的 `SetIndirectIntensity(float)` 与 `SetDebugView(DebugView)`。强度只接受有限非负数。
 
 在 Renderer Feature 设置 `surfaceCaptureRecordingCpuBudgetMilliseconds` 可启用图卡录制的 CPU 时间准入，默认 0。[设置范围](GpuBudget.md#图卡录制的-cpu-准入)

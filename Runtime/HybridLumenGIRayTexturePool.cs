@@ -61,9 +61,9 @@ namespace HybridLumenGI
             if(engineFrame<0||engineFrame<uploadFrame||maxUploadBytes<80)throw new ArgumentOutOfRangeException(nameof(maxUploadBytes));
             if (engineFrame == uploadFrame)
             {
+                // A later camera tightens this frame. Earlier requests can still take
+                // their turn when the next frame starts with a larger allowance.
                 uploadBudget = Math.Min(uploadBudget, maxUploadBytes);
-                if (uploadWaiter.Bytes > uploadBudget) uploadWaiter = default;
-                if (nextUploadWaiter.Bytes > uploadBudget) nextUploadWaiter = default;
                 return;
             }
             if (uploadWaiter.Bytes > maxUploadBytes || (long)engineFrame - uploadWaiter.ObservedFrame > 1)
@@ -490,7 +490,7 @@ namespace HybridLumenGI
         {
             long initialBytes = page.MetadataInitialized ? 0 : MetadataStride;
             long availableBytes = uploadBudget - uploadUsed;
-            if (uploadWaiter.Turn != null && !ReferenceEquals(turn, uploadWaiter.Turn))
+            if (uploadWaiter.Turn != null && uploadWaiter.Bytes <= uploadBudget && !ReferenceEquals(turn, uploadWaiter.Turn))
                 availableBytes -= uploadWaiter.Bytes;
             if (availableBytes <= initialBytes) return 0;
             long availableElements = (availableBytes - initialBytes) / HybridLumenGIRayTextureLayout.TexelStride;

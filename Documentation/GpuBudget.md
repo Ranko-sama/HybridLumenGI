@@ -143,7 +143,7 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 | 设置 | 默认值与行为 |
 | --- | --- |
 | 对象 SDF 图集的 Feature 入口 | 每引擎帧跨相机共享 262,144 个 RFloat 体素（1 MiB）的 `SetData` 尝试额度。最早等待的整卷优先，独立 `Prepare` 按自身额度计账。[驻留与准入](SdfAtlasResidency.md) |
-| `materialTextureUploadMiBPerFrame` | 16 MiB，全相机共享实际复制字节；稳定大页跨帧续传，完整复制/回读后ready；不能拼接不同帧的动态RT。 |
+| `materialTextureUploadMiBPerFrame` | 16 MiB，全相机共享实际复制字节。稳定大页跨帧续传，完整复制并回读后就绪。动态 RT 要求同帧完整复制。后置相机收紧当帧上限时，已录字节继续计账，当前装不下的等待让出额度，可按原资格参加后续帧。[定向对照](../LocalComparison/Review/texture-quota-tightening-254/result.md) |
 | `materialTextureRecordingCpuBudgetMilliseconds` | 0 ms，默认关闭。每相机材质批按已录制复制的经过时间延后下一页或续传块。 |
 | `hardwareMaterialBudgetMiB` | 256 MiB，材质arena包含当前、待上传、读者持有及退休/隔离分配；复用稳定页，局部替换变化页。 |
 | `softwareGeometryBudgetMiB` | 128 MiB，同一 Feature 内按相机合计精确软件属性和 BVH。状态重建后仍计入待释放的旧分配，额度不足时使用现有回退。[定向对照](../LocalComparison/Review/camera-software-geometry-budget-168/result.md) |
