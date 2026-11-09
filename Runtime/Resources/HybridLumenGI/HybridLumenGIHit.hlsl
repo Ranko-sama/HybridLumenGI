@@ -15,6 +15,8 @@
 #define HLGI_HIT_MATERIAL_UNKNOWN   512u
 #define HLGI_HIT_UV_MATERIAL       1024u
 #define HLGI_HIT_QUERY_UNRESOLVED  2048u
+// The committed triangle passed coverage checks before full material evaluation failed.
+#define HLGI_HIT_COVERAGE_CONFIRMED 4096u
 #define HLGI_REPRESENTATION_NONE      0u
 #define HLGI_REPRESENTATION_TRIANGLE  1u
 #define HLGI_REPRESENTATION_SIGNED_SDF 2u

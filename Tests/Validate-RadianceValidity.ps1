@@ -96,7 +96,7 @@ try {
         ([regex]::Matches($candidate,'query\.CommitNonOpaqueTriangleHit\(\)')).Count -ne 1 -or
         $candidate.IndexOf('query.CommitNonOpaqueTriangleHit()') -lt $candidate.IndexOf('HLGIHitCoverageBlocks(')) {throw 'Candidate cull/policy/coverage/commit wiring differs; unknown coverage must remain blocking.'}
     if($committed -notmatch 'if\(!coverageKnown \|\| !covered\) hit.flags\|=HLGI_HIT_MATERIAL_UNKNOWN;' -or
-        $committed -notmatch 'if\(!materialKnown\) hit.flags\|=HLGI_HIT_MATERIAL_UNKNOWN;' -or
+        $committed -notmatch 'if\(!materialKnown\) hit.flags\|=HLGI_HIT_MATERIAL_UNKNOWN\|HLGI_HIT_COVERAGE_CONFIRMED;' -or
         $committed -notmatch 'hit.materialDiffuse=material.diffuseReflectance' -or
         $committed -notmatch 'hit.shadingNormal=materialNormal;hit.flags\|=HLGI_HIT_UV_MATERIAL\|HLGI_HIT_SHADING_NORMAL') {throw 'Committed unknown/payload publication wiring differs.'}
     if($committed -notmatch 'else if\(resolveMaterial && !shadowQuery\)' -or

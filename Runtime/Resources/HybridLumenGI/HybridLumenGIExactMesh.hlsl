@@ -91,7 +91,7 @@ void HLGIHardwareResolveCommittedMaterial(uint instanceIndex,uint primitive,
     {
         bool materialKnown=HLGIHardwareEvaluateHit(instanceIndex,primitive,instance,attributes,objectToWorld,barycentric,
             materialView,direction,hitRadius,false,false,covered,material,materialNormal);
-        if(!materialKnown) hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN;
+        if(!materialKnown) hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN|HLGI_HIT_COVERAGE_CONFIRMED;
         else
         {
             hit.materialDiffuse=material.diffuseReflectance;hit.materialEmission=material.emission;

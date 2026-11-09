@@ -572,10 +572,18 @@ bool HLGIAreaLightContribution(float3 origin,float3 n,float4 guide,HLGIAreaSampl
     float cosine=max(0,dot(n,sample.direction));
     if(cosine==0 || sample.distance>=_HLGI_MaxDistance)return true;
     float scale=max(sample.distance,max(abs(sample.position.x),max(abs(sample.position.y),abs(sample.position.z))));
-    float limit=min(_HLGI_MaxDistance,sample.distance+max(1e-5,16*1.192092896e-7*scale));
+    float tolerance=max(1e-5,16*1.192092896e-7*scale);
+    float limit=min(_HLGI_MaxDistance,sample.distance+tolerance);
     worldHit=TraceSceneHit(origin,sample.direction,limit,footprint,materialView,hit);
     if(!worldHit)return true; // Alpha hole/back side has zero contribution; never resample.
-    if(!HLGIHitMaterialKnown(hit))return false;
+    if(!HLGIHitMaterialKnown(hit))
+    {
+        // A separate, covered triangle can block the emitter before its shading is ready.
+        const uint blockerFlags=HLGI_HIT_VALID|HLGI_HIT_TRIANGLE|HLGI_HIT_FRONT_FACE_KNOWN|HLGI_HIT_COVERAGE_CONFIRMED;
+        bool differentPrimitive=hit.hardwareInstance!=sample.emitter.geometry.x || hit.primitive!=sample.emitter.geometry.z;
+        return HLGIHitHas(hit.flags,blockerFlags) && !HLGIHitQueryUnresolved(hit) &&
+            differentPrimitive && hit.t<sample.distance-tolerance;
+    }
     if(!HLGIAreaSampleMatchesHit(sample,hit,_HLGI_AreaMaterialGeneration))return true;
     if(!HLGIHitHas(hit.flags,HLGI_HIT_UV_MATERIAL) || !all(isfinite(hit.materialEmission)))return false;
     float directionWeight,inverseSum;
