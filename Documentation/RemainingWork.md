@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release220 同源交付](../LocalComparison/Review/failed-unbound-detail-268/delivery.json)
 
+T3／G3 已关闭普通 Player 固定近景地板重新开灯后的全局恢复子项。五盏解析灯恢复后，约 1.233 秒进入终态容差，5 秒及保持窗口达标。关灯残留的匹配控制资格继续单独验收。[重新开灯同曝光对照](../LocalComparison/Review/ordinary-light-restore-269/result.md)
+
 T5／G4 已关闭独立分页必需叶首次绑定前终止失效时的死等。完整粗根可按原回执发布，终止叶仍属于作者细节集合。健康在途页继续按原规则等待。健康高速首显与完整后端条件继续验收。[受控对照与边界](../LocalComparison/Review/failed-unbound-detail-268/result.md)
 
 T3／G3 已关闭普通近景书签短距切镜沿用旧屏幕历史的路径。显式通知撤销对应相机的屏幕历史。实际连续移动保留成熟历史，短距切镜首帧重置，下一帧恢复积累。可见拖影和缩放继续验收。[实机对照与边界](../LocalComparison/Review/ordinary-bookmark-cut-267/result.md)

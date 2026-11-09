@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release220，G0 已锁定，G1／G2 本机代表性验收通过
 
+T3／G3 已关闭普通 Player 固定近景地板重新开灯后的全局照明恢复。五盏解析灯恢复后约 1.233 秒进入终态容差，持续到 +5.667 秒的观察末端。5 秒前最后一个源帧亮度低 0.577%，色向 L1 为 0.000311，后续保持符合原要求。关灯残留和其他动态光路继续各自验收。[重新开灯同曝光对照](../LocalComparison/Review/ordinary-light-restore-269/result.md)
+
 T5／G4 已关闭独立分页必需叶首次绑定前终止失效，导致可用粗根一直无法预热的缺口。实际绑定组件与 Scene 的受控对照区分健康等待和终止失败。失败叶保留作者声明，可用粗根通过原回执后完整发布。健康页冷高速首显与恢复帧实际后端继续验收。[对照与范围](../LocalComparison/Review/failed-unbound-detail-268/result.md) · [Release220 同源交付](../LocalComparison/Review/failed-unbound-detail-268/delivery.json)
 
 T3／G3 已关闭普通近景书签短距切镜沿用上一镜屏幕历史的缺口。同一普通 DXR Player 对照中，连续小幅移动后两程的地板历史年龄均为 32。切镜后旧行为仍为 32，修复后首帧为 1、下一帧为 2。两程的世界缓存代次和就绪图卡数保持。可见拖影、缩放和其他切镜继续各自验收。[实机对照与范围](../LocalComparison/Review/ordinary-bookmark-cut-267/result.md) · [Release219 同源交付](../LocalComparison/Review/ordinary-bookmark-cut-267/delivery.json)
