@@ -152,7 +152,7 @@ bool HLGISoftwareTraceQuery(float3 origin,float3 direction,float maxT,bool shado
 {
     hit=HLGIEmptyHit(maxT);
     if(!isfinite(maxT) || maxT<=0.0001 || !all(isfinite(origin)) || !all(isfinite(direction)) || dot(direction,direction)<1e-16)return false;
-    bool found=false,numericUnknown=false;uint cursor=0u,instanceIndex=0u,primitive=0u;
+    bool found=false,numericUnknown=false,nearestCoverageKnown=false;uint cursor=0u,instanceIndex=0u,primitive=0u;
     float2 barycentric=0;float3x4 objectToWorld=(float3x4)0;
     HLGISoftwareTriangleLeaf leaf;float entry;
     [loop]while(HLGISoftwareNextTriangle(origin,direction,hit.t,cursor,leaf,entry))
@@ -180,6 +180,7 @@ bool HLGISoftwareTraceQuery(float3 origin,float3 direction,float maxT,bool shado
             (leaf.identity.x==instanceIndex && leaf.identity.y>=primitive)))continue;
         found=true;hit.t=candidateT;instanceIndex=leaf.identity.x;primitive=leaf.identity.y;
         barycentric=candidateBary;objectToWorld=candidateMatrix;numericUnknown=geometric==2u || !transformKnown;
+        nearestCoverageKnown=coverageKnown;
     }
     if(!found)return false;
     HLGIHardwareInstance instance;HLGITriangleNormals normals;float3 rawNg;
@@ -197,9 +198,12 @@ bool HLGISoftwareTraceQuery(float3 origin,float3 direction,float maxT,bool shado
         if(dot(rawNg,direction)<0)hit.flags|=HLGI_HIT_FRONT_FACE;
     }
     if(normalValid)hit.flags|=HLGI_HIT_SHADING_NORMAL;
-    if(numericUnknown)hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN;
-    else HLGIHardwareResolveCommittedMaterial(instanceIndex,primitive,instance,normals,objectToWorld,barycentric,
-        materialView,direction,coneRadiusAtOrigin,coneSlope,shadowQuery,resolveMaterial,hit);
+    // The software winner is the exact candidate evaluated above, with the same
+    // frozen inputs. A known transparent candidate never reaches this point.
+    if(numericUnknown || !nearestCoverageKnown)hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN;
+    else if(resolveMaterial && !shadowQuery)
+        HLGIHardwareResolveCoveredMaterial(instanceIndex,primitive,instance,normals,objectToWorld,barycentric,
+            materialView,direction,HLGIExactHitRadius(coneRadiusAtOrigin,coneSlope,hit.t),hit);
     float2 uv=float2(dot(float3(normals.a.w,normals.b.w,normals.c.w),weights),dot(normals.uvY.xyz,weights));
     if(!numericUnknown && normals.uvY.w>0.5 && all(isfinite(uv))){hit.uv=uv;hit.flags|=HLGI_HIT_UV;}
     uint count,stride;_HLGI_HardwareTriangleBindings.GetDimensions(count,stride);

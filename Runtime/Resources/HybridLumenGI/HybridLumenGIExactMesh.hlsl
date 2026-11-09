@@ -67,6 +67,23 @@ float HLGIExactHitRadius(float coneRadiusAtOrigin,float coneSlope,float distance
     return isfinite(coneRadiusAtOrigin) && coneRadiusAtOrigin>=0 && isfinite(coneSlope) &&
         isfinite(radius) && radius>=0 ? radius : -1;
 }
+void HLGIHardwareResolveCoveredMaterial(uint instanceIndex,uint primitive,
+    HLGIHardwareInstance instance,HLGITriangleNormals attributes,float3x4 objectToWorld,float2 barycentric,
+    float4 materialView,float3 direction,float hitRadius,inout HLGIHit hit)
+{
+    bool covered;
+    HLGIHitMaterialSurface material;
+    float3 materialNormal;
+    if(!HLGIHardwareEvaluateHit(instanceIndex,primitive,instance,attributes,objectToWorld,barycentric,
+        materialView,direction,hitRadius,false,false,covered,material,materialNormal))
+    {
+        hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN|HLGI_HIT_COVERAGE_CONFIRMED;
+        return;
+    }
+    hit.materialDiffuse=material.diffuseReflectance;hit.materialEmission=material.emission;
+    hit.materialOcclusion=material.occlusion;hit.materialReceivesShadows=material.receivesShadows?1u:0u;
+    hit.shadingNormal=materialNormal;hit.flags|=HLGI_HIT_UV_MATERIAL|HLGI_HIT_SHADING_NORMAL;
+}
 // Coverage is required for every purpose. Visibility does not require a full
 // material payload; a failure in an unrequested map cannot invalidate coverage.
 void HLGIHardwareResolveCommittedMaterial(uint instanceIndex,uint primitive,
@@ -88,17 +105,8 @@ void HLGIHardwareResolveCommittedMaterial(uint instanceIndex,uint primitive,
     // would silently expose geometry beyond this committed nearest triangle.
     if(!coverageKnown || !covered) hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN;
     else if(resolveMaterial && !shadowQuery)
-    {
-        bool materialKnown=HLGIHardwareEvaluateHit(instanceIndex,primitive,instance,attributes,objectToWorld,barycentric,
-            materialView,direction,hitRadius,false,false,covered,material,materialNormal);
-        if(!materialKnown) hit.flags|=HLGI_HIT_MATERIAL_UNKNOWN|HLGI_HIT_COVERAGE_CONFIRMED;
-        else
-        {
-            hit.materialDiffuse=material.diffuseReflectance;hit.materialEmission=material.emission;
-            hit.materialOcclusion=material.occlusion;hit.materialReceivesShadows=material.receivesShadows?1u:0u;
-            hit.shadingNormal=materialNormal;hit.flags|=HLGI_HIT_UV_MATERIAL|HLGI_HIT_SHADING_NORMAL;
-        }
-    }
+        HLGIHardwareResolveCoveredMaterial(instanceIndex,primitive,instance,attributes,objectToWorld,barycentric,
+            materialView,direction,hitRadius,hit);
 }
 // Software traversal uses the same prepared transform, not a live Renderer value.
 struct HLGIExactObjectTransform { column_major float4x4 objectToWorld; };

@@ -1,0 +1,41 @@
+{
+  "status": "adopted",
+  "adopt": true,
+  "criteria": {
+    "medianAtLeastFivePercent": true,
+    "beyondBlockSpread": true,
+    "lowerP95": true,
+    "lowerP99": true
+  },
+  "medianReductionMs": 3.5276479999999992,
+  "medianReductionPercent": 7.26844878463036,
+  "baselineBlockMedianMs": [
+    48.275024,
+    48.55024,
+    48.775888,
+    48.463856
+  ],
+  "candidateBlockMedianMs": [
+    44.895648,
+    45.098432,
+    45.070064,
+    44.943231999999995
+  ],
+  "maxBlockMedianSpreadMs": 0.500864,
+  "baseline": {
+    "count": 512,
+    "medianMs": 48.533712,
+    "p95Ms": 50.005278399999995,
+    "p99Ms": 50.54487392,
+    "maxMs": 51.231424000000004
+  },
+  "candidate": {
+    "count": 512,
+    "medianMs": 45.006064,
+    "p95Ms": 45.8867376,
+    "p99Ms": 46.34933664,
+    "maxMs": 48.040192
+  },
+  "withinReferenceGiP95": false,
+  "withinReferenceLocalLimit": true
+}
