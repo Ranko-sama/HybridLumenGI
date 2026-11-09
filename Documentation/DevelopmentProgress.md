@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release216，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release217，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／G4 已关闭独立分页细节终止失效后，把幸存叶重新发布为完整近景组的路径。实际 Scene 的同输入对照确认 GI、BVH 与栅格资格整组撤回，可用粗根取得回执后接替。首个恢复帧的实际 DXR 与冷高速首显继续验收。[对照与适用范围](../LocalComparison/Review/failed-detail-membership-264/result.md) · [Release217 同源交付](../LocalComparison/Review/failed-detail-membership-264/delivery.json)
 
 T2／G3 已关闭作者默认裁剪材质在单采样下无法积累可选身份历史的缺口。实机同输入的两个实心点由无身份、年龄 1 恢复到前板身份、年龄 16。两个裁剪孔洞取得后板身份，实际 A2C 的拒绝门继续生效。[实机配对与范围](../LocalComparison/Review/author-cutout-history-263/result.md) · [Release216 同源交付](../LocalComparison/Review/author-cutout-history-263/delivery.json)
 

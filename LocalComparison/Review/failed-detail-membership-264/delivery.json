@@ -1,0 +1,53 @@
+{
+  "productCommit": "8aaf45ed7c5cd457820f74bd2e449b3e3cef7252",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release217-demo",
+  "tag": "release217-demo",
+  "publishedAt": "2026-11-09T18:35:32Z",
+  "prerelease": true,
+  "validation": [
+    {
+      "workItem": "T5/G4",
+      "method": "Actual Scene, BVH and readiness source with controlled binding state and readiness reports.",
+      "comparison": "result.md",
+      "afterFailureBefore": {
+        "published": 1,
+        "bvhNodes": 1,
+        "rasterEligible": 1,
+        "rootWarming": false
+      },
+      "afterFailureAfter": {
+        "published": 0,
+        "bvhNodes": 0,
+        "rasterEligible": 0,
+        "rootWarming": true
+      },
+      "rootPublishedAfterCompleteReceipt": true,
+      "smallerSetPublishedAfterAuthorWithdrawalAndReadiness": true
+    }
+  ],
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release217-UnityProject.zip",
+      "size": 857445,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release217-demo/HybridLumenGI-Release217-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release217-Windows-x64.zip",
+      "size": 58485441,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release217-demo/HybridLumenGI-Release217-Windows-x64.zip"
+    }
+  ]
+}
