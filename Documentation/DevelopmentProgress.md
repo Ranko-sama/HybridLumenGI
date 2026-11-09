@@ -1,6 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度　Release202，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release203，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭固定单点光调暗后的旧亮残留与低亮恢复缺口。九点线性间接光在约 2 秒时的低亮偏差从 +55.45% 降至 +1.06%，首个合格保持窗口始于 0.260 秒。多灯、升亮与普通 Player 动态质量继续验收。[实机同曝光对照](../LocalComparison/Review/point-light-intensity-241/result.md) · [同源交付](../LocalComparison/Review/point-light-intensity-241/delivery.json)
+
+T6／G4 已关闭同一 URP Asset 内改选 Renderer 后旧相机状态阻塞共享 RTAS 额度的缺口。旧版新 Renderer 连续 12 次录制精确软件，修复版在旧预约释放后恢复 DXR，切回重新创建状态。禁用后手动渲染与无关相机保持原状态。[实机预算回收](../LocalComparison/Review/renderer-budget-242/result.md)
 
 T5／G4 已关闭超槽 HLOD 组部分绑定时漏掉粗根回退的问题。实际 Scene 对照中，33 片声明叶面对 32 槽，首叶绑定后根继续预热，完整回执到达后发布。声明缩小后，两片细节按原就绪门原子接替。宽组页需求和高速冷入继续验收。[容量回退对照](../LocalComparison/Review/hlod-incomplete-capacity-240/result.md) · [同源交付](../LocalComparison/Review/hlod-incomplete-capacity-240/delivery.json)
 

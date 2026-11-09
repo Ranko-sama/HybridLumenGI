@@ -1,0 +1,52 @@
+{
+  "productCommit": "e4181c4d365885db9b94a130d22c4cb5bdf3d5e9",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release203-demo",
+  "tag": "release203-demo",
+  "publishedAt": "2026-11-09T11:14:24Z",
+  "prerelease": true,
+  "validation": {
+    "baselineSource": "98e00170e90c6fb9c5ca1651b46a9265dc1fa5fe",
+    "method": "Independent Release202 overlays, Unity 6000.0.85f1, RTX 2080 Ti, D3D12 Editor Play",
+    "dimming": {
+      "gate": "G3",
+      "comparison": "result.md",
+      "baseline": "baseline.json",
+      "fixed": "fixed.json",
+      "scope": "Fixed sole point light dims from 20 to 2",
+      "status": "qualified-pass"
+    },
+    "rendererSwitch": {
+      "gate": "G4",
+      "comparison": "../renderer-budget-242/result.md",
+      "baseline": "../renderer-budget-242/baseline.json",
+      "fixed": "../renderer-budget-242/fixed.json",
+      "scope": "Same URP asset, two renderers with distinct features, 1 MiB RTAS cap",
+      "status": "observed-recovered"
+    }
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release203-UnityProject.zip",
+      "size": 854586,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release203-demo/HybridLumenGI-Release203-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release203-Windows-x64.zip",
+      "size": 58089297,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release203-demo/HybridLumenGI-Release203-Windows-x64.zip"
+    }
+  ]
+}
