@@ -84,11 +84,11 @@ Release84新增[F2运行状态日志入口](../LocalComparison/Review/keyboard-l
 
 后续一次[全局光暂态加权候选](../LocalComparison/Review/global-light-response-window-01/result.md)未满足既定响应筛选，已撤回并结束。Release78另采用来源分离功能：同一前缀240→299输出绝对变化降低92.2%，270→299降低80.0%，接收面反弹保留；该有限采用不证明物理误差或精确收敛。触发的是上传灯表为空，非所有场景光源关闭；缓存存储增加20%，实际带宽/时间增量未测。G1/G3整体收敛保持开放。
 
-当前交付为 **Release182，产品源码 `c0fef0bc`**。共享 RTAS 队首按当前预算选取可推进的工作，停止补充后仍能使用已有积分。各项历史证据沿用原版本与适用范围。[准入对照](../LocalComparison/Review/rtas-nonreplenishing-210/result.md) · [同源交付](../LocalComparison/Review/rtas-nonreplenishing-210/delivery.json)
+可运行示例与可编辑工程使用同一产品提交，固定提交由工程 ZIP 内的 README 记录。各项历史证据沿用原版本与适用范围。[当前下载](../README.md#开始体验) · [交付进度](DevelopmentProgress.md)
 
 | 类别 | 当前实现／交付范围 | 已有依据与未关闭边界 |
 | --- | --- | --- |
-| 当前交付环境 | Unity 6000.0.85f1、URP 17.0.4、Windows x64、Mono、DX12 和 Linear。本机 RTX2080Ti。统一示例 960×540、半分辨率 GI、2 射线和 4 级滤波，优先 DXR | 普通 Release182 从同版工程 ZIP 的独立解压目录构建。完整生产负载和其他设备的验收仍按原计划推进。[打开与重建](UnifiedUnityProject.md) · [升级与回退](Implementation.md#升级已有-unity-工程与回退) |
+| 当前交付环境 | Unity 6000.0.85f1、URP 17.0.4、Windows x64、Mono、DX12 和 Linear。本机 RTX2080Ti。统一示例 960×540、半分辨率 GI、2 射线和 4 级滤波，优先 DXR | 普通 Windows 运行包从同版工程 ZIP 的独立解压目录构建。完整生产负载和其他设备的验收仍按原计划推进。[打开与重建](UnifiedUnityProject.md) · [升级与回退](Implementation.md#升级已有-unity-工程与回退) |
 | 固定两室关门后的照明恢复 | 对普通 MeshRenderer 同源网格的不相交姿态变更，受影响的缓存保留可显示值，直到新估计提交。旧值在等待期间不进入世界递归 | 同一固定地板在 1 秒和 2 秒前最后的残留分别为 2.637% 和 0.214%。两个保持条件成立，覆盖本机这条实际 DXR 关门光路。[原版、修复与匹配控制](../LocalComparison/Review/portal-recovery-138/result.md) |
 | 代码明确跳过／有条件拒绝 | Feature仅进入Base Game及显式允许的SceneView、Tex2D目标；非DX12、非Linear、Overlay、立体/XR、无compute或必要资源时跳过 | [实际准入](../Runtime/HybridLumenGIRendererFeature.cs)。Replace原生漫反射另要求普通Lit、Forward／Forward+、有符号HDR和MSAA关闭，Deferred／APV／Subtractive等按[替换合同](NativeDiffuseComposition.md)拒绝或保持原画面；不能把这些行为写成仅“未测试” |
 | 软件／DXR及真实材质 | 精确软件三角和可选DXR共用材质、alpha／Cull与chart绑定；不足时允许明确的SDF／解析近似或unknown。请求偏好不等于实际后端 | [88同输入2ray／filter3四时点画面对照](../LocalComparison/Review/release88-dxr-motion-01/result.md)、[121软件预算恢复](../LocalComparison/Review/software-budget-recovery-121/result.md)、[122稳定回退历史](../LocalComparison/Review/stable-fallback-history-01/result.md)和[限定二值alpha实际遍历](../LocalComparison/Review/binary-alpha-traversal-01/result.md)各按原来源复用。88不升级成当前filter4或全部Cull、mip、纹理与混合回退视觉一致；原近似边界保留 |
@@ -99,7 +99,7 @@ Release84新增[F2运行状态日志入口](../LocalComparison/Review/keyboard-l
 | 实测未满足／未闭合 | 冷高速路线的首次完整表示空档仍开放。CardReuse132 单页观察的冻结位置容差未通过 | 109／110 在最近点均无完整组。143 在最近点同样无完整组，去程观测缺失，回程仅提交粗根。热态与冷入分别验收。[冷入 143](../LocalComparison/Review/cold-crossing-143/result.md) · [109／110](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md)。CardReuse132 的身份、覆盖、binding 和旧锚点清除符合。既有读回的后验分析支持 1/256 像素量化解释，原 2e−5 位置 FAIL 及 T4 范围保留。[原结果及参考复核](../LocalComparison/Review/card-page-reuse-01/result.md) |
 | 预算：已有窗口与缺失能力 | 起始目标960×540／30FPS、GI三段逐帧合计p95≤25ms、进程local有限采样峰值≤1GiB，nonlocal单列 | [151中室](../LocalComparison/Review/three-room-middle-joint-170/result.md)的 GI／进程显存达标，三项同窗证据不足。117 和 119 的[既有窗口](GpuBudget.md#当前已确认的起始验收目标)各按实际来源使用。[默认活动Skin](../LocalComparison/Review/active-skin-cost-01/result.md)另有122同源、观察开启的同次有限预算／Present结果，范围为已预热小网格。反馈只调patch／capture／brick数量，全阶段独立时间预算及完整冷／热／高速／高更新负载仍待验收。显存预算按进程实际采样判定 |
 | 原计划未完成／用户暂缓 | G0本机基线已锁定；原第6节G1传输与G2几何的本机代表性验收已通过；G3、G4、G5及第8／9节等专项未整体放行 | [G1裁决与原条件对应](#g1本机代表性传输验收裁决)、[剩余TODO](RemainingWork.md)。各证据原版本／范围及未完整协议继续保留。CI接线暂缓，严格误差证明扩展暂停，门运动调参已结束；这些状态不删原目标，也不自动生成重复运行或新矩阵 |
-| 历史证据的用途 | Release44、54、58、62、67、69、73等保留其原构建、场景、相机／TAA、形变和稳态范围 | [历史推进及来源](DevelopmentProgress.md)、[44稳态](ReviewBrief-LocalReleaseSteadyUse01.md)、[73整合](ReviewBrief-CurrentLocalRelease73.md)。不改旧FAIL，不把历史“当前”当成122现状；本表以下的阶段叙述也按其原引用版本理解，不能直接据旧“未执行／朋友验收”重立任务 |
+| 历史证据的用途 | Release44、54、58、62、67、69、73等保留其原构建、场景、相机／TAA、形变和稳态范围 | 历史结果按各自的发布版本、原判定和适用范围引用。当前启动与构建使用统一示例入口。[历史推进及来源](DevelopmentProgress.md) · [44稳态](ReviewBrief-LocalReleaseSteadyUse01.md) · [73整合](ReviewBrief-CurrentLocalRelease73.md) |
 
 以下架构与G0–G5条件继续保留。早期阶段叙述和朋友包只提供历史背景，不决定当前启动步骤。
 
@@ -208,6 +208,8 @@ flowchart TD
 
 完整生产调度目标是以 `可见影响 × 误差 × 变更紧急度 + 等待年龄` 排序，覆盖 CPU 准备、上传字节、SDF brick 合并、RTAS build/refit、射线、材质捕获、滤波与显存，并给任务设置防饥饿保障。当前实现尚未对所有阶段分别施加时间预算；GPU 反馈以滞后观测、平滑和滞回调整三类更新数量，不动态改变 probe 密度或资源分辨率。验收需要记录冷启动和最坏情况，不能只展示稳定相机的平均 FPS。
 
+默认 AssetBundle 驱动为通过其他准入条件的队首文件读取保留在途空间。后续文件读取暂缓，已具备条件的资产装载和安全释放继续推进。受控 I/O 对照已关闭后续小页反复补满余额、使大页持续等待的情况。[对照与范围](../LocalComparison/Review/asset-bundle-headroom-223/result.md)
+
 Global SDF 每层扩张一次局部脏范围，按受影响砖行记录失效。相同输入下的页代次、年龄和录制作业顺序与逐砖检查一致。实机耗时和全阶段时间准入按原条件验收。[CPU 工作量和范围](../LocalComparison/Review/global-sdf-dirty-rows-199/result.md)
 
 相机场景准备保留活动代理的共享几何检查，再按当前驻留边界省掉域外普通代理的实例刷新和排序。另一个视点或同一相机重新入域时照常取得当前实例。该改动减少确定无效的准备工作，完整时间预算仍按上段验收。[实际准备行为](../LocalComparison/Review/far-ordinary-prepare-188/result.md)
@@ -250,7 +252,7 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 ## 6. 按依赖交付的关卡
 
-**G0 本机基线已锁定，第 6 节 G1／G2 本机代表性验收已通过。** G3 已关闭固定两室关门恢复、离屏无图卡 BaseMap 换色通知、裁剪覆盖、投影资格、投影者移动／撤除和实际撤出后上传延期漏报远处接收面，以及匹配贴图回读等待导致的整体回退，并修复待定副本遮蔽同源就绪页、蒙皮实例误捕获／撤回、单对象表示切换漏发失效、硬域旧缓存回流、渲染图中止后恢复时沿用旧世界缓存、待校验及重新启用漏接 Collider 和 Renderer，以及 Renderer 销毁后中断相机准备。G4 已修复几何上传不足时的部分 HLOD 提交、对象 SDF 跨相机上传、Editor 重进 Play 的帧预算、相机状态重建时的软件几何与 DXR 属性预算、固定顺序下的贴图上传饥饿（含相机共用同一动态来源）、可选 Additive 场景的加载饥饿、超出突发上限或共享构建额度为零的 RTAS 占用预留、停止补充后无法获足额积分的 RTAS 队首阻挡、最后一个 GI 相机销毁后资源滞留、统一示例整组撤回后的旧细节持续显示，以及独立分页组首次出域仍可提交旧组。完整 HLOD 接替已补齐有效图卡保留，以及共享 RTAS 构建轮次受阻时从精确或近似旧组接替精确细节的连续覆盖。精确材质 mip 偏移次序已获定向覆盖依据。默认白底图的裁剪已解除无关高度图的等待。冷入首显、完整 G3–G5 及相关专项仍待验收。[覆盖对照](../LocalComparison/Review/default-base-alpha-207/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [Release191 下载](https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release191-demo)
+**G0 本机基线已锁定，第 6 节 G1／G2 本机代表性验收已通过。** G3 已关闭固定两室关门恢复、离屏无图卡 BaseMap 换色通知、裁剪覆盖、投影资格、投影者移动／撤除和实际撤出后上传延期漏报远处接收面，以及匹配贴图回读等待导致的整体回退，并修复待定副本遮蔽同源就绪页、蒙皮实例误捕获／撤回、单对象表示切换漏发失效、硬域旧缓存回流、渲染图中止后恢复时沿用旧世界缓存、待校验及重新启用漏接 Collider 和 Renderer，以及 Renderer 销毁后中断相机准备。G4 已修复几何上传不足时的部分 HLOD 提交、对象 SDF 跨相机上传、Editor 重进 Play 的帧预算、相机状态重建时的软件几何与 DXR 属性预算、固定顺序下的贴图上传饥饿（含相机共用同一动态来源）、可选 Additive 场景的加载饥饿、超出突发上限或共享构建额度为零的 RTAS 占用预留、停止补充后无法获足额积分的 RTAS 队首阻挡、最后一个 GI 相机销毁后资源滞留、统一示例整组撤回后的旧细节持续显示，以及独立分页组首次出域仍可提交旧组。完整 HLOD 接替已补齐有效图卡保留，以及共享 RTAS 构建轮次受阻时从精确或近似旧组接替精确细节的连续覆盖。精确材质 mip 偏移次序已获定向覆盖依据。默认白底图的裁剪已解除无关高度图的等待。冷入首显、完整 G3–G5 及相关专项仍待验收。[覆盖对照](../LocalComparison/Review/default-base-alpha-207/result.md) · [剩余 TODO 与 Astra Max 审查](RemainingWork.md) · [当前下载](../README.md#开始体验)
 
 | 阶段 | 必须交付 | 放行条件 |
 | --- | --- | --- |
