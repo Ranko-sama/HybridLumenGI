@@ -531,7 +531,9 @@ namespace HybridLumenGI
                 // its leaves are still waiting for pages. Those leaves cannot warm.
                 group.capacityFallback = !far && group.details.Count + group.pendingDetails > capacity &&
                     (group.published.Count == 0 || group.published.Contains(group.root.StableId));
-                if (far || group.details.Count == 0 || group.capacityFallback)
+                // Keep the first root eligible while the near set is still binding.
+                bool needsRootWhileDetailsBind = group.published.Count == 0 && group.pendingDetails > 0;
+                if (far || group.details.Count == 0 || group.capacityFallback || needsRootWhileDetailsBind)
                 {
                     if (rootAvailable) group.target.Add(group.root.StableId);
                 }
