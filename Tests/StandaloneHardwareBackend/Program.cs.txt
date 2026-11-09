@@ -734,6 +734,90 @@ disabledCamera.backend.Dispose();
 HybridLumenGIResourceRetirement.Complete();
 Console.WriteLine("RTAS zero build quota: cold request rejected before allocation, current RTAS reused, dirty and late plans safely retired.");
 
+// Banked credits stay usable when replenishment stops. The older demand was
+// observed under the previous rate and must not block a new camera before it runs again.
+HybridLumenGIRtasBudget.BeginFrame(1119, Quota(rate: 0, burst: 0, builds: 0));
+var accruingQuota = Quota(rate: 4, burst: 6, builds: 2);
+HybridLumenGIRtasBudget.BeginFrame(1120, accruingQuota);
+var bankedLarge = BudgetCamera(6);
+var bankedSmall = BudgetCamera(3);
+var bankedLargeCommand = new CommandBuffer();
+var bankedSmallCommand = new CommandBuffer();
+Require(Prepare(bankedLarge.backend, bankedLarge.scene, 1) && !bankedLarge.backend.RecordBuild(bankedLargeCommand) &&
+    HybridLumenGIRtasBudget.PendingDemands == 1, "Expected one older demand waiting for credits under positive replenishment.");
+var waitingNative = RayTracingAccelerationStructure.Last;
+long waitingReservation = bankedLarge.backend.ReservedAccelerationBytes;
+
+var bankedQuota = accruingQuota;
+bankedQuota.TriangleWorkPerFrame = 0;
+HybridLumenGIRtasBudget.BeginFrame(1121, bankedQuota);
+bool blockedByOldTurn = bankedSmall.backend.IsBuildTurnBlocked;
+Require(HybridLumenGIRtasBudget.TriangleCredits == 4, "Stopping replenishment consumed banked credits.");
+bool bankedSmallRecorded = Prepare(bankedSmall.backend, bankedSmall.scene, 1) && bankedSmall.backend.RecordBuild(bankedSmallCommand);
+bool bankedLargePrepared = Prepare(bankedLarge.backend, bankedLarge.scene, 1);
+long bankedCharged = HybridLumenGIRtasBudget.TriangleWorkThisFrame;
+long bankedRemaining = HybridLumenGIRtasBudget.TriangleCredits;
+
+var bankedCold = BudgetCamera(6);
+int bankedBuffers = ComputeBuffer.AllocationCount;
+bool bankedColdPrepared = Prepare(bankedCold.backend, bankedCold.scene, 1);
+int bankedColdReads = bankedCold.renderer.Filter.sharedMesh.VertexReads;
+long bankedColdReserved = bankedCold.backend.ReservedAccelerationBytes;
+bool bankedOldRetired = !waitingNative.Disposed && HybridLumenGIRtasBudget.RetiredBytes >= waitingReservation &&
+    bankedLarge.backend.ReservedAccelerationBytes == 0;
+Console.WriteLine($"RTAS banked work: blocked={blockedByOldTurn}, smallRecorded={bankedSmallRecorded}, charged={bankedCharged}, remaining={bankedRemaining}, coldPrepared={bankedColdPrepared}, coldVertexReads={bankedColdReads}, coldReserved={bankedColdReserved}, oldRetiring={bankedOldRetired}.");
+Require(!blockedByOldTurn && bankedSmallRecorded && bankedSmallCommand.BuildCalls == 1 && bankedCharged == 3 &&
+    bankedRemaining == 1, "The unserviceable older demand blocked the smaller build or consumed its credits.");
+Require(!bankedLargePrepared && !bankedColdPrepared && bankedColdReads == 0 && bankedColdReserved == 0 &&
+    ComputeBuffer.AllocationCount == bankedBuffers && bankedOldRetired && HybridLumenGIRtasBudget.PendingDemands == 0,
+    "An unserviceable plan allocated work or did not retire its existing reservation safely.");
+Require(Prepare(bankedSmall.backend, bankedSmall.scene, 1) && bankedSmall.backend.RecordBuild(bankedSmallCommand) &&
+    bankedSmallCommand.BuildCalls == 1, "A current RTAS could not be reused with insufficient banked credits.");
+
+HybridLumenGIResourceRetirement.Complete();
+Require(waitingNative.Disposed, "The rejected old plan outlived its controlled completion.");
+var restoredQuota = Quota(rate: 6, burst: 6, builds: 2);
+HybridLumenGIRtasBudget.BeginFrame(1122, restoredQuota);
+Require(Prepare(bankedLarge.backend, bankedLarge.scene, 1) && bankedLarge.backend.RecordBuild(bankedLargeCommand) &&
+    bankedLargeCommand.BuildCalls == 1, "Restoring replenishment did not admit the previously blocked geometry.");
+
+HybridLumenGIRtasBudget.BeginFrame(1123, restoredQuota);
+var lateNoRefill = BudgetCamera(2);
+Require(Prepare(lateNoRefill.backend, lateNoRefill.scene, 1), "Late instance budget control could not prepare.");
+var lateNoRefillNative = RayTracingAccelerationStructure.Last;
+var tightenedQuota = restoredQuota;
+tightenedQuota.InstanceWorkPerFrame = 0;
+HybridLumenGIRtasBudget.BeginFrame(1123, tightenedQuota);
+Require(!lateNoRefill.backend.RecordBuild(bankedLargeCommand) && !lateNoRefill.backend.CanDispatch &&
+    lateNoRefill.backend.ReservedAccelerationBytes == 0 && !lateNoRefillNative.Disposed &&
+    HybridLumenGIRtasBudget.PendingDemands == 0 && bankedLargeCommand.BuildCalls == 1,
+    "Late instance credit tightening retained an unserviceable plan or recorded a build.");
+HybridLumenGIResourceRetirement.Complete();
+Require(lateNoRefillNative.Disposed, "The late rejected plan did not retire at completion.");
+bankedLarge.backend.Dispose();bankedSmall.backend.Dispose();bankedCold.backend.Dispose();lateNoRefill.backend.Dispose();
+HybridLumenGIResourceRetirement.Complete();
+
+var oneTurn = restoredQuota;
+oneTurn.MaxBuildsPerFrame = 1;
+HybridLumenGIRtasBudget.BeginFrame(1124, oneTurn);
+var firstTurnCamera = BudgetCamera(1);
+var waitingHlod = BudgetCamera(1);
+Require(Prepare(firstTurnCamera.backend, firstTurnCamera.scene, 1) && firstTurnCamera.backend.RecordBuild(new CommandBuffer()),
+    "Expected the earlier camera to use the current frame's only build.");
+waitingHlod.backend.QueueDeferredHlodBuild(1124);
+Require(waitingHlod.backend.HasDeferredHlodBuild && HybridLumenGIRtasBudget.PendingDemands == 1,
+    "A ready HLOD handoff could not keep its waiting turn.");
+var lastCameraQuota = oneTurn;
+lastCameraQuota.MaxBuildsPerFrame = 0;
+HybridLumenGIRtasBudget.BeginFrame(1124, lastCameraQuota);
+HybridLumenGIRtasBudget.BeginFrame(1125, oneTurn);
+Require(firstTurnCamera.backend.IsBuildTurnBlocked && HybridLumenGIRtasBudget.PendingDemands == 1,
+    "A later camera's same-frame restriction erased another owner's HLOD turn for the next frame.");
+waitingHlod.backend.CancelDeferredHlodBuild();
+Require(!firstTurnCamera.backend.IsBuildTurnBlocked, "Explicitly withdrawn HLOD work still blocked the next build.");
+waitingHlod.backend.Dispose();firstTurnCamera.backend.Dispose();
+HybridLumenGIResourceRetirement.Complete();
+
 HybridLumenGIRtasBudget.BeginFrame(1200,Quota(rate:0,burst:0,builds:0));
 var abandoned=BudgetCamera(6);var nextCamera=BudgetCamera(1);var nextCmd=new CommandBuffer();
 HybridLumenGIRtasBudget.BeginFrame(1201,Quota());Require(Prepare(abandoned.backend,abandoned.scene,1)&&!abandoned.backend.RecordBuild(new CommandBuffer()),"Abandoned demand setup failed.");

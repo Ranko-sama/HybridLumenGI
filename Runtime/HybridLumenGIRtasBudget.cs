@@ -133,27 +133,25 @@ namespace HybridLumenGI
         public static void CancelBuildDemand(object owner)
         {for(int i=demands.Count-1;i>=0;i--)if(ReferenceEquals(demands[i].owner,owner))demands.RemoveAt(i);}
 
-        internal static bool BuildsEnabled(out string reason)
+        internal static bool CanScheduleBuild(long triangles, long instances, out string reason)
         {
             EnsureFrame();
-            bool enabled = settings.MaxBuildsPerFrame > 0;
-            reason = enabled ? null : "RTAS builds are disabled by the shared frame quota.";
-            return enabled;
-        }
-
-        internal static bool FitsBuildBurst(long triangles, long instances, out string reason)
-        {
-            EnsureFrame();
-            bool fits = triangles <= settings.TriangleBurstCapacity && instances <= settings.InstanceBurstCapacity;
-            reason = fits ? null : "RTAS build exceeds the configured burst cap; increase the explicit cap or use software.";
-            return fits;
+            if (settings.MaxBuildsPerFrame == 0)
+                reason = "RTAS builds are disabled by the shared frame quota.";
+            else if (triangles > settings.TriangleBurstCapacity || instances > settings.InstanceBurstCapacity)
+                reason = "RTAS build exceeds the configured burst cap; increase the explicit cap or use software.";
+            else if ((settings.TriangleWorkPerFrame == 0 && triangles > triangleCredits) ||
+                     (settings.InstanceWorkPerFrame == 0 && instances > instanceCredits))
+                reason = "RTAS build exceeds the remaining shared work credits with no replenishment.";
+            else reason = null;
+            return reason == null;
         }
 
         internal static bool RequestBuild(object owner,int frame,long triangles,long instances,out string reason)
         {
             EnsureFrame();reason=null;
             if(owner==null || frame!=Frame || triangles<0 || instances<0){reason="RTAS build demand belongs to a stale frame.";return false;}
-            if(!BuildsEnabled(out reason) || !FitsBuildBurst(triangles,instances,out reason))
+            if(!CanScheduleBuild(triangles,instances,out reason))
             {CancelBuildDemand(owner);return false;}
             Demand demand=null;foreach(var d in demands)if(ReferenceEquals(d.owner,owner)){demand=d;break;}
             if(demand==null){if(sequence==long.MaxValue){reason="RTAS demand sequence exhausted.";return false;}demand=new Demand{owner=owner,sequence=++sequence};demands.Add(demand);}
@@ -174,8 +172,11 @@ namespace HybridLumenGI
         private static Demand OldestActiveDemand()
         {
             Demand oldest = null;
+            // Use the effective limits for this turn. A later camera may have tightened
+            // them just for this frame, so preserve the other owners' waiting order.
             foreach (var demand in demands)
-                if (demand.lastFrame >= (long)Frame - 1 && (oldest == null || demand.sequence < oldest.sequence))
+                if (demand.lastFrame >= (long)Frame - 1 && (oldest == null || demand.sequence < oldest.sequence) &&
+                    CanScheduleBuild(demand.triangles, demand.instances, out _))
                     oldest = demand;
             return oldest;
         }

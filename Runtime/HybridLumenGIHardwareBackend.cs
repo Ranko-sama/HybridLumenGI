@@ -295,8 +295,7 @@ namespace HybridLumenGI
                     long buildTriangles = reuseGeometry ? TriangleCount : planTriangles;
                     long buildInstances = reuseGeometry ? InstanceCount : planInstances;
                     if ((!reuseGeometry || poseChanged || buildPending) &&
-                        (!HybridLumenGIRtasBudget.BuildsEnabled(out var buildReason) ||
-                         !HybridLumenGIRtasBudget.FitsBuildBurst(buildTriangles, buildInstances, out buildReason)))
+                        !HybridLumenGIRtasBudget.CanScheduleBuild(buildTriangles, buildInstances, out var buildReason))
                     {
                         Deactivate();
                         FallbackCount = publishedCount;
@@ -687,14 +686,13 @@ namespace HybridLumenGI
             {
                 if (buildPending)
                 {
-                    // Another preparation can lower the shared limit after this
-                    // backend reserved its plan. Nothing in the queue can build at zero.
-                    if (!HybridLumenGIRtasBudget.BuildsEnabled(out var disabledReason))
+                    // Another preparation can tighten the shared limits after this backend reserved its plan.
+                    if (!HybridLumenGIRtasBudget.CanScheduleBuild(TriangleCount, InstanceCount, out var rejectedReason))
                     {
                         int fallbackCount = MeshCount + FallbackCount;
                         Deactivate();
                         FallbackCount = fallbackCount;
-                        BudgetStatus = disabledReason;
+                        BudgetStatus = rejectedReason;
                         return false;
                     }
                     // Charge every dirty build/refit, not only changes in GetSize. Use all
