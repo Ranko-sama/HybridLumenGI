@@ -617,6 +617,53 @@ HybridLumenGIRtasBudget.BeginFrame(999,Quota(rate:100,burst:100,builds:100));
 Require(HybridLumenGIRtasBudget.Frame==1003&&HybridLumenGIRtasBudget.BuildsThisFrame==1,"A late budget callback rewound the engine frame.");
 camA.backend.Dispose();camB.backend.Dispose();HybridLumenGIResourceRetirement.Complete();
 
+{
+    var periodicQuota = HybridLumenGIRtasBudget.Settings.Default;
+    periodicQuota.MaxBuildsPerFrame = 1;
+    var frequent = BudgetCamera(2);
+    var periodic = BudgetCamera(2);
+    var frequentBuilt = new bool[10];
+    int firstPeriodicBuild = -1;
+    for (int step = 0; step < frequentBuilt.Length; step++)
+    {
+        int frame = 1020 + step;
+        HybridLumenGIRtasBudget.BeginFrame(frame, periodicQuota);
+        MoveBudgetCamera(frequent, step + 1);
+        Require(Prepare(frequent.backend, frequent.scene, step + 1), "Frequent camera must prepare its current pose.");
+        var frequentCommand = new CommandBuffer();
+        frequentBuilt[step] = frequent.backend.RecordBuild(frequentCommand) && frequentCommand.BuildCalls == 1;
+
+        int periodicBuilds = 0;
+        if (step <= 6 && step % 2 == 0)
+        {
+            HybridLumenGIRtasBudget.BeginFrame(frame, periodicQuota);
+            if (step == 6) MoveBudgetCamera(periodic, 2);
+            Require(Prepare(periodic.backend, periodic.scene, step == 6 ? 2 : 1), "Periodic camera must prepare eligible geometry.");
+            var periodicCommand = new CommandBuffer();
+            bool periodicReady = periodic.backend.RecordBuild(periodicCommand, out bool periodicDeferred);
+            periodicBuilds = periodicCommand.BuildCalls;
+            if (step == 6)
+                Require(!periodicReady && periodicDeferred && periodicBuilds == 0,
+                    "The periodic pose update must wait before the expected return is missed.");
+            if (periodicReady && periodicBuilds == 1 && firstPeriodicBuild < 0) firstPeriodicBuild = step;
+        }
+        int actualBuilds = frequentCommand.BuildCalls + periodicBuilds;
+        Require(actualBuilds <= 1 && HybridLumenGIRtasBudget.BuildsThisFrame == actualBuilds &&
+            HybridLumenGIRtasBudget.TriangleWorkThisFrame == 2 * actualBuilds &&
+            HybridLumenGIRtasBudget.InstanceWorkThisFrame == actualBuilds,
+            "Periodic turns must charge only actual builds against the original quota.");
+    }
+
+    Console.WriteLine($"Two-frame camera: first build step={firstPeriodicBuild}; frequent builds at 3/5/7/9: " +
+        $"{frequentBuilt[3]}/{frequentBuilt[5]}/{frequentBuilt[7]}/{frequentBuilt[9]}.");
+    Require(firstPeriodicBuild >= 0 && firstPeriodicBuild <= 4, "The periodic camera kept missing its RTAS build turn.");
+    Require(frequentBuilt[3] && frequentBuilt[5] && frequentBuilt[7], "A periodic demand blocked an intervening frame.");
+    Require(!frequentBuilt[8] && frequentBuilt[9], "A missed periodic turn must expire after its expected frame.");
+    periodic.backend.Dispose();
+    frequent.backend.Dispose();
+    HybridLumenGIResourceRetirement.Complete();
+}
+
 HybridLumenGIRtasBudget.BeginFrame(1100,Quota(rate:0,burst:0,builds:0));
 var large=BudgetCamera(6);var small=BudgetCamera(1);var largeCmd=new CommandBuffer();var smallCmd=new CommandBuffer();
 for(int frame=1101;frame<=1103;frame++)

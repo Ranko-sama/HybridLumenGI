@@ -163,7 +163,7 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 | `rtasTriangleWorkPerFrame` / `rtasInstanceWorkPerFrame` | 250,000三角 / 4,096实例；包含完整 dirty 构建／refit 工作。能够在当前有效配置下取得所需积分的最老活跃任务优先。停止补充某项积分后仍可消费已有余额，超出余额的已知请求本帧让出队首。帧末收紧的其他相机额度可在下一帧恢复，原等待顺序继续有效。[余额及跨帧票龄对照](../LocalComparison/Review/rtas-nonreplenishing-210/result.md) |
 | `rtasTriangleBurstCapacity` / `rtasInstanceBurstCapacity` | 1,000,000 三角 / 16,384 实例。需要新构建或更新位姿的 RTAS 在超过突发上限时于几何准备阶段回退，录制仍复核同一上限。当前几何和位姿的已建 RTAS 可继续使用。[定向对照](../LocalComparison/Review/rtas-burst-preflight-178/result.md) |
 
-不再活跃的需求退出构建等待队列。已有 GPU 资源在安全退休并完成销毁后归还预留。
+等待中的 RTAS 需求在实际请求帧和按该后端最近准备间隔预计的返回帧参与队首竞争。首次请求沿用下一帧，缺席请求在预计帧结束后过期。已有 GPU 资源在安全退休并完成销毁后归还预留。[固定周期构建对照](../LocalComparison/Review/periodic-rtas-build-271/result.md)
 
 命中材质批次先从等待最久、能在当前剩余额度内推进的贴图来源开始，再按请求顺序循环。复制尝试计入额度后，该来源排到等待序列末尾。动态 RenderTexture 需在一帧内完整复制当前内容，延期时命中材质保持 unknown。多个相机读取同一动态来源时，不可复用的复制分别排队，录制复制只消费该相机的保留。[同批次定向回归](../Tests/StandaloneHitMaterialBatch/Program.cs.txt) · [同源动态贴图对照](../LocalComparison/Review/shared-dynamic-upload-208/result.md)
 

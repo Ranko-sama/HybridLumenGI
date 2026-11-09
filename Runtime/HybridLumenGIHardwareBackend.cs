@@ -94,6 +94,8 @@ namespace HybridLumenGI
         private readonly object budgetOwner=new object();
         private HybridLumenGIRtasBudget.Reservation reservation;
         private int preparedRtasFrame=int.MinValue;
+        private int? lastRtasPrepareFrame;
+        private long rtasPrepareInterval;
         private long retiredAttributeBytes;
 
         public ComputeShader Shader { get; private set; }
@@ -322,6 +324,12 @@ namespace HybridLumenGI
                         return false;
                     }
                     reservation=admitted;preparedRtasFrame=HybridLumenGIRtasBudget.Frame;
+                    if (lastRtasPrepareFrame != preparedRtasFrame)
+                    {
+                        rtasPrepareInterval = lastRtasPrepareFrame is int previous && preparedRtasFrame > previous
+                            ? (long)preparedRtasFrame - previous : 0;
+                        lastRtasPrepareFrame = preparedRtasFrame;
+                    }
                     BudgetStatus="RTAS estimate reserved; pending build work is admitted at command recording";
                 }
                 else BudgetStatus="Software geometry; no RTAS work or memory reservation";
@@ -723,7 +731,7 @@ namespace HybridLumenGI
                     }
                     reservation=admitted;
                     bool admittedBuild = HybridLumenGIRtasBudget.TryConsumeBuild(budgetOwner, preparedRtasFrame,
-                        TriangleCount, InstanceCount, out string reason);
+                        TriangleCount, InstanceCount, out string reason, rtasPrepareInterval);
                     // The demand now carries the exact work for this build.
                     if (preparedRtasFrame == HybridLumenGIRtasBudget.Frame) HasDeferredHlodBuild = false;
                     else CancelDeferredHlodBuild();
@@ -794,6 +802,8 @@ namespace HybridLumenGI
         internal void Deactivate()
         {
             CancelBuildDemand();RetireResources();
+            lastRtasPrepareFrame = null;
+            rtasPrepareInterval = 0;
             if(instances.Count>0)GeometryVersion++;
             normals.Clear();surfaces.Clear();instances.Clear();objectToWorld.Clear();bindings.Clear();
             meshTangents.Clear();sharedMaterials.Clear();
@@ -811,7 +821,7 @@ namespace HybridLumenGI
         {
             // Keep a place in the existing queue. RecordBuild supplies the exact cost
             // and pays for the build only after the replacement is selected.
-            if (HybridLumenGIRtasBudget.RequestBuild(budgetOwner, engineFrame, 0, 0, out _)) HasDeferredHlodBuild = true;
+            if (HybridLumenGIRtasBudget.RequestBuild(budgetOwner, engineFrame, 0, 0, out _, rtasPrepareInterval)) HasDeferredHlodBuild = true;
             else CancelDeferredHlodBuild();
         }
 

@@ -29,7 +29,7 @@ namespace HybridLumenGI
             public bool IsRetired=>retired;
         }
         private sealed class Demand
-        {internal object owner;internal long sequence;internal int lastFrame;internal long triangles,instances;}
+        {internal object owner;internal long sequence;internal int lastFrame;internal long reservedFrame,triangles,instances;}
         private static readonly List<Reservation> reservations=new List<Reservation>();
         private static readonly List<Demand> demands=new List<Demand>();
         private static Settings settings=Settings.Default;
@@ -101,7 +101,7 @@ namespace HybridLumenGI
             triangleCredits=Math.Min(settings.TriangleBurstCapacity,Add(triangleCredits,Multiply(elapsed,settings.TriangleWorkPerFrame)));
             instanceCredits=Math.Min(settings.InstanceBurstCapacity,Add(instanceCredits,Multiply(elapsed,settings.InstanceWorkPerFrame)));
             BuildsThisFrame=0;TriangleWorkThisFrame=InstanceWorkThisFrame=0;
-            for(int i=demands.Count-1;i>=0;i--)if((long)demands[i].lastFrame< (long)Frame-1)demands.RemoveAt(i);
+            for(int i=demands.Count-1;i>=0;i--)if(demands[i].reservedFrame<Frame)demands.RemoveAt(i);
         }
         private static void EnsureFrame(){if(!initialized)BeginFrame(0,Settings.Default);}
         public static long Estimate(long triangles,long instances)
@@ -149,7 +149,7 @@ namespace HybridLumenGI
             return reason == null;
         }
 
-        internal static bool RequestBuild(object owner,int frame,long triangles,long instances,out string reason)
+        internal static bool RequestBuild(object owner,int frame,long triangles,long instances,out string reason,long prepareInterval=1)
         {
             EnsureFrame();reason=null;
             if(owner==null || frame!=Frame || triangles<0 || instances<0){reason="RTAS build demand belongs to a stale frame.";return false;}
@@ -157,11 +157,14 @@ namespace HybridLumenGI
             {CancelBuildDemand(owner);return false;}
             Demand demand=null;foreach(var d in demands)if(ReferenceEquals(d.owner,owner)){demand=d;break;}
             if(demand==null){if(sequence==long.MaxValue){reason="RTAS demand sequence exhausted.";return false;}demand=new Demand{owner=owner,sequence=++sequence};demands.Add(demand);}
-            demand.lastFrame=frame;demand.triangles=triangles;demand.instances=instances;return true;
+            demand.lastFrame=frame;
+            // A periodic camera retains its age, with a turn only on its expected return.
+            demand.reservedFrame=(long)frame+Math.Max(1,prepareInterval);
+            demand.triangles=triangles;demand.instances=instances;return true;
         }
-        internal static bool TryConsumeBuild(object owner,int frame,long triangles,long instances,out string reason)
+        internal static bool TryConsumeBuild(object owner,int frame,long triangles,long instances,out string reason,long prepareInterval=1)
         {
-            if(!RequestBuild(owner,frame,triangles,instances,out reason))return false;
+            if(!RequestBuild(owner,frame,triangles,instances,out reason,prepareInterval))return false;
             Demand oldest=OldestActiveDemand();
             if(oldest==null || !ReferenceEquals(oldest.owner,owner)) {reason="RTAS build deferred behind an older active camera demand.";return false;}
             if(BuildsThisFrame>=settings.MaxBuildsPerFrame || triangleCredits<triangles || instanceCredits<instances)
@@ -177,7 +180,7 @@ namespace HybridLumenGI
             // Use the effective limits for this turn. A later camera may have tightened
             // them just for this frame, so preserve the other owners' waiting order.
             foreach (var demand in demands)
-                if (demand.lastFrame >= (long)Frame - 1 && (oldest == null || demand.sequence < oldest.sequence) &&
+                if ((demand.lastFrame == Frame || demand.reservedFrame == Frame) && (oldest == null || demand.sequence < oldest.sequence) &&
                     CanScheduleBuild(demand.triangles, demand.instances, out _))
                     oldest = demand;
             return oldest;

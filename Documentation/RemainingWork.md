@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release221 同源交付](../LocalComparison/Review/periodic-sdf-upload-270/delivery.json)
 
+T6／G4 已关闭固定周期相机持续失去共享 RTAS 构建机会的路径。实际 Backend 对照中，两帧周期相机第三次返回时取得构建，高频相机在中间帧继续录制当前位姿。原次数、三角、实例及退休条件继续适用，原生多相机负载仍待验收。[同输入对照与范围](../LocalComparison/Review/periodic-rtas-build-271/result.md)
+
 T6／G4 已关闭固定周期相机的对象 SDF 整卷上传饥饿。三帧周期的相机在第三次返回实际取得上传，高频相机在中间帧继续推进。共享体素硬上限及原就绪条件继续适用，完整原生负载与其他调度阶段按原计划验收。[同输入对照与适用范围](../LocalComparison/Review/periodic-sdf-upload-270/result.md)
 
 T3／G3 已关闭普通 Player 固定近景地板重新开灯后的全局恢复子项。五盏解析灯恢复后，约 1.233 秒进入终态容差，5 秒及保持窗口达标。关灯残留的匹配控制资格继续单独验收。[重新开灯同曝光对照](../LocalComparison/Review/ordinary-light-restore-269/result.md)
