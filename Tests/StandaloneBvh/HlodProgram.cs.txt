@@ -495,6 +495,54 @@ Require(rootHeld && completeReplacement && noOrdinaryBypass && completeBeforeRoo
     $"no ordinary bypass={noOrdinaryBypass}, complete before root={completeBeforeRoot}.");
 Console.WriteLine("PASS streamed HLOD: staged page arrivals retain complete GI groups and complete near details can publish while the root is unbound.");
 
+g = StreamedGroup();
+var failedDetail = HybridLumenGIStreamedRepresentation.Active.Single(binding => binding.Proxy == g.children[0]);
+var survivingDetail = HybridLumenGIStreamedRepresentation.Active.Single(binding => binding.Proxy == g.children[1]);
+var fallbackRoot = HybridLumenGIStreamedRepresentation.Active.Single(binding => binding.Proxy == g.root);
+foreach (var binding in HybridLumenGIStreamedRepresentation.Active)
+{
+    binding.UsesHlodRasterVisibility = binding.CanSubmitHlodRaster = true;
+    binding.Generation = 1;
+}
+using (var s = new HybridLumenGIScene())
+{
+    var visible = new List<HybridLumenGIStreamedRepresentation>();
+    void CollectRaster()
+    {
+        visible.Clear();
+        s.CollectHlodRaster(Vector3.zero, 1000, visible);
+    }
+
+    Prepare(s, false, 32); ReportAll(s); Prepare(s, false, 32);
+    CollectRaster();
+    Require(s.PublishedCount == 2 && s.Bvh.NodeCount == 3 && visible.Contains(failedDetail) && visible.Contains(survivingDetail),
+        "Both detail members must be published before the failure.");
+
+    // Match the active but withdrawn destination after a bound representation fails.
+    failedDetail.IsUnavailable = true;
+    failedDetail.CanSubmitHlodRaster = false;
+    SetResident(failedDetail.Proxy, false);
+    Prepare(s, false, 32); CollectRaster();
+    Console.WriteLine($"Failed detail withdrawal: published={s.PublishedCount}, BVH nodes={s.Bvh.NodeCount}, " +
+        $"raster={visible.Count}, root warming={s.IsWarming(Slot(s, g.root.StableId))}.");
+    Require(s.PublishedCount == 0 && s.Bvh.NodeCount == 0 && visible.Count == 0 && s.IsWarming(Slot(s, g.root.StableId)),
+        "A terminal detail failure must withdraw the whole set and stage the complete root.");
+    ReportAll(s); Prepare(s, false, 32); CollectRaster();
+    RootPublished(s, g.root.StableId);
+    Require(visible.Count == 1 && visible[0] == fallbackRoot, "Only the qualified root may reach raster selection.");
+
+    failedDetail.isActiveAndEnabled = false;
+    Prepare(s, false, 32);
+    RootPublished(s, g.root.StableId);
+    Require(s.IsWarming(Slot(s, survivingDetail.Proxy.StableId)), "Author withdrawal must permit the smaller near set to warm.");
+    ReportAll(s); Prepare(s, false, 32); CollectRaster();
+    Require(s.PublishedCount == 1 && s.IsPublished(Slot(s, survivingDetail.Proxy.StableId)) &&
+        s.Bvh.NodeCount == 1 && visible.Count == 1 && visible[0] == survivingDetail,
+        "After author withdrawal the remaining detail must publish as the complete near set.");
+}
+HybridLumenGIStreamedRepresentation.Active.Clear();
+Console.WriteLine("PASS terminal streamed detail: retain author membership, qualify the root, and allow explicit withdrawal.");
+
 g = Group(2);
 var nextRoot = new HybridLumenGIProxy { StableId = 3000, FarFieldOnly = true,
     bounds = new Bounds(new Vector3(100, 0, 0), new Vector3(12, 12, 12)) };

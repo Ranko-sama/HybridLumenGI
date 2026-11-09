@@ -195,7 +195,7 @@ namespace HybridLumenGI
                 InvalidateHlodDemandTopology();
                 foreach (var binding in active)
                 {
-                    if (binding == null || !binding.isActiveAndEnabled || binding.IsUnavailable || binding.proxy == null) continue;
+                    if (binding == null || !binding.isActiveAndEnabled || binding.proxy == null) continue;
                     declaredHlodMembers.Add(binding.proxy);
                     hlodParents.Add(binding.proxy.HLODParent);
                 }
@@ -222,7 +222,7 @@ namespace HybridLumenGI
         private void RemoveRequests(){if(!ReferenceEquals(streamer,null))streamer.RemoveRequests(this);}
         private void Fail(string error)
         {
-            // A failed cold member still declares its place in the authored HLOD set.
+            // Failure does not change authored HLOD membership while the binding stays enabled.
             failure = bound ? FailureState.BoundDestination : FailureState.BeforeBinding;
             LastError = error;
             if (bound)

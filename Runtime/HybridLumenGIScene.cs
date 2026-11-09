@@ -113,6 +113,7 @@ namespace HybridLumenGI
             public float distance;
             public bool seen, initialized;
             public int pendingDetails;
+            public bool hasUnavailableDetails;
             public bool capacityFallback; // Derived again from this Prepare's requested target.
         }
 
@@ -272,6 +273,8 @@ namespace HybridLumenGI
             {
                 HybridLumenGIProxy proxy = active[i];
                 if (proxy == null || !proxy.isActiveAndEnabled) continue;
+                streamedBindings.TryGetValue(proxy, out var binding);
+                if (binding != null && binding.IsUnavailable) continue;
                 if (!TryGetCandidateBounds(proxy, position, farSquared, out Bounds bounds, out float distance)) continue;
                 if (!activeById.ContainsKey(proxy.StableId))
                 {
@@ -292,7 +295,7 @@ namespace HybridLumenGI
                     field = aggregate || distance > nearSquared ? 1 : 0,
                     phase = 1
                 };
-                if (streamedBindings.TryGetValue(proxy, out var binding))
+                if (binding != null)
                 {
                     candidate.streamedBinding = binding;
                     candidate.streamedGeneration = binding.Generation;
@@ -490,7 +493,13 @@ namespace HybridLumenGI
             representationAdds.Clear(); representationRemoves.Clear();
             PendingCapacity = 0;
             foreach (HlodGroup group in groups.Values)
-            { group.seen = false; group.pendingDetails = 0; group.details.Clear(); group.target.Clear(); }
+            {
+                group.seen = false;
+                group.pendingDetails = 0;
+                group.hasUnavailableDetails = false;
+                group.details.Clear();
+                group.target.Clear();
+            }
             for (int i = 0; i < candidates.Count; i++) available[candidates[i].proxy.StableId] = candidates[i];
             for (int i = 0; i < candidates.Count; i++)
             {
@@ -502,11 +511,14 @@ namespace HybridLumenGI
                 grouped.Add(proxy.StableId);
                 if (proxy != root && !aggregates.Contains(proxy)) group.details.Add(proxy.StableId);
             }
-            foreach (var proxy in streamedBindings.Keys)
+            foreach (var declaration in streamedBindings)
             {
+                var proxy = declaration.Key;
                 if (aggregates.Contains(proxy) || available.ContainsKey(proxy.StableId)) continue;
                 var root = TopLevelRoot(proxy);
-                if (root != null && root != proxy && groups.TryGetValue(root, out HlodGroup group)) group.pendingDetails++;
+                if (root == null || root == proxy || !groups.TryGetValue(root, out HlodGroup group)) continue;
+                group.pendingDetails++;
+                group.hasUnavailableDetails |= declaration.Value.IsUnavailable;
             }
             retiredProxies.Clear();
             foreach (var pair in groups)
@@ -531,7 +543,7 @@ namespace HybridLumenGI
                 // its leaves are still waiting for pages. Those leaves cannot warm.
                 group.capacityFallback = !far && group.details.Count + group.pendingDetails > capacity &&
                     (group.published.Count == 0 || group.published.Contains(group.root.StableId));
-                if (far || group.details.Count == 0 || group.capacityFallback)
+                if (far || group.details.Count == 0 || group.capacityFallback || group.hasUnavailableDetails)
                 {
                     if (rootAvailable) group.target.Add(group.root.StableId);
                 }
@@ -577,14 +589,14 @@ namespace HybridLumenGI
 
         private void RefreshStreamedBindings()
         {
-            // An enabled binding declares membership even while its Proxy has no bound pages.
+            // Enabled bindings declare membership independently of page availability.
             streamedBindings.Clear();
             hasManagedHlodRaster = false;
             var bindings = HybridLumenGIStreamedRepresentation.Active;
             for (int i = 0; i < bindings.Count; i++)
             {
                 var binding = bindings[i];
-                if (binding == null || !binding.isActiveAndEnabled || binding.IsUnavailable || binding.Proxy == null) continue;
+                if (binding == null || !binding.isActiveAndEnabled || binding.Proxy == null) continue;
                 streamedBindings[binding.Proxy] = binding;
                 hasManagedHlodRaster |= binding.UsesHlodRasterVisibility;
             }
@@ -707,7 +719,7 @@ namespace HybridLumenGI
         }
 
         private bool IsGroupParent(HybridLumenGIProxy proxy) => proxy != null && (proxy.isActiveAndEnabled ||
-            (streamedBindings.TryGetValue(proxy, out var binding) && binding != null && binding.isActiveAndEnabled && !binding.IsUnavailable));
+            (streamedBindings.TryGetValue(proxy, out var binding) && binding != null && binding.isActiveAndEnabled));
 
         private bool CanRetainPublication(HlodGroup group)
         {
