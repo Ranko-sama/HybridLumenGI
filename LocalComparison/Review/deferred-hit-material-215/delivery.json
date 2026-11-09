@@ -1,0 +1,37 @@
+{
+  "productCommit": "62406c15358e0e16bb1d7b7c1143982f00961b67",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release186-demo",
+  "tag": "release186-demo",
+  "publishedAt": "2026-11-09T03:33:33Z",
+  "prerelease": true,
+  "validation": {
+    "scope": "Actual C# hit-material batch and texture pool with command and readback adapters. Shared coverage shader unchanged.",
+    "fixture": "Tests/StandaloneHitMaterialBatch/Program.cs.txt",
+    "result": "A reserved normal map stays assigned with zero handle after the frame quota is consumed. The same ready BaseMap slot and generation, source binding and alpha cutoff are retained. A pending assigned alpha map stays unknown."
+  },
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release186-UnityProject.zip",
+      "size": 850437,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release186-demo/HybridLumenGI-Release186-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release186-Windows-x64.zip",
+      "size": 58442600,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release186-demo/HybridLumenGI-Release186-Windows-x64.zip"
+    }
+  ]
+}

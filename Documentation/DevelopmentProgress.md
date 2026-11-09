@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release185，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release186，G0 已锁定，G1／G2 本机代表性验收通过
+
+T2／G4 已关闭无关贴图延期造成整条裁切材质记录失效的问题。实际批次保留已就绪 BaseMap 的槽位、代次和冻结来源，延期法线仍按指定但未知处理。原生候选命中和相机画面继续验收。[材质表合同](Implementation.md) · [同源交付](../LocalComparison/Review/deferred-hit-material-215/delivery.json)
 
 T5／G4 已关闭默认独立导出嵌套树的中间聚合自动占页。受控 I/O 对照覆盖冷态自动需求、原安全退休、粗根与叶组共驻和重挂后需求恢复。统一示例高速冷入首显与原生像素、照明分别验收。[分页需求范围](IndependentAssetPages.md) · [同源交付](../LocalComparison/Review/nested-hlod-demand-214/delivery.json)
 
