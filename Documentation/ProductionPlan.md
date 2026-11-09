@@ -222,6 +222,8 @@ Global SDF 每层扩张一次局部脏范围，按受影响砖行记录失效。
 
 已完成的形变作业按捕获入队顺序争用上传额度，关闭持续新任务反复抢先的发布饥饿机制；未完成、失效和清理失败按原资格处理。该保证限合格且适配当帧额度的ready任务，不承诺永久大于整帧额度或无法完成的作业有固定等待上限。
 
+运行时降低形变发布额度后，已完成且超过整帧额度的快照会让出新捕获工作槽，继续持有内存预留和发布队列位置。额度内的小快照可以推进，恢复额度后原快照按来源资格重新参与发布。[形变准入和定向对照](DeformedGeometry.md)
+
 当前 [GPU 反馈](GpuBudget.md)只缩放 patch/capture/brick 每帧工作量，不修改 Settings、容量或资源尺寸。`adaptiveGpuBudget=false`、`measureGpuCost=false`、`targetGpuMilliseconds=0` 为默认值，两种用途均关闭时不探测或加载计时 DLL。只测量可在零目标下保持静态配额，反馈目标应按设备基线填写。启用后，`preferNativeGpuTiming=true` 优先选择可选 [原生 DX12 后端](NativeGpuTiming.md)：128 个共享提交槽按实际 fence 完成回收，每帧的六个时间戳绑定 owner、配置/设备代次和 source frame。三个范围结束后在独立 Unsafe pass 中 resolve，不能放入 native raster render pass。托管端每相机最多跟踪 32 个在途提交；反馈只取最新有效结果，独立有界队列可导出所有完整校验的完成记录。
 
 原生不可用时回退 Recorder；Recorder 仍不提供 query 身份或跨范围原子快照，32 个生命周期通道不复用。原生 ring 暂满不触发提供器切换。缺测不会视为零成本；短缺测保持配额，持续缺测恢复静态上限。提供器或原生设备代次变化会重置反馈，真实 source frame 还用于拒绝旧配额的迟到观测。范围外准备上传、末尾 resolve 和整个应用的 GPU 成本不在三个范围之和内。e1aa6356已有一次实体DXR Development Player的512源帧只测量基线；原生C++/WARP和这次有限窗口均不能关闭完整G4/G5。

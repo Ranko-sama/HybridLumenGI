@@ -221,7 +221,9 @@ namespace HybridLumenGI
             if(lastFrame==Time.frameCount)return;
             lastFrame=Time.frameCount;
             RefreshRenderSources();
-            long uploadLeft=Math.Max(0,UploadBudgetBytesPerFrame);
+            long uploadBudget = Math.Max(0, UploadBudgetBytesPerFrame);
+            long uploadLeft = uploadBudget;
+            int overBudgetCompletions = 0;
             // Spend publication quota in capture order so repeated new completions
             // cannot starve an older ready snapshot. Unfinished work is still skipped.
             for(int i=0;i<Jobs.Count;i++)
@@ -235,7 +237,14 @@ namespace HybridLumenGI
                 try { result=job.work.GetAwaiter().GetResult(); }
                 catch(Exception ex) { if(current)job.owner.Status="Geometry bake failed: "+ex.GetType().Name; }
                 long upload=job.snapshot.uploadBytes;
-                if(current && result!=null && upload>uploadLeft) { job.owner.Status="Snapshot ready; upload budget pending";continue; }
+                if (current && result != null && upload > uploadLeft)
+                {
+                    // Keep the snapshot and its memory reservation. A finished job that
+                    // cannot fit even in a fresh frame need not occupy a capture slot.
+                    if (upload > uploadBudget) overBudgetCompletions++;
+                    job.owner.Status = "Snapshot ready; upload budget pending";
+                    continue;
+                }
                 if(!current || result==null)
                 {
                     // A cancelled old-session worker can finish between IdleUpdate and
@@ -286,7 +295,7 @@ namespace HybridLumenGI
             bool captureTimeLimited=captureBudget>0 && !double.IsNaN(captureBudget) && !double.IsInfinity(captureBudget);
             double captureMilliseconds=0;
             int verticesLeft=Math.Max(0,VertexBudgetPerFrame),visits=Active.Count;
-            while(visits-->0 && Active.Count>0 && Jobs.Count<Math.Max(0,MaximumWorkers))
+            while (visits-- > 0 && Active.Count > 0 && Jobs.Count - overBudgetCompletions < Math.Max(0, MaximumWorkers))
             {
                 // Leave the next owner's turn and demand untouched. At least one
                 // otherwise eligible capture can start even with a very small allowance.

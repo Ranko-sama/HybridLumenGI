@@ -264,6 +264,41 @@ static class Program
         Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Fair publication/withdrawal left snapshot reservations.");Defaults();
         Console.WriteLine("PASS: equal actual upload costs: unfinished head does not block ready work; oldest ready capture wins over later owner/new demand; invalid completed entry cleans without spending publication quota.");
     }
+    static void OversizedCompletionReleasesCaptureSlot()
+    {
+        Defaults();
+        HybridLumenGIDeformedMesh.MaximumWorkers=1;
+        var large=Add(1500);
+        large.component.sdfResolution=32;
+        Frame();Started(1500);
+        var largeJob=Job(large);
+        var largeMesh=PendingMesh(large);
+        long largeReservation=HybridLumenGIDeformedMesh.ReservedBytes;
+        var small=Add(1501);
+        HybridLumenGIDeformedMesh.UploadBudgetBytesPerFrame=32L*1024;
+        Frame();
+        Require(Job(small)==null,"An unfinished capture must still occupy the only worker slot.");
+
+        Finish(large,1500);
+        Frame();Started(1501);
+        var smallMesh=PendingMesh(small);
+        Require(ReferenceEquals(Job(large),largeJob) && !largeMesh.Destroyed &&
+            !HybridLumenGIDeformedMesh.HasSnapshot(large.renderer) && HybridLumenGIDeformedMesh.ReservedBytes>largeReservation,
+            "The oversized completion must retain its original pending snapshot while the fitting capture starts.");
+        Finish(small,1501);Frame();
+        PublishedTogether(small,smallMesh,1501);
+        Require(ReferenceEquals(Job(large),largeJob) && !HybridLumenGIDeformedMesh.HasSnapshot(large.renderer),
+            "The old result must remain pending under the smaller upload budget.");
+
+        HybridLumenGIDeformedMesh.UploadBudgetBytesPerFrame=8L<<20;
+        Frame();
+        PublishedTogether(large,largeMesh,1500);
+        Require(Job(large)==null && Job(small)==null,"Both snapshots should finish without another capture.");
+        Disable(large);Disable(small);DrainCompletedRetirements();
+        Require(HybridLumenGIDeformedMesh.ReservedBytes==0,"Completed snapshots left a reservation after retirement.");
+        Defaults();
+        Console.WriteLine("PASS: an oversized completed snapshot yields the capture slot, a fitting snapshot publishes, and the retained completion publishes after the budget recovers.");
+    }
     public static void Main()
     {
         HybridLumenGIResourceRetirement.EnsureRegistered();
@@ -290,7 +325,7 @@ static class Program
         AtomicGenerationAndRetirement();FailedCaptureConsumesBudgetAndBacksOff();CoalescedCaptureProgress();
         UnchangedSkinnedCaptureReuse();ExplicitSkinnedCaptureWaitsForDemand();SkinnedSourceMeshReplacement();NotifiedSkinnedSourceEdit();
         CaptureTimeBudgetDefersAndPublishes();FailedCaptureChargesTimeBudget();UnchangedCaptureChargesTimeBudget();
-        CompletedPublicationIsFair();
+        CompletedPublicationIsFair();OversizedCompletionReleasesCaptureSlot();
         FinalCancelledWorker();OpenNewSession();
         ShutdownWithdrawalAndNewSession();ShutdownCompletionProgress();DetachedPassRetirement();RootTailBeforeNativeQuit();
         IdleStreamedRetirementAfterLastCamera();IdleAndShutdownRetirement();CancelledCleanupFailure();UnknownSubmissionIsNotRepaired();
