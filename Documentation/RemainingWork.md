@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release223 同源交付](../LocalComparison/Review/pending-lighting-spatial-272/delivery.json)
 
+T6／G4 已关闭固定周期相机反复失去共享材质贴图上传的路径。实际 Batch／Pool 中，两帧周期相机录制完整稳定页，经原完成门取得同代句柄，高频相机在间隔帧继续提交。原生多相机画面和成本继续验收。[同输入对照](../LocalComparison/Review/periodic-material-upload-273/result.md)
+
 T3／G3 已关闭全局灯光变化后，待替换旧光经空间滤波和半分辨率合成混入可信像素的路径。实际 DX12 同平面上，可信黑保持零和有效输出。暂时没有可信支撑的区域仍可显示原值。整景关灯残留与新增读取成本继续验收。[前后实际着色器对照](../LocalComparison/Review/pending-lighting-spatial-272/result.md)
 
 T6／G4 已关闭固定周期相机持续失去共享 RTAS 构建机会的路径。实际 Backend 对照中，两帧周期相机第三次返回时取得构建，高频相机在中间帧继续录制当前位姿。原次数、三角、实例及退休条件继续适用，原生多相机负载仍待验收。[同输入对照与范围](../LocalComparison/Review/periodic-rtas-build-271/result.md)

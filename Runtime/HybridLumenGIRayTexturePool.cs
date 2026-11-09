@@ -36,11 +36,17 @@ namespace HybridLumenGI
         private struct UploadDemand
         {
             internal UploadTurn Turn;
-            internal long Bytes;
-            internal int ObservedFrame;
+            internal long Bytes, ReservedFrame;
+        }
+        private sealed class ConsumerCadence
+        {
+            internal int Frame = -1;
+            internal long Interval = 1;
         }
         private static readonly ConditionalWeakTable<Texture,SourceState> Sources=new ConditionalWeakTable<Texture,SourceState>();
+        private static ConditionalWeakTable<object,ConsumerCadence> consumerCadences = new();
         private static UploadDemand uploadWaiter, nextUploadWaiter;
+        private static readonly List<UploadDemand> laterUploadWaiters = new();
         private static uint lastGeneration;
         private static ulong lastSourceEpoch, lastUploadOrder;
         private static int uploadFrame=-1;
@@ -54,6 +60,8 @@ namespace HybridLumenGI
             uploadBudget = long.MaxValue;
             uploadUsed = 0;
             uploadWaiter = nextUploadWaiter = default;
+            laterUploadWaiters.Clear();
+            consumerCadences = new();
         }
         /// <summary>Call on the main thread for every camera. Same-frame calls never replenish the global allowance.</summary>
         public static void BeginFrame(int engineFrame,long maxUploadBytes)
@@ -66,16 +74,39 @@ namespace HybridLumenGI
                 uploadBudget = Math.Min(uploadBudget, maxUploadBytes);
                 return;
             }
-            if (uploadWaiter.Bytes > maxUploadBytes || (long)engineFrame - uploadWaiter.ObservedFrame > 1)
+            if (uploadWaiter.Bytes > maxUploadBytes || uploadWaiter.ReservedFrame != engineFrame)
                 uploadWaiter = default;
-            if (nextUploadWaiter.Turn != null && nextUploadWaiter.Bytes <= maxUploadBytes &&
-                (long)engineFrame - nextUploadWaiter.ObservedFrame <= 1 &&
-                (uploadWaiter.Turn == null || nextUploadWaiter.Turn.Order < uploadWaiter.Turn.Order))
-                uploadWaiter = nextUploadWaiter;
+            PromoteUploadWaiter(nextUploadWaiter, engineFrame, maxUploadBytes);
             nextUploadWaiter = default;
+            for (int i = laterUploadWaiters.Count - 1; i >= 0; i--)
+            {
+                var demand = laterUploadWaiters[i];
+                if (demand.ReservedFrame > engineFrame) continue;
+                PromoteUploadWaiter(demand, engineFrame, maxUploadBytes);
+                laterUploadWaiters.RemoveAt(i);
+            }
             uploadFrame = engineFrame;
             uploadUsed = 0;
             uploadBudget = maxUploadBytes;
+        }
+
+        private static void PromoteUploadWaiter(UploadDemand demand, int frame, long budget)
+        {
+            if (demand.Turn != null && demand.ReservedFrame == frame && demand.Bytes <= budget &&
+                (uploadWaiter.Turn == null || demand.Turn.Order < uploadWaiter.Turn.Order))
+                uploadWaiter = demand;
+        }
+
+        private static long ObserveUploadConsumer(object consumer)
+        {
+            if (consumer == null) return 1;
+            var cadence = consumerCadences.GetValue(consumer, static _ => new ConsumerCadence());
+            if (cadence.Frame != uploadFrame)
+            {
+                cadence.Interval = cadence.Frame < 0 ? 1 : (long)uploadFrame - cadence.Frame;
+                cadence.Frame = uploadFrame;
+            }
+            return cadence.Interval;
         }
         public static long TotalAllocatedBytes {get;private set;}
         public static int ResidentBatchCount=>Allocations.Count;
@@ -143,7 +174,7 @@ namespace HybridLumenGI
             internal readonly Allocation allocation;
             internal readonly Page[] Pages,Uploads;
             internal readonly Handle[] Handles;
-            internal readonly ulong DeferredWaitOrder;
+            internal readonly List<ulong> DeferredWaitOrders;
             internal GraphicsFence Fence;
             public uint Generation=>allocation.Generation;
             public long ByteCount=>allocation.Bytes;
@@ -156,10 +187,10 @@ namespace HybridLumenGI
             public LeaseState State {get;internal set;}
             public Upload GetUpload(int index)=>Uploads[index].Upload;
             public Handle GetHandle(int index)=>Handles[index];
-            internal Lease(HybridLumenGIRayTexturePool owner,Allocation allocation,Page[] pages,Page[] uploads,Handle[] handles,bool reused,ulong deferredWaitOrder)
+            internal Lease(HybridLumenGIRayTexturePool owner,Allocation allocation,Page[] pages,Page[] uploads,Handle[] handles,bool reused,List<ulong> deferredWaitOrders)
             {
                 Owner=owner;this.allocation=allocation;Pages=pages;Uploads=uploads;Handles=handles;IsReused=reused;State=LeaseState.Prepared;
-                DeferredWaitOrder=deferredWaitOrder;
+                DeferredWaitOrders=deferredWaitOrders;
                 foreach(var page in uploads)UploadByteCount+=page.Upload.Layout.ByteCount+64;
             }
         }
@@ -190,6 +221,7 @@ namespace HybridLumenGI
             source.Epoch = ++lastSourceEpoch;
             if (ReferenceEquals(uploadWaiter.Turn?.Source, source)) uploadWaiter = default;
             if (ReferenceEquals(nextUploadWaiter.Turn?.Source, source)) nextUploadWaiter = default;
+            laterUploadWaiters.RemoveAll(demand => ReferenceEquals(demand.Turn.Source, source));
             foreach(var allocation in Allocations)foreach(var page in allocation.Pages)
                 if(page!=null&&ReferenceEquals(page.Upload.View.Texture,texture))page.Reusable=false;
             PollRetired();
@@ -283,12 +315,12 @@ namespace HybridLumenGI
             return chosen;
         }
 
-        private Lease Borrow(Allocation arena,Page[] pages,Page[] uploads,int[] indices,bool reused,ulong deferredWaitOrder)
+        private Lease Borrow(Allocation arena,Page[] pages,Page[] uploads,int[] indices,bool reused,List<ulong> deferredWaitOrders)
         {
             var handles=new Handle[indices.Length];
             for(int i=0;i<indices.Length;i++)if(indices[i]>=0)
             {var p=pages[indices[i]];handles[i]=new Handle((uint)p.Upload.MetadataIndex,p.Upload.Generation);}
-            var lease=new Lease(this,arena,pages,uploads,handles,reused,deferredWaitOrder);arena.Readers++;
+            var lease=new Lease(this,arena,pages,uploads,handles,reused,deferredWaitOrders);arena.Readers++;
             foreach(var page in pages)page.Readers++;
             Resident.Add(lease);leases.Add(lease);AllocatedBytes+=arena.Bytes;return lease;
         }
@@ -341,7 +373,7 @@ namespace HybridLumenGI
             catch(Exception ex){reason="Frozen request enumeration failed: "+ex.GetType().Name;return false;}
             shareable &= views.Count>0;
             Allocation chosen=null;Page[] chosenPages=null;int[] chosenSlots=null,chosenOffsets=null;
-            ulong deferredWaitOrder = 0;
+            List<ulong> deferredWaitOrders = null;
             if(shareable)
             {
                 const string arenaBudgetExceeded = "Global budget includes all resident and pending texture arenas.";
@@ -386,12 +418,10 @@ namespace HybridLumenGI
                     {
                         if (pendingViews[i])
                         {
-                            // Keep a matching denied request active through this reader's fence.
-                            // Only record its turn, without borrowing the pending page.
+                            // The active turn can change before recording, so capture each omitted turn's order.
                             if (Sources.TryGetValue(views[i].Texture, out var source) && source.SharedTurn is UploadTurn turn &&
-                                (ReferenceEquals(turn, uploadWaiter.Turn) || ReferenceEquals(turn, nextUploadWaiter.Turn)) &&
-                                (deferredWaitOrder == 0 || turn.Order < deferredWaitOrder))
-                                deferredWaitOrder = turn.Order;
+                                HasUploadDemand(turn))
+                                (deferredWaitOrders ??= new List<ulong>()).Add(turn.Order);
                             remap[i] = -1;
                             continue;
                         }
@@ -461,10 +491,32 @@ namespace HybridLumenGI
                 chosen.Pages[slot]=page;chosenPages[i]=page;uploads.Add(page);
             }
             else if(!chosenPages[i].Ready)uploads.Add(chosenPages[i]);
-            lease=Borrow(chosen,chosenPages,uploads.ToArray(),indices,!fresh,deferredWaitOrder);return true;
+            lease=Borrow(chosen,chosenPages,uploads.ToArray(),indices,!fresh,deferredWaitOrders);return true;
         }
 
-        private static void RememberBlockedUpload(Page page, UploadTurn turn, long earlierBatchBytes)
+        private static int FindLaterDemand(UploadTurn turn)
+        {
+            for (int i = 0; i < laterUploadWaiters.Count; i++)
+                if (ReferenceEquals(laterUploadWaiters[i].Turn, turn)) return i;
+            return -1;
+        }
+
+        private static bool HasUploadDemand(UploadTurn turn) => ReferenceEquals(uploadWaiter.Turn, turn) ||
+            ReferenceEquals(nextUploadWaiter.Turn, turn) || FindLaterDemand(turn) >= 0;
+
+        private static void KeepLaterDemand(UploadDemand demand)
+        {
+            // Keep the oldest turn for each expected visit. Future turns do not reserve this frame.
+            for (int i = 0; i < laterUploadWaiters.Count; i++)
+            {
+                if (laterUploadWaiters[i].ReservedFrame != demand.ReservedFrame) continue;
+                if (demand.Turn.Order < laterUploadWaiters[i].Turn.Order) laterUploadWaiters[i] = demand;
+                return;
+            }
+            laterUploadWaiters.Add(demand);
+        }
+
+        private static void RememberBlockedUpload(Page page, UploadTurn turn, long earlierBatchBytes, long interval)
         {
             int remaining = page.Upload.Layout.StorageElementCount - page.UploadedElements;
             if (remaining == 0) return;
@@ -474,9 +526,10 @@ namespace HybridLumenGI
             // an over-cap source or contention already handled by the within-batch order.
             if (minimum > uploadBudget || minimum <= uploadBudget - earlierBatchBytes) return;
             if (turn.Order == 0) turn.Order = ++lastUploadOrder;
-            var demand = new UploadDemand { Turn = turn, Bytes = minimum, ObservedFrame = uploadFrame };
-            if (ReferenceEquals(uploadWaiter.Turn, turn)) uploadWaiter = default;
-            if (nextUploadWaiter.Turn == null || turn.Order <= nextUploadWaiter.Turn.Order)
+            var demand = new UploadDemand { Turn = turn, Bytes = minimum, ReservedFrame = uploadFrame + interval };
+            CancelUploadDemand(turn);
+            if (interval > 1) KeepLaterDemand(demand);
+            else if (nextUploadWaiter.Turn == null || turn.Order < nextUploadWaiter.Turn.Order)
                 nextUploadWaiter = demand;
         }
 
@@ -484,6 +537,22 @@ namespace HybridLumenGI
         {
             if (ReferenceEquals(uploadWaiter.Turn, turn)) uploadWaiter = default;
             if (ReferenceEquals(nextUploadWaiter.Turn, turn)) nextUploadWaiter = default;
+            int index = FindLaterDemand(turn);
+            if (index >= 0) laterUploadWaiters.RemoveAt(index);
+        }
+
+        private static void KeepActiveUploadDemand(long interval)
+        {
+            int index = FindLaterDemand(uploadWaiter.Turn);
+            if (index >= 0) laterUploadWaiters.RemoveAt(index);
+            var demand = uploadWaiter;
+            demand.ReservedFrame = uploadFrame + interval;
+            if (interval > 1)
+            {
+                uploadWaiter.ReservedFrame = uploadFrame;
+                KeepLaterDemand(demand);
+            }
+            else uploadWaiter = demand;
         }
 
         private static int AdmittedUploadElements(Page page, UploadTurn turn)
@@ -538,6 +607,7 @@ namespace HybridLumenGI
             {
                 if(uploadFrame>=0)
                 {
+                    long interval = ObserveUploadConsumer(uploadConsumer);
                     long earlierBatchBytes = uploadUsed;
                     var uploads = lease.Uploads;
                     int first = FirstUploadIndex(uploads, uploadConsumer);
@@ -551,7 +621,7 @@ namespace HybridLumenGI
                         int count = AdmittedUploadElements(page, turn);
                         if (count == 0)
                         {
-                            if (earlierBatchBytes > 0) RememberBlockedUpload(page, turn, earlierBatchBytes);
+                            if (earlierBatchBytes > 0) RememberBlockedUpload(page, turn, earlierBatchBytes, interval);
                             continue;
                         }
                         if (recordingBudgetTicks > 0)
@@ -560,7 +630,7 @@ namespace HybridLumenGI
                             if (firstRecording.HasValue && now - firstRecording.Value >= recordingBudgetTicks)
                             {
                                 // A time deferral keeps the existing byte reservation and order.
-                                if (ReferenceEquals(uploadWaiter.Turn, turn)) uploadWaiter.ObservedFrame = uploadFrame;
+                                if (ReferenceEquals(uploadWaiter.Turn, turn)) KeepActiveUploadDemand(interval);
                                 continue;
                             }
                             firstRecording ??= now;
@@ -577,8 +647,9 @@ namespace HybridLumenGI
                         if(disposed||lease.State!=LeaseState.Recording)throw new InvalidOperationException("Progressive upload canceled during recording.");
                         page.UploadedElements+=count;page.UploadComplete=page.UploadedElements==page.Upload.Layout.StorageElementCount;
                     }
-                    if (uploadWaiter.Turn?.Order == lease.DeferredWaitOrder)
-                        uploadWaiter.ObservedFrame = uploadFrame;
+                    if (uploadWaiter.Turn != null && lease.DeferredWaitOrders != null &&
+                        lease.DeferredWaitOrders.Contains(uploadWaiter.Turn.Order))
+                        KeepActiveUploadDemand(interval);
                     lease.State=LeaseState.Recorded;return true;
                 }
                 if(!arena.Initialized)

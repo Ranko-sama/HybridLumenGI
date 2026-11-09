@@ -485,6 +485,150 @@ class Program
         Clean();
     }
 
+    static void PeriodicCameraGetsSharedTextureUploadTurn()
+    {
+        scenarios++;
+        SystemInfo.supportsAsyncGPUReadback = true;
+        const int quota = 1 << 20;
+        const int start = 2050;
+        var movingTexture = new RenderTexture { width = 516, height = 127, mipmapCount = 1, graphicsFormat = 42 };
+        var frequent = new Fixture(movingTexture);
+        var periodic = new Fixture(Texture(2, 2, 1));
+        var replacement = new Fixture(Texture(2, 2, 1));
+        var frequentConsumer = new object();
+        var periodicConsumer = new object();
+        var frequentBytes = new long[12];
+        int firstUpload = -1, unknownReturns = 0;
+        uint stableIndex = 0, stableGeneration = 0;
+        bool reused = false;
+
+        for (int step = 0; step < frequentBytes.Length; step++)
+        {
+            int frame = start + step;
+            Pool.BeginFrame(frame, quota);
+            movingTexture.updateCount++;
+            var firstBatch = Prepare(frequent.Freeze());
+            var firstCommands = new CommandBuffer();
+            RecordBatch(firstBatch, firstCommands, frequentConsumer);
+            frequentBytes[step] = Pool.UploadBytesUsed;
+            Finish(firstBatch, firstCommands);
+
+            if (step <= 8 && step % 2 == 0)
+            {
+                var source = step == 8 ? replacement : periodic;
+                Pool.BeginFrame(frame, quota);
+                var batch = Prepare(source.Freeze(19));
+                var commands = new CommandBuffer();
+                RecordBatch(batch, commands, periodicConsumer);
+                var handle = Table(commands)[0].textures0;
+                long copied = Pool.UploadBytesUsed - frequentBytes[step];
+                if (step == 8)
+                    Check(copied == 0 && AssignedBaseMapIsUnknown(Table(commands)[0]), "replacement starts waiting before the missed visit");
+                if (copied != 0)
+                {
+                    Check(copied == 128 && handle.y != 0 && firstUpload < 0, "expected one complete stable page upload");
+                    firstUpload = step;
+                    stableIndex = handle.x;
+                    stableGeneration = handle.y;
+                    Check(batch.GetResources(out _, out _, out var metadata, out _), "newly uploaded page metadata");
+                    var ready = new HybridLumenGIRayTextureMetadata[metadata.Count];
+                    ready[stableIndex] = commands.Copies.OfType<HybridLumenGIRayTextureMetadata[]>().Single()[0];
+                    ready[stableIndex].flags = 1;
+                    Finish(batch, commands);
+                    AsyncGPUReadback.CompleteNext(ready);
+                }
+                else
+                {
+                    if (step < 8 && AssignedBaseMapIsUnknown(Table(commands)[0])) unknownReturns++;
+                    if (step < 8 && firstUpload >= 0)
+                        reused = handle.x == stableIndex && handle.y == stableGeneration && batch.TextureUploadCount == 0;
+                    Finish(batch, commands);
+                }
+            }
+            Check(Pool.UploadBytesUsed <= quota, "periodic reservations must obey the original frame quota");
+        }
+
+        Pool.ClearReusable();
+        SystemInfo.supportsAsyncGPUReadback = false;
+        Clean();
+        Console.WriteLine($"Periodic material camera: first copy={firstUpload}, unknown visits={unknownReturns}, reused={reused}; " +
+            $"frequent bytes at 3/5/9/10/11={frequentBytes[3]}/{frequentBytes[5]}/{frequentBytes[9]}/{frequentBytes[10]}/{frequentBytes[11]}.");
+        Check(firstUpload >= 0 && firstUpload <= 4 && reused, "periodic camera failed to upload and reuse its stable page");
+        Check(frequentBytes[3] == quota && frequentBytes[5] == quota && frequentBytes[9] == quota &&
+            frequentBytes[10] == 0 && frequentBytes[11] == quota, "periodic wait blocked intervening frames or outlived its expected visit");
+    }
+
+    static void FutureTextureTurnDoesNotHideCurrentContinuation()
+    {
+        scenarios++;
+        SystemInfo.supportsAsyncGPUReadback = true;
+        const int quota = 1 << 20;
+        const int start = 2064;
+        var movingTexture = new RenderTexture { width = 516, height = 127, mipmapCount = 1, graphicsFormat = 42 };
+        var frequent = new Fixture(movingTexture);
+        var futureTexture = Texture(2, 2, 1);
+        var future = new Fixture(futureTexture);
+        var current = new Fixture(Texture(2, 2, 1));
+        var futureConsumer = new object();
+        var currentConsumer = new object();
+
+        long RecordFirst(int frame)
+        {
+            Pool.BeginFrame(frame, quota);
+            movingTexture.updateCount++;
+            var batch = Prepare(frequent.Freeze());
+            var commands = new CommandBuffer();
+            RecordBatch(batch, commands);
+            Finish(batch, commands);
+            return Pool.UploadBytesUsed;
+        }
+
+        (Batch batch, CommandBuffer commands) RetainReader(Fixture source, object consumer, uint id)
+        {
+            var batch = Prepare(source.Freeze(id));
+            var commands = new CommandBuffer();
+            RecordBatch(batch, commands, consumer);
+            Check(AssignedBaseMapIsUnknown(Table(commands)[0]) && batch.SealAfterConsumers(commands, out _), "pending page retains its reader");
+            batch.Dispose();
+            return (batch, commands);
+        }
+
+        Check(RecordFirst(start) == quota, "the first frame exhausts the shared quota");
+        var firstFuture = RetainReader(future, futureConsumer, 19);
+        firstFuture.commands.NextFence.Complete = true;
+        Batch.PollRetired();
+
+        Check(RecordFirst(start + 2) == quota, "the missed first reservation has expired");
+        var heldFuture = RetainReader(future, futureConsumer, 19);
+        var heldCurrent = RetainReader(current, currentConsumer, 23);
+        Pool.BeginFrame(start + 3, quota);
+        var combined = Prepare(future.Freeze(19), current.Freeze(23));
+        var combinedCommands = new CommandBuffer();
+        RecordBatch(combined, combinedCommands, currentConsumer);
+        Check(combined.TextureUploadCount == 0 && Table(combinedCommands).All(AssignedBaseMapIsUnknown),
+            "both omitted pages must remain unknown while old readers are in flight");
+        Finish(combined, combinedCommands);
+
+        Pool.InvalidateSource(futureTexture);
+        long bytesBeforeContinuation = RecordFirst(start + 4);
+        heldFuture.commands.NextFence.Complete = true;
+        heldCurrent.commands.NextFence.Complete = true;
+        Batch.PollRetired();
+        Check(heldFuture.batch.State == Batch.BatchState.Released && heldCurrent.batch.State == Batch.BatchState.Released,
+            "the existing fences still control reader release");
+        var next = Prepare(current.Freeze(23));
+        var nextCommands = new CommandBuffer();
+        RecordBatch(next, nextCommands, currentConsumer);
+        bool currentContinued = Pool.UploadBytesUsed - bytesBeforeContinuation == 128 && Table(nextCommands)[0].textures0.y != 0;
+        Finish(next, nextCommands);
+        if (currentContinued) AsyncGPUReadback.CompleteNext(null, true);
+        Pool.ClearReusable();
+        SystemInfo.supportsAsyncGPUReadback = false;
+        Clean();
+        Console.WriteLine($"Current reader wait with a future turn: earlier bytes={bytesBeforeContinuation}, current continued={currentContinued}.");
+        Check(bytesBeforeContinuation == 0 && currentContinued, "the future turn masked a valid current wait in the same batch");
+    }
+
     static void CamerasSharingDynamicTextureGetSeparateUploadTurns()
     {
         scenarios++;
@@ -679,7 +823,8 @@ class Program
             AllocationAndCommandFailures();CancellationsAndCompletionEvidence();Reentrancy();GenerationsAndHostileSources();RandomContractSequences();CoveragePrecisionRequests();ReadyPageSurvivesPendingDuplicate();QuotaDefersUnknownMaterials();
             DynamicTextureCannotStarveWaitingMap();LaterCameraGetsSharedTextureUploadTurn();
             CamerasSharingDynamicTextureGetSeparateUploadTurns();LateLowerQuotaPreservesUploadTurn();
-            RecordingTimeDefersWholeUploads();CoverageSurvivesDeferredNormal();ClosingAdmission();
+            RecordingTimeDefersWholeUploads();CoverageSurvivesDeferredNormal();ClosingAdmission();PeriodicCameraGetsSharedTextureUploadTurn();
+            FutureTextureTurnDoesNotHideCurrentContinuation();
             Console.WriteLine("PASS hit-material-batch "+checks+" assertions / "+scenarios+" scenarios; actual seven C# classes, recording adapters only; no Unity/GPU execution.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}
