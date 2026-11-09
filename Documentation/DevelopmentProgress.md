@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release189，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release190，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭网格原地编辑后，旧投影者撤出而新上传延期时的远接收面漏报。实际 DXR 在撤出当帧通知旧端并提高远地板调度优先级，随后新网格在可用名额内发布。采用范围为通知、调度和恢复发布，画面残留与收敛分别验收。[延期与恢复实测](../LocalComparison/Review/deferred-caster-reach-219/result.md) · [同源交付](../LocalComparison/Review/deferred-caster-reach-219/delivery.json)
 
 T3／G3 已关闭投影者移动或撤除漏报长范围点光远接收面的问题。双网格 DXR 观察中，照明通知半径为 34，移动时刚体旧缓存拒绝半径为 9，远地板两次均取得调度优先级。采用范围为通知和调度，画面恢复仍待验收。[实测](../LocalComparison/Review/shadow-caster-reach-218/result.md) · [同源交付](../LocalComparison/Review/shadow-caster-reach-218/delivery.json)
 
