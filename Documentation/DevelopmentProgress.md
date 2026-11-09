@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release190，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release191，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭可选 Additive 场景驱动中持续合格请求拿不到加载名额的问题。实际 C# 调度器同输入对照中，旧版 64 步未服务该请求，修复版第 60 步启动并完成。采用范围为等优先级场景的受控 I/O 和原共享额度，Unity 原生场景 I/O、实际等待和生产预算分别验收。[对照和范围](../LocalComparison/Review/additive-load-fairness-222/result.md) · [同源交付](../LocalComparison/Review/additive-load-fairness-222/delivery.json)
 
 补齐原 Validation 的实际相机栈历史隔离子项。Release190 同源 DXR Editor 实测中，原生 Overlay 的标记进入输出，GI 仍只维护 Base 状态，固定地板的 GPU 历史连续保留。原双独立 Base 切镜结论各自采用。[同栈原图与读数](../LocalComparison/Review/stack-history-221/result.md)
 
