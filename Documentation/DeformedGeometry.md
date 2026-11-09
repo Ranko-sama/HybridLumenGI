@@ -18,6 +18,8 @@ Release154 的独立单三角场景中，实际 DXR 查询消费了初始自动 
 
 `BakeMesh` 快照绑定捕获时的 `SkinnedMeshRenderer.sharedMesh`。帧级渲染准备会撤回已失效的快照并取消旧作业。Release130 也在相机读取世界表示前复核来源，覆盖 `beginContextRendering` 后在 `beginCameraRendering` 替换或清空网格的情况。已提交读者保留旧快照直到退休栅栏完成，取消的后台作业在实际结束后清理。替换网格沿用每帧的捕获和发布预算。显式可读网格继续遵循各自的请求与合并规则。
 
+旧 Renderer 销毁后，Release175 在代理待校验或重新启用时会查找同对象的新 Renderer。两条入口都在 Unity 组件对照中接到新 Skin 已发布的 Mesh、SDF 和图卡，Scene 随后使用新几何的边界。验证直接驱动快照回调和 Scene 准备，实际相机渲染按原条件验收。[自动接源对照](../LocalComparison/Review/replaced-renderer-rebind-201/result.md)
+
 本机 `Validate-DeformedMesh.ps1` 的同输入回归在 Release129 源码复现相机准备时仍读旧 Mesh／SDF／charts，Release130 在同帧替换及清空时均撤回旧来源，既有异步流程可以恢复新来源。测试使用实际组件与模拟 final-context 完成，覆盖旧读者等待及相机检查没有额外捕获或上传。修复已整合普通包，实体 GPU 退休和形变画质仍分别验收。[定向回归](../Tests/StandaloneDeformedMesh/Program.cs.txt) · [同源交付](../LocalComparison/Review/skinned-camera-source-147/delivery.json)
 
 Release132 的自动 `BakeMesh` 还绑定捕获时原 `sharedMesh` 的内容版本。原地编辑后，主线程可调用 `HybridLumenGIMeshSource.NotifyGeometryChanged(skin.sharedMesh)`。相机读取世界表示前会撤回旧版本并取消旧作业，后续捕获和发布继续使用原配额。可选 receiver 来源检查产生的版本通知同样在该相机的世界准备前生效。显式可读 producer 继续以捕获请求为准。`Validate-DeformedMesh.ps1` 同输入 CPU 回归在 Release131 复现旧快照留存，Release132 通过撤回、取消、模拟栅栏等待和新版发布。[实际组件回归](../Tests/StandaloneDeformedMesh/Program.cs.txt) · [同源交付](../LocalComparison/Review/notified-skin-source-149/delivery.json)

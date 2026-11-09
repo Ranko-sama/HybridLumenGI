@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release174，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release175，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭新 Skin 发布后仍被旧 Renderer 引用挡住的自动接源缺口。真实 Unity 对照覆盖待校验和重新启用，两条入口随后都把新 Renderer 及同一份 Mesh、SDF 和图卡交给 Scene。采用范围为组件生命周期及真实场景准备。[对照与范围](../LocalComparison/Review/replaced-renderer-rebind-201/result.md) · [同源交付](../LocalComparison/Review/replaced-renderer-rebind-201/delivery.json)
 
 T6／G4 已关闭动态图卡在逐槽来源配置相同时仍反复销毁和重建捕获材质的缺口。实际 C# 对照确认动态像素继续触发失效和预算内捕获，配置变化仍更换材质，无效来源仍撤销图卡。采用范围为 CPU 准备及材质对象生命周期。[对照与范围](../LocalComparison/Review/dynamic-card-material-200/result.md) · [同源交付](../LocalComparison/Review/dynamic-card-material-200/delivery.json)
 
