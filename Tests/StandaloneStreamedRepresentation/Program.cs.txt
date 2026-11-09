@@ -221,6 +221,75 @@ var replacement = new HybridLumenGIAssetPageStreamer();
 replacement.Configure(new HybridLumenGIAssetPageManifest { RelativeRoot = "ReplacementPages", Pages = Array.Empty<Stream.Definition>() });
 Check(replacement.Available, "Destroyed driver still owned the global page budget after draining");
 Console.WriteLine("PASS demand withdrawal and page drain after destroying a paused driver, with pending IO, safe completion and new driver admission.");
+
+var nested = new Fixture(new[] { Fixture.Page("geometry", Stream.Kind.Geometry), Fixture.Page("material", Stream.Kind.Material),
+    Fixture.Page("middle", Stream.Kind.Geometry), Fixture.Page("leaf", Stream.Kind.Geometry) });
+var root = nested.representation;
+root.ConfigureDistances(200, 240);
+root.UseHlodPublicationForRendering(true);
+nested.Enable();
+HybridLumenGIStreamedRepresentation AddMember(string geometry, HybridLumenGIProxy parent, float load, float unload)
+{
+    var member = new HybridLumenGIStreamedRepresentation();
+    var renderer = new MeshRenderer { gameObject = member.gameObject };
+    var filter = new MeshFilter { gameObject = member.gameObject };
+    var proxy = new HybridLumenGIProxy { gameObject = member.gameObject, enabled = false, HLODParent = parent };
+    member.transform.position = root.transform.position;
+    member.Configure(nested.driver, proxy, filter, renderer, geometry, null, null, new[] { "material" }, new Bounds(Vector3.zero, new Vector3(2, 2, 2)));
+    member.ConfigureDistances(load, unload);
+    member.UseHlodPublicationForRendering(true);
+    Fixture.Call(member, "OnEnable");
+    return member;
+}
+var middle = AddMember("middle", root.Proxy, 200, 240);
+var leaf = AddMember("leaf", middle.Proxy, 60, 90);
+void NestedFrame()
+{
+    Time.frameCount++;
+    nested.Update();
+    Fixture.Call(middle, "Update");
+    Fixture.Call(leaf, "Update");
+    nested.provider.CompleteAll();
+    nested.Drive();
+    HybridLumenGIStreamedRepresentation.PollRetirements();
+}
+for (int step = 0; step < 16 && !root.HasBoundAssets; step++) NestedFrame();
+Check(root.HasBoundAssets && nested.RequestCount == 1 && nested.state.ResidentBytes == 40 &&
+    nested.state.GetState("middle").Status == Stream.Phase.Unloaded,
+    "Only the root should request pages from far away in a cold managed tree");
+uint rootGeneration = root.Generation;
+
+// Recreate a resident intermediate, as in an existing rig, via its supported manual demand.
+middle.SetWanted(true);
+for (int step = 0; step < 16 && !middle.HasBoundAssets; step++) NestedFrame();
+Check(middle.HasBoundAssets && nested.state.ResidentBytes == 60, "Explicit demand must still be able to bind the middle pages");
+Camera.main.transform = nested.near;
+NestedFrame();
+Check(!leaf.HasBoundAssets && nested.driver.BudgetBlockedGroups == 1, "The leased middle page must block the leaf under the original cap");
+
+middle.UseDistanceRequests();
+NestedFrame();
+Check(middle.WantsUnload && middle.HasBoundAssets && !leaf.HasBoundAssets,
+    "Automatic distance demand must withdraw the middle without bypassing safe retirement");
+var middleReaders = new Completion();
+Check(middle.ReportUnloadSafe(middle.Generation, middleReaders), "The original safe gate must accept the middle retirement");
+NestedFrame();
+Check(nested.state.RetiringLeases == 2 && nested.state.ResidentBytes == 60 && !leaf.HasBoundAssets,
+    "Retiring pages must stay charged until the last readers finish");
+
+middleReaders.IsComplete = true;
+for (int step = 0; step < 24 && !leaf.HasBoundAssets; step++) NestedFrame();
+Check(leaf.HasBoundAssets && root.HasBoundAssets && root.Generation == rootGeneration &&
+    nested.state.ResidentBytes == 60 && nested.state.GetState("middle").Status == Stream.Phase.Unloaded &&
+    ReferenceEquals(leaf.Proxy.HLODParent, middle.Proxy) && ReferenceEquals(middle.Proxy.HLODParent, root.Proxy),
+    "The original root and complete leaf must fit after retirement with the authored tree still intact");
+
+leaf.Proxy.HLODParent = root.Proxy;
+nested.budget.maxResidentBytes = 80;
+nested.ApplyBudget();
+for (int step = 0; step < 16 && !middle.HasBoundAssets; step++) NestedFrame();
+Check(middle.HasBoundAssets && root.Generation == rootGeneration, "A former intermediate must bind again after it becomes a leaf");
+Console.WriteLine("PASS nested managed demand: intermediate stays cold, existing leases retire safely, the leaf fits beside the root, and reparenting restores distance demand.");
 Console.WriteLine("PASS multiview cold-demand capability; actual C# representation/driver/scheduler, adapted Unity objects and IO. No Unity/AssetBundle/GPU/HLOD native-chain acceptance.");
 
 sealed class Completion : Stream.ICompletion
@@ -233,7 +302,7 @@ sealed class Fixture
     const BindingFlags Hidden=BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance|BindingFlags.Static;
     public static void Set(object value,string name,object field)=>value.GetType().GetField(name,Hidden).SetValue(value,field);
     public static object Get(object value,string name)=>value.GetType().GetField(name,Hidden).GetValue(value);
-    static void Call(object value,string name){try{value.GetType().GetMethod(name,Hidden).Invoke(value,null);}catch(TargetInvocationException e){throw e.InnerException;}}
+    internal static void Call(object value,string name){try{value.GetType().GetMethod(name,Hidden).Invoke(value,null);}catch(TargetInvocationException e){throw e.InnerException;}}
     public readonly HybridLumenGIStreamedRepresentation representation=new();public readonly HybridLumenGIAssetPageStreamer driver=new();
     public readonly HybridLumenGIProxy proxy=new();public readonly MeshFilter filter=new();public readonly MeshRenderer renderer=new();
     public readonly Transform near=new(){position=new Vector3(100,0,0)},far=new(){position=new Vector3(200,0,0)};

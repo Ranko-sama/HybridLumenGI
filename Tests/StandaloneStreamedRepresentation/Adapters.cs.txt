@@ -31,6 +31,7 @@ namespace UnityEngine
         {Vector3 a=min,b=max;float x=MathF.Max(MathF.Max(a.x-p.x,p.x-b.x),0),y=MathF.Max(MathF.Max(a.y-p.y,p.y-b.y),0),z=MathF.Max(MathF.Max(a.z-p.z,p.z-b.z),0);return x*x+y*y+z*z;}
     }
     public class Camera:Object{public static Camera main;public Transform transform=new();}
+    public static class Time{public static int frameCount;}
     public class Mesh:Object{public int subMeshCount=1;}
     public class Material:Object{}
     public class Texture:Object{}
@@ -58,6 +59,8 @@ namespace HybridLumenGI
     public class HybridLumenGISurfaceCharts:UnityEngine.Object{public Mesh SourceMesh;}
     public class HybridLumenGIProxy:MonoBehaviour
     {
+        public static IReadOnlyList<HybridLumenGIProxy> ActiveProxies { get; } = Array.Empty<HybridLumenGIProxy>();
+        public HybridLumenGIProxy HLODParent;
         public HybridLumenGIMeshSdf MeshSdf;public HybridLumenGISurfaceCharts SurfaceCharts;public Renderer SourceRenderer;
         public void SetSources(Renderer renderer,Collider collider){SourceRenderer=renderer;}
         public void SetMeshSdf(HybridLumenGIMeshSdf value){MeshSdf=value;}

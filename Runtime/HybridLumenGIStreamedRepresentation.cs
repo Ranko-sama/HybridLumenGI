@@ -27,6 +27,9 @@ namespace HybridLumenGI
         [SerializeField,Min(0f)] private float loadDistance=60f,unloadDistance=90f;
         [SerializeField] private int priority;
         private static readonly List<HybridLumenGIStreamedRepresentation> active=new List<HybridLumenGIStreamedRepresentation>();
+        private static readonly HashSet<HybridLumenGIProxy> declaredHlodMembers = new HashSet<HybridLumenGIProxy>();
+        private static readonly HashSet<HybridLumenGIProxy> hlodParents = new HashSet<HybridLumenGIProxy>();
+        private static int hlodDemandFrame = -1;
         private readonly List<HybridLumenGIAssetPageStreaming.Lease> leases=new List<HybridLumenGIAssetPageStreaming.Lease>();
         private HybridLumenGIAssetPageStreaming pageState;
         private Mesh loadedMesh;
@@ -84,6 +87,7 @@ namespace HybridLumenGI
             SetHlodRasterVisible(false);
             unavailable = false;
             if (!active.Contains(this)) active.Add(this);
+            InvalidateHlodDemandTopology();
             HybridLumenGIResourceRetirement.EnsureRegistered();
         }
         private void OnDisable()
@@ -91,6 +95,7 @@ namespace HybridLumenGI
             SetHlodRasterVisible(false);
             unavailable = true;
             wanted = false;
+            InvalidateHlodDemandTopology();
             if (bound) HybridLumenGIResourceRetirement.RequestUnavailableRepresentationRetirement();
             else RemoveRequests();
         }
@@ -98,6 +103,7 @@ namespace HybridLumenGI
         {
             unavailable = true;
             wanted = false;
+            InvalidateHlodDemandTopology();
             RemoveRequests();
             if (bound) HybridLumenGIResourceRetirement.RequestUnavailableRepresentationRetirement();
             else if (retirement == null) active.Remove(this);
@@ -123,6 +129,7 @@ namespace HybridLumenGI
                 pageIds=new string[ids.Count];ids.CopyTo(pageIds);targetRenderer.enabled=false;proxy.enabled=false;
             }
             if(manualMode)wanted=manualWanted;
+            else if (IsManagedIntermediate()) wanted = false;
             else
             {
                 Transform target=observer!=null?observer:Camera.main!=null?Camera.main.transform:null;
@@ -171,6 +178,35 @@ namespace HybridLumenGI
             proxy.SetSources(targetRenderer,null);proxy.SetMeshSdf(loadedSdf);proxy.SetSurfaceCharts(loadedCharts);
             targetRenderer.enabled=true;proxy.enabled=true;proxy.MarkDirty();bound=true;
         }
+        private static void InvalidateHlodDemandTopology()
+        {
+            hlodDemandFrame = -1;
+            declaredHlodMembers.Clear();
+            hlodParents.Clear();
+        }
+
+        private bool IsManagedIntermediate()
+        {
+            if (!useHlodRasterVisibility) return false;
+            // The same declarations as Scene's HLOD selection, including members
+            // whose Proxy is disabled until its pages arrive. Scan once per Update frame.
+            if (hlodDemandFrame != Time.frameCount)
+            {
+                InvalidateHlodDemandTopology();
+                foreach (var binding in active)
+                {
+                    if (binding == null || !binding.isActiveAndEnabled || binding.IsUnavailable || binding.proxy == null) continue;
+                    declaredHlodMembers.Add(binding.proxy);
+                    hlodParents.Add(binding.proxy.HLODParent);
+                }
+                foreach (var child in HybridLumenGIProxy.ActiveProxies)
+                    if (child != null && child.isActiveAndEnabled) hlodParents.Add(child.HLODParent);
+                hlodDemandFrame = Time.frameCount;
+            }
+            var parent = proxy.HLODParent;
+            return parent != null && (parent.isActiveAndEnabled || declaredHlodMembers.Contains(parent)) && hlodParents.Contains(proxy);
+        }
+
         internal Bounds GetWorldBounds()
         {
             Matrix4x4 matrix = transform.localToWorldMatrix;
@@ -195,6 +231,7 @@ namespace HybridLumenGI
                 // still covers any work submitted before this failure.
                 if (targetRenderer != null) targetRenderer.enabled = false;
                 if (proxy != null) proxy.enabled = false;
+                InvalidateHlodDemandTopology();
                 HybridLumenGIResourceRetirement.RequestUnavailableRepresentationRetirement();
             }
             RemoveRequests();
