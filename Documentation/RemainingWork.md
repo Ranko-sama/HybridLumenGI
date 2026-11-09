@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release192 同源交付](../LocalComparison/Review/asset-bundle-headroom-223/delivery.json)
 
+G3 已补固定中心转向的实际保留和出屏拒旧依据。Release192 的普通 Base 保留共同可见地板历史，新入画地板从年龄 1 开始。原 TAA 横移的遮挡后显露按 Release73 结果采用。完整 G3 的画面误差、拖影与收敛继续按原条件验收。[相机运动验收](Validation.md#required-matrix)
+
 T6／G4 已关闭默认 AssetBundle 在途额度被后续小页反复占满、使队首合格大页无法启动的问题。采用范围为实际驱动的受控 I/O 与共享额度。原生 I/O 等待、吞吐及高速冷入继续分别验收。[对照和范围](../LocalComparison/Review/asset-bundle-headroom-223/result.md)
 
 T6／G4 已关闭可选 Additive 场景驱动中，持续请求被交替出现的更近场景反复抢占加载名额的问题。相同输入下，旧版 64 步未服务该请求，修复版第 60 步启动并完成，实际调度保持共享额度和安全卸载。原生场景 I/O 和生产预算继续验收。[对照和范围](../LocalComparison/Review/additive-load-fairness-222/result.md)

@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release192，G0 已锁定，G1／G2 本机代表性验收通过
 
+补齐 G3 原验收表的普通 Base 固定中心转向子项。Release192 同源实际 DXR 中，三次转向的共同可见地板历史从 13 增到 16，原视口外新入画的地板均从 1 开始。遮挡物后的新显露使用既有 Release73 TAA 横移证据。Final 画面和完整 G3 继续验收。[转向记录](../LocalComparison/Review/base-camera-turn-224/result.md) · [横移记录](ReviewBrief-CameraMotionTaaResponse03.md)
+
 T6／G4 已关闭默认 AssetBundle 驱动中后续小页反复填满在途额度、使合格大页无法启动的问题。实际驱动受控对照中，旧版第 8 步仍未启动，修复版第 3 步启动、第 6 步就绪，后续小页继续推进。原生 I/O 等待、吞吐和完整生产预算继续验收。[对照与范围](../LocalComparison/Review/asset-bundle-headroom-223/result.md) · [同源交付](../LocalComparison/Review/asset-bundle-headroom-223/delivery.json)
 
 T6／G4 已关闭可选 Additive 场景驱动中持续合格请求拿不到加载名额的问题。实际 C# 调度器同输入对照中，旧版 64 步未服务该请求，修复版第 60 步启动并完成。采用范围为等优先级场景的受控 I/O 和原共享额度，Unity 原生场景 I/O、实际等待和生产预算分别验收。[对照和范围](../LocalComparison/Review/additive-load-fairness-222/result.md) · [同源交付](../LocalComparison/Review/additive-load-fairness-222/delivery.json)
