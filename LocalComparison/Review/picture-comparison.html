@@ -54,6 +54,9 @@
   <h3>点光继续照明时的绿转蓝</h3>
   <p>同一封闭灰墙房间的点光保持开启。Release200 在约 1 秒和 2 秒仍残留 11.84% 和 6.02% 的旧绿。Release201 分别降至 0.046% 和 0.0041%，末端蓝光仍与旧版接近。结论采用固定九点的间接出射和原残留阈值。</p>
   <figure><img src="point-light-recolor-237/comparison.png" alt="上排为换色后仍偏青的 Release200，下排为修复版的同曝光蓝光画面"><figcaption>960×540、半分辨率 GI、实际 DXR Editor Play。白圈为固定接收点。<a href="point-light-recolor-237/baseline.json">Release200 读数</a> · <a href="point-light-recolor-237/fixed.json">修复版读数</a> · <a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/point-light-recolor-237/result.md">适用范围 ↗</a></figcaption></figure>
+  <h3>点灯切回蓝色，青色聚光灯继续照明</h3>
+  <p>固定房间的实际 DXR 对照中，Release230 将 1 秒前的旧绿增量从 <strong>12.173% 降至 0.303%</strong>，2 秒前从 <strong>6.069% 降至 0.014%</strong>。九点约 0.840 秒进入终态容差，随后保持至 2.608 秒末帧。</p>
+  <figure><img src="mixed-light-recolor-280/comparison.png" alt="恒定青色聚光灯与点灯换色，旧版和修复版的同曝光间接光对照"><figcaption>960×540、半分辨率 GI、实际 DXR Editor Play。左列是蓝色终态控制，中列是青色高态控制，右列是换色约两秒后的画面。<a href="mixed-light-recolor-280/baseline.json">Release229 读数</a> · <a href="mixed-light-recolor-280/fixed.json">修复版读数</a> · <a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/mixed-light-recolor-280/result.md">范围与方法 ↗</a></figcaption></figure>
   <h3>历史观察与修复记录</h3>
   <h3>物体没有可用图卡时，材质换色能传到地板吗？</h3>
   <p>Release113 中，近处遮板的共享材质为红色，运行时覆盖为绿或蓝，白地板仍然收到红光。Release114 修复后，设置 Renderer 为绿、设置槽 0 为蓝、清除槽覆盖的三个连续工作帧中，地板依次收到绿光、蓝光、绿光。</p>
