@@ -26,6 +26,8 @@ namespace HybridLumenGI
         private sealed class RequestSet
         {
             internal string[] ids;
+            internal HybridLumenGIStreamedRepresentation binding;
+            internal string[] admittedHlodIds;
             internal int priority;
             internal long requestedAt,sequence;
             internal long Score(long now) => (long)priority+(now-requestedAt)/60;
@@ -108,15 +110,40 @@ namespace HybridLumenGI
                 int rank=b.Score(tick).CompareTo(a.Score(tick));return rank!=0?rank:a.sequence.CompareTo(b.sequence);
             });
             var admitted=new HashSet<string>(StringComparer.Ordinal);
+            HashSet<IReadOnlyList<HybridLumenGIStreamedRepresentation>> processedHlodGroups = null;
+            List<RequestSet> detailRequests = null;
+            foreach (var request in requests.Values) request.admittedHlodIds = null;
             foreach(var request in ordered)
             {
-                if (!State.TryAdmitGroup(request.ids, stepBudgets, admitted, checkRetry: true, out bool waitingForRetry))
+                var ids = request.ids;
+                var details = request.binding != null ? request.binding.AutomaticHlodDetails() : null;
+                if (details != null)
+                {
+                    processedHlodGroups ??= new HashSet<IReadOnlyList<HybridLumenGIStreamedRepresentation>>();
+                    if (!processedHlodGroups.Add(details)) continue;
+                    detailRequests ??= new List<RequestSet>();
+                    detailRequests.Clear();
+                    foreach (var detail in details)
+                    {
+                        if (!detail.HasActivePageDemand || !requests.TryGetValue(detail, out var member) || member.binding != detail) break;
+                        detailRequests.Add(member);
+                    }
+                    if (detailRequests.Count != details.Count) continue;
+                    // A partial HLOD target cannot publish. Reserve its whole authored leaf set at once.
+                    var detailIds = new HashSet<string>(StringComparer.Ordinal);
+                    foreach (var member in detailRequests) detailIds.UnionWith(member.ids);
+                    ids = new string[detailIds.Count];
+                    detailIds.CopyTo(ids);
+                }
+                if (!State.TryAdmitGroup(ids, stepBudgets, admitted, checkRetry: true, out bool waitingForRetry))
                 {
                     if (!waitingForRetry) BudgetBlockedGroups++;
                     continue;
                 }
+                if (details != null)
+                    foreach (var member in detailRequests) member.admittedHlodIds = ids;
                 long score=request.Score(tick);
-                foreach(var id in request.ids)
+                foreach(var id in ids)
                     priorities[id]=priorities.TryGetValue(id,out long previous)?Math.Max(previous,score):score;
             }
             foreach(var state in State.States)
@@ -125,15 +152,33 @@ namespace HybridLumenGI
             State.Step(stepBudgets);
         }
         public bool SetRequests(object requester,IReadOnlyList<string> ids,int priority=0)
+            => SetRequests(requester, ids, priority, null);
+
+        internal bool SetRepresentationRequests(HybridLumenGIStreamedRepresentation binding, IReadOnlyList<string> ids, int priority)
+            => SetRequests(binding, ids, priority, binding);
+
+        private bool SetRequests(object requester, IReadOnlyList<string> ids, int priority, HybridLumenGIStreamedRepresentation binding)
         {
             if(requester==null || !Available || ids==null)return false;
             var unique=new HashSet<string>(StringComparer.Ordinal);
             foreach(string id in ids)if(!string.IsNullOrEmpty(id))
             {if(State.GetState(id)==null)return false;unique.Add(id);}
-            if(requests.TryGetValue(requester,out var previous) && unique.SetEquals(previous.ids))
+            if(requests.TryGetValue(requester,out var previous) && ReferenceEquals(previous.binding, binding) && unique.SetEquals(previous.ids))
             {previous.priority=priority;return true;}
             var array=new string[unique.Count];unique.CopyTo(array);
-            requests[requester]=new RequestSet{ids=array,priority=priority,requestedAt=tick,sequence=nextRequest++};return true;
+            requests[requester]=new RequestSet{ids=array,binding=binding,priority=priority,requestedAt=tick,sequence=nextRequest++};return true;
+        }
+
+        internal bool CanBindHlodDetails(HybridLumenGIStreamedRepresentation binding,
+            IReadOnlyList<HybridLumenGIStreamedRepresentation> details)
+        {
+            if (!requests.TryGetValue(binding, out var request) || request.admittedHlodIds == null) return false;
+            foreach (var detail in details)
+                if (!detail.HasActivePageDemand || !requests.TryGetValue(detail, out var member) ||
+                    !ReferenceEquals(member.admittedHlodIds, request.admittedHlodIds)) return false;
+            foreach (var id in request.admittedHlodIds)
+                if (State.GetState(id).Status != HybridLumenGIAssetPageStreaming.Phase.Ready) return false;
+            return true;
         }
         public void RemoveRequests(object requester){if(requester!=null)requests.Remove(requester);}
         public bool TryAcquire(string id,out HybridLumenGIAssetPageStreaming.Lease lease)

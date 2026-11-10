@@ -27,9 +27,17 @@ namespace HybridLumenGI
         [SerializeField,Min(0f)] private float loadDistance=60f,unloadDistance=90f;
         [SerializeField] private int priority;
         private static readonly List<HybridLumenGIStreamedRepresentation> active=new List<HybridLumenGIStreamedRepresentation>();
-        private static readonly HashSet<HybridLumenGIProxy> declaredHlodMembers = new HashSet<HybridLumenGIProxy>();
+        private static readonly Dictionary<HybridLumenGIProxy, HybridLumenGIStreamedRepresentation> declaredHlodMembers =
+            new Dictionary<HybridLumenGIProxy, HybridLumenGIStreamedRepresentation>();
         private static readonly HashSet<HybridLumenGIProxy> hlodParents = new HashSet<HybridLumenGIProxy>();
+        private static readonly Dictionary<HybridLumenGIProxy, HlodDetailDemand> hlodDetailDemands =
+            new Dictionary<HybridLumenGIProxy, HlodDetailDemand>();
         private static int hlodDemandFrame = -1;
+        private sealed class HlodDetailDemand
+        {
+            internal readonly List<HybridLumenGIStreamedRepresentation> leaves = new List<HybridLumenGIStreamedRepresentation>();
+            internal bool independent;
+        }
         private readonly List<HybridLumenGIAssetPageStreaming.Lease> leases=new List<HybridLumenGIAssetPageStreaming.Lease>();
         private HybridLumenGIAssetPageStreaming pageState;
         private Mesh loadedMesh;
@@ -53,6 +61,8 @@ namespace HybridLumenGI
         public Renderer SourceRenderer=>targetRenderer;
         public string LastError { get; private set; }
         internal bool UsesHlodRasterVisibility => useHlodRasterVisibility;
+        private bool UsesAutomaticHlodDemand => useHlodRasterVisibility && !manualMode;
+        internal bool HasActivePageDemand => wanted && !IsSourceUnavailable && retirement == null;
         internal bool CanSubmitHlodRaster => useHlodRasterVisibility && bound && !IsSourceUnavailable &&
             targetRenderer != null && targetRenderer.enabled && targetRenderer.gameObject.activeInHierarchy;
         public void Configure(HybridLumenGIAssetPageStreamer owner,HybridLumenGIProxy source,MeshFilter filter,MeshRenderer renderer,
@@ -61,12 +71,14 @@ namespace HybridLumenGI
             if(bound || leases.Count!=0)throw new InvalidOperationException("Cannot reconfigure a resident representation.");
             streamer=owner;proxy=source;meshFilter=filter;targetRenderer=renderer;
             geometryPage=mesh;sdfPage=sdf;chartPage=charts;materialPages=materials??Array.Empty<string>();localBounds=bounds;pageIds=null;
+            InvalidateHlodDemandTopology();
         }
         /// <summary>Configure all members of an authored group before enabling its streamed rig.</summary>
         public void UseHlodPublicationForRendering(bool value)
         {
             if (useHlodRasterVisibility == value) return;
             useHlodRasterVisibility = value;
+            InvalidateHlodDemandTopology();
             if (targetRenderer != null) targetRenderer.forceRenderingOff = value;
         }
         internal void SetHlodRasterVisible(bool visible)
@@ -75,8 +87,16 @@ namespace HybridLumenGI
         }
         public void SetWanted(bool value)=>SetWanted(value,false);
         internal void SetWanted(bool value,bool prefetchPages)
-        {manualMode=true;manualWanted=value;manualPrefetch=prefetchPages && !value;}
-        public void UseDistanceRequests(){manualMode=false;}
+        {
+            if (!manualMode) InvalidateHlodDemandTopology();
+            manualMode=true;manualWanted=value;manualPrefetch=prefetchPages && !value;
+        }
+        public void UseDistanceRequests()
+        {
+            if (!manualMode) return;
+            manualMode = false;
+            InvalidateHlodDemandTopology();
+        }
         /// <summary>Copies additional viewpoints without changing manual-mode priority.
         /// Null/empty removes the additions, retaining the legacy observer/main-camera behavior.</summary>
         public void SetAdditionalObservers(params Transform[] value)
@@ -158,9 +178,11 @@ namespace HybridLumenGI
             if (!pagesAvailable) return;
             bool prefetchOnly=manualMode && manualPrefetch && !wanted && !bound;
             if(!wanted && !prefetchOnly){if(!bound)RemoveRequests();return;}
-            if(!streamer.SetRequests(this,pageIds,prefetchOnly?int.MinValue:priority)){Fail("A requested asset page is absent from the manifest.");return;}
+            if(!streamer.SetRepresentationRequests(this,pageIds,prefetchOnly?int.MinValue:priority)){Fail("A requested asset page is absent from the manifest.");return;}
             // Speculative demand may load pages. Only current demand acquires leases and binds the renderer.
             if(prefetchOnly || bound)return;
+            var detailGroup = AutomaticHlodDetails();
+            if (detailGroup != null && !streamer.CanBindHlodDetails(this, detailGroup)) return;
             pageState=streamer.State;
             // Acquire only when the entire group is ready. No partial renderer is ever visible.
             foreach(string id in pageIds)if(pageState.GetState(id)?.Status!=HybridLumenGIAssetPageStreaming.Phase.Ready)return;
@@ -185,28 +207,75 @@ namespace HybridLumenGI
             hlodDemandFrame = -1;
             declaredHlodMembers.Clear();
             hlodParents.Clear();
+            hlodDetailDemands.Clear();
+        }
+
+        private static bool IsDeclaredHlodMember(HybridLumenGIProxy member) => member != null &&
+            (member.isActiveAndEnabled || declaredHlodMembers.ContainsKey(member));
+
+        private static HybridLumenGIProxy TopLevelHlodParent(HybridLumenGIProxy member)
+        {
+            var root = member.HLODParent;
+            if (!IsDeclaredHlodMember(root)) return null;
+            for (int depth = 0; depth < 64; depth++)
+            {
+                var parent = root.HLODParent;
+                if (!IsDeclaredHlodMember(parent)) return root;
+                root = parent;
+            }
+            return null;
+        }
+
+        private static void RefreshHlodDemandTopology()
+        {
+            if (hlodDemandFrame == Time.frameCount) return;
+            // The same declarations as Scene's HLOD selection, including members
+            // whose Proxy is disabled until its pages arrive. Scan once per Update frame.
+            InvalidateHlodDemandTopology();
+            foreach (var binding in active)
+            {
+                if (binding == null || !binding.isActiveAndEnabled || binding.proxy == null) continue;
+                declaredHlodMembers[binding.proxy] = binding;
+                hlodParents.Add(binding.proxy.HLODParent);
+            }
+            foreach (var child in HybridLumenGIProxy.ActiveProxies)
+                if (child != null && child.isActiveAndEnabled) hlodParents.Add(child.HLODParent);
+
+            foreach (var binding in declaredHlodMembers.Values)
+            {
+                var root = TopLevelHlodParent(binding.proxy);
+                if (root == null || !declaredHlodMembers.TryGetValue(root, out var rootBinding) ||
+                    !rootBinding.UsesAutomaticHlodDemand || rootBinding.streamer == null) continue;
+                if (!hlodDetailDemands.TryGetValue(root, out var demand))
+                    hlodDetailDemands.Add(root, demand = new HlodDetailDemand());
+                if (!binding.UsesAutomaticHlodDemand || binding.streamer != rootBinding.streamer) demand.independent = true;
+                else if (!hlodParents.Contains(binding.proxy)) demand.leaves.Add(binding);
+            }
+            foreach (var child in HybridLumenGIProxy.ActiveProxies)
+            {
+                if (child == null || !child.isActiveAndEnabled || declaredHlodMembers.ContainsKey(child)) continue;
+                var root = TopLevelHlodParent(child);
+                if (root != null && hlodDetailDemands.TryGetValue(root, out var demand)) demand.independent = true;
+            }
+            hlodDemandFrame = Time.frameCount;
         }
 
         private bool IsManagedIntermediate()
         {
             if (!useHlodRasterVisibility) return false;
-            // The same declarations as Scene's HLOD selection, including members
-            // whose Proxy is disabled until its pages arrive. Scan once per Update frame.
-            if (hlodDemandFrame != Time.frameCount)
-            {
-                InvalidateHlodDemandTopology();
-                foreach (var binding in active)
-                {
-                    if (binding == null || !binding.isActiveAndEnabled || binding.proxy == null) continue;
-                    declaredHlodMembers.Add(binding.proxy);
-                    hlodParents.Add(binding.proxy.HLODParent);
-                }
-                foreach (var child in HybridLumenGIProxy.ActiveProxies)
-                    if (child != null && child.isActiveAndEnabled) hlodParents.Add(child.HLODParent);
-                hlodDemandFrame = Time.frameCount;
-            }
-            var parent = proxy.HLODParent;
-            return parent != null && (parent.isActiveAndEnabled || declaredHlodMembers.Contains(parent)) && hlodParents.Contains(proxy);
+            RefreshHlodDemandTopology();
+            return IsDeclaredHlodMember(proxy.HLODParent) && hlodParents.Contains(proxy);
+        }
+
+        internal IReadOnlyList<HybridLumenGIStreamedRepresentation> AutomaticHlodDetails()
+        {
+            if (!UsesAutomaticHlodDemand || proxy == null || proxy.HLODParent == null) return null;
+            RefreshHlodDemandTopology();
+            if (hlodParents.Contains(proxy) || !declaredHlodMembers.TryGetValue(proxy, out var binding) || binding != this) return null;
+            var root = TopLevelHlodParent(proxy);
+            // Mixed and application-controlled trees retain their independent demand.
+            return root != null && hlodDetailDemands.TryGetValue(root, out var demand) &&
+                !demand.independent && demand.leaves.Count > 1 ? demand.leaves : null;
         }
 
         internal Bounds GetWorldBounds()
