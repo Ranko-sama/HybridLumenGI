@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release259，G0 已锁定，G1／G2 本机代表性验收通过
 
+T6／G4／G5 更新了当前发布版的固定软件近景预算依据。Release259 的 GI p95／p99 为 39.621／40.006 ms，local 有限采样峰值 547.449 MiB。同界兄弟叶合并在同源实测中未达到采用线，已撤回。25 ms 时间缺口继续开放。[普通 Player 前后对照](../LocalComparison/Review/software-paired-bounds-329/result.md)
+
 原第 3／7 条工作流已关闭近似世界命中读到正确多槽图卡却仍采用物体级接收阴影的问题。实机只关闭槽 1 的接收阴影，槽 1 反弹从 0 恢复到每通道 0.273529，受遮挡的槽 0 保持零。证据覆盖固定不透明 Lit、实际图卡和解析体命中。修复已进入普通 Win64 演示及同源工程。[实机前后对照](../LocalComparison/Review/card-shadow-receiving-328/result.md) · [Release259 同源交付](../LocalComparison/Review/card-shadow-receiving-328/delivery.json)
 
 T2／第 9 节通过固定 Lit 裁剪发光源点的原生面积采样。实际软件 BVH 和 DXR 均保留透明孔的已知零贡献，实心位的 PDF、Le 与面积贡献匹配解析预期。采用限二值 Point BaseMap 与固定输入，整景表现继续验收。[Release258 双后端实机对照](../LocalComparison/Review/native-area-cutout-327/result.md)

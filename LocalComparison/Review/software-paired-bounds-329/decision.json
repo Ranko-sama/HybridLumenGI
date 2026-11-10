@@ -1,0 +1,42 @@
+{
+  "status": "measured-benefit-insufficient",
+  "adopt": false,
+  "semanticCheckNeeded": false,
+  "criteria": {
+    "p95AtLeastFifteenPercent": false,
+    "beyondBlockSpread": false,
+    "lowerP99": false,
+    "withinReferenceLocalLimit": true
+  },
+  "medianReductionMs": -0.1597280000000012,
+  "medianReductionPercent": -0.4126865884506488,
+  "baselineBlockMedianMs": [
+    38.617936,
+    38.680928,
+    38.847824,
+    38.779872
+  ],
+  "candidateBlockMedianMs": [
+    38.675647999999995,
+    38.984384000000006,
+    39.022576,
+    38.819952
+  ],
+  "maxBlockMedianSpreadMs": 0.34692800000000545,
+  "baseline": {
+    "count": 512,
+    "medianMs": 38.704432,
+    "p95Ms": 39.6205152,
+    "p99Ms": 40.006418239999995,
+    "maxMs": 40.413503999999996
+  },
+  "candidate": {
+    "count": 512,
+    "medianMs": 38.86416,
+    "p95Ms": 39.854928,
+    "p99Ms": 40.308610560000005,
+    "maxMs": 40.639103999999996
+  },
+  "withinReferenceGiP95": false,
+  "withinReferenceLocalLimit": true
+}
