@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release242，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release243，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已修复统一示例蒙皮门捕获时重复缩放的缺口。普通 DXR Player 在固定 15° 姿态命中正确的门顶三角，高度从旧版的 5.525 m 回到独立骨权重参考的 2.873 m。24 个发布顶点的最大世界坐标误差为 2.98 × 10⁻⁸ m。采用限该门的快照坐标与一次 DXR 诊断消费，连续运动画质与整体 G3 继续验收。[实机对照与范围](../LocalComparison/Review/ordinary-skin-scale-300/result.md) · [Release243 同源交付](../LocalComparison/Review/ordinary-skin-scale-300/delivery.json)
 
 T3／T6 已缩短单活动形变来源的 SDF 烘焙等待。固定 15° 两骨门在原工作槽额度内由 101.372 ms 降到 63.404 ms，边界与距离数组一致。实际组件与烘焙核的受控取消及故障均等到两半结束后归还槽位和预留。Astra Max 同意在隔离烘焙耗时范围内采用。普通 Player 的端到端延迟与画质继续验收。[实测与占槽边界](../LocalComparison/Review/deformed-bake-slots-298/result.md) · [Release242 同源交付](../LocalComparison/Review/deformed-bake-slots-298/delivery.json)
 
