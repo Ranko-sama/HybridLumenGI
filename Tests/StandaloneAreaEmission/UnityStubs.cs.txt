@@ -8,6 +8,14 @@ namespace UnityEngine {
         public static Vector3 operator *(Vector3 v, float s) => new Vector3(v.x * s, v.y * s, v.z * s);
     }
     public struct Vector4 { public float x,y,z,w;public Vector4(float x,float y,float z,float w){this.x=x;this.y=y;this.z=z;this.w=w;} }
+    public sealed class GraphicsBuffer { }
+}
+namespace UnityEngine.Rendering
+{
+    public sealed class CommandBuffer
+    {
+        public void SetBufferData(GraphicsBuffer buffer, Array source) => throw new NotSupportedException("The builder host does not record graphics commands.");
+    }
 }
 namespace HybridLumenGI {
     public struct HybridLumenGIHitMaterialUInt4 {public uint x,y,z,w;public HybridLumenGIHitMaterialUInt4(uint x,uint y,uint z,uint w){this.x=x;this.y=y;this.z=z;this.w=w;}}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace HybridLumenGI
 {
@@ -31,6 +32,12 @@ namespace HybridLumenGI
             public long ByteCount=>BufferBytes(NodeCount,LeafCount);
             internal Layout(Node[] nodes,Leaf[] leaves){this.nodes=nodes;this.leaves=leaves;Nodes=Array.AsReadOnly(nodes);Leaves=Array.AsReadOnly(leaves);}
             public Node[] CopyNodes()=>(Node[])nodes.Clone();public Leaf[] CopyLeaves()=>(Leaf[])leaves.Clone();
+
+            internal void RecordUpload(CommandBuffer command, GraphicsBuffer nodeBuffer, GraphicsBuffer leafBuffer)
+            {
+                command.SetBufferData(nodeBuffer, nodes);
+                command.SetBufferData(leafBuffer, leaves);
+            }
         }
         private struct BoundsRecord { public Vector3 minimum,maximum;public int leaf; }
         private struct SplitBucket
@@ -141,13 +148,17 @@ namespace HybridLumenGI
             return middle - start;
         }
 
-        private static int Build(BoundsRecord[] bounds,int start,int count,List<Node> nodes,CenterComparer comparer,
-            SplitBucket[] buckets, double[] leftCosts)
+        private static void Build(BoundsRecord[] bounds, int start, int count, Node[] nodes, ref int nextNode,
+            CenterComparer comparer, SplitBucket[] buckets, double[] leftCosts)
         {
             Vector3 minimum=bounds[start].minimum,maximum=bounds[start].maximum;
             for(int i=start+1;i<start+count;i++){minimum=Min(minimum,bounds[i].minimum);maximum=Max(maximum,bounds[i].maximum);}
-            int index=nodes.Count;nodes.Add(default);
-            if(count==1){nodes[index]=new Node{minimum=minimum,maximum=maximum,skipIndex=(uint)nodes.Count,leaf=bounds[start].leaf};return index;}
+            int index = nextNode++;
+            if (count == 1)
+            {
+                nodes[index] = new Node { minimum = minimum, maximum = maximum, skipIndex = (uint)nextNode, leaf = bounds[start].leaf };
+                return;
+            }
             int leftCount = count >= 4 ? PartitionBySurfaceArea(bounds, start, count, buckets, leftCosts) : 0;
             if (leftCount == 0)
             {
@@ -155,9 +166,9 @@ namespace HybridLumenGI
                 Array.Sort(bounds, start, count, comparer);
                 leftCount = count / 2;
             }
-            Build(bounds,start,leftCount,nodes,comparer,buckets,leftCosts);
-            Build(bounds,start+leftCount,count-leftCount,nodes,comparer,buckets,leftCosts);
-            nodes[index]=new Node{minimum=minimum,maximum=maximum,skipIndex=(uint)nodes.Count,leaf=-1};return index;
+            Build(bounds, start, leftCount, nodes, ref nextNode, comparer, buckets, leftCosts);
+            Build(bounds, start + leftCount, count - leftCount, nodes, ref nextNode, comparer, buckets, leftCosts);
+            nodes[index] = new Node { minimum = minimum, maximum = maximum, skipIndex = (uint)nextNode, leaf = -1 };
         }
         /// <summary>
         /// All prepared triangles are required. Capacity/source failure rejects the whole table,
@@ -218,10 +229,16 @@ namespace HybridLumenGI
                         cursor++;
                     }
                 }
-                var nodes=new List<Node>(NodeCountForTriangles((int)total));
-                if(total>0)Build(bounds,0,bounds.Length,nodes,new CenterComparer(),
-                    new SplitBucket[SplitBucketCount], new double[SplitBucketCount - 1]);
-                layout=new Layout(nodes.ToArray(),leaves);return true;
+                Node[] nodes = Array.Empty<Node>();
+                if (leaves.Length > 0)
+                {
+                    nodes = new Node[NodeCountForTriangles(leaves.Length)];
+                    int nextNode = 0;
+                    Build(bounds, 0, bounds.Length, nodes, ref nextNode, new CenterComparer(),
+                        new SplitBucket[SplitBucketCount], new double[SplitBucketCount - 1]);
+                }
+                layout = new Layout(nodes, leaves);
+                return true;
             }
             catch(Exception ex){reason="Software triangle BVH capture failed: "+ex.GetType().Name;return false;}
         }

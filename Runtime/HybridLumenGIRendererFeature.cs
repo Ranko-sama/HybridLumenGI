@@ -656,7 +656,7 @@ namespace HybridLumenGI
                 BufferHandle nodes,BufferHandle leaves)
             {
                 if(uploadedSoftwareVersion==version)return;
-                cmd.SetBufferData((GraphicsBuffer)nodes,layout.CopyNodes());cmd.SetBufferData((GraphicsBuffer)leaves,layout.CopyLeaves());
+                layout.RecordUpload(cmd, (GraphicsBuffer)nodes, (GraphicsBuffer)leaves);
                 uploadedSoftwareVersion=version; // Ordered graphics-queue write, not a completion/readiness claim.
             }
             internal void DeactivateSoftwareGeometry()
