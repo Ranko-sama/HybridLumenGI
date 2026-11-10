@@ -2,7 +2,9 @@
 
 本表基于 [ProductionPlan](ProductionPlan.md)、[运行验收要求](Validation.md)和[当前推进表](DevelopmentProgress.md)，保留原四项目标、十条工作流及 G0–G5 范围。用途是安排剩余工作，不把未验收项判成代码缺陷，也不把有限交付判成总目标完成。
 
-G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release258 同源交付](../LocalComparison/Review/streamed-shared-mesh-326/delivery.json)
+G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release259 同源交付](../LocalComparison/Review/card-shadow-receiving-328/delivery.json)
+
+原第 3／7 条工作流已关闭固定多槽 Lit 的图卡接收阴影缺口。实际图卡解析体命中在关闭槽 1 的接收阴影后恢复独立点灯预期，槽 0 仍受同一遮板影响。六视图、SDF 命中、混合灯光和整景动态继续各自验收。[Release259 两槽对照](../LocalComparison/Review/card-shadow-receiving-328/result.md)
 
 T2／第 9 节已关闭固定二值 Point BaseMap 的原生裁剪面积源点子项。透明孔返回已知零，实心位匹配独立解析值，软件 BVH 与 DXR 一致。其他裁剪、发光贴图和整景仍按原条件验收。[实际生产链对照](../LocalComparison/Review/native-area-cutout-327/result.md)
 
@@ -314,7 +316,7 @@ T6 的原固定热态近远接替已关闭应用 Present 墙钟节奏子项。Re
 | T4 / 中 | 世界表面专项验收 · G2 | 关闭尚未覆盖的材质／UV 接缝、镜像变换、图集／锚点及池复用身份问题。已有三室、薄壁、凹口、离屏纹理、内层和正比例非均匀缩放结果直接复用。固定非均匀镜像折面的两面查卡、几何朝向和单格覆盖锚点已通过。一个保存重开后的静态两槽 Point／无 mip 接缝已有图集及锚点子结果，但该次四条 binding 返回数值未写入，完整冻结合同仍证据不足，不自动补采或宣称整体 T4 通过。专项要能判断正确来源与覆盖，不能用总 ready 数代替。出现具体反例时才改实现。[原条款](ProductionPlan.md#8-真实可变表面-charts已接入与剩余验收) · [镜像图卡与锚点](../LocalComparison/Review/mirrored-folded-chart-318/result.md) · [接缝范围及缺失记录](../LocalComparison/Review/material-uv-seam-01/result.md) |
 | T5 / 中 | 已知使用限制，原因未闭合 · G4 | Release143 原折返的最近点无完整组。去程回调空档为 78.670 秒，回程只取得粗根，离场排空。保留一次观察的边界，具名原因出现后再选择修复。原完整组门槛、容量和细节接替仍是采用条件。[Release143 实机](../LocalComparison/Review/cold-crossing-143/result.md) · [109／110 对照](../LocalComparison/Review/cold-aggregate-prefetch-01/result.md) |
 | T6 / 中 | 资源、规模与预算能力及验收 · G4／G5 | 在已承诺平台与原规定负载内闭合资源生命周期和预算判断，复用已有双 Base 相机隔离、30 分钟流式运行、域重载清理及后端退休结果。默认活动Skin已补原小网格、已预热且观察开启的同窗预算／Present，不再将这一条件列为成本未知；其他负载边界保留。只处理会改变放行决定的冷／热、高速、流式或高更新负载缺口。全阶段时间预算尚未完成：当前反馈只缩放 patch／capture／brick 数量，不能等同于 CPU 准备、上传、RTAS 等所有阶段分别受时间预算控制；缺失能力须对照原目标处理，不新造预算／验证框架。验收仍用 960×540／30FPS、GI 三段逐帧合计 p95≤25ms、进程 local 有限采样峰值≤1GiB，记录 p99、nonlocal 单列；不混淆 Present、GI 时间和显示帧率。[原调度目标](ProductionPlan.md#5-streaming-与预算) · [目标与现有窗口](GpuBudget.md#当前已确认的起始验收目标) |
-| T7 / 最后 | 支持范围与最终放行 · G5 | Release258 提供同源运行包和工程包。离线画册收录 Release250 普通 Player 的两骨门动停画面，其他画面沿用各自采集版本。继续汇总 T2–T6 在承诺平台上的有界结果，完成剩余生产放行。CI 暂缓，整体 G5 保持开放。[支持主表](ProductionPlan.md#当前支持范围与证据层级) · [离线画册](../LocalComparison/Review/picture-comparison.html) |
+| T7 / 最后 | 支持范围与最终放行 · G5 | Release259 提供同源运行包和工程包。离线画册收录 Release250 普通 Player 的两骨门动停画面，其他画面沿用各自采集版本。继续汇总 T2–T6 在承诺平台上的有界结果，完成剩余生产放行。CI 暂缓，整体 G5 保持开放。[支持主表](ProductionPlan.md#当前支持范围与证据层级) · [离线画册](../LocalComparison/Review/picture-comparison.html) |
 
 下一阶段先看锁定配置下普通 Player 的动态质量，其次是冷高速首显，再处理其余负载和软件预算。每项工作以可归因的具体缺口或能裁决原条款的合格输入立项。新观测须能改变采用、修复或放行决定。优先复用已有场景、运行入口和对照结果。
 
