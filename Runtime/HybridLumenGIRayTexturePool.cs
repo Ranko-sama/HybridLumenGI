@@ -263,16 +263,16 @@ namespace HybridLumenGI
             catch{return false;}
         }
         private static bool Reusable(HybridLumenGIFrozenTextureView view)=>SystemInfo.supportsAsyncGPUReadback&&view.HasTexture2DMipState&&!view.IsRenderTexture;
-        private static bool Trim(long budget,Allocation keep=null)
+        private static bool Trim(long budget,Allocation keep=null,int arenaLimit=int.MaxValue)
         {
-            for(int i=0;i<Allocations.Count&&TotalAllocatedBytes>budget;)
+            for(int i=0;i<Allocations.Count&&(TotalAllocatedBytes>budget||Allocations.Count>arenaLimit);)
             {
                 var allocation=Allocations[i];bool pending=false;
                 foreach(var page in allocation.Pages)pending|=page!=null&&page.ReadbackPending;
                 if(!ReferenceEquals(keep,allocation)&&allocation.Readers==0&&!pending&&TryFree(allocation))continue;
                 i++;
             }
-            return TotalAllocatedBytes<=budget;
+            return TotalAllocatedBytes<=budget&&Allocations.Count<=arenaLimit;
         }
         // Best-fit holes are derived from live pages. Old-reader and readback pages stay occupied.
         private static bool Plan(Allocation arena,List<HybridLumenGIRayTextureLayout> layouts,
@@ -484,10 +484,11 @@ namespace HybridLumenGI
             {
                 int metadataCount=Math.Max(1,views.Count);capacity=Math.Max(1,capacity);
                 long minimum=capacity*16+(long)metadataCount*64;
-                if(minimum>budgetBytes||!Trim(budgetBytes-minimum))
-                {reason="Global texture budget includes active, idle, readback and quarantined arenas.";return false;}
-                if(Allocations.Count>=MaxResidentBatches||lastGeneration==uint.MaxValue)
-                {reason="Arena capacity or generation space exhausted.";return false;}
+                if(lastGeneration==uint.MaxValue)
+                {reason="Arena generation space exhausted.";return false;}
+                // Retained reusable pages can fill the physical arena limit well before the byte budget.
+                if(minimum>budgetBytes||!Trim(budgetBytes-minimum,arenaLimit:MaxResidentBatches-1))
+                {reason="Global texture arena count or byte budget reached.";return false;}
                 // Reserve one largest-page replacement, within this same global budget.
                 // Reserved space is real allocated capacity, never excluded from accounting.
                 if(shareable)

@@ -494,6 +494,63 @@ class Program
         for(int i=0;i<2;i++){Check(expected[i]==(i==0?148:42),"every physical element copied exactly once");var cached=Prepare(pools[i],sources[i]);Check(cached.UploadCount==0,"completed range job becomes reusable only after readback");Finish(pools[i],cached);}
         Pool.ClearReusable();SystemInfo.supportsAsyncGPUReadback=false;Clean();
     }
+    static void PhysicalArenaCapacity()
+    {
+        scenarios++;
+        SystemInfo.supportsAsyncGPUReadback = true;
+        using var pool = new Pool();
+        const long budget = 1L << 20;
+        HybridLumenGIFrozenTextureView[] NewBatch() => new[] { Observe(Source(1, 1, 1)), Observe(Source(1, 1, 1)) };
+        var tables = new List<HybridLumenGIRayTextureMetadata[]>();
+        HybridLumenGIFrozenTextureView[] firstViews = null;
+        GraphicsBuffer firstMetadata = null, firstTexels = null;
+        Pool.Handle oldHandle = default;
+        for (int i = 0; i < Pool.MaxResidentBatches; i++)
+        {
+            var views = NewBatch();
+            Check(pool.TryPrepare(views, budget, out var lease, out _) && !lease.IsReused, "fresh two-page arena");
+            if (i == 0)
+            {
+                firstViews = views;
+                oldHandle = lease.GetHandle(0);
+                Check(pool.GetResources(lease, out firstMetadata, out firstTexels), "capture first arena buffers");
+            }
+            var commands = new CommandBuffer();
+            Record(pool, lease, commands);
+            tables.Add(Published(commands));
+            Finish(pool, lease);
+        }
+        long fullBytes = Pool.TotalAllocatedBytes;
+        Check(Pool.ResidentBatchCount == Pool.MaxResidentBatches && fullBytes < budget &&
+            AsyncGPUReadback.Pending.Count == Pool.MaxResidentBatches, "physical cap below byte budget with all readbacks pending");
+        var next = NewBatch();
+        Check(!pool.TryPrepare(next, budget, out _, out _) && !firstMetadata.Released, "pending readbacks protect every arena");
+        AsyncGPUReadback.CompleteNext(tables[0]);
+        var held = Prepare(pool, firstViews);
+        Check(held.IsReused && held.UploadCount == 0 && held.GetHandle(0).Generation == oldHandle.Generation,
+            "a matching ready batch still reuses its arena at capacity");
+        Check(!pool.TryPrepare(next, budget, out _, out _) && !firstMetadata.Released, "an outstanding reader still protects the only completed arena");
+        Finish(pool, held);
+        Check(pool.TryPrepare(next, budget, out var replacement, out var reason), "Eligible idle arena did not make room: " + reason);
+        Check(firstMetadata.Released && firstTexels.Released && AsyncGPUReadback.Pending.All(readback => !readback.Buffer.Released) &&
+            Pool.ResidentBatchCount == Pool.MaxResidentBatches && Pool.TotalAllocatedBytes == fullBytes,
+            "reclaim exactly the safe arena within count and byte limits");
+        var upload = new CommandBuffer();
+        Record(pool, replacement, upload);
+        Check(pool.IsHandleCurrent(replacement, replacement.GetHandle(0), out bool copied) && copied &&
+            !pool.IsHandleCurrent(replacement, oldHandle), "new page recorded with fresh identity");
+        tables.Add(Published(upload));
+        Finish(pool, replacement);
+        for (int i = 1; i < tables.Count; i++) AsyncGPUReadback.CompleteNext(tables[i]);
+        var cached = Prepare(pool, next);
+        Check(cached.UploadCount == 0 && cached.GetHandle(0).Generation == replacement.GetHandle(0).Generation,
+            "replacement becomes reusable after readback validation");
+        Finish(pool, cached);
+        Console.WriteLine($"Physical arena admission: {Pool.MaxResidentBatches} arenas, {fullBytes} bytes at capacity; matching reuse and protected readbacks preserved.");
+        Pool.ClearReusable();
+        SystemInfo.supportsAsyncGPUReadback = false;
+        Clean();
+    }
     static void ClosingAdmission()
     {
         scenarios++;using var pool=new Pool();var view=View();var old=Prepare(pool,view);Record(pool,old);
@@ -503,7 +560,7 @@ class Program
     }
     static int Main()
     {
-        try{LayoutAndFreeze();GlobalBudgetAndFences();FailuresAndQuarantine();DisposalAndAllocation();BoundsAndCancellation();IndependentLayoutAndGeneration();GlobalCapacityAndFrozenInputs();ImporterDispatchOracle();ImporterSourceAndSupport();ImporterFailureIsolation();ConstantOnlyBatch();SharedResidencyAndReaderFences();ResidencyInvalidationAndReadbackFailures();ResidencyBudgetAndDynamicSources();PackedHalfLayoutsAndBudget();PageReplacementAndCanceledGraphs();PageScopedInvalidationAndPartialCommands();PagePrecisionIdentity();SharedFrameQuotaAndProgress();ClosingAdmission();
+        try{LayoutAndFreeze();GlobalBudgetAndFences();FailuresAndQuarantine();DisposalAndAllocation();BoundsAndCancellation();IndependentLayoutAndGeneration();GlobalCapacityAndFrozenInputs();ImporterDispatchOracle();ImporterSourceAndSupport();ImporterFailureIsolation();ConstantOnlyBatch();SharedResidencyAndReaderFences();ResidencyInvalidationAndReadbackFailures();ResidencyBudgetAndDynamicSources();PackedHalfLayoutsAndBudget();PageReplacementAndCanceledGraphs();PageScopedInvalidationAndPartialCommands();PagePrecisionIdentity();PhysicalArenaCapacity();SharedFrameQuotaAndProgress();ClosingAdmission();
             Console.WriteLine($"Ray texture pool: {checks} assertions, {scenarios} scenarios. Actual runtime lifecycle; Unity command/fence API substitutes, no GPU synchronization proof.");return 0;}
         catch(Exception e){Console.Error.WriteLine(e);return 1;}
     }
