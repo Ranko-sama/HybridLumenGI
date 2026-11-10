@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release244，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release245，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭局部解析灯变化后，未知像素所持旧光被可信邻点借入的路径。实际 DX12 同平面对照中，两种时域入口均将其标为待替换，可信黑在四轮滤波和全尺寸合成后从 0.00212690 回到 0，保持有效。未知侧仍可显示旧值，首次可信估计接管。整景残留和收敛继续验收。[实机对照](../LocalComparison/Review/local-light-history-303/result.md) · [Release245 同源交付](../LocalComparison/Review/local-light-history-303/delivery.json)
 
 T6／G4 已接入共享 RTAS 构建录制的可选 CPU 时间准入。实际 Backend 的受控对照确认同帧收紧计入此前失败录制，匹配的已建结构继续可用，待构建请求沿原队列延期且取得后续轮次。采用范围为同步录制和大小查询，默认关闭，原生构建及生产时间预算继续验收。[配置与对照](GpuBudget.md#rtas-构建录制的-cpu-准入) · [Release244 同源交付](../LocalComparison/Review/rtas-recording-time-302/delivery.json)
 
