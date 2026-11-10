@@ -476,9 +476,15 @@ namespace HybridLumenGI
                 return changed;
             }
             internal readonly MaterialPropertyBlock properties=new MaterialPropertyBlock();
+            internal readonly Predicate<int> hasPreparedExact;
+            internal readonly Func<IReadOnlyList<int>, HashSet<int>, bool> deferHlodBuildWork;
+            internal int hlodTriangleLimit;
             internal CameraState(Camera camera, CameraGeometryAllocations allocations)
             {
                 hardware = new HybridLumenGIHardwareBackend(allocations.Hardware);
+                hasPreparedExact = hardware.HasPreparedTriangles;
+                deferHlodBuildWork = (publishedSlots, exactSlots) => hardware.ShouldDeferHlodBuildWork(
+                    scene, surfaceCache, hlodTriangleLimit, publishedSlots, exactSlots);
                 softwareAllocations = allocations.Software;
                 softwareGeometry = new HybridLumenGIHardwareBackend(softwareAllocations, softwareOnly: true);
                 this.camera=camera;lights=new ComputeBuffer(32,HybridLumenGILights.Stride);gpuTiming=new HybridLumenGIGpuTiming(camera.GetInstanceID());
@@ -1088,12 +1094,13 @@ namespace HybridLumenGI
                 bool canDeferHlodBuild = state.lastHardware && s.preferHardwareTracing && state.hardware.CanDispatch;
                 bool buildTurnBlocked = canDeferHlodBuild && state.hardware.IsBuildTurnBlocked;
                 bool readyExactReplacement = false;
-                Predicate<int> preparedExact = null;
+                Predicate<int> preparedExact = canDeferHlodBuild ? state.hasPreparedExact : null;
                 Func<int, bool, bool> exactHlodTarget = null;
                 Func<int, bool, bool> deferExactHlodTarget = null;
+                state.hlodTriangleLimit = hardwareTriangleLimit;
+                var deferHlodBuildWork = canDeferHlodBuild && !buildTurnBlocked ? state.deferHlodBuildWork : null;
                 if (canDeferHlodBuild && (buildTurnBlocked || state.hardware.HasDeferredHlodBuild))
                 {
-                    preparedExact = state.hardware.HasPreparedTriangles;
                     exactHlodTarget = (slot, removesExact) => state.hardware.IsHlodTargetEligible(state.scene,
                         state.surfaceCache, slot, hardwareTriangleLimit, removesExact);
                     deferExactHlodTarget = (slot, removesExact) =>
@@ -1109,8 +1116,9 @@ namespace HybridLumenGI
                         ? 1 : Math.Max(1L, (long)engineFrame - state.scenePreparedEngineFrame);
                 state.scenePreparedEngineFrame = state.scenePreparedWorkFrame = -1;
                 state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),
-                    s.chunkSize,s.proxyUploadsPerFrame,maps,preparedExact,deferExactHlodTarget);
-                if (!readyExactReplacement) state.hardware.CancelDeferredHlodBuild();
+                    s.chunkSize,s.proxyUploadsPerFrame,maps,preparedExact,deferExactHlodTarget,deferHlodBuildWork);
+                bool waitForBuildWork = state.scene.HasReadyDeferredHlodWork();
+                if (!readyExactReplacement && !waitForBuildWork) state.hardware.CancelDeferredHlodBuild();
                 state.scenePreparedRenderer = cameraData.renderer;
                 state.scenePreparedEngineFrame = engineFrame; state.scenePreparedWorkFrame = state.frame;
                 state.sdf.PrepareForFrame(state.scene, Time.frameCount, s.objectSdfUploadCpuBudgetMilliseconds);
@@ -1143,13 +1151,15 @@ namespace HybridLumenGI
                     patchGrid=Mathf.Clamp(s.cachePatchGrid,1,4)
                 });
                 state.EnsureCache(slots,Mathf.Clamp(s.cachePatchGrid,1,4),state.surfaceCache.CardCount);
-                bool waitForHlodBuildTurn = buildTurnBlocked && readyExactReplacement;
+                bool waitForKnownBuildTurn = buildTurnBlocked && readyExactReplacement;
+                bool waitForHlodBuildTurn = waitForKnownBuildTurn || waitForBuildWork;
                 if (waitForHlodBuildTurn)
                 {
                     // Admission can evict a staged page after Scene selection. Only retain
                     // queue priority for a handoff that still has its ready staging set.
                     RevokeStaleHlodReadiness(state);
-                    waitForHlodBuildTurn = state.scene.HasReadyExactHlodReplacement(preparedExact, exactHlodTarget);
+                    waitForHlodBuildTurn = (waitForKnownBuildTurn && state.scene.HasReadyExactHlodReplacement(preparedExact, exactHlodTarget)) ||
+                        (waitForBuildWork && state.scene.HasReadyDeferredHlodWork());
                     if (!waitForHlodBuildTurn) state.hardware.CancelDeferredHlodBuild();
                 }
                 // Freeze exactly the matrices later uploaded to transport. Relevance

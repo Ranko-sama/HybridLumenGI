@@ -47,12 +47,11 @@ namespace HybridLumenGI
         private static bool BuildRecordingBudgetSpent => buildRecordingTicks >=
             Math.Max(1d, settings.BuildRecordingCpuBudgetMilliseconds * (Stopwatch.Frequency / 1000d));
         // Check the current queue without adding a demand for a speculative handoff.
-        internal static bool IsBuildTurnBlocked(object owner)
+        internal static bool IsBuildTurnBlocked(object owner, long triangles = 1, long instances = 1)
         {
-            // A handoff that needs RTAS work requires at least one triangle and one instance.
-            // Only wait when that minimum can still be admitted on a future turn.
-            if (!CanScheduleBuild(1, 1, out _)) return false;
-            if (BuildsThisFrame >= settings.MaxBuildsPerFrame || triangleCredits == 0 || instanceCredits == 0 ||
+            // Only wait for work that can still be admitted on a future turn.
+            if (!CanScheduleBuild(triangles, instances, out _)) return false;
+            if (BuildsThisFrame >= settings.MaxBuildsPerFrame || triangleCredits < triangles || instanceCredits < instances ||
                 BuildRecordingBudgetSpent) return true;
             Demand oldest = OldestActiveDemand();
             return oldest != null && !ReferenceEquals(oldest.owner, owner);

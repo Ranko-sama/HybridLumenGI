@@ -273,17 +273,8 @@ namespace HybridLumenGI
             if (!softwareOnly && Shader == null) return false;
             try
             {
-                long planTriangles=0,planInstances=0;
-                int publishedCount=0;
-                for(int slot=0;slot<scene.Capacity;slot++)
-                {
-                    if(!Published(scene.Data[slot].identity.w))continue;
-                    publishedCount++;
-                    Renderer candidate=scene.GetRenderer(slot);Mesh source=HybridLumenGIDeformedMesh.GetSourceMesh(candidate);
-                    if(!Eligible(source,candidate,slot,surfaceCache,out long total) || total>triangleBudget-planTriangles)continue;
-                    planTriangles+=total;
-                    for(int submesh=0;submesh<source.subMeshCount;submesh++)if(source.GetIndexCount(submesh)>=3)planInstances++;
-                }
+                CountGeometryPlan(scene, surfaceCache, triangleBudget, null, null,
+                    out long planTriangles, out long planInstances, out int publishedCount);
                 if(planInstances==0)
                 {
                     // An empty plan uses the existing software fallback. Do not allocate an
@@ -417,6 +408,43 @@ namespace HybridLumenGI
 
         private static bool Published(float state) => state>0.5f && state<1.5f;
         private static bool ExactSource(Renderer renderer) => renderer is MeshRenderer || HybridLumenGIDeformedMesh.HasSnapshot(renderer);
+
+        private void CountGeometryPlan(HybridLumenGIScene scene, HybridLumenGISurfaceCache surfaceCache, int triangleBudget,
+            IReadOnlyList<int> projectedSlots, HashSet<int> exactSlots, out long triangles, out long instanceCount, out int publishedCount)
+        {
+            triangles = instanceCount = 0;
+            publishedCount = 0;
+            int count = projectedSlots?.Count ?? scene.Capacity;
+            for (int i = 0; i < count; i++)
+            {
+                int slot = projectedSlots == null ? i : projectedSlots[i];
+                if (projectedSlots == null && !Published(scene.Data[slot].identity.w)) continue;
+                publishedCount++;
+                Renderer renderer = scene.GetRenderer(slot);
+                Mesh mesh = HybridLumenGIDeformedMesh.GetSourceMesh(renderer);
+                if (!Eligible(mesh, renderer, slot, surfaceCache, out long total) || total > triangleBudget - triangles) continue;
+                triangles += total;
+                exactSlots?.Add(slot);
+                for (int submesh = 0; submesh < mesh.subMeshCount; submesh++)
+                    if (mesh.GetIndexCount(submesh) >= 3) instanceCount++;
+            }
+        }
+
+        internal bool ShouldDeferHlodBuildWork(HybridLumenGIScene scene, HybridLumenGISurfaceCache surfaceCache, int triangleBudget,
+            IReadOnlyList<int> projectedSlots, HashSet<int> exactSlots)
+        {
+            try
+            {
+                CountGeometryPlan(scene, surfaceCache, triangleBudget, projectedSlots, exactSlots,
+                    out long triangles, out long instanceCount, out _);
+                return instanceCount > 0 && HybridLumenGIRtasBudget.IsBuildTurnBlocked(budgetOwner, triangles, instanceCount);
+            }
+            catch (Exception)
+            {
+                // Source failure remains the normal backend preparation's responsibility.
+                return false;
+            }
+        }
 
         private static bool SupportsExactMaterialSlots(Mesh mesh,int materialCount)
         {

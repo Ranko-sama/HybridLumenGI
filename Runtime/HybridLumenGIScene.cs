@@ -111,7 +111,7 @@ namespace HybridLumenGI
             public readonly HashSet<int> published = new HashSet<int>();
             public readonly HashSet<int> target = new HashSet<int>();
             public float distance;
-            public bool seen, initialized;
+            public bool seen, initialized, publishTarget;
             public int pendingDetails;
             public bool hasUnavailableDetails;
             public bool capacityFallback; // Derived again from this Prepare's requested target.
@@ -128,6 +128,9 @@ namespace HybridLumenGI
             new Dictionary<HybridLumenGIProxy, HybridLumenGIStreamedRepresentation>();
         private bool hasManagedHlodRaster;
         private readonly List<HlodGroup> orderedGroups = new List<HlodGroup>();
+        private readonly List<HlodGroup> deferredHlodWork = new List<HlodGroup>();
+        private readonly List<int> projectedPublishedSlots = new List<int>();
+        private readonly HashSet<int> projectedExactSlots = new HashSet<int>();
         private readonly HashSet<int> grouped = new HashSet<int>();
         private readonly HybridLumenGIHlodReadiness readiness = new HybridLumenGIHlodReadiness();
         private readonly HashSet<int> representationAdds = new HashSet<int>(), representationRemoves = new HashSet<int>();
@@ -231,7 +234,8 @@ namespace HybridLumenGI
 
         internal bool Prepare(Vector3 position, int capacity, float nearDistance, float farDistance,
             float chunkSize, int uploadBudget, LightmapData[] shadowmaskSources,
-            Predicate<int> preparedExact = null, Func<int, bool, bool> deferExactHlodTarget = null)
+            Predicate<int> preparedExact = null, Func<int, bool, bool> deferExactHlodTarget = null,
+            Func<IReadOnlyList<int>, HashSet<int>, bool> deferHlodBuildWork = null)
         {
             ShadowmaskSources = shadowmaskSources;
             capacity = Mathf.Clamp(capacity, 32, 256);
@@ -312,7 +316,7 @@ namespace HybridLumenGI
             // Conservative bounds distance keeps large walls that surround the camera resident.
             // Stable ID breaks ties deterministically instead of changing slots with registry sort order.
             candidates.Sort(CompareCandidates);
-            SelectAtomicGroups(position, nearDistance, farSquared, capacity, preparedExact, deferExactHlodTarget);
+            SelectAtomicGroups(position, nearDistance, farSquared, capacity, preparedExact, deferExactHlodTarget, deferHlodBuildWork);
             int desiredCount = selectedCandidates.Count;
 
             // Never keep an old occluder/material alive while its replacement waits for budget.
@@ -488,14 +492,17 @@ namespace HybridLumenGI
         }
 
         private void SelectAtomicGroups(Vector3 position, float nearDistance, float farSquared, int capacity,
-            Predicate<int> preparedExact, Func<int, bool, bool> deferExactHlodTarget)
+            Predicate<int> preparedExact, Func<int, bool, bool> deferExactHlodTarget,
+            Func<IReadOnlyList<int>, HashSet<int>, bool> deferHlodBuildWork)
         {
             available.Clear(); grouped.Clear(); orderedGroups.Clear(); selectedCandidates.Clear(); ordinaryCandidates.Clear();
+            deferredHlodWork.Clear();
             representationAdds.Clear(); representationRemoves.Clear();
             PendingCapacity = 0;
             foreach (HlodGroup group in groups.Values)
             {
                 group.seen = false;
+                group.publishTarget = false;
                 group.pendingDetails = 0;
                 group.hasUnavailableDetails = false;
                 group.details.Clear();
@@ -564,23 +571,47 @@ namespace HybridLumenGI
                 orderedGroups.Add(group);
             }
             // All active targets must be known before bounding the space needed by another group.
+            bool hasReplacement = false;
             foreach (HlodGroup group in orderedGroups)
             {
-                if ((!group.initialized || !group.published.SetEquals(group.target)) && ReadyToPublish(group) &&
-                    (deferExactHlodTarget == null || !HasExactHlodHandoff(group, preparedExact, deferExactHlodTarget)))
-                {
-                    foreach (int id in group.published) if (!group.target.Contains(id)) representationRemoves.Add(id);
-                    foreach (int id in group.target) if (!group.published.Contains(id)) representationAdds.Add(id);
-                    group.published.Clear();
-                    foreach (int id in group.target) group.published.Add(id);
-                    group.initialized = true;
-                }
+                group.publishTarget = (!group.initialized || !group.published.SetEquals(group.target)) && ReadyToPublish(group) &&
+                    (deferExactHlodTarget == null || !HasExactHlodHandoff(group, preparedExact, deferExactHlodTarget));
+                hasReplacement |= group.publishTarget && group.published.Count > 0;
             }
             foreach (var proxy in retiredProxies) groups.Remove(proxy);
             orderedGroups.Sort(CompareGroups);
-            // Protect the complete currently published representation before reserving any warm-up slots.
-            for (int i = 0; i < orderedGroups.Count; i++)
-                foreach (int id in orderedGroups[i].published) AddSelected(id, 1, capacity);
+            SelectGroupCandidates(capacity);
+            if (deferHlodBuildWork != null && hasReplacement && TryProjectPublishedSlots() &&
+                deferHlodBuildWork(projectedPublishedSlots, projectedExactSlots))
+            {
+                foreach (HlodGroup group in orderedGroups)
+                {
+                    if (!group.publishTarget || !CanHoldForBuild(group, preparedExact)) continue;
+                    group.publishTarget = false;
+                    deferredHlodWork.Add(group);
+                }
+                if (deferredHlodWork.Count > 0)
+                {
+                    selectedCandidates.Clear(); desired.Clear(); PendingCapacity = 0;
+                    SelectGroupCandidates(capacity);
+                }
+            }
+            foreach (HlodGroup group in orderedGroups)
+            {
+                if (!group.publishTarget) continue;
+                foreach (int id in group.published) if (!group.target.Contains(id)) representationRemoves.Add(id);
+                foreach (int id in group.target) if (!group.published.Contains(id)) representationAdds.Add(id);
+                group.published.Clear();
+                foreach (int id in group.target) group.published.Add(id);
+                group.initialized = true;
+            }
+        }
+
+        private void SelectGroupCandidates(int capacity)
+        {
+            // Place complete publications before reserving any warm-up slots.
+            foreach (HlodGroup group in orderedGroups)
+                foreach (int id in group.publishTarget ? group.target : group.published) AddSelected(id, 1, capacity);
             for (int i = 0; i < orderedGroups.Count; i++)
             {
                 HlodGroup group = orderedGroups[i];
@@ -589,10 +620,55 @@ namespace HybridLumenGI
                 bool targetFits = selectedCandidates.Count + extra <= capacity;
                 if (group.capacityFallback || !targetFits) PendingCapacity++;
                 if (!targetFits) continue;
-                foreach (int id in group.target) AddSelected(id, group.published.Contains(id) ? 1 : 2, capacity);
+                foreach (int id in group.target) AddSelected(id, group.publishTarget || group.published.Contains(id) ? 1 : 2, capacity);
             }
             for (int i = 0; i < ordinaryCandidates.Count && selectedCandidates.Count < capacity; i++)
                 AddSelected(ordinaryCandidates[i].proxy.StableId, 1, capacity);
+        }
+
+        // The backend walks actual slots in order. New or revised sources do not
+        // yet have a complete plan, so leave them to normal recording admission.
+        private bool TryProjectPublishedSlots()
+        {
+            projectedPublishedSlots.Clear();
+            projectedExactSlots.Clear();
+            foreach (Candidate candidate in selectedCandidates)
+            {
+                if (candidate.phase != 1) continue;
+                if (!TryGetCurrentSlot(candidate, out int slot)) return false;
+                projectedPublishedSlots.Add(slot);
+            }
+            projectedPublishedSlots.Sort();
+            return true;
+        }
+
+        private bool TryGetCurrentSlot(Candidate candidate, out int slot)
+            => slots.TryGetValue(candidate.proxy.StableId, out slot) && !candidate.bindingReplaced &&
+               ReferenceEquals(owners[slot], candidate.proxy) &&
+               Data[slot].identity.w > 0.5f && (int)Data[slot].identity.x == candidate.proxy.StableId &&
+               (int)Data[slot].identity.y == candidate.proxy.Revision;
+
+        private bool CanHoldForBuild(HlodGroup group, Predicate<int> preparedExact)
+        {
+            if (group.published.Count == 0) return false;
+            bool removesExact = false;
+            foreach (int id in group.published)
+            {
+                if (!TryGetCurrentSlot(available[id], out int slot) || !IsPublished(slot)) return false;
+                removesExact |= !group.target.Contains(id) && preparedExact(slot);
+            }
+            if (removesExact) return true;
+            foreach (int id in group.target)
+                if (!group.published.Contains(id) && slots.TryGetValue(id, out int slot) &&
+                    projectedExactSlots.Contains(slot) && !preparedExact(slot)) return true;
+            return false;
+        }
+
+        internal bool HasReadyDeferredHlodWork()
+        {
+            foreach (HlodGroup group in deferredHlodWork)
+                if (ReadyToPublish(group)) return true;
+            return false;
         }
 
         private void RefreshStreamedBindings()
@@ -818,9 +894,10 @@ namespace HybridLumenGI
             int remaining = Capacity;
             foreach (HlodGroup activeGroup in orderedGroups)
             {
-                remaining -= activeGroup.published.Count;
+                var publication = activeGroup.publishTarget ? activeGroup.target : activeGroup.published;
+                remaining -= publication.Count;
                 foreach (int id in activeGroup.target)
-                    if (!activeGroup.published.Contains(id)) remaining--;
+                    if (!publication.Contains(id)) remaining--;
                 if (remaining <= 0) return false;
             }
             int retainedOrdinaryCount = Math.Min(ordinaryCandidates.Count, remaining);
@@ -1070,7 +1147,7 @@ namespace HybridLumenGI
             pendingAge = Array.Empty<int>();
             traversalBounds = Array.Empty<Bounds>(); traversalActive = Array.Empty<bool>(); signatures = Array.Empty<Signature>();
             Bvh.Dispose();
-            readiness.Clear(); groups.Clear(); streamedBindings.Clear();
+            readiness.Clear(); groups.Clear(); streamedBindings.Clear(); deferredHlodWork.Clear();
             hasManagedHlodRaster = false;
             slots.Clear();
             farStates.Clear();

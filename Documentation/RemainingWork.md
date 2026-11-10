@@ -18,7 +18,7 @@ T3／G3 已关闭局部解析灯变化后，待替换屏幕旧光经滤波和合
 
 T6／G4 已补 RTAS 构建录制的跨相机 CPU 时间准入。达到额度后，下一份待构建请求沿原队列等候。已建且匹配的 RTAS 可继续提交，失败的录制尝试也计时。采用范围为现有 Backend 的受控调度，GPU 构建及 25 ms 生产目标继续验收。[设置与对照](GpuBudget.md#rtas-构建录制的-cpu-准入)
 
-T5／T6／G4 已关闭可补充 RTAS 工作积分耗尽时，构建次数尚有余额导致的热态提前接替。实际 Scene 与共享额度对照确认完整旧组继续覆盖，就绪细节沿原队列取得后续足额轮次。当前余额大于零时仍以实际构建工作量准入，冷高速首显和完整生产负载继续验收。[接替规则和回归](HlodStreaming.md#atomic-hlod-transactions)
+T5／T6／G4 已关闭热态接替时共享 RTAS 额度耗尽及正余额不足的缺口。实际双 Base 中，首相机扣 6 个三角积分后剩 1 个，第二台保留原完整组及 DXR，下一帧同代次扣 2 个积分完成接替。正余额检查采用限可从当前槽位得出完整工作量的条件。冷高速首显和完整生产负载继续验收。[接替规则和回归](HlodStreaming.md#atomic-hlod-transactions) · [实际正余额对照](../LocalComparison/Review/hlod-positive-credits-311/result.md)
 
 T3／G3 已关闭统一示例两骨门自动捕获的重复缩放。24 个顶点在固定 15° 姿态与独立骨权重参考一致，生产 DXR 使用同一份当前快照命中正确的门顶三角。连续运动画质及随机 Gather 的首次使用仍分别验收。[实机对照与范围](../LocalComparison/Review/ordinary-skin-scale-300/result.md)
 
