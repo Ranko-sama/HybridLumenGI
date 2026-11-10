@@ -97,6 +97,18 @@ namespace HybridLumenGI
             public bool dirty;
         }
 
+        private sealed class AtlasResources
+        {
+            public ComputeBuffer metadata, ranges, indices, anchors, emitters;
+            public RTHandle diffuse, emission, position, normal, depth, shadowmask;
+
+            public void Release()
+            {
+                metadata?.Release(); ranges?.Release(); indices?.Release(); anchors?.Release(); emitters?.Release();
+                diffuse?.Release(); emission?.Release(); position?.Release(); normal?.Release(); depth?.Release(); shadowmask?.Release();
+            }
+        }
+
         public const int FallbackCardsPerInstance = 6;
         public const int MetadataStride = 128;
         public const int EmittersStride = 32;
@@ -142,7 +154,7 @@ namespace HybridLumenGI
         private readonly List<int> scheduled = new List<int>();
         private readonly List<Bounds> changedBounds = new List<Bounds>();
         private readonly HashSet<Bounds> changedRegionSet = new HashSet<Bounds>();
-        private readonly Stack<int> freeTiles = new Stack<int>();
+        private Stack<int> freeTiles = new Stack<int>();
         private readonly List<Material> sourceMaterials = new List<Material>();
         private readonly HybridLumenGIMaterialSource materialSource = new HybridLumenGIMaterialSource();
         private readonly MaterialPropertyBlock rendererBlock = new MaterialPropertyBlock();
@@ -158,6 +170,8 @@ namespace HybridLumenGI
         private HybridLumenGISurfaceCharts[] candidateCharts = Array.Empty<HybridLumenGISurfaceCharts>();
         private int[] requestedCards = Array.Empty<int>();
         private bool[] desired = Array.Empty<bool>();
+        private AtlasResources atlasResources;
+        private long retiringAtlasBytes;
         private ComputeBuffer metadataBuffer, rangesBuffer, indicesBuffer, anchorsBuffer, emittersBuffer;
         private ComputeShader anchorShader;
         private int anchorKernel, patchGrid;
@@ -195,7 +209,8 @@ namespace HybridLumenGI
         public int WarmupBudgetBlockedCards { get; private set; }
         public bool[] ReadyMask { get; private set; } = Array.Empty<bool>();
         public IList<Bounds> ChangedBounds => changedBounds;
-        public long AllocatedBytes => (long)AtlasWidth * AtlasHeight * (BytesPerAtlasPixel + (ShadowmaskAtlas != null ? 8 : 0)) + (long)CardCount * (MetadataStride + 4 + patchGrid * patchGrid * 8 + EmittersStride) + (long)owners.Length * 16;
+        public long AllocatedBytes => ActiveAtlasBytes + retiringAtlasBytes;
+        private long ActiveAtlasBytes => (long)AtlasWidth * AtlasHeight * (BytesPerAtlasPixel + (ShadowmaskAtlas != null ? 8 : 0)) + (long)CardCount * (MetadataStride + 4 + patchGrid * patchGrid * 8 + EmittersStride) + (long)owners.Length * 16;
         public int GetCardCount(int slot) => slot >= 0 && slot < owners.Length && owners[slot] != null ? owners[slot].cardIndices.Length : 0;
         /// <summary>Frozen explicit capture bounds, including disabled/hidden warming sources.</summary>
         public bool TryGetPreparedCaptureBounds(int slot,out Bounds bounds)
@@ -1139,53 +1154,99 @@ namespace HybridLumenGI
 
         private bool EnsureStorage(int slots, int wantedTiles, int resolution,int grid)
         {
-            if (metadataBuffer != null && owners.Length == slots && tileCount == wantedTiles && tileSize == resolution &&
-                patchGrid==grid && (ShadowmaskAtlas != null) == (shadowmaskSources != null)) return false;
-            ReleaseStorage();
-            // Never reset this in ReleaseStorage: readbacks may outlive the old
-            // resources even though per-card generations restart at allocation.
+            bool withShadowmask = shadowmaskSources != null;
+            if (atlasResources != null && owners.Length == slots && tileCount == wantedTiles && tileSize == resolution &&
+                patchGrid == grid && (ShadowmaskAtlas != null) == withShadowmask) return false;
+
+            int columns = Mathf.Max(1, Mathf.CeilToInt(Mathf.Sqrt(Mathf.Max(1, wantedTiles))));
+            int width = columns * resolution;
+            int height = Mathf.Max(1, (wantedTiles + columns - 1) / columns) * resolution;
+            int count = Mathf.Max(1, wantedTiles);
+            var nextOwners = new Owner[slots];
+            var nextDesired = new bool[slots];
+            var nextCharts = new HybridLumenGISurfaceCharts[slots];
+            var nextRequested = new int[slots];
+            var nextCards = new Card[count];
+            var nextMetadata = new CardMetadata[count];
+            var nextRanges = new OwnerRange[slots];
+            var nextIndices = new uint[count];
+            var nextReady = new bool[count];
+            var nextCardOwners = new int[count];
+            var nextFreeTiles = new Stack<int>(wantedTiles);
+            var nextTargets = new RenderTargetIdentifier[withShadowmask ? 5 : 4];
+            for (int i = 0; i < count; i++)
+            {
+                nextCards[i] = new Card();
+                nextCardOwners[i] = -1;
+                nextIndices[i] = uint.MaxValue;
+            }
+            for (int tile = wantedTiles - 1; tile >= 0; tile--) nextFreeTiles.Push(tile);
+
+            var next = new AtlasResources();
+            try
+            {
+                next.metadata = new ComputeBuffer(count, MetadataStride, ComputeBufferType.Structured) { name = "Hybrid GI Surface Cards" };
+                next.metadata.SetData(nextMetadata);
+                next.ranges = new ComputeBuffer(Mathf.Max(1, slots), 16, ComputeBufferType.Structured) { name = "HLGI owner chart ranges" };
+                next.ranges.SetData(slots > 0 ? nextRanges : new OwnerRange[1]);
+                next.indices = new ComputeBuffer(count, 4, ComputeBufferType.Structured) { name = "HLGI chart indices" };
+                next.indices.SetData(nextIndices);
+                var emptyAnchors = new Vector2Int[count * grid * grid];
+                for (int i = 0; i < emptyAnchors.Length; i++) emptyAnchors[i] = new Vector2Int(-1, -1);
+                next.anchors = new ComputeBuffer(emptyAnchors.Length, 8, ComputeBufferType.Structured) { name = "HLGI captured surface anchors" };
+                next.anchors.SetData(emptyAnchors);
+                next.emitters = new ComputeBuffer(count, EmittersStride, ComputeBufferType.Structured) { name = "HLGI card emissive proposals" };
+                next.emitters.SetData(new EmissiveRecord[count]);
+                next.diffuse = Allocate(width, height, GraphicsFormat.R8G8B8A8_UNorm, "HLGI Card Diffuse");
+                next.emission = Allocate(width, height, GraphicsFormat.R16G16B16A16_SFloat, "HLGI Card Emission");
+                next.position = Allocate(width, height, GraphicsFormat.R32G32B32A32_SFloat, "HLGI Card Position Depth");
+                next.normal = Allocate(width, height, GraphicsFormat.R16G16B16A16_SFloat, "HLGI Card Normal");
+                next.depth = RTHandles.Alloc(width, height, depthBufferBits: DepthBits.Depth32,
+                    colorFormat: GraphicsFormat.None, filterMode: FilterMode.Point, wrapMode: TextureWrapMode.Clamp, name: "HLGI Card Depth");
+                if (withShadowmask) next.shadowmask = Allocate(width, height, GraphicsFormat.R16G16B16A16_SFloat, "HLGI Card Shadowmask");
+                nextTargets[0] = next.diffuse.nameID; nextTargets[1] = next.emission.nameID;
+                nextTargets[2] = next.position.nameID; nextTargets[3] = next.normal.nameID;
+                if (withShadowmask) nextTargets[4] = next.shadowmask.nameID;
+            }
+            catch
+            {
+                next.Release();
+                throw;
+            }
+
+            var previous = atlasResources;
+            long previousBytes = ActiveAtlasBytes;
+            ClearStorage();
+            atlasResources = next;
+            // Readbacks may outlive the old resources even though per-card generations restart at allocation.
             AtlasGeneration = AtlasGeneration == uint.MaxValue ? 1u : AtlasGeneration + 1u;
             tileCount = wantedTiles;
             tileSize = resolution;
-            patchGrid=grid;
-            tileColumns = Mathf.Max(1, Mathf.CeilToInt(Mathf.Sqrt(Mathf.Max(1, tileCount))));
-            AtlasWidth = tileColumns * tileSize;
-            AtlasHeight = Mathf.Max(1, (tileCount + tileColumns - 1) / tileColumns) * tileSize;
-            owners = new Owner[slots]; desired = new bool[slots];
-            candidateCharts=new HybridLumenGISurfaceCharts[slots];requestedCards=new int[slots];
-            int count=Mathf.Max(1,tileCount);
-            cards = new Card[count]; metadata = new CardMetadata[count];
-            ownerRanges=new OwnerRange[slots];cardIndices=new uint[count];
-            ReadyMask = new bool[count];CardOwners=new int[count];
-            for (int i = 0; i < cards.Length; i++) { cards[i] = new Card();CardOwners[i]=-1;cardIndices[i]=uint.MaxValue; }
-            for (int tile = tileCount - 1; tile >= 0; tile--) freeTiles.Push(tile);
-            metadataBuffer = new ComputeBuffer(Mathf.Max(1, cards.Length), MetadataStride, ComputeBufferType.Structured) { name = "Hybrid GI Surface Cards" };
-            metadataBuffer.SetData(metadata);
-            rangesBuffer=new ComputeBuffer(Mathf.Max(1,slots),16,ComputeBufferType.Structured){name="HLGI owner chart ranges"};
-            rangesBuffer.SetData(ownerRanges.Length>0?ownerRanges:new OwnerRange[1]);
-            indicesBuffer=new ComputeBuffer(count,4,ComputeBufferType.Structured){name="HLGI chart indices"};indicesBuffer.SetData(cardIndices);
-            anchorsBuffer=new ComputeBuffer(count*grid*grid,8,ComputeBufferType.Structured){name="HLGI captured surface anchors"};
-            var emptyAnchors=new Vector2Int[count*grid*grid];
-            for(int i=0;i<emptyAnchors.Length;i++) emptyAnchors[i]=new Vector2Int(-1,-1);
-            anchorsBuffer.SetData(emptyAnchors);
-            emittersBuffer=new ComputeBuffer(count,EmittersStride,ComputeBufferType.Structured){name="HLGI card emissive proposals"};
-            emittersBuffer.SetData(new EmissiveRecord[count]);
-            DiffuseAtlas = Allocate(GraphicsFormat.R8G8B8A8_UNorm, "HLGI Card Diffuse");
-            EmissionAtlas = Allocate(GraphicsFormat.R16G16B16A16_SFloat, "HLGI Card Emission");
-            PositionAtlas = Allocate(GraphicsFormat.R32G32B32A32_SFloat, "HLGI Card Position Depth");
-            NormalAtlas = Allocate(GraphicsFormat.R16G16B16A16_SFloat, "HLGI Card Normal");
-            DepthAtlas = RTHandles.Alloc(AtlasWidth, AtlasHeight, depthBufferBits: DepthBits.Depth32,
-                colorFormat: GraphicsFormat.None, filterMode: FilterMode.Point, wrapMode: TextureWrapMode.Clamp, name: "HLGI Card Depth");
-            if (shadowmaskSources != null) ShadowmaskAtlas = Allocate(GraphicsFormat.R16G16B16A16_SFloat, "HLGI Card Shadowmask");
-            targets = new RenderTargetIdentifier[ShadowmaskAtlas != null ? 5 : 4];
-            if (ShadowmaskAtlas != null) targets[4] = ShadowmaskAtlas.nameID;
-            targets[0] = DiffuseAtlas.nameID; targets[1] = EmissionAtlas.nameID;
-            targets[2] = PositionAtlas.nameID; targets[3] = NormalAtlas.nameID;
+            patchGrid = grid;
+            tileColumns = columns;
+            AtlasWidth = width;
+            AtlasHeight = height;
+            owners = nextOwners; desired = nextDesired; candidateCharts = nextCharts; requestedCards = nextRequested;
+            cards = nextCards; metadata = nextMetadata; ownerRanges = nextRanges; cardIndices = nextIndices;
+            ReadyMask = nextReady; CardOwners = nextCardOwners; freeTiles = nextFreeTiles; targets = nextTargets;
+            metadataBuffer = next.metadata; rangesBuffer = next.ranges; indicesBuffer = next.indices;
+            anchorsBuffer = next.anchors; emittersBuffer = next.emitters;
+            DiffuseAtlas = next.diffuse; EmissionAtlas = next.emission; PositionAtlas = next.position;
+            NormalAtlas = next.normal; DepthAtlas = next.depth; ShadowmaskAtlas = next.shadowmask;
             clearPending = metadataDirty = true;
+            if (previous != null)
+            {
+                retiringAtlasBytes += previousBytes;
+                HybridLumenGIResourceRetirement.Retire(() =>
+                {
+                    previous.Release();
+                    retiringAtlasBytes -= previousBytes;
+                });
+            }
             return true;
         }
 
-        private RTHandle Allocate(GraphicsFormat format, string name) => RTHandles.Alloc(AtlasWidth, AtlasHeight,
+        private static RTHandle Allocate(int width, int height, GraphicsFormat format, string name) => RTHandles.Alloc(width, height,
             colorFormat: format, filterMode: FilterMode.Point, wrapMode: TextureWrapMode.Clamp, name: name);
 
         private void ClearTriangleMapping(Owner owner)
@@ -1257,15 +1318,13 @@ namespace HybridLumenGI
             metadataDirty = true;
         }
 
-        private void ReleaseStorage()
+        private void ClearStorage()
         {
             for (int slot = 0; slot < owners.Length; slot++) if (owners[slot] != null) Retire(slot);
-            metadataBuffer?.Release(); metadataBuffer = null;
-            rangesBuffer?.Release();rangesBuffer=null;indicesBuffer?.Release();indicesBuffer=null;anchorsBuffer?.Release();anchorsBuffer=null;
-            emittersBuffer?.Release();emittersBuffer=null;
-            DiffuseAtlas?.Release(); EmissionAtlas?.Release(); PositionAtlas?.Release(); NormalAtlas?.Release(); DepthAtlas?.Release();
+            atlasResources = null;
+            metadataBuffer = rangesBuffer = indicesBuffer = anchorsBuffer = emittersBuffer = null;
             DiffuseAtlas = EmissionAtlas = PositionAtlas = NormalAtlas = DepthAtlas = null;
-            ShadowmaskAtlas?.Release(); ShadowmaskAtlas = null; targets = null;
+            ShadowmaskAtlas = null; targets = null;
             owners = Array.Empty<Owner>(); cards = Array.Empty<Card>(); metadata = Array.Empty<CardMetadata>(); desired = Array.Empty<bool>();
             ReadyMask = Array.Empty<bool>();
             ownerRanges=Array.Empty<OwnerRange>();cardIndices=Array.Empty<uint>();CardOwners=Array.Empty<int>();
@@ -1278,7 +1337,9 @@ namespace HybridLumenGI
         public void Dispose()
         {
             shadowmaskSources = null;
-            ReleaseStorage();
+            var resources = atlasResources;
+            ClearStorage();
+            resources?.Release();
             CoreUtils.Destroy(clearMaterial); clearMaterial = null;
             preparedScene = null;
         }

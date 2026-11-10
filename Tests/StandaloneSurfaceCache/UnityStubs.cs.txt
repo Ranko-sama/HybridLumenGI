@@ -156,7 +156,20 @@ namespace UnityEngine.Rendering
         public static readonly List<RTHandle> All=new();public RenderTargetIdentifier nameID;public bool Released;
         public RTHandle(string n){name=n;nameID=new(GetInstanceID());All.Add(this);}public void Release(){Released=true;}
     }
-    public static class RTHandles{public static RTHandle Alloc(int width,int height,UnityEngine.Experimental.Rendering.GraphicsFormat colorFormat,FilterMode filterMode,TextureWrapMode wrapMode,string name,DepthBits depthBufferBits=DepthBits.None)=>new(name);}
+    public static class RTHandles
+    {
+        internal static string FailNextAllocationNamed;
+        public static RTHandle Alloc(int width, int height, UnityEngine.Experimental.Rendering.GraphicsFormat colorFormat,
+            FilterMode filterMode, TextureWrapMode wrapMode, string name, DepthBits depthBufferBits = DepthBits.None)
+        {
+            if (name == FailNextAllocationNamed)
+            {
+                FailNextAllocationNamed = null;
+                throw new InvalidOperationException("Injected atlas allocation failure");
+            }
+            return new RTHandle(name);
+        }
+    }
     public static class CoreUtils
     {
         public static Material CreateEngineMaterial(Shader shader)=>new(shader);
@@ -194,6 +207,12 @@ namespace UnityEngine.Rendering
 namespace HybridLumenGI
 {
     using UnityEngine;
+    // The fixture controls when a detached atlas is safe to release.
+    internal static class HybridLumenGIResourceRetirement
+    {
+        internal static readonly Queue<Action> Pending = new Queue<Action>();
+        internal static void Retire(Action release) => Pending.Enqueue(release);
+    }
     // The recording fixtures use no baked shadowmask inputs.
     internal static class HybridLumenGIShadowmask
     {
@@ -205,7 +224,7 @@ namespace HybridLumenGI
         }
         internal static Source Read(Renderer renderer,LightmapData[] maps,out Texture2D texture)
         {
-            if(maps!=null) throw new NotSupportedException("The recording fixtures use no lightmaps.");
+            if (maps != null && maps.Length > 0) throw new NotSupportedException("The recording fixtures use no lightmaps.");
             texture=null;return default;
         }
     }
@@ -234,7 +253,7 @@ namespace HybridLumenGI
         public HybridLumenGIScene(int count){Data=new ProxyGpuData[count];Proxies=new HybridLumenGIProxy[count];}
         public HybridLumenGIProxy GetProxy(int slot)=>Proxies[slot];public Renderer GetRenderer(int slot)=>Proxies[slot]?.SourceRenderer;
         public void Set(int slot,HybridLumenGIProxy proxy,int phase=1){Proxies[slot]=proxy;Data[slot].identity=proxy==null?default:new(proxy.StableId,proxy.Revision,0,phase);}
-        internal LightmapData[] ShadowmaskSources => null;
+        internal LightmapData[] ShadowmaskSources { get; set; }
         internal bool IsWarming(int slot) => Data[slot].identity.w==2f;
         internal IEnumerable<IReadOnlyCollection<int>> GetPublishedHlodGroups() => Array.Empty<IReadOnlyCollection<int>>();
         internal bool TryGetPublishedSlot(int stableId,out int slot)

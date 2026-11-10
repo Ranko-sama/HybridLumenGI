@@ -167,13 +167,72 @@ static class Program
         config.maxDrawsPerFrame=2;config.capturesPerFrame=9;cache.Prepare(scene,config);Capture(cache);Check(cache.CapturedCards==1&&cache.ReadyCards==1,"one clear and draw fit exactly");
         config.maxDrawsPerFrame=100;cache.Prepare(scene,config);Capture(cache);Check(cache.IsSlotReady(0,41,2),"budget completion");
         uint generation=cache.AtlasGeneration;var oldAnchors=Buffer(cache,"anchorsBuffer");var oldEmitters=Buffer(cache,"emittersBuffer");config.patchGrid=2;cache.Prepare(scene,config);
-        Check(cache.AtlasGeneration!=generation&&oldAnchors.Released&&Buffer(cache,"anchorsBuffer").count==12&&!cache.IsSlotReady(0,41,2),"grid reallocation invalidates previous atlas/anchor evidence");
-        Check(oldEmitters.Released&&Buffer(cache,"emittersBuffer")!=oldEmitters&&Buffer(cache,"emittersBuffer").count==3,"reallocation retires and replaces descriptors atomically with atlas");
+        Check(cache.AtlasGeneration!=generation&&!oldAnchors.Released&&Buffer(cache,"anchorsBuffer").count==12&&!cache.IsSlotReady(0,41,2),"grid reallocation invalidates previous atlas/anchor evidence");
+        Check(!oldEmitters.Released&&Buffer(cache,"emittersBuffer")!=oldEmitters&&Buffer(cache,"emittersBuffer").count==3,"reallocation retains the old descriptors until retirement");
+        HybridLumenGIResourceRetirement.Pending.Dequeue()();
         var second=Capture(cache);Check(second.Entries.Where(e=>e.Kind=="Dispatch").All(e=>(int)e.Parameters[Shader.PropertyToID("_HLGI_AnchorGrid")]==2),"new grid supplied to every scan");
         // A source becoming inactive after scheduling must not publish readiness.
         proxy.Revision++;scene.Set(0,proxy);cache.Prepare(scene,config);proxy.isActiveAndEnabled=false;var skipped=Capture(cache);
         Check(cache.CapturedCards==0&&!cache.IsSlotReady(0,41,3)&&skipped.Entries.All(e=>e.Kind!="Dispatch"),"skipped capture cannot publish ready");
         proxy.isActiveAndEnabled=true;cache.Prepare(scene,config);Capture(cache);Check(cache.IsSlotReady(0,41,3),"skipped card remains dirty for next scheduling");
+    }
+    static void AtlasAllocationRecovery()
+    {
+        scenarios++;
+        var scene = new HybridLumenGIScene(1);
+        scene.Set(0, Proxy(42, 1));
+        // Request the optional attachment without supplying any baked texels.
+        scene.ShadowmaskSources = Array.Empty<LightmapData>();
+        var config = Config(1);
+        using var cache = new HybridLumenGISurfaceCache();
+        int bufferStart = ComputeBuffer.All.Count, textureStart = RTHandle.All.Count;
+        cache.Prepare(scene, config);
+        Capture(cache);
+        var oldBuffers = ComputeBuffer.All.Skip(bufferStart).ToArray();
+        var oldTextures = RTHandle.All.Skip(textureStart).ToArray();
+        long maskBytes = cache.AllocatedBytes;
+        long unmaskedBytes = maskBytes - (long)cache.AtlasWidth * cache.AtlasHeight * 8;
+        uint originalGeneration = cache.AtlasGeneration;
+
+        scene.ShadowmaskSources = null;
+        bufferStart = ComputeBuffer.All.Count;
+        textureStart = RTHandle.All.Count;
+        RTHandles.FailNextAllocationNamed = "HLGI Card Depth";
+        bool failed = false;
+        try { cache.Prepare(scene, config); }
+        catch (InvalidOperationException error) when (error.Message == "Injected atlas allocation failure") { failed = true; }
+        Check(failed && cache.AtlasGeneration == originalGeneration && cache.AllocatedBytes == maskBytes &&
+            cache.ShadowmaskAtlas == oldTextures[5] && cache.DiffuseAtlas == oldTextures[0] && cache.IsSlotReady(0, 42, 1) &&
+            oldBuffers.All(b => !b.Released) && oldTextures.All(t => !t.Released) && HybridLumenGIResourceRetirement.Pending.Count == 0,
+            "failed late allocation preserves the complete previous atlas and cannot publish the partial one");
+        Check(ComputeBuffer.All.Skip(bufferStart).Count(b => b.Released) == 5 && RTHandle.All.Skip(textureStart).Count(t => t.Released) == 4,
+            "unpublished replacement buffers and textures are released after failure");
+
+        bufferStart = ComputeBuffer.All.Count;
+        textureStart = RTHandle.All.Count;
+        cache.Prepare(scene, config);
+        var unmaskedBuffers = ComputeBuffer.All.Skip(bufferStart).ToArray();
+        var unmaskedTextures = RTHandle.All.Skip(textureStart).ToArray();
+        Check(cache.AtlasGeneration == originalGeneration + 1 && cache.ShadowmaskAtlas == null && cache.DepthAtlas != null && !cache.IsSlotReady(0, 42, 1) &&
+            cache.AllocatedBytes == unmaskedBytes + maskBytes && unmaskedBuffers.Length == 5 && unmaskedTextures.Length == 5,
+            "same configuration retries a complete replacement and keeps the old atlas charged");
+        Capture(cache);
+        Check(cache.IsSlotReady(0, 42, 1), "the successful retry records and publishes its own cards");
+
+        scene.ShadowmaskSources = Array.Empty<LightmapData>();
+        cache.Prepare(scene, config);
+        var currentAtlas = cache.DiffuseAtlas;
+        var completions = HybridLumenGIResourceRetirement.Pending;
+        Check(completions.Count == 2 && cache.ShadowmaskAtlas != null && cache.AllocatedBytes == 2 * maskBytes + unmaskedBytes &&
+            oldBuffers.All(b => !b.Released) && oldTextures.All(t => !t.Released) && unmaskedBuffers.All(b => !b.Released) && unmaskedTextures.All(t => !t.Released),
+            "two rapid changes retain both detached atlases while their readers are incomplete");
+        completions.Dequeue()();
+        Check(oldBuffers.All(b => b.Released) && oldTextures.All(t => t.Released) && unmaskedBuffers.All(b => !b.Released) &&
+            unmaskedTextures.All(t => !t.Released) && !currentAtlas.Released && cache.AllocatedBytes == unmaskedBytes + maskBytes,
+            "the first completion releases and uncharges only the first generation");
+        completions.Dequeue()();
+        Check(unmaskedBuffers.All(b => b.Released) && unmaskedTextures.All(t => t.Released) && !currentAtlas.Released && cache.AllocatedBytes == maskBytes,
+            "the second completion releases and uncharges only the unmasked generation");
     }
     static void SourceHashAndPublicationGuard()
     {
@@ -219,8 +278,8 @@ static class Program
         Check(command.Entries.Count(e=>e.Kind=="Dispatch")==3,"texture emission uses the existing per-card scan only");
         long expected=4L*16*16*40+3L*(128+4+16*8+32)+2L*16;
         Check(cache.AllocatedBytes==expected,"memory accounting includes exactly 32 bytes per physical card");
-        var estimate=typeof(HybridLumenGISurfaceCache).GetMethod("EstimateBytes",BindingFlags.Static|BindingFlags.NonPublic);
-        Check((long)estimate.Invoke(null,new object[]{3,16,2,4})==expected,"budget admission estimate includes descriptor allocation");
+        var estimate=typeof(HybridLumenGISurfaceCache).GetMethod("EstimateBytes",BindingFlags.Instance|BindingFlags.NonPublic);
+        Check((long)estimate.Invoke(cache,new object[]{3,16,2,4})==expected,"budget admission estimate includes descriptor allocation");
         var perBuffer=new[]{"metadataBuffer","rangesBuffer","indicesBuffer","anchorsBuffer","emittersBuffer"}.Select(name=>Buffer(cache,name));
         Check(cache.AllocatedBytes==cache.AtlasWidth*(long)cache.AtlasHeight*40+perBuffer.Sum(buffer=>(long)buffer.count*buffer.stride),"accounted bytes equal actual buffer capacities plus atlas formats");
         var before=Buffer(cache,"emittersBuffer");cache.Prepare(scene,Config(3));
@@ -474,7 +533,7 @@ static class Program
     }
     static int Main()
     {
-        VariableChartsAndOrder();SparseRetirementAndLayout();AtomicCapacityAndEligibility();PartialCaptureBudgetAndGrid();SourceHashAndPublicationGuard();DisposalAndGuards();EmissionBudgetAndTextureCapture();
+        VariableChartsAndOrder();SparseRetirementAndLayout();AtomicCapacityAndEligibility();PartialCaptureBudgetAndGrid();AtlasAllocationRecovery();SourceHashAndPublicationGuard();DisposalAndGuards();EmissionBudgetAndTextureCapture();
         TriangleIdentityAndLifetime();MappingDefensesAndOracle();HardwareSubmeshConstants();GeometryDirectionAndCullMetadata();PropertyHashIdentity();ExactMaterialObservations();CaptureRecordingTimeBudget();
         Console.WriteLine($"Actual-source SurfaceCache: {assertions} assertions in {scenarios} scenarios passed. Recording Unity/asset substitutes only; no raster, GPU, native material or fence validation.");return 0;
     }
