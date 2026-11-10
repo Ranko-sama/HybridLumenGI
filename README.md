@@ -16,17 +16,17 @@
 
 HybridLumenGI 以网格距离场和表面材质描述场景，在世界空间累积间接光，再通过时域重建与空间滤波输出到 URP 相机。它关注视锥外的颜色反弹、光照变化后的响应，以及动态几何与分页资源之间的一致性。
 
-**当前交付为 Release238。** 精确软件 BVH 在刚体更新时复用未移动实例的世界三角，保持当前完整分桶结果。可运行示例和可编辑 Unity 工程使用同版产品源码。项目处于实验阶段，软件 GI 的 25 ms 时间预算仍待达标。[动态准备对照](LocalComparison/Review/software-static-leaves-293/result.md) · [软件固定近景成本](LocalComparison/Review/software-bvh-sah-291/result.md)
+**当前交付为 Release239。** 已结束的形变作业在清理失败后释放捕获槽，其他网格可在剩余配额内继续更新。可运行示例和可编辑 Unity 工程使用同版产品源码。项目处于实验阶段，软件 GI 的 25 ms 时间预算仍待达标。[形变调度对照](LocalComparison/Review/deformed-failed-slot-294/result.md) · [软件固定近景成本](LocalComparison/Review/software-bvh-sah-291/result.md)
 
 ## 开始体验
 
 | 你想做什么 | 下载 | 打开方式 |
 | --- | --- | --- |
-| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release238-demo/HybridLumenGI-Release238-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
-| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release238-demo/HybridLumenGI-Release238-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
+| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release239-demo/HybridLumenGI-Release239-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
+| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release239-demo/HybridLumenGI-Release239-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
 | **先看独立对照** | [固定点灯与聚光灯的同曝光换色对照](LocalComparison/Review/mixed-light-recolor-280/result.md) | 可直接看报告。Windows 包中的 `PictureComparison/index.html` 提供离线画册。 |
 
-两个包均附带 `LICENSE` 和 `NOTICE`。请保留运行包旁的数据目录与资源页。[同源交付记录](LocalComparison/Review/software-static-leaves-293/delivery.json)
+两个包均附带 `LICENSE` 和 `NOTICE`。请保留运行包旁的数据目录与资源页。[同源交付记录](LocalComparison/Review/deformed-failed-slot-294/delivery.json)
 
 **示例配置：** Windows x64 · DirectX 12 · Linear · URP 17.0.4 · 960×540 · 半分辨率 GI · 每像素 2 条射线 · 4 级空间滤波。启动时优先请求 DXR，实际后端以面板与日志为准。[打开场景与重新构建 →](Documentation/UnifiedUnityProject.md)
 

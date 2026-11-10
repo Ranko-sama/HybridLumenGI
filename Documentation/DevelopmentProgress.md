@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release238，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release239，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／T6 已关闭形变作业完成后因清理失败而堵住共享捕获槽的问题。单工作槽下，另一个网格在剩余配额内完整发布，失败作业仍持有原所有者和字节预留。Astra Max 同意在组件调度范围内采用。普通 Player 形变画质与端到端消费延迟继续验收。[组件对照](../LocalComparison/Review/deformed-failed-slot-294/result.md) · [Release239 同源交付](../LocalComparison/Review/deformed-failed-slot-294/delivery.json)
 
 T6／G4 已减少精确软件刚体更新中的重复几何准备。固定双网格只移动一件时，世界三角读取由 4,096 降到 2,048，节点及叶与原全量构建一致。等量换源仍读取全部。原生 CPU 和 GPU 时间继续按原条件验收。[定向对照](../LocalComparison/Review/software-static-leaves-293/result.md) · [Release238 同源交付](../LocalComparison/Review/software-static-leaves-293/delivery.json)
 
