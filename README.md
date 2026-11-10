@@ -100,6 +100,7 @@ GPU 计时、预算反馈和显存观察默认关闭。可先选 **Measure only*
 | **[颜色误差](LocalComparison/Review/archived-runtime-color119-01/result.md)** | Release122 同源 Runtime 在原归档场景中，Floor / White 两个区域的平均间接光 D 亮度较有限参考低 **3.075% / 0.831%**。 | 640×360、固定第 119 帧、两个 ROI；地板 2 个未知点单列。不是当前三室、普通 Player 或全图真值。 |
 | **[关灯残留](LocalComparison/Review/all-source-off-response-01/result.md)** | 实际棕墙 / 白地板光路，全源关断后 **0.985 / 1.985 秒**，27 个固定点的旧绿均值剩 **0.2774% / 0.02529%**。 | 限该输入与光路，末端实际过滤数据有效；不能称白墙、高反射率或最坏情况通过，也不等同示例 `L` 键事件。 |
 | **[运动拖影](LocalComparison/Review/four-pass-local-quality-01/result.md)** | 四个同曝光时点中，颗粒减弱，未见明显加重的旧门轮廓。 | 不覆盖帧间闪烁、弱拖尾的连续持续时间或任意动画。 |
+| **[两骨门停稳恢复](LocalComparison/Review/ordinary-skin-motion-313/result.md)** | Release250 的固定地板间接光在停后 **1.334 秒**进入同姿态尾段容差。所示时点未见持续第二门形，停稳初期有短暂暗颗粒。 | 固定近景、照明和 DXR，恢复数字适用于预定地板区域。 |
 | **[换色恢复](LocalComparison/Review/final-state-response-01/result.md)** | 既有绿转蓝光路的 Final 区域均值，首个合格保持窗口为 **0.194–0.708 秒**，后续观测至 2.613 秒未再越线。 | 相对同工作帧的产品蓝色控制；窗口起点最差单点仍差约 23%。不是全像素或物理精确收敛。 |
 | **[两室关门恢复](LocalComparison/Review/portal-recovery-138/result.md)** | 约两秒的地板暖光残留由 **10.33%** 降到 **0.214%**。修复后的首个 ≤1% 保持窗为 **1.373–1.894 秒**。 | 960×540 实际 DXR，固定两室地板与匹配闭门控制。读数取 2 秒截止点前后的实际源帧。 |
 

@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release250，G0 已锁定，G1／G2 本机代表性验收通过
 
+T3／G3 补齐普通 Player 默认两骨门固定灯光下的动停画面。实际 DXR 中，固定地板在停后 1.334 秒进入同姿态尾段容差并保持至观察末端。所示时点未见持续第二门形，停后约 0.167／0.300 秒有短暂暗颗粒。采用限这条路线的画面与地板恢复。[同曝光对照及范围](../LocalComparison/Review/ordinary-skin-motion-313/result.md)
+
 T4／第 8 节已关闭普通 Lit 图卡在插值切线近抵消时的错误视差覆盖。实际 DX12 同一纹素的透明输入从有效标记 529 改为 0，实心对照两版仍有效。采用限该图卡材质输入，其他材质与整景质量继续各自验收。[实际图卡对照](../LocalComparison/Review/card-parallax-312/result.md) · [Release250 同源交付](../LocalComparison/Review/card-parallax-312/delivery.json)
 
 T5／T6／G4 已关闭正余额不足时的热态 HLOD 提前接替。实际双 Base 中首相机扣 6 个三角积分后剩 1 个。主相机保留完整旧组和 DXR，下一帧按原队列扣 2 个积分并在同一照明代次接替。采用限可从当前槽位计算完整 RTAS 工作的条件。[实机对照](../LocalComparison/Review/hlod-positive-credits-311/result.md) · [Release249 同源交付](../LocalComparison/Review/hlod-positive-credits-311/delivery.json)
