@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release243 同源交付](../LocalComparison/Review/ordinary-skin-scale-300/delivery.json)
 
+T5／T6／G4 已关闭可补充 RTAS 工作积分耗尽时，构建次数尚有余额导致的热态提前接替。实际 Scene 与共享额度对照确认完整旧组继续覆盖，就绪细节沿原队列取得后续足额轮次。当前余额大于零时仍以实际构建工作量准入，冷高速首显和完整生产负载继续验收。[接替规则和回归](HlodStreaming.md#atomic-hlod-transactions)
+
 T3／G3 已关闭统一示例两骨门自动捕获的重复缩放。24 个顶点在固定 15° 姿态与独立骨权重参考一致，生产 DXR 使用同一份当前快照命中正确的门顶三角。连续运动画质及随机 Gather 的首次使用仍分别验收。[实机对照与范围](../LocalComparison/Review/ordinary-skin-scale-300/result.md)
 
 T3／T6 已补单活动来源使用空闲工作槽计算 SDF 切片的能力。固定两骨门的 SDF32 同对中位节省 37.483 ms。取消和故障时，两段全部完成才归还槽位与预留。采用限该烘焙墙钟区间，普通 Player 的形变消费延迟和画质继续验收。[实测与槽位对照](../LocalComparison/Review/deformed-bake-slots-298/result.md)

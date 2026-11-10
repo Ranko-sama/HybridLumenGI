@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release243，G0 已锁定，G1／G2 本机代表性验收通过
 
+T5／T6／G4 源码已关闭共享 RTAS 工作积分耗尽时的热态接替漏挡。两台相机的受控对照中，首台扣完 12 个三角积分后还剩一次构建名额。旧预检让细节先发布，实际共享额度随后拒绝构建。修正后保留旧根、BVH 和同代次就绪细节，下一帧由等待中的相机优先扣除 12 三角与 2 实例并整组接替。无补充且任何非空构建均不可准入时沿原退路。依据限实际 Scene 与额度模块，正余额仍由录制按完整工作量核对，冷高速首显继续验收。[接替规则](HlodStreaming.md#atomic-hlod-transactions) · [定向回归](../Tests/StandaloneBvh/HlodProgram.cs.txt)
+
 T3／G3 已修复统一示例蒙皮门捕获时重复缩放的缺口。普通 DXR Player 在固定 15° 姿态命中正确的门顶三角，高度从旧版的 5.525 m 回到独立骨权重参考的 2.873 m。24 个发布顶点的最大世界坐标误差为 2.98 × 10⁻⁸ m。采用限该门的快照坐标与一次 DXR 诊断消费，连续运动画质与整体 G3 继续验收。[实机对照与范围](../LocalComparison/Review/ordinary-skin-scale-300/result.md) · [Release243 同源交付](../LocalComparison/Review/ordinary-skin-scale-300/delivery.json)
 
 T3／T6 已缩短单活动形变来源的 SDF 烘焙等待。固定 15° 两骨门在原工作槽额度内由 101.372 ms 降到 63.404 ms，边界与距离数组一致。实际组件与烘焙核的受控取消及故障均等到两半结束后归还槽位和预留。Astra Max 同意在隔离烘焙耗时范围内采用。普通 Player 的端到端延迟与画质继续验收。[实测与占槽边界](../LocalComparison/Review/deformed-bake-slots-298/result.md) · [Release242 同源交付](../LocalComparison/Review/deformed-bake-slots-298/delivery.json)

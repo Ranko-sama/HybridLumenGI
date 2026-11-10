@@ -45,8 +45,10 @@ namespace HybridLumenGI
         // Check the current queue without adding a demand for a speculative handoff.
         internal static bool IsBuildTurnBlocked(object owner)
         {
-            if (settings.MaxBuildsPerFrame <= 0) return false;
-            if (BuildsThisFrame >= settings.MaxBuildsPerFrame) return true;
+            // A handoff that needs RTAS work requires at least one triangle and one instance.
+            // Only wait when that minimum can still be admitted on a future turn.
+            if (!CanScheduleBuild(1, 1, out _)) return false;
+            if (BuildsThisFrame >= settings.MaxBuildsPerFrame || triangleCredits == 0 || instanceCredits == 0) return true;
             Demand oldest = OldestActiveDemand();
             return oldest != null && !ReferenceEquals(oldest.owner, owner);
         }

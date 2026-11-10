@@ -211,7 +211,7 @@ using(var s=new HybridLumenGIScene())
 fittingDeclarations.Clear();
 Console.WriteLine("PASS: cold root fallback/readiness, fitting-detail release and exact-capacity direct-detail control.");
 
-static void ReadyHlodBehindOlderBuild(bool useQueue, bool exactRoot, bool fitsBesidePrepared = true)
+static void ReadyHlodBehindOlderBuild(bool useQueue, bool exactRoot, bool fitsBesidePrepared = true, bool exhaustTriangleCredits = false)
 {
     var group = Group(2);
     var independent = new HybridLumenGIProxy { StableId = 1001, bounds = new Bounds(new Vector3(0, 8, 0), Vector3.one) };
@@ -246,14 +246,22 @@ static void ReadyHlodBehindOlderBuild(bool useQueue, bool exactRoot, bool fitsBe
     var older = new object();
     var priorBuild = new object();
     var quota = HybridLumenGIRtasBudget.Settings.Default;
-    quota.MaxBuildsPerFrame = 1;
+    quota.MaxBuildsPerFrame = exhaustTriangleCredits ? 2 : 1;
+    if (exhaustTriangleCredits) quota.TriangleWorkPerFrame = 12;
     HybridLumenGIRtasBudget.ResetFrameAdmission();
-    HybridLumenGIRtasBudget.BeginFrame(30, quota);
-    Require(HybridLumenGIRtasBudget.TryConsumeBuild(priorBuild, 30, 6, 1, out _), "Expected the previous frame's one build.");
-    Require(!HybridLumenGIRtasBudget.TryConsumeBuild(older, 30, 5, 1, out _) &&
-        HybridLumenGIRtasBudget.PendingDemands == 1, "Expected a genuine older demand after the previous build.");
+    if (!exhaustTriangleCredits)
+    {
+        HybridLumenGIRtasBudget.BeginFrame(30, quota);
+        Require(HybridLumenGIRtasBudget.TryConsumeBuild(priorBuild, 30, 6, 1, out _), "Expected the previous frame's one build.");
+        Require(!HybridLumenGIRtasBudget.TryConsumeBuild(older, 30, 5, 1, out _) &&
+            HybridLumenGIRtasBudget.PendingDemands == 1, "Expected a genuine older demand after the previous build.");
+    }
     HybridLumenGIRtasBudget.BeginFrame(31, quota);
     Require(HybridLumenGIRtasBudget.BuildsThisFrame == 0, "The current frame's build turn must be unused.");
+    if (exhaustTriangleCredits)
+        Require(HybridLumenGIRtasBudget.TryConsumeBuild(priorBuild, 31, 12, 1, out _) &&
+            HybridLumenGIRtasBudget.BuildsThisFrame < quota.MaxBuildsPerFrame && HybridLumenGIRtasBudget.TriangleCredits == 0 &&
+            HybridLumenGIRtasBudget.PendingDemands == 0, "The first camera must exhaust work while leaving a build turn.");
 
     bool PrepareHandoff(bool blocked)
     {
@@ -273,7 +281,8 @@ static void ReadyHlodBehindOlderBuild(bool useQueue, bool exactRoot, bool fitsBe
     {
         Require(scene.PublishedCount == 2 && Slot(scene, group.root.StableId) < 0 &&
             !HybridLumenGIRtasBudget.TryConsumeBuild(main, 31, 12, 2, out string reason) &&
-            reason.Contains("older active camera"), "The count-only gate must expose the late rejection.");
+            reason.Contains(exhaustTriangleCredits ? "work credits" : "older active camera"),
+            "The count-only gate must expose the late rejection.");
         return;
     }
     if (!fitsBesidePrepared)
@@ -284,7 +293,8 @@ static void ReadyHlodBehindOlderBuild(bool useQueue, bool exactRoot, bool fitsBe
     }
 
     RequireOldGroup();
-    Require(scene.HasReadyExactHlodReplacement(preparedExact, ReadyExactTarget) && HybridLumenGIRtasBudget.PendingDemands == 1,
+    Require(scene.HasReadyExactHlodReplacement(preparedExact, ReadyExactTarget) &&
+        HybridLumenGIRtasBudget.PendingDemands == (exhaustTriangleCredits ? 0 : 1),
         "Holding the old group lost ready staging or changed the queue before recording.");
     if (!exactRoot)
     {
@@ -296,10 +306,13 @@ static void ReadyHlodBehindOlderBuild(bool useQueue, bool exactRoot, bool fitsBe
     }
     // The real Feature joins the queue only after it records DXR with the retained root.
     Require(HybridLumenGIRtasBudget.RequestBuild(main, 31, 0, 0, out _), "The retained representation could not register its waiting turn.");
-    Require(HybridLumenGIRtasBudget.TryConsumeBuild(older, 31, 5, 1, out _) &&
-        HybridLumenGIRtasBudget.BuildsThisFrame == 1 && HybridLumenGIRtasBudget.PendingDemands == 1,
-        "The held HLOD displaced the older camera or consumed its build.");
+    if (!exhaustTriangleCredits)
+        Require(HybridLumenGIRtasBudget.TryConsumeBuild(older, 31, 5, 1, out _) &&
+            HybridLumenGIRtasBudget.BuildsThisFrame == 1 && HybridLumenGIRtasBudget.PendingDemands == 1,
+            "The held HLOD displaced the older camera or consumed its build.");
     HybridLumenGIRtasBudget.BeginFrame(32, quota);
+    if (exhaustTriangleCredits)
+        Require(HybridLumenGIRtasBudget.IsBuildTurnBlocked(priorBuild), "The competing camera regained priority over the held HLOD.");
     Require(!HybridLumenGIRtasBudget.IsBuildTurnBlocked(main), "The main camera did not reach the front.");
     Require(PrepareHandoff(false), "The queued handoff disappeared before using its turn.");
     int buildTriangles = 2 * detailTriangles + independentCount * preparedTriangles;
@@ -310,12 +323,22 @@ static void ReadyHlodBehindOlderBuild(bool useQueue, bool exactRoot, bool fitsBe
         HybridLumenGIRtasBudget.TryConsumeBuild(main, 32, buildTriangles, buildInstances, out _) &&
         HybridLumenGIRtasBudget.TriangleWorkThisFrame == buildTriangles && HybridLumenGIRtasBudget.InstanceWorkThisFrame == buildInstances &&
         HybridLumenGIRtasBudget.PendingDemands == 0, "The complete group did not take and pay for its own turn.");
+    if (exhaustTriangleCredits)
+    {
+        quota.TriangleWorkPerFrame = 0;
+        HybridLumenGIRtasBudget.BeginFrame(32, quota);
+        Require(!HybridLumenGIRtasBudget.IsBuildTurnBlocked(main) && !HybridLumenGIRtasBudget.CanScheduleBuild(1, 1, out _),
+            "An unavailable nonempty build must not indefinitely defer a handoff.");
+    }
 }
 ReadyHlodBehindOlderBuild(useQueue: false, exactRoot: true);
 ReadyHlodBehindOlderBuild(useQueue: true, exactRoot: true);
 ReadyHlodBehindOlderBuild(useQueue: true, exactRoot: false);
 ReadyHlodBehindOlderBuild(useQueue: true, exactRoot: false, fitsBesidePrepared: false);
 Console.WriteLine("PASS: exact and approximate HLOD groups hold for a required RTAS turn, with first-publication and over-budget controls.");
+ReadyHlodBehindOlderBuild(useQueue: false, exactRoot: true, exhaustTriangleCredits: true);
+ReadyHlodBehindOlderBuild(useQueue: true, exactRoot: true, exhaustTriangleCredits: true);
+Console.WriteLine("PASS: exhausted RTAS triangle credits preserve the old HLOD and its staging until the next funded turn.");
 
 var changingGroup = Group(3);
 using (var s = new HybridLumenGIScene())
