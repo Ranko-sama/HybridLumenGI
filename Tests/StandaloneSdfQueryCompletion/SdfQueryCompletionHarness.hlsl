@@ -38,7 +38,7 @@ int HLGIBvhNextLeaf(inout uint cursor,float3 o,float3 d,float limit)
 }
 #include "ActualSceneQueries.hlsl"
 // Unrelated material/lighting boundary: no resident charts, zero direct lighting.
-struct HLGISurfaceSample { float3 diffuse,emission,normal,geometricNormal;float occlusion,confidence;uint cardIndex,generation; };
+struct HLGISurfaceSample { float3 diffuse,emission,normal,geometricNormal;float occlusion,confidence;bool receivesShadows;uint cardIndex,generation; };
 struct HLGICacheEntry { float4 irradiance,tag,anchor,normal,guide; };
 static HLGICacheEntry _HLGI_CacheRead[4];
 static int _HLGI_CacheGrid,_HLGI_Epoch;static float _HLGI_RayBias;static bool testingCache;
@@ -47,7 +47,7 @@ float3 UnpackNormalOctQuadEncode(float2 value) { return float3(0,1,0); }
 bool HLGITrySurfaceMaterialHit(HLGIHit hit,out HLGISurfaceSample surface)
 {
     surface=(HLGISurfaceSample)0;surface.diffuse=0.5;surface.emission=1;
-    surface.normal=surface.geometricNormal=float3(0,1,0);surface.occlusion=surface.confidence=1;surface.generation=1;
+    surface.normal=surface.geometricNormal=float3(0,1,0);surface.occlusion=surface.confidence=1;surface.generation=1;surface.receivesShadows=true;
     return testingCache;
 }
 #include "ActualCacheQueries.hlsl"

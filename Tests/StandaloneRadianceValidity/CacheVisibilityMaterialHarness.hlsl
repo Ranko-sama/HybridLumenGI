@@ -11,7 +11,7 @@ cbuffer Counts:register(b0) { uint _Count; }
 static CacheInput active;
 struct HLGIProxy { float4 centerShape,extentsRoughness,albedo,emission,identity; };
 struct HLGICacheEntry { float4 irradiance,tag,anchor,normal,guide; };
-struct HLGISurfaceSample { float3 diffuse,emission,normal,geometricNormal;float occlusion,confidence;uint cardIndex,generation; };
+struct HLGISurfaceSample { float3 diffuse,emission,normal,geometricNormal;float occlusion,confidence;bool receivesShadows;uint cardIndex,generation; };
 static HLGIProxy _HLGI_Proxies[1];
 static HLGICacheEntry _HLGI_CacheRead[4];
 static uint4 _HLGI_LightingPolicies[1];
@@ -27,7 +27,7 @@ bool HLGITrySurfaceMaterialHit(HLGIHit hit,out HLGISurfaceSample surface)
 {
     surface=(HLGISurfaceSample)0;surface.diffuse=0.5;surface.emission=float3(.125,.25,.5);
     surface.normal=surface.geometricNormal=float3(0,1,0);
-    surface.occlusion=surface.confidence=1;surface.generation=1;return true;
+    surface.occlusion=surface.confidence=1;surface.generation=1;surface.receivesShadows=true;return true;
 }
 float3 DirectIrradiance(float3 p,float3 n,float3 ng,uint2 layers,bool receives,
     float3 direction,HLGIRayFootprint footprint,out bool known)

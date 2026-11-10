@@ -523,6 +523,7 @@ float3 ProxyRadiance(HLGIHit hit,float3 incomingDirection,HLGIRayFootprint hitFo
     {
         diffuse=surface.diffuse;emission=surface.emission;shadingNormal=surface.normal;
         biasNormal=surface.geometricNormal;ao=surface.occlusion;
+        receivesShadows=surface.receivesShadows;
         confidence=saturate(surface.confidence);
     }
     else confidence=0.1; // Uncharted analytic/SDF owner-level approximation.

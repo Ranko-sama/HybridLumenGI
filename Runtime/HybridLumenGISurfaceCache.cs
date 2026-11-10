@@ -138,6 +138,7 @@ namespace HybridLumenGI
         private static readonly int NormalId = Shader.PropertyToID("_HLGI_SurfaceNormal");
         private static readonly int ShadowmaskId = Shader.PropertyToID("_HLGI_SurfaceShadowmask");
         private static readonly int CardShadowmaskId = Shader.PropertyToID("_HLGI_CardShadowmask");
+        private static readonly int CardReceivesShadowsId = Shader.PropertyToID("_HLGI_CardReceivesShadows");
         private static readonly int CardShadowmaskSTId = Shader.PropertyToID("_HLGI_CardShadowmaskST");
         private static readonly int CardUseShadowmaskId = Shader.PropertyToID("_HLGI_CardUseShadowmask");
         private static readonly int WorldToCardId = Shader.PropertyToID("_HLGI_CardWorldToCard");
@@ -1001,6 +1002,7 @@ namespace HybridLumenGI
                 foreach (int p in VectorProperties) if (block.HasProperty(p)) copy.SetVector(p, block.GetVector(p));
                 foreach (int p in TextureProperties) if (block.HasProperty(p)) copy.SetTexture(p, block.GetTexture(p));
                 copy.SetFloat("_Cull", SourceCull(source));
+                copy.SetFloat(CardReceivesShadowsId, source.IsKeywordEnabled("_RECEIVE_SHADOWS_OFF") ? 0f : 1f);
                 copy.enableInstancing = false; // Each explicit renderer/submesh draw owns its matrices.
                 owner.submeshes.Add(new CapturedSubmesh { material = copy, index = i, cull = copy.GetFloat("_Cull") });
             }

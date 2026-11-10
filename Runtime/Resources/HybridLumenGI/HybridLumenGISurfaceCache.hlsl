@@ -15,6 +15,7 @@ struct HLGISurfaceSample
 {
     float3 position, normal, geometricNormal, diffuse, emission;
     float occlusion, roughness, confidence;
+    bool receivesShadows;
     uint cardIndex, generation, ownerSlot;
     uint2 atlasPixel;
 };
@@ -51,7 +52,8 @@ bool HLGILoadSurfaceTexel(int2 pixel,out HLGISurfaceSample sample)
     sample=(HLGISurfaceSample)0;
     if(any(pixel<0) || any(pixel>=(int2)_HLGI_SurfaceAtlasSize.xy)) return false;
     float4 emission=_HLGI_SurfaceEmission.Load(int3(pixel,0));
-    if(!all(isfinite(emission)) || emission.a<1 || emission.a>1024 || emission.a!=round(emission.a)) return false;
+    float packedNormal=abs(emission.a);
+    if(!all(isfinite(emission)) || packedNormal<1 || packedNormal>1024 || packedNormal!=round(packedNormal)) return false;
     float4 position=_HLGI_SurfacePosition.Load(int3(pixel,0));
     float4 normal=_HLGI_SurfaceNormal.Load(int3(pixel,0));
     float4 diffuse=_HLGI_SurfaceDiffuse.Load(int3(pixel,0));
@@ -60,7 +62,8 @@ bool HLGILoadSurfaceTexel(int2 pixel,out HLGISurfaceSample sample)
         !isfinite(normalLengthSquared) || normalLengthSquared<0.25 || position.w<0 || position.w>1) return false;
     sample.position=position.xyz;
     sample.normal=normal.xyz*rsqrt(normalLengthSquared);
-    sample.geometricNormal=HLGIDecodeSurfaceGeometricNormal(emission.a);
+    sample.geometricNormal=HLGIDecodeSurfaceGeometricNormal(packedNormal);
+    sample.receivesShadows=emission.a>0;
     sample.diffuse=saturate(diffuse.rgb);
     sample.emission=max(emission.rgb,0);
     sample.occlusion=saturate(diffuse.a);

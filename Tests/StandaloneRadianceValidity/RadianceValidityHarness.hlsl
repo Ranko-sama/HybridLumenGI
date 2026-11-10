@@ -31,7 +31,7 @@ static RadianceInput active;
 struct HLGIProxy { float4 centerShape,extentsRoughness,albedo,emission,identity; };
 struct HLGILight { float4 positionType,directionRange,color,spot;uint4 masks; };
 struct HLGICacheEntry { float4 irradiance,tag,anchor,normal,guide; };
-struct HLGISurfaceSample { float3 diffuse,emission,normal,geometricNormal;float occlusion,confidence; };
+struct HLGISurfaceSample { float3 diffuse,emission,normal,geometricNormal;float occlusion,confidence;bool receivesShadows; };
 static HLGIProxy _HLGI_Proxies[1];
 static HLGILight _HLGI_Lights[1];
 static uint4 _HLGI_LightingPolicies[1];
@@ -50,7 +50,7 @@ bool TraceSceneQuery(float3 o,float3 d,float maxT,bool shadow,bool resolveMateri
 }
 bool HLGILightAffectsReceiver(uint2 receiver,uint culling,uint layers,bool enabled) { return (active.hitSpec.w&4u)==0u; }
 bool HLGITrySurfaceMaterialHit(HLGIHit hit,out HLGISurfaceSample sample)
-{ sample=(HLGISurfaceSample)0;sample.diffuse=.5;sample.normal=sample.geometricNormal=float3(0,0,1);sample.occlusion=1;sample.confidence=.8;
+{ sample=(HLGISurfaceSample)0;sample.diffuse=.5;sample.normal=sample.geometricNormal=float3(0,0,1);sample.occlusion=1;sample.confidence=.8;sample.receivesShadows=true;
   if(HLGIHitHas(hit.flags,HLGI_HIT_TRIANGLE)) {sample.diffuse=float3(.9,.1,.7);sample.emission=10;sample.normal=float3(0,0,-1);sample.occlusion=.9;}
   return active.hitSpec.z!=0u; }
 bool HLGICachedSurface(int slot,float3 p,float3 ng,float3 ns,HLGISurfaceSample s,out HLGICacheEntry cache)

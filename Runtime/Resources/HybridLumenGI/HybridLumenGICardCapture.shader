@@ -30,6 +30,7 @@ Shader "Hidden/HybridLumenGI/CardCapture"
         _Cull("Cull", Float) = 2
         [HideInInspector] _ClearCoatMask("Clear Coat", Float) = 0
         [HideInInspector] _ClearCoatSmoothness("Clear Coat Smoothness", Float) = 0
+        [HideInInspector] _HLGI_CardReceivesShadows("Receives Shadows", Float) = 1
     }
     SubShader
     {
@@ -58,6 +59,7 @@ Shader "Hidden/HybridLumenGI/CardCapture"
             float4x4 _HLGI_CardWorldToCard;
             float4 _HLGI_CardRect, _HLGI_CardDirection, _HLGI_CardGeometryDirection, _HLGI_CardTint, _HLGI_CardExtraEmission;
             float _HLGI_CardCull, _HLGI_CardObjectDeterminantSign;
+            float _HLGI_CardReceivesShadows;
             TEXTURE2D(_HLGI_CardShadowmask); SAMPLER(sampler_HLGI_CardShadowmask);
             float4 _HLGI_CardShadowmaskST;
             float _HLGI_CardUseShadowmask;
@@ -204,7 +206,10 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 #endif
                 CardOutput output;
                 output.diffuseOcclusion = half4(saturate(brdf.diffuse*_HLGI_CardTint.rgb),saturate(surface.occlusion));
-                output.emissionValidity = half4(max(0,(surface.emission+_HLGI_CardExtraEmission.rgb)*_HLGI_CardExtraEmission.w),PackCardGeometricNormal(facet));
+                half packedNormal = PackCardGeometricNormal(facet);
+                // The sign carries the source slot's shadow policy. Zero remains uncovered.
+                if (_HLGI_CardReceivesShadows < 0.5) packedNormal = -packedNormal;
+                output.emissionValidity = half4(max(0,(surface.emission+_HLGI_CardExtraEmission.rgb)*_HLGI_CardExtraEmission.w),packedNormal);
                 output.positionDepth = float4(input.positionWS,input.cardPosition.z);
                 output.normalRoughness = half4(normal,saturate(1-surface.smoothness));
                 output.bakedVisibility = 1;

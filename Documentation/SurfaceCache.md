@@ -53,12 +53,12 @@ Live RenderTexture inputs invalidate the affected owner's cards on each prepare,
 | Resource | Format | Meaning |
 | --- | --- | --- |
 | DiffuseAtlas | RGBA8 UNorm, linear | Diffuse reflectance RGB; material AO in alpha |
-| EmissionAtlas | RGBA16 float | Emitted radiance RGB; packed geometric normal plus validity in alpha |
+| EmissionAtlas | RGBA16 float | Emitted radiance RGB and geometric normal, coverage and shadow receiving in alpha |
 | PositionAtlas | RGBA32 float | Absolute world position XYZ; normalized card depth in alpha |
 | NormalAtlas | RGBA16 float | Shading normal XYZ, including normal/detail maps; perceptual roughness in alpha |
 | DepthAtlas | D32 | Raster depth used to retain the first captured layer |
 
-Emission alpha is zero for uncovered texels. Values 1–1024 encode two 5-bit octahedral components of the triangle geometric normal; every such integer is exactly representable in FP16. The geometric normal supports ray-origin bias independently of the normal-mapped shading normal, with a deliberate quantization error. A higher-precision geometric-normal format remains a quality option to evaluate.
+Emission alpha is zero for uncovered texels. Its magnitude (1–1024) encodes two 5-bit octahedral components of the triangle geometric normal. Its sign records whether the captured source material receives realtime shadows (positive for on, negative for off). Both signs preserve the exact FP16 integer. The geometric normal supports ray-origin bias independently of the normal-mapped shading normal, with a deliberate quantization error. A higher-precision geometric-normal format remains a quality option to evaluate.
 
 Per-card metadata is **128 bytes**: a 64-byte `worldToCard` matrix, 16-byte atlas rectangle, 16-byte capture direction/position tolerance, four uints for stable ID/revision/generation/readiness, and four uints for owner slot/chart ID/layout generation/flags. Flag bit 0 marks a real chart; bits 1–2 encode that chart's source-submesh Cull mode. Owner ranges use 16 bytes per scene slot; card indirection uses 4 bytes per pool entry; anchors use 8 bytes per patch; emissive descriptors use 32 bytes per card and enter the surface byte budget. The current allocated surface estimate is:
 
