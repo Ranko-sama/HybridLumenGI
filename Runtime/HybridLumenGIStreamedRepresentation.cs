@@ -178,7 +178,7 @@ namespace HybridLumenGI
             if(Generation==uint.MaxValue){ReleaseUnpublished();Fail("Representation generation space exhausted.");return;}
             Generation++;meshFilter.sharedMesh=loadedMesh;targetRenderer.sharedMaterials=loadedMaterials;
             proxy.SetSources(targetRenderer,null);proxy.SetMeshSdf(loadedSdf);proxy.SetSurfaceCharts(loadedCharts);
-            targetRenderer.enabled=true;proxy.enabled=true;proxy.MarkDirty();bound=true;
+            targetRenderer.enabled=true;proxy.enabled=true;bound=true;
         }
         private static void InvalidateHlodDemandTopology()
         {
@@ -264,7 +264,7 @@ namespace HybridLumenGI
             if(!WantsUnload || generation!=Generation || completion==null || retirement!=null)return false;
             if(targetRenderer!=null){targetRenderer.enabled=false;targetRenderer.sharedMaterials=Array.Empty<Material>();}
             if(meshFilter!=null)meshFilter.sharedMesh=null;
-            if(proxy!=null){proxy.enabled=false;proxy.SetMeshSdf(null);proxy.SetSurfaceCharts(null);proxy.MarkDirty();}
+            if(proxy!=null){proxy.enabled=false;proxy.SetMeshSdf(null);proxy.SetSurfaceCharts(null);}
             RemoveRequests();retirement=new RetireCompletion{frame=completion};
             foreach(var lease in leases)pageState.ReleaseAfter(lease,retirement);
             leases.Clear();bound=false;loadedMesh=null;loadedMaterials=null;loadedSdf=null;loadedCharts=null;

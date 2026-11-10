@@ -162,8 +162,7 @@ namespace HybridLumenGI
             if (sourceCollider == null) sourceCollider = GetComponent<Collider>();
             if (stableId == 0) stableId = NextExactInteger(ref nextStableId);
             if (!Active.Contains(this)) Active.Add(this);
-            MarkDirty();
-            CacheSignature();
+            MarkBindingChanged();
         }
 
         private void OnDisable()
@@ -253,12 +252,7 @@ namespace HybridLumenGI
         /// </summary>
         public void MarkDirty()
         {
-            if (Interlocked.Exchange(ref validationPending,0)!=0)
-            {
-                if (sourceRenderer == null) sourceRenderer = GetComponent<Renderer>();
-                if (sourceCollider == null) sourceCollider = GetComponent<Collider>();
-                if (hlodParent == this) hlodParent = null;
-            }
+            ApplyPendingValidation();
             Mesh mesh = SourceMesh ?? lastMesh;
             // Notify the shared SDF source stamp once, then update instances without
             // recursively calling MarkDirty. Different assets and chart-only owners
@@ -275,6 +269,26 @@ namespace HybridLumenGI
                 // not broadcast the same count/bounds change a second time.
                 proxy.MarkGeometryRepresentationChanged();
             }
+        }
+
+        private void ApplyPendingValidation()
+        {
+            if (Interlocked.Exchange(ref validationPending,0)==0) return;
+            if (sourceRenderer == null) sourceRenderer = GetComponent<Renderer>();
+            if (sourceCollider == null) sourceCollider = GetComponent<Collider>();
+            if (hlodParent == this) hlodParent = null;
+        }
+
+        private void MarkBindingChanged()
+        {
+            ApplyPendingValidation();
+            Mesh mesh = SourceMesh;
+            // An already observed mesh can have changed while this instance was disabled.
+            if (mesh != null && ReferenceEquals(mesh,lastMesh) &&
+                (mesh.vertexCount != lastVertexCount || mesh.bounds != lastLocalMeshBounds))
+                MarkDirty();
+            else
+                MarkGeometryRepresentationChanged();
         }
 
         // An instance can change its GI representation without editing the shared source mesh.
@@ -449,19 +463,19 @@ namespace HybridLumenGI
             sourceRenderer = renderer;
             sourceCollider = collider;
             if (collider is SphereCollider) shape = Shape.Sphere;
-            MarkDirty();
+            MarkBindingChanged();
         }
 
         public void SetMeshSdf(HybridLumenGIMeshSdf asset)
         {
             meshSdf = asset;
-            MarkDirty();
+            MarkBindingChanged();
         }
 
         public void SetSurfaceCharts(HybridLumenGISurfaceCharts asset)
         {
             surfaceCharts = asset;
-            MarkDirty();
+            MarkBindingChanged();
         }
 
         /// <summary>Runtime binding for additive-scene detail and a persistent authored HLOD parent.</summary>
