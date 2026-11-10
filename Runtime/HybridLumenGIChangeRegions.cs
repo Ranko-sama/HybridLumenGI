@@ -10,6 +10,7 @@ namespace HybridLumenGI
     public sealed class HybridLumenGIChangeRegions : IDisposable
     {
         [StructLayout(LayoutKind.Sequential)]
+        // receiver.y packs disjoint pose (bit 0) and analytic RGB refresh (bits 1–3).
         private struct Region { public Vector4 minimum, maximum, receiver; }
         private const int Capacity = 1088; // Up to two events with two bounds per slot, plus 64 light domains.
         private readonly Region[] regions = new Region[Capacity];
@@ -60,11 +61,14 @@ namespace HybridLumenGI
         { AddKind(bounds,1,influenceRadius,receiver); }
         internal void AddAnalyticLightChange(Bounds bounds, float influenceRadius)
         { AddKind(bounds, 0, influenceRadius, null, analyticLightChanged: true); }
+        internal void AddAnalyticLightRefresh(Bounds bounds, float influenceRadius, int channels)
+        { AddKind(bounds, 0, influenceRadius, null, analyticLightChanged: true, analyticRefreshChannels: channels); }
         private void AddKind(Bounds bounds,float kind,float influenceRadius,Renderer receiver,bool disjointPose=false,
-            bool analyticLightChanged=false)
+            bool analyticLightChanged=false,int analyticRefreshChannels=0)
         {
             float influence = Mathf.Max(0, influenceRadius);
             float lightInfluence = analyticLightChanged ? influence : 0f;
+            int flags = (disjointPose ? 1 : 0) | (analyticRefreshChannels << 1);
             hasLocalGeometryChange |= kind > 0.5f;
             if (byBounds.TryGetValue(bounds,out int existing))
             {
@@ -77,11 +81,8 @@ namespace HybridLumenGI
                     prior.receiver.x = 0; // Geometry merges can change the resolved receiver.
                 }
                 prior.minimum.w=Mathf.Max(prior.minimum.w,kind);
-                if (disjointPose)
-                {
-                    prior.receiver.y = 1;
-                    prior.receiver.z = Mathf.Max(prior.receiver.z, influence);
-                }
+                prior.receiver.y = (int)prior.receiver.y | flags;
+                if (disjointPose) prior.receiver.z = Mathf.Max(prior.receiver.z, influence);
                 prior.maximum.w=Mathf.Max(prior.maximum.w,influence);
                 prior.receiver.w = Mathf.Max(prior.receiver.w, lightInfluence);
                 regions[existing]=prior;return;
@@ -95,7 +96,7 @@ namespace HybridLumenGI
                 minimum = new Vector4(lo.x, lo.y, lo.z, kind),
                 maximum = new Vector4(hi.x, hi.y, hi.z, influence),
                 // Keep the disjoint-pose and analytic-light radii separate from the combined reach.
-                receiver = new Vector4(0, disjointPose ? 1 : 0, disjointPose ? influence : 0, lightInfluence)
+                receiver = new Vector4(0, flags, disjointPose ? influence : 0, lightInfluence)
             };
         }
         public void ResolveReceiverGroups(Func<Renderer,uint> resolve)

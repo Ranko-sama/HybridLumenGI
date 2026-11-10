@@ -196,7 +196,7 @@ flowchart TD
 
 当前相机的解析灯表在某颜色通道完全无源时，世界缓存的读写均用已有的发光和环境份额替换该通道。固定点光绿转蓝的 DXR 对照中，灯表始终有一条，旧绿满足 1／2 秒残留门及后续保持。采用范围为该固定光路的旧色消退。[同曝光对照与读数](../LocalComparison/Review/point-light-recolor-237/result.md)
 
-同一固定点灯表的解析通道可按统一降幅缩放。各灯降幅不同时，受影响的通道在现有局部域内等待可信更新。旧解析份额暂停进入世界迭代，发光、环境和其他通道继续参与。实机双灯共用绿色的对照满足残留、终态及保持目标。[共通道调暗对照](../LocalComparison/Review/point-light-shared-channel-248/result.md)
+同一固定点灯表的解析通道可按统一降幅缩放。各灯降幅不同时，按对应降幅或退出点灯的范围标记待刷新的通道。旧解析份额暂停进入世界迭代，发光、环境和其他通道继续参与。固定双域的实际图卡对照确认一侧点灯调暗绿色时，另一侧红灯变化保留该侧已知的绿色缓存输入。实机双灯共用绿色的对照满足残留、终态及保持目标。[双域世界缓存对照](../LocalComparison/Review/analytic-refresh-domains-330/result.md) · [共通道调暗对照](../LocalComparison/Review/point-light-shared-channel-248/result.md)
 
 参与同通道的恒亮聚光灯也可进入这一比例比较。实际 DXR 中，固定点灯从青切蓝，固定青色聚光灯继续供光。修复后的 1／2 秒旧绿、匹配终态、保持及稳定蓝色均通过原条件。[固定 Point＋Spot 同曝光对照](../LocalComparison/Review/mixed-light-recolor-280/result.md)
 

@@ -36,6 +36,22 @@ float2 HLGIChangeAtReceiver(float3 position,uint provenReceiverGroup,bool trackL
 float2 HLGIChangeAt(float3 position) { return HLGIChangeAtReceiver(position,0u,false); }
 
 #if defined(HLGI_CACHE_UPDATE_ITERATION)
+uint HLGIAnalyticRefreshAt(float3 position,uint activeChannels)
+{
+    [branch] if(activeChannels==0u) return 0u;
+    uint channels=0u;
+    [loop] for(int i=0;i<_HLGI_ChangeCount;i++)
+    {
+        HLGIChangeRegion region=_HLGI_ChangeRegions[i];
+        uint localChannels=((uint)region.receiver.y>>1u)&activeChannels;
+        if(localChannels==0u) continue;
+        if(HLGIChangeDistanceSquared(position,region)<=region.receiver.w*region.receiver.w)
+            channels|=localChannels;
+        if(channels==activeChannels) break;
+    }
+    return channels;
+}
+
 bool HLGIRejectOldCacheInputAt(float3 position)
 {
     if(_HLGI_GlobalGeometryChange>0.5) return true;
@@ -46,7 +62,7 @@ bool HLGIRejectOldCacheInputAt(float3 position)
         if(region.minimum.w<=0.5) continue;
         float distanceSquared=HLGIChangeDistanceSquared(position,region);
         if(distanceSquared<=1e-8) return true;
-        if(_HLGI_HasDisjointPoseChange!=0 && region.receiver.y>=0.5 &&
+        if(_HLGI_HasDisjointPoseChange!=0 && ((uint)region.receiver.y&1u)!=0u &&
             distanceSquared<=region.receiver.z*region.receiver.z) return true;
     }
     return false;
@@ -58,7 +74,7 @@ bool HLGIDisjointPoseInfluenceAt(float3 position)
     [loop] for(int i=0;i<_HLGI_ChangeCount;i++)
     {
         HLGIChangeRegion region=_HLGI_ChangeRegions[i];
-        if(region.receiver.y<0.5) continue;
+        if(((uint)region.receiver.y&1u)==0u) continue;
         if(HLGIChangeDistanceSquared(position,region)<=region.receiver.z*region.receiver.z) return true;
     }
     return false;

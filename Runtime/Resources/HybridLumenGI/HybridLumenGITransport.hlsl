@@ -358,10 +358,7 @@ bool HLGICachedSurface(int index,float3 position,float3 geometricNormal,float3 s
         }
 #if defined(HLGI_CACHE_UPDATE_ITERATION)
         uint refreshChannels=refreshFlags>>HLGI_CACHE_ANALYTIC_REFRESH_SHIFT;
-        [branch] if(_HLGI_PointLightRefreshChannels!=0)
-        {
-            if(HLGIChangeAt(e.anchor.xyz).y>0.5) refreshChannels|=(uint)_HLGI_PointLightRefreshChannels;
-        }
+        refreshChannels|=HLGIAnalyticRefreshAt(e.anchor.xyz,(uint)_HLGI_PointLightRefreshChannels);
         // Keep the old measurement available to gather while world iteration
         // refreshes the affected analytic channels from current inputs.
         if(refreshChannels!=0u)
@@ -666,7 +663,7 @@ void CSUpdateCache(uint3 id:SV_DispatchThreadID)
     if(e.irradiance.a>0)
     {
         uint refreshFlags=(uint)e.nonAnalyticIrradiance.w;
-        if(change.y>0.5) refreshFlags|=(uint)_HLGI_PointLightRefreshChannels<<HLGI_CACHE_ANALYTIC_REFRESH_SHIFT;
+        refreshFlags|=HLGIAnalyticRefreshAt(surface.position,(uint)_HLGI_PointLightRefreshChannels)<<HLGI_CACHE_ANALYTIC_REFRESH_SHIFT;
         if(HLGIDisjointPoseInfluenceAt(surface.position)) refreshFlags|=HLGI_CACHE_VISIBILITY_REFRESH;
         e.nonAnalyticIrradiance.w=(float)refreshFlags;
     }
