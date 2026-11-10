@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release237，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release238，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已减少精确软件刚体更新中的重复几何准备。固定双网格只移动一件时，世界三角读取由 4,096 降到 2,048，节点及叶与原全量构建一致。等量换源仍读取全部。原生 CPU 和 GPU 时间继续按原条件验收。[定向对照](../LocalComparison/Review/software-static-leaves-293/result.md) · [Release238 同源交付](../LocalComparison/Review/software-static-leaves-293/delivery.json)
 
 T6／G5 的软件三角 BVH 采用表面积分组。Release227 同源固定近景的 GI 合计 p95 由 45.465 降到 37.060 ms，local 峰值约 552.5 MiB。候选节点和叶通过原几何查询回归。软件仍超过 25 ms，普通 Player 形变画质、高速冷入和完整 G3–G5 继续验收。[实测与适用范围](../LocalComparison/Review/software-bvh-sah-291/result.md) · [Release237 同源交付](../LocalComparison/Review/software-bvh-sah-291/delivery.json)
 

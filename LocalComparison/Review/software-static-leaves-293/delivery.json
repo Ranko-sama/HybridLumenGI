@@ -1,0 +1,61 @@
+{
+  "productCommit": "514df9108e74e7b584b30e368e640ea1f250fed7",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release238-demo",
+  "tag": "release238-demo",
+  "publishedAt": "2026-11-10T02:07:15Z",
+  "prerelease": true,
+  "validation": [
+    {
+      "workItem": "T6/G4",
+      "comparison": "result.md",
+      "comparisonProduct": "22a4717658a15cc7859652d2df0e2f77bf57dbb9",
+      "harnessExitCode": 0,
+      "phases": [
+        {
+          "name": "initial",
+          "baselineTriangleReads": 4096,
+          "candidateTriangleReads": 4096,
+          "sameLayout": true
+        },
+        {
+          "name": "retained pose after intervening prepare",
+          "baselineTriangleReads": 4096,
+          "candidateTriangleReads": 2048,
+          "sameLayout": true
+        },
+        {
+          "name": "same-size source replacement",
+          "baselineTriangleReads": 4096,
+          "candidateTriangleReads": 4096,
+          "sameLayout": true
+        }
+      ],
+      "measured": "CPU triangle extraction work with controlled Unity and GPU buffer adapters"
+    }
+  ],
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ],
+    "errors": 0,
+    "warnings": 6
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release238-UnityProject.zip",
+      "size": 863357,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release238-demo/HybridLumenGI-Release238-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release238-Windows-x64.zip",
+      "size": 58658139,
+      "browser_download_url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release238-demo/HybridLumenGI-Release238-Windows-x64.zip"
+    }
+  ]
+}
