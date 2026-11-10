@@ -560,6 +560,11 @@ namespace HybridLumenGI
                 }
                 // An incomplete near target cannot replace a published group or reserve extra slots.
                 else if (group.pendingDetails == 0) group.target.UnionWith(group.details);
+                orderedGroups.Add(group);
+            }
+            // All active targets must be known before bounding the space needed by another group.
+            foreach (HlodGroup group in orderedGroups)
+            {
                 if ((!group.initialized || !group.published.SetEquals(group.target)) && ReadyToPublish(group) &&
                     (deferExactHlodTarget == null || !HasExactHlodHandoff(group, preparedExact, deferExactHlodTarget)))
                 {
@@ -569,7 +574,6 @@ namespace HybridLumenGI
                     foreach (int id in group.target) group.published.Add(id);
                     group.initialized = true;
                 }
-                orderedGroups.Add(group);
             }
             foreach (var proxy in retiredProxies) groups.Remove(proxy);
             orderedGroups.Sort(CompareGroups);
@@ -808,9 +812,17 @@ namespace HybridLumenGI
             }
             if (!removesExact) return false;
 
-            // Removing exact instances still needs a build when ordinary exact
-            // geometry survives. Use the prefix that fits even if all group members stage.
-            int retainedOrdinaryCount = Math.Min(ordinaryCandidates.Count, Capacity - grouped.Count);
+            // Count both the old publication and its staging set. The ordinary
+            // prefix must fit even while this group holds for a build turn.
+            int remaining = Capacity;
+            foreach (HlodGroup activeGroup in orderedGroups)
+            {
+                remaining -= activeGroup.published.Count;
+                foreach (int id in activeGroup.target)
+                    if (!activeGroup.published.Contains(id)) remaining--;
+                if (remaining <= 0) return false;
+            }
+            int retainedOrdinaryCount = Math.Min(ordinaryCandidates.Count, remaining);
             for (int i = 0; i < retainedOrdinaryCount; i++)
             {
                 var candidate = ordinaryCandidates[i];
