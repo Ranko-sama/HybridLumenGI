@@ -299,7 +299,7 @@ check(k.includes('DirectIrradiance(p,n,biasNormal,receiverLayers,true,cameraRay,
     k.includes('HLGITryScreenRayFootprint(uv,raw,p,cameraRay,screenFootprint)')&&
     k.includes('if(!directKnown){known=false;returntrue;}'),
     'Direct shading must separate Ns from offset geometry, preserve the screen spatial footprint/observer, use the captured receiver identity and propagate unknown shadows.');
-check(k.includes('HLGITryScreenWorldMatch(uv,raw,p,geometricNormal,policy.x,match)')&&
+check(k.includes('HLGITryScreenWorldMatch(uv,raw,p,geometricNormal,policy.xy,match)')&&
     k.includes('footprint,_HLGI_MaterialView,hit)'),
     'The screen-world probe must retain the real pixel/depth footprint and camera material observer.');
 check(!/dot\((?:mn|receiverNormal),n\)>0\.85/.test(k),'A screen-to-world match still compares Ng to Ns.');

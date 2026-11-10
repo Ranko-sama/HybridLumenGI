@@ -12,4 +12,4 @@
 | 真实遮罩均为 8，同一表面 | (0.25, 0.50, 0) | (0.25, 0.50, 0) | 1 → 1 |
 | 屏幕遮罩 8，无 Renderer 世界代理使用默认 1 | (0.25, 0.50, 0) | (0.25, 0.50, 0) | 1 → 1 |
 
-三组屏幕命中均有效，距离均为 1。实际 C# Scene 驻留宿主也核对了策略上传、零遮罩与无 Renderer 默认值。采用范围为同源匹配与受控出射，整景画质和原生 GPU 成本继续按原条件验收。[WARP 读回](result.json) · [策略上传用例](../../../Tests/StandaloneBvh/SceneProgram.cs.txt)
+三组屏幕命中均有效，距离均为 1。实际 C# Scene 驻留宿主也核对了策略上传、零遮罩与无 Renderer 默认值。修复已进入 Release255。采用范围为同源匹配与受控出射，整景画质和原生 GPU 成本继续按原条件验收。[WARP 读回](result.json) · [策略上传用例](../../../Tests/StandaloneBvh/SceneProgram.cs.txt) · [同源交付](delivery.json)

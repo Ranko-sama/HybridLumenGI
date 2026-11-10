@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release254，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release255，G0 已锁定，G1／G2 本机代表性验收通过
 
-T2／第 9 节已关闭 GameObject 层相同、已知 Rendering Layer 不同的近共面表面错误借光。实际 HLSL 受控对照保留前板自身出射，剔除借自后板的线性绿色 0.50。相同遮罩与无 Renderer 默认遮罩控制继续匹配。[同源匹配对照](../LocalComparison/Review/screen-rendering-layer-321/result.md)
+T2／第 9 节已关闭 GameObject 层相同、已知 Rendering Layer 不同的近共面表面错误借光。实际 HLSL 受控对照保留前板自身出射，剔除借自后板的线性绿色 0.50。相同遮罩与无 Renderer 默认遮罩控制继续匹配。修复已进入 Release255 普通 Win64 与同源工程包。[同源匹配对照](../LocalComparison/Review/screen-rendering-layer-321/result.md) · [Release255 交付](../LocalComparison/Review/screen-rendering-layer-321/delivery.json)
 
 T2／第 9 节已取得固定静态 Lit 发光面的正反面依据。实际软件 BVH 和 DXR 都从 Cull Back 正面取得红色发光，背面未命中。Cull Off 正反面都取得同一蓝色发光。面积配对、图卡与整景照明继续按原条件验收。[Release254 双后端实机对照](../LocalComparison/Review/backface-emission-320/result.md)
 

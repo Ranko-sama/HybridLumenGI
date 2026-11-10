@@ -67,6 +67,8 @@ Scene 记录投影策略变化前后的层掩码及面向策略。某盏已选�
 
 UnityPerDraw 不提供 GameObject layer。当前捕获将材质层与相机 culling mask 相交，建立最多 32 个互不重叠的单层 RendererList；每次 draw 前只传 0–31 的 layer index，shader 转成 uint bit。`GetMeshRenderingLayer()` 从当前 draw／instance 的数据读取完整 uint mask。普通捕获使用 MRT Target2，原生漫反射替换使用 Target3；fragment 的 instance setup 在读取策略之前完成。mask 不经过 half、颜色编码或浮点整数往返。平台必须支持该整数格式的 render/sample 用法，且普通／替换模式分别至少支持 3／4 个同时 MRT，否则跳过此 GI 路径。真正的 Unity builtin 绑定、实例变体与整数 MRT 行为仍须在目标工程验证。
 
+屏幕表面通过短探针寻找世界缓存与引导时，已知的 GameObject 层或 Rendering Layer 遮罩不同即可拒绝匹配。比较 Rendering Layer 需要两端的实际 Renderer 策略。真实零遮罩参与比较，无 Renderer 代理的默认遮罩继续用于原照明后备。[受控匹配与出射对照](../LocalComparison/Review/screen-rendering-layer-321/result.md)
+
 Proxy 在主线程渲染边界观察这三项策略变化，只提升传输版本，不提升 mesh geometry-content revision。Scene 产生 `ChangeKind.Lighting=128`；纯策略变化保留几何并使附近照明 reactive，同时拒绝旧 HLOD 票据。与移动、拓扑或显式几何编辑组合时仍保留相应硬失效。策略变化本身不要求重传 DXR 三角属性；当前 owner revision 仍可能保守触发表面重捕获和本地 cache 初始化。
 
 世界表面现在保存 `MaterialSource` 的逐槽不可变观察，比较来源引用、shader/keywords、属性存在位与值、纹理引用/`updateCount`/sampler 状态；compact hash 相同也必须通过精确比较和出版前重验。哈希中的同值不同属性别名已修复，实际等价证明由快照承担。原 Renderer、Material 和 MPB 不被修改；材质作者颜色与 MPB shader-space 值的来源被保留，不能在比较时重复做 gamma 转换。[GPU 写入纹理须显式递增 updateCount](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Texture-updateCount.html)：RenderTexture/CustomRenderTexture 仍允许当前捕获，但不复用旧来源票据；普通 Texture2D 的未通知 GPU/native 写入也无法自动验证。动态 probe、shader 全局数据和未观察到的后续修改另需失效策略。

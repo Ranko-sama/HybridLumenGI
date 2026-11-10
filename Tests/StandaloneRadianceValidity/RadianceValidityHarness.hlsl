@@ -63,7 +63,7 @@ bool ValidDepth(float d) { return true; }
 float3 WorldPosition(float2 uv,float d,float4x4 m) { return float3(0,0,-1); }
 bool HLGITryScreenGeometricNormal(float2 uv,float d,float3 p,out float3 normal)
 { normal=float3(0,0,1);return true; }
-bool HLGITryScreenWorldMatch(float2 uv,float depth,float3 p,float3 n,uint screenLayer,out HLGIHit hit) { hit=HLGIEmptyHit(2);return false; }
+bool HLGITryScreenWorldMatch(float2 uv,float depth,float3 p,float3 n,uint2 screenPolicy,out HLGIHit hit) { hit=HLGIEmptyHit(2);return false; }
 // Explicit same-plane footprint adapter; no real depth reconstruction is claimed.
 bool HLGITryScreenRayFootprint(float2 uv,float depth,float3 p,float3 ray,out HLGIRayFootprint footprint)
 { return HLGITryScreenFootprint(p,p+float3(.01,0,0),p+float3(0,.01,0),1,1,ray,footprint); }
