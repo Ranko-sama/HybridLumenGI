@@ -815,6 +815,68 @@ class Program
         Check(batch.Bind(cmd,new ComputeShader(),0,out _),"existing consumer may finish while closing");
         Finish(batch,cmd);Pool.ClearReusable();Clean();HybridLumenGIResourceRetirement.AdmissionClosed=false;
     }
+
+    static void FrameStartLowerQuotaPreservesUploadTurn()
+    {
+        scenarios++;
+        const int highQuota = 2 << 20, lowQuota = 1 << 20, start = 2075;
+        var first = new Fixture(new RenderTexture { width = 604, height = 217, mipmapCount = 1, graphicsFormat = 42 });
+        var waiting = new Fixture(new RenderTexture { width = 604, height = 217, mipmapCount = 1, graphicsFormat = 42 });
+        var small = new Fixture(new RenderTexture { width = 516, height = 127, mipmapCount = 1, graphicsFormat = 42 });
+        var firstCamera = new object();
+        var waitingCamera = new object();
+        var smallCamera = new object();
+
+        bool Record(Fixture fixture, object camera)
+        {
+            var batch = Prepare(fixture.Freeze());
+            var commands = new CommandBuffer();
+            RecordBatch(batch, commands, camera);
+            bool copied = commands.Dispatches.Count > 0;
+            var row = Table(commands)[0];
+            Check(copied ? row.textures0.y != 0 : AssignedBaseMapIsUnknown(row),
+                "the material handle must reflect its current recording");
+            Finish(batch, commands);
+            return copied;
+        }
+
+        void SeedWait(int frame)
+        {
+            Pool.BeginFrame(frame, highQuota);
+            Check(Record(first, firstCamera) && !Record(waiting, waitingCamera) && Pool.UploadBytesUsed == highQuota,
+                "the first camera spends the high frame and the second requests a turn");
+        }
+
+        void LowFrame(int frame, bool waitingReturns)
+        {
+            Pool.BeginFrame(frame, lowQuota);
+            Check(Record(small, smallCamera), "the earlier small upload can use the low frame");
+            Pool.BeginFrame(frame, highQuota);
+            Check(!Record(first, firstCamera) && (!waitingReturns || !Record(waiting, waitingCamera)) &&
+                Pool.UploadBytesUsed == lowQuota && Pool.UploadBudgetBytes == lowQuota,
+                "oversized turns consume no bytes and later cameras cannot raise the quota");
+        }
+
+        SeedWait(start);
+        LowFrame(start + 1, true);
+        Pool.BeginFrame(start + 2, highQuota);
+        bool firstCopied = Record(first, firstCamera);
+        bool waitingCopied = Record(waiting, waitingCamera);
+        Console.WriteLine($"Restored high frame: first={firstCopied}, waiting={waitingCopied}, bytes={Pool.UploadBytesUsed}.");
+        Check(!firstCopied && waitingCopied && Pool.UploadBytesUsed == highQuota,
+            "the continuing whole-page request must get the first eligible high frame");
+
+        LowFrame(start + 3, true);
+        SeedWait(start + 4);
+        LowFrame(start + 5, false);
+        Pool.BeginFrame(start + 6, highQuota);
+        Check(Record(first, firstCamera) && Pool.UploadBytesUsed == highQuota,
+            "an absent consumer cannot retain the restored allowance");
+        Pool.ClearReusable();
+        Clean();
+        Console.WriteLine("PASS frame-start quota: an ongoing large turn survives a low frame, while an absent turn expires.");
+    }
+
     static int Main()
     {
         try
@@ -825,6 +887,7 @@ class Program
             CamerasSharingDynamicTextureGetSeparateUploadTurns();LateLowerQuotaPreservesUploadTurn();
             RecordingTimeDefersWholeUploads();CoverageSurvivesDeferredNormal();ClosingAdmission();PeriodicCameraGetsSharedTextureUploadTurn();
             FutureTextureTurnDoesNotHideCurrentContinuation();
+            FrameStartLowerQuotaPreservesUploadTurn();
             Console.WriteLine("PASS hit-material-batch "+checks+" assertions / "+scenarios+" scenarios; actual seven C# classes, recording adapters only; no Unity/GPU execution.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine("FAIL after "+checks+" checks: "+ex);return 1;}

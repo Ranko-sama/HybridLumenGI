@@ -44,6 +44,7 @@ namespace HybridLumenGI
         {
             internal UploadTurn Turn;
             internal long Bytes, ReservedFrame;
+            internal bool RetainedAfterLowQuota;
         }
         private sealed class ConsumerCadence
         {
@@ -81,27 +82,29 @@ namespace HybridLumenGI
                 uploadBudget = Math.Min(uploadBudget, maxUploadBytes);
                 return;
             }
-            if (uploadWaiter.Bytes > maxUploadBytes || uploadWaiter.ReservedFrame != engineFrame)
-                uploadWaiter = default;
-            PromoteUploadWaiter(nextUploadWaiter, engineFrame, maxUploadBytes);
+            if (nextUploadWaiter.Turn != null && nextUploadWaiter.ReservedFrame == engineFrame)
+                laterUploadWaiters.Add(nextUploadWaiter);
+            if (uploadWaiter.Turn != null && uploadWaiter.ReservedFrame == engineFrame)
+                laterUploadWaiters.Add(uploadWaiter);
             nextUploadWaiter = default;
+            uploadWaiter = default;
             for (int i = laterUploadWaiters.Count - 1; i >= 0; i--)
             {
                 var demand = laterUploadWaiters[i];
                 if (demand.ReservedFrame > engineFrame) continue;
-                PromoteUploadWaiter(demand, engineFrame, maxUploadBytes);
+                if (demand.ReservedFrame == engineFrame)
+                {
+                    // A due oversized turn holds no bytes. Carry it only if
+                    // the same consumer still requests the page this frame.
+                    if (demand.Bytes > maxUploadBytes) continue;
+                    if (uploadWaiter.Turn == null || demand.Turn.Order < uploadWaiter.Turn.Order)
+                        uploadWaiter = demand;
+                }
                 laterUploadWaiters.RemoveAt(i);
             }
             uploadFrame = engineFrame;
             uploadUsed = 0;
             uploadBudget = maxUploadBytes;
-        }
-
-        private static void PromoteUploadWaiter(UploadDemand demand, int frame, long budget)
-        {
-            if (demand.Turn != null && demand.ReservedFrame == frame && demand.Bytes <= budget &&
-                (uploadWaiter.Turn == null || demand.Turn.Order < uploadWaiter.Turn.Order))
-                uploadWaiter = demand;
         }
 
         private static long ObserveUploadConsumer(object consumer)
@@ -539,12 +542,17 @@ namespace HybridLumenGI
 
         private static void KeepLaterDemand(UploadDemand demand)
         {
-            // Keep the oldest turn for each expected visit. Future turns do not reserve this frame.
-            for (int i = 0; i < laterUploadWaiters.Count; i++)
+            // Keep the oldest ordinary turn for each expected visit. A retained
+            // oversized turn cannot displace one that might fit the next frame.
+            if (!demand.RetainedAfterLowQuota)
             {
-                if (laterUploadWaiters[i].ReservedFrame != demand.ReservedFrame) continue;
-                if (demand.Turn.Order < laterUploadWaiters[i].Turn.Order) laterUploadWaiters[i] = demand;
-                return;
+                for (int i = 0; i < laterUploadWaiters.Count; i++)
+                {
+                    var other = laterUploadWaiters[i];
+                    if (other.RetainedAfterLowQuota || other.ReservedFrame != demand.ReservedFrame) continue;
+                    if (demand.Turn.Order < other.Turn.Order) laterUploadWaiters[i] = demand;
+                    return;
+                }
             }
             laterUploadWaiters.Add(demand);
         }
@@ -555,13 +563,23 @@ namespace HybridLumenGI
             if (remaining == 0) return;
             long initialBytes = page.MetadataInitialized ? 0 : MetadataStride;
             long minimum = initialBytes + (page.Reusable ? 1L : remaining) * HybridLumenGIRayTextureLayout.TexelStride;
-            // This turn is for a source which would fit but for earlier batches, not for
-            // an over-cap source or contention already handled by the within-batch order.
-            if (minimum > uploadBudget || minimum <= uploadBudget - earlierBatchBytes) return;
+            bool overQuota = minimum > uploadBudget;
+            if (overQuota)
+            {
+                // A live request may carry its existing turn through a temporary
+                // quota drop. A page that never qualified cannot start a wait here.
+                int index = FindLaterDemand(turn);
+                if (!ReferenceEquals(uploadWaiter.Turn, turn) &&
+                    (index < 0 || laterUploadWaiters[index].ReservedFrame != uploadFrame)) return;
+            }
+            else if (minimum <= uploadBudget - earlierBatchBytes) return;
             if (turn.Order == 0) turn.Order = ++lastUploadOrder;
-            var demand = new UploadDemand { Turn = turn, Bytes = minimum, ReservedFrame = uploadFrame + interval };
+            var demand = new UploadDemand
+            {
+                Turn = turn, Bytes = minimum, ReservedFrame = uploadFrame + interval, RetainedAfterLowQuota = overQuota
+            };
             CancelUploadDemand(turn);
-            if (interval > 1) KeepLaterDemand(demand);
+            if (overQuota || interval > 1) KeepLaterDemand(demand);
             else if (nextUploadWaiter.Turn == null || turn.Order < nextUploadWaiter.Turn.Order)
                 nextUploadWaiter = demand;
         }
@@ -654,7 +672,7 @@ namespace HybridLumenGI
                         int count = AdmittedUploadElements(page, turn);
                         if (count == 0)
                         {
-                            if (earlierBatchBytes > 0) RememberBlockedUpload(page, turn, earlierBatchBytes, interval);
+                            RememberBlockedUpload(page, turn, earlierBatchBytes, interval);
                             continue;
                         }
                         if (recordingBudgetTicks > 0)

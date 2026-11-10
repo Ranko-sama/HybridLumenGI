@@ -1,0 +1,5 @@
+PASS texture upload turns: an earlier 2 MiB waiter proceeds after a late 1 MiB cap, and an ineligible turn leaves the reduced allowance free.
+Periodic material camera: first copy=4, unknown visits=2, reused=True; frequent bytes at 3/5/9/10/11=1048576/1048576/1048576/0/1048576.
+Current reader wait with a future turn: earlier bytes=0, current continued=True.
+Restored high frame: first=False, waiting=True, bytes=2097152.
+PASS frame-start quota: an ongoing large turn survives a low frame, while an absent turn expires.

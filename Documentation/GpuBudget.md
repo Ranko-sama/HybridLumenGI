@@ -192,6 +192,8 @@ Release76采用面积光NEE屏幕端点早退，保留原命中/距离，跳过�
 
 命中材质批次先从等待最久、能在当前剩余额度内推进的贴图来源开始，再按请求顺序循环。复制尝试计入额度后，该来源排到等待序列末尾。动态 RenderTexture 需在一帧内完整复制当前内容，延期时命中材质保持 unknown。多个相机读取同一动态来源时，不可复用的复制分别排队，录制复制只消费该相机的保留。[同批次定向回归](../Tests/StandaloneHitMaterialBatch/Program.cs.txt) · [同源动态贴图对照](../LocalComparison/Review/shared-dynamic-upload-208/result.md)
 
+预计返回帧的共享额度不足以录制整页时，该等待当帧占用零字节。实际仍请求同一页的消费者可以携原顺位续期，缺席的请求按原期限过期。受控的 2 MiB／1 MiB 交替对照中，后序动态页在恢复帧取得整页录制，低帧小页继续推进。[低额度开帧对照](../LocalComparison/Review/frame-start-texture-quota-325/result.md)
+
 后置批次因前面已经计入的复制字节而无法推进时，可以在下一帧为最早的等待来源保留一次推进所需的最小额度。其他批次可以使用余量。旧读者在飞时，后续仍在录制的同源需求可以续等，页面继续走原栅栏与回读。首次和连续调用沿用下一帧。若同一消费者实际调用的最近间隔更长，只在下一预计返回帧参与预留，缺席后到期归还额度。受控双批次对照覆盖固定顺序下的等待、完成和撤回。单次双 Base DX12 Editor 观察已补齐实际复制、回读及同页复用。实际多相机画面和 GPU 成本继续验收。[跨批次定向回归](../Tests/StandaloneHitMaterialBatch/Program.cs.txt) · [原生观察](../LocalComparison/Review/native-camera-texture-turn-182/result.md) · [周期相机对照](../LocalComparison/Review/periodic-material-upload-273/result.md)
 
 资源页组件另设IO/并发/上传准入/驻留额度，形变组件另设捕获顶点/后台作业/快照上传额度，以及默认关闭的[主线程捕获经过时间准入](DeformedGeometry.md)。该时间门只延后下一份捕获，不抢占单份BakeMesh，不是GPU反馈或完整CPU硬预算。诊断中的全局纹理/RTAS计数可能在多个相机记录中重复出现，不应相加。实际分配粒度、驱动scratch与系统峰值必须在目标设备测量；静态数量配额与下方滞后时间反馈相互补充。

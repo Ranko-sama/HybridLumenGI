@@ -344,6 +344,8 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 
 固定静态 Lit 折面在负 X 非均匀缩放下已取得实际图卡和锚点依据。两面仍共享原卡，按三角和按位置的查卡均成功，源几何法线与捕获结果的点积约为 0.9973。生产入口取得该卡的一格覆盖锚点。采用限该镜像代表输入，其他变换、接缝和精度保持原条件。[Release254 实机对照](../LocalComparison/Review/mirrored-folded-chart-318/result.md)
 
+Release256 已通过固定热态粗根全裁剪图卡的阻断与恢复子项。粗根两张图卡均已录制，实际照明回读定位第二张必需卡为空，原完整细节仍发布。只恢复该槽 alpha 后，新的照明初始化票据触发粗根完整接替。极小图卡、其他来源与冷入继续验收。[实际发布和回读](../LocalComparison/Review/hlod-clipped-chart-324/result.md)
+
 离线检查的具体结果以 `Tests/Validate-Offline.ps1` 生成、与源码哈希一致的统一 JSON 报告为准，不沿用上一候选的测试总数。交付源码归档由 `SOURCE-MANIFEST.json` 绑定实际报告；可选原生计时归档由 `NATIVE-MANIFEST.json` 绑定同一源码包及已测试 DLL。任何统一离线回归或归档完整性结果都不改变 G0–G5 的放行条件。
 
 ## 9. 命中身份、背面策略与面积光 NEE 的边界
