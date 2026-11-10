@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release233，G0 已锁定，G1／G2 本机代表性验收通过
 
+T6／G5 已补齐统一示例门平移、两骨形变及逐源切灯的并发预算子项。Release233 同源普通 Player 的同窗实际 DXR 达到 GI 时间和进程 local 显存两项门槛。应用 Present 因采集丢事件仍缺依据，其他规模及完整 G5 继续验收。[实际负载和读数](../LocalComparison/Review/combined-update-cost-285/result.md)
+
 T6／G4 已关闭预算拒绝的 Base 相机离场后仍阻止管理页退休的缺口。双相机实机保留域内普通绘制和另一台有效 GI 读者。两台离场后按原栅栏排空页账，预算恢复后以新代次重新显示。采用限自动 Base 的实际普通预剔除和页退休，普通 Player 及更大负载继续验收。[双相机实测](../LocalComparison/Review/screen-budget-page-retirement-284/result.md) · [Release233 同源交付](../LocalComparison/Review/screen-budget-page-retirement-284/delivery.json)
 
 T6／G4 已关闭独立流式场景组停用后仍阻挡后继驱动的缺口。实际组件对照中，旧组在读者和 I/O 完成后归还全局额度，后继成功加载，旧组重新启用后开始新的页代次。采用范围为顺序切换的组件生命周期，I/O 与读者完成由受控适配器提供。[定向对照](../LocalComparison/Review/sequential-page-drivers-283/result.md) · [Release232 同源交付](../LocalComparison/Review/sequential-page-drivers-283/delivery.json)

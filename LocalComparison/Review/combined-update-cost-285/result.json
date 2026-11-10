@@ -1,0 +1,163 @@
+{
+  "status": "qualified-combined-dxr-cost-window",
+  "scope": "One instrumented 35-second default near scene with the same door translating and skinning while all five analytic lights toggle once per rendered Update.",
+  "product": "9f9b08ef / Release233 same-source private ordinary Release-None measurement Player",
+  "sources": [
+    191,
+    2706
+  ],
+  "windowSources": 2516,
+  "windowSeconds": 35.005668699999994,
+  "workload": {
+    "sourceBones": 2,
+    "sourceVertices": 24,
+    "sourceTriangles": 12,
+    "sdfResolution": 32,
+    "updateIntervalFrames": 4,
+    "vertexBudgetPerFrame": 65536,
+    "maximumWorkers": 2,
+    "deformationMemoryBudgetBytes": 134217728,
+    "deformationUploadBudgetBytesPerFrame": 8388608,
+    "captureBudgetMillisecondsPerFrame": 0.0,
+    "initialSampleHud": true,
+    "initialInteractionHud": true,
+    "distinctWindowCapturedFrames": 195,
+    "windowBendChanges": 2515
+  },
+  "nativeTiming": {
+    "qualified": true,
+    "missing": [],
+    "invalidOrDuplicate": [],
+    "statistics": {
+      "perSourceSum": {
+        "count": 2516,
+        "medianMs": 14.041504,
+        "p95Ms": 16.5722,
+        "p99Ms": 17.5638848,
+        "maxMs": 18.941824
+      },
+      "scopes": {
+        "ReceiverCapture": {
+          "count": 2516,
+          "medianMs": 0.145696,
+          "p95Ms": 0.499712,
+          "p99Ms": 0.7046799999999999,
+          "maxMs": 1.291232
+        },
+        "Transport": {
+          "count": 2516,
+          "medianMs": 13.557264,
+          "p95Ms": 16.318616,
+          "p99Ms": 17.250188799999997,
+          "maxMs": 18.113696
+        },
+        "Composite": {
+          "count": 2516,
+          "medianMs": 0.073408,
+          "p95Ms": 0.077824,
+          "p99Ms": 0.079872,
+          "maxMs": 0.088064
+        }
+      }
+    },
+    "p95LimitMs": 25,
+    "withinP95Limit": true,
+    "basis": "Identity-matched complete3-scope sum for every source; linear(N-1)*q. Source epochs/generations may vary; none are filtered."
+  },
+  "processMemory": {
+    "qualified": true,
+    "samples": 2516,
+    "failedSamples": 0,
+    "localSampledPeakBytes": 608505856,
+    "localSampledPeakMiB": 580.31640625,
+    "nonlocalSampledPeakMiB": 304.6875,
+    "localLimitBytes": 1073741824,
+    "withinLocalLimit": true,
+    "scope": "DXGI process finite CPU samples on the Unity adapter, not GI-only/total machine VRAM or guaranteed instantaneous peak"
+  },
+  "withinBothStartingBudgetLimits": true,
+  "applicationPresent": {
+    "status": "insufficient-etw-loss",
+    "error": "[Errno 2] No such file or directory: 'I:\\\\Unity test\\\\Comparison\\\\CombinedUpdateCost285\\\\present.csv'",
+    "attemptExitCode": 0,
+    "lostEtwEvents": 6596,
+    "csvProduced": false
+  },
+  "actualCombinedLoad": {
+    "doorSourceWorldXRange": [
+      -1.100000023841858,
+      1.100000023841858
+    ],
+    "doorSourceXChanges": 764,
+    "recordedLightTableCounts": {
+      "0": 1258,
+      "5": 1258
+    },
+    "lightTransitions": 2515,
+    "lightTransitionsPerSecond": 71.84550655362857,
+    "allActualDxr": true
+  },
+  "cpuSnapshotAge": {
+    "count": 195,
+    "medianFrames": 13.0,
+    "p95Frames": 14.0,
+    "p99Frames": 14.0,
+    "maxFrames": 14,
+    "scope": "Actual capture engine frame to first recorded matching CPU snapshot observation; not exact publication time/BakeMesh milliseconds/GPU consumption latency"
+  },
+  "actualStates": {
+    "backendCounts": {
+      "DXR": 2516
+    },
+    "nativeProviderIndices": [
+      0
+    ],
+    "gpuGenerations": [
+      4
+    ],
+    "epochs": [
+      7
+    ],
+    "materialUnknownRows": 0,
+    "materialUnknownMax": 0,
+    "identityUnknownMax": 0,
+    "fallbackMeshMax": 0,
+    "sourceReferencesDisagreeRows": 0,
+    "cpuPublicationPhases": {
+      "Published": 2516
+    }
+  },
+  "preparation": {
+    "firstCameraSourceRealtime": 5.314910605045352,
+    "skinActivationRealtime": 8.156140905045353,
+    "activePreparationSecondsToWindow": 0.6048730999999989,
+    "firstSkinCpuObservation": {
+      "firstObservedEngineFrame": 171,
+      "capturedFrame": 163,
+      "ageFrames": 8,
+      "meshId": -464,
+      "vertexCount": 24,
+      "stage": 1,
+      "sourceSeconds": 8.439054005045351,
+      "scope": "Capture frame to first CPU observation of the matching Mesh/SDF/charts snapshot; not GPU consumption or BakeMesh duration"
+    },
+    "sourceSwitchMarkerToFirstCpuObservedSeconds": 0.28291309999999825,
+    "scope": "Observed setup/source clocks are outside the warm35-second window, not isolated CPU costs or a cause attribution"
+  },
+  "remainingProviderPending": [
+    2
+  ],
+  "screenshotStatus": "Unavailable: the released minimal project has no ScreenCapture module; no image judgment or added capture tool",
+  "cpuCaptureMilliseconds": "unknown",
+  "gpuGeometryConsumptionLatency": "unknown",
+  "nativeExit": {
+    "endedUtc": "2026-11-10T00:08:04.196427+00:00",
+    "exitCode": 0,
+    "processId": 32548,
+    "sourceProduct": "9f9b08ef0c18468d7770bb0e27a5ee16d5052e97",
+    "output": "I:\\Unity test\\Comparison\\CombinedUpdateCost285\\run",
+    "watchdogTerminated": false,
+    "scope": "One normal process exit; no kill/restart"
+  },
+  "preLaunchGpuPercent": 0
+}

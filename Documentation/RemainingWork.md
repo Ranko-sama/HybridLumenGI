@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release233 同源交付](../LocalComparison/Review/screen-budget-page-retirement-284/delivery.json)
 
+T6／G5 已关闭统一示例门平移、活动蒙皮与逐源切灯并发时的 GI 时间及 local 显存预算子项。此次应用 Present 资料不足，其他规模的最高更新负载仍开放。[同窗实测与适用范围](../LocalComparison/Review/combined-update-cost-285/result.md)
+
 T6／G4 已关闭相机跳过 GI 并离开可见域后，旧状态继续保留受管理分页组的路径。实际双 Base 对照保留域内普通读者和另一 GI 读者，离场后经原栅栏排空，复入取得新绑定。其他预算失败、普通 Player 和完整资源负载继续验收。[实测范围](../LocalComparison/Review/screen-budget-page-retirement-284/result.md)
 
 T6／G4 已关闭停用的流式场景组安全排空后仍占用全局驱动额度的问题。采用限单一全局驱动下的顺序接管，原生 I/O、GPU 退休和其他负载继续验收。[组件对照](../LocalComparison/Review/sequential-page-drivers-283/result.md)
