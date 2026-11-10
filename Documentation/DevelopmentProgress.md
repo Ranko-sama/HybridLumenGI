@@ -1,6 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度　Release259，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release260，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已关闭不同灯域之间误置解析颜色刷新位的问题。固定双域点灯实机对照中，一侧调暗绿灯后仍正确阻止旧解析 G 参与迭代，另一侧红灯升亮时，实际世界输入 G 从旧版 0 恢复到约 0.875，预算等待图卡保留原值且无误置标记。整景动态和跨域多跳按原条件验收。[实体 GPU 读回](../LocalComparison/Review/analytic-refresh-domains-330/result.md) · [Release260 同源交付](../LocalComparison/Review/analytic-refresh-domains-330/delivery.json)
+
+T6／G4 已关闭 Base 转为 Overlay 后旧 DXR 预约阻塞另一 Base 的缺口。实际两 Renderer 相机栈在摘除旧状态后仍保留 642,560 B 预约，原退休完成后第二台 Base 恢复 DXR，首台继续提交 Overlay。采用限同一 URP Asset 内的角色切换与共享准入。[实际退休顺序](../LocalComparison/Review/overlay-rtas-retirement-331/result.md)
 
 T6／G4／G5 更新了当前发布版的固定软件近景预算依据。Release259 的 GI p95／p99 为 39.621／40.006 ms，local 有限采样峰值 547.449 MiB。同界兄弟叶合并在同源实测中未达到采用线，已撤回。25 ms 时间缺口继续开放。[普通 Player 前后对照](../LocalComparison/Review/software-paired-bounds-329/result.md)
 

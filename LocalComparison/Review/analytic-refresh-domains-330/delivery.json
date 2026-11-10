@@ -1,0 +1,44 @@
+{
+  "productCommit": "411e128899b9d595fc2b6705c05e9fb155e16c6d",
+  "tag": "release260-demo",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release260-demo",
+  "publishedAt": "2026-11-10T12:18:20Z",
+  "prerelease": true,
+  "validation": [
+    {
+      "workItem": "G3/T3, world cache analytic channel refresh follows changed light domains",
+      "comparison": "result.md",
+      "scope": "Native Unity DX12 world cache tap and budget-skipped patch with real Lit charts and two disjoint point-light domains"
+    },
+    {
+      "workItem": "G4/T6, retire the old RTAS reservation when a Base becomes Overlay",
+      "comparison": "../overlay-rtas-retirement-331/result.md",
+      "scope": "Native Unity DX12 two-renderer camera stack, shared quota, idle detach, safe retirement and actual DXR re-admission"
+    }
+  ],
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "errors": 0,
+    "warnings": 6,
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ]
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release260-UnityProject.zip",
+      "size": 870041,
+      "url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release260-demo/HybridLumenGI-Release260-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release260-Windows-x64.zip",
+      "size": 59057230,
+      "url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release260-demo/HybridLumenGI-Release260-Windows-x64.zip"
+    }
+  ]
+}
