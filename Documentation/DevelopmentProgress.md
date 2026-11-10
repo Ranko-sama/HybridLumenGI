@@ -1,6 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度　Release246，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release247，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭双 Base 相机达到容量上限时旧状态提前释放的问题。实际驱逐入口的受控对照中，旧状态退出活动列表后仍保留至完成，待建树轮次立即撤回。返回相机从新历史开始，旧代几何额度按原退休归还。双相机原生显存峰值继续验收。[驱逐对照](../LocalComparison/Review/camera-capacity-retirement-307/result.md) · [Release247 同源交付](../LocalComparison/Review/camera-capacity-retirement-307/delivery.json)
+
+T6／G4 已关闭同一启用 Global SDF 实例重配时提前释放旧缓冲和漏计的问题。两次替换在原完成门之前保留各自旧代，注入分配失败时保留当前代并清理私有分配。采用限公开 `Prepare` 的托管生命周期及逻辑账目。[重配对照](../LocalComparison/Review/global-sdf-live-reconfigure-306/result.md)
 
 T4／第 8 节已修复普通 Lit 图卡的插值法线偏差。固定单三角的实际 DX12 同纹素与精确参考的点积从 0.59277 升至 0.99999994，达到原缓存的 0.85 法线条件。采用限该法线匹配和着色器改动，整景反弹及其他材质专项继续验收。[同纹素对照](../LocalComparison/Review/card-lit-normal-305/result.md) · [Release246 同源交付](../LocalComparison/Review/card-lit-normal-305/delivery.json)
 
