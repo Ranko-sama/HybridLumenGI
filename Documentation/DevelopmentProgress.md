@@ -1,6 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度　Release245，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release246，G0 已锁定，G1／G2 本机代表性验收通过
+
+T4／第 8 节已修复普通 Lit 图卡的插值法线偏差。固定单三角的实际 DX12 同纹素与精确参考的点积从 0.59277 升至 0.99999994，达到原缓存的 0.85 法线条件。采用限该法线匹配和着色器改动，整景反弹及其他材质专项继续验收。[同纹素对照](../LocalComparison/Review/card-lit-normal-305/result.md) · [Release246 同源交付](../LocalComparison/Review/card-lit-normal-305/delivery.json)
+
+T6／G4 已补同一 Feature 内精确软件 BVH 的可选整树 CPU 时间准入。现有匹配布局可复用，额度用尽后的请求保留后续轮次，受控失败也计时。CPU 原生收益和软件 GI 时间继续验收。[准入行为与边界](../LocalComparison/Review/software-bvh-build-cpu-304/result.md)
 
 T3／G3 已关闭局部解析灯变化后，未知像素所持旧光被可信邻点借入的路径。实际 DX12 同平面对照中，两种时域入口均将其标为待替换，可信黑在四轮滤波和全尺寸合成后从 0.00212690 回到 0，保持有效。未知侧仍可显示旧值，首次可信估计接管。整景残留和收敛继续验收。[实机对照](../LocalComparison/Review/local-light-history-303/result.md) · [Release245 同源交付](../LocalComparison/Review/local-light-history-303/delivery.json)
 

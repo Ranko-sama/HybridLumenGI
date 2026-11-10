@@ -1,0 +1,46 @@
+{
+  "productCommit": "87b6af2e4b1a915ab741302535e65984c02bdcfd",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release246-demo",
+  "tag": "release246-demo",
+  "publishedAt": "2026-11-10T05:24:31Z",
+  "prerelease": true,
+  "validation": [
+    {
+      "workItem": "T4/G2 section 8",
+      "comparison": "result.md",
+      "scope": "Same native DX12 chart texel and exact material-frame normal with independent Lit formula",
+      "baselineNormalDot": 0.5927700400352478,
+      "fixedNormalDot": 0.9999999403953552
+    },
+    {
+      "workItem": "T6/G4",
+      "comparison": "../software-bvh-build-cpu-304/result.md",
+      "scope": "Actual C# BVH and camera preparation with Unity adapters for one Feature"
+    }
+  ],
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "errors": 0,
+    "warnings": 6,
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ]
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release246-UnityProject.zip",
+      "size": 866156,
+      "url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release246-demo/HybridLumenGI-Release246-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release246-Windows-x64.zip",
+      "size": 58672125,
+      "url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release246-demo/HybridLumenGI-Release246-Windows-x64.zip"
+    }
+  ]
+}
