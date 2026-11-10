@@ -2176,19 +2176,26 @@ namespace HybridLumenGI
                 }
                 return state;
             }
-            private void RetireIdleCameraStates() => RetireCameraStates(includeReassigned: true);
-            private void RetireCameraStates(bool includeReassigned)
+            private void RetireIdleCameraStates()
+            {
+                // Disabled features no longer prepare cameras, so Evict cannot expire their cached states.
+                bool featureDisabled = featureActive != null && !featureActive();
+                RetireCameraStates(includeReassigned: true, expireUnused: featureDisabled);
+            }
+            private static bool CameraCacheExpired(CameraState state) => Time.frameCount - state.lastUsed > 120;
+            private void RetireCameraStates(bool includeReassigned, bool expireUnused = false)
             {
                 retire.Clear();
                 foreach (var entry in cameras)
-                    if (entry.Value.camera == null || (includeReassigned && IsReassignedCamera(entry.Value)))
+                    if (entry.Value.camera == null || (includeReassigned && IsReassignedCamera(entry.Value)) ||
+                        (expireUnused && CameraCacheExpired(entry.Value)))
                         retire.Add(entry.Key);
                 foreach (int id in retire) RetireCameraState(id);
             }
             private void Evict(int current)
             {
                 retire.Clear();
-                foreach(var entry in cameras) if(entry.Key!=current && Time.frameCount-entry.Value.lastUsed>120) retire.Add(entry.Key);
+                foreach(var entry in cameras) if(entry.Key!=current && CameraCacheExpired(entry.Value)) retire.Add(entry.Key);
                 foreach(int key in retire) RetireCameraState(key);
                 if(!cameras.ContainsKey(current) && cameras.Count>=Mathf.Clamp(s.maxCameras,1,4))
                 {
