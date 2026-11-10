@@ -79,6 +79,8 @@
   <p>在同一固定机位把强度减半，切到仅间接光，再切回最终画面。Release118 每次操作都把地板历史清到 1 帧。Release119 白框内的 64 个有效点始终保持 32 帧，实测合成强度从 1 降至 0.5。</p>
   <figure><img src="display-and-door-stability-119/comparison.png" alt="上下两版在相同三次显示操作前后的八张画面，框出地板历史观测位置"><figcaption>Editor Play 的普通 DXR 路径，曝光相同。第三列只显示间接光。<a href="display-and-door-stability-119/result-display.json">相机线性 RGB、强度与历史</a></figcaption></figure>
   <p>普通可读网格门还有一项独立修复。最后一帧的 24 个顶点已被捕获后按停，旧版在引擎帧 16 与 27 两次发布相同终姿，新版只在第 16 帧发布。此项记录几何提交；运动拖影仍见上方画面。<a href="display-and-door-stability-119/result-door.json">停姿与发布记录</a></p>
+  <h3>两骨门形变停稳后，地板多久恢复？</h3>
+  <figure><img src="ordinary-skin-motion-313/comparison.png" alt="两骨门的同曝光间接光动停对照，包括停后短暂暗颗粒和同姿态尾段"><figcaption>Release250 普通 Player，960×540、DXR、固定照明。预定地板相对同姿态尾段在停后 1.334 秒进入容差。所示时点未见持续第二门形，停稳初期有短暂暗颗粒。<a href="https://github.com/Ranko-sama/HybridLumenGI/blob/main/LocalComparison/Review/ordinary-skin-motion-313/result.md">采集条件与范围 ↗</a></figcaption></figure>
 </section>
 <section id="recovery">
   <h2>4. 变化后，多久恢复到匹配的最终状态？</h2>

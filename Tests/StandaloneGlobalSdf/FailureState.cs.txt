@@ -2,7 +2,9 @@ using HybridLumenGI;
 // Only dependencies of the verbatim product failure method are adapted here.
 sealed class ActualFailureState
 {
+    sealed class CaptureState { public void InvalidateRecordedCapture() { } }
     internal readonly HybridLumenGIGlobalSdf globalSdf;
+    readonly CaptureState surfaceCache = new CaptureState();
     internal ulong uploadedSoftwareVersion=9;
     internal int historyCalls,timingCalls;
     internal ActualFailureState(HybridLumenGIGlobalSdf global){globalSdf=global;}

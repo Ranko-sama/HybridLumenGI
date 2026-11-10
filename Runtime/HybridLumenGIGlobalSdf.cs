@@ -75,7 +75,7 @@ namespace HybridLumenGI
         private HybridLumenGISdfAtlas sdf;
         private ComputeBuffer disabledDistances, disabledPages, disabledLevels;
         private long retiringBytes;
-        private bool prepared, recorded;
+        private bool prepared, recorded, metadataPending;
         private int jobCount;
 
         public ComputeBuffer DistancesBuffer { get; private set; }
@@ -155,6 +155,7 @@ namespace HybridLumenGI
                     bool invalid = invalidateAll || differentKey || (hasLocalChanges && (dirtyRows[z * axis + y] & (1 << x)) != 0);
                     if (invalid)
                     {
+                        metadataPending = true;
                         if (page.ready != 0 || differentKey) InvalidatedBrickCount++;
                         page.generation = NextGeneration(page.generation);
                         page.ready = 0;
@@ -214,14 +215,17 @@ namespace HybridLumenGI
             if (!prepared) throw new InvalidOperationException("Prepare the global SDF first.");
             if (command == null) throw new ArgumentNullException(nameof(command));
             if (recorded || levels.Length == 0) return 0;
-            // SetBufferData records snapshots in the command stream; do not publish CPU-ready bits
-            // before this copy. The caller must execute this stream before another Prepare;
-            // on cancellation call InvalidateAll so these scheduled pages will be retried.
-            command.SetBufferData(PagesBuffer, pages);
-            command.SetBufferData(LevelsBuffer, levels);
-            command.SetBufferData(ObjectBoundsBuffer, objectBounds);
+            // Moving a level or replacing its metrics invalidates pages during Prepare.
+            // Merge publication updates the ready bits in the retained GPU page table.
+            // If this stream is discarded, InvalidateAll schedules a new metadata upload.
+            if (metadataPending)
+            {
+                command.SetBufferData(PagesBuffer, pages);
+                command.SetBufferData(LevelsBuffer, levels);
+            }
             if (jobCount > 0)
             {
+                command.SetBufferData(ObjectBoundsBuffer, objectBounds);
                 command.SetBufferData(UpdateJobsBuffer, jobs, 0, 0, jobCount);
                 BindUpdate(command, mergeKernel);
                 sdf.Bind(command, updateShader, mergeKernel);
@@ -237,6 +241,7 @@ namespace HybridLumenGI
                 PendingBrickCount -= jobCount;
                 UpdatedBrickCount = jobCount;
             }
+            metadataPending = false;
             recorded = true;
             return jobCount;
         }
@@ -466,6 +471,7 @@ namespace HybridLumenGI
             {
                 Page page = pages[i]; page.ready = 0; page.generation = NextGeneration(page.generation); pages[i] = page;
             }
+            metadataPending = true;
             prepared = recorded = false; ReadyBrickCount = UpdatedBrickCount = 0;
         }
 
@@ -482,7 +488,7 @@ namespace HybridLumenGI
             pages = Array.Empty<Page>(); levels = Array.Empty<Level>(); jobs = Array.Empty<Job>(); objectBounds = Array.Empty<ObjectBounds>(); ages = Array.Empty<int>();
             dirtyRows = Array.Empty<int>();
             configuration = default;
-            pending.Clear(); dirtyBounds.Clear(); scene = null; sdf = null; prepared = recorded = false;
+            pending.Clear(); dirtyBounds.Clear(); scene = null; sdf = null; prepared = recorded = metadataPending = false;
             jobCount = ReadyBrickCount = PendingBrickCount = UpdatedBrickCount = InvalidatedBrickCount = 0;
         }
 

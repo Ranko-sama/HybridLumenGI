@@ -30,7 +30,7 @@ Use one instance per camera. The caller owns execution order and resource lifeti
 
 1. Prepare the scene and object SDF atlas.
 2. Call `Prepare(scene, sdf, cameraPosition, configuration)`. This enumerates the clipmap, invalidates changed keys/domains immediately in its next metadata snapshot, and selects up to `UpdateBrickBudget` pending bricks. Age priority prevents starvation; finer levels and camera distance break equal-age ties.
-3. On the graphics command stream, call `RecordUpdate(cmd)`. It records metadata/bounds/job uploads, the merge dispatch, then the publish dispatch.
+3. On the graphics command stream, call `RecordUpdate(cmd)`. It uploads changed page and level metadata even at zero recomposition budget. With pending jobs it records the current object bounds and jobs, the merge dispatch, then the publish dispatch. The publish dispatch updates the retained GPU page table. An unchanged frame with no jobs records no uploads. [Recording behavior](../LocalComparison/Review/global-sdf-metadata-314/result.md)
 4. Call `Bind(cmd, consumingCompute, kernel)` before consumers on the **same graphics queue**. A Bind before RecordUpdate disables queries. Async-compute queues need additional synchronization and are not supported by this contract.
 5. In HLSL call `HLGIGlobalSdfEmptyDistance(worldPosition, out lowerBound)`. `false` means unknown. `true` with zero also means no skip is available. Advance by at most a positive lower bound; retain the original ray endpoint and perform exact scene refinement afterward. Never classify a zero coarse distance as a hit or an unknown page as empty.
 

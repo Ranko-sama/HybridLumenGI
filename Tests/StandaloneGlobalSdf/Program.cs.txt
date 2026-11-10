@@ -11,11 +11,12 @@ settings.LevelCount=2;settings.BricksPerAxis=4;settings.UpdateBrickBudget=7;sett
 var scene=new HybridLumenGIScene();var sdf=new HybridLumenGISdfAtlas();var shader=new ComputeShader();
 using var global=new HybridLumenGIGlobalSdf(shader);
 var camera=Vector3.zero;
-void Frame()
+CommandBuffer Frame()
 {
     global.Prepare(scene,sdf,camera,settings);
     var commands=new CommandBuffer();global.RecordUpdate(commands);
     Require(global.UpdatedBrickCount<=settings.UpdateBrickBudget,"Exceeded per-frame brick budget.");
+    return commands;
 }
 void Drain()
 {
@@ -33,12 +34,18 @@ Require(global.RecordUpdate(first)==0,"Duplicate RecordUpdate submitted work twi
 Require(global.PagesBuffer.data.All(p=>(uint)Field(p,"ready")==0),"CPU optimistically published selected pages before GPU writes.");
 Require(global.DistancesBuffer.data.All(v=>(float)v==0),"Generation words must start invalid.");
 foreach(var name in new[]{"Page","Level","Job","ObjectBounds"})Require(Marshal.SizeOf(typeof(HybridLumenGIGlobalSdf).GetNestedType(name,BindingFlags.NonPublic))==32,"GPU struct stride mismatch: "+name);
+var backlog = Frame();
+Require(backlog.events.SequenceEqual(new[] { "data:HLGI global SDF renderer bounds", "data:HLGI global SDF update jobs", "dispatch:0", "dispatch:1" }),
+    "Unchanged backlog must merge with current bounds and reuse the metadata table.");
 Drain();Require(global.IsReady&&global.ReadyBrickCount==128,"Pages failed to become scheduled resident.");
-Frame();Require(global.UpdatedBrickCount==0&&global.PendingBrickCount==0,"Unchanged frame recomposed pages.");
+var stable = Frame();
+Require(global.UpdatedBrickCount==0&&global.PendingBrickCount==0&&stable.events.Count==0,"Unchanged ready frame recorded uploads or recomposed pages.");
 Require(global.TryGetPage(0,0,0,0,out int originPage,out uint generation,out bool ready)&&ready,"Origin page not resident.");
 settings.UpdateBrickBudget=0;camera=new Vector3(2,0,0);global.Prepare(scene,sdf,camera,settings);
 Require(global.PendingBrickCount==16,"One finest-level brick shift must expose exactly one 4x4 slab.");
-global.RecordUpdate(new CommandBuffer());
+var shift = Frame();
+Require(shift.events.SequenceEqual(new[] { "data:HLGI global SDF pages", "data:HLGI global SDF levels" }),
+    "A prepared scroll must publish its invalidations at zero recomposition budget.");
 Require(global.TryGetPage(0,0,0,0,out int overlapPage,out uint overlapGeneration,out bool overlapReady)&&overlapReady&&originPage==overlapPage&&generation==overlapGeneration,"Clipmap shift lost overlap reuse.");
 camera=new Vector3(8,0,0);global.Prepare(scene,sdf,camera,settings);
 Require(!global.TryGetPage(0,0,0,0,out _,out _,out _),"Rolled-out world key is still addressable.");
@@ -97,8 +104,9 @@ scene.Proxies[0]=new(){Renderer=new Renderer{bounds=new Bounds(Vector3.zero,Vect
 global.Prepare(scene,sdf,camera,settings);Require(global.PendingBrickCount==0,"Warming HLOD geometry entered the published global field.");global.RecordUpdate(new CommandBuffer());
 Require(((Vector4)Field(global.ObjectBoundsBuffer.data[0],"maximum")).w==0,"Warming object bounds were published.");
 scene.Data[0].identity.w=1;global.Prepare(scene,sdf,camera,settings);Require(global.PendingBrickCount>0,"Newly published geometry did not invalidate pages.");global.RecordUpdate(new CommandBuffer());
-Require(((Vector4)Field(global.ObjectBoundsBuffer.data[0],"minimum")).w==1,"Renderer bounds safety clamp was not enabled.");
-settings.UpdateBrickBudget=1024;Drain();settings.UpdateBrickBudget=0;
+settings.UpdateBrickBudget=1024;Drain();
+Require(((Vector4)Field(global.ObjectBoundsBuffer.data[0],"minimum")).w==1,"Renderer bounds safety clamp was not enabled at merge.");
+settings.UpdateBrickBudget=0;
 scene.Proxies[0].Renderer.bounds=new Bounds(new Vector3(3,0,0),Vector3.one*2);global.Prepare(scene,sdf,camera,settings);
 Require(global.PendingBrickCount>0,"Renderer bound change was missed without a scene revision.");
 settings.UpdateBrickBudget=1024;Drain();global.InvalidateAll();
