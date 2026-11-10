@@ -89,7 +89,8 @@ bool HLGIHardwareEvaluateHit(uint instanceIndex,uint primitive,HLGIHardwareInsta
     // An unknown cone only invalidates evaluations that sample an assigned map.
     if(specified!=0u && (!isfinite(coneRadius) || coneRadius<0)) return false;
     bool needsParallax=(flags&HLGI_MATERIAL_PARALLAX)!=0u;
-    bool needsFrame=needsParallax || (!coverageOnly && (flags&(HLGI_MATERIAL_NORMAL|HLGI_MATERIAL_DETAIL))!=0u);
+    bool needsNormalBasis=!coverageOnly && (flags&(HLGI_MATERIAL_NORMAL|HLGI_MATERIAL_DETAIL))!=0u;
+    bool needsFrame=needsParallax || needsNormalBasis;
     bool needsTriangle=specified!=0u || needsFrame;
     HLGITriangleSurface triangleData;float3 p0,p1,p2;
     triangleData=(HLGITriangleSurface)0;p0=p1=p2=0;
@@ -113,7 +114,7 @@ bool HLGIHardwareEvaluateHit(uint instanceIndex,uint primitive,HLGIHardwareInsta
         }
         if(attributes.face.w<=0.5 || !HLGITryHardwareMaterialFrame((float3x3)objectToWorld,(float3x3)instance.normalToWorld,
             attributes.a.xyz,attributes.b.xyz,attributes.c.xyz,triangleData.t0,triangleData.t1,triangleData.t2,weights,
-            outgoing0,outgoing1,outgoing2,frame)) return false;
+            outgoing0,outgoing1,outgoing2,frame,needsNormalBasis)) return false;
         viewDirTS=frame.viewDirTS;
     }
     [loop] for(uint map=0u;map<10u;map++)
@@ -130,7 +131,7 @@ bool HLGIHardwareEvaluateHit(uint instanceIndex,uint primitive,HLGIHardwareInsta
     if(coverageOnly) return HLGIEvaluateHitCoverage(record,uv,viewDirTS,lods,covered);
     if(!HLGIEvaluateHitMaterial(record,uv,viewDirTS,lods,material)) return false;
     bool known;
-    if(needsFrame) known=HLGIApplyHardwareNormal(frame,material.normalTS,shadingNormal);
+    if(needsFrame) known=dot(frame.normal,frame.normal)>1e-16 && HLGIApplyHardwareNormal(frame,material.normalTS,shadingNormal);
     else known=attributes.face.w>0.5 && HLGITryHardwareShadingNormal((float3x3)instance.normalToWorld,
         attributes.a.xyz,attributes.b.xyz,attributes.c.xyz,weights,shadingNormal);
     if(!known) { material=(HLGIHitMaterialSurface)0;shadingNormal=0; }

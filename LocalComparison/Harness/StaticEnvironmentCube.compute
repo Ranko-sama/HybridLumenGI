@@ -31,13 +31,15 @@ float4 _Axis;
 // Explicit fixed surface/screen/nearest-query adapters. Only Cube sampling is real texture input.
 struct ScalarInput { float Load(int3 p) { return .5; } };
 struct ColorInput { float4 Load(int3 p) { return float4(.5,.5,.5,1); } };
+struct PolicyInput { uint2 Load(int3 p) { return uint2(1,1); } };
 static ScalarInput _HLGI_Depth,_HLGI_CaptureDepth;
 static ColorInput _HLGI_Emission,_HLGI_Diffuse;
+static PolicyInput _HLGI_ReceiverPolicy;
 float3 NormalAt(float2 uv) { return _Axis.xyz; }
 float3 WorldPosition(float2 uv,float depth,float4x4 matrix) { return 0; }
 bool ValidDepth(float depth) { return true; }
 bool HLGITryScreenGeometricNormal(float2 uv,float depth,float3 p,out float3 n) { n=_Axis.xyz;return true; }
-bool HLGITryScreenWorldMatch(float2 uv,float depth,float3 p,float3 n,out HLGIHit hit) { hit=HLGIEmptyHit(100);return false; }
+bool HLGITryScreenWorldMatch(float2 uv,float depth,float3 p,float3 n,uint screenLayer,out HLGIHit hit) { hit=HLGIEmptyHit(100);return false; }
 bool HLGICachedSample(HLGIHit hit,float3 n,out HLGICacheEntry value) { value=(HLGICacheEntry)0;return false; }
 bool HLGITrySurfacePatch(uint card,uint2 cell,uint grid,out HLGISurfaceSample s)
 {

@@ -68,6 +68,8 @@ float3 WorldPosition(float2 uv,float depth,float4x4 matrix) { return screenP; }
 bool HLGITryScreenGeometricNormal(float2 uv,float d,float3 p,out float3 n) { n=NormalAt(uv);return true; }
 bool HLGITryScreenWorldMatch(float2 uv,float d,float3 p,float3 n,out HLGIHit hit)
 { worldCalls++;hit.rawNg=n;return true; }
+bool HLGITryScreenWorldMatch(float2 uv,float d,float3 p,float3 n,uint screenLayer,out HLGIHit hit)
+{ return HLGITryScreenWorldMatch(uv,d,p,n,hit); }
 bool HLGITryScreenRayFootprint(float2 uv,float d,float3 p,float3 ray,out HLGIRayFootprint footprint)
 { footprint.unused=0;return true; }
 float3 DirectIrradiance(float3 p,float3 n,float3 ng,uint2 layers,bool shadows,float3 ray,HLGIRayFootprint footprint,out bool known)

@@ -25,7 +25,8 @@ bool HLGIScaleDirectionMatrix(inout float3x3 value)
 // Gram-Schmidt or normalizing the interpolated N/T first changes normal maps.
 bool HLGITryHardwareMaterialFrame(float3x3 objectToWorld,float3x3 normalToWorld,
     float3 normal0,float3 normal1,float3 normal2,float4 tangent0,float4 tangent1,float4 tangent2,
-    float3 weights,float3 outgoing0,float3 outgoing1,float3 outgoing2,out HLGIHardwareMaterialFrame frame)
+    float3 weights,float3 outgoing0,float3 outgoing1,float3 outgoing2,out HLGIHardwareMaterialFrame frame,
+    bool requireNormalBasis=true)
 {
     frame=(HLGIHardwareMaterialFrame)0;
     if(!all(isfinite(weights)) || any(weights<0) || abs(dot(weights,1)-1)>0.0001 ||
@@ -46,8 +47,9 @@ bool HLGITryHardwareMaterialFrame(float3x3 objectToWorld,float3x3 normalToWorld,
     float3 n=n0*weights.x+n1*weights.y+n2*weights.z,t=t0*weights.x+t1*weights.y+t2*weights.z;
     float sign=dot(float3(tangent0.w,tangent1.w,tangent2.w),weights)*determinantSign;
     float3 b=cross(n,t)*sign;
-    float n2Length=dot(n,n),b2Length=dot(b,b);
-    if(!all(isfinite(n)) || !all(isfinite(t)) || !all(isfinite(b)) || !(n2Length>1e-16) || !(b2Length>1e-16)) return false;
+    if(!all(isfinite(n)) || !all(isfinite(t)) || !all(isfinite(b))) return false;
+    bool normalBasisKnown=dot(n,n)>1e-16 && dot(b,b)>1e-16;
+    if(requireNormalBasis && !normalBasisKnown) return false;
     frame.normal=n;frame.tangent=t;frame.bitangent=b;
     // URP 17 defines REQUIRES_TANGENT_SPACE_VIEW_DIR_INTERPOLATOR whenever
     // _PARALLAXMAP is enabled. Its vertex shader converts each vertex's view
@@ -56,6 +58,8 @@ bool HLGITryHardwareMaterialFrame(float3x3 objectToWorld,float3x3 normalToWorld,
     // Perspective callers supply origin-worldPi; orthographic callers supply
     // the same world-space viewing direction for all three vertices.
     float3 b0=cross(n0,t0)*(tangent0.w*determinantSign),b1=cross(n1,t1)*(tangent1.w*determinantSign),b2=cross(n2,t2)*(tangent2.w*determinantSign);
+    // Parallax remains defined through interpolant cancellation if the vertex frames are valid.
+    if(!normalBasisKnown && any(float3(dot(b0,b0),dot(b1,b1),dot(b2,b2))<=1e-16)) return false;
     float3 ts0=float3(dot(t0,view0),dot(b0,view0),dot(n0,view0))*rsqrt(dot(n0,n0));
     float3 ts1=float3(dot(t1,view1),dot(b1,view1),dot(n1,view1))*rsqrt(dot(n1,n1));
     float3 ts2=float3(dot(t2,view2),dot(b2,view2),dot(n2,view2))*rsqrt(dot(n2,n2));

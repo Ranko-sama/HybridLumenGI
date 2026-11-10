@@ -35,7 +35,7 @@ float3 NormalAt(float2 uv) { return -screenDirection; }
 bool ValidDepth(float d) { return true; }
 float3 WorldPosition(float2 uv,float d,float4x4 transform) { return screenP; }
 bool HLGITryScreenGeometricNormal(float2 uv,float d,float3 p,out float3 n) { n=-screenDirection;return false; }
-bool HLGITryScreenWorldMatch(float2 uv,float d,float3 p,float3 n,out HLGIHit hit) { hit=HLGIEmptyHit(4);return false; }
+bool HLGITryScreenWorldMatch(float2 uv,float d,float3 p,float3 n,uint screenLayer,out HLGIHit hit) { hit=HLGIEmptyHit(4);return false; }
 bool HLGITryScreenRayFootprint(float2 uv,float depth,float3 p,float3 dir,out HLGIRayFootprint footprint)
 { return HLGITryMakeRayFootprint(0,0,footprint); }
 float3 DirectIrradiance(float3 p,float3 n,float3 ng,uint2 layers,bool shadows,float3 ray,HLGIRayFootprint footprint,out bool known)

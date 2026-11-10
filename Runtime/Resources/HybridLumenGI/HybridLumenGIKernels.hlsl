@@ -136,7 +136,7 @@ bool HLGITryScreenGeometricNormal(float2 uv,float depth,float3 position,out floa
     if(facing<0) geometricNormal=-geometricNormal;
     return true;
 }
-bool HLGITryScreenWorldMatch(float2 uv,float depth,float3 position,float3 estimatedGeometricNormal,out HLGIHit hit)
+bool HLGITryScreenWorldMatch(float2 uv,float depth,float3 position,float3 estimatedGeometricNormal,uint screenLayer,out HLGIHit hit)
 {
     float probeDistance=max(_HLGI_RayBias*2,0.03);
     HLGIRayFootprint footprint;
@@ -146,6 +146,10 @@ bool HLGITryScreenWorldMatch(float2 uv,float depth,float3 position,float3 estima
     if(!HLGIHitMaterialKnown(hit) || !HLGIHitHas(hit.flags,HLGI_HIT_GEOMETRIC_NORMAL) ||
         abs(hit.t-probeDistance)>max(0.002,min(_HLGI_RayBias,0.03)) ||
         abs(dot(hit.rawNg,estimatedGeometricNormal))<0.85) return false;
+    // The visibility hit has a current owner. Distinct known GameObject layers
+    // rule out a match even when two surfaces lie inside the depth tolerance.
+    uint ownerLayer=_HLGI_LightingPolicies[hit.ownerSlot].x;
+    if(screenLayer!=0u && ownerLayer!=0u && screenLayer!=ownerLayer) return false;
     // The screen estimate faces the camera. A CullOff/CullFront triangle's raw
     // source winding may face away; preserve it in hit for exact card lookup.
     return true;
@@ -221,14 +225,14 @@ bool TraceScreen(float3 origin,float3 dir,float maxT,out float3 radiance,out flo
                         if(known) radiance=emission.rgb;
                         return true;
                     }
-                    HLGIHit match;
-                    bool worldMatch=false;
-                    if(hasGeometry) worldMatch=HLGITryScreenWorldMatch(uv,raw,p,geometricNormal,match);
-                    if(worldMatch) biasNormal=match.rawNg;
                     // No lit camera color or screen-history feedback enters the transport equation.
                     uint policyWidth,policyHeight;_HLGI_ReceiverPolicy.GetDimensions(policyWidth,policyHeight);
                     uint2 policyPixel=min((uint2)(uv*float2(policyWidth,policyHeight)),uint2(policyWidth-1,policyHeight-1));
                     uint4 policy=_HLGI_ReceiverPolicy.Load(int3(policyPixel,0));
+                    HLGIHit match;
+                    bool worldMatch=false;
+                    if(hasGeometry) worldMatch=HLGITryScreenWorldMatch(uv,raw,p,geometricNormal,policy.x,match);
+                    if(worldMatch) biasNormal=match.rawNg;
                     float4 bakedMask=1;
                     if(_HLGI_ScreenStaticShadowmask!=0)
                         bakedMask=f16tof32(uint4(policy.z & 0xffffu,policy.z>>16,policy.w & 0xffffu,policy.w>>16));
@@ -290,7 +294,8 @@ void CSTrace(uint3 id:SV_DispatchThreadID)
     if(hasGeometry)
     {
         HLGIHit receiverHit;
-        if(HLGITryScreenWorldMatch(uv,depth,p,geometricNormal,receiverHit))
+        uint screenLayer=_HLGI_ReceiverPolicy.Load(int3(fullPixel,0)).x;
+        if(HLGITryScreenWorldMatch(uv,depth,p,geometricNormal,screenLayer,receiverHit))
         {
             geometricNormal=HLGIOffsetNormal(receiverHit.rawNg,geometricNormal);
             if(_HLGI_GuideWeight>0) HLGICachedSample(receiverHit,n,receiverCache);
