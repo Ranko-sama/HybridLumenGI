@@ -218,7 +218,7 @@ flowchart TD
 
 按照 near/far clipmap 的连续覆盖范围请求资产，保留重叠与滞回。细节 → HLOD 切换必须等候 HLOD 的几何、材质、照明全部 ready；同一事务中发布新表示并退休旧表示，避免丢洞或重复遮挡。相机高速移动时有可控降级，同时记录 missing coverage。HLOD 是 GI 材质与遮挡代理，不能只用场景包围盒替代。
 
-统一示例沿用[热态连续近远路线](../LocalComparison/Review/continuous-near-far-01/result.md)，途中持续推进实际页 I/O 和整组接替，回近后细节恢复。Release167 已在该驻留域内路线补齐接替、共驻及退休的 GI／进程显存起始预算。逐像素覆盖、高速穿越未驻留冷区、应用 Present 和其他生产负载分别验收。[实测成本和范围](../LocalComparison/Review/hot-hlod-budget-192/result.md)
+统一示例的热态连续近远路线持续推进实际页 I/O 和整组接替，回近后细节恢复。Release167 在该驻留域内完成接替、共驻及退休的 GI／进程显存预算观察。Release215 复用路线，同次满足两项预算，窗口内应用 Present 相邻调用的最大间隔为 30.214 ms，关闭这条路线的应用调用节奏子项。逐源 Present 归属、显示帧率、逐像素覆盖、未驻留冷区与其他负载分别验收。[原热态路线](../LocalComparison/Review/continuous-near-far-01/result.md) · [Release167 成本](../LocalComparison/Review/hot-hlod-budget-192/result.md) · [Release215 同窗结果](../LocalComparison/Review/hot-hlod-unity-present-261/result.md)
 
 完整生产调度目标是以 `可见影响 × 误差 × 变更紧急度 + 等待年龄` 排序，覆盖 CPU 准备、上传字节、SDF brick 合并、RTAS build/refit、射线、材质捕获、滤波与显存，并给任务设置防饥饿保障。当前实现尚未对所有阶段分别施加时间预算；GPU 反馈以滞后观测、平滑和滞回调整三类更新数量，不动态改变 probe 密度或资源分辨率。验收需要记录冷启动和最坏情况，不能只展示稳定相机的平均 FPS。
 
@@ -367,6 +367,8 @@ owner 的三项直接光策略变化提升传输版本并触发局部 reactive�
 固定普通 Lit 发光面的背面行为已有 Release254 双后端实机依据。Cull Back 从正面取得红色源发光，背面未命中。Cull Off 的正反面均取得同一蓝色源发光。采用限该静态双槽输入的实际精确命中与 Le，面积采样及整景照明继续各自验收。[背面发光读回](../LocalComparison/Review/backface-emission-320/result.md)
 
 Release256 在相同静态双槽网格上补齐了一个固定面积源点的原生可见性依据。生产 CDF 采样后的无遮挡蓝光贡献和命中反求 PDF 与解析预期一致。实际近板遮挡时两后端均返回已知零。采用限不透明面、固定内部点和纯余弦方向采样。屏幕竞争、带贴图或裁剪的面积端点及整景估计继续验收。[源点与解析对照](../LocalComparison/Review/native-area-sample-323/result.md)
+
+Release258 补齐实际二值 Point BaseMap 的固定面积裁剪源点。同一发光三角的孔位和实心位都保留面积样本与正确 PDF。软件 BVH 和 DXR 均在孔位返回已知零，在实心位取得匹配解析值的蓝光贡献。采用限两个静态内部点和纯余弦方向采样。[裁剪源点与解析对照](../LocalComparison/Review/native-area-cutout-327/result.md)
 
 额外材质槽能重复绘制末子网格时，精确软件与 DXR 都改用原有后备表示。录制前也会核对槽布局。普通 Lit 两板实机中，尾槽覆盖近板时，两后端改为命中其解析代理，撤槽后恢复原精确候选。该证据覆盖资格和后备遮挡，完整叠绘着色继续验收。[原生与混合查询对照](../LocalComparison/Review/extra-material-slots-235/result.md)
 

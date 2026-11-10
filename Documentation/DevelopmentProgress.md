@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release258，G0 已锁定，G1／G2 本机代表性验收通过
 
+T2／第 9 节通过固定 Lit 裁剪发光源点的原生面积采样。实际软件 BVH 和 DXR 均保留透明孔的已知零贡献，实心位的 PDF、Le 与面积贡献匹配解析预期。采用限二值 Point BaseMap 与固定输入，整景表现继续验收。[Release258 双后端实机对照](../LocalComparison/Review/native-area-cutout-327/result.md)
+
 T6／G4 已关闭普通流式实例进出时误使其他同源实例换代的问题。实际 Unity 资产页对照中，A 首次绑定、退租及重绑后，持续驻留的 B 保留场景修订和发布标签。真实顶点编辑仍使两个实例失效。修复已整合进 Release258。[实际场景与租约对照](../LocalComparison/Review/streamed-shared-mesh-326/result.md) · [同源交付](../LocalComparison/Review/streamed-shared-mesh-326/delivery.json)
 
 T6／G4 已关闭低额度开帧丢弃仍有效的整页贴图等待。实际 Batch／Pool 的交替额度对照确认，后序相机在恢复帧取得完整的 2 MiB 复制，低帧小页继续录制，缺席的轮次过期。修复已整合进 Release257。[上传对照](../LocalComparison/Review/frame-start-texture-quota-325/result.md) · [同源交付](../LocalComparison/Review/frame-start-texture-quota-325/delivery.json)

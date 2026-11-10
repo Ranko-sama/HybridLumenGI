@@ -4,6 +4,8 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release258 同源交付](../LocalComparison/Review/streamed-shared-mesh-326/delivery.json)
 
+T2／第 9 节已关闭固定二值 Point BaseMap 的原生裁剪面积源点子项。透明孔返回已知零，实心位匹配独立解析值，软件 BVH 与 DXR 一致。其他裁剪、发光贴图和整景仍按原条件验收。[实际生产链对照](../LocalComparison/Review/native-area-cutout-327/result.md)
+
 T6／G4 已关闭普通流式对象退租与重绑时误撤销同源实例表示的问题。实际资产页和 Scene 证明持续驻留的实例保持发布标签，真实共享源编辑仍传播。动态画面与有在飞读者的原生时序继续验收。[实机对照](../LocalComparison/Review/streamed-shared-mesh-326/result.md)
 
 T6／G4 已关闭交替额度下仍活跃的后序相机长期无法上传动态贴图的问题。低帧不占用额度，恢复帧取得完整录制，缺席等待按原期限过期。原生多相机图像和成本继续验收。[命令录制对照](../LocalComparison/Review/frame-start-texture-quota-325/result.md)
