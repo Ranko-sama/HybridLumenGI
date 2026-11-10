@@ -1,8 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release248，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release249，G0 已锁定，G1／G2 本机代表性验收通过
 
-T5／T6／G4 已关闭正余额不足时的热态 HLOD 提前接替。实际双 Base 中首相机扣 6 个三角积分后剩 1 个。主相机保留完整旧组和 DXR，下一帧按原队列扣 2 个积分并在同一照明代次接替。采用限可从当前槽位计算完整 RTAS 工作的条件。[实机对照](../LocalComparison/Review/hlod-positive-credits-311/result.md)
+T5／T6／G4 已关闭正余额不足时的热态 HLOD 提前接替。实际双 Base 中首相机扣 6 个三角积分后剩 1 个。主相机保留完整旧组和 DXR，下一帧按原队列扣 2 个积分并在同一照明代次接替。采用限可从当前槽位计算完整 RTAS 工作的条件。[实机对照](../LocalComparison/Review/hlod-positive-credits-311/result.md) · [Release249 同源交付](../LocalComparison/Review/hlod-positive-credits-311/delivery.json)
 
 T6／G5 已补齐门平移、活动蒙皮和逐帧切灯并发时的应用呈交证据。Release248 同一 DXR 窗口的 GI p95 为 17.198 ms，进程 local 采样峰值为 573.691 MiB，两项达标。应用呈交 p95 为 21.443 ms，唯一 37.428 ms 的间隔跨过活动窗口起点。全窗严格 30 FPS 间隔子项保持开放。[同窗实测及适用范围](../LocalComparison/Review/combined-update-present-310/result.md)
 
