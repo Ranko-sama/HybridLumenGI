@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release240，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release241，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／G3 已修复普通网格同帧移动和改色时，邻近世界缓存漏收不相交移动刷新标记的问题。实际 Scene 与绑定对照确认，包含 `Added` 的最终合并事件仍能隔离旧递归输入，屏幕的材质硬失效有效。Astra Max 同意在接线范围内采用。组合事件的实机残留与收敛继续验收。[组件对照](../LocalComparison/Review/mixed-portal-change-296/result.md) · [Release241 同源交付](../LocalComparison/Review/mixed-portal-change-296/delivery.json)
 
 T6／G4 已去掉精确软件 BVH 的重复节点和叶数组分配。实际构建及录制方法在 4,096 三角的同一平移输入下，托管线程分配由 1,574,976 B 降到 788,504 B，录制内容与原版一致。Astra Max 同意在 CPU 分配范围内采用。原生 CPU 时间及软件 25 ms GPU 目标继续验收。[组件对照](../LocalComparison/Review/software-bvh-recording-295/result.md) · [Release240 同源交付](../LocalComparison/Review/software-bvh-recording-295/delivery.json)
 
