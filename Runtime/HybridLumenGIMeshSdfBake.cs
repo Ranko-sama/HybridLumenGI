@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 namespace HybridLumenGI
 {
@@ -16,6 +17,11 @@ public static class HybridLumenGIMeshSdfBake
     /// <summary>Pure copied-array kernel; safe for a worker without Unity object access.</summary>
     public static float[] Bake(Vector3[] positions,int[] indices,int size,Func<int,int,bool> continueSlice,
         out Bounds bounds,out bool closed)
+        => BakeWorker(positions, indices, size, continueSlice, false, out bounds, out closed);
+
+    // The parallel path is reserved by the runtime scheduler. Its slice callback must be thread-safe.
+    internal static float[] BakeWorker(Vector3[] positions, int[] indices, int size, Func<int, int, bool> continueSlice,
+        bool useTwoWorkers, out Bounds bounds, out bool closed)
     {
         if(positions==null || indices==null || indices.Length%3!=0)throw new ArgumentException("Invalid triangle arrays.");
         if(size<16 || size>64)throw new ArgumentOutOfRangeException(nameof(size));
@@ -25,7 +31,8 @@ public static class HybridLumenGIMeshSdfBake
         foreach(int index in indices)if((uint)index>=(uint)positions.Length)throw new ArgumentException("Triangle index outside positions.");
         var geometry = new TriangleBvh(positions,indices);
         bounds = geometry.Bounds;
-        closed = geometry.Watertight;
+        bool isClosed = geometry.Watertight;
+        closed = isClosed;
         float longest = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
         if (longest <= 1e-6f) throw new ArgumentException("Mesh bounds are degenerate.", nameof(positions));
         // Two empty border voxels give interpolation/gradient queries room outside the geometry.
@@ -36,19 +43,30 @@ public static class HybridLumenGIMeshSdfBake
         Vector3 step = bounds.size / size;
         Vector3 minimum = bounds.min;
         float[] result = new float[size * size * size];
-        for (int z = 0; z < size; z++)
+        bool FillSlices(int first, int end)
         {
-            if (continueSlice != null && !continueSlice(z, size)) return null;
-            for (int y = 0; y < size; y++)
-            for (int x = 0; x < size; x++)
+            for (int z = first; z < end; z++)
             {
-                Vector3 point = minimum + Vector3.Scale(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), step);
-                float distance = Mathf.Sqrt(geometry.NearestDistanceSquared(point));
-                if (closed && geometry.IsInside(point)) distance = -distance;
-                result[x + size * (y + size * z)] = distance;
+                if (continueSlice != null && !continueSlice(z, size)) return false;
+                for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    Vector3 point = minimum + Vector3.Scale(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), step);
+                    float distance = Mathf.Sqrt(geometry.NearestDistanceSquared(point));
+                    if (isClosed && geometry.IsInside(point)) distance = -distance;
+                    result[x + size * (y + size * z)] = distance;
+                }
             }
+            return true;
         }
-        return result;
+
+        if (!useTwoWorkers) return FillSlices(0, size) ? result : null;
+        int middle = size / 2;
+        bool lowerCompleted = false, upperCompleted = false;
+        // Join both disjoint slice ranges before returning, even when either range fails.
+        Parallel.Invoke(() => lowerCompleted = FillSlices(0, middle),
+            () => upperCompleted = FillSlices(middle, size));
+        return lowerCompleted && upperCompleted ? result : null;
     }
 
     private sealed class TriangleBvh

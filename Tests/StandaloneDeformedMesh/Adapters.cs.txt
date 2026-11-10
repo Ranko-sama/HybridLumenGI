@@ -215,6 +215,9 @@ namespace HybridLumenGI
     }
     public static class HybridLumenGIMeshSdfBake
     {
+        public static float[] BakeWorker(Vector3[] vertices, int[] triangles, int size, Func<int,int,bool> progress,
+            bool useTwoWorkers, out Bounds bounds, out bool closed) => Bake(vertices, triangles, size, progress, out bounds, out closed);
+
         public static float[] Bake(Vector3[] vertices,int[] triangles,int size,Func<int,int,bool> progress,out Bounds bounds,out bool closed)
         {
             // Deterministic barriers control real Task.Run work. Returning even after cancellation

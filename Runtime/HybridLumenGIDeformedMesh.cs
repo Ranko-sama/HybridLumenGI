@@ -96,6 +96,7 @@ namespace HybridLumenGI
             internal Snapshot snapshot;
             internal CancellationTokenSource cancellation=new CancellationTokenSource();
             internal Task<Result> work;
+            internal int workerSlots = 1;
             internal bool cleanupFailed;
         }
 
@@ -242,7 +243,7 @@ namespace HybridLumenGI
                 if(job.cleanupFailed)continue;
                 if(!job.work.IsCompleted)
                 {
-                    occupiedCaptureSlots++;
+                    occupiedCaptureSlots += job.workerSlots;
                     continue;
                 }
                 bool current=job.owner!=null && job.owner.isActiveAndEnabled && job.owner.generation==job.generation &&
@@ -413,18 +414,23 @@ namespace HybridLumenGI
                         }
                         continue;
                     }
-                    var job=new Job{owner=owner,source=owner.source,generation=owner.generation,frame=Time.frameCount,size=size,snapshot=next};
+                    // A sole source can borrow a spare slot for the SDF slices. Count it
+                    // until the whole task joins so a newly active owner cannot overbook it.
+                    int availableWorkers = Math.Max(0, MaximumWorkers) - occupiedCaptureSlots;
+                    bool useTwoWorkers = Active.Count == 1 && availableWorkers >= 2 && Environment.ProcessorCount > 1;
+                    var job=new Job{owner=owner,source=owner.source,generation=owner.generation,frame=Time.frameCount,size=size,
+                        snapshot=next,workerSlots=useTwoWorkers ? 2 : 1};
                     int[] triangles=flat.ToArray();var cancellation=job.cancellation.Token;
                     job.work=Task.Run(()=>
                     {
                         bool Continue(int _,int __)=>!cancellation.IsCancellationRequested;
                         var result=new Result();
-                        result.distances=HybridLumenGIMeshSdfBake.Bake(positions,triangles,size,Continue,out result.bounds,out result.closed);
+                        result.distances=HybridLumenGIMeshSdfBake.BakeWorker(positions,triangles,size,Continue,useTwoWorkers,out result.bounds,out result.closed);
                         if(result.distances==null || cancellation.IsCancellationRequested)return null;
                         result.charts=HybridLumenGISurfaceCharts.BakeTriangles(positions,submeshes,frozenSettings,out _,Continue);
                         return cancellation.IsCancellationRequested?null:result;
                     });
-                    Jobs.Add(job);occupiedCaptureSlots++;owner.PendingFrame=Time.frameCount;
+                    Jobs.Add(job);occupiedCaptureSlots+=job.workerSlots;owner.PendingFrame=Time.frameCount;
                     owner.requested=false;owner.Status="Captured; SDF/chart worker pending";
                 }
                 catch(Exception ex) { next.Destroy();owner.Status="Geometry capture failed: "+ex.GetType().Name; }
