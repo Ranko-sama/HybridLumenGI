@@ -373,7 +373,8 @@ namespace HybridLumenGI
                         next.bakedSourceMesh=original;
                         next.bakedSourceVersion=HybridLumenGIMeshSource.GetVersion(original);
                         next.mesh=new Mesh{name="HLGI baked deformation",hideFlags=HideFlags.HideAndDontSave};
-                        skin.BakeMesh(next.mesh,false); // Local positions; renderer transform is applied once.
+                        // Compensate for renderer scale here because the instance matrix applies it later.
+                        skin.BakeMesh(next.mesh,useScale:true);
                     }
                     else
                     {
