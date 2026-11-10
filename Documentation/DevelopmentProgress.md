@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release235，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release236，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／T6 已去除形变 SDF CPU 核中的重复包围盒和三角计算。固定两骨门姿的 Unity 同输入完整 SDF32 烘焙中位由 135.317 ms 降到 99.627 ms，全部体素逐位一致。采用限固定输入的 SDF 核，活动形变画质和 GPU 消费延迟继续验收。[实测范围](../LocalComparison/Review/deformed-sdf-bake-289/result.md) · [Release236 同源交付](../LocalComparison/Review/deformed-sdf-bake-289/delivery.json)
 
 T5／T6／G4 已关闭域外组占槽上界使精确细节提前退出的缺口。实际双 Base 争用时，主相机保留旧细节、普通精确物体和 DXR，下一轮用原图卡及原照明代次发布粗根。采用限本次热态世界接替，冷高速首显与普通光栅继续验收。[实机前后对照](../LocalComparison/Review/hlod-outside-group-handoff-288/result.md) · [Release235 同源交付](../LocalComparison/Review/hlod-outside-group-handoff-288/delivery.json)
 
