@@ -2155,8 +2155,8 @@ namespace HybridLumenGI
                 int id=camera.GetInstanceID();Evict(id);
                 if(cameras.TryGetValue(id,out var state) && !ReferenceEquals(state.camera,camera))
                 {
-                    softwareBvhBuildBudget.Cancel(state);
-                    state.Dispose();cameras.Remove(id);state=null;
+                    RetireCameraState(id);
+                    state=null;
                 }
                 if(state==null)
                 {
@@ -2173,33 +2173,27 @@ namespace HybridLumenGI
                 foreach (var entry in cameras)
                     if (entry.Value.camera == null || (includeReassigned && IsReassignedCamera(entry.Value)))
                         retire.Add(entry.Key);
-                foreach (int id in retire)
-                {
-                    var state = cameras[id];
-                    cameras.Remove(id);
-                    softwareBvhBuildBudget.Cancel(state);
-                    // Recorded work may still read the detached state's textures and buffers.
-                    HybridLumenGIResourceRetirement.Retire(state.Dispose);
-                }
+                foreach (int id in retire) RetireCameraState(id);
             }
             private void Evict(int current)
             {
                 retire.Clear();
                 foreach(var entry in cameras) if(entry.Key!=current && Time.frameCount-entry.Value.lastUsed>120) retire.Add(entry.Key);
-                foreach(int key in retire)
-                {
-                    var state = cameras[key];
-                    softwareBvhBuildBudget.Cancel(state);
-                    state.Dispose();cameras.Remove(key);
-                }
+                foreach(int key in retire) RetireCameraState(key);
                 if(!cameras.ContainsKey(current) && cameras.Count>=Mathf.Clamp(s.maxCameras,1,4))
                 {
                     int oldest=0,frame=int.MaxValue;
                     foreach(var entry in cameras) if(entry.Value.lastUsed<frame) { oldest=entry.Key;frame=entry.Value.lastUsed; }
-                    var state = cameras[oldest];
-                    softwareBvhBuildBudget.Cancel(state);
-                    state.Dispose();cameras.Remove(oldest);
+                    RetireCameraState(oldest);
                 }
+            }
+            private void RetireCameraState(int id)
+            {
+                var state = cameras[id];
+                cameras.Remove(id);
+                softwareBvhBuildBudget.Cancel(state);
+                // Recorded work may still read the detached state's textures and buffers.
+                HybridLumenGIResourceRetirement.Retire(state.Dispose);
             }
             internal CameraDiagnostics[] GetDiagnostics()
             {

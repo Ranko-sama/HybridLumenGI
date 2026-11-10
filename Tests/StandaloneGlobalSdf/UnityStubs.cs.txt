@@ -38,15 +38,27 @@ namespace UnityEngine
     public enum ComputeBufferType { Structured }
     public sealed class ComputeBuffer
     {
+        public static int AllocationsBeforeFailure = -1;
+        public static ComputeBuffer LastAllocated;
         public readonly int count,stride;public readonly object[] data;public string name;public bool released;
-        public ComputeBuffer(int count,int stride,ComputeBufferType type=ComputeBufferType.Structured){this.count=count;this.stride=stride;data=new object[count];}
+        public int ReleaseCount { get; private set; }
+        public ComputeBuffer(int count,int stride,ComputeBufferType type=ComputeBufferType.Structured)
+        {
+            if (AllocationsBeforeFailure == 0)
+            {
+                AllocationsBeforeFailure = -1;
+                throw new InvalidOperationException("Controlled buffer allocation failure");
+            }
+            if (AllocationsBeforeFailure > 0) AllocationsBeforeFailure--;
+            this.count=count;this.stride=stride;data=new object[count];LastAllocated=this;
+        }
         public void SetData(Array values)=>SetData(values,0,0,values.Length);
         public void SetData(Array values,int source,int destination,int length)
         {
             if(released||source<0||destination<0||source+length>values.Length||destination+length>count)throw new InvalidOperationException("Invalid buffer update");
             for(int i=0;i<length;i++)data[destination+i]=values.GetValue(source+i);
         }
-        public void Release(){released=true;}
+        public void Release(){released=true;ReleaseCount++;}
     }
     public sealed class ComputeShader { public int FindKernel(string name)=>name=="CSMergeBricks"?0:1; }
     public static class Resources { public static T Load<T>(string path) where T:class=>new ComputeShader() as T; }

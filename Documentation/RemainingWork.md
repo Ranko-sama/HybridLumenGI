@@ -4,6 +4,10 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release246 同源交付](../LocalComparison/Review/card-lit-normal-305/delivery.json)
 
+T6／G4 已关闭相机容量驱逐先于资源退休的问题。双 Base 的受控入口确认旧状态即时退出活动列表，读者完成前保留资源和几何账。相机返回重新建立历史。多相机原生峰值继续按原预算验收。[驱逐与归还对照](../LocalComparison/Review/camera-capacity-retirement-307/result.md)
+
+T6／G4 已关闭同一启用 Global SDF 实例在公开 `Prepare` 重配时提前释放旧缓冲的问题。两次替换和一次分配失败中，旧代按完成回执归还，新代独立推进。真实 GPU 生命周期和进程显存按各自条件验收。[重配与回滚对照](../LocalComparison/Review/global-sdf-live-reconfigure-306/result.md)
+
 T4／第 8 节已关闭普通 Lit 图卡对插值切线帧二次正交化造成的着色法线偏差。固定 DX12 纹素通过原缓存法线门。材质接缝、变换组合和整景反弹各自验收。[实际图卡与独立参考](../LocalComparison/Review/card-lit-normal-305/result.md)
 
 T6／G4 已补同一 Feature 内精确软件 BVH 的跨相机 CPU 建树准入。实际准备入口在额度耗尽后延后失配布局，保留等待轮次和当前布局复用，失败耗时计入。其他准备阶段及软件 GPU 预算继续验收。[定向对照](../LocalComparison/Review/software-bvh-build-cpu-304/result.md)

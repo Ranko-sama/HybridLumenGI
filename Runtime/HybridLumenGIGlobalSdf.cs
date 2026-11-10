@@ -202,14 +202,8 @@ namespace HybridLumenGI
             if (DistancesBuffer != null)
             {
                 var buffers = new[] { DistancesBuffer, PagesBuffer, LevelsBuffer, UpdateJobsBuffer, ObjectBoundsBuffer };
-                long bytes = ClipmapBytes;
                 ClearClipmap();
-                retiringBytes += bytes;
-                HybridLumenGIResourceRetirement.Retire(() =>
-                {
-                    foreach (var buffer in buffers) buffer?.Release();
-                    retiringBytes -= bytes;
-                });
+                RetireBuffers(buffers);
             }
             prepared = true;
         }
@@ -323,32 +317,68 @@ namespace HybridLumenGI
 
         private bool EnsureStorage(Configuration settings, int objectCount)
         {
-            bool reset = DistancesBuffer == null || configuration.LevelCount != settings.LevelCount ||
+            bool replaceClipmap = DistancesBuffer == null || configuration.LevelCount != settings.LevelCount ||
                 configuration.BricksPerAxis != settings.BricksPerAxis || configuration.BaseVoxelSize != settings.BaseVoxelSize ||
                 configuration.MaxDistanceInBricks != settings.MaxDistanceInBricks;
-            if (reset)
-            {
-                DistancesBuffer?.Release(); PagesBuffer?.Release(); LevelsBuffer?.Release(); UpdateJobsBuffer?.Release();
-                int count = settings.LevelCount * settings.BricksPerAxis * settings.BricksPerAxis * settings.BricksPerAxis;
-                pages = new Page[count]; ages = new int[count]; levels = new Level[settings.LevelCount]; jobs = new Job[count];
-                dirtyRows = new int[settings.BricksPerAxis * settings.BricksPerAxis];
-                DistancesBuffer = Buffer(count * ValuesPerBrick, 4, "HLGI global SDF distances");
-                // Initialize generation words to zero. Unwritten voxel payload must never become
-                // readable if a recorded update is cancelled before its GPU publish dispatch.
-                DistancesBuffer.SetData(new float[count * ValuesPerBrick]);
-                PagesBuffer = Buffer(count, PageStride, "HLGI global SDF pages");
-                LevelsBuffer = Buffer(levels.Length, LevelStride, "HLGI global SDF levels");
-                UpdateJobsBuffer = Buffer(count, JobStride, "HLGI global SDF update jobs");
-            }
             objectCount = Math.Max(1, objectCount);
-            if (ObjectBoundsBuffer == null || objectBounds.Length != objectCount)
+            bool replaceBounds = ObjectBoundsBuffer == null || objectBounds.Length != objectCount;
+            if (!replaceClipmap && !replaceBounds) return false;
+
+            var previous = new[]
             {
-                ObjectBoundsBuffer?.Release();
-                objectBounds = new ObjectBounds[objectCount];
-                ObjectBoundsBuffer = Buffer(objectCount, ObjectBoundsStride, "HLGI global SDF renderer bounds");
-                reset = true;
+                replaceClipmap ? DistancesBuffer : null, replaceClipmap ? PagesBuffer : null,
+                replaceClipmap ? LevelsBuffer : null, replaceClipmap ? UpdateJobsBuffer : null,
+                replaceBounds ? ObjectBoundsBuffer : null
+            };
+            int axis = settings.BricksPerAxis;
+            int count = settings.LevelCount * axis * axis * axis;
+            var nextPages = replaceClipmap ? new Page[count] : pages;
+            var nextAges = replaceClipmap ? new int[count] : ages;
+            var nextLevels = replaceClipmap ? new Level[settings.LevelCount] : levels;
+            var nextJobs = replaceClipmap ? new Job[count] : jobs;
+            var nextDirtyRows = replaceClipmap ? new int[axis * axis] : dirtyRows;
+            var nextBounds = replaceBounds ? new ObjectBounds[objectCount] : objectBounds;
+            ComputeBuffer distanceBuffer = null, pageBuffer = null, levelBuffer = null, jobBuffer = null, boundsBuffer = null;
+            try
+            {
+                if (replaceClipmap)
+                {
+                    distanceBuffer = Buffer(count * ValuesPerBrick, 4, "HLGI global SDF distances");
+                    pageBuffer = Buffer(count, PageStride, "HLGI global SDF pages");
+                    levelBuffer = Buffer(nextLevels.Length, LevelStride, "HLGI global SDF levels");
+                    jobBuffer = Buffer(count, JobStride, "HLGI global SDF update jobs");
+                }
+                if (replaceBounds) boundsBuffer = Buffer(objectCount, ObjectBoundsStride, "HLGI global SDF renderer bounds");
+                // An unpublished generation must never authorize an unwritten distance payload.
+                if (replaceClipmap) distanceBuffer.SetData(new float[count * ValuesPerBrick]);
             }
-            return reset;
+            catch
+            {
+                distanceBuffer?.Release(); pageBuffer?.Release(); levelBuffer?.Release(); jobBuffer?.Release(); boundsBuffer?.Release();
+                throw;
+            }
+
+            if (replaceClipmap)
+            {
+                DistancesBuffer = distanceBuffer; PagesBuffer = pageBuffer; LevelsBuffer = levelBuffer; UpdateJobsBuffer = jobBuffer;
+                pages = nextPages; ages = nextAges; levels = nextLevels; jobs = nextJobs; dirtyRows = nextDirtyRows;
+            }
+            if (replaceBounds) { ObjectBoundsBuffer = boundsBuffer; objectBounds = nextBounds; }
+            RetireBuffers(previous);
+            return true;
+        }
+
+        private void RetireBuffers(ComputeBuffer[] buffers)
+        {
+            long bytes = 0;
+            foreach (var buffer in buffers) bytes += Bytes(buffer);
+            if (bytes == 0) return;
+            retiringBytes += bytes;
+            HybridLumenGIResourceRetirement.Retire(() =>
+            {
+                foreach (var buffer in buffers) buffer?.Release();
+                retiringBytes -= bytes;
+            });
         }
         private static ComputeBuffer Buffer(int count, int stride, string name) => new ComputeBuffer(count, stride, ComputeBufferType.Structured) { name = name };
         private static Configuration Sanitize(Configuration value)

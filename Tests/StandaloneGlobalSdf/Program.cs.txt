@@ -103,8 +103,51 @@ scene.Proxies[0].Renderer.bounds=new Bounds(new Vector3(3,0,0),Vector3.one*2);gl
 Require(global.PendingBrickCount>0,"Renderer bound change was missed without a scene revision.");
 settings.UpdateBrickBudget=1024;Drain();global.InvalidateAll();
 Require(!global.IsReady,"Cancelled update invalidation left IsReady true.");global.Prepare(scene,sdf,camera,settings);Require(global.PendingBrickCount==128,"Cancelled commands did not cause retry of all pages.");
-global.RecordUpdate(new CommandBuffer());settings.BaseVoxelSize*=2;global.Prepare(scene,sdf,camera,settings);Require(global.PendingBrickCount==128,"Clipmap metric change reused old distances.");
-global.RecordUpdate(new CommandBuffer());scene.RequiresFullInvalidation=true;global.Prepare(scene,sdf,camera,settings);Require(global.PendingBrickCount==128,"Scene hard invalidation was ignored.");
+global.RecordUpdate(new CommandBuffer());
+ComputeBuffer[] ClipmapBuffers() => new[] { global.DistancesBuffer, global.PagesBuffer, global.LevelsBuffer, global.UpdateJobsBuffer };
+long BufferBytes(IEnumerable<ComputeBuffer> buffers) => buffers.Sum(value => (long)value.count * value.stride);
+var firstClipmap = ClipmapBuffers();
+var firstBounds = global.ObjectBoundsBuffer;
+long originalBytes = global.AllocatedBytes;
+settings.BaseVoxelSize *= 2;
+global.Prepare(scene,sdf,camera,settings);
+var secondClipmap = ClipmapBuffers();
+Require(global.PendingBrickCount == 128 && secondClipmap.Zip(firstClipmap).All(pair => pair.First != pair.Second),
+    "Clipmap metric change reused old distances.");
+Require(firstClipmap.All(value => !value.released) && global.ObjectBoundsBuffer == firstBounds &&
+    global.AllocatedBytes == originalBytes + BufferBytes(firstClipmap) && HybridLumenGIResourceRetirement.Pending.Count == 1,
+    "A recorded clipmap was freed before completion or its charge was dropped.");
+global.RecordUpdate(new CommandBuffer());
+
+settings.BaseVoxelSize *= .5f;
+Array.Resize(ref scene.Data, 8);
+Array.Resize(ref scene.Proxies, 8);
+scene.Buffer = new ComputeBuffer(scene.Capacity, 80);
+ComputeBuffer.AllocationsBeforeFailure = 1;
+bool allocationFailed = false;
+try { global.Prepare(scene,sdf,camera,settings); }
+catch (InvalidOperationException e) when (e.Message == "Controlled buffer allocation failure") { allocationFailed = true; }
+Require(allocationFailed && ComputeBuffer.LastAllocated.ReleaseCount == 1 && ClipmapBuffers().SequenceEqual(secondClipmap) &&
+    global.ObjectBoundsBuffer == firstBounds && global.AllocatedBytes == originalBytes + BufferBytes(firstClipmap) &&
+    HybridLumenGIResourceRetirement.Pending.Count == 1, "A failed replacement changed live storage or leaked its private allocation.");
+global.Prepare(scene,sdf,camera,settings);
+var currentClipmap = ClipmapBuffers();
+var currentBounds = global.ObjectBoundsBuffer;
+long currentBytes = BufferBytes(currentClipmap) + BufferBytes(new[] { currentBounds });
+var retired = firstClipmap.Concat(secondClipmap).Append(firstBounds).ToArray();
+Require(currentBounds.count == 8 && currentBounds != firstBounds && retired.All(value => !value.released) &&
+    global.AllocatedBytes == currentBytes + BufferBytes(retired) && HybridLumenGIResourceRetirement.Pending.Count == 2,
+    "The second replacement lost a pending generation or failed to publish current storage.");
+global.RecordUpdate(new CommandBuffer());
+HybridLumenGIResourceRetirement.Pending.Dequeue()();
+Require(firstClipmap.All(value => value.ReleaseCount == 1) && secondClipmap.All(value => !value.released) && !firstBounds.released &&
+    global.AllocatedBytes == currentBytes + BufferBytes(secondClipmap.Append(firstBounds)), "First completion released a buffer from another generation.");
+HybridLumenGIResourceRetirement.Pending.Dequeue()();
+Require(retired.All(value => value.ReleaseCount == 1) && currentClipmap.Append(currentBounds).All(value => !value.released) &&
+    global.AllocatedBytes == currentBytes && global.IsReady, "Completion released current storage or kept a stale charge.");
+Console.WriteLine($"Clipmap reconfigure active={currentBytes} B, retained={BufferBytes(retired)} B, allocation rollback and ordered retirement pass.");
+
+scene.RequiresFullInvalidation=true;global.Prepare(scene,sdf,camera,settings);Require(global.PendingBrickCount==128,"Scene hard invalidation was ignored.");
 Require(global.AllocatedBytes>0,"Memory diagnostic is missing.");
 var buffer=global.PagesBuffer;global.Dispose();Require(buffer.released&&global.AllocatedBytes==0&&!global.IsReady,"Dispose did not release clipmap resources.");
 

@@ -38,6 +38,8 @@ Use one instance per camera. The caller owns execution order and resource lifeti
 
 When the feature disables Global SDF, the camera binds three one-element query buffers totaling 68 logical bytes and skips object, page and job preparation. An existing clipmap stays charged through the normal resource retirement completion. Turning Global SDF back on starts with unknown pages and the configured update allowance. [Controlled toggle sequence](../LocalComparison/Review/global-sdf-off-195/result.md)
 
+Changing the clipmap layout, distance metrics, or object capacity on the same enabled instance prepares replacement buffers before switching storage. Replaced buffers stay in `AllocatedBytes` until the existing retirement queue releases them. Several replacements can be in retirement together. If buffer allocation fails, the previous storage remains owned and the private replacement is released. [Live reconfiguration comparison](../LocalComparison/Review/global-sdf-live-reconfigure-306/result.md)
+
 Unity 6 exposes the required [CommandBuffer.SetBufferData](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Rendering.CommandBuffer.SetBufferData.html) uploads. Unity-side shader import, actual command ordering/resource hazards, and RenderGraph integration still require an Editor/GPU run; offline recording shims cannot establish those native behaviors.
 
 Public resources for render-graph ownership/dependency declarations:
