@@ -1,0 +1,44 @@
+{
+  "productCommit": "eff492f54896abc1ef5dc33d558295203a342e08",
+  "releaseUrl": "https://github.com/Ranko-sama/HybridLumenGI/releases/tag/release248-demo",
+  "tag": "release248-demo",
+  "publishedAt": "2026-11-10T06:38:49Z",
+  "prerelease": true,
+  "validation": [
+    {
+      "workItem": "T2 screen-to-world matching",
+      "comparison": "result.md",
+      "scope": "Actual TraceScreen and screen-to-world matching on D3D12 WARP with fixed inputs"
+    },
+    {
+      "workItem": "T2 exact Lit parallax coverage and material evaluation",
+      "comparison": "../lit-parallax-coverage-309/result.md",
+      "scope": "Actual exact material bridge on D3D12 WARP against independent URP displaced UV"
+    }
+  ],
+  "build": {
+    "status": "Succeeded",
+    "target": "StandaloneWindows64",
+    "configuration": "Release",
+    "actualOptions": "None",
+    "errors": 0,
+    "warnings": 6,
+    "scenes": [
+      "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+    ]
+  },
+  "nativeExitCode": 0,
+  "builtFromIndependentProjectExtraction": true,
+  "assets": [
+    {
+      "name": "HybridLumenGI-Release248-UnityProject.zip",
+      "size": 866668,
+      "url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release248-demo/HybridLumenGI-Release248-UnityProject.zip"
+    },
+    {
+      "name": "HybridLumenGI-Release248-Windows-x64.zip",
+      "size": 58683749,
+      "url": "https://github.com/Ranko-sama/HybridLumenGI/releases/download/release248-demo/HybridLumenGI-Release248-Windows-x64.zip"
+    }
+  ]
+}
