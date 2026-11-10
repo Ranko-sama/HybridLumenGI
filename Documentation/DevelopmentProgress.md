@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release241，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release242，G0 已锁定，G1／G2 本机代表性验收通过
+
+T3／T6 已缩短单活动形变来源的 SDF 烘焙等待。固定 15° 两骨门在原工作槽额度内由 101.372 ms 降到 63.404 ms，边界与距离数组一致。实际组件与烘焙核的受控取消及故障均等到两半结束后归还槽位和预留。Astra Max 同意在隔离烘焙耗时范围内采用。普通 Player 的端到端延迟与画质继续验收。[实测与占槽边界](../LocalComparison/Review/deformed-bake-slots-298/result.md) · [Release242 同源交付](../LocalComparison/Review/deformed-bake-slots-298/delivery.json)
 
 T7／G5 恢复现有的本地 Scene 驻留验收入口。旧独立宿主因缺少流式绑定的 `SourceRenderer` 而编译失败。替身现在随绑定保存 Renderer 引用，原 `Validate-SceneResidency.ps1` 通过，覆盖场景驻留、变更分类、槽复用与上传配额的组件行为。原生生命周期和生产负载继续验收。[本地验收入口](../Tests/Validate-SceneResidency.ps1)
 

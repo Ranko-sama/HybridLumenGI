@@ -16,17 +16,17 @@
 
 HybridLumenGI 以网格距离场和表面材质描述场景，在世界空间累积间接光，再通过时域重建与空间滤波输出到 URP 相机。它关注视锥外的颜色反弹、光照变化后的响应，以及动态几何与分页资源之间的一致性。
 
-**当前交付为 Release241。** 同一网格发生不相交的刚体移动时，同帧材质变化也会触发邻近世界缓存的可见性刷新。可运行示例和可编辑 Unity 工程使用同版产品源码。项目处于实验阶段，软件 GI 的 25 ms 时间预算仍待达标。[移动与改色对照](LocalComparison/Review/mixed-portal-change-296/result.md) · [软件固定近景成本](LocalComparison/Review/software-bvh-sah-291/result.md)
+**当前交付为 Release242。** 单一活动形变来源可借用空闲工作槽计算同一份 SDF。固定两骨门的 SDF32 烘焙中位耗时从 101.37 ms 降到 63.40 ms。可运行示例和可编辑 Unity 工程使用同版产品源码。项目处于实验阶段，软件 GI 的 25 ms 时间预算仍待达标。[烘焙对照与适用范围](LocalComparison/Review/deformed-bake-slots-298/result.md) · [软件固定近景成本](LocalComparison/Review/software-bvh-sah-291/result.md)
 
 ## 开始体验
 
 | 你想做什么 | 下载 | 打开方式 |
 | --- | --- | --- |
-| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release241-demo/HybridLumenGI-Release241-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
-| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release241-demo/HybridLumenGI-Release241-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
+| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release242-demo/HybridLumenGI-Release242-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
+| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release242-demo/HybridLumenGI-Release242-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
 | **先看独立对照** | [固定点灯与聚光灯的同曝光换色对照](LocalComparison/Review/mixed-light-recolor-280/result.md) | 可直接看报告。Windows 包中的 `PictureComparison/index.html` 提供离线画册。 |
 
-两个包均附带 `LICENSE` 和 `NOTICE`。请保留运行包旁的数据目录与资源页。[同源交付记录](LocalComparison/Review/mixed-portal-change-296/delivery.json)
+两个包均附带 `LICENSE` 和 `NOTICE`。请保留运行包旁的数据目录与资源页。[同源交付记录](LocalComparison/Review/deformed-bake-slots-298/delivery.json)
 
 **示例配置：** Windows x64 · DirectX 12 · Linear · URP 17.0.4 · 960×540 · 半分辨率 GI · 每像素 2 条射线 · 4 级空间滤波。启动时优先请求 DXR，实际后端以面板与日志为准。[打开场景与重新构建 →](Documentation/UnifiedUnityProject.md)
 
