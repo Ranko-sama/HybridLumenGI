@@ -341,12 +341,13 @@ namespace HybridLumenGI
                     if (Data[slot].identity.w == 1f)
                     {
                         bool disjointSourcePose = false;
-                        const ChangeKind pose = ChangeKind.Transform | ChangeKind.Lighting;
-                        if ((kind & ChangeKind.Transform) != 0 && (kind & ~pose) == 0 && next.meshId != 0 &&
+                        const ChangeKind rigidChange = ChangeKind.Transform | ChangeKind.Lighting | ChangeKind.Material;
+                        if ((kind & ChangeKind.Transform) != 0 && (kind & ~rigidChange) == 0 && next.meshId != 0 &&
                             owner.SourceRenderer is MeshRenderer && owner.ProxyShape != HybridLumenGIProxy.Shape.Sphere)
                         {
                             // The resident proxy data and candidate describe the source geometry.
-                            // Traversal bounds also include the SDF's empty padding.
+                            // Traversal bounds also include the SDF's empty padding. A simultaneous
+                            // material edit still leaves a proven relocation of the same geometry.
                             ProxyGpuData previous = Data[slot];
                             var previousSource = new Bounds((Vector3)previous.centerShape, (Vector3)previous.extentsRoughness * 2f);
                             Bounds currentSource = available[owner.StableId].bounds;

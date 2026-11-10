@@ -39,9 +39,12 @@ namespace HybridLumenGI
                 // A proven same-primitive rigid correspondence may survive a pure
                 // pose change. Topology/material/manual/representation edits cannot
                 // borrow that exemption. World-cache queries still reject both kinds.
-                var poseFlags=HybridLumenGIScene.ChangeKind.Transform|HybridLumenGIScene.ChangeKind.Lighting;
+                const HybridLumenGIScene.ChangeKind poseFlags = HybridLumenGIScene.ChangeKind.Transform | HybridLumenGIScene.ChangeKind.Lighting;
                 bool poseOnly=(change.Kind & HybridLumenGIScene.ChangeKind.Transform)!=0 && (change.Kind & ~poseFlags)==0;
-                bool disjointPose = poseOnly && change.HasPrevious && change.HasCurrent && change.DisjointSourcePose;
+                // The world visibility refresh also covers a proven move with a material edit.
+                // A same-frame upload can add Added to the merged old/new event.
+                const HybridLumenGIScene.ChangeKind worldPoseFlags = poseFlags | HybridLumenGIScene.ChangeKind.Material | HybridLumenGIScene.ChangeKind.Added;
+                bool disjointPose = change.HasPrevious && change.HasCurrent && change.DisjointSourcePose && (change.Kind & ~worldPoseFlags) == 0;
                 hasDisjointPoseChange |= disjointPose;
                 float kind=geometry?(poseOnly?1:2):0;
                 Renderer receiver=null;
