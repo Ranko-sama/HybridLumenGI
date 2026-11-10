@@ -150,8 +150,15 @@ namespace UnityEngine.Rendering
     public sealed class CommandBuffer
     {
         public bool ThrowOnBuild;public int BuildCalls;public RayTracingAccelerationStructure Acceleration;
+        public Action BeforeBuild;
         public readonly Dictionary<int,UnityEngine.ComputeBuffer> Buffers=new();
-        public void BuildRayTracingAccelerationStructure(RayTracingAccelerationStructure acceleration){BuildCalls++;if(ThrowOnBuild)throw new InvalidOperationException("simulated build failure");acceleration.BuildCount++;}
+        public void BuildRayTracingAccelerationStructure(RayTracingAccelerationStructure acceleration)
+        {
+            BuildCalls++;
+            BeforeBuild?.Invoke();
+            if(ThrowOnBuild)throw new InvalidOperationException("simulated build failure");
+            acceleration.BuildCount++;
+        }
         public void SetGlobalRayTracingAccelerationStructure(int id,RayTracingAccelerationStructure acceleration)=>Acceleration=acceleration;
         public void SetComputeBufferParam(UnityEngine.ComputeShader shader,int kernel,int id,UnityEngine.ComputeBuffer buffer)=>Buffers[id]=buffer;
         public void SetComputeIntParam(UnityEngine.ComputeShader shader,int id,int value){}

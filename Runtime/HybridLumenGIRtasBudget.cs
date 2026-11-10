@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace HybridLumenGI
 {
@@ -16,6 +17,7 @@ namespace HybridLumenGI
             public long MemoryBudgetBytes,TriangleWorkPerFrame,InstanceWorkPerFrame,TriangleBurstCapacity,InstanceBurstCapacity;
             public long BaseEstimateBytes,BytesPerTriangle,BytesPerInstance;
             public int MaxBuildsPerFrame;
+            public float BuildRecordingCpuBudgetMilliseconds;
             public static Settings Default=>new Settings{MemoryBudgetBytes=256L*1024*1024,MaxBuildsPerFrame=4,
                 TriangleWorkPerFrame=250000,InstanceWorkPerFrame=4096,TriangleBurstCapacity=1000000,InstanceBurstCapacity=16384,
                 BaseEstimateBytes=65536,BytesPerTriangle=192,BytesPerInstance=1024};
@@ -34,7 +36,7 @@ namespace HybridLumenGI
         private static readonly List<Demand> demands=new List<Demand>();
         private static Settings settings=Settings.Default;
         private static bool initialized;
-        private static long triangleCredits,instanceCredits,sequence;
+        private static long triangleCredits,instanceCredits,sequence,buildRecordingTicks;
         public static int Frame { get; private set; }=int.MinValue;
         public static int BuildsThisFrame { get; private set; }
         public static long TriangleWorkThisFrame { get; private set; }
@@ -42,13 +44,16 @@ namespace HybridLumenGI
         public static long TriangleCredits=>triangleCredits;
         public static long InstanceCredits=>instanceCredits;
         public static int PendingDemands=>demands.Count;
+        private static bool BuildRecordingBudgetSpent => buildRecordingTicks >=
+            Math.Max(1d, settings.BuildRecordingCpuBudgetMilliseconds * (Stopwatch.Frequency / 1000d));
         // Check the current queue without adding a demand for a speculative handoff.
         internal static bool IsBuildTurnBlocked(object owner)
         {
             // A handoff that needs RTAS work requires at least one triangle and one instance.
             // Only wait when that minimum can still be admitted on a future turn.
             if (!CanScheduleBuild(1, 1, out _)) return false;
-            if (BuildsThisFrame >= settings.MaxBuildsPerFrame || triangleCredits == 0 || instanceCredits == 0) return true;
+            if (BuildsThisFrame >= settings.MaxBuildsPerFrame || triangleCredits == 0 || instanceCredits == 0 ||
+                BuildRecordingBudgetSpent) return true;
             Demand oldest = OldestActiveDemand();
             return oldest != null && !ReferenceEquals(oldest.owner, owner);
         }
@@ -65,12 +70,14 @@ namespace HybridLumenGI
             s.TriangleWorkPerFrame=Math.Max(0,s.TriangleWorkPerFrame);s.InstanceWorkPerFrame=Math.Max(0,s.InstanceWorkPerFrame);
             s.TriangleBurstCapacity=Math.Max(0,s.TriangleBurstCapacity);s.InstanceBurstCapacity=Math.Max(0,s.InstanceBurstCapacity);
             s.BaseEstimateBytes=Math.Max(1,s.BaseEstimateBytes);s.BytesPerTriangle=Math.Max(1,s.BytesPerTriangle);s.BytesPerInstance=Math.Max(1,s.BytesPerInstance);
+            if (!(s.BuildRecordingCpuBudgetMilliseconds > 0f)) s.BuildRecordingCpuBudgetMilliseconds = float.PositiveInfinity;
             return s;
         }
         private static Settings Stricter(Settings a,Settings b)=>new Settings{
             MemoryBudgetBytes=Math.Min(a.MemoryBudgetBytes,b.MemoryBudgetBytes),MaxBuildsPerFrame=Math.Min(a.MaxBuildsPerFrame,b.MaxBuildsPerFrame),
             TriangleWorkPerFrame=Math.Min(a.TriangleWorkPerFrame,b.TriangleWorkPerFrame),InstanceWorkPerFrame=Math.Min(a.InstanceWorkPerFrame,b.InstanceWorkPerFrame),
             TriangleBurstCapacity=Math.Min(a.TriangleBurstCapacity,b.TriangleBurstCapacity),InstanceBurstCapacity=Math.Min(a.InstanceBurstCapacity,b.InstanceBurstCapacity),
+            BuildRecordingCpuBudgetMilliseconds=Math.Min(a.BuildRecordingCpuBudgetMilliseconds,b.BuildRecordingCpuBudgetMilliseconds),
             BaseEstimateBytes=Math.Max(a.BaseEstimateBytes,b.BaseEstimateBytes),BytesPerTriangle=Math.Max(a.BytesPerTriangle,b.BytesPerTriangle),BytesPerInstance=Math.Max(a.BytesPerInstance,b.BytesPerInstance)};
 
         internal static void ResetFrameAdmission()
@@ -79,7 +86,7 @@ namespace HybridLumenGI
             Frame = int.MinValue;
             triangleCredits = instanceCredits = 0;
             BuildsThisFrame = 0;
-            TriangleWorkThisFrame = InstanceWorkThisFrame = 0;
+            TriangleWorkThisFrame = InstanceWorkThisFrame = buildRecordingTicks = 0;
             demands.Clear();
         }
 
@@ -102,7 +109,7 @@ namespace HybridLumenGI
             initialized=true;Frame=engineFrame;settings=requested;
             triangleCredits=Math.Min(settings.TriangleBurstCapacity,Add(triangleCredits,Multiply(elapsed,settings.TriangleWorkPerFrame)));
             instanceCredits=Math.Min(settings.InstanceBurstCapacity,Add(instanceCredits,Multiply(elapsed,settings.InstanceWorkPerFrame)));
-            BuildsThisFrame=0;TriangleWorkThisFrame=InstanceWorkThisFrame=0;
+            BuildsThisFrame=0;TriangleWorkThisFrame=InstanceWorkThisFrame=buildRecordingTicks=0;
             for(int i=demands.Count-1;i>=0;i--)if(demands[i].reservedFrame<Frame)demands.RemoveAt(i);
         }
         private static void EnsureFrame(){if(!initialized)BeginFrame(0,Settings.Default);}
@@ -171,9 +178,18 @@ namespace HybridLumenGI
             if(oldest==null || !ReferenceEquals(oldest.owner,owner)) {reason="RTAS build deferred behind an older active camera demand.";return false;}
             if(BuildsThisFrame>=settings.MaxBuildsPerFrame || triangleCredits<triangles || instanceCredits<instances)
             {reason="RTAS build deferred while shared work credits accumulate.";return false;}
+            if (BuildRecordingBudgetSpent)
+            {reason="RTAS build deferred by the shared CPU recording time limit.";return false;}
             triangleCredits-=triangles;instanceCredits-=instances;BuildsThisFrame++;
             TriangleWorkThisFrame=Add(TriangleWorkThisFrame,triangles);InstanceWorkThisFrame=Add(InstanceWorkThisFrame,instances);
             CancelBuildDemand(owner);return true;
+        }
+
+        internal static void AccountBuildRecording(int frame, long started)
+        {
+            if (frame != Frame) return;
+            long elapsed = Stopwatch.GetTimestamp() - started;
+            if (elapsed > 0) buildRecordingTicks = Add(buildRecordingTicks, elapsed);
         }
 
         private static Demand OldestActiveDemand()

@@ -169,6 +169,8 @@ namespace HybridLumenGI
             [Min(1),Tooltip("Shared RTAS admission reservation plus measured allocation high-water. The prebuild estimate is not a driver VRAM upper bound.")]
             public int rtasMemoryBudgetMiB=256;
             [Min(0)] public int rtasBuildsPerFrame=4;
+            [Min(0),Tooltip("Shared CPU milliseconds for recording RTAS builds and querying their size per engine frame. Started work can exceed the limit. Zero disables time admission.")]
+            public float rtasBuildRecordingCpuBudgetMilliseconds;
             [Min(0)] public int rtasTriangleWorkPerFrame=250000;
             [Min(0)] public int rtasInstanceWorkPerFrame=4096;
             [Min(1),Tooltip("Deferred large builds accumulate tokens up to this capacity; larger requests explicitly fall back.")]
@@ -214,6 +216,7 @@ namespace HybridLumenGI
                 transport.receiverDiscoveryCpuBudgetMilliseconds=0;
                 transport.surfaceCaptureRecordingCpuBudgetMilliseconds=0;
                 transport.objectSdfUploadCpuBudgetMilliseconds=0;
+                transport.rtasBuildRecordingCpuBudgetMilliseconds=0;
                 return JsonUtility.ToJson(transport);
             }
         }
@@ -996,6 +999,7 @@ namespace HybridLumenGI
                 HybridLumenGIRtasBudget.BeginFrame(Time.frameCount,new HybridLumenGIRtasBudget.Settings
                 {
                     MemoryBudgetBytes=Math.Max(1L,s.rtasMemoryBudgetMiB)*1024*1024,MaxBuildsPerFrame=Math.Max(0,s.rtasBuildsPerFrame),
+                    BuildRecordingCpuBudgetMilliseconds=s.rtasBuildRecordingCpuBudgetMilliseconds,
                     TriangleWorkPerFrame=Math.Max(0,s.rtasTriangleWorkPerFrame),InstanceWorkPerFrame=Math.Max(0,s.rtasInstanceWorkPerFrame),
                     TriangleBurstCapacity=Math.Max(1,s.rtasTriangleBurstCapacity),InstanceBurstCapacity=Math.Max(1,s.rtasInstanceBurstCapacity),
                     BaseEstimateBytes=65536,BytesPerTriangle=192,BytesPerInstance=1024

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Stopwatch = System.Diagnostics.Stopwatch;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -757,9 +758,21 @@ namespace HybridLumenGI
                         deferredByQuota=preparedRtasFrame==HybridLumenGIRtasBudget.Frame;
                         return false;
                     }
-                    command.BuildRayTracingAccelerationStructure(acceleration);
-                    buildPending = false;
-                    if(!HybridLumenGIRtasBudget.Observe(reservation,acceleration.GetSize()))
+                    int buildFrame = preparedRtasFrame;
+                    long started = Stopwatch.GetTimestamp();
+                    ulong measuredBytes;
+                    try
+                    {
+                        command.BuildRayTracingAccelerationStructure(acceleration);
+                        buildPending = false;
+                        measuredBytes = acceleration.GetSize();
+                    }
+                    finally
+                    {
+                        // Count even an attempt that throws, or precedes a later camera's tighter limit.
+                        HybridLumenGIRtasBudget.AccountBuildRecording(buildFrame, started);
+                    }
+                    if(!HybridLumenGIRtasBudget.Observe(reservation,measuredBytes))
                     {
                         BudgetStatus="Measured RTAS memory exceeded quota; retained until fenced destruction, using software";
                         IsReady=false;RetireResources();return false;

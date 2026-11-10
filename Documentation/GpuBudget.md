@@ -109,6 +109,12 @@ Release98 下载包的 GPU 面板仍显示调整设置会刷新光照历史的�
 
 稳定页继续按字节分块，动态页须在同一帧完成整页复制。延期的未初始化贴图以零句柄保留指定标志，按需取样时保持未知，其他已就绪贴图仍可参与各自查询。驻留就绪由完整上传、读者围栏和有效元数据回读决定。额度作用于复制命令录制的开始时机。单块录制可能越过额度，来源扫描、材质表录制和 GPU 执行另计。[定向行为对照](../Tests/StandaloneHitMaterialBatch/Program.cs.txt)
 
+## RTAS 构建录制的 CPU 准入
+
+在 Renderer Data 的 Hybrid Lumen GI Feature 中，`rtasBuildRecordingCpuBudgetMilliseconds` 默认 0，沿用原次数与工作积分准入。正数为所有相机共享的每引擎帧经过时间额度，累计实际构建命令录制和紧随的 `GetSize()` 调用。较晚相机可收紧当帧额度，已发生的录制和失败尝试继续计入。
+
+达到额度后，下一个待构建请求保留原等待顺位及当前预留，构建次数与三角、实例积分等实际录制获准后才扣除。已经开始的调用可越过额度，匹配的已建结构可继续使用。需要新 RTAS 的就绪 HLOD 接替也使用该等待门。几何准备、属性上传和 GPU 构建时间各自评估。受控回归使用可记录、可抛错的命令适配器验证调度。[定向行为对照](../Tests/StandaloneHardwareBackend/Program.cs.txt)
+
 ## 驱动层进程显存观察
 
 Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开启后，现有面板和 **Log ledger** 的 `processVideoMemory` 字段给出 Unity 渲染适配器上的本进程 local/nonlocal 用量、操作系统预算与启用窗口内采样峰值。它通过可选 DX12 插件的独立 `HLGI_Memory_Query` 导出读取，不开启 GPU 计时或反馈，不改变光传输配置、更新配额、驻留或预留。

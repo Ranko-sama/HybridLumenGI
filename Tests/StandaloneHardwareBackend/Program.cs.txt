@@ -664,6 +664,53 @@ camA.backend.Dispose();camB.backend.Dispose();HybridLumenGIResourceRetirement.Co
     HybridLumenGIResourceRetirement.Complete();
 }
 
+{
+    var uncapped = Quota(rate: 100, burst: 100, builds: 4);
+    var limited = uncapped;
+    limited.BuildRecordingCpuBudgetMilliseconds = 1;
+    var first = BudgetCamera(2);
+    var second = BudgetCamera(2);
+    var reusedCommand = new CommandBuffer();
+    Action spendRecordingTime = () =>
+    {
+        var elapsed = System.Diagnostics.Stopwatch.StartNew();
+        while (elapsed.ElapsedMilliseconds < 2) System.Threading.Thread.SpinWait(100);
+    };
+
+    HybridLumenGIRtasBudget.BeginFrame(1030, uncapped);
+    Require(Prepare(second.backend, second.scene, 1) && second.backend.RecordBuild(reusedCommand),
+        "The second camera needs an already recorded structure.");
+
+    HybridLumenGIRtasBudget.BeginFrame(1031, uncapped);
+    var failedBuild = new CommandBuffer { BeforeBuild = spendRecordingTime, ThrowOnBuild = true };
+    Require(Prepare(first.backend, first.scene, 1) && !first.backend.RecordBuild(failedBuild) && failedBuild.BuildCalls == 1 &&
+        !second.backend.IsBuildTurnBlocked, "The initial uncapped recording attempt must preserve the old admission behavior.");
+    HybridLumenGIRtasBudget.BeginFrame(1031, limited);
+    HybridLumenGIRtasBudget.BeginFrame(1031, uncapped);
+    Require(second.backend.IsBuildTurnBlocked && Prepare(second.backend, second.scene, 1) &&
+        second.backend.RecordBuild(reusedCommand) && reusedCommand.BuildCalls == 1,
+        "A later, tighter limit must count the failed attempt, hold HLOD and leave the matching structure reusable.");
+
+    MoveBudgetCamera(second, 2);
+    var deferredBuild = new CommandBuffer();
+    Require(Prepare(second.backend, second.scene, 2) && !second.backend.RecordBuild(deferredBuild, out bool deferred) && deferred &&
+        second.backend.BudgetStatus.Contains("CPU recording time") && deferredBuild.BuildCalls == 0 &&
+        HybridLumenGIRtasBudget.BuildsThisFrame == 1 && HybridLumenGIRtasBudget.TriangleWorkThisFrame == 2 &&
+        HybridLumenGIRtasBudget.InstanceWorkThisFrame == 1 && HybridLumenGIRtasBudget.PendingDemands == 1,
+        "Time exhaustion must keep the dirty build's place without charging another build, triangle or instance.");
+
+    HybridLumenGIRtasBudget.BeginFrame(1032, limited);
+    var resumedBuild = new CommandBuffer { BeforeBuild = spendRecordingTime };
+    Require(!second.backend.IsBuildTurnBlocked && HybridLumenGIRtasBudget.IsBuildTurnBlocked(new object()) &&
+        Prepare(second.backend, second.scene, 2) && second.backend.RecordBuild(resumedBuild) && resumedBuild.BuildCalls == 1 &&
+        second.backend.CanDispatch && second.backend.IsBuildTurnBlocked && HybridLumenGIRtasBudget.PendingDemands == 0,
+        "The next frame must honor the waiting camera and allow its first build to finish beyond the time limit.");
+    Console.WriteLine("RTAS CPU recording gate: same-frame tightening, failed attempt, stable reuse, deferred work and next-frame admission.");
+    first.backend.Dispose();
+    second.backend.Dispose();
+    HybridLumenGIResourceRetirement.Complete();
+}
+
 HybridLumenGIRtasBudget.BeginFrame(1100,Quota(rate:0,burst:0,builds:0));
 var large=BudgetCamera(6);var small=BudgetCamera(1);var largeCmd=new CommandBuffer();var smallCmd=new CommandBuffer();
 for(int frame=1101;frame<=1103;frame++)
