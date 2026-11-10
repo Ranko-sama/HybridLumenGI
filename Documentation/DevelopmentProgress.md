@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release236，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release237，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G5 的软件三角 BVH 采用表面积分组。Release227 同源固定近景的 GI 合计 p95 由 45.465 降到 37.060 ms，local 峰值约 552.5 MiB。候选节点和叶通过原几何查询回归。软件仍超过 25 ms，普通 Player 形变画质、高速冷入和完整 G3–G5 继续验收。[实测与适用范围](../LocalComparison/Review/software-bvh-sah-291/result.md) · [Release237 同源交付](../LocalComparison/Review/software-bvh-sah-291/delivery.json)
 
 T3／T6 已去除形变 SDF CPU 核中的重复包围盒和三角计算。固定两骨门姿的 Unity 同输入完整 SDF32 烘焙中位由 135.317 ms 降到 99.627 ms，全部体素逐位一致。采用限固定输入的 SDF 核，活动形变画质和 GPU 消费延迟继续验收。[实测范围](../LocalComparison/Review/deformed-sdf-bake-289/result.md) · [Release236 同源交付](../LocalComparison/Review/deformed-sdf-bake-289/delivery.json)
 

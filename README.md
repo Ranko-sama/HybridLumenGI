@@ -16,17 +16,17 @@
 
 HybridLumenGI 以网格距离场和表面材质描述场景，在世界空间累积间接光，再通过时域重建与空间滤波输出到 URP 相机。它关注视锥外的颜色反弹、光照变化后的响应，以及动态几何与分页资源之间的一致性。
 
-**当前交付为 Release236。** 固定两骨门姿的 SDF32 CPU 烘焙中位耗时降低约 26%，全部体素逐位一致。可运行示例和可编辑 Unity 工程使用同版源码。项目处于实验阶段。[固定门姿实测与适用范围](LocalComparison/Review/deformed-sdf-bake-289/result.md)
+**当前交付为 Release237。** 新的三角 BVH 分组在同源固定近景将软件 GI 合计 p95 从 45.47 ms 降到 37.06 ms，原 25 ms 预算仍待达标。可运行示例和可编辑 Unity 工程使用同版产品源码。项目处于实验阶段。[实测与适用范围](LocalComparison/Review/software-bvh-sah-291/result.md)
 
 ## 开始体验
 
 | 你想做什么 | 下载 | 打开方式 |
 | --- | --- | --- |
-| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release236-demo/HybridLumenGI-Release236-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
-| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release236-demo/HybridLumenGI-Release236-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
+| **直接看效果** | [Windows x64 演示包](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release237-demo/HybridLumenGI-Release237-Windows-x64.zip) | 完整解压到新目录，运行 `Start-LocalRelease.cmd`。 |
+| **检查场景与实现** | [可编辑 Unity 工程](https://github.com/Ranko-sama/HybridLumenGI/releases/download/release237-demo/HybridLumenGI-Release237-UnityProject.zip) | 用 Unity Hub 添加解压目录，使用 **6000.0.85f1** 打开。 |
 | **先看独立对照** | [固定点灯与聚光灯的同曝光换色对照](LocalComparison/Review/mixed-light-recolor-280/result.md) | 可直接看报告。Windows 包中的 `PictureComparison/index.html` 提供离线画册。 |
 
-两个包均附带 `LICENSE` 和 `NOTICE`。请保留运行包旁的数据目录与资源页。[同源交付记录](LocalComparison/Review/deformed-sdf-bake-289/delivery.json)
+两个包均附带 `LICENSE` 和 `NOTICE`。请保留运行包旁的数据目录与资源页。[同源交付记录](LocalComparison/Review/software-bvh-sah-291/delivery.json)
 
 **示例配置：** Windows x64 · DirectX 12 · Linear · URP 17.0.4 · 960×540 · 半分辨率 GI · 每像素 2 条射线 · 4 级空间滤波。启动时优先请求 DXR，实际后端以面板与日志为准。[打开场景与重新构建 →](Documentation/UnifiedUnityProject.md)
 
