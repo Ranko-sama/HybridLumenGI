@@ -1,12 +1,14 @@
 # 完整原计划推进表
 
-## 当前总进度　Release260，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release261，G0 已锁定，G1／G2 本机代表性验收通过
+
+目标 2／G3 已关闭固定遮挡显露边缘的最终合成漏色。实际 DX12 合成中，可信黑后层的绿色从 0.00238543 归零，前层保持 0.02。后层无可信样点时恢复原生漫反射。修复已进入普通 Win64 演示和同源工程。整景运动、收敛和性能继续按原条件验收。[固定像素前后对照](../LocalComparison/Review/composite-layer-edge-332/result.md) · [Release261 同源交付](../LocalComparison/Review/composite-layer-edge-332/delivery.json)
 
 T3／G3 已关闭不同灯域之间误置解析颜色刷新位的问题。固定双域点灯实机对照中，一侧调暗绿灯后仍正确阻止旧解析 G 参与迭代，另一侧红灯升亮时，实际世界输入 G 从旧版 0 恢复到约 0.875，预算等待图卡保留原值且无误置标记。整景动态和跨域多跳按原条件验收。[实体 GPU 读回](../LocalComparison/Review/analytic-refresh-domains-330/result.md) · [Release260 同源交付](../LocalComparison/Review/analytic-refresh-domains-330/delivery.json)
 
 T6／G4 已关闭 Base 转为 Overlay 后旧 DXR 预约阻塞另一 Base 的缺口。实际两 Renderer 相机栈在摘除旧状态后仍保留 642,560 B 预约，原退休完成后第二台 Base 恢复 DXR，首台继续提交 Overlay。采用限同一 URP Asset 内的角色切换与共享准入。[实际退休顺序](../LocalComparison/Review/overlay-rtas-retirement-331/result.md)
 
-T6／G4／G5 更新了当前发布版的固定软件近景预算依据。Release259 的 GI p95／p99 为 39.621／40.006 ms，local 有限采样峰值 547.449 MiB。同界兄弟叶合并在同源实测中未达到采用线，已撤回。25 ms 时间缺口继续开放。[普通 Player 前后对照](../LocalComparison/Review/software-paired-bounds-329/result.md)
+T6／G4／G5 更新了固定软件近景预算依据。Release259 的 GI p95／p99 为 39.621／40.006 ms，local 有限采样峰值 547.449 MiB。同界兄弟叶合并在同源实测中未达到采用线，已撤回。25 ms 时间缺口继续开放。[普通 Player 前后对照](../LocalComparison/Review/software-paired-bounds-329/result.md)
 
 原第 3／7 条工作流已关闭近似世界命中读到正确多槽图卡却仍采用物体级接收阴影的问题。实机只关闭槽 1 的接收阴影，槽 1 反弹从 0 恢复到每通道 0.273529，受遮挡的槽 0 保持零。证据覆盖固定不透明 Lit、实际图卡和解析体命中。修复已进入普通 Win64 演示及同源工程。[实机前后对照](../LocalComparison/Review/card-shadow-receiving-328/result.md) · [Release259 同源交付](../LocalComparison/Review/card-shadow-receiving-328/delivery.json)
 
