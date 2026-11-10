@@ -58,9 +58,13 @@ namespace HybridLumenGI
         { AddKind(bounds,geometry?2:0,influenceRadius,null); }
         public void AddTransform(Bounds bounds,float influenceRadius=0,Renderer receiver=null)
         { AddKind(bounds,1,influenceRadius,receiver); }
-        private void AddKind(Bounds bounds,float kind,float influenceRadius,Renderer receiver,bool disjointPose=false)
+        internal void AddAnalyticLightChange(Bounds bounds, float influenceRadius)
+        { AddKind(bounds, 0, influenceRadius, null, analyticLightChanged: true); }
+        private void AddKind(Bounds bounds,float kind,float influenceRadius,Renderer receiver,bool disjointPose=false,
+            bool analyticLightChanged=false)
         {
             float influence = Mathf.Max(0, influenceRadius);
+            float lightInfluence = analyticLightChanged ? influence : 0f;
             hasLocalGeometryChange |= kind > 0.5f;
             if (byBounds.TryGetValue(bounds,out int existing))
             {
@@ -79,6 +83,7 @@ namespace HybridLumenGI
                     prior.receiver.z = Mathf.Max(prior.receiver.z, influence);
                 }
                 prior.maximum.w=Mathf.Max(prior.maximum.w,influence);
+                prior.receiver.w = Mathf.Max(prior.receiver.w, lightInfluence);
                 regions[existing]=prior;return;
             }
             if (count == regions.Length) { globalReactive = globalGeometryChange = 1; return; }
@@ -89,8 +94,8 @@ namespace HybridLumenGI
             {
                 minimum = new Vector4(lo.x, lo.y, lo.z, kind),
                 maximum = new Vector4(hi.x, hi.y, hi.z, influence),
-                // A longer lighting reach must not extend the disjoint pose rejection.
-                receiver = new Vector4(0, disjointPose ? 1 : 0, disjointPose ? influence : 0, 0)
+                // Keep the disjoint-pose and analytic-light radii separate from the combined reach.
+                receiver = new Vector4(0, disjointPose ? 1 : 0, disjointPose ? influence : 0, lightInfluence)
             };
         }
         public void ResolveReceiverGroups(Func<Renderer,uint> resolve)

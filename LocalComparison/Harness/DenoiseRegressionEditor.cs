@@ -166,14 +166,22 @@ public static partial class DenoiseRegressionEditor
                 shader.SetBuffer(kernel,"_HLGI_IdentityCandidates",candidates);shader.SetBuffer(kernel,"_HLGI_IdentityObjects",objects);shader.SetInt("_HLGI_IdentityObjectCount",1);
             }
         }
-        internal void Step(bool valid, bool poisonOld=false)
+        internal void Step(bool valid, bool poisonOld=false, HybridLumenGI.HybridLumenGIChangeRegions changeRegions=null)
         {
             int write=1-read;shader.SetInt("_HLGI_HistoryValid",valid?1:0);
             shader.SetTexture(kernel,"_HLGI_Input",input);shader.SetTexture(kernel,"_HLGI_Geometry",geometry);shader.SetTexture(kernel,"_HLGI_Material",material);
             shader.SetTexture(kernel,"_HLGI_PreviousGeometry",geometry);shader.SetTexture(kernel,"_HLGI_PreviousMaterial",material);
             shader.SetTexture(kernel,"_HLGI_History",history[read]);shader.SetTexture(kernel,"_HLGI_PreviousMoments",poisonOld?(Texture)poison:moments[read]);
             shader.SetTexture(kernel,"_HLGI_Motion",zero);shader.SetTexture(kernel,"_HLGI_Output",history[write]);shader.SetTexture(kernel,"_HLGI_MomentsOut",moments[write]);
-            shader.Dispatch(kernel,(Size+7)/8,(Size+7)/8,1);read=write;last=Read(history[read]);lastMoments=Read(moments[read]);
+            if (changeRegions == null) shader.Dispatch(kernel,(Size+7)/8,(Size+7)/8,1);
+            else
+            {
+                using var command = new CommandBuffer();
+                changeRegions.Bind(command, shader, kernel);
+                command.DispatchCompute(shader, kernel, (Size+7)/8, (Size+7)/8, 1);
+                Graphics.ExecuteCommandBuffer(command);
+            }
+            read=write;last=Read(history[read]);lastMoments=Read(moments[read]);
         }
         internal float[] Filter(int step,int index)
         {

@@ -12,8 +12,8 @@ float HLGIChangeDistanceSquared(float3 position, HLGIChangeRegion region)
     return dot(outside,outside);
 }
 
-// x: a changed surface crossed this point; y: transport may be affected by a nearby change.
-float2 HLGIChangeAtReceiver(float3 position,uint provenReceiverGroup)
+// x: a changed surface crossed this point; y: nearby reactivity, with 2 for an analytic light change.
+float2 HLGIChangeAtReceiver(float3 position,uint provenReceiverGroup,bool trackLightChanges)
 {
     if(_HLGI_GlobalGeometryChange>0.5) return float2(1,1);
     float2 result=float2(0,_HLGI_GlobalReactive);
@@ -28,10 +28,12 @@ float2 HLGIChangeAtReceiver(float3 position,uint provenReceiverGroup)
         bool reject=region.minimum.w>(ownPose?1.5:0.5);
         result.x=max(result.x,reject && distanceSquared<=1e-8 ? 1:0);
         result.y=max(result.y,distanceSquared<=region.maximum.w*region.maximum.w ? 1:0);
+        if(trackLightChanges && region.receiver.w>0 && distanceSquared<=region.receiver.w*region.receiver.w)
+            result.y=2;
     }
     return result;
 }
-float2 HLGIChangeAt(float3 position) { return HLGIChangeAtReceiver(position,0u); }
+float2 HLGIChangeAt(float3 position) { return HLGIChangeAtReceiver(position,0u,false); }
 
 #if defined(HLGI_CACHE_UPDATE_ITERATION)
 bool HLGIRejectOldCacheInputAt(float3 position)

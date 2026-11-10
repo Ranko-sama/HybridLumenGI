@@ -493,9 +493,9 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
     float tolerance=_HLGI_DepthThreshold*max(1,abs(mul(_HLGI_View,float4(p,1)).z));
     valid=valid && HLGITemporalTapMatches(previousPixel,expectedP,expectedNs,expectedNg,rho,tolerance);
 #if defined(HLGI_RECEIVER_IDENTITY)
-    float2 change=HLGIChangeAtReceiver(p,valid?receiverGroup:0u);
+    float2 change=HLGIChangeAtReceiver(p,valid?receiverGroup:0u,true);
 #else
-    float2 change=HLGIChangeAt(p);
+    float2 change=HLGIChangeAtReceiver(p,0u,true);
 #endif
     valid=valid && change.x<0.5;
     float4 history=_HLGI_History.Load(int3(previousPixel,0));
@@ -504,11 +504,12 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
     // A positive age below one keeps the previous value displayable through
     // unknown frames, but excludes that old lighting from further accumulation.
     if(valid && _HLGI_GlobalReactive>0.5) moments.z=0.5;
+    float unknownAgeLimit=change.y>1.5?0.5:2;
     if(!currentKnown)
     {
         float4 retained,retainedMoments;
         HLGIResolveUnknownHistory(valid,history,moments,retained,retainedMoments);
-        if(change.y>0.5) retainedMoments.z=min(retainedMoments.z,2);
+        if(change.y>0.5) retainedMoments.z=min(retainedMoments.z,unknownAgeLimit);
         _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
     }
     valid=valid && moments.z>=1;
@@ -575,7 +576,7 @@ void CSTemporal(uint3 id:SV_DispatchThreadID)
     {
         float4 retained,retainedMoments;
         HLGIResolveUnknownHistory(valid,history,moments,retained,retainedMoments);
-        if(change.y>0.5) retainedMoments.z=min(retainedMoments.z,2);
+        if(change.y>0.5) retainedMoments.z=min(retainedMoments.z,unknownAgeLimit);
         _HLGI_Output[pixel]=retained;_HLGI_MomentsOut[pixel]=retainedMoments;return;
     }
     float3 sigma=sqrt(max(second-mean*mean,0))+0.02;

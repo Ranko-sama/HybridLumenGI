@@ -1923,7 +1923,7 @@ namespace HybridLumenGI
                 else
                 {
                     var bounds=new Bounds((Vector3)light.positionType,Vector3.one*Mathf.Max(0,light.directionRange.w)*2);
-                    AddLocalLightingChange(state, bounds, Mathf.Max(1, s.traceDistance));
+                    AddLocalLightingChange(state, bounds, Mathf.Max(1, s.traceDistance), analyticLightChanged: true);
                 }
             }
             private float ShadowReach(HybridLumenGILights.Data light) => light.spot.z > 0
@@ -2001,9 +2001,10 @@ namespace HybridLumenGI
                 }
             }
 
-            private static void AddLocalLightingChange(CameraState state, Bounds bounds, float influence)
+            private static void AddLocalLightingChange(CameraState state, Bounds bounds, float influence, bool analyticLightChanged = false)
             {
-                state.changes.Add(bounds, false, influence);
+                if (analyticLightChanged) state.changes.AddAnalyticLightChange(bounds, influence);
+                else state.changes.Add(bounds, false, influence);
                 // This conservative expansion affects priority, never eligibility.
                 bounds.Expand(influence * 2);
                 state.localLightingChangeBounds.Add(bounds);
