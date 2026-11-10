@@ -159,15 +159,17 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 // the source material's one-/two-sided geometry convention.
                 if (_HLGI_CardCull > 1.5) clip(facing);
                 else if (_HLGI_CardCull > 0.5) clip(-facing);
+                #if defined(_NORMALMAP) || defined(_DETAIL) || defined(_PARALLAXMAP)
                 float3 projectedTangent = input.tangentWS.xyz - shadingBasisNormal * dot(input.tangentWS.xyz,shadingBasisNormal);
                 bool hasTangent = dot(projectedTangent,projectedTangent) > 1e-8;
-                half3 tangent = hasTangent ? normalize(projectedTangent) : normalize(cross(abs(shadingBasisNormal.y)<0.99 ? float3(0,1,0) : float3(1,0,0),shadingBasisNormal));
-                half3 bitangent = (input.tangentWS.w < 0 ? -1 : 1) * cross(shadingBasisNormal,tangent);
-                half3x3 tangentToWorld = half3x3(tangent,bitangent,shadingBasisNormal);
+                #endif
                 float2 uv = input.uv;
                 #if defined(_PARALLAXMAP)
                 if(hasTangent)
                 {
+                    half3 tangent = normalize(projectedTangent);
+                    half3 bitangent = (input.tangentWS.w < 0 ? -1 : 1) * cross(shadingBasisNormal,tangent);
+                    half3x3 tangentToWorld = half3x3(tangent,bitangent,shadingBasisNormal);
                     // The chart facing score can exceed half range. URP normalizes
                     // its half3 argument, so remove the scale before narrowing.
                     float3 viewWS=_HLGI_CardDirection.xyz;
@@ -179,7 +181,19 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 InitializeStandardLitSurfaceData(uv,surface);
                 BRDFData brdf;
                 InitializeBRDFData(surface,brdf);
-                half3 normal = hasTangent ? normalize(TransformTangentToWorld(surface.normalTS,tangentToWorld)) : shadingBasisNormal;
+                half3 normal = shadingBasisNormal;
+                #if defined(_NORMALMAP) || defined(_DETAIL)
+                if(hasTangent)
+                {
+                    // Match Lit and exact hits: transform with the original interpolants,
+                    // then normalize the mapped normal, not the tangent frame.
+                    float3 bitangent = input.tangentWS.w * cross(input.normalWS,input.tangentWS.xyz);
+                    half3x3 tangentToWorld = half3x3(input.tangentWS.xyz,bitangent,input.normalWS);
+                    float3 mappedNormal = TransformTangentToWorld(surface.normalTS,tangentToWorld);
+                    if(all(isfinite(mappedNormal)) && dot(mappedNormal,mappedNormal)>1e-16)
+                        normal = NormalizeNormalPerPixel(mappedNormal);
+                }
+                #endif
                 CardOutput output;
                 output.diffuseOcclusion = half4(saturate(brdf.diffuse*_HLGI_CardTint.rgb),saturate(surface.occlusion));
                 output.emissionValidity = half4(max(0,(surface.emission+_HLGI_CardExtraEmission.rgb)*_HLGI_CardExtraEmission.w),PackCardGeometricNormal(facet));

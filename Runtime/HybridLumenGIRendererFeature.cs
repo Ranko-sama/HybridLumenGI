@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Stopwatch = System.Diagnostics.Stopwatch;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
@@ -164,6 +165,8 @@ namespace HybridLumenGI
             [Range(1024,1000000)] public int meshTriangleBudget=250000;
             [Min(1),Tooltip("Software exact mesh attributes and BVH GPU byte estimate. Whole owners exceeding the triangle/byte quota retain their SDF representation.")]
             public int softwareGeometryBudgetMiB=128;
+            [Min(0),Tooltip("CPU milliseconds for building exact software BVHs per engine frame, shared by this feature's cameras. A started tree can exceed the limit. Zero disables time admission.")]
+            public float softwareBvhBuildCpuBudgetMilliseconds;
             [Min(1),Tooltip("Per-camera exact hardware mesh attribute buffers, including old allocations awaiting their GPU retirement fence. RTAS memory has a separate shared budget.")]
             public int hardwareGeometryBudgetMiB=128;
             [Min(1),Tooltip("Shared RTAS admission reservation plus measured allocation high-water. The prebuild estimate is not a driver VRAM upper bound.")]
@@ -216,6 +219,7 @@ namespace HybridLumenGI
                 transport.receiverDiscoveryCpuBudgetMilliseconds=0;
                 transport.surfaceCaptureRecordingCpuBudgetMilliseconds=0;
                 transport.objectSdfUploadCpuBudgetMilliseconds=0;
+                transport.softwareBvhBuildCpuBudgetMilliseconds=0;
                 transport.rtasBuildRecordingCpuBudgetMilliseconds=0;
                 return JsonUtility.ToJson(transport);
             }
@@ -371,6 +375,7 @@ namespace HybridLumenGI
         private sealed class CameraState : IDisposable
         {
             internal int scenePreparedEngineFrame = -1, scenePreparedWorkFrame = -1;
+            internal long softwareBvhPrepareInterval = 1;
             internal ScriptableRenderer scenePreparedRenderer;
             internal readonly Camera camera;
             internal readonly HybridLumenGIScene scene=new HybridLumenGIScene();
@@ -596,6 +601,7 @@ namespace HybridLumenGI
                     wrapMode:TextureWrapMode.Clamp,name:name);
             }
             internal bool PrepareSoftwareGeometry(RenderGraph graph,int triangleLimit,long byteLimit,
+                SoftwareBvhBuildBudget buildBudget,int engineFrame,float buildMilliseconds,
                 out HybridLumenGISoftwareTriangleBvh.Layout layout,out BufferHandle nodes,out BufferHandle leaves,out string reason)
             {
                 layout=null;nodes=leaves=default;reason=null;
@@ -607,6 +613,7 @@ namespace HybridLumenGI
                 long extra = grow ? HybridLumenGISoftwareTriangleBvh.BufferBytes(nodeCount,leafCount) : 0;
                 if(softwareAllocations.TotalBytes + extra > byteLimit)
                 {
+                    buildBudget.Cancel(this);
                     // Release obsolete capacity through a real end-context ticket. A later frame
                     // can admit the replacement; never silently exceed the quota to resize.
                     if(grow && retainedSoftwareNodes!=null)RetireSoftwareBuffers();
@@ -620,12 +627,23 @@ namespace HybridLumenGI
                     Predicate<int> poseRetained = previous != null
                         ? instance => softwareGeometry.IsTrianglePoseRetained(instance, previousVersion)
                         : null;
-                    if(!HybridLumenGISoftwareTriangleBvh.TryBuild(softwareGeometry,softwareGeometry.InstanceCount,
-                        Math.Min(HybridLumenGISoftwareTriangleBvh.MaxTriangles,Math.Max(0,triangleLimit)),
-                        previous,poseRetained,out var next,out reason))return false;
+                    if (!buildBudget.TryBegin(this, engineFrame, buildMilliseconds, out long started))
+                    {
+                        reason = "Exact software BVH awaits its shared CPU build turn";
+                        return false;
+                    }
+                    HybridLumenGISoftwareTriangleBvh.Layout next;
+                    try
+                    {
+                        if (!HybridLumenGISoftwareTriangleBvh.TryBuild(softwareGeometry, softwareGeometry.InstanceCount,
+                            Math.Min(HybridLumenGISoftwareTriangleBvh.MaxTriangles, Math.Max(0, triangleLimit)),
+                            previous, poseRetained, out next, out reason)) return false;
+                    }
+                    finally { buildBudget.Account(started); }
                     retainedSoftwareLayout=next;retainedSoftwareVersion=softwareGeometry.GeometryVersion;
                     retainedSoftwareSceneRebuildCount = sceneRebuildCount;
                 }
+                else buildBudget.Cancel(this);
                 if(grow)
                 {
                     GraphicsBuffer newNodes=null,newLeaves=null;
@@ -709,6 +727,67 @@ namespace HybridLumenGI
                 readiness.Dispose();emissiveSampling.Dispose();surfaceCache.Dispose();changes.Dispose();scheduler.Dispose();globalSdf.Dispose();gpuTiming.Dispose();nativeGpuTiming.Dispose();
             }
         }
+        private sealed class SoftwareBvhBuildBudget
+        {
+            private readonly List<(CameraState Owner, int RequestedFrame, long ReservedFrame)> waiters = new();
+            private int frame = -1;
+            private long elapsedTicks;
+
+            internal bool TryBegin(CameraState owner, int engineFrame, float milliseconds, out long started)
+            {
+                started = 0;
+                if (!(milliseconds > 0) || float.IsInfinity(milliseconds))
+                {
+                    waiters.Clear();
+                    return true;
+                }
+                if (frame != engineFrame)
+                {
+                    for (int i = waiters.Count - 1; i >= 0; i--)
+                        if (engineFrame < frame || waiters[i].ReservedFrame < engineFrame) waiters.RemoveAt(i);
+                    frame = engineFrame;
+                    elapsedTicks = 0;
+                }
+
+                int ownIndex = -1, firstActive = -1;
+                for (int i = 0; i < waiters.Count; i++)
+                {
+                    var waiter = waiters[i];
+                    bool sameOwner = ReferenceEquals(waiter.Owner, owner);
+                    if (sameOwner) ownIndex = i;
+                    if (firstActive < 0 && (sameOwner || waiter.RequestedFrame == frame || waiter.ReservedFrame == frame))
+                        firstActive = i;
+                }
+                double limitTicks = Math.Max(1d, milliseconds * (Stopwatch.Frequency / 1000d));
+                if ((firstActive < 0 || firstActive == ownIndex) && elapsedTicks < limitTicks)
+                {
+                    if (ownIndex >= 0) waiters.RemoveAt(ownIndex);
+                    started = Stopwatch.GetTimestamp();
+                    return true;
+                }
+
+                // A periodic camera keeps its place but only reserves its expected return frame.
+                var request = (owner, frame, frame + owner.softwareBvhPrepareInterval);
+                if (ownIndex < 0) waiters.Add(request);
+                else waiters[ownIndex] = request;
+                return false;
+            }
+
+            internal void Account(long started)
+            {
+                if (started != 0) elapsedTicks += Stopwatch.GetTimestamp() - started;
+            }
+
+            internal void Cancel(CameraState owner)
+            {
+                for (int i = 0; i < waiters.Count; i++)
+                {
+                    if (!ReferenceEquals(waiters[i].Owner, owner)) continue;
+                    waiters.RemoveAt(i);
+                    return;
+                }
+            }
+        }
         private sealed class TransportPass : ScriptableRenderPass,IDisposable
         {
             private readonly ComputeShader software;
@@ -726,6 +805,7 @@ namespace HybridLumenGI
             private int EffectiveEmissiveBudget => s.emissiveSamplingWeight>0 ? Mathf.Clamp(s.maxEmissiveProposals,0,HybridLumenGIEmissiveSampling.ProposalCapacity) : 0;
             private readonly Dictionary<int,CameraState> cameras=new Dictionary<int,CameraState>();
             private readonly List<int> retire=new List<int>();
+            private readonly SoftwareBvhBuildBudget softwareBvhBuildBudget = new();
             // Graphs abandoned before their callback retain pristine batches until feature
             // teardown. Never guess completion from frame age; the global budget bounds them.
             private readonly HashSet<HybridLumenGIHitMaterialPass> materialPasses=new HashSet<HybridLumenGIHitMaterialPass>();
@@ -1023,12 +1103,16 @@ namespace HybridLumenGI
                         return buildTurnBlocked;
                     };
                 }
+                int engineFrame = Time.frameCount;
+                if (state.scenePreparedEngineFrame != engineFrame)
+                    state.softwareBvhPrepareInterval = state.scenePreparedEngineFrame < 0
+                        ? 1 : Math.Max(1L, (long)engineFrame - state.scenePreparedEngineFrame);
                 state.scenePreparedEngineFrame = state.scenePreparedWorkFrame = -1;
                 state.scene.Prepare(camera.transform.position,slots,s.nearDistance,Mathf.Max(s.nearDistance,s.farDistance),
                     s.chunkSize,s.proxyUploadsPerFrame,maps,preparedExact,deferExactHlodTarget);
                 if (!readyExactReplacement) state.hardware.CancelDeferredHlodBuild();
                 state.scenePreparedRenderer = cameraData.renderer;
-                state.scenePreparedEngineFrame = Time.frameCount; state.scenePreparedWorkFrame = state.frame;
+                state.scenePreparedEngineFrame = engineFrame; state.scenePreparedWorkFrame = state.frame;
                 state.sdf.PrepareForFrame(state.scene, Time.frameCount, s.objectSdfUploadCpuBudgetMilliseconds);
                 if (s.globalSdfEnabled)
                     state.globalSdf.Prepare(state.scene,state.sdf,camera.transform.position,new HybridLumenGIGlobalSdf.Configuration
@@ -1465,17 +1549,25 @@ namespace HybridLumenGI
                 state.hardwareMaterialFrameBytes=0;state.hardwareMaterialUnknownRecords=0;
                 state.areaEmitterBytes=0;
                 state.hardwareMaterialStatus=d.geometry!=null?"Preparing immutable hit materials":"SDF/analytic software tracing";
+                if (d.geometry == null || d.hardware) softwareBvhBuildBudget.Cancel(state);
                 if(d.geometry==null){state.areaEmissionCache.Clear();return;}
                 if(!d.geometry.TryCaptureHitMaterialSources(state.scene,out var sources,out string reason))
-                { FallBackToSoftware(d,reason,sourceUncertain:true);return; }
+                {
+                    softwareBvhBuildBudget.Cancel(state);
+                    FallBackToSoftware(d,reason,sourceUncertain:true);return;
+                }
                 if(!HybridLumenGIHitMaterialPass.TryCreate(graph,sources,Math.Max(1L,s.hardwareMaterialBudgetMiB)*1024*1024,
                         out d.hitMaterials,out reason))
-                { FallBackToSoftware(d,reason);return; }
+                {
+                    softwareBvhBuildBudget.Cancel(state);
+                    FallBackToSoftware(d,reason);return;
+                }
                 materialPasses.Add(d.hitMaterials);
                 d.geometryVersion=d.geometry.GeometryVersion;
                 if(!d.hardware)
                 {
                     if(!state.PrepareSoftwareGeometry(graph,s.meshTriangleBudget,Math.Max(1L,s.softwareGeometryBudgetMiB)*1024*1024,
+                        softwareBvhBuildBudget,d.historyToken.EngineFrame,s.softwareBvhBuildCpuBudgetMilliseconds,
                         out d.softwareLayout,out d.softwareNodes,out d.softwareLeaves,out reason))
                     { FallBackToSoftware(d,reason);return; }
                 }
@@ -2063,6 +2155,7 @@ namespace HybridLumenGI
                 int id=camera.GetInstanceID();Evict(id);
                 if(cameras.TryGetValue(id,out var state) && !ReferenceEquals(state.camera,camera))
                 {
+                    softwareBvhBuildBudget.Cancel(state);
                     state.Dispose();cameras.Remove(id);state=null;
                 }
                 if(state==null)
@@ -2084,6 +2177,7 @@ namespace HybridLumenGI
                 {
                     var state = cameras[id];
                     cameras.Remove(id);
+                    softwareBvhBuildBudget.Cancel(state);
                     // Recorded work may still read the detached state's textures and buffers.
                     HybridLumenGIResourceRetirement.Retire(state.Dispose);
                 }
@@ -2092,12 +2186,19 @@ namespace HybridLumenGI
             {
                 retire.Clear();
                 foreach(var entry in cameras) if(entry.Key!=current && Time.frameCount-entry.Value.lastUsed>120) retire.Add(entry.Key);
-                foreach(int key in retire) { cameras[key].Dispose();cameras.Remove(key); }
+                foreach(int key in retire)
+                {
+                    var state = cameras[key];
+                    softwareBvhBuildBudget.Cancel(state);
+                    state.Dispose();cameras.Remove(key);
+                }
                 if(!cameras.ContainsKey(current) && cameras.Count>=Mathf.Clamp(s.maxCameras,1,4))
                 {
                     int oldest=0,frame=int.MaxValue;
                     foreach(var entry in cameras) if(entry.Value.lastUsed<frame) { oldest=entry.Key;frame=entry.Value.lastUsed; }
-                    cameras[oldest].Dispose();cameras.Remove(oldest);
+                    var state = cameras[oldest];
+                    softwareBvhBuildBudget.Cancel(state);
+                    state.Dispose();cameras.Remove(oldest);
                 }
             }
             internal CameraDiagnostics[] GetDiagnostics()

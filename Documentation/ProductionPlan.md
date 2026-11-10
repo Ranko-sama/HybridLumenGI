@@ -240,6 +240,8 @@ Global SDF 每层扩张一次局部脏范围，按受影响砖行记录失效。
 
 命中材质贴图复制增加默认关闭的每相机材质批 CPU 时间准入。达到额度后延后下一个页或续传块，保留共享字节、等待顺序和实际回读就绪条件。该能力覆盖复制录制准入，其他阶段与生产负载继续各自验收。[配置、行为及范围](GpuBudget.md#命中材质贴图录制的-cpu-准入)
 
+精确软件 BVH 增加默认关闭的同一 Feature 跨相机 CPU 时间准入。额度用尽后延后下一棵整树，待构建相机沿已有回退追踪，匹配当前几何的布局继续使用。[配置与行为](GpuBudget.md#精确软件-bvh-的-cpu-准入)
+
 已完成的形变作业按捕获入队顺序争用上传额度，关闭持续新任务反复抢先的发布饥饿机制；未完成、失效和清理失败按原资格处理。该保证限合格且适配当帧额度的ready任务，不承诺永久大于整帧额度或无法完成的作业有固定等待上限。
 
 运行时降低形变发布额度后，已完成且超过整帧额度的快照会让出新捕获工作槽，继续持有内存预留和发布队列位置。额度内的小快照可以推进，恢复额度后原快照按来源资格重新参与发布。[形变准入和定向对照](DeformedGeometry.md)
@@ -345,6 +347,8 @@ emissiveProposalBytesPerCamera = 33 × 32 = 1056
 ## 9. 命中身份、背面策略与面积光 NEE 的边界
 
 主干已修复非均匀缩放下真实图卡的折面定向和查找。两片同卡三角经 X 轴压缩后均能取回所属卡，独立倾斜平面仍能命中。这为第 8、9 节的变换条款提供了正比例非均匀缩放下的实际法线与查卡依据；镜像实例和 UV 接缝的图集／锚点结果仍单列。[实测与适用范围](../LocalComparison/Review/folded-chart-facing-01/result.md)
+
+普通 Lit 图卡使用原插值切线帧转换贴图法线，与精确材质命中采用同一约定。固定单三角的实际 DX12 图卡纹素与精确命中参考的法线点积由 0.59277 升至 0.99999994，达到该缓存样点的 0.85 法线条件。[实机对照与边界](../LocalComparison/Review/card-lit-normal-305/result.md)
 owner 的三项直接光策略变化提升传输版本并触发局部 reactive，纯 Lighting 变化沿用现有 mesh 内容。shadow 查询独立于普通 GI 可见性，Off 投影者仍能成为 GI 表面，DXR TwoSided 只改变 shadow 候选 Cull。屏幕 GameObject 层由最多 32 个互斥 RendererList 传递，rendering mask 保持 uint。Light 引用每渲染引擎帧扫描一次并包含 inactive，既有灯同帧激活可见，新灯最晚下次渲染帧发现。扫描、打包及多 RendererList 成本纳入 G0／G1 测量。精确材质与 CPU 来源跟踪的早期检查由统一离线报告记录。实际精确表面查询的验收范围见下文。[直接光策略](DirectLighting.md)
 
 - **已接入的身份与层选择。** `HLGIHit` 保留距离/位置、rawNg/Ns、owner/stableId/revision/geometryRevision、submesh/primitive、重心/UV、表示类型及各身份有效位。GPU triangle→chart表以当前owner几何版本、chart ID和layout代次验证唯一卡片。原先“前层texel偏移0.02、相隔0.001的后层反而得分更高”的跨卡选择已由直接绑定替代；缺失/过期绑定不能回到全owner搜索。精确的是chart身份，有限纹素覆盖、UV接缝及常量近似误差仍须实测。

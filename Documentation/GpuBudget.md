@@ -115,6 +115,12 @@ Release98 下载包的 GPU 面板仍显示调整设置会刷新光照历史的�
 
 达到额度后，下一个待构建请求保留原等待顺位及当前预留。实际录制获准后才扣构建次数与三角、实例积分。已经开始的调用可越过额度，匹配的已建结构可继续使用。需要新 RTAS 的就绪 HLOD 接替也使用该等待门。几何准备、属性上传和 GPU 构建时间各自评估。受控回归使用可记录、可抛错的命令适配器验证调度。[定向行为对照](../Tests/StandaloneHardwareBackend/Program.cs.txt)
 
+## 精确软件 BVH 的 CPU 准入
+
+在 Renderer Data 的 Hybrid Lumen GI Feature 中，`softwareBvhBuildCpuBudgetMilliseconds` 默认 0。设为正数后，同一 Feature 的相机按引擎帧累计整棵软件 BVH 的同步构建时间，包括失败尝试。额度耗尽后延期下一棵，已有的匹配布局可继续使用。需要新布局的相机沿原 SDF／解析回退运行，待下次获准时构建当时的几何。
+
+连续活动的等待相机按加入顺序换手。周期相机只在预计返回帧预留轮次，错过后过期。单次建树可以超过额度，三角属性准备、缓冲上传和 GPU 追踪分别计费。[受控组件对照](../LocalComparison/Review/software-bvh-build-cpu-304/result.md)
+
 ## 驱动层进程显存观察
 
 Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开启后，现有面板和 **Log ledger** 的 `processVideoMemory` 字段给出 Unity 渲染适配器上的本进程 local/nonlocal 用量、操作系统预算与启用窗口内采样峰值。它通过可选 DX12 插件的独立 `HLGI_Memory_Query` 导出读取，不开启 GPU 计时或反馈，不改变光传输配置、更新配额、驻留或预留。

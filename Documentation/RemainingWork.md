@@ -4,6 +4,10 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release245 同源交付](../LocalComparison/Review/local-light-history-303/delivery.json)
 
+T4／第 8 节已关闭普通 Lit 图卡对插值切线帧二次正交化造成的着色法线偏差。固定 DX12 纹素通过原缓存法线门。材质接缝、变换组合和整景反弹各自验收。[实际图卡与独立参考](../LocalComparison/Review/card-lit-normal-305/result.md)
+
+T6／G4 已补同一 Feature 内精确软件 BVH 的跨相机 CPU 建树准入。实际准备入口在额度耗尽后延后失配布局，保留等待轮次和当前布局复用，失败耗时计入。其他准备阶段及软件 GPU 预算继续验收。[定向对照](../LocalComparison/Review/software-bvh-build-cpu-304/result.md)
+
 T3／G3 已关闭局部解析灯变化后，待替换屏幕旧光经滤波和合成串入可信邻点的路径。固定同平面实际对照保留未知侧旧值，可信黑保持有效，首次可信估计接管。已知反应、纯姿态及域外控制保持。普通 Player 整景残留与收敛继续验收。[实际着色器对照](../LocalComparison/Review/local-light-history-303/result.md)
 
 T6／G4 已补 RTAS 构建录制的跨相机 CPU 时间准入。达到额度后，下一份待构建请求沿原队列等候。已建且匹配的 RTAS 可继续提交，失败的录制尝试也计时。采用范围为现有 Backend 的受控调度，GPU 构建及 25 ms 生产目标继续验收。[设置与对照](GpuBudget.md#rtas-构建录制的-cpu-准入)
