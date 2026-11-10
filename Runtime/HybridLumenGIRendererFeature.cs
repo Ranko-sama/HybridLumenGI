@@ -419,8 +419,9 @@ namespace HybridLumenGI
             private int gpuGeneration=1,gpuFullWidth,gpuFullHeight,gpuWidth,gpuHeight,lastBudgetFrame=int.MinValue;
             private bool gpuBackend,gpuIdentity;
             private ulong selectedNativeEpoch;
-            internal readonly RTHandle[] history=new RTHandle[2], geometry=new RTHandle[2], material=new RTHandle[2], moments=new RTHandle[2];
-            internal readonly RTHandle[] receiverIdentity=new RTHandle[2];
+            internal RTHandle[] history=new RTHandle[2], geometry=new RTHandle[2], material=new RTHandle[2], moments=new RTHandle[2];
+            internal RTHandle[] receiverIdentity=new RTHandle[2];
+            internal long RetiringScreenHistoryBytes { get; private set; }
             internal readonly ComputeBuffer[] cache=new ComputeBuffer[2];
             internal ComputeBuffer lights;
             internal readonly HybridLumenGILights.Data[] lightData=new HybridLumenGILights.Data[32];
@@ -574,22 +575,54 @@ namespace HybridLumenGI
                 effectiveBudget=gpuBudget.Step(engineFrame,(ulong)gpuGeneration,gpuObservationValid,milliseconds,config,
                     measurementSourceFrame:selectNative?nativeGpuTiming.LastMeasuredSourceFrame:-1);
             }
-            internal void Ensure(int w,int h,bool identityEnabled=false)
+            internal bool Ensure(int w,int h,bool identityEnabled=false)
             {
-                if(width!=w || height!=h || receiverIdentityEnabled!=identityEnabled)
+                if (width == w && height == h && receiverIdentityEnabled == identityEnabled) return true;
+
+                var nextHistory = new RTHandle[2];
+                var nextGeometry = new RTHandle[2];
+                var nextMaterial = new RTHandle[2];
+                var nextMoments = new RTHandle[2];
+                var nextIdentity = new RTHandle[2];
+                try
                 {
-                    ReleaseTextures(); width=w; height=h; InvalidateScreenHistory();
-                    receiverIdentityEnabled=identityEnabled;
-                    for(int i=0;i<2;i++)
+                    for (int i = 0; i < 2; i++)
                     {
-                        history[i]=Allocate(w,h,GraphicsFormat.R16G16B16A16_SFloat,"HLGI history "+i);
-                        geometry[i]=Allocate(w,h,GraphicsFormat.R32G32B32A32_SFloat,"HLGI geometry "+i);
-                        material[i]=Allocate(w,h,GraphicsFormat.R8G8B8A8_UNorm,"HLGI material "+i);
+                        nextHistory[i] = Allocate(w, h, GraphicsFormat.R16G16B16A16_SFloat, "HLGI history " + i);
+                        nextGeometry[i] = Allocate(w, h, GraphicsFormat.R32G32B32A32_SFloat, "HLGI geometry " + i);
+                        nextMaterial[i] = Allocate(w, h, GraphicsFormat.R8G8B8A8_UNorm, "HLGI material " + i);
                         // A finite half-float radiance can have a second moment above 65504.
-                        moments[i]=Allocate(w,h,GraphicsFormat.R32G32B32A32_SFloat,"HLGI moments "+i);
-                        if(identityEnabled) receiverIdentity[i]=Allocate(w,h,GraphicsFormat.R32G32B32A32_UInt,"HLGI receiver identity "+i);
+                        nextMoments[i] = Allocate(w, h, GraphicsFormat.R32G32B32A32_SFloat, "HLGI moments " + i);
+                        if (identityEnabled) nextIdentity[i] = Allocate(w, h, GraphicsFormat.R32G32B32A32_UInt, "HLGI receiver identity " + i);
                     }
                 }
+                catch (Exception)
+                {
+                    ReleaseTextures(nextHistory, nextGeometry, nextMaterial, nextMoments, nextIdentity);
+                    return false;
+                }
+
+                var oldHistory = history;
+                var oldGeometry = geometry;
+                var oldMaterial = material;
+                var oldMoments = moments;
+                var oldIdentity = receiverIdentity;
+                long oldBytes = (long)width * height * HybridLumenGIScreenBudget.HistoryPixelBytes(receiverIdentityEnabled);
+                history = nextHistory; geometry = nextGeometry; material = nextMaterial;
+                moments = nextMoments; receiverIdentity = nextIdentity;
+                width = w; height = h; receiverIdentityEnabled = identityEnabled;
+                InvalidateScreenHistory();
+
+                if (oldHistory[0] != null)
+                {
+                    RetiringScreenHistoryBytes += oldBytes;
+                    HybridLumenGIResourceRetirement.Retire(() =>
+                    {
+                        ReleaseTextures(oldHistory, oldGeometry, oldMaterial, oldMoments, oldIdentity);
+                        RetiringScreenHistoryBytes -= oldBytes;
+                    });
+                }
+                return true;
             }
             internal void EnsureCache(int slots,int grid,int cards)
             {
@@ -603,8 +636,11 @@ namespace HybridLumenGI
             }
             private static RTHandle Allocate(int w,int h,GraphicsFormat format,string name)
             {
-                return RTHandles.Alloc(w,h,colorFormat:format,enableRandomWrite:true,filterMode:FilterMode.Point,
+                var texture = RTHandles.Alloc(w,h,colorFormat:format,enableRandomWrite:true,filterMode:FilterMode.Point,
                     wrapMode:TextureWrapMode.Clamp,name:name);
+                if (texture?.rt != null && texture.rt.IsCreated()) return texture;
+                texture?.Release();
+                throw new InvalidOperationException("Could not allocate " + name + ".");
             }
             internal bool PrepareSoftwareGeometry(RenderGraph graph,int triangleLimit,long byteLimit,
                 SoftwareBvhBuildBudget buildBudget,int engineFrame,float buildMilliseconds,
@@ -716,7 +752,7 @@ namespace HybridLumenGI
                 buffer.Release();
                 softwareAllocations.BvhBytes -= bytes;
             }
-            private void ReleaseTextures()
+            private static void ReleaseTextures(RTHandle[] history, RTHandle[] geometry, RTHandle[] material, RTHandle[] moments, RTHandle[] receiverIdentity)
             {
                 for(int i=0;i<2;i++)
                 {
@@ -729,7 +765,8 @@ namespace HybridLumenGI
                 areaEmissionCache.Clear();
                 RetireSoftwareBuffers();retainedSoftwareLayout=null;
                 InvalidateScreenHistory();
-                ReleaseTextures();foreach(var b in cache) b?.Release();lights?.Release();scene.Dispose();hardware.Dispose();softwareGeometry.Dispose();sdf.Dispose();
+                ReleaseTextures(history, geometry, material, moments, receiverIdentity);
+                foreach(var b in cache) b?.Release();lights?.Release();scene.Dispose();hardware.Dispose();softwareGeometry.Dispose();sdf.Dispose();
                 readiness.Dispose();emissiveSampling.Dispose();surfaceCache.Dispose();changes.Dispose();scheduler.Dispose();globalSdf.Dispose();gpuTiming.Dispose();nativeGpuTiming.Dispose();
             }
         }
@@ -1043,9 +1080,6 @@ namespace HybridLumenGI
                 identityEnabled=screenBudget.IdentityEnabled && screenBudget.Fits;
                 if(screenBudget.IdentityBudgetFallback)
                     state.receiverIdentityStatus="Identity budget fallback: object history disabled; baseline current GI retained when affordable.";
-                state.fullWidth=fullW;state.fullHeight=fullH;state.fullPixelBytes=screenBudget.FullPixelBytes;
-                state.lowPixelBytes=screenBudget.LowPixelBytes;
-                state.receiverIdentityBufferBytes=screenBudget.IdentityBufferBytes;
                 if(!screenBudget.Fits)
                 {
                     RecordRasterOnlyHlodUsage(camera);
@@ -1055,7 +1089,17 @@ namespace HybridLumenGI
                 int w=screenBudget.Width,h=screenBudget.Height;
                 int slots=Mathf.Clamp(s.residentProxies,32,256);
                 state.BeginWorldPreparation();
-                state.Ensure(w,h,identityEnabled);
+                bool historyReady = state.Ensure(w,h,identityEnabled);
+                if (!historyReady)
+                {
+                    state.receiverIdentityStatus = "Screen history allocation failed; retry pending.";
+                    RecordRasterOnlyHlodUsage(camera);
+                    if (!warnedBudget) { Debug.LogWarning("[HybridLumenGI] Screen history allocation failed; this camera is skipped."); warnedBudget = true; }
+                    return;
+                }
+                state.fullWidth=fullW;state.fullHeight=fullH;state.fullPixelBytes=screenBudget.FullPixelBytes;
+                state.lowPixelBytes=screenBudget.LowPixelBytes;
+                state.receiverIdentityBufferBytes=screenBudget.IdentityBufferBytes;
                 string serializedSettings=JsonUtility.ToJson(s);
                 bool shadowmaskChanged=state.RefreshShadowmaskHistory(maps);
                 if(serializedSettings!=state.lastSettingsJson || shadowmaskChanged)
@@ -2265,7 +2309,7 @@ namespace HybridLumenGI
                         rtasBudgetStatus=c.hardware.BudgetStatus.ToString(),
                         materialUploadEngineFrame=HybridLumenGIRayTexturePool.UploadFrame,
                         materialUploadBudgetBytes=HybridLumenGIRayTexturePool.UploadBudgetBytes,materialUploadBytesUsed=HybridLumenGIRayTexturePool.UploadBytesUsed,
-                        screenTextureEstimateBytes=(long)c.fullWidth*c.fullHeight*c.fullPixelBytes+(long)c.width*c.height*c.lowPixelBytes,
+                        screenTextureEstimateBytes=(long)c.fullWidth*c.fullHeight*c.fullPixelBytes+(long)c.width*c.height*c.lowPixelBytes+c.RetiringScreenHistoryBytes,
                         worldMaterialBytes=c.surfaceCache.AllocatedBytes,objectSdfBytes=c.sdf.AllocatedBytes,globalSdfBytes=c.globalSdf.AllocatedBytes,
                         worldCacheBytes=(long)c.cacheEntryCount*CacheEntryStride*2,hardwareAttributeBytes=c.hardware.AttributeBytes,proposalBufferBytes=c.emissiveSampling.AllocatedBytes,
                         gpuTimingStatus=c.useNativeGpuTiming?c.nativeGpuTiming.Status.ToString():c.gpuTiming.Status.ToString(),gpuObservationValid=c.gpuObservationValid,gpuFeedbackActive=c.gpuBudget.FeedbackActive,

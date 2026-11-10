@@ -56,15 +56,17 @@ namespace HybridLumenGI
             return Fit(fullWidth, fullHeight, scale, budgetBytes, replaceNative, false, identityRequested, 0, workingBytes, staticShadowmask);
         }
 
+        // History pairs: radiance (16), geometry (32), material (8), moments (32), optional identity (32).
+        internal static int HistoryPixelBytes(bool identity) => 88 + (identity ? 32 : 0);
+
         private static Result Fit(int fullWidth, int fullHeight, double scale, long budgetBytes,
             bool replaceNative, bool identity, bool fallback, int receiverCapacity, int workingBytes, bool staticShadowmask)
         {
             long fullPixels = (long)fullWidth * fullHeight;
             // With baked visibility the uint2 receiver policy becomes uint4. Layer masks remain full width.
             int fullBytes = (replaceNative ? 36 : 24) + (identity ? 4 : 0) + (staticShadowmask ? 8 : 0);
-            // History pairs: radiance (16), geometry (32), material (8), moments (32).
             // Spatial filtering reuses raw. A second half-float target is needed from pass two.
-            int lowBytes = 88 + workingBytes + (identity ? 32 : 0);
+            int lowBytes = HistoryPixelBytes(identity) + workingBytes;
             int rows = identity ? Math.Max(1, Math.Min(16384, receiverCapacity)) : 0;
             long identityBuffers = identity ? fullPixels * 12 + rows * 80L : 0;
             long fixedBytes = fullPixels * fullBytes + identityBuffers;

@@ -123,6 +123,8 @@ Release98 下载包的 GPU 面板仍显示调整设置会刷新光照历史的�
 
 `maxCameras` 限制 Feature 当前活动的相机状态。容量驱逐会立即撤回该状态的待建树请求，已录制命令使用的状态由统一退休保留到完成。相机重新进入时建立新历史，旧几何账目随原释放流程归还。应用显存预算包含退休期间新旧资源的共存成本，仍用进程采样判断。[双相机驱逐对照](../LocalComparison/Review/camera-capacity-retirement-307/result.md)
 
+`textureBudgetMiB` 用于选定活动屏幕布局。GI 尺寸或接收面身份模式换代时，新旧历史纹理可短暂共存，旧代的逻辑字节计入 `screenTextureEstimateBytes` 直至释放。进程显存峰值继续以实际采样判断。[屏幕历史换代对照](../LocalComparison/Review/screen-history-reconfigure-322/result.md)
+
 ## 驱动层进程显存观察
 
 Release77 的统一示例新增默认关闭的 **Memory: off/on** 按钮。开启后，现有面板和 **Log ledger** 的 `processVideoMemory` 字段给出 Unity 渲染适配器上的本进程 local/nonlocal 用量、操作系统预算与启用窗口内采样峰值。它通过可选 DX12 插件的独立 `HLGI_Memory_Query` 导出读取，不开启 GPU 计时或反馈，不改变光传输配置、更新配额、驻留或预留。
