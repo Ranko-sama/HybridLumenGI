@@ -78,6 +78,9 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 float2 uv : TEXCOORD3;
                 float3 cardPosition : TEXCOORD4;
                 float2 shadowmaskUV : TEXCOORD5;
+                #if defined(_PARALLAXMAP)
+                float4 parallaxView : TEXCOORD6; // w marks a missing vertex frame
+                #endif
             };
             struct CardOutput
             {
@@ -103,6 +106,19 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 output.tangentWS = float4(TransformObjectToWorldDir(input.tangentOS.xyz), input.tangentOS.w * GetOddNegativeScale());
+                #if defined(_PARALLAXMAP)
+                output.parallaxView = float4(0,0,0,1);
+                float3 vertexBitangent = cross(output.normalWS,output.tangentWS.xyz);
+                if (dot(vertexBitangent,vertexBitangent)>1e-8 && isfinite(output.tangentWS.w))
+                {
+                    // Lit interpolates the vertex projections of the view. A
+                    // card shares one orthographic view direction at all vertices.
+                    float3 viewWS = _HLGI_CardDirection.xyz;
+                    float largest = max(abs(viewWS.x),max(abs(viewWS.y),abs(viewWS.z)));
+                    float3 viewDirTS = GetViewDirectionTangentSpace(output.tangentWS,output.normalWS,viewWS/max(1.0,largest));
+                    if (all(isfinite(viewDirTS))) output.parallaxView = float4(viewDirTS,0);
+                }
+                #endif
                 output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
                 output.shadowmaskUV = input.lightmapUV * _HLGI_CardShadowmaskST.xy + _HLGI_CardShadowmaskST.zw;
                 output.cardPosition = mul(_HLGI_CardWorldToCard, float4(output.positionWS,1)).xyz;
@@ -159,23 +175,15 @@ Shader "Hidden/HybridLumenGI/CardCapture"
                 // the source material's one-/two-sided geometry convention.
                 if (_HLGI_CardCull > 1.5) clip(facing);
                 else if (_HLGI_CardCull > 0.5) clip(-facing);
-                #if defined(_NORMALMAP) || defined(_DETAIL) || defined(_PARALLAXMAP)
+                #if defined(_NORMALMAP) || defined(_DETAIL)
                 float3 projectedTangent = input.tangentWS.xyz - shadingBasisNormal * dot(input.tangentWS.xyz,shadingBasisNormal);
                 bool hasTangent = dot(projectedTangent,projectedTangent) > 1e-8;
                 #endif
                 float2 uv = input.uv;
                 #if defined(_PARALLAXMAP)
-                if(hasTangent)
-                {
-                    half3 tangent = normalize(projectedTangent);
-                    half3 bitangent = (input.tangentWS.w < 0 ? -1 : 1) * cross(shadingBasisNormal,tangent);
-                    half3x3 tangentToWorld = half3x3(tangent,bitangent,shadingBasisNormal);
-                    // The chart facing score can exceed half range. URP normalizes
-                    // its half3 argument, so remove the scale before narrowing.
-                    float3 viewWS=_HLGI_CardDirection.xyz;
-                    float largest=max(abs(viewWS.x),max(abs(viewWS.y),abs(viewWS.z)));
-                    ApplyPerPixelDisplacement(mul(tangentToWorld,viewWS/max(1.0,largest)),uv);
-                }
+                if (input.parallaxView.w==0 && dot(input.parallaxView.xyz,input.parallaxView.xyz)>0)
+                    ApplyPerPixelDisplacement(input.parallaxView.xyz,uv);
+                if (!all(isfinite(uv))) discard;
                 #endif
                 SurfaceData surface;
                 InitializeStandardLitSurfaceData(uv,surface);
