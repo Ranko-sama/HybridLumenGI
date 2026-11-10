@@ -1,0 +1,51 @@
+{
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "layerGap": 0.029999971389770509,
+    "planeTolerance": 0.014999999664723874,
+    "frontGreen": 0.019999999552965165,
+    "nativeDiffuse": 0.0625,
+    "expectedBaselineRearGreen": 0.0023840623907744886,
+    "baseline": {
+        "frontControl": {
+            "r": 0.0,
+            "g": 0.019999999552965165,
+            "b": 0.0,
+            "a": 1.0
+        },
+        "rearKnownBlack": {
+            "r": 0.0,
+            "g": 0.0023854300379753114,
+            "b": 0.0,
+            "a": 1.0
+        },
+        "rearUnknown": {
+            "r": 0.0,
+            "g": 0.019999999552965165,
+            "b": 0.0,
+            "a": 1.0
+        }
+    },
+    "candidate": {
+        "frontControl": {
+            "r": 0.0,
+            "g": 0.019999999552965165,
+            "b": 0.0,
+            "a": 1.0
+        },
+        "rearKnownBlack": {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 0.0,
+            "a": 1.0
+        },
+        "rearUnknown": {
+            "r": 0.0625,
+            "g": 0.0625,
+            "b": 0.0625,
+            "a": 1.0
+        }
+    },
+    "passed": true
+}

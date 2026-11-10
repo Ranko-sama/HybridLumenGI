@@ -48,6 +48,7 @@ Shader "Hidden/HybridLumenGI/Composite"
             n=normalize(n);
             uint2 lower,upper;float2 f;
             HLGIGiBilinearFootprint(uv,(uint2)_HLGI_Size.xy,fullSize,lower,upper,f);
+            float planeTolerance = max(_HLGI_DepthThreshold, 0.001);
             float4 sum=0; float total=0;
             float4 pendingSum=0; float pendingTotal=0;
             [unroll] for(int y=0;y<2;y++) [unroll] for(int x=0;x<2;x++)
@@ -73,8 +74,11 @@ Shader "Hidden/HybridLumenGI/Composite"
                     resolved=true;return sampleGI;
                 }
                 float3 qp=Reconstruct(sampleUV,g.w);
+                // An off-plane sample can tint the result even with a low weight after normalization.
+                float planeDistance = abs(dot(qp - p, geometricNormal));
+                if (!isfinite(planeDistance) || planeDistance > planeTolerance) continue;
                 float weight=(x==0?1-f.x:f.x)*(y==0?1-f.y:f.y);
-                float planeWeight=exp(-abs(dot(qp-p,geometricNormal))/max(_HLGI_DepthThreshold,0.001));
+                float planeWeight=exp(-planeDistance/planeTolerance);
                 weight*=pow(saturate(dot(n,shadingNormal)),32)*planeWeight;
                 if(!isfinite(weight) || weight<=0) continue;
                 if(HLGIIsPendingLightingHistory(_HLGI_Moments.Load(int3(q,0)).z))
