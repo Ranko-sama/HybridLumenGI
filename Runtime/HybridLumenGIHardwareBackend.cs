@@ -41,6 +41,7 @@ namespace HybridLumenGI
             public Mesh mesh;
             public Renderer renderer;
             public Matrix4x4 matrix;
+            public ulong lastPoseVersion;
             public int stableId, vertexCount, subMeshCount, firstInstance, instanceCount;
             public uint geometryRevision, layoutGeneration;
             public long indexCount;
@@ -131,6 +132,15 @@ namespace HybridLumenGI
         // different endpoint/PDF than the triangles queried by this prepared backend.
         public int GetTriangleCount(int instance) => IsReady && !failed && instance>=0 && instance<instances.Count
             ? (int)instances[instance].triangleCount : 0;
+
+        // The caller first verifies that the prepared instance and triangle tables were not rebuilt.
+        internal bool IsTrianglePoseRetained(int instance, ulong previousVersion)
+        {
+            if (!IsReady || failed || (uint)instance >= (uint)instances.Count) return false;
+            uint slot = instances[instance].slot;
+            return slot < (uint)meshStates.Length && meshStates[(int)slot] is MeshState state &&
+                state.lastPoseVersion <= previousVersion;
+        }
 
         public bool TryGetTriangle(int instance,int primitive,out HybridLumenGIAreaEmission.Triangle triangle)
         {
@@ -513,7 +523,13 @@ namespace HybridLumenGI
                     }
                 }
                 state.layoutGeneration=layoutGeneration;
-                if(moved) { state.matrix=matrix;changed=true;TransformUpdateCount++; }
+                if (moved)
+                {
+                    state.matrix = matrix;
+                    state.lastPoseVersion = GeometryVersion + 1;
+                    changed = true;
+                    TransformUpdateCount++;
+                }
             }
             if(instanceChanged && instances.Count>0) instancesBuffer.SetData(instances);
             if(bindingChanged && bindings.Count>0) { bindingsBuffer.SetData(bindings);BindingUploadCount++; }

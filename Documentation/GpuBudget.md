@@ -8,6 +8,8 @@ Release233 同源普通 Player 在默认近景同时运行门平移、两骨蒙�
 
 新的三角 BVH 分组在 Release227 同源固定近景将软件 GI 合计 p95／p99 从 45.465／45.885 ms 降到 37.060／37.574 ms。local 有限采样峰值 552.512 MiB，满足 1 GiB 门槛。软件仍超出 25 ms，动态重建成本和其他负载继续按原条件验收。[分组实测与范围](../LocalComparison/Review/software-bvh-sah-291/result.md)
 
+精确软件几何在保留属性布局的刚体更新中复用未移动实例的冻结叶。受控双网格在一次位姿变化后的读取量由 4,096 降到 2,048，最终节点和叶与原完整读取一致。分桶重建和原预算准入继续执行。原生 CPU 时间、动态 GPU 成本及完整准备阶段时间预算继续验收。[受控对照与范围](../LocalComparison/Review/software-static-leaves-293/result.md)
+
 Release227 的单次全距查询候选 p95 为 43.860 ms，降幅 3.53%，低于事前 15% 采用门槛，已收束。[同源实机对照](../LocalComparison/Review/software-full-range-277/result.md)
 
 Release196 已采用精确软件覆盖去重。在同一固定近景和画质下，合计中位降低 7.27%，p95／p99 为 45.887／46.349 ms，仍高于 25 ms 时间预算。候选同窗 local／nonlocal 有限采样峰值为 549.574／278.789 MiB。显存读数按各窗口采样使用。[同输入对照与采用边界](../LocalComparison/Review/software-coverage-231/result.md)

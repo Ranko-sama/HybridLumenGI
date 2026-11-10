@@ -167,6 +167,10 @@ namespace HybridLumenGI
         /// </summary>
         public static bool TryBuild(HybridLumenGIAreaEmission.ITriangleProvider provider,int instanceCount,
             int triangleCapacity,out Layout layout,out string reason)
+            => TryBuild(provider, instanceCount, triangleCapacity, null, null, out layout, out reason);
+
+        internal static bool TryBuild(HybridLumenGIAreaEmission.ITriangleProvider provider, int instanceCount,
+            int triangleCapacity, Layout previous, Predicate<int> poseRetained, out Layout layout, out string reason)
         {
             layout=null;reason=null;
             if(provider==null || instanceCount<0 || instanceCount>4096 || triangleCapacity<0 || triangleCapacity>MaxTriangles)
@@ -177,14 +181,42 @@ namespace HybridLumenGI
                 for(int i=0;i<instanceCount;i++){counts[i]=provider.GetTriangleCount(i);if(counts[i]<0){reason="Negative prepared primitive count.";return false;}total+=counts[i];}
                 if(total>triangleCapacity){reason="Complete prepared triangle table exceeds the software BVH budget.";return false;}
                 var leaves=new Leaf[(int)total];var bounds=new BoundsRecord[(int)total];int cursor=0;
-                for(int i=0;i<instanceCount;i++)for(int primitive=0;primitive<counts[i];primitive++)
+                bool canReuse = previous != null && previous.LeafCount == total && poseRetained != null;
+                for (int instance = 0; instance < instanceCount; instance++)
                 {
-                    if(!provider.TryGetTriangle(i,primitive,out var t) || t.Instance!=(uint)i || t.Primitive!=(uint)primitive ||
-                        !Finite(t.P0)||!Finite(t.P1)||!Finite(t.P2))
-                    {reason="Prepared triangle source is incomplete or changed identity.";return false;}
-                    leaves[cursor]=new Leaf{p0=new Vector4(t.P0.x,t.P0.y,t.P0.z,1),p1=new Vector4(t.P1.x,t.P1.y,t.P1.z,1),p2=new Vector4(t.P2.x,t.P2.y,t.P2.z,1),
-                        identity=new HybridLumenGIHitMaterialUInt4((uint)i,(uint)primitive,0,0)};
-                    bounds[cursor]=new BoundsRecord{minimum=Min(Min(t.P0,t.P1),t.P2),maximum=Max(Max(t.P0,t.P1),t.P2),leaf=cursor};cursor++;
+                    bool retained = canReuse && poseRetained(instance);
+                    for (int primitive = 0; primitive < counts[instance]; primitive++)
+                    {
+                        Leaf leaf = retained ? previous.Leaves[cursor] : default;
+                        if (!retained || leaf.identity.x != (uint)instance || leaf.identity.y != (uint)primitive)
+                        {
+                            if (!provider.TryGetTriangle(instance, primitive, out var t) ||
+                                t.Instance != (uint)instance || t.Primitive != (uint)primitive ||
+                                !Finite(t.P0) || !Finite(t.P1) || !Finite(t.P2))
+                            {
+                                reason = "Prepared triangle source is incomplete or changed identity.";
+                                return false;
+                            }
+                            leaf = new Leaf
+                            {
+                                p0 = new Vector4(t.P0.x, t.P0.y, t.P0.z, 1),
+                                p1 = new Vector4(t.P1.x, t.P1.y, t.P1.z, 1),
+                                p2 = new Vector4(t.P2.x, t.P2.y, t.P2.z, 1),
+                                identity = new HybridLumenGIHitMaterialUInt4((uint)instance, (uint)primitive, 0, 0)
+                            };
+                        }
+                        leaves[cursor] = leaf;
+                        Vector3 p0 = new Vector3(leaf.p0.x, leaf.p0.y, leaf.p0.z);
+                        Vector3 p1 = new Vector3(leaf.p1.x, leaf.p1.y, leaf.p1.z);
+                        Vector3 p2 = new Vector3(leaf.p2.x, leaf.p2.y, leaf.p2.z);
+                        bounds[cursor] = new BoundsRecord
+                        {
+                            minimum = Min(Min(p0, p1), p2),
+                            maximum = Max(Max(p0, p1), p2),
+                            leaf = cursor
+                        };
+                        cursor++;
+                    }
                 }
                 var nodes=new List<Node>(NodeCountForTriangles((int)total));
                 if(total>0)Build(bounds,0,bounds.Length,nodes,new CenterComparer(),

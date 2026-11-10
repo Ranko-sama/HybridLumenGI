@@ -1,0 +1,15 @@
+{
+  "status": "adopted",
+  "comparisonProduct": "22a4717658a15cc7859652d2df0e2f77bf57dbb9",
+  "scope": "Actual software backend, camera preparation and full BVH builder with existing Unity and GPU buffer adapters. CPU extraction work and exact layout equality.",
+  "nativeUnityExecuted": false,
+  "harnessExitCode": 0,
+  "triangles": 4096,
+  "nodes": 8191,
+  "geometryVersions": [1, 2, 3],
+  "phases": [
+    {"name": "initial", "baselineTriangleReads": 4096, "candidateTriangleReads": 4096, "sameLayout": true},
+    {"name": "retained pose after intervening prepare", "baselineTriangleReads": 4096, "candidateTriangleReads": 2048, "sameLayout": true},
+    {"name": "same-size source replacement", "baselineTriangleReads": 4096, "candidateTriangleReads": 4096, "sameLayout": true}
+  ]
+}

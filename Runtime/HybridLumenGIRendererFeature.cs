@@ -379,6 +379,7 @@ namespace HybridLumenGI
             internal bool exactSoftwareGeometry;
             private HybridLumenGISoftwareTriangleBvh.Layout retainedSoftwareLayout;
             private ulong retainedSoftwareVersion,uploadedSoftwareVersion;
+            private int retainedSoftwareSceneRebuildCount;
             private GraphicsBuffer retainedSoftwareNodes,retainedSoftwareLeaves;
             internal readonly HybridLumenGISdfAtlas sdf=new HybridLumenGISdfAtlas();
             internal readonly HybridLumenGIGlobalSdf globalSdf=new HybridLumenGIGlobalSdf();
@@ -610,9 +611,17 @@ namespace HybridLumenGI
                 }
                 if(retainedSoftwareLayout==null || retainedSoftwareVersion!=softwareGeometry.GeometryVersion)
                 {
+                    int sceneRebuildCount = softwareGeometry.SceneRebuildCount;
+                    var previous = sceneRebuildCount == retainedSoftwareSceneRebuildCount ? retainedSoftwareLayout : null;
+                    ulong previousVersion = retainedSoftwareVersion;
+                    Predicate<int> poseRetained = previous != null
+                        ? instance => softwareGeometry.IsTrianglePoseRetained(instance, previousVersion)
+                        : null;
                     if(!HybridLumenGISoftwareTriangleBvh.TryBuild(softwareGeometry,softwareGeometry.InstanceCount,
-                        Math.Min(HybridLumenGISoftwareTriangleBvh.MaxTriangles,Math.Max(0,triangleLimit)),out var next,out reason))return false;
+                        Math.Min(HybridLumenGISoftwareTriangleBvh.MaxTriangles,Math.Max(0,triangleLimit)),
+                        previous,poseRetained,out var next,out reason))return false;
                     retainedSoftwareLayout=next;retainedSoftwareVersion=softwareGeometry.GeometryVersion;
+                    retainedSoftwareSceneRebuildCount = sceneRebuildCount;
                 }
                 if(grow)
                 {
