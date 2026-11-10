@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release239，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release240，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已去掉精确软件 BVH 的重复节点和叶数组分配。实际构建及录制方法在 4,096 三角的同一平移输入下，托管线程分配由 1,574,976 B 降到 788,504 B，录制内容与原版一致。Astra Max 同意在 CPU 分配范围内采用。原生 CPU 时间及软件 25 ms GPU 目标继续验收。[组件对照](../LocalComparison/Review/software-bvh-recording-295/result.md) · [Release240 同源交付](../LocalComparison/Review/software-bvh-recording-295/delivery.json)
 
 T3／T6 已关闭形变作业完成后因清理失败而堵住共享捕获槽的问题。单工作槽下，另一个网格在剩余配额内完整发布，失败作业仍持有原所有者和字节预留。Astra Max 同意在组件调度范围内采用。普通 Player 形变画质与端到端消费延迟继续验收。[组件对照](../LocalComparison/Review/deformed-failed-slot-294/result.md) · [Release239 同源交付](../LocalComparison/Review/deformed-failed-slot-294/delivery.json)
 
