@@ -10,6 +10,7 @@ namespace HybridLumenGI
     public static class HybridLumenGISoftwareTriangleBvh
     {
         public const int NodeStride=32,LeafStride=64,MaxTriangles=262144;
+        private const int SplitBucketCount = 12;
         internal static int NodeCountForTriangles(int triangleCount) => triangleCount == 0 ? 0 : triangleCount * 2 - 1;
         internal static long BufferBytes(int nodeCount, int leafCount) =>
             (long)Math.Max(1,nodeCount)*NodeStride+(long)Math.Max(1,leafCount)*LeafStride;
@@ -32,6 +33,32 @@ namespace HybridLumenGI
             public Node[] CopyNodes()=>(Node[])nodes.Clone();public Leaf[] CopyLeaves()=>(Leaf[])leaves.Clone();
         }
         private struct BoundsRecord { public Vector3 minimum,maximum;public int leaf; }
+        private struct SplitBucket
+        {
+            public int count;
+            private Vector3 minimum, maximum;
+
+            public void Include(Vector3 low, Vector3 high, int items)
+            {
+                if (items == 0) return;
+                minimum = count == 0 ? low : Min(minimum, low);
+                maximum = count == 0 ? high : Max(maximum, high);
+                count += items;
+            }
+
+            public void Include(SplitBucket other) => Include(other.minimum, other.maximum, other.count);
+
+            public double Cost
+            {
+                get
+                {
+                    double x = (double)maximum.x - minimum.x;
+                    double y = (double)maximum.y - minimum.y;
+                    double z = (double)maximum.z - minimum.z;
+                    return count * (x * y + y * z + z * x);
+                }
+            }
+        }
         private sealed class CenterComparer:IComparer<BoundsRecord>
         {
             public int axis;
@@ -45,16 +72,91 @@ namespace HybridLumenGI
         private static Vector3 Min(Vector3 a,Vector3 b)=>new Vector3(Math.Min(a.x,b.x),Math.Min(a.y,b.y),Math.Min(a.z,b.z));
         private static Vector3 Max(Vector3 a,Vector3 b)=>new Vector3(Math.Max(a.x,b.x),Math.Max(a.y,b.y),Math.Max(a.z,b.z));
         private static bool Finite(Vector3 v)=>!float.IsNaN(v.x)&&!float.IsInfinity(v.x)&&!float.IsNaN(v.y)&&!float.IsInfinity(v.y)&&!float.IsNaN(v.z)&&!float.IsInfinity(v.z);
-        private static int Build(BoundsRecord[] bounds,int start,int count,List<Node> nodes,CenterComparer comparer)
+
+        private static int LongestAxis(Vector3 minimum, Vector3 maximum)
+        {
+            double x = (double)maximum.x - minimum.x;
+            double y = (double)maximum.y - minimum.y;
+            double z = (double)maximum.z - minimum.z;
+            return x >= y && x >= z ? 0 : y >= z ? 1 : 2;
+        }
+
+        private static Vector3 Center(in BoundsRecord bounds) => bounds.minimum * 0.5f + bounds.maximum * 0.5f;
+
+        private static int BucketIndex(in BoundsRecord bounds, int axis, double first, double scale)
+            => Math.Min(SplitBucketCount - 1, (int)((At(Center(in bounds), axis) - first) * scale));
+
+        private static int PartitionBySurfaceArea(BoundsRecord[] bounds, int start, int count,
+            SplitBucket[] buckets, double[] leftCosts)
+        {
+            Vector3 low = Center(in bounds[start]), high = low;
+            int end = start + count;
+            for (int i = start + 1; i < end; i++)
+            {
+                Vector3 center = Center(in bounds[i]);
+                low = Min(low, center);
+                high = Max(high, center);
+            }
+            int axis = LongestAxis(low, high);
+            double first = At(low, axis);
+            double extent = At(high, axis) - first;
+            if (extent <= 0) return 0;
+
+            double scale = SplitBucketCount / extent;
+            Array.Clear(buckets, 0, buckets.Length);
+            for (int i = start; i < end; i++)
+            {
+                int bucket = BucketIndex(in bounds[i], axis, first, scale);
+                buckets[bucket].Include(bounds[i].minimum, bounds[i].maximum, 1);
+            }
+            // Bound the recursion and worst-case rebuild work for highly skewed distributions.
+            int minimumChildCount = Math.Max(1, count / 8);
+            SplitBucket left = default;
+            for (int i = 0; i < leftCosts.Length; i++)
+            {
+                left.Include(buckets[i]);
+                leftCosts[i] = left.count >= minimumChildCount ? left.Cost : double.PositiveInfinity;
+            }
+            SplitBucket right = default;
+            int split = -1;
+            double bestCost = double.PositiveInfinity;
+            for (int i = leftCosts.Length - 1; i >= 0; i--)
+            {
+                right.Include(buckets[i + 1]);
+                double cost = leftCosts[i] + right.Cost;
+                if (right.count < minimumChildCount || cost >= bestCost) continue;
+                split = i;
+                bestCost = cost;
+            }
+            if (split < 0) return 0;
+
+            int middle = start;
+            for (int i = start; i < end; i++)
+            {
+                if (BucketIndex(in bounds[i], axis, first, scale) > split) continue;
+                BoundsRecord saved = bounds[middle];
+                bounds[middle++] = bounds[i];
+                bounds[i] = saved;
+            }
+            return middle - start;
+        }
+
+        private static int Build(BoundsRecord[] bounds,int start,int count,List<Node> nodes,CenterComparer comparer,
+            SplitBucket[] buckets, double[] leftCosts)
         {
             Vector3 minimum=bounds[start].minimum,maximum=bounds[start].maximum;
             for(int i=start+1;i<start+count;i++){minimum=Min(minimum,bounds[i].minimum);maximum=Max(maximum,bounds[i].maximum);}
             int index=nodes.Count;nodes.Add(default);
             if(count==1){nodes[index]=new Node{minimum=minimum,maximum=maximum,skipIndex=(uint)nodes.Count,leaf=bounds[start].leaf};return index;}
-            double x=(double)maximum.x-minimum.x,y=(double)maximum.y-minimum.y,z=(double)maximum.z-minimum.z;
-            comparer.axis=x>=y&&x>=z?0:y>=z?1:2;
-            Array.Sort(bounds,start,count,comparer);int half=count/2;
-            Build(bounds,start,half,nodes,comparer);Build(bounds,start+half,count-half,nodes,comparer);
+            int leftCount = count >= 4 ? PartitionBySurfaceArea(bounds, start, count, buckets, leftCosts) : 0;
+            if (leftCount == 0)
+            {
+                comparer.axis = LongestAxis(minimum, maximum);
+                Array.Sort(bounds, start, count, comparer);
+                leftCount = count / 2;
+            }
+            Build(bounds,start,leftCount,nodes,comparer,buckets,leftCosts);
+            Build(bounds,start+leftCount,count-leftCount,nodes,comparer,buckets,leftCosts);
             nodes[index]=new Node{minimum=minimum,maximum=maximum,skipIndex=(uint)nodes.Count,leaf=-1};return index;
         }
         /// <summary>
@@ -85,7 +187,8 @@ namespace HybridLumenGI
                     bounds[cursor]=new BoundsRecord{minimum=Min(Min(t.P0,t.P1),t.P2),maximum=Max(Max(t.P0,t.P1),t.P2),leaf=cursor};cursor++;
                 }
                 var nodes=new List<Node>(NodeCountForTriangles((int)total));
-                if(total>0)Build(bounds,0,bounds.Length,nodes,new CenterComparer());
+                if(total>0)Build(bounds,0,bounds.Length,nodes,new CenterComparer(),
+                    new SplitBucket[SplitBucketCount], new double[SplitBucketCount - 1]);
                 layout=new Layout(nodes.ToArray(),leaves);return true;
             }
             catch(Exception ex){reason="Software triangle BVH capture failed: "+ex.GetType().Name;return false;}

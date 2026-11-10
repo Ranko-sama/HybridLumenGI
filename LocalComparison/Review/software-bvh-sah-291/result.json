@@ -1,0 +1,186 @@
+{
+  "status": "adopted-integration",
+  "productUsedForComparison": "6223df0783a750a08ddddda33b116596262450a3",
+  "overlay": "Runtime/HybridLumenGISoftwareTriangleBvh.cs",
+  "environment": {
+    "unity": "6000.0.85f1",
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "api": "Direct3D12",
+    "scene": "Assets/HLGINeutral106/Variant/NeutralThreeRooms.unity"
+  },
+  "baseline": {
+    "runDirectory": "I:\\Unity test\\Comparison\\SoftwareFullRange277\\run\\20261109-215252-bbd18904d43843fdb23b7b55bef58d04",
+    "window": {
+      "sourceStart": 159,
+      "sourceEnd": 670,
+      "count": 512,
+      "fullWidth": 960,
+      "fullHeight": 540,
+      "giWidth": 480,
+      "giHeight": 270
+    },
+    "gpuIntervals": {
+      "ReceiverCapture": {
+        "count": 512,
+        "medianMs": 0.145312,
+        "p95Ms": 0.151696,
+        "p99Ms": 0.15493695999999998,
+        "maxMs": 0.157696
+      },
+      "Transport": {
+        "count": 512,
+        "medianMs": 44.390671999999995,
+        "p95Ms": 45.2444464,
+        "p99Ms": 45.670811199999996,
+        "maxMs": 46.958848
+      },
+      "Composite": {
+        "count": 512,
+        "medianMs": 0.071488,
+        "p95Ms": 0.0733584,
+        "p99Ms": 0.07469631999999998,
+        "maxMs": 0.0752
+      },
+      "perSourceSum": {
+        "count": 512,
+        "medianMs": 44.604144000000005,
+        "p95Ms": 45.4651072,
+        "p99Ms": 45.8850256,
+        "maxMs": 47.177984
+      }
+    },
+    "sceneCounts": {
+      "instances": 20,
+      "meshes": 20,
+      "unrepresented": 0,
+      "cards": 120,
+      "groupMembers": 3,
+      "visibleMembers": 3
+    },
+    "localSampledPeakMiB": 553.07421875,
+    "nonlocalSampledPeakMiB": 279.7890625,
+    "callbackFrequencyHz": 22.229053314504462
+  },
+  "candidate": {
+    "runDirectory": "I:\\Unity test\\Comparison\\SoftwareBvhSah291Fixed\\run\\20261110-013759-072c17aa3bcb4118a378a88b329cfd8c",
+    "window": {
+      "sourceStart": 159,
+      "sourceEnd": 670,
+      "count": 512,
+      "fullWidth": 960,
+      "fullHeight": 540,
+      "giWidth": 480,
+      "giHeight": 270
+    },
+    "gpuIntervals": {
+      "ReceiverCapture": {
+        "count": 512,
+        "medianMs": 0.132784,
+        "p95Ms": 0.139136,
+        "p99Ms": 0.142144,
+        "maxMs": 0.148608
+      },
+      "Transport": {
+        "count": 512,
+        "medianMs": 36.002928,
+        "p95Ms": 36.8547296,
+        "p99Ms": 37.373200319999995,
+        "maxMs": 38.66992
+      },
+      "Composite": {
+        "count": 512,
+        "medianMs": 0.072256,
+        "p95Ms": 0.0750224,
+        "p99Ms": 0.075776,
+        "maxMs": 0.076224
+      },
+      "perSourceSum": {
+        "count": 512,
+        "medianMs": 36.20976,
+        "p95Ms": 37.0602192,
+        "p99Ms": 37.573799359999995,
+        "maxMs": 38.874047999999995
+      }
+    },
+    "sceneCounts": {
+      "instances": 20,
+      "meshes": 20,
+      "unrepresented": 0,
+      "cards": 120,
+      "groupMembers": 3,
+      "visibleMembers": 3
+    },
+    "localSampledPeakMiB": 552.51171875,
+    "nonlocalSampledPeakMiB": 277.7890625,
+    "callbackFrequencyHz": 27.304895416304277
+  },
+  "performanceDecision": {
+    "criteria": {
+      "p95AtLeastFifteenPercent": true,
+      "beyondBlockSpread": true,
+      "lowerP99": true,
+      "withinReferenceLocalLimit": true
+    },
+    "p95ReductionPercent": 18.486458116170457,
+    "medianReductionMs": 8.394384000000002,
+    "baselineBlockMedianMs": [
+      44.6276,
+      44.529056,
+      44.669632,
+      44.579136
+    ],
+    "candidateBlockMedianMs": [
+      36.279024,
+      36.117999999999995,
+      36.259232,
+      36.174752
+    ],
+    "maxBlockMedianSpreadMs": 0.16102400000000472,
+    "withinReferenceGiP95": false,
+    "referenceP95Ms": 25
+  },
+  "savedSceneEstimate": {
+    "owners": [
+      "Sealed room right",
+      "Thin wall 3cm",
+      "Moving occluder",
+      "Thin-wall floor",
+      "Red wall",
+      "Roof back half",
+      "Sealed room roof",
+      "Back wall",
+      "Black zero diffuse receiver (Streamed)",
+      "Sealed room front",
+      "Sealed room left",
+      "Metal zero diffuse receiver (Streamed)",
+      "Thin-wall receiver",
+      "Floor",
+      "Sealed room gray receiver",
+      "Green wall",
+      "Emissive source",
+      "White receiver (Streamed)",
+      "Sealed room back",
+      "Sealed room floor"
+    ],
+    "triangles": 240,
+    "rootArea": 703.3000168561935,
+    "medianTreeInteriorArea": 20981.58061751554,
+    "medianTreeDepth": 8,
+    "binnedTreeInteriorArea": 11973.328949899413,
+    "binnedTreeDepth": 12,
+    "reductionInSumOfInteriorAreas": 0.4293409458435171,
+    "scope": "Saved geometry with source-file tie order. Isotropic broad-phase area model only. GPU ray mix, nearest pruning and measured cost are unknown."
+  },
+  "geometryQueryOracle": {
+    "status": "passed",
+    "count": 7457,
+    "checks": 41426,
+    "maxRelativeError": 3.4933291889994727e-06,
+    "visitedLeaves": 6411,
+    "sceneTriangles": 258,
+    "scope": "Actual C# BVH output uploaded and actual HLSL stackless traversal/intersection on D3D12 WARP, against independent double Moller-Trumbore brute force. Coverage/material/lighting policy functions are not executed by this geometry-only harness; product shared evaluator is verified separately. No Unity or physical GPU."
+  },
+  "candidateBuildExit": 0,
+  "candidatePlayerExit": 0,
+  "source": "One ordinary DX12 candidate run, existing Release227 same-source comparison window, and unchanged geometry-only WARP query fixture."
+}
