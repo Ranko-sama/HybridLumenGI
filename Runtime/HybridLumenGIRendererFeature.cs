@@ -898,16 +898,19 @@ namespace HybridLumenGI
             {
                 var pipeline = UniversalRenderPipeline.asset;
                 return pipeline != null && state.scenePreparedRenderer != null &&
-                    ReferenceEquals(SelectedBaseRenderer(pipeline, state.camera), state.scenePreparedRenderer);
+                    ReferenceEquals(SelectedBaseRenderer(pipeline, state.camera, out _), state.scenePreparedRenderer);
             }
-            private static ScriptableRenderer SelectedBaseRenderer(UniversalRenderPipelineAsset pipeline, Camera camera)
+            private static ScriptableRenderer SelectedBaseRenderer(UniversalRenderPipelineAsset pipeline, Camera camera, out bool overlay)
             {
+                overlay = false;
                 ScriptableRenderer renderer = null;
                 // Match URP's default Renderer and forced Base rules for Scene View.
                 if (camera.cameraType != CameraType.SceneView &&
                     camera.TryGetComponent<UniversalAdditionalCameraData>(out var cameraData))
                 {
-                    if (cameraData.renderType != CameraRenderType.Base) return null;
+                    var renderType = cameraData.renderType;
+                    overlay = renderType == CameraRenderType.Overlay;
+                    if (renderType != CameraRenderType.Base) return null;
                     renderer = cameraData.scriptableRenderer;
                 }
                 return renderer ?? pipeline.scriptableRenderer;
@@ -917,11 +920,11 @@ namespace HybridLumenGI
                 var pipeline = UniversalRenderPipeline.asset;
                 var prepared = state.scenePreparedRenderer;
                 if (admissionStopped || pipeline == null || prepared == null) return false;
-                var selected = SelectedBaseRenderer(pipeline, state.camera);
-                if (admissionStopped || selected == null || ReferenceEquals(selected, prepared)) return false;
+                var selected = SelectedBaseRenderer(pipeline, state.camera, out bool overlay);
+                if (admissionStopped || (!overlay && selected == null) || ReferenceEquals(selected, prepared)) return false;
 
-                // Both renderers must still belong to this pipeline. Asset replacement
-                // and renderer recreation have their own pass-disposal lifecycle.
+                // Asset replacement and renderer recreation have their own disposal lifecycle.
+                // An Overlay has no new GI renderer, but its old one still must belong here.
                 var renderers = pipeline.renderers;
                 var data = pipeline.rendererDataList;
                 bool hasPrepared = false;
@@ -931,7 +934,9 @@ namespace HybridLumenGI
                     if (ReferenceEquals(renderers[i], prepared)) hasPrepared = true;
                     if (ReferenceEquals(renderers[i], selected)) selectedIndex = i;
                 }
-                if (!hasPrepared || selectedIndex < 0 || data[selectedIndex] == null) return false;
+                if (!hasPrepared) return false;
+                if (overlay) return true;
+                if (selectedIndex < 0 || data[selectedIndex] == null) return false;
                 var features = data[selectedIndex].rendererFeatures;
                 return features != null && !features.Contains(validationOwner);
             }
