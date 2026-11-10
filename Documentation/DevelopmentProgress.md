@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release261，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release262，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭同驱动自动 HLOD 双组分别持有部分细节页而僵持的问题。实际导出和 DXR 路线的两路峰值均为 19,144 B 逻辑驻留。修复后 B 组细节经实际照明票据完整发布，A 保留粗根。默认自动组的冷细节准入子项已关闭，需求退出后的接替及其他负载继续验收。[实际租约与发布](../LocalComparison/Review/automatic-hlod-page-admission-333/result.md) · [Release262 同源交付](../LocalComparison/Review/automatic-hlod-page-admission-333/delivery.json)
 
 目标 2／G3 已关闭固定遮挡显露边缘的最终合成漏色。实际 DX12 合成中，可信黑后层的绿色从 0.00238543 归零，前层保持 0.02。后层无可信样点时恢复原生漫反射。修复已进入普通 Win64 演示和同源工程。整景运动、收敛和性能继续按原条件验收。[固定像素前后对照](../LocalComparison/Review/composite-layer-edge-332/result.md) · [Release261 同源交付](../LocalComparison/Review/composite-layer-edge-332/delivery.json)
 
