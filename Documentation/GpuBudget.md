@@ -113,7 +113,7 @@ Release98 下载包的 GPU 面板仍显示调整设置会刷新光照历史的�
 
 在 Renderer Data 的 Hybrid Lumen GI Feature 中，`rtasBuildRecordingCpuBudgetMilliseconds` 默认 0，沿用原次数与工作积分准入。正数为所有相机共享的每引擎帧经过时间额度，累计实际构建命令录制和紧随的 `GetSize()` 调用。较晚相机可收紧当帧额度，已发生的录制和失败尝试继续计入。
 
-达到额度后，下一个待构建请求保留原等待顺位及当前预留，构建次数与三角、实例积分等实际录制获准后才扣除。已经开始的调用可越过额度，匹配的已建结构可继续使用。需要新 RTAS 的就绪 HLOD 接替也使用该等待门。几何准备、属性上传和 GPU 构建时间各自评估。受控回归使用可记录、可抛错的命令适配器验证调度。[定向行为对照](../Tests/StandaloneHardwareBackend/Program.cs.txt)
+达到额度后，下一个待构建请求保留原等待顺位及当前预留。实际录制获准后才扣构建次数与三角、实例积分。已经开始的调用可越过额度，匹配的已建结构可继续使用。需要新 RTAS 的就绪 HLOD 接替也使用该等待门。几何准备、属性上传和 GPU 构建时间各自评估。受控回归使用可记录、可抛错的命令适配器验证调度。[定向行为对照](../Tests/StandaloneHardwareBackend/Program.cs.txt)
 
 ## 驱动层进程显存观察
 

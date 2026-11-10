@@ -1,8 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度　Release243，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release244，G0 已锁定，G1／G2 本机代表性验收通过
 
-T5／T6／G4 源码已关闭共享 RTAS 工作积分耗尽时的热态接替漏挡。两台相机的受控对照中，首台扣完 12 个三角积分后还剩一次构建名额。旧预检让细节先发布，实际共享额度随后拒绝构建。修正后保留旧根、BVH 和同代次就绪细节，下一帧由等待中的相机优先扣除 12 三角与 2 实例并整组接替。无补充且任何非空构建均不可准入时沿原退路。依据限实际 Scene 与额度模块，正余额仍由录制按完整工作量核对，冷高速首显继续验收。[接替规则](HlodStreaming.md#atomic-hlod-transactions) · [定向回归](../Tests/StandaloneBvh/HlodProgram.cs.txt)
+T6／G4 已接入共享 RTAS 构建录制的可选 CPU 时间准入。实际 Backend 的受控对照确认同帧收紧计入此前失败录制，匹配的已建结构继续可用，待构建请求沿原队列延期且取得后续轮次。采用范围为同步录制和大小查询，默认关闭，原生构建及生产时间预算继续验收。[配置与对照](GpuBudget.md#rtas-构建录制的-cpu-准入) · [Release244 同源交付](../LocalComparison/Review/rtas-recording-time-302/delivery.json)
+
+T5／T6／G4 已关闭共享 RTAS 工作积分耗尽时的热态接替漏挡。两台相机的受控对照中，首台扣完 12 个三角积分后还剩一次构建名额。旧预检让细节先发布，实际共享额度随后拒绝构建。修正后保留旧根、BVH 和同代次就绪细节，下一帧由等待中的相机优先扣除 12 三角与 2 实例并整组接替。无补充且任何非空构建均不可准入时沿原退路。依据限实际 Scene 与额度模块，正余额仍由录制按完整工作量核对，冷高速首显继续验收。[接替规则](HlodStreaming.md#atomic-hlod-transactions) · [定向回归](../Tests/StandaloneBvh/HlodProgram.cs.txt)
 
 T3／G3 已修复统一示例蒙皮门捕获时重复缩放的缺口。普通 DXR Player 在固定 15° 姿态命中正确的门顶三角，高度从旧版的 5.525 m 回到独立骨权重参考的 2.873 m。24 个发布顶点的最大世界坐标误差为 2.98 × 10⁻⁸ m。采用限该门的快照坐标与一次 DXR 诊断消费，连续运动画质与整体 G3 继续验收。[实机对照与范围](../LocalComparison/Review/ordinary-skin-scale-300/result.md) · [Release243 同源交付](../LocalComparison/Review/ordinary-skin-scale-300/delivery.json)
 
