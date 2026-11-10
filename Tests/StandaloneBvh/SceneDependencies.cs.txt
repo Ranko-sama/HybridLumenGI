@@ -98,7 +98,17 @@ namespace HybridLumenGI
         internal bool IsSourceUnavailable => IsUnavailable || FailedBeforeBinding;
         public bool UsesHlodRasterVisibility, CanSubmitHlodRaster;
         public uint Generation;
-        public HybridLumenGIProxy Proxy;
+        private HybridLumenGIProxy proxy;
+        public HybridLumenGIProxy Proxy
+        {
+            get => proxy;
+            set
+            {
+                proxy = value;
+                SourceRenderer = value?.SourceRenderer;
+            }
+        }
+        public Renderer SourceRenderer { get; private set; }
         public Bounds GetWorldBounds() => Proxy.GetWorldBounds();
     }
     // Dependency adapter: the actual scene residency/BVH source is compiled unchanged.
