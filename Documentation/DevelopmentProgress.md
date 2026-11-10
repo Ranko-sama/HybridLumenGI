@@ -1,8 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度　Release253，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release254，G0 已锁定，G1／G2 本机代表性验收通过
 
-T6／G4 已在主线源码关闭持续停用的 Renderer Feature 无限占用共享 RTAS 额度的缺口。原 120 帧缓存到期后进入已有退休，旧预约在后端完成前继续计账。受控双 Feature 对照在 **1 MiB** 额度下确认归还 **642,560 B** 后，另一 Feature 的同一请求可以准入。该修复待下次运行包集成。[停用与准入对照](../LocalComparison/Review/feature-disable-retirement-317/result.md)
+T4／第 8 节已取得静态非均匀镜像 Lit 折面的图卡与锚点依据。实际 DX12 中，负 X 缩放下的两面通过按三角和按位置查卡，捕获几何法线与独立源法线点积均约 0.9973，生产入口取得同一张卡的一格覆盖锚点。其他镜像、接缝和位置精度继续各自验收。[Release254 实机对照](../LocalComparison/Review/mirrored-folded-chart-318/result.md)
+
+T6／G4 已关闭持续停用的 Renderer Feature 无限占用共享 RTAS 额度的缺口。原 120 帧缓存到期后进入已有退休，旧预约在后端完成前继续计账。受控双 Feature 对照在 **1 MiB** 额度下确认归还 **642,560 B** 后，另一 Feature 的同一请求可以准入。修复已进入 Release254 普通 Win64 与同源工程包。[停用与准入对照](../LocalComparison/Review/feature-disable-retirement-317/result.md) · [Release254 同源交付](../LocalComparison/Review/feature-disable-retirement-317/delivery.json)
 
 T6／G4 已关闭图卡图集运行中重配时提前释放旧代和误用半成品的问题。受控深度附件分配失败时保留活动图集，相同配置重试后完成捕获。两份旧代分别等到对应完成回调才释放并退账。采用限图集的托管生命周期与逻辑账目，原生 GPU 时序和进程显存峰值继续验收。[图集换代对照](../LocalComparison/Review/surface-atlas-reconfigure-316/result.md) · [Release253 同源交付](../LocalComparison/Review/surface-atlas-reconfigure-316/delivery.json)
 
