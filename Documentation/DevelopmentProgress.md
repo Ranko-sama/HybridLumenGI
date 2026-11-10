@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release251，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release252，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭精确材质贴图池因空闲缓存占满物理 arena 数量而持续拒绝新批的路径。实际池的受控对照在 128 个 arena／104,448 B 下验证安全回收、待定读回保护和新页复用。采用范围为资源准入，进程显存、真实后端及冷入首显继续按原条件验收。[组件对照](../LocalComparison/Review/ray-texture-arena-capacity-315/result.md) · [Release252 同源交付](../LocalComparison/Review/ray-texture-arena-capacity-315/delivery.json)
 
 T6／第 5 节已去除 Global SDF 稳定无作业时重复的全量元数据上传。统一示例配置可省 67,712 B／相机／帧录制载荷。零额度滑移仍提交失效，丢弃命令流后按原代次恢复。采用范围为录制与逻辑字节，实际时间预算继续验收。[组件对照](../LocalComparison/Review/global-sdf-metadata-314/result.md) · [Release251 同源交付](../LocalComparison/Review/global-sdf-metadata-314/delivery.json)
 
