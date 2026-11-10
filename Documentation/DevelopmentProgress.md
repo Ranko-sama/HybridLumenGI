@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release250，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release251，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／第 5 节已去除 Global SDF 稳定无作业时重复的全量元数据上传。统一示例配置可省 67,712 B／相机／帧录制载荷。零额度滑移仍提交失效，丢弃命令流后按原代次恢复。采用范围为录制与逻辑字节，实际时间预算继续验收。[组件对照](../LocalComparison/Review/global-sdf-metadata-314/result.md) · [Release251 同源交付](../LocalComparison/Review/global-sdf-metadata-314/delivery.json)
 
 T3／G3 补齐普通 Player 默认两骨门固定灯光下的动停画面。实际 DXR 中，固定地板在停后 1.334 秒进入同姿态尾段容差并保持至观察末端。所示时点未见持续第二门形，停后约 0.167／0.300 秒有短暂暗颗粒。采用限这条路线的画面与地板恢复。[同曝光对照及范围](../LocalComparison/Review/ordinary-skin-motion-313/result.md)
 
