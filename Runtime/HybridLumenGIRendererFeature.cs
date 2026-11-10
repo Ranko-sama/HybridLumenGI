@@ -877,6 +877,7 @@ namespace HybridLumenGI
                 var rendering=frameData.Get<UniversalRenderingData>();
                 var lightData=frameData.Get<UniversalLightData>();
                 if(resources.isActiveTargetBackBuffer || !resources.cameraDepthTexture.IsValid() || !resources.cameraNormalsTexture.IsValid()) return;
+                var camera=cameraData.camera;
                 bool replace=s.composition==CompositionMode.ReplaceNativeDiffuseGI;
                 // One initial discovery feeds both native-Lit qualification and source
                 // identity tracking. Each consumer retains its separate eligibility rules.
@@ -901,11 +902,13 @@ namespace HybridLumenGI
                                 "For a target texture, use RGBA16F or RGBA32F.");
                             warnedComposition=true;
                         }
+                        RecordRasterOnlyHlodUsage(camera);
                         return;
                     }
                     if(!litQualification.Validate(discovered,out string reason))
                     {
                         if(!warnedComposition) { Debug.LogWarning("[HybridLumenGI] Native diffuse replacement skipped: "+reason);warnedComposition=true; }
+                        RecordRasterOnlyHlodUsage(camera);
                         return;
                     }
                 }
@@ -919,7 +922,6 @@ namespace HybridLumenGI
                     !SystemInfo.IsFormatSupported(policyFormat,GraphicsFormatUsage.LoadStore) ||
                     // The optional world mask is the fifth surface-card attachment.
                     SystemInfo.supportedRenderTargetCount<(staticShadowmask?5:replace?4:3)) return;
-                var camera=cameraData.camera;
                 var state=GetCameraState(camera);
                 state.rasterOnlyFrame=-1;
                 state.surfaceCache.SetShadowmaskSources(maps);
@@ -948,16 +950,7 @@ namespace HybridLumenGI
                 state.receiverIdentityBufferBytes=screenBudget.IdentityBufferBytes;
                 if(!screenBudget.Fits)
                 {
-                    // This render records no GI. Keep the managed representations
-                    // selected for ordinary rendering by this same camera's pre-cull.
-                    if (ReferenceEquals(validationOwner.hlodRasterCamera, camera))
-                    {
-                        var owners = state.rasterOnlyOwners ??= new HashSet<int>();
-                        owners.Clear();
-                        foreach (var binding in validationOwner.visibleHlodBindings)
-                            if (binding != null && binding.Proxy != null) owners.Add(binding.Proxy.StableId);
-                        state.rasterOnlyFrame = Time.frameCount;
-                    }
+                    RecordRasterOnlyHlodUsage(camera);
                     if(!warnedBudget) { Debug.LogWarning("[HybridLumenGI] Texture budget cannot fit the capture buffers; this camera is skipped."); warnedBudget=true; }
                     return;
                 }
@@ -2032,6 +2025,18 @@ namespace HybridLumenGI
                 state.rasterOnlyFrame = -1;
                 float farDistance = Mathf.Max(Mathf.Max(0.1f, s.nearDistance), s.farDistance);
                 state.scene.CollectHlodRaster(camera.transform.position, farDistance, visible);
+            }
+            private void RecordRasterOnlyHlodUsage(Camera camera)
+            {
+                // A render skipped before scene preparation still has ordinary raster readers.
+                // Use this camera's actual pre-cull selection to account for those readers.
+                if (!ReferenceEquals(validationOwner.hlodRasterCamera, camera) || !TryGetPreparedCamera(camera, out var state)) return;
+                var owners = state.rasterOnlyOwners ??= new HashSet<int>();
+                owners.Clear();
+                foreach (var binding in validationOwner.visibleHlodBindings)
+                    if (binding != null && binding.Proxy != null) owners.Add(binding.Proxy.StableId);
+                state.rasterOnlyFrame = Time.frameCount;
+                if (owners.Count > 0) state.lastUsed = state.rasterOnlyFrame;
             }
             internal void ResetCameraHistory(Camera camera)
             {
