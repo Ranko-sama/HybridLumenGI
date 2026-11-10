@@ -40,7 +40,7 @@ T5／T6／G4 已关闭域外组成员被纳入普通精确对象的占槽判断�
 
 T6／G4 已关闭原生漫反射替换资格拒绝后沿用离场相机旧分页需求的路径。固定双 Base 对照保留实际普通绘制读者与另一台 GI 读者，双离场经栅栏归还页，HDR 复入取得新代次。采用限实际目标格式拒绝，普通 Player 和完整资源负载继续验收。[实测范围](../LocalComparison/Review/native-qualification-page-retirement-286/result.md)
 
-T6／G5 已关闭统一示例门平移、活动蒙皮与逐源切灯并发时的 GI 时间及 local 显存预算子项。此次应用 Present 资料不足，其他规模的最高更新负载仍开放。[同窗实测与适用范围](../LocalComparison/Review/combined-update-cost-285/result.md)
+T6／G5 已补统一示例门平移、活动蒙皮与逐源切灯并发时的应用呈交数据。Release248 同窗 GI p95 及 local 显存均达标。呈交的唯一超额间隔跨活动起点，全窗严格 30 FPS 间隔子项和其他规模的最高更新负载仍开放。[Release248 同窗实测](../LocalComparison/Review/combined-update-present-310/result.md) · [原缺测窗口](../LocalComparison/Review/combined-update-cost-285/result.md)
 
 T6／G4 已关闭相机因屏幕纹理预算跳过 GI 并离开可见域后，旧状态继续保留受管理分页组的路径。实际双 Base 对照保留域内普通读者和另一 GI 读者，离场后经原栅栏排空，复入取得新绑定。其他预算失败、普通 Player 和完整资源负载继续验收。[实测范围](../LocalComparison/Review/screen-budget-page-retirement-284/result.md)
 

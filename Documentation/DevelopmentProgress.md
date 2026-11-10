@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release248，G0 已锁定，G1／G2 本机代表性验收通过
 
+T6／G5 已补齐门平移、活动蒙皮和逐帧切灯并发时的应用呈交证据。Release248 同一 DXR 窗口的 GI p95 为 17.198 ms，进程 local 采样峰值为 573.691 MiB，两项达标。应用呈交 p95 为 21.443 ms，唯一 37.428 ms 的间隔跨过活动窗口起点。全窗严格 30 FPS 间隔子项保持开放。[同窗实测及适用范围](../LocalComparison/Review/combined-update-present-310/result.md)
+
 T2／第 9 节关闭了两条错误传输路径。近共面屏幕表面在已知 GameObject 层不同的情况下拒绝借用另一表面的世界缓存，固定线性绿色贡献从 0.50 降为 0。普通 Lit 的视差覆盖在有效顶点帧下恢复，完整命中仍检查法线贴图所需的片元切线基。两项采用限实际 WARP 着色器对照。Release248 附同源普通 Win64 构建与可编辑工程。[屏幕与世界匹配](../LocalComparison/Review/screen-world-layer-308/result.md) · [视差裁剪](../LocalComparison/Review/lit-parallax-coverage-309/result.md) · [同源交付](../LocalComparison/Review/screen-world-layer-308/delivery.json)
 
 T6／G4 已关闭双 Base 相机达到容量上限时旧状态提前释放的问题。实际驱逐入口的受控对照中，旧状态退出活动列表后仍保留至完成，待建树轮次立即撤回。返回相机从新历史开始，旧代几何额度按原退休归还。双相机原生显存峰值继续验收。[驱逐对照](../LocalComparison/Review/camera-capacity-retirement-307/result.md) · [Release247 同源交付](../LocalComparison/Review/camera-capacity-retirement-307/delivery.json)

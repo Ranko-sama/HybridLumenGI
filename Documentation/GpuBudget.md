@@ -4,7 +4,7 @@ Release108 的屏幕预算根据该相机实际执行的空间滤波级数计入
 
 ## 当前已确认的起始验收目标
 
-Release233 同源普通 Player 在默认近景同时运行门平移、两骨蒙皮和逐源切灯。35 秒实际 DXR 窗的三段 GI 合计 p95／p99 为 16.572／17.564 ms，进程 local／nonlocal 采样峰值为 580.316／304.688 MiB，达到原 25 ms／1 GiB 门槛。PresentMon 丢事件且未生成 CSV，此并发负载的应用呈交继续验收。[同窗预算与范围](../LocalComparison/Review/combined-update-cost-285/result.md)
+Release248 同源普通 Player 在默认近景同时运行门平移、两骨蒙皮和逐源切灯。35 秒实际 DXR 窗的三段 GI 合计 p95／p99 为 17.198／18.410 ms，进程 local／nonlocal 采样峰值为 573.691／302.914 MiB。Unity 应用呈交间隔 p95／p99 为 21.443／23.937 ms。唯一超过 33.333 ms 的间隔为跨窗口起点的 37.428 ms，保留在全窗判定中。此前 Release233 的 GI 与显存依据沿用其原窗口，ETW 缺少呈交数据。[Release248 同窗结果](../LocalComparison/Review/combined-update-present-310/result.md) · [Release233 原记录](../LocalComparison/Review/combined-update-cost-285/result.md)
 
 新的三角 BVH 分组在 Release227 同源固定近景将软件 GI 合计 p95／p99 从 45.465／45.885 ms 降到 37.060／37.574 ms。local 有限采样峰值 552.512 MiB，满足 1 GiB 门槛。软件仍超出 25 ms，动态重建成本和其他负载继续按原条件验收。[分组实测与范围](../LocalComparison/Review/software-bvh-sah-291/result.md)
 
