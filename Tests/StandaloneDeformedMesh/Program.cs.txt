@@ -1034,14 +1034,35 @@ static class Program
     }
     static void CancelledCleanupFailure()
     {
-        OpenNewSession();Defaults();var owner=Add(350);Frame();Started(350);var pending=PendingMesh(owner);
-        Disable(owner);Finish(owner,350);long held=HybridLumenGIDeformedMesh.ReservedBytes;CoreUtils.FailDestroy=pending;
-        // Completion arrives after idle, before the normal context callback: this must
-        // retain failed ownership just like the shutdown-specific polling path.
-        Frame();Require(Job(owner)!=null&&HybridLumenGIDeformedMesh.FailedCleanupCount==1&&HybridLumenGIDeformedMesh.ReservedBytes==held,"Cancelled cleanup failure lost worker ownership/accounting");
+        OpenNewSession();Defaults();HybridLumenGIDeformedMesh.MaximumWorkers=1;
+        var owner=Add(350);Frame();Started(350);
+        var failedJob=Job(owner);var pending=PendingMesh(owner);
+        long held=HybridLumenGIDeformedMesh.ReservedBytes;
+        Disable(owner);
+        var healthy=Add(351);Frame();
+        Require(Job(healthy)==null&&HybridLumenGIDeformedMesh.ReservedBytes==held,
+            "A still-running cancelled worker released its capture slot early.");
+
+        Finish(owner,350);CoreUtils.FailDestroy=pending;
+        // Complete between render callbacks so ordinary BeginContext performs cleanup.
+        Frame();
+        Require(ReferenceEquals(Job(owner),failedJob)&&HybridLumenGIDeformedMesh.FailedCleanupCount==1&&!pending.Destroyed,
+            "Cancelled cleanup failure lost the private snapshot owner.");
+        Require(Job(healthy)!=null,"Completed failed-cleanup job blocked another owner at MaximumWorkers=1.");
+        Started(351);var healthyMesh=PendingMesh(healthy);
+        Require(HybridLumenGIDeformedMesh.ReservedBytes>held,"Healthy capture lost the failed owner's held reservation.");
+
+        owner.component.enabled=true;
+        typeof(HybridLumenGIDeformedMesh).GetMethod("OnEnable",PrivateInstance).Invoke(owner.component,null);
+        Finish(healthy,351);Frame();PublishedTogether(healthy,healthyMesh,351);
+        Require(ReferenceEquals(Job(owner),failedJob)&&HybridLumenGIDeformedMesh.PendingWorkerCount==1,
+            "The failed owner recaptured despite its retained private snapshot.");
+        Disable(owner);Disable(healthy);DrainCompletedRetirements();
         HybridLumenGIResourceRetirement.IdleUpdate();Frame();OpenNewSession();Frame();
-        Require(CoreUtils.FailedDestroyAttempts==1&&!pending.Destroyed&&Job(owner)!=null,"Failed cleanup was retried or cleared in a new session");
-        CoreUtils.FailDestroy=null;Console.WriteLine("PASS: cancelled worker native cleanup failure through normal BeginContext retains job/reservation and is never retried, including after new-session initialization.");
+        Require(CoreUtils.FailedDestroyAttempts==1&&!pending.Destroyed&&ReferenceEquals(Job(owner),failedJob)&&
+            HybridLumenGIDeformedMesh.ReservedBytes==held,"Failed cleanup was retried or lost ownership or bytes across sessions.");
+        CoreUtils.FailDestroy=null;
+        Console.WriteLine("PASS: with one worker slot, cancellation retains the slot until completion, and a failed cleanup then retains ownership and bytes while another owner captures and publishes.");
     }
     static void UnknownSubmissionIsNotRepaired()
     {

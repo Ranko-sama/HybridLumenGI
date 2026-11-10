@@ -232,13 +232,19 @@ namespace HybridLumenGI
             double publicationBudget = PublicationBudgetMillisecondsPerFrame;
             bool publicationTimeLimited = publicationBudget > 0 && !double.IsNaN(publicationBudget) && !double.IsInfinity(publicationBudget);
             double publicationMilliseconds = 0;
-            int overBudgetCompletions = 0;
+            int occupiedCaptureSlots = 0;
             // Spend publication quota in capture order so repeated new completions
             // cannot starve an older ready snapshot. Unfinished work is still skipped.
             for(int i=0;i<Jobs.Count;i++)
             {
-                Job job=Jobs[i];if(job.cleanupFailed)continue;
-                if(!job.work.IsCompleted)continue;
+                Job job=Jobs[i];
+                // A failed cleanup retains ownership and bytes, but the worker has finished.
+                if(job.cleanupFailed)continue;
+                if(!job.work.IsCompleted)
+                {
+                    occupiedCaptureSlots++;
+                    continue;
+                }
                 bool current=job.owner!=null && job.owner.isActiveAndEnabled && job.owner.generation==job.generation &&
                     job.source!=null && ReferenceEquals(job.owner.source,job.source) && !job.cancellation.IsCancellationRequested &&
                     BakedSourceIsCurrent(job.snapshot,job.source);
@@ -250,7 +256,7 @@ namespace HybridLumenGI
                 {
                     // Keep the snapshot and its memory reservation. A finished job that
                     // cannot fit even in a fresh frame need not occupy a capture slot.
-                    if (upload > uploadBudget) overBudgetCompletions++;
+                    if (upload <= uploadBudget) occupiedCaptureSlots++;
                     job.owner.Status = "Snapshot ready; upload budget pending";
                     continue;
                 }
@@ -264,6 +270,7 @@ namespace HybridLumenGI
                 }
                 if (publicationTimeLimited && publicationMilliseconds >= publicationBudget)
                 {
+                    occupiedCaptureSlots++;
                     job.owner.Status = "Snapshot ready, publication time budget pending";
                     continue;
                 }
@@ -316,7 +323,7 @@ namespace HybridLumenGI
             double captureMilliseconds=0;
             int vertexBudget=Math.Max(0,VertexBudgetPerFrame);
             int verticesLeft=vertexBudget,visits=Active.Count,firstVertexWaiter=-1;
-            while (visits-- > 0 && Active.Count > 0 && Jobs.Count - overBudgetCompletions < Math.Max(0, MaximumWorkers))
+            while (visits-- > 0 && Active.Count > 0 && occupiedCaptureSlots < Math.Max(0, MaximumWorkers))
             {
                 // Leave the next owner's turn and demand untouched. At least one
                 // otherwise eligible capture can start even with a very small allowance.
@@ -417,7 +424,7 @@ namespace HybridLumenGI
                         result.charts=HybridLumenGISurfaceCharts.BakeTriangles(positions,submeshes,frozenSettings,out _,Continue);
                         return cancellation.IsCancellationRequested?null:result;
                     });
-                    Jobs.Add(job);owner.PendingFrame=Time.frameCount;
+                    Jobs.Add(job);occupiedCaptureSlots++;owner.PendingFrame=Time.frameCount;
                     owner.requested=false;owner.Status="Captured; SDF/chart worker pending";
                 }
                 catch(Exception ex) { next.Destroy();owner.Status="Geometry capture failed: "+ex.GetType().Name; }
