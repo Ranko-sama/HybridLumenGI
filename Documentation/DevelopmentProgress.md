@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release234，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release235，G0 已锁定，G1／G2 本机代表性验收通过
+
+T5／T6／G4 已关闭域外组占槽上界使精确细节提前退出的缺口。实际双 Base 争用时，主相机保留旧细节、普通精确物体和 DXR，下一轮用原图卡及原照明代次发布粗根。采用限本次热态世界接替，冷高速首显与普通光栅继续验收。[实机前后对照](../LocalComparison/Review/hlod-outside-group-handoff-288/result.md) · [Release235 同源交付](../LocalComparison/Review/hlod-outside-group-handoff-288/delivery.json)
 
 T6／G4 已关闭原生漫反射替换资格拒绝后，离场的 Base 相机继续保留管理页的缺口。双 Base 实机切换非 HDR 目标后，普通绘制与另一台 GI 相机的有效读者都得到保留。两台离场后按原栅栏归还页，恢复 HDR 后按新代次重新显示。采用限固定 DX12 Editor 目标格式输入，普通 Player 的该路径继续验收。[实机对照与边界](../LocalComparison/Review/native-qualification-page-retirement-286/result.md) · [Release234 同源交付](../LocalComparison/Review/native-qualification-page-retirement-286/delivery.json)
 
