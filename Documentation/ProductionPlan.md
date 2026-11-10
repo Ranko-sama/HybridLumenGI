@@ -364,6 +364,8 @@ owner 的三项直接光策略变化提升传输版本并触发局部 reactive�
 
 固定普通 Lit 发光面的背面行为已有 Release254 双后端实机依据。Cull Back 从正面取得红色源发光，背面未命中。Cull Off 的正反面均取得同一蓝色源发光。采用限该静态双槽输入的实际精确命中与 Le，面积采样及整景照明继续各自验收。[背面发光读回](../LocalComparison/Review/backface-emission-320/result.md)
 
+Release256 在相同静态双槽网格上补齐了一个固定面积源点的原生可见性依据。生产 CDF 采样后的无遮挡蓝光贡献和命中反求 PDF 与解析预期一致。实际近板遮挡时两后端均返回已知零。采用限不透明面、固定内部点和纯余弦方向采样。屏幕竞争、带贴图或裁剪的面积端点及整景估计继续验收。[源点与解析对照](../LocalComparison/Review/native-area-sample-323/result.md)
+
 额外材质槽能重复绘制末子网格时，精确软件与 DXR 都改用原有后备表示。录制前也会核对槽布局。普通 Lit 两板实机中，尾槽覆盖近板时，两后端改为命中其解析代理，撤槽后恢复原精确候选。该证据覆盖资格和后备遮挡，完整叠绘着色继续验收。[原生与混合查询对照](../LocalComparison/Review/extra-material-slots-235/result.md)
 
 Release151 的真实 DXR 与 Release167 的精确软件 BVH 分别在同组固定几何中验证了 16³ 有符号 SDF 的最近命中合并。较近盒面胜过远三角，另一条射线保留更近的三角。普通相机画面和其他混合输入继续验收。[DXR 读回](../LocalComparison/Review/native-dxr-signed-sdf-169/result.md) · [精确软件读回](../LocalComparison/Review/software-signed-sdf-193/result.md)

@@ -2,6 +2,8 @@
 
 ## 当前总进度　Release256，G0 已锁定，G1／G2 本机代表性验收通过
 
+T2／第 9 节补齐固定不透明 Lit 源点的原生面积采样与可见性。生产 CDF、软件 BVH 和 DXR 同源运行，无遮挡贡献和反求 PDF 匹配解析参考，近板遮挡时返回已知零。整景照明及方差继续按原范围验收。[Release256 双后端实机对照](../LocalComparison/Review/native-area-sample-323/result.md)
+
 T3／G3 已关闭相机换尺寸或身份模式时分配半成品导致同参数无法重试的问题。整套新历史创建后才提交，旧代保留至现有完成门。受控对照覆盖迟发分配失败、原配置重试、模式单独切换和两份旧代分别退账。修复已进入 Release256。[屏幕历史换代对照](../LocalComparison/Review/screen-history-reconfigure-322/result.md) · [Release256 同源交付](../LocalComparison/Review/screen-history-reconfigure-322/delivery.json)
 
 T2／第 9 节已关闭 GameObject 层相同、已知 Rendering Layer 不同的近共面表面错误借光。实际 HLSL 受控对照保留前板自身出射，剔除借自后板的线性绿色 0.50。相同遮罩与无 Renderer 默认遮罩控制继续匹配。修复已进入 Release255 普通 Win64 与同源工程包。[同源匹配对照](../LocalComparison/Review/screen-rendering-layer-321/result.md) · [Release255 交付](../LocalComparison/Review/screen-rendering-layer-321/delivery.json)
