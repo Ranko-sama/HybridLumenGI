@@ -55,8 +55,14 @@ public static class HybridLumenGIMeshSdfBake
     {
         private struct Triangle
         {
-            public Vector3 a, b, c, centroid;
+            public Vector3 a, b, c, ab, ac, centroid;
             public Bounds bounds;
+        }
+        private struct ParityTriangle
+        {
+            public Vector3 perpendicular;
+            public float inverseDeterminant;
+            public bool usable;
         }
         private struct Node
         {
@@ -69,6 +75,7 @@ public static class HybridLumenGIMeshSdfBake
             public int Compare(Triangle a, Triangle b) => a.centroid[axis].CompareTo(b.centroid[axis]);
         }
         private readonly Triangle[] triangles;
+        private readonly ParityTriangle[] parityA, parityB, parityC;
         private readonly List<Node> nodes = new List<Node>();
         private readonly TriangleComparer comparer = new TriangleComparer();
         private static readonly Vector3 DirectionA = new Vector3(1f, 0.37213f, 0.69431f).normalized;
@@ -88,15 +95,24 @@ public static class HybridLumenGIMeshSdfBake
             for (int i = 0; i + 2 < indices.Length; i += 3)
             {
                 Vector3 a = vertices[indices[i]], b = vertices[indices[i + 1]], c = vertices[indices[i + 2]];
-                if (Vector3.Cross(b - a, c - a).sqrMagnitude < 1e-20f) continue;
+                Vector3 ab = b - a, ac = c - a;
+                if (Vector3.Cross(ab, ac).sqrMagnitude < 1e-20f) continue;
                 Bounds triangleBounds = new Bounds(a, Vector3.zero);
                 triangleBounds.Encapsulate(b);
                 triangleBounds.Encapsulate(c);
-                valid.Add(new Triangle { a = a, b = b, c = c, centroid = (a + b + c) / 3f, bounds = triangleBounds });
+                valid.Add(new Triangle { a = a, b = b, c = c, ab = ab, ac = ac,
+                    centroid = (a + b + c) / 3f, bounds = triangleBounds });
             }
             if (valid.Count == 0) throw new ArgumentException("Mesh only contains degenerate triangles.");
             triangles = valid.ToArray();
             Build(0, triangles.Length);
+            if (Watertight)
+            {
+                // Prepare after sorting so each coefficient uses the final leaf index.
+                parityA = PrepareParity(DirectionA);
+                parityB = PrepareParity(DirectionB);
+                parityC = PrepareParity(DirectionC);
+            }
         }
 
         private int Build(int start, int count)
@@ -121,39 +137,59 @@ public static class HybridLumenGIMeshSdfBake
             return index;
         }
 
-        public float NearestDistanceSquared(Vector3 point) => Nearest(0, point, float.PositiveInfinity);
-        private float Nearest(int index, Vector3 point, float best)
+        public float NearestDistanceSquared(Vector3 point) =>
+            Nearest(0, point, float.PositiveInfinity, nodes[0].bounds.SqrDistance(point));
+
+        private float Nearest(int index, Vector3 point, float best, float boundDistance)
         {
+            if (boundDistance >= best) return best;
             Node node = nodes[index];
-            if (node.bounds.SqrDistance(point) >= best) return best;
             if (node.count != 0)
             {
                 for (int i = node.start; i < node.start + node.count; i++)
-                    best = Mathf.Min(best, TriangleDistanceSquared(point, triangles[i]));
+                    best = Mathf.Min(best, TriangleDistanceSquared(point, in triangles[i]));
                 return best;
             }
-            int first = node.left, second = node.right;
-            if (nodes[first].bounds.SqrDistance(point) > nodes[second].bounds.SqrDistance(point))
-            { int swap = first; first = second; second = swap; }
-            return Nearest(second, point, Nearest(first, point, best));
+            float leftDistance = nodes[node.left].bounds.SqrDistance(point);
+            float rightDistance = nodes[node.right].bounds.SqrDistance(point);
+            if (leftDistance > rightDistance)
+                return Nearest(node.left, point, Nearest(node.right, point, best, rightDistance), leftDistance);
+            return Nearest(node.right, point, Nearest(node.left, point, best, leftDistance), rightDistance);
         }
 
         public bool IsInside(Vector3 point)
         {
             // Majority parity reduces shared-edge/vertex degeneracy from any single ray direction.
-            int votes = (Crossings(0, point, DirectionA) & 1) + (Crossings(0, point, DirectionB) & 1);
+            int votes = (Crossings(0, point, DirectionA, parityA) & 1) + (Crossings(0, point, DirectionB, parityB) & 1);
             if (votes == 0) return false;
             if (votes == 2) return true;
-            return (Crossings(0, point, DirectionC) & 1) != 0;
+            return (Crossings(0, point, DirectionC, parityC) & 1) != 0;
         }
 
-        private int Crossings(int index, Vector3 origin, Vector3 direction)
+        private ParityTriangle[] PrepareParity(Vector3 direction)
+        {
+            var prepared = new ParityTriangle[triangles.Length];
+            for (int i = 0; i < triangles.Length; i++)
+            {
+                ref readonly Triangle triangle = ref triangles[i];
+                Vector3 perpendicular = Vector3.Cross(direction, triangle.ac);
+                float determinant = Vector3.Dot(triangle.ab, perpendicular);
+                if (Mathf.Abs(determinant) < 1e-12f) continue;
+                prepared[i] = new ParityTriangle { perpendicular = perpendicular,
+                    inverseDeterminant = 1f / determinant, usable = true };
+            }
+            return prepared;
+        }
+
+        private int Crossings(int index, Vector3 origin, Vector3 direction, ParityTriangle[] parity)
         {
             Node node = nodes[index];
             if (!RayBounds(origin, direction, node.bounds)) return 0;
-            if (node.count == 0) return Crossings(node.left, origin, direction) + Crossings(node.right, origin, direction);
+            if (node.count == 0)
+                return Crossings(node.left, origin, direction, parity) + Crossings(node.right, origin, direction, parity);
             int count = 0;
-            for (int i = node.start; i < node.start + node.count; i++) if (RayTriangle(origin, direction, triangles[i])) count++;
+            for (int i = node.start; i < node.start + node.count; i++)
+                if (RayTriangle(origin, direction, in triangles[i], in parity[i])) count++;
             return count;
         }
 
@@ -168,26 +204,23 @@ public static class HybridLumenGIMeshSdfBake
             return far >= Mathf.Max(near, 0f);
         }
 
-        private static bool RayTriangle(Vector3 origin, Vector3 direction, Triangle triangle)
+        private static bool RayTriangle(Vector3 origin, Vector3 direction, in Triangle triangle, in ParityTriangle parity)
         {
-            Vector3 edge1 = triangle.b - triangle.a, edge2 = triangle.c - triangle.a;
-            Vector3 p = Vector3.Cross(direction, edge2);
-            float determinant = Vector3.Dot(edge1, p);
-            if (Mathf.Abs(determinant) < 1e-12f) return false;
-            float inverse = 1f / determinant;
+            if (!parity.usable) return false;
+            float inverse = parity.inverseDeterminant;
             Vector3 t = origin - triangle.a;
-            float u = Vector3.Dot(t, p) * inverse;
+            float u = Vector3.Dot(t, parity.perpendicular) * inverse;
             if (u < 0f || u > 1f) return false;
-            Vector3 q = Vector3.Cross(t, edge1);
+            Vector3 q = Vector3.Cross(t, triangle.ab);
             float v = Vector3.Dot(direction, q) * inverse;
-            return v >= 0f && u + v <= 1f && Vector3.Dot(edge2, q) * inverse > 1e-7f;
+            return v >= 0f && u + v <= 1f && Vector3.Dot(triangle.ac, q) * inverse > 1e-7f;
         }
 
         // Closest point regions from Ericson, Real-Time Collision Detection, section 5.1.5.
-        private static float TriangleDistanceSquared(Vector3 point, Triangle triangle)
+        private static float TriangleDistanceSquared(Vector3 point, in Triangle triangle)
         {
             Vector3 a = triangle.a, b = triangle.b, c = triangle.c;
-            Vector3 ab = b - a, ac = c - a, ap = point - a;
+            Vector3 ab = triangle.ab, ac = triangle.ac, ap = point - a;
             float d1 = Vector3.Dot(ab, ap), d2 = Vector3.Dot(ac, ap);
             if (d1 <= 0f && d2 <= 0f) return ap.sqrMagnitude;
             Vector3 bp = point - b;

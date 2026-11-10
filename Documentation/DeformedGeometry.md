@@ -14,6 +14,8 @@
 
 Mesh、SDF、捕获网格和 charts 全部生成成功后，以同一不可变快照替换。Proxy、Scene、SdfAtlas、SurfaceCache 与软件/DXR 三角准备共同读取该来源；不把更新后的 Skinned 绘制与旧 charts 混用。发布触发几何版本及局部缓存失效。这里的发布是 CPU 表示切换，GPU atlas 上传、材质捕获和 HLOD 初始化仍经过原就绪流程。形变更新有采样间隔与处理延迟，不承诺逐动画帧即时重建。
 
+共用 SDF 烘焙核复用最近距离遍历的子包围盒距离和冻结三角边。闭合网格额外预计算三个原判内方向的交点不变量。默认两骨门固定 15° 的 SDF32 同输入 Unity CPU 对照中，完整烘焙中位由 135.317 ms 降到 99.627 ms，边界一致，全部体素逐位一致。采用范围为 SDF 核成本，完整形变发布和 GPU 消费延迟继续按原条件验收。[固定门姿对照](../LocalComparison/Review/deformed-sdf-bake-289/result.md)
+
 Release231 沿用 Release154 的单三角和两条固定射线，观察到实际 DXR 从初始自动 `BakeMesh` 快照切到改骨后的版本。旧射线变为已知未命中，另一条以当前几何版本命中新姿态。采用限于这个 DX12 Editor 输入。普通 Player 的画质与形变消费延迟继续验收。[新姿态读回](../LocalComparison/Review/skinned-dxr-pose-282/result.md) · [Release154 初始读回](../LocalComparison/Review/native-skinned-hit-175/result.md)
 
 `BakeMesh` 快照绑定捕获时的 `SkinnedMeshRenderer.sharedMesh`。帧级渲染准备会撤回已失效的快照并取消旧作业。Release130 也在相机读取世界表示前复核来源，覆盖 `beginContextRendering` 后在 `beginCameraRendering` 替换或清空网格的情况。已提交读者保留旧快照直到退休栅栏完成，取消的后台作业在实际结束后清理。替换网格沿用每帧的捕获和发布预算。显式可读网格继续遵循各自的请求与合并规则。
