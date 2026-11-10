@@ -1,6 +1,8 @@
 # 完整原计划推进表
 
-## 当前总进度　Release249，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release250，G0 已锁定，G1／G2 本机代表性验收通过
+
+T4／第 8 节已关闭普通 Lit 图卡在插值切线近抵消时的错误视差覆盖。实际 DX12 同一纹素的透明输入从有效标记 529 改为 0，实心对照两版仍有效。采用限该图卡材质输入，其他材质与整景质量继续各自验收。[实际图卡对照](../LocalComparison/Review/card-parallax-312/result.md) · [Release250 同源交付](../LocalComparison/Review/card-parallax-312/delivery.json)
 
 T5／T6／G4 已关闭正余额不足时的热态 HLOD 提前接替。实际双 Base 中首相机扣 6 个三角积分后剩 1 个。主相机保留完整旧组和 DXR，下一帧按原队列扣 2 个积分并在同一照明代次接替。采用限可从当前槽位计算完整 RTAS 工作的条件。[实机对照](../LocalComparison/Review/hlod-positive-credits-311/result.md) · [Release249 同源交付](../LocalComparison/Review/hlod-positive-credits-311/delivery.json)
 
