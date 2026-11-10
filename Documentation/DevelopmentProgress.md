@@ -1,6 +1,10 @@
 # 完整原计划推进表
 
-## 当前总进度　Release256，G0 已锁定，G1／G2 本机代表性验收通过
+## 当前总进度　Release257，G0 已锁定，G1／G2 本机代表性验收通过
+
+T6／G4 已关闭低额度开帧丢弃仍有效的整页贴图等待。实际 Batch／Pool 的交替额度对照确认，后序相机在恢复帧取得完整的 2 MiB 复制，低帧小页继续录制，缺席的轮次过期。修复已整合进 Release257。[上传对照](../LocalComparison/Review/frame-start-texture-quota-325/result.md) · [同源交付](../LocalComparison/Review/frame-start-texture-quota-325/delivery.json)
+
+T4／第 8 节已补齐固定热态下全裁剪必需图卡的发布门。实际 DXR 回读发现粗根第二张图卡无覆盖，两个近景细节继续发布。只恢复该材质 alpha 后，粗根取得新初始化票据并完整接替。极小图卡、冷入与其他覆盖条件继续验收。[Release256 实机结果](../LocalComparison/Review/hlod-clipped-chart-324/result.md)
 
 T2／第 9 节补齐固定不透明 Lit 源点的原生面积采样与可见性。生产 CDF、软件 BVH 和 DXR 同源运行，无遮挡贡献和反求 PDF 匹配解析参考，近板遮挡时返回已知零。整景照明及方差继续按原范围验收。[Release256 双后端实机对照](../LocalComparison/Review/native-area-sample-323/result.md)
 
