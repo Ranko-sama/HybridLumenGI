@@ -4,6 +4,10 @@
 
 G0 本机基线已锁定。原第 6 节 G1 传输与 G2 几何的本机代表性验收已通过，G3–G5 及第 8／9 节专项保持开放。T1 已完成，T2–T7 的其余条件继续推进。[G1 采用依据](ProductionPlan.md#g1本机代表性传输验收裁决) · [Release254 同源交付](../LocalComparison/Review/feature-disable-retirement-317/delivery.json)
 
+T2／第 9 节已关闭已知 Rendering Layer 不同的近共面表面错误匹配。实际屏幕出射对照拒绝后板缓存，同时保留合法同策略匹配及无 Renderer 默认值的后备。整景画质继续验收。[同源匹配对照](../LocalComparison/Review/screen-rendering-layer-321/result.md)
+
+T2／第 9 节已关闭固定静态双槽 Lit 的精确背面发光代表子项。软件 BVH 和 DXR 均取得来源明确的 Cull Back 正面红光和 Cull Off 双面蓝光，Cull Back 背面均未命中。面积采样及整景画面继续验收。[双后端实机对照](../LocalComparison/Review/backface-emission-320/result.md)
+
 T6／G4 已关闭 Renderer Feature 持续停用后旧相机的共享 RTAS 预约长期阻塞其他 Renderer 的问题。旧相机按 120 帧缓存期限进入退休，受控完成后同一请求得到准入。该修复已进入 Release254。[停用与准入对照](../LocalComparison/Review/feature-disable-retirement-317/result.md)
 
 T6／G4 已关闭图卡图集运行中重配时提前释放和分配失败后错误复用的问题。完整新代提交后，旧代按已有完成条件归还。受控回归确认失败后可以重试，同一相机的多代图集分别退账。原生峰值与生产负载仍按原条件验收。[重配与回滚对照](../LocalComparison/Review/surface-atlas-reconfigure-316/result.md)

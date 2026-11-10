@@ -24,7 +24,8 @@ void PoliciesMatch()
     {
         var cpu=scene.LightingPolicies[i];var gpu=(HybridLumenGIScene.LightingPolicyData)scene.LightingPolicyBuffer.Data[i];
         Require(cpu.Equals(gpu),"GPU policy snapshot differs from CPU slot.");
-        Require(cpu.reserved==0,"Policy reserved field not zero.");
+        bool hasSourceRenderer = scene.Data[i].identity.w != 0 && scene.GetRenderer(i) != null;
+        Require(cpu.reserved == (hasSourceRenderer ? 8u : 0u), "Policy mask provenance differs from the source Renderer.");
         if(scene.Data[i].identity.w==0)Require(cpu.Equals(default(HybridLumenGIScene.LightingPolicyData)),"Absent/pending slot leaked old policy.");
     }
     Require(scene.Buffer.Uploads.SequenceEqual(scene.LightingPolicyBuffer.Uploads),"Scene and policy uploads did not use identical dirty spans.");

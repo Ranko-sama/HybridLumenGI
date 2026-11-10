@@ -1,0 +1,82 @@
+{
+  "status": "passed",
+  "baseline": "ffae7a1d6811ce8993708b363328b8fb4aefcbbc",
+  "scope": "Actual screen-world match and TraceScreen with fixed captured policy, probe hit, direct and cache adapters",
+  "observations": [
+    {
+      "input": "Different known renderer masks, owner mask is zero",
+      "gameObjectLayerBit": 2,
+      "screenRenderingMask": 8,
+      "ownerRenderingMask": 0,
+      "ownerPolicyFlags": 8,
+      "separationMetres": 0.01,
+      "before": [
+        0.25,
+        0.5,
+        0.0,
+        1.0
+      ],
+      "after": [
+        0.25,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "screenHitDistance": 1.0,
+      "cacheReads": [
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "input": "Same known renderer mask",
+      "gameObjectLayerBit": 2,
+      "screenRenderingMask": 8,
+      "ownerRenderingMask": 8,
+      "ownerPolicyFlags": 8,
+      "separationMetres": 0,
+      "before": [
+        0.25,
+        0.5,
+        0.0,
+        1.0
+      ],
+      "after": [
+        0.25,
+        0.5,
+        0.0,
+        1.0
+      ],
+      "screenHitDistance": 1.0,
+      "cacheReads": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "input": "Rendererless fallback with default mask",
+      "gameObjectLayerBit": 2,
+      "screenRenderingMask": 8,
+      "ownerRenderingMask": 1,
+      "ownerPolicyFlags": 0,
+      "separationMetres": 0,
+      "before": [
+        0.25,
+        0.5,
+        0.0,
+        1.0
+      ],
+      "after": [
+        0.25,
+        0.5,
+        0.0,
+        1.0
+      ],
+      "screenHitDistance": 1.0,
+      "cacheReads": [
+        1.0,
+        1.0
+      ]
+    }
+  ]
+}

@@ -65,7 +65,9 @@ namespace HybridLumenGI
             // The fourth word retains its public field name. Bit 0 disables received
             // realtime shadows for a uniform Lit fallback. Bits 1/2 identify an assigned
             // static shadowmask and whether the card draw can reproduce its UVs.
+            // Bit 3 marks a rendering-layer mask read from the source Renderer.
             public uint objectLayerBit, renderingLayerMask, shadowCastingMode, reserved;
+            internal const uint RendererLayerKnown = 8u;
         }
 
         public const int Stride = 80;
@@ -1039,7 +1041,8 @@ namespace HybridLumenGI
                 renderingLayerMask = renderer != null ? renderer.renderingLayerMask : 1u,
                 shadowCastingMode = (uint)(renderer != null ? renderer.shadowCastingMode : ShadowCastingMode.On),
                 reserved = (proxy.UniformShadowsOff ? 1u : 0u) | (proxy.BakedShadowSource.textureId != 0 ? 2u : 0u) |
-                    (proxy.BakedShadowSource.captureUv ? 4u : 0u)
+                    (proxy.BakedShadowSource.captureUv ? 4u : 0u) |
+                    (renderer != null ? LightingPolicyData.RendererLayerKnown : 0u)
             };
         }
 
